@@ -294,6 +294,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
 @media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
 </style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
 </head>
 <body>
 
@@ -447,6 +458,54 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <h3>二元樹（Binary Tree）</h3>
   <p>本章我們專注於每個節點最多有<strong>兩個子節點</strong>的樹，稱為二元樹。我們特別命名為 <code>leftChild</code> 和 <code>rightChild</code>，這個順序在解析樹（運算子的左右運算元）和 BST（小的在左、大的在右）中是有語義的。</p>
+
+<h3 id="dx-voc">講義完整範例：BinaryTree 與解析樹的使用畫面</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 09 · BinaryTree 基本操作</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"binarytree.hpp"</span><span class="com">   // 本節的完整類別</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    BinaryTree aTree(<span class="str">"</span><span class="str">a</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; aTree.getRootVal() &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; aTree.getLeftChild() &lt;&lt; endl;      <span class="com">// NULL 印出來是 0</span>
+<span class="line"></span>    aTree.insertLeft(<span class="str">"</span><span class="str">b</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; aTree.getLeftChild()-&gt;getRootVal() &lt;&lt; endl;</span>
+<span class="line">    aTree.insertRight(<span class="str">"</span><span class="str">c</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; aTree.getRightChild()-&gt;getRootVal() &lt;&lt; endl;</span>
+<span class="line">    aTree.getRightChild()-&gt;setRootVal(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; aTree.getRightChild()-&gt;getRootVal() &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a
+0
+b
+c
+hello</pre></div>
+  <p class="dx-note">getLeftChild() 回傳的是<strong>整棵左子樹</strong>（BinaryTree*），不只是值：所以能一路 -&gt; 下去操作任何深度的節點。insertLeft 若遇到既有左子樹，會把它「往下推」成新節點的左子樹。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 09 · 解析樹：建樹、求值、還原</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"binarytree.hpp"</span><span class="com">   // buildParseTree + evaluate + printExp</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line">    inorder(pt);                      <span class="com">// 中序走訪：印回運算式的骨架</span>
+<span class="line"></span>    cout &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; evaluate(pt) &lt;&lt; endl;     <span class="com">// 後序邏輯：先算子樹再套運算子</span>
+<span class="line"></span>    cout &lt;&lt; printExp(pt) &lt;&lt; endl;     <span class="com">// 中序＋括號還原</span>
+<span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3 + 4 * 5 
+23
+((3)+((4)*(5)))</pre></div>
+  <p class="dx-note">三個函式就是三種走訪的應用：inorder 印骨架（但括號不見了）、evaluate 是後序（算 4*5=20 再算 3+20）、printExp 是中序加括號（每個子樹都包一層，連葉節點也包）。課後練習：改 printExp，讓葉節點不要包括號，輸出變成 (3+(4*5))。</p>
+</div>
 </section>
 
 <!-- ============================================================ -->
@@ -835,6 +894,38 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <h3>應用：Heap Sort（堆排序）</h3>
   <p>有了 <code>heapify</code>（$O(n)$）和 $n$ 次 <code>delete-min</code>（每次 $O(\log n)$），就能寫出 $O(n \log n)$ 的排序：把所有元素丟進 heap，然後不斷 delete-min 拿出來。這是<strong>不需要額外 $O(n)$ 空間</strong>的就地排序變體（直接在原陣列上做 heap 操作）的核心。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 09 · heapify 的使用畫面＋heapSort 練習</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"binaryheap.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line">vector&lt;<span class="kw">int</span>&gt; heapSort(vector&lt;<span class="kw">int</span>&gt; unsortedList) {</span>
+<span class="line">    BinaryHeap heap;</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; sortedList;</span>
+<span class="line">    ____;                  <span class="com">// 1. O(n) 建堆</span>
+<span class="line"></span>    <span class="kw">while</span> (____) {         <span class="com">// 2. 反覆刪最小值，每次 O(log n)</span>
+<span class="line"></span>        ____;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">return</span> sortedList;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> main() {</span>
+<span class="line">    BinaryHeap aHeap;</span>
+<span class="line">    aHeap.heapify({<span class="num">10</span>, <span class="num">4</span>, <span class="num">9</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">15</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">14</span>, <span class="num">18</span>});</span>
+<span class="line">    aHeap.pri<span></span>nt();</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> x : heapSort({<span class="num">10</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">1</span>, <span class="num">15</span>, <span class="num">7</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">8</span>})) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">heapify 快照＋heapSort 完成後的輸出</span><pre>3 4 9 5 12 15 10 8 14 18 
+1 2 3 5 7 8 9 10 15 </pre></div>
+  <p class="dx-note"><span id="dx-hp"></span>第一行是 heapify 後的陣列：不是排序！只保證每個節點 ≤ 兩個小孩（3 在根、4 和 9 是它的小孩…）。把空格填完的 heapSort 才給出第二行：build 一次 O(n)，刪最小值 n 次各 O(log n)，總共 O(n log n)。</p>
+</div>
 </section>
 
 <!-- ============================================================ -->
@@ -915,6 +1006,45 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">build BST 的順序很重要</span>
     把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵漂亮的「平衡」BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。這就是下一節要解決的問題。
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 09 · BinarySearchTree 當 Map 用＋treeSort 練習</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"bst.hpp"</span><span class="com">   // TreeNode + BinarySearchTree</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line">vector&lt;string&gt; treeSort(vector&lt;string&gt; values) {</span>
+<span class="line">    BinarySearchTree bst;</span>
+<span class="line">    vector&lt;string&gt; result;</span>
+<span class="line">    ____;   <span class="com">// 1. 全部 put 進去（平均每次 O(log n)）</span>
+<span class="line"></span>    ____;   <span class="com">// 2. 中序走訪，鍵自動由小到大（O(n)）</span>
+<span class="line"></span>    <span class="kw">return</span> result;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> main() {</span>
+<span class="line">    BinarySearchTree myTree;</span>
+<span class="line">    myTree.put(<span class="str">"</span><span class="str">a</span><span class="str">"</span>, <span class="str">"</span><span class="str">a</span><span class="str">"</span>);      myTree.put(<span class="str">"</span><span class="str">q</span><span class="str">"</span>, <span class="str">"</span><span class="str">quick</span><span class="str">"</span>);</span>
+<span class="line">    myTree.put(<span class="str">"</span><span class="str">b</span><span class="str">"</span>, <span class="str">"</span><span class="str">brown</span><span class="str">"</span>);  myTree.put(<span class="str">"</span><span class="str">f</span><span class="str">"</span>, <span class="str">"</span><span class="str">fox</span><span class="str">"</span>);</span>
+<span class="line">    myTree.put(<span class="str">"</span><span class="str">j</span><span class="str">"</span>, <span class="str">"</span><span class="str">jumps</span><span class="str">"</span>);  myTree.put(<span class="str">"</span><span class="str">o</span><span class="str">"</span>, <span class="str">"</span><span class="str">over</span><span class="str">"</span>);</span>
+<span class="line">    myTree.put(<span class="str">"</span><span class="str">t</span><span class="str">"</span>, <span class="str">"</span><span class="str">the</span><span class="str">"</span>);    myTree.put(<span class="str">"</span><span class="str">l</span><span class="str">"</span>, <span class="str">"</span><span class="str">lazy</span><span class="str">"</span>);</span>
+<span class="line">    myTree.put(<span class="str">"</span><span class="str">d</span><span class="str">"</span>, <span class="str">"</span><span class="str">dog</span><span class="str">"</span>);</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; myTree.get(<span class="str">"</span><span class="str">q</span><span class="str">"</span>) &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; myTree.get(<span class="str">"</span><span class="str">l</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">There are </span><span class="str">"</span> &lt;&lt; myTree.length() &lt;&lt; <span class="str">"</span><span class="str"> items in this tree</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    myTree.remove(<span class="str">"</span><span class="str">a</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">There are </span><span class="str">"</span> &lt;&lt; myTree.length() &lt;&lt; <span class="str">"</span><span class="str"> items in this tree</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    myTree.inorder(myTree.root);   <span class="com">// 依鍵序印出 value</span>
+<span class="line"></span>    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>quick lazy
+There are 9 items in this tree
+There are 8 items in this tree
+brown dog fox jumps lazy over quick the </pre></div>
+  <p class="dx-note"><span id="dx-bst"></span>最後一行是「treeSort 現象」：中序走訪 BST，值自然按鍵排序（b、d、f、j、l、o、q、t）。把上面 treeSort 的兩個空格填完，對 {"t","a","o",…} 的輸出就是 a b d f j l o q t。這也是為什麼 std::map（紅黑樹）走訪永遠有序。</p>
+</div>
 </section>
 
 <!-- ============================================================ -->

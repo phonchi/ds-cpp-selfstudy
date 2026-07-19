@@ -318,6 +318,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
 @media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
 </style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
 </head>
 <body>
 <nav class="float-nav" id="floatNav" aria-label="章節導覽">
@@ -506,6 +517,70 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
   <div class="quiz-feedback" id="qBoolFeedback"></div>
 </div>
+
+<h3 id="dx-types">講義完整範例：把運算子親手跑一遍</h3>
+<p>下面三段是講義 01 的原始示範，值得抄進編譯器跑一次。第一段的重點是<strong>整數除法會截斷</strong>：
+兩個 int 相除結果還是 int，小數部分直接丟掉；只要有一邊是 double，就變成浮點除法。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 算術運算子與整數除法</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">cout &lt;&lt; <span class="num">2</span> + <span class="num">3</span> * <span class="num">4</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; (<span class="num">2</span> + <span class="num">3</span>) * <span class="num">4</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; pow(<span class="num">2</span>, <span class="num">10</span>) &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="num">6</span> / <span class="num">3</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="num">7</span> / <span class="num">3</span> &lt;&lt; endl;   <span class="com">// 整數除法：截斷！</span>
+<span class="line"></span>cout &lt;&lt; <span class="num">7.0</span> / <span class="num">3</span> &lt;&lt; endl; <span class="com">// 有一個 double，就是浮點除法</span>
+<span class="line"></span>cout &lt;&lt; <span class="num">7</span> % <span class="num">3</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; pow(<span class="num">2</span>, <span class="num">100</span>) &lt;&lt; endl; <span class="com">// double 的近似值，不是精確整數</span>
+<span class="line"></span></span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>14
+20
+1024
+2
+2
+2.33333
+1
+1.26765e+30</pre></div>
+  <p class="dx-note">pow() 回傳 double：2<sup>100</sup> 印出來是 1.26765e+30 這種科學記號近似值，不是精確整數。要大整數得另找函式庫。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 比較運算子與一個大陷阱</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">cout &lt;&lt; boolalpha;</span>
+<span class="line">cout &lt;&lt; (<span class="num">5</span> == <span class="num">10</span>) &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; (<span class="num">10</span> &gt; <span class="num">5</span>) &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; ((<span class="num">5</span> &gt;= <span class="num">1</span>) &amp;&amp; (<span class="num">5</span> &lt;= <span class="num">10</span>)) &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; ((<span class="num">1</span> &lt; <span class="num">5</span>) || (<span class="num">10</span> &lt; <span class="num">1</span>)) &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line"><span class="com">// 注意：連鎖比較不是你想的那樣！</span>
+<span class="line"></span>cout &lt;&lt; (<span class="num">10</span> &lt; <span class="num">5</span> &lt; <span class="num">3</span>) &lt;&lt; endl;  <span class="com">// (10 &lt; 5) 先算出 0，然後 0 &lt; 3 是 true！</span>
+<span class="line"></span></span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>false
+true
+true
+true
+true</pre></div>
+</div>
+<div class="warn-box"><b>⚠️ 連鎖比較陷阱：</b>數學課寫的 10 &lt; 5 &lt; 3 在 C++ 是合法程式，
+但意思是 (10 &lt; 5) &lt; 3：先算出 false（也就是 0），再算 0 &lt; 3 得到 true。
+範圍判斷一律拆成兩段用 <code>&amp;&amp;</code> 接：<code>(3 &lt; x) &amp;&amp; (x &lt; 5)</code>。</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · bool 悄悄變 int</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> the_sum = <span class="num">0</span>;</span>
+<span class="line">cout &lt;&lt; the_sum &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">the_sum = the_sum + <span class="num">1</span>;</span>
+<span class="line">cout &lt;&lt; the_sum &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">the_sum = <span class="fn">true</span>;  <span class="com">// 合法，但 bool 被轉成 int 的 1</span>
+<span class="line"></span>cout &lt;&lt; the_sum &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0
+1
+1</pre></div>
+  <p class="dx-note">C++ 允許 bool 和數值互轉：true 是 1、false 是 0。方便，但也是 bug 溫床：<code>if (x = 1)</code>（少個等號）永遠為真而且編譯得過。</p>
+</div>
 </section>
 
 <section id="pointers">
@@ -561,6 +636,37 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="quiz-opt" data-correct="true" data-fb="p 還沒指向任何有效位址（野指標）。可能印垃圾、可能當機。好習慣：宣告就初始化，暫時沒目標就設 NULL。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(A)</span> 解參考未初始化的指標，行為未定義</div><div class="quiz-opt" data-correct="false" data-fb="語法完全合法。合法但爆炸，是 C++ 給新手的第一份見面禮。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(B)</span> 語法錯誤</div><div class="quiz-opt" data-correct="false" data-fb="「未定義行為」的意思是：什麼都可能發生，包括看起來正常。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(C)</span> 一定印出 0</div>
   </div>
   <div class="quiz-feedback" id="qPtr2Feedback"></div>
+</div>
+
+<h3 id="dx-ptr">講義完整範例：位址親眼看一次</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 取址、存址、解參考</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> var_n = <span class="num">100</span>;</span>
+<span class="line"><span class="kw">int</span> *ptr_n = &amp;var_n;   <span class="com">// ptr_n 存的是 var_n 的位址</span>
+<span class="line"></span></span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">value of var_n:   </span><span class="str">"</span> &lt;&lt; var_n &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">address of var_n: </span><span class="str">"</span> &lt;&lt; &amp;var_n &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">ptr_n stores:     </span><span class="str">"</span> &lt;&lt; ptr_n &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">*ptr_n gives:     </span><span class="str">"</span> &lt;&lt; *ptr_n &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>value of var_n:   100
+address of var_n: 0x7ffd4c2a5b44
+ptr_n stores:     0x7ffd4c2a5b44
+*ptr_n gives:     100</pre></div>
+  <p class="dx-note">位址每次執行都不一樣（0x 開頭的十六進位數），但第二、三行一定相同：ptr_n 存的就是 var_n 的位址。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 透過指標改值</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> var_n = <span class="num">100</span>;</span>
+<span class="line"><span class="kw">int</span> *ptr_n = &amp;var_n;</span>
+<span class="line"> </span>
+<span class="line">*ptr_n = <span class="num">50</span>;             <span class="com">// 從「另一扇門」走進同一格記憶體</span>
+<span class="line"></span>cout &lt;&lt; var_n &lt;&lt; endl;   <span class="com">// var_n 變成 50</span>
+<span class="line"></span></span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>50</pre></div>
+  <p class="dx-note">這一行是整章的關鍵畫面：*ptr_n = 50 改的不是 ptr_n，是它<strong>指向的那格記憶體</strong>。之後的鏈結串列、樹、圖全靠這個動作把結構串起來。</p>
 </div>
 </section>
 
@@ -654,6 +760,168 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
   <div class="quiz-feedback" id="qStrFeedback"></div>
 </div>
+
+<h3 id="dx-coll">講義完整範例：五種容器逐一跑過</h3>
+<p>表格看熟之後，把講義的示範程式親手跑一遍，輸出先用腦袋預測再對答案。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · vector：增刪改</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">vector&lt;<span class="kw">double</span>&gt; my_list = {<span class="num">1024</span>, <span class="num">3</span>, <span class="num">1</span>, <span class="num">6.5</span>};</span>
+<span class="line"> </span>
+<span class="line">my_list.push_back(<span class="num">0</span>);                      <span class="com">// 加到尾端</span>
+<span class="line"></span><span class="kw">for</span> (<span class="kw">double</span> x : my_list) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">my_list.insert(my_list.begin() + <span class="num">2</span>, <span class="num">4.5</span>);  <span class="com">// 插進索引 2</span>
+<span class="line"></span><span class="kw">for</span> (<span class="kw">double</span> x : my_list) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">my_list.pop_back();                        <span class="com">// 移除最後一項</span>
+<span class="line"></span>my_list.erase(my_list.begin() + <span class="num">1</span>);        <span class="com">// 移除索引 1</span>
+<span class="line"></span><span class="kw">for</span> (<span class="kw">double</span> x : my_list) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1024 3 1 6.5 0 
+1024 3 4.5 1 6.5 0 
+1024 4.5 1 6.5 </pre></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · vector 配 <algorithm>：sort、reverse、count、find</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">vector&lt;<span class="kw">double</span>&gt; my_list = {<span class="num">1024</span>, <span class="num">4.5</span>, <span class="num">6.5</span>, <span class="num">1</span>};</span>
+<span class="line"> </span>
+<span class="line">sort(my_list.begin(), my_list.end());</span>
+<span class="line"><span class="kw">for</span> (<span class="kw">double</span> x : my_list) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">reverse(my_list.begin(), my_list.end());</span>
+<span class="line"><span class="kw">for</span> (<span class="kw">double</span> x : my_list) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">cout &lt;&lt; count(my_list.begin(), my_list.end(), <span class="num">6.5</span>) &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">my_list.erase(find(my_list.begin(), my_list.end(), <span class="num">6.5</span>));  <span class="com">// 按值移除</span>
+<span class="line"></span><span class="kw">for</span> (<span class="kw">double</span> x : my_list) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1 4.5 6.5 1024 
+1024 6.5 4.5 1 
+1
+1024 4.5 1 </pre></div>
+  <p class="dx-note">C++ 把「容器」和「演算法」拆開：sort、reverse、count、find 都吃一對疊代器 (begin, end)，所以同一套演算法能用在不同容器上。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · string 的常用操作</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">string my_name = <span class="str">"</span><span class="str">David</span><span class="str">"</span>;</span>
+<span class="line"><span class="kw">char</span> initial = <span class="str">'</span><span class="str">D</span><span class="str">'</span>;    <span class="com">// 單引號：單一字元</span>
+<span class="line"></span></span>
+<span class="line">cout &lt;&lt; my_name &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; my_name[<span class="num">3</span>] &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; my_name + my_name &lt;&lt; endl;   <span class="com">// 串接</span>
+<span class="line"></span>cout &lt;&lt; my_name.length() &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; my_name.substr(<span class="num">2</span>, <span class="num">3</span>) &lt;&lt; endl; <span class="com">// 從索引 2 取 3 個字元</span>
+<span class="line"></span>cout &lt;&lt; my_name.find(<span class="str">"</span><span class="str">v</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">my_name.append(<span class="str">"</span><span class="str"> Ranum</span><span class="str">"</span>);</span>
+<span class="line">cout &lt;&lt; my_name &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>David
+i
+DavidDavid
+5
+vid
+2
+David Ranum</pre></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 可變性與原生陣列的危險</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">vector&lt;<span class="kw">int</span>&gt; my_list = {<span class="num">1</span>, <span class="num">3</span>, <span class="num">6</span>};</span>
+<span class="line">my_list[<span class="num">0</span>] = <span class="num">1024</span>;               <span class="com">// 合法：vector 元素可變</span>
+<span class="line"></span><span class="kw">for</span> (<span class="kw">int</span> x : my_list) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">string my_name = <span class="str">"</span><span class="str">David</span><span class="str">"</span>;</span>
+<span class="line">my_name[<span class="num">0</span>] = <span class="str">'</span><span class="str">X</span><span class="str">'</span>;                <span class="com">// string 的字元也可以直接改</span>
+<span class="line"></span>cout &lt;&lt; my_name &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> my_arr[] = {<span class="num">2</span>, <span class="num">1</span>, <span class="num">4</span>};       <span class="com">// 原生陣列：大小永遠固定 3</span>
+<span class="line"></span>my_arr[<span class="num">1</span>] = <span class="num">99</span>;</span>
+<span class="line">cout &lt;&lt; my_arr[<span class="num">1</span>] &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; my_arr[<span class="num">3</span>] &lt;&lt; endl;       <span class="com">// 危險！沒有界限檢查，讀到垃圾值</span>
+<span class="line"></span></span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1024 3 6 
+Xavid
+99
+32764   ← 未定義行為：每次執行都可能不同</pre></div>
+  <p class="dx-note">最後一行是<strong>未定義行為</strong>（undefined behavior）：編譯過、跑得動、答案是垃圾。原生陣列不做界限檢查，這就是課程偏好 vector（配 .at()）的原因。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · set：去重、查成員、集合運算</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iterator&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    set&lt;<span class="kw">int</span>&gt; my_set = {<span class="num">3</span>, <span class="num">6</span>, <span class="num">4</span>, <span class="num">6</span>, <span class="num">3</span>};   <span class="com">// 重複的直接被丟掉</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">int</span> x : my_set) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; my_set.count(<span class="num">3</span>) &lt;&lt; endl;     <span class="com">// 1 = 在裡面</span>
+<span class="line"></span>    cout &lt;&lt; my_set.count(<span class="num">99</span>) &lt;&lt; endl;    <span class="com">// 0 = 不在</span>
+<span class="line"></span></span>
+<span class="line">    my_set.insert(<span class="num">99</span>);</span>
+<span class="line">    my_set.erase(<span class="num">4</span>);</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> x : my_set) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    set&lt;<span class="kw">int</span>&gt; your_set = {<span class="num">99</span>, <span class="num">3</span>, <span class="num">100</span>};</span>
+<span class="line">    set&lt;<span class="kw">int</span>&gt; result;</span>
+<span class="line">    set_intersection(my_set.begin(), my_set.end(),</span>
+<span class="line">                     your_set.begin(), your_set.end(),</span>
+<span class="line">                     inserter(result, result.begin()));</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> x : result) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;  <span class="com">// 交集</span>
+<span class="line"></span>    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3 4 6 
+1
+0
+3 6 99 
+3 99 </pre></div>
+  <p class="dx-note">set 自動排序又自動去重；交集、聯集（set_union）、子集判斷（includes）都在 &lt;algorithm&gt; 裡，一樣吃疊代器範圍。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · map：鍵值對、走訪、安全查詢</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; phone_ext = {{<span class="str">"</span><span class="str">david</span><span class="str">"</span>, <span class="num">1410</span>}, {<span class="str">"</span><span class="str">brad</span><span class="str">"</span>, <span class="num">1137</span>}, {<span class="str">"</span><span class="str">roman</span><span class="str">"</span>, <span class="num">1171</span>}};</span>
+<span class="line"> </span>
+<span class="line">    phone_ext[<span class="str">"</span><span class="str">kent</span><span class="str">"</span>] = <span class="num">2001</span>;               <span class="com">// 加新配對</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : phone_ext) cout &lt;&lt; p.first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;   <span class="com">// 鍵（自動按序）</span>
+<span class="line"></span>    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : phone_ext) cout &lt;&lt; p.second &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;  <span class="com">// 值</span>
+<span class="line"></span>    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; phone_ext.count(<span class="str">"</span><span class="str">alice</span><span class="str">"</span>) &lt;&lt; endl;           <span class="com">// 0：不存在</span>
+<span class="line"></span>    <span class="kw">if</span> (phone_ext.find(<span class="str">"</span><span class="str">alice</span><span class="str">"</span>) == phone_ext.end()) {</span>
+<span class="line">        cout &lt;&lt; <span class="str">"</span><span class="str">NO ENTRY</span><span class="str">"</span> &lt;&lt; endl;   <span class="com">// 查無此鍵時給預設行為</span>
+<span class="line"></span>    }</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>brad david kent roman 
+1137 1410 2001 1171 
+0
+NO ENTRY</pre></div>
+  <p class="dx-note">小心 map 的 []：查一個<strong>不存在的鍵</strong>會默默把它插進去（值為 0）。純查詢用 .count() 或 .find()，別用 []。</p>
+</div>
 </section>
 
 <section id="io">
@@ -709,6 +977,57 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
   <div class="quiz-feedback" id="qIoFeedback"></div>
 </div>
+
+<h3 id="dx-io">講義完整範例：輸入與格式化輸出</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · cin：型別決定轉換</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">double</span> radius;</span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">Please enter the radius of the circle </span><span class="str">"</span>;</span>
+<span class="line">cin &gt;&gt; radius;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">double</span> diameter = <span class="num">2</span> * radius;</span>
+<span class="line">cout &lt;&lt; diameter &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">示範執行（輸入 4.5）</span><pre>Please enter the radius of the circle 4.5
+9</pre></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 完整的格式化組合技</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> price = <span class="num">24</span>;</span>
+<span class="line">string item = <span class="str">"</span><span class="str">banana</span><span class="str">"</span>;</span>
+<span class="line"> </span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">The </span><span class="str">"</span> &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; item &lt;&lt; <span class="str">"</span><span class="str"> costs </span><span class="str">"</span></span>
+<span class="line">     &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; fixed &lt;&lt; setprecision(<span class="num">2</span>) &lt;&lt; <span class="kw">double</span>(price) &lt;&lt; <span class="str">"</span><span class="str"> cents</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">The </span><span class="str">"</span> &lt;&lt; left &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; item &lt;&lt; <span class="str">"</span><span class="str"> costs </span><span class="str">"</span></span>
+<span class="line">     &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; <span class="kw">double</span>(price) &lt;&lt; <span class="str">"</span><span class="str"> cents</span><span class="str">"</span> &lt;&lt; right &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">The </span><span class="str">"</span> &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; item &lt;&lt; <span class="str">"</span><span class="str"> costs </span><span class="str">"</span></span>
+<span class="line">     &lt;&lt; setfill(<span class="str">'</span><span class="str">0</span><span class="str">'</span>) &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; <span class="kw">double</span>(price) &lt;&lt; <span class="str">"</span><span class="str"> cents</span><span class="str">"</span> &lt;&lt; setfill(<span class="str">'</span><span class="str"> </span><span class="str">'</span>) &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">Item:</span><span class="str">"</span> &lt;&lt; setfill(<span class="str">'</span><span class="str">.</span><span class="str">'</span>) &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; item &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">Price:</span><span class="str">"</span> &lt;&lt; setfill(<span class="str">'</span><span class="str">.</span><span class="str">'</span>) &lt;&lt; setw(<span class="num">4</span>) &lt;&lt; <span class="str">"</span><span class="str">$</span><span class="str">"</span></span>
+<span class="line">     &lt;&lt; setfill(<span class="str">'</span><span class="str"> </span><span class="str">'</span>) &lt;&lt; setw(<span class="num">5</span>) &lt;&lt; <span class="kw">double</span>(price) &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>The     banana costs      24.00 cents
+The banana     costs 24.00      cents
+The     banana costs 0000024.00 cents
+Item:....banana
+Price:...$24.00</pre></div>
+  <p class="dx-note">setw 只影響下一個值；fixed、setprecision、left、setfill 則持續有效，直到你改掉它。左邊第三行的 0000024.00 就是 setfill('0') 的效果。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · printf 也還在</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> price = <span class="num">24</span>;</span>
+<span class="line">string item = <span class="str">"</span><span class="str">banana</span><span class="str">"</span>;</span>
+<span class="line">printf(<span class="str">"</span><span class="str">The %s costs %d cents</span><span class="str">\n</span><span class="str">"</span>, item.c_str(), price);</span>
+<span class="line">printf(<span class="str">"</span><span class="str">The %10s costs %5.2f cents</span><span class="str">\n</span><span class="str">"</span>, item.c_str(), <span class="kw">double</span>(price));</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>The banana costs 24 cents
+The     banana costs 24.00 cents</pre></div>
+  <p class="dx-note">C 家族的 printf 在 C++ 一樣能用：%10s 是寬度 10 的字串、%5.2f 是寬度 5、小數 2 位。注意 string 要先 .c_str() 轉成 C 字串。</p>
+</div>
 </section>
 
 <section id="control">
@@ -763,6 +1082,47 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
   <div class="quiz-feedback" id="qCtlFeedback"></div>
 </div>
+
+<h3 id="dx-ctrl">講義完整範例：巢狀迴圈與一個練習</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 巢狀 range-based for：攤平字母</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">vector&lt;string&gt; word_list = {<span class="str">"</span><span class="str">cat</span><span class="str">"</span>, <span class="str">"</span><span class="str">dog</span><span class="str">"</span>, <span class="str">"</span><span class="str">rabbit</span><span class="str">"</span>};</span>
+<span class="line">vector&lt;<span class="kw">char</span>&gt; letter_list;</span>
+<span class="line"><span class="kw">for</span> (string a_word : word_list) {</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">char</span> a_letter : a_word) {</span>
+<span class="line">        letter_list.push_back(a_letter);</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"><span class="kw">for</span> (<span class="kw">char</span> c : letter_list) cout &lt;&lt; c &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>c a t d o g r a b b i t </pre></div>
+  <p class="dx-note">外層走訪每個單字、內層走訪單字裡的每個字母。這種「攤平」寫法之後在建圖（word ladder buckets）會再出現。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 練習：把 average() 寫完</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iomanip&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">average</span>(vector&lt;<span class="kw">int</span>&gt; a_list) {</span>
+<span class="line">    <span class="kw">if</span> (a_list.empty()) { cout &lt;&lt; <span class="str">"</span><span class="str">Vector is empty</span><span class="str">"</span> &lt;&lt; endl; <span class="kw">return</span>; }</span>
+<span class="line">    <span class="com">// 你的程式碼：算出 avg，及格與否放進 status（"pass"/"fail"），然後：</span>
+<span class="line"></span>    <span class="com">// cout &lt;&lt; status &lt;&lt; " (Average: " &lt;&lt; fixed &lt;&lt; setprecision(1) &lt;&lt; avg &lt;&lt; ")" &lt;&lt; endl;</span>
+<span class="line"></span>}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    average({<span class="num">99</span>, <span class="num">100</span>, <span class="num">74</span>, <span class="num">63</span>, <span class="num">100</span>, <span class="num">100</span>});</span>
+<span class="line">    average({<span class="num">22</span>, <span class="num">19</span>, <span class="num">74</span>, <span class="num">63</span>, <span class="num">100</span>, <span class="num">44</span>});</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">完成後的預期輸出</span><pre>pass (Average: 89.3)
+fail (Average: 53.7)</pre></div>
+  <p class="dx-note">提示：總和用 int 累加，平均前記得轉 double，不然 536/6 會整數除法變 89。這正是本頁 P01 的陷阱重出江湖。</p>
+</div>
 </section>
 
 <section id="exceptions">
@@ -812,6 +1172,21 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="quiz-opt" data-correct="true" data-fb="[] 不做檢查也不丟例外，它是未定義行為，可能安靜讀垃圾也可能 segfault。catch 只接得住有人 throw 的東西。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(A)</span> <code>v[10]</code> 的越界存取</div><div class="quiz-opt" data-correct="false" data-fb="at() 會丟 out_of_range，接得住。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(B)</span> <code>v.at(10)</code> 的越界存取</div><div class="quiz-opt" data-correct="false" data-fb="自己丟的當然接得住，這正是 throw 的用途。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(C)</span> 自己 <code>throw runtime_error(...)</code></div>
   </div>
   <div class="quiz-feedback" id="qExcFeedback"></div>
+</div>
+
+<h3 id="dx-exc">講義補充：沒接住會怎樣？</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 沒有 try/catch 的下場</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};</span>
+<span class="line"> </span>
+<span class="line"><span class="com">// 索引 10 不存在：.at() 丟出 out_of_range 例外，</span>
+<span class="line"></span><span class="com">// 沒被接住的例外會讓程式當場終止</span>
+<span class="line"></span>cout &lt;&lt; v.at(<span class="num">10</span>) &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">執行期錯誤訊息</span><pre>terminate called after throwing an instance of &#x27;std::out_of_range&#x27;
+  what():  vector::_M_range_check: __n (which is 10) &gt;= this-&gt;size() (which is 3)</pre></div>
+  <p class="dx-note">對照上面接住的版本：同一行程式，有 try/catch 就能優雅收場，沒有就整支程式陣亡。另外注意 v[10]（不用 .at()）連例外都不丟，直接未定義行為。</p>
 </div>
 </section>
 
@@ -863,6 +1238,26 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="quiz-opt" data-correct="true" data-fb="傳參考拿到本人。傳值版本交換的是兩份影本，呼叫端不動如山，這是最經典的新手陷阱。" onclick="quizCheck('qFn', this)"><span class="opt-letter">(A)</span> <code>int &amp;a, int &amp;b</code></div><div class="quiz-opt" data-correct="false" data-fb="函式裡交換得再開心，呼叫端的 x、y 一動也不動。" onclick="quizCheck('qFn', this)"><span class="opt-letter">(B)</span> <code>int a, int b</code></div><div class="quiz-opt" data-correct="false" data-fb="const 參考不能賦值，連編譯都過不了。" onclick="quizCheck('qFn', this)"><span class="opt-letter">(C)</span> <code>const int &amp;a, const int &amp;b</code></div>
   </div>
   <div class="quiz-feedback" id="qFnFeedback"></div>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 函式可以疊著呼叫</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
+<span class="line">    <span class="kw">return</span> n * n;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    cout &lt;&lt; square(<span class="num">3</span>) &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; square(square(<span class="num">3</span>)) &lt;&lt; endl;   <span class="com">// 先算內層 9，再平方</span>
+<span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>9
+81</pre></div>
+  <p class="dx-note"><span id="dx-fn"></span>square(square(3)) 由內往外算：內層回傳 9，外層拿 9 再平方。這種「函式結果餵給函式」的組合思維是遞迴章的前菜。</p>
 </div>
 </section>
 
@@ -956,6 +1351,51 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="quiz-opt" data-correct="true" data-fb="把負號統一搬到分子（9/−10 存成 −9/10），所有比較運算子就不用各自處理負分母的特例。在入口維護不變量，比在每個運算子裡打補丁高明。" onclick="quizCheck('qCls2', this)"><span class="opt-letter">(A)</span> 分母為負時，分子分母同乘 −1</div><div class="quiz-opt" data-correct="false" data-fb="講義說這是不必要的限制。數學上 9/−10 是合法的分數，只是表示法要正規化。" onclick="quizCheck('qCls2', this)"><span class="opt-letter">(B)</span> 丟出例外拒絕負分母</div><div class="quiz-opt" data-correct="false" data-fb="能動，但每個比較運算子都要重複這段邏輯，漏一個就出 bug。" onclick="quizCheck('qCls2', this)"><span class="opt-letter">(C)</span> 在 operator&gt; 裡特判分母正負</div>
   </div>
   <div class="quiz-feedback" id="qCls2Feedback"></div>
+</div>
+
+<h3 id="dx-cls">收工驗收：完整 Fraction 的使用畫面</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 五步蓋完之後（dscpp/fraction.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"fraction.hpp"</span><span class="com">   // 本節蓋好的完整類別</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Fraction x(<span class="num">1</span>, <span class="num">2</span>);</span>
+<span class="line">    Fraction y(<span class="num">2</span>, <span class="num">3</span>);</span>
+<span class="line">    cout &lt;&lt; y &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; x + y &lt;&lt; endl;               <span class="com">// operator+：通分後約分</span>
+<span class="line"></span>    cout &lt;&lt; boolalpha &lt;&lt; (x == y) &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    Fraction z(<span class="num">2</span>, <span class="num">4</span>);</span>
+<span class="line">    cout &lt;&lt; (x == z) &lt;&lt; endl;   <span class="com">// 深相等：1/2 == 2/4</span>
+<span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2/3
+7/6
+false
+true</pre></div>
+  <p class="dx-note">最後一行是<strong>深相等</strong>的驗收：x 和 z 是兩個不同的物件，但 operator== 用交叉相乘比「值」，所以 1/2 == 2/4 是 true。如果比的是「是不是同一個物件」（位址），那叫淺相等。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 課後練習：負分母與大小比較</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">class</span> Fraction {</span>
+<span class="line">    <span class="com">// 你的程式碼：</span>
+<span class="line"></span>    <span class="com">//  - 建構子把負分母正規化（-9/-10 → 9/10、9/-10 → -9/10）</span>
+<span class="line"></span>    <span class="com">//  - bool operator&gt;(Fraction&amp; other)</span>
+<span class="line"></span>    <span class="com">//  - bool operator&lt;(Fraction&amp; other)</span>
+<span class="line"></span>};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Fraction a(<span class="num">3</span>, <span class="num">5</span>);</span>
+<span class="line">    Fraction b(<span class="num">9</span>, <span class="num">-10</span>);</span>
+<span class="line">    cout &lt;&lt; boolalpha &lt;&lt; (a &gt; b) &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">完成後的預期輸出</span><pre>true</pre></div>
+  <p class="dx-note">提示：比大小跟 operator== 一樣用交叉相乘就好，不用真的除；但要先把「負號都搬到分子」，交叉相乘的不等號方向才不會被負分母翻轉。</p>
 </div>
 </section>
 
@@ -1059,6 +1499,33 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </div>
   <p style="font-size:.9rem;color:var(--muted);margin-top:.8rem;">想逐步看物件、指標與 virtual 派發的過程，
   可以把 gates 的程式碼貼進 <a href="https://pythontutor.com/cpp.html" style="color:var(--accent2);">C++ Tutor</a> 跑一遍。</p>
+
+<h3 id="dx-inh">講義完整範例：整座電路的程式版</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 01 · 用類別把電路接起來（dscpp/gates.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"gates.hpp"</span><span class="com">   // 本節的完整閘類別階層</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    AndGate g1(<span class="str">"</span><span class="str">gand1</span><span class="str">"</span>);</span>
+<span class="line">    AndGate g2(<span class="str">"</span><span class="str">gand2</span><span class="str">"</span>);</span>
+<span class="line">    OrGate  g3(<span class="str">"</span><span class="str">gor3</span><span class="str">"</span>);</span>
+<span class="line">    NotGate g4(<span class="str">"</span><span class="str">gnot4</span><span class="str">"</span>);</span>
+<span class="line">    Connector c1(&amp;g1, &amp;g3);   <span class="com">// g1 輸出 → g3 輸入</span>
+<span class="line"></span>    Connector c2(&amp;g2, &amp;g3);</span>
+<span class="line">    Connector c3(&amp;g3, &amp;g4);</span>
+<span class="line">    cout &lt;&lt; g4.getOutput() &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">示範執行（A=B=1、C=D=0）</span><pre>Enter input for gate gand1 (0/1): 1
+Enter input for gate gand1 (0/1): 1
+Enter input for gate gand2 (0/1): 0
+Enter input for gate gand2 (0/1): 0
+0</pre></div>
+  <p class="dx-note">呼叫 g4.getOutput() 會沿著 Connector 一路「往上游要值」：NOT 問 OR、OR 問兩個 AND、AND 才向使用者要輸入。所以 NOT((1 AND 1) OR (0 AND 0)) = NOT(1) = 0。拿上面的互動電路對照：同樣輸入應該得到同樣的 0。</p>
+</div>
 </section>
 
 <section id="exercises">

@@ -315,6 +315,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
 @media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
 </style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
 </head>
 <body>
 
@@ -559,6 +570,30 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">小提醒</span>
     本章後續所有演算法（BFS/DFS/Dijkstra/Prim）都建立在<strong>相鄰串列</strong>實作之上。Vertex 類別在不同節中會擴充不同欄位（如 <code>color</code>, <code>distance</code>, <code>previous</code>, <code>discovery_time</code>, <code>closing_time</code>），但底層結構不變。
   </div>
+
+<h3 id="dx-rep">講義完整範例：Graph 類別的使用畫面</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 08 · 建頂點、加邊、走訪相鄰串列</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"graph.hpp"</span><span class="com">   // Vertex + Graph（上面的完整列表）</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Graph g;</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">0</span><span class="str">"</span>,<span class="str">"</span><span class="str">1</span><span class="str">"</span>,<span class="num">5</span>); g.addEdge(<span class="str">"</span><span class="str">0</span><span class="str">"</span>,<span class="str">"</span><span class="str">5</span><span class="str">"</span>,<span class="num">2</span>); g.addEdge(<span class="str">"</span><span class="str">1</span><span class="str">"</span>,<span class="str">"</span><span class="str">2</span><span class="str">"</span>,<span class="num">4</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">2</span><span class="str">"</span>,<span class="str">"</span><span class="str">3</span><span class="str">"</span>,<span class="num">9</span>); g.addEdge(<span class="str">"</span><span class="str">3</span><span class="str">"</span>,<span class="str">"</span><span class="str">4</span><span class="str">"</span>,<span class="num">7</span>); g.addEdge(<span class="str">"</span><span class="str">3</span><span class="str">"</span>,<span class="str">"</span><span class="str">5</span><span class="str">"</span>,<span class="num">3</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">4</span><span class="str">"</span>,<span class="str">"</span><span class="str">0</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">5</span><span class="str">"</span>,<span class="str">"</span><span class="str">4</span><span class="str">"</span>,<span class="num">8</span>); g.addEdge(<span class="str">"</span><span class="str">5</span><span class="str">"</span>,<span class="str">"</span><span class="str">2</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : g.vertices)</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">auto</span>&amp; n : p.second.neighbors)</span>
+<span class="line">            cout &lt;&lt; <span class="str">"</span><span class="str">(</span><span class="str">"</span> &lt;&lt; p.first &lt;&lt; <span class="str">"</span><span class="str">,</span><span class="str">"</span> &lt;&lt; n.first &lt;&lt; <span class="str">"</span><span class="str">,</span><span class="str">"</span> &lt;&lt; n.second &lt;&lt; <span class="str">"</span><span class="str">) </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>(0,1,5) (0,5,2) (1,2,4) (2,3,9) (3,4,7) (3,5,3) (4,0,1) (5,2,1) (5,4,8) </pre></div>
+  <p class="dx-note">每組 (from, to, weight) 對應一條有向邊。addEdge 會自動把不存在的頂點補進 vertices，這就是相鄰串列版的「用多少存多少」。</p>
+</div>
 </section>
 
 
@@ -651,6 +686,30 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <strong>(1) 最短路徑樹：</strong>沿著 <code>previous</code> 指標往回走，可以重建從任何可達頂點回到起點的<strong>最少邊數路徑</strong>。<br>
     <strong>(2) 一次解多個問題：</strong>一次 BFS 同時得到起點到「所有可達頂點」的最短距離，不需要重新跑 $|V|$ 次！
   </div>
+
+<h3 id="dx-bfs">講義完整範例：Word Ladder 的實際執行</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 08 · bfs + traverse：從 fool 爬到 sage</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"graph_algos.hpp"</span><span class="com">   // buildGraph + bfs + traverse</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Graph g = buildGraph({<span class="str">"</span><span class="str">fool</span><span class="str">"</span>, <span class="str">"</span><span class="str">cool</span><span class="str">"</span>, <span class="str">"</span><span class="str">pool</span><span class="str">"</span>, <span class="str">"</span><span class="str">poll</span><span class="str">"</span>, <span class="str">"</span><span class="str">pole</span><span class="str">"</span>,</span>
+<span class="line">                         <span class="str">"</span><span class="str">pall</span><span class="str">"</span>, <span class="str">"</span><span class="str">fall</span><span class="str">"</span>, <span class="str">"</span><span class="str">fail</span><span class="str">"</span>, <span class="str">"</span><span class="str">foil</span><span class="str">"</span>, <span class="str">"</span><span class="str">foul</span><span class="str">"</span>,</span>
+<span class="line">                         <span class="str">"</span><span class="str">pope</span><span class="str">"</span>, <span class="str">"</span><span class="str">pale</span><span class="str">"</span>, <span class="str">"</span><span class="str">sale</span><span class="str">"</span>, <span class="str">"</span><span class="str">sage</span><span class="str">"</span>, <span class="str">"</span><span class="str">page</span><span class="str">"</span>});</span>
+<span class="line">    bfs(g, <span class="str">"</span><span class="str">fool</span><span class="str">"</span>);</span>
+<span class="line">    traverse(g, <span class="str">"</span><span class="str">sage</span><span class="str">"</span>);                 <span class="com">// 沿 previous 指標回溯</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : g.vertices)           <span class="com">// 單字（與 fool 的距離）</span>
+<span class="line"></span>        cout &lt;&lt; p.first &lt;&lt; <span class="str">"</span><span class="str">(</span><span class="str">"</span> &lt;&lt; p.second.distance &lt;&lt; <span class="str">"</span><span class="str">) </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">示範執行（回溯路徑可能因探索順序略異，長度必為 6 步）</span><pre>sage-&gt;sale-&gt;pale-&gt;pall-&gt;poll-&gt;pool-&gt;fool
+cool(1) fail(2) fall(3) foil(1) fool(0) foul(1) page(5) pale(4) pall(3) pole(3) poll(2) pool(1) pope(4) sage(6) sale(5)</pre></div>
+  <p class="dx-note">traverse 印的是 previous 鏈：BFS 建好的其實是一棵「最短路徑樹」，任何字回溯到 fool 都是最短路。距離表驗證了逐層擴散：距離 1 的四個字全是 fool 換一個字母的鄰居。</p>
+</div>
 </section>
 
 
@@ -820,6 +879,36 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     DFS：<code>dfsVisit(neighbor)</code>：立刻遞迴下去處理鄰居。<br>
     這個小差異就決定了「廣度優先 vs 深度優先」的搜尋順序！
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 08 · DFSGraph：discovery / closing time 全表</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"graph_algos.hpp"</span><span class="com">   // DFSGraph（上面的完整列表）</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    DFSGraph g;</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">A</span><span class="str">"</span>, <span class="str">"</span><span class="str">B</span><span class="str">"</span>);  g.addEdge(<span class="str">"</span><span class="str">B</span><span class="str">"</span>, <span class="str">"</span><span class="str">C</span><span class="str">"</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">A</span><span class="str">"</span>, <span class="str">"</span><span class="str">D</span><span class="str">"</span>);  g.addEdge(<span class="str">"</span><span class="str">B</span><span class="str">"</span>, <span class="str">"</span><span class="str">D</span><span class="str">"</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">D</span><span class="str">"</span>, <span class="str">"</span><span class="str">E</span><span class="str">"</span>);  g.addEdge(<span class="str">"</span><span class="str">E</span><span class="str">"</span>, <span class="str">"</span><span class="str">B</span><span class="str">"</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">E</span><span class="str">"</span>, <span class="str">"</span><span class="str">F</span><span class="str">"</span>);  g.addEdge(<span class="str">"</span><span class="str">F</span><span class="str">"</span>, <span class="str">"</span><span class="str">C</span><span class="str">"</span>);</span>
+<span class="line">    g.dfs();</span>
+<span class="line">    printf(<span class="str">"</span><span class="str">%4s|%9s|%8s|%9s</span><span class="str">\n</span><span class="str">"</span>, <span class="str">"</span><span class="str">Key</span><span class="str">"</span>, <span class="str">"</span><span class="str">Discover</span><span class="str">"</span>, <span class="str">"</span><span class="str">Closing</span><span class="str">"</span>, <span class="str">"</span><span class="str">Previous</span><span class="str">"</span>);</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : g.vertices)</span>
+<span class="line">        printf(<span class="str">"</span><span class="str">%4s|%9d|%8d|%9s</span><span class="str">\n</span><span class="str">"</span>, p.first.c_str(),</span>
+<span class="line">               g.discovery[p.first], g.closing[p.first], p.second.previous.c_str());</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre> Key| Discover| Closing| Previous
+   A|        1|      12|         
+   B|        2|      11|        A
+   C|        3|       4|        B
+   D|        5|      10|        B
+   E|        6|       9|        D
+   F|        7|       8|        E</pre></div>
+  <p class="dx-note"><span id="dx-dfs"></span>對照括號性質：C 的 [3,4] 完全包在 B 的 [2,11] 裡（C 是 B 的子孫）；每個頂點的區間要嘛互相包住、要嘛完全分開，絕不交錯。E→B 那條邊指向還是灰色的祖先，是一條 back edge：它宣告圖裡有循環。</p>
+</div>
 </section>
 
 
@@ -998,6 +1087,39 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     這是 PDF 上的標準範例（雙向邊）：頂點 $\{u, v, w, x, y, z\}$，邊權如圖所示。從 $u$ 出發，正確的最短路徑樹如下：<br>
     <code>u→v: 2</code>　<code>u→x: 1</code>　<code>u→y: 2 (經 x)</code>　<code>u→w: 3 (經 y)</code>　<code>u→z: 3 (經 y)</code>
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 08 · dijkstra + findPath 的使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"graph_algos.hpp"</span><span class="com">   // dijkstra + findPath</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Graph g;   <span class="com">// 講義的 6 頂點範例圖（雙向邊）</span>
+<span class="line"></span>    g.addEdge(<span class="str">"</span><span class="str">u</span><span class="str">"</span>,<span class="str">"</span><span class="str">v</span><span class="str">"</span>,<span class="num">2</span>); g.addEdge(<span class="str">"</span><span class="str">v</span><span class="str">"</span>,<span class="str">"</span><span class="str">u</span><span class="str">"</span>,<span class="num">2</span>); g.addEdge(<span class="str">"</span><span class="str">v</span><span class="str">"</span>,<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="num">3</span>); g.addEdge(<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="str">"</span><span class="str">v</span><span class="str">"</span>,<span class="num">3</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="str">"</span><span class="str">z</span><span class="str">"</span>,<span class="num">5</span>); g.addEdge(<span class="str">"</span><span class="str">z</span><span class="str">"</span>,<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="num">5</span>); g.addEdge(<span class="str">"</span><span class="str">u</span><span class="str">"</span>,<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="str">"</span><span class="str">u</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">u</span><span class="str">"</span>,<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="num">5</span>); g.addEdge(<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="str">"</span><span class="str">u</span><span class="str">"</span>,<span class="num">5</span>); g.addEdge(<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="str">"</span><span class="str">v</span><span class="str">"</span>,<span class="num">2</span>); g.addEdge(<span class="str">"</span><span class="str">v</span><span class="str">"</span>,<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="num">2</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="num">3</span>); g.addEdge(<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="num">3</span>); g.addEdge(<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="str">"</span><span class="str">y</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">y</span><span class="str">"</span>,<span class="str">"</span><span class="str">x</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">y</span><span class="str">"</span>,<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">w</span><span class="str">"</span>,<span class="str">"</span><span class="str">y</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">y</span><span class="str">"</span>,<span class="str">"</span><span class="str">z</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">z</span><span class="str">"</span>,<span class="str">"</span><span class="str">y</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line"> </span>
+<span class="line">    dijkstra(g, <span class="str">"</span><span class="str">u</span><span class="str">"</span>);</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : g.vertices)   <span class="com">// 頂點: 距離 (previous)</span>
+<span class="line"></span>        cout &lt;&lt; p.first &lt;&lt; <span class="str">"</span><span class="str">: </span><span class="str">"</span> &lt;&lt; p.second.distance</span>
+<span class="line">             &lt;&lt; <span class="str">"</span><span class="str"> (</span><span class="str">"</span> &lt;&lt; p.second.previous &lt;&lt; <span class="str">"</span><span class="str">)</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">for</span> (string v : findPath(g, <span class="str">"</span><span class="str">u</span><span class="str">"</span>, <span class="str">"</span><span class="str">z</span><span class="str">"</span>)) cout &lt;&lt; v &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>u: 0 ()
+v: 2 (u)
+w: 3 (y)
+x: 1 (u)
+y: 2 (x)
+z: 3 (y)
+u x y z </pre></div>
+  <p class="dx-note"><span id="dx-dij"></span>最生動的一格是 w：直達邊 u→w 權重 5，但演算法最後給它 3（u→x→y→w）。「先到的不一定是最短的」，所以 Dijkstra 允許在頂點還在優先佇列裡時<strong>下修</strong>它的距離（decrease-key）。u 到 z 的最短路是 u x y z，總長 3。</p>
+</div>
 </section>
 
 
@@ -1088,6 +1210,33 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <strong>Prim：</strong> <code>newD = w(u,v)</code>：只看 u 到 v 的<strong>單一邊權</strong>。<br>
     為什麼？因為 MST 不在乎「離起點多遠」，只在乎「下一個要連入樹的最便宜邊」。
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 08 · prim 的使用畫面：長出 MST</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"graph_algos.hpp"</span><span class="com">   // prim</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Graph g;   <span class="com">// 講義的廣播範例圖（雙向邊）</span>
+<span class="line"></span>    g.addEdge(<span class="str">"</span><span class="str">A</span><span class="str">"</span>,<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="num">2</span>); g.addEdge(<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="str">"</span><span class="str">A</span><span class="str">"</span>,<span class="num">2</span>); g.addEdge(<span class="str">"</span><span class="str">A</span><span class="str">"</span>,<span class="str">"</span><span class="str">C</span><span class="str">"</span>,<span class="num">3</span>); g.addEdge(<span class="str">"</span><span class="str">C</span><span class="str">"</span>,<span class="str">"</span><span class="str">A</span><span class="str">"</span>,<span class="num">3</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="str">"</span><span class="str">D</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">D</span><span class="str">"</span>,<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="str">"</span><span class="str">C</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">C</span><span class="str">"</span>,<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="str">"</span><span class="str">E</span><span class="str">"</span>,<span class="num">4</span>); g.addEdge(<span class="str">"</span><span class="str">E</span><span class="str">"</span>,<span class="str">"</span><span class="str">B</span><span class="str">"</span>,<span class="num">4</span>); g.addEdge(<span class="str">"</span><span class="str">D</span><span class="str">"</span>,<span class="str">"</span><span class="str">E</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">E</span><span class="str">"</span>,<span class="str">"</span><span class="str">D</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">C</span><span class="str">"</span>,<span class="str">"</span><span class="str">F</span><span class="str">"</span>,<span class="num">5</span>); g.addEdge(<span class="str">"</span><span class="str">F</span><span class="str">"</span>,<span class="str">"</span><span class="str">C</span><span class="str">"</span>,<span class="num">5</span>); g.addEdge(<span class="str">"</span><span class="str">E</span><span class="str">"</span>,<span class="str">"</span><span class="str">F</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">F</span><span class="str">"</span>,<span class="str">"</span><span class="str">E</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line">    g.addEdge(<span class="str">"</span><span class="str">F</span><span class="str">"</span>,<span class="str">"</span><span class="str">G</span><span class="str">"</span>,<span class="num">1</span>); g.addEdge(<span class="str">"</span><span class="str">G</span><span class="str">"</span>,<span class="str">"</span><span class="str">F</span><span class="str">"</span>,<span class="num">1</span>);</span>
+<span class="line"> </span>
+<span class="line">    prim(g, <span class="str">"</span><span class="str">A</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">MST edges: </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : g.vertices)</span>
+<span class="line">        <span class="kw">if</span> (p.second.previous != <span class="str">"</span><span class="str">"</span>)</span>
+<span class="line">            cout &lt;&lt; <span class="str">"</span><span class="str">(</span><span class="str">"</span> &lt;&lt; p.second.previous &lt;&lt; <span class="str">"</span><span class="str">,</span><span class="str">"</span> &lt;&lt; p.first &lt;&lt; <span class="str">"</span><span class="str">) </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>MST edges: (A,B) (B,C) (B,D) (D,E) (E,F) (F,G) </pre></div>
+  <p class="dx-note"><span id="dx-prm"></span>六條邊、總權重 2+1+1+1+1+1 = 7，就是廣播訊息要走的樹。注意 C 進樹的方式：一開始 A→C 權重 3 是候選，但 B 進樹後 B→C 權重 1 更便宜，C 的 previous 被改成 B。「樹外頂點的入場券隨時可以換更便宜的」正是 Prim 的核心。</p>
+</div>
 </section>
 
 

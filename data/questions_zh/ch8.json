@@ -1,0 +1,37 @@
+[
+{"question": "為什麼廣度優先搜尋（BFS）在無權重圖上保證找到最短路徑？",
+ "answers": [
+  {"answer": "它會先探索完距離起點 k 的所有頂點，才前進到距離 k+1 的頂點。", "correct": true, "feedback": "正確！BFS 像同心圓一層一層往外擴散，第一次碰到目標時，走的必然是最短的那條路徑。"},
+  {"answer": "它總是先選數值權重最小的邊。", "correct": false, "feedback": "不對。BFS 通常用在無權重圖，所有邊視為等價。"},
+  {"answer": "它用貪婪策略剪掉太長的路徑。", "correct": false, "feedback": "不對。BFS 不做長度剪枝，它只是一層一層把所有可能都走過。"},
+  {"answer": "它只在最短路徑確認後才把頂點標成黑色。", "correct": false, "feedback": "不對。頂點標黑只代表它的鄰居都探索完了。"}
+ ]},
+{"question": "廣度優先搜尋（BFS）與深度優先搜尋（DFS）在「追蹤下一個要探索的頂點」上，主要的結構差異是什麼？",
+ "answers": [
+  {"answer": "BFS 用堆疊，DFS 用佇列。", "correct": false, "feedback": "不對。剛好相反。"},
+  {"answer": "BFS 用佇列逐層探索，DFS 用堆疊（常透過遞迴）盡量往深處走。", "correct": true, "feedback": "正確！BFS 用先進先出的佇列維持逐層搜尋的順序；DFS 用後進先出的堆疊（遞迴呼叫堆疊就是現成的）。"},
+  {"answer": "兩者都必須用優先佇列才能保證正確的搜尋順序。", "correct": false, "feedback": "不對。優先佇列是 Dijkstra、Prim 這類要處理權重的演算法在用的。"},
+  {"answer": "BFS 用 map 追蹤頂點，DFS 只用簡單的 vector。", "correct": false, "feedback": "不對。兩者都可能用 map 或 set 記錄已造訪節點；核心差異在排程探索用的是佇列還是堆疊。"}
+ ]},
+{"question": "下列哪一項是 Dijkstra 演算法的已知限制或特性？",
+ "answers": [
+  {"answer": "它能正確處理含負權重邊的圖。", "correct": false, "feedback": "不對。講義指出 Dijkstra 只有在所有邊權重為正時才保證正確。"},
+  {"answer": "它是疊代式演算法，能給出單一起點到所有可達頂點的最短路徑。", "correct": true, "feedback": "正確！它反覆從「距離估計最小」的頂點擴張已知集合，一路算出起點到每個頂點的最短距離。"},
+  {"answer": "它的時間複雜度與圖的邊數無關。", "correct": false, "feedback": "不對。複雜度是 O((V + E) log V)，跟頂點數與邊數都有關。"},
+  {"answer": "用在路由環境時，它不需要完整的網路地圖。", "correct": false, "feedback": "不對。要讓 Dijkstra 在路由上運作，每台路由器都得有完整的網路地圖。"}
+ ]},
+{"question": "關於圖的實作方式，下列哪個敘述符合教材內容？",
+ "answers": [
+  {"answer": "相鄰矩陣是表示稀疏圖最省空間的方式。", "correct": false, "feedback": "不對。講義指出稀疏圖用相鄰矩陣很浪費：大多數格子是空的，卻仍占 V² 的空間。"},
+  {"answer": "對連接稀疏的圖來說，相鄰串列更省空間。", "correct": true, "feedback": "正確！相鄰串列只儲存實際存在的連接，能緊湊地表示稀疏圖。"},
+  {"answer": "相鄰矩陣中，兩頂點沒有相連就不會配置那一格的記憶體。", "correct": false, "feedback": "不對。矩陣實作裡每個「可能的邊」都占一格，就算權重是 0 或無限大也一樣。"},
+  {"answer": "找出某頂點的所有鄰居，相鄰矩陣比相鄰串列快。", "correct": false, "feedback": "不對。矩陣得掃完整條長度 V 的列；串列只要走實際存在的鄰居。"}
+ ]},
+{"question": "Prim 演算法建最小生成樹（MST）時，什麼是「安全邊」（safe edge）？",
+ "answers": [
+  {"answer": "任何加入目前的樹之後不會形成循環的邊。", "correct": false, "feedback": "不對。樹邊確實不能成環，但 Prim 找的是「連接樹內與樹外頂點的最小權重邊」。"},
+  {"answer": "連接樹內頂點與樹外頂點、且權重最小的那條邊。", "correct": true, "feedback": "正確！這個貪婪選擇讓樹一邊長大、一邊維持總權重最低，也不會產生循環。"},
+  {"answer": "權重低於全圖平均邊權重的邊。", "correct": false, "feedback": "不對。演算法看的是目前邊界上絕對最小權重的連接，不是平均值。"},
+  {"answer": "對圖做深度優先搜尋時最先遇到的邊。", "correct": false, "feedback": "不對。Prim 跟 DFS 是不同的演算法，它靠權重決定下一條邊。"}
+ ]}
+]

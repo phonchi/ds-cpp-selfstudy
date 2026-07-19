@@ -22,4 +22,5 @@ NSYSU 資料結構課程（MATH208）的互動自學配套網站：九章互動�
 | 09 | [樹與樹演算法](trees.html) | cppds Ch.8 |
 
 每頁皆為單檔自足 HTML（互動元件為原生 JS，僅外連 MathJax 與 Google Fonts CDN）。
-詞彙卡與自測題取自課程題庫（`flashcards/chN.json`、`questions/chN/`，英文原文）。
+詞彙卡與自測題取自課程題庫並譯為繁體中文（母檔在 `data/flashcards_zh/`、`data/questions_zh/`，
+詞彙卡正面採「中文（English）」格式；改內容請改母檔後跑 `tools/apply_zh.py`）。

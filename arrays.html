@@ -318,6 +318,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
 @media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
 </style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
 </head>
 <body>
 <nav class="float-nav" id="floatNav" aria-label="章節導覽">
@@ -387,6 +398,27 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">本章路線</span>
     A.1 低階陣列與位址計算 → A.2 compact vs referential → A.3 多維陣列與 row-major → A.4 稀疏矩陣（COO/DOK）。
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 03 · sizeof 與位址親眼看</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">double</span>) &lt;&lt; <span class="str">"</span><span class="str"> bytes per double</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">int</span>) &lt;&lt; <span class="str">"</span><span class="str"> bytes per int</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(<span class="kw">char</span>) &lt;&lt; <span class="str">"</span><span class="str"> byte per char</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">double</span> data[<span class="num">6</span>];</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(data) &lt;&lt; <span class="str">"</span><span class="str"> bytes for the whole array</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; &amp;data[<span class="num">0</span>] &lt;&lt; <span class="str">"</span><span class="str"> &lt;- base address</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; &amp;data[<span class="num">1</span>] &lt;&lt; <span class="str">"</span><span class="str"> &lt;- 8 bytes later</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">示範執行（位址每次不同）</span><pre>8 bytes per double
+4 bytes per int
+1 byte per char
+48 bytes for the whole array
+0x7ffcd3b1e2a0 &lt;- base address
+0x7ffcd3b1e2a8 &lt;- 8 bytes later</pre></div>
+  <p class="dx-note"><span id="dx-low"></span>兩個位址恰好差 8（十六進位 a0 → a8）：陣列元素<strong>連續</strong>排在記憶體裡，一格一個 double。整個陣列 6 × 8 = 48 bytes，一條 sizeof 全算得出來。</p>
+</div>
 </section>
 
 <section id="layout">
@@ -419,6 +451,25 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       </div>
     </div>
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 03 · compact 與 referential 的空間帳</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> primes[] = {<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">11</span>, <span class="num">13</span>, <span class="num">17</span>, <span class="num">19</span>};</span>
+<span class="line"> </span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes[<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> bytes per element</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes) &lt;&lt; <span class="str">"</span><span class="str"> bytes in total</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes) / <span class="kw">sizeof</span>(primes[<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> elements</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">string* names[<span class="num">3</span>];   <span class="com">// referential array：3 根指標，各 8 bytes</span>
+<span class="line"></span>cout &lt;&lt; <span class="kw">sizeof</span>(names) &lt;&lt; <span class="str">"</span><span class="str"> bytes for three pointers</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>4 bytes per element
+32 bytes in total
+8 elements
+24 bytes for three pointers</pre></div>
+  <p class="dx-note"><span id="dx-comp"></span>sizeof(陣列) / sizeof(第一個元素) 是經典的「元素個數」算法（只在原生陣列上有效，退化成指標後就失靈）。referential 版本存的是指標：資料本體另外住，陣列只付 3 × 8 bytes 的「門牌費」。</p>
+</div>
 </section>
 
 <section id="compact">
@@ -552,6 +603,68 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       </div>
     </div>
   </div>
+
+<h3 id="dx-multi">講義完整範例：二維陣列的每一種看法</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 03 · 宣告、走列、走行、看位址</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> M[<span class="num">2</span>][<span class="num">2</span>] = {{<span class="num">1</span>, <span class="num">1</span>}, {<span class="num">2</span>, <span class="num">2</span>}};   <span class="com">// 巢狀大括號初始化</span>
+<span class="line"></span></span>
+<span class="line">cout &lt;&lt; <span class="str">"</span><span class="str">M has </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(M) / <span class="kw">sizeof</span>(M[<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> rows and </span><span class="str">"</span></span>
+<span class="line">     &lt;&lt; <span class="kw">sizeof</span>(M[<span class="num">0</span>]) / <span class="kw">sizeof</span>(M[<span class="num">0</span>][<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> columns, </span><span class="str">"</span></span>
+<span class="line">     &lt;&lt; <span class="kw">sizeof</span>(M) &lt;&lt; <span class="str">"</span><span class="str"> bytes in total</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; <span class="num">2</span>; j++) cout &lt;&lt; M[<span class="num">0</span>][j] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;   <span class="com">// 第 0 列</span>
+<span class="line"></span>cout &lt;&lt; endl;</span>
+<span class="line"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">2</span>; i++) cout &lt;&lt; M[i][<span class="num">0</span>] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;   <span class="com">// 第 0 行</span>
+<span class="line"></span>cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">cout &lt;&lt; &amp;M[<span class="num">0</span>][<span class="num">0</span>] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; &amp;M[<span class="num">0</span>][<span class="num">1</span>] &lt;&lt; endl;   <span class="com">// 差 4 bytes</span>
+<span class="line"></span>cout &lt;&lt; &amp;M[<span class="num">1</span>][<span class="num">0</span>] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; &amp;M[<span class="num">1</span>][<span class="num">1</span>] &lt;&lt; endl;   <span class="com">// 下一列緊接著</span>
+<span class="line"></span></span></div>
+  <div class="expected-out"><span class="eo-tag">示範執行（位址每次不同）</span><pre>M has 2 rows and 2 columns, 16 bytes in total
+1 1 
+1 2 
+0x7ffe013c4e50 0x7ffe013c4e54
+0x7ffe013c4e58 0x7ffe013c4e5c</pre></div>
+  <p class="dx-note">四個位址一路 +4：C++ 的二維陣列就是「一條連續記憶體」按 row-major 攤平。M[1][0] 緊跟在 M[0][1] 後面，中間沒有縫。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 03 · 動手攤平：column-major 版</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> flat[<span class="num">4</span>];</span>
+<span class="line"><span class="kw">int</span> rows = <span class="num">2</span>, cols = <span class="num">2</span>;</span>
+<span class="line"><span class="kw">int</span> M[<span class="num">2</span>][<span class="num">2</span>] = {{<span class="num">1</span>, <span class="num">1</span>}, {<span class="num">2</span>, <span class="num">2</span>}};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; rows; i++)</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; cols; j++)</span>
+<span class="line">        flat[j * rows + i] = M[i][j];   <span class="com">// column-major：j*Rows + i</span>
+<span class="line"></span></span>
+<span class="line"><span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; <span class="num">4</span>; k++) cout &lt;&lt; flat[k] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">cout &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1 2 1 2 </pre></div>
+  <p class="dx-note">row-major 的攤平公式是 i*Cols + j；column-major 換成 j*Rows + i，一行一行直著放。輸出 1 2 1 2 就是「第 0 行、第 1 行」依序排開。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 03 · 練習：用平面索引找 student[5][3]</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">int</span> student[<span class="num">100</span>][<span class="num">4</span>];</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">100</span>; i++)</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; <span class="num">4</span>; j++) student[i][j] = i * <span class="num">4</span> + j;</span>
+<span class="line">    <span class="kw">int</span>* s = &amp;student[<span class="num">0</span>][<span class="num">0</span>];   <span class="com">// 把二維陣列當一維看</span>
+<span class="line"></span>    <span class="com">// 把 ? 換成你的答案</span>
+<span class="line"></span>    assert(student[<span class="num">5</span>][<span class="num">3</span>] == s[?]);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Pass</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">填對之後的輸出</span><pre>Pass</pre></div>
+  <p class="dx-note">row-major 公式 i*Cols + j = 5×4 + 3 = <strong>23</strong>。assert 是驗收利器：條件為假直接中止程式，考自己最誠實。</p>
+</div>
 </section>
 
 <section id="sparse">
@@ -646,6 +759,34 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="quiz-opt" data-correct="true" data-fb="整片存 = 240B；DOK ≈ 24×nnz → nnz < 10 才划算。稀疏結構是「夠稀疏」才有利。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(A)</span> 約 10 個以下</div><div class="quiz-opt" data-correct="false" data-fb="每項的 overhead 是 3 倍：密矩陣用 DOK 反而更肥又更慢。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(B)</span> 永遠划算</div><div class="quiz-opt" data-correct="false" data-fb="30×24 = 720B，早就超過整片的 240B 了。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(C)</span> 30 個以下</div>
   </div>
   <div class="quiz-feedback" id="qSpFeedback"></div>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 03 · SparseMatrix 使用畫面：加減乘一次看</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"sparsematrix.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;vector&lt;<span class="kw">double</span>&gt;&gt; denseMatrix = {{<span class="num">1</span>, <span class="num">0</span>, <span class="num">0</span>}, {<span class="num">0</span>, <span class="num">2</span>, <span class="num">0</span>}, {<span class="num">0</span>, <span class="num">0</span>, <span class="num">3</span>}};</span>
+<span class="line">    SparseMatrix sparseMatrix;</span>
+<span class="line">    sparseMatrix.fromDenseMatrix(denseMatrix);</span>
+<span class="line">    cout &lt;&lt; sparseMatrix &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    SparseMatrix matrix1({{{<span class="num">0</span>, <span class="num">1</span>}, <span class="num">1</span>}, {{<span class="num">1</span>, <span class="num">1</span>}, <span class="num">2</span>}, {{<span class="num">2</span>, <span class="num">2</span>}, <span class="num">3</span>}});</span>
+<span class="line">    SparseMatrix matrix2({{{<span class="num">1</span>, <span class="num">1</span>}, <span class="num">3</span>}, {{<span class="num">2</span>, <span class="num">2</span>}, <span class="num">4</span>}});</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; matrix1 + matrix2 &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; matrix1 - matrix2 &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; matrix1 * matrix2 &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>(0, 0): 1  (1, 1): 2  (2, 2): 3  
+(0, 1): 1  (1, 1): 5  (2, 2): 7  
+(0, 1): 1  (1, 1): -1  (2, 2): -1  
+(0, 1): 3  (1, 1): 6  (2, 2): 12  </pre></div>
+  <p class="dx-note"><span id="dx-sp"></span>乘法那行值得慢讀：DOK 版本的矩陣乘法只要「A 的 (i, k) 遇上 B 的 (k, j)」才產生貢獻，兩層迴圈都只走<strong>非零元素</strong>。(0,1)×(1,1) 給 (0,1)：3；(1,1)×(1,1) 給 (1,1)：6；(2,2)×(2,2) 給 (2,2)：12。</p>
 </div>
 </section>
 

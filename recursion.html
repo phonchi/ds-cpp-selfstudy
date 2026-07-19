@@ -318,6 +318,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
 @media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
 </style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
 </head>
 <body>
 <nav class="float-nav" id="floatNav" aria-label="章節導覽">
@@ -538,6 +549,66 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       </div>
     </div>
   </div>
+
+<h3 id="dx-fr">講義完整範例：用 stack 模擬遞迴、用 depth 看見遞迴</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · 遞迴拿掉、換成自己管理的 stack</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stack&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line">string <span class="fn">toStr</span>(<span class="kw">int</span> n, <span class="kw">int</span> base) {</span>
+<span class="line">    stack&lt;<span class="kw">char</span>&gt; rStack;</span>
+<span class="line">    string convertString = <span class="str">"</span><span class="str">0123456789ABCDEF</span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">while</span> (n &gt; <span class="num">0</span>) {</span>
+<span class="line">        rStack.push(convertString[n % base]);</span>
+<span class="line">        n = n / base;</span>
+<span class="line">    }</span>
+<span class="line">    string res = <span class="str">"</span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">while</span> (!rStack.empty()) {</span>
+<span class="line">        res = res + rStack.top();</span>
+<span class="line">        rStack.pop();</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">return</span> res;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() { cout &lt;&lt; toStr(<span class="num">1453</span>, <span class="num">16</span>) &lt;&lt; endl; }</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5AD</pre></div>
+  <p class="dx-note">這版沒有遞迴：自己開一個 stack 存餘數字元、最後倒出來。它證明了一件事：<strong>遞迴版其實是把同一個 stack 藏進了「呼叫堆疊」</strong>，每一層呼叫的區域變數就是一格 stack frame。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · 印出深度，親眼看呼叫堆疊長高</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> depth = <span class="num">0</span>;   <span class="com">// 明著追蹤遞迴深度</span>
+<span class="line"></span></span>
+<span class="line">string <span class="fn">toStr</span>(<span class="kw">int</span> n, <span class="kw">int</span> base) {</span>
+<span class="line">    depth++;</span>
+<span class="line">    printf(<span class="str">"</span><span class="str">  depth=%d, n=%d</span><span class="str">\n</span><span class="str">"</span>, depth, n);</span>
+<span class="line">    string convertString = <span class="str">"</span><span class="str">0123456789ABCDEF</span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">if</span> (n &lt; base) {</span>
+<span class="line">        <span class="kw">return</span> string(<span class="num">1</span>, convertString[n]);</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">return</span> toStr(n / base, base) + convertString[n % base];</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    cout &lt;&lt; toStr(<span class="num">10</span>, <span class="num">2</span>) &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  depth=1, n=10
+  depth=2, n=5
+  depth=3, n=2
+  depth=4, n=1
+1010</pre></div>
+  <p class="dx-note">深度一路長到 4：n 每除一次 2 就多一層 frame。最深那層（n=1）先回傳「1」，然後一路「回程」把餘數黏在後面，1010 是回程時由左往右組出來的。</p>
+</div>
 </section>
 
 <section id="viz">
@@ -680,6 +751,35 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       </div>
     </div>
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · moveTower 完整程式與 3 層塔的輸出</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">moveDisk</span>(string fromP, string toP) {</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">moving disk from </span><span class="str">"</span> &lt;&lt; fromP &lt;&lt; <span class="str">"</span><span class="str"> to </span><span class="str">"</span> &lt;&lt; toP &lt;&lt; endl;</span>
+<span class="line">}</span>
+<span class="line"><span class="kw">void</span> <span class="fn">moveTower</span>(<span class="kw">int</span> height, string fromPole, string toPole, string withPole) {</span>
+<span class="line">    <span class="kw">if</span> (height &gt;= <span class="num">1</span>) {</span>
+<span class="line">        moveTower(height - <span class="num">1</span>, fromPole, withPole, toPole);</span>
+<span class="line">        moveDisk(fromPole, toPole);</span>
+<span class="line">        moveTower(height - <span class="num">1</span>, withPole, toPole, fromPole);</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() { moveTower(<span class="num">3</span>, <span class="str">"</span><span class="str">A</span><span class="str">"</span>, <span class="str">"</span><span class="str">B</span><span class="str">"</span>, <span class="str">"</span><span class="str">C</span><span class="str">"</span>); }</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>moving disk from A to B
+moving disk from A to C
+moving disk from B to C
+moving disk from A to B
+moving disk from C to A
+moving disk from C to B
+moving disk from A to B</pre></div>
+  <p class="dx-note"><span id="dx-hn"></span>7 行輸出 = 2³ − 1 步，跟理論下限一模一樣。注意基底情況是「height &lt; 1 什麼都不做」：它藏在 if 的反面，這種「隱形 base case」是遞迴的常見寫法。拿上面的互動動畫對照，每一行輸出對應一次圓盤移動。</p>
+</div>
 </section>
 
 <section id="maze">
@@ -747,6 +847,33 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       </div>
     </div>
   </div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · 迷宮主程式與輸出圖</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"maze.hpp"</span><span class="com">   // Maze 類別 + searchFrom（上面的完整列表）</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Maze myMaze(<span class="str">"</span><span class="str">maze2.txt</span><span class="str">"</span>);</span>
+<span class="line">    searchFrom(myMaze, myMaze.startRow, myMaze.startCol);</span>
+<span class="line">    myMaze.pri<span></span>nt();   <span class="com">// O = 成功路徑，. = 試過，- = 死路</span>
+<span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">示範輸出（節錄；依 maze2.txt 而異）</span><pre>++++++++++++++++++++++
++   +   ++ ++     +   
++ O +   ++ ++  +++ + ++
++ O +   ++ ++  +++   + 
++ OOOOOOOO ++ OOO  + + 
++++++ O +++++ O +++  + 
++     O  ++  OO      + 
++ +++++  ++ O ++++++ + 
++ +   +  + OO ++  + + +
++++ +  +++ O +++    + +
+++++++++++ O +++++++++</pre></div>
+  <p class="dx-note"><span id="dx-mz"></span>O 是最後成功的那條路，點點是「試過但退回」的格子：遞迴回溯的痕跡全印在圖上。四個方向的 || 短路串接讓「找到一條就收工」，找不到才會把整片區域踩成點點。</p>
+</div>
 </section>
 
 <section id="dp">

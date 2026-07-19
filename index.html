@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>資料結構 × C++ 互動自學網站</title>
+<meta name="description" content="NSYSU 資料結構課程的 C++ 互動自學網站：九章互動教材、每節 quiz、關鍵詞彙卡與速查表，配合 cppds 教科書與課程講義使用。">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+a{color:var(--accent2);}
+
+.hero{position:relative;background:linear-gradient(135deg,var(--accent2) 0%,var(--ink) 100%);color:#fff;padding:5rem 2rem 4.5rem;text-align:center;overflow:hidden;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:.02em;margin-bottom:1rem;}
+.hero h1 .cpp{color:#f5b82e;}
+.hero .subtitle{font-size:1.05rem;color:rgba(255,255,255,.85);max-width:720px;margin:0 auto 1.4rem;}
+.hero .big-formula{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:rgba(255,255,255,.65);letter-spacing:.05em;}
+.hero-code{position:absolute;inset:0;opacity:.07;font-family:'JetBrains Mono',monospace;font-size:.8rem;white-space:pre;text-align:left;padding:1rem;pointer-events:none;}
+
+.container{max-width:1080px;margin:0 auto;padding:3rem 1.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;margin-bottom:1.2rem;}
+section{margin-bottom:3.2rem;}
+
+.loop-box{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.3rem 1.5rem;}
+.loop-box .lb-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.6rem;}
+.loop-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.9rem;margin-top:.8rem;}
+.loop-steps .step{background:var(--paper);border:1px solid var(--card-border);border-radius:10px;padding:.8rem 1rem;font-size:.9rem;}
+.loop-steps .step b{display:block;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);letter-spacing:1px;margin-bottom:.3rem;}
+
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.2rem;}
+.ch-card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:1.3rem 1.4rem;text-decoration:none;color:var(--ink);transition:all .2s;position:relative;}
+.ch-card:hover{border-color:var(--accent2);box-shadow:0 8px 24px rgba(0,0,0,.10);transform:translateY(-3px);}
+.ch-card .ch-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:1.5px;}
+.ch-card h3{font-family:'Noto Serif TC',serif;font-size:1.25rem;font-weight:700;color:var(--accent2);margin:.2rem 0 .4rem;}
+.ch-card .ch-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;color:var(--accent3);border:1px solid var(--accent3);border-radius:999px;padding:.05rem .6rem;margin-bottom:.6rem;align-self:flex-start;}
+.ch-card p{font-size:.88rem;line-height:1.75;margin-bottom:.7rem;flex:1;}
+.ch-card .ch-meta{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);border-top:1px dashed var(--card-border);padding-top:.6rem;}
+
+.res-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;}
+.res-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;font-size:.9rem;}
+.res-card b{font-family:'Noto Serif TC',serif;display:block;margin-bottom:.3rem;}
+
+footer{text-align:center;padding:2.5rem 1rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<div class="hero-code">template &lt;typename T&gt;
+class Stack {
+  public:
+    void push(T item);
+    T pop();
+    T peek() const;
+    bool isEmpty() const;
+  private:
+    std::vector&lt;T&gt; items;
+};
+
+int main() {
+  Stack&lt;int&gt; s;
+  s.push(42);
+  std::cout &lt;&lt; s.pop() &lt;&lt; std::endl;
+}</div>
+  <h1>資料結構 <span class="cpp">× C++</span> 互動自學網站</h1>
+  <div class="subtitle">九章互動教材：每一節都能動手玩、預測、驗證，配上每節 quiz、關鍵詞彙卡與速查表。搭配課程講義與 cppds 教科書，把資料結構從「看得懂」練到「寫得出來」。</div>
+  <div class="big-formula">vector｜pointer｜stack｜queue｜list｜recursion｜hash｜sort｜tree｜graph</div>
+</div>
+
+<div class="container">
+
+<section>
+  <div class="loop-box">
+    <div class="lb-title">📌 建議學習迴圈（每一章都照這個節奏）</div>
+    <p>這個網站是課程講義的互動版配套：講義給完整程式與推導，這裡給你「動手驗證直覺」的空間。每頁的 §徽章對應 cppds 教科書節號，方便左右對照。</p>
+    <div class="loop-steps">
+      <div class="step"><b>① READ &amp; PLAY</b>逐節閱讀，動手操作互動元件：先預測結果，再按按鈕驗證。</div>
+      <div class="step"><b>② CROSS-CHECK</b>對照講義 PDF 與 cppds 原文，把完整程式碼看懂、抄一遍、跑一遍。</div>
+      <div class="step"><b>③ QUIZ</b>每節 quiz 立刻自測：答錯就回頭重讀該節，不要往下跳。</div>
+      <div class="step"><b>④ FLASHCARDS &amp; REF</b>翻完詞彙卡、掃過 REF 速查表，能不看答案講出定義才算過關。</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>章節（依授課順序）</h2>
+  <div class="ch-grid">
+    <a class="ch-card" href="introduction.html">
+      <div class="ch-num">01 · INTRODUCTION</div><h3>C++ 導論：型別、指標與物件</h3>
+      <div class="ch-badge">cppds Ch.1</div>
+      <p>原子型別、指標與位址、五種集合型別、I/O 與控制結構、例外處理，最後用 Fraction 與邏輯閘電路把類別、多載與繼承一次走完。</p>
+      <div class="ch-meta">12 節互動 · 每節 quiz · 45 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="analysis.html">
+      <div class="ch-num">02 · ANALYSIS</div><h3>演算法分析</h3>
+      <div class="ch-badge">cppds Ch.2</div>
+      <p>Big-O 記號與成長級數、anagram 四種解法逐一計時對照、vector 與 string 操作成本，以及最壞/最好情境的差別。</p>
+      <div class="ch-meta">8 節互動 · 每節 quiz · 12 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="arrays.html">
+      <div class="ch-num">03 · ARRAYS</div><h3>陣列與稀疏矩陣</h3>
+      <div class="ch-badge">附錄 A（講義 03）</div>
+      <p>原生陣列與位址計算、二維陣列的 row-major 佈局、自己動手寫 ArrayList（含 grow 加倍策略）、稀疏矩陣的 DOK 表示。</p>
+      <div class="ch-meta">7 節互動 · 每節 quiz · 11 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="linked_lists.html">
+      <div class="ch-num">04 · LINKED LISTS</div><h3>鏈結串列</h3>
+      <div class="ch-badge">cppds Ch.4</div>
+      <p>Node 與指標串接、無序/有序串列的完整類別實作、逐操作複雜度分析、哨兵節點技巧，以及與 STL list 的對照。</p>
+      <div class="ch-meta">8 節互動 · 每節 quiz · 8 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="linear_structures.html">
+      <div class="ch-num">05 · LINEAR STRUCTURES</div><h3>堆疊、佇列與 Deque</h3>
+      <div class="ch-badge">cppds Ch.3</div>
+      <p>Stack 的括號配對與進位制轉換、中序轉後序與後序求值、Queue 的燙手山芋與印表機模擬、Deque 的回文判斷。</p>
+      <div class="ch-meta">11 節互動 · 每節 quiz · 14 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="recursion.html">
+      <div class="ch-num">06 · RECURSION</div><h3>遞迴</h3>
+      <div class="ch-badge">cppds Ch.5</div>
+      <p>三大法則、呼叫堆疊視覺化、進位制轉換與河內塔、螺旋與碎形樹、Sierpinski 三角形，收在動態規劃找零錢的四階段推演。</p>
+      <div class="ch-meta">11 節互動 · 每節 quiz · 7 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="searching_sorting.html">
+      <div class="ch-num">07 · SEARCH &amp; SORT</div><h3>搜尋與排序</h3>
+      <div class="ch-badge">cppds Ch.6–7</div>
+      <p>循序與二分搜尋、雜湊表與碰撞處理，六種排序法逐步動畫：bubble、selection、insertion、shell、merge、quick。</p>
+      <div class="ch-meta">13 節互動 · 題庫自測 6 題 · 32 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="graphs.html">
+      <div class="ch-num">08 · GRAPHS</div><h3>圖與圖演算法</h3>
+      <div class="ch-badge">cppds Ch.9</div>
+      <p>相鄰矩陣與相鄰串列、字梯問題與 BFS、騎士巡遊與 DFS、Dijkstra 最短路徑、Prim 最小生成樹，加上拓撲排序與強連通元件。</p>
+      <div class="ch-meta">12 節互動 · 題庫自測 5 題 · 29 張詞彙卡</div>
+    </a>
+    <a class="ch-card" href="trees.html">
+      <div class="ch-num">09 · TREES</div><h3>樹與樹演算法</h3>
+      <div class="ch-badge">cppds Ch.8</div>
+      <p>樹的術語與表示法、解析樹、三種走訪、Binary Heap 與優先佇列、BST 的插入/搜尋/刪除三情境，到 AVL 旋轉與 Map ADT 總比較。</p>
+      <div class="ch-meta">11 節互動 · 題庫自測 5 題 · 34 張詞彙卡</div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>配套資源</h2>
+  <div class="res-list">
+    <div class="res-card"><b>📖 教科書 cppds</b>Problem Solving with Algorithms and Data Structures using C++（Brad Miller、David Ranum、Jan Pearce）。頁上 §節號皆對應此書。<br><a href="https://github.com/pearcej/cppds" target="_blank" rel="noopener">GitHub 原始碼</a></div>
+    <div class="res-card"><b>📑 課程講義</b>每章卡片內的「講義 PDF」連到課程 repo 的投影片，是本站內容的完整版來源。<br><a href="https://github.com/phonchi/nsysu-math208" target="_blank" rel="noopener">nsysu-math208</a></div>
+    <div class="res-card"><b>🔬 線上追蹤工具</b>想逐行看記憶體與指標變化，把程式碼貼進 C++ Tutor 一步步執行。<br><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  資料結構 × C++ 互動自學網站 · 依 cppds 教科書與 NSYSU 課程講義編寫<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Interactive C++ Data Structures Self-Study · NSYSU</span>
+</footer>
+
+</body>
+</html>

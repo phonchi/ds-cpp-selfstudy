@@ -452,24 +452,6 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     </div>
   </div>
 
-<div class="deck-extra">
-  <div class="dx-label">講義 03 · compact 與 referential 的空間帳</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line"><span class="kw">int</span> primes[] = {<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">11</span>, <span class="num">13</span>, <span class="num">17</span>, <span class="num">19</span>};</span>
-<span class="line"> </span>
-<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes[<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> bytes per element</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes) &lt;&lt; <span class="str">"</span><span class="str"> bytes in total</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes) / <span class="kw">sizeof</span>(primes[<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> elements</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line"> </span>
-<span class="line">string* names[<span class="num">3</span>];   <span class="com">// referential array：3 根指標，各 8 bytes</span>
-<span class="line"></span>cout &lt;&lt; <span class="kw">sizeof</span>(names) &lt;&lt; <span class="str">"</span><span class="str"> bytes for three pointers</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>4 bytes per element
-32 bytes in total
-8 elements
-24 bytes for three pointers</pre></div>
-  <p class="dx-note"><span id="dx-comp"></span>sizeof(陣列) / sizeof(第一個元素) 是經典的「元素個數」算法（只在原生陣列上有效，退化成指標後就失靈）。referential 版本存的是指標：資料本體另外住，陣列只付 3 × 8 bytes 的「門牌費」。</p>
-</div>
 </section>
 
 <section id="compact">
@@ -567,6 +549,24 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="quiz-opt" data-correct="true" data-fb="搬家發生在容量 8、16、32、…時，各搬當時的元素數，等比級數加總 ≈ 2n。攤到每次 append 頭上是常數：這就是「攤銷 O(1)」。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(A)</span> 約 n 個：平均每次 append 攤到 O(1)</div><div class="quiz-opt" data-correct="false" data-fb="那是「每次只加 1 格容量」的下場：每次 append 都得整批搬。加倍策略正是為了逃離 n²。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(B)</span> 約 n² 個</div><div class="quiz-opt" data-correct="false" data-fb="搬家次數確實是 log₂n 次，但每次搬的量呈等比縮小（往回看），總和收斂在 2n，不是 n log n。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(C)</span> 約 n log n 個</div>
   </div>
   <div class="quiz-feedback" id="qGrowFeedback"></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 03 · compact 與 referential 的空間帳</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> primes[] = {<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">11</span>, <span class="num">13</span>, <span class="num">17</span>, <span class="num">19</span>};</span>
+<span class="line"> </span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes[<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> bytes per element</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes) &lt;&lt; <span class="str">"</span><span class="str"> bytes in total</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">cout &lt;&lt; <span class="kw">sizeof</span>(primes) / <span class="kw">sizeof</span>(primes[<span class="num">0</span>]) &lt;&lt; <span class="str">"</span><span class="str"> elements</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">string* names[<span class="num">3</span>];   <span class="com">// referential array：3 根指標，各 8 bytes</span>
+<span class="line"></span>cout &lt;&lt; <span class="kw">sizeof</span>(names) &lt;&lt; <span class="str">"</span><span class="str"> bytes for three pointers</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>4 bytes per element
+32 bytes in total
+8 elements
+24 bytes for three pointers</pre></div>
+  <p class="dx-note"><span id="dx-comp"></span>sizeof(陣列) / sizeof(第一個元素) 是經典的「元素個數」算法（只在原生陣列上有效，退化成指標後就失靈）。referential 版本存的是指標：資料本體另外住，陣列只付 3 × 8 bytes 的「門牌費」。</p>
 </div>
 </section>
 

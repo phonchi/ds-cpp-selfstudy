@@ -303,6 +303,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
 @media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
 </style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
 </head>
 <body>
 
@@ -396,6 +407,66 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
   <p>每一節都採用相同的版面：左邊是「視覺化畫布」與「控制列」，右邊是「即時統計」、「對應虛擬碼（pseudo-code）」與「複雜度分析」。請大膽地按 <span class="pill pill-green">▶ 開始</span> 看完整動畫，或按 <span class="pill pill-blue">→ 單步</span> 一格一格觀察。</p>
+
+<h3 id="dx-srch">講義完整實作：三種搜尋的 C++ 全文</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · sequentialSearch</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">bool</span> <span class="fn">sequentialSearch</span>(vector&lt;<span class="kw">int</span>&gt; aList, <span class="kw">int</span> item) {</span>
+<span class="line">    <span class="kw">unsigned</span> pos = <span class="num">0</span>;</span>
+<span class="line">    <span class="kw">while</span> (pos &lt; aList.size()) {</span>
+<span class="line">        <span class="kw">if</span> (aList[pos] == item) {</span>
+<span class="line">            <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line">        }</span>
+<span class="line">        pos = pos + <span class="num">1</span>;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; testList = {<span class="num">54</span>, <span class="num">26</span>, <span class="num">93</span>, <span class="num">17</span>, <span class="num">77</span>, <span class="num">31</span>, <span class="num">44</span>, <span class="num">55</span>, <span class="num">20</span>, <span class="num">65</span>};</span>
+<span class="line">    cout &lt;&lt; boolalpha;</span>
+<span class="line">    cout &lt;&lt; sequentialSearch(testList, <span class="num">44</span>) &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; sequentialSearch(testList, <span class="num">50</span>) &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>true
+false</pre></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · binarySearch：迴圈版與遞迴版</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">bool</span> <span class="fn">binarySearch</span>(vector&lt;<span class="kw">int</span>&gt; aList, <span class="kw">int</span> item) {</span>
+<span class="line">    <span class="kw">int</span> first = <span class="num">0</span>;</span>
+<span class="line">    <span class="kw">int</span> last = aList.size() - <span class="num">1</span>;</span>
+<span class="line">    <span class="kw">while</span> (first &lt;= last) {</span>
+<span class="line">        <span class="kw">int</span> midpoint = (first + last) / <span class="num">2</span>;</span>
+<span class="line">        <span class="kw">if</span> (aList[midpoint] == item) <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line">        <span class="kw">else</span> <span class="kw">if</span> (item &lt; aList[midpoint]) last = midpoint - <span class="num">1</span>;</span>
+<span class="line">        <span class="kw">else</span> first = midpoint + <span class="num">1</span>;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">bool</span> <span class="fn">binarySearchRec</span>(vector&lt;<span class="kw">int</span>&gt; aList, <span class="kw">int</span> item) {</span>
+<span class="line">    <span class="kw">if</span> (aList.size() == <span class="num">0</span>) <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line">    <span class="kw">int</span> midpoint = (aList.size() - <span class="num">1</span>) / <span class="num">2</span>;</span>
+<span class="line">    <span class="kw">if</span> (aList[midpoint] == item) <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line">    <span class="kw">if</span> (item &lt; aList[midpoint]) {</span>
+<span class="line">        vector&lt;<span class="kw">int</span>&gt; left(aList.begin(), aList.begin() + midpoint);</span>
+<span class="line">        <span class="kw">return</span> binarySearchRec(left, item);</span>
+<span class="line">    }</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; right(aList.begin() + midpoint + <span class="num">1</span>, aList.end());</span>
+<span class="line">    <span class="kw">return</span> binarySearchRec(right, item);</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">對 {17,20,26,31,44,54,55,65,77,93} 查 44、50 的輸出</span><pre>true
+false</pre></div>
+  <p class="dx-note">遞迴版每層都<strong>複製</strong>半條 vector 進 left/right：好懂，但複製本身是 O(n)，反而毀了 O(log n)。實務上用迴圈版，或改傳索引範圍（first, last）而不是切片。自我檢測區 Q1 的「中點取 (長度-1)/2」講的就是遞迴版。</p>
+</div>
 </section>
 
 
@@ -772,6 +843,91 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">小實驗</span>
     試試<strong>用「線性探查」</strong>把 <code>54, 26, 93, 17, 77, 31, 44, 55, 20</code> 全部插入：你會發現 44、55、20 都會發生碰撞，被推到別的槽去。再切換到<strong>「鏈結法」</strong>清空、重做一次，會看到撞到的 item 直接掛在槽下面，不會佔走別人的位置。
   </div>
+
+<h3 id="dx-hash">講義完整範例：從雜湊函數到 Map 的使用畫面</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · 兩種雜湊函數對照</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">remainderMethod</span>(<span class="kw">int</span> item, <span class="kw">int</span> divisor) { <span class="kw">return</span> item % divisor; }</span>
+<span class="line"><span class="kw">int</span> <span class="fn">midsquareMethod</span>(<span class="kw">int</span> item, <span class="kw">int</span> divisor) {</span>
+<span class="line">    string squared = to_string(item * item);</span>
+<span class="line">    <span class="kw">if</span> (squared.length() % <span class="num">2</span> != <span class="num">0</span>) squared = <span class="str">"</span><span class="str">0</span><span class="str">"</span> + squared;</span>
+<span class="line">    <span class="kw">int</span> mid = squared.length() / <span class="num">2</span>;</span>
+<span class="line">    <span class="kw">return</span> stoi(squared.substr(mid - <span class="num">1</span>, <span class="num">2</span>)) % divisor;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    printf(<span class="str">"</span><span class="str">%6s %10s %11s</span><span class="str">\n</span><span class="str">"</span>, <span class="str">"</span><span class="str">Item</span><span class="str">"</span>, <span class="str">"</span><span class="str">Remainder</span><span class="str">"</span>, <span class="str">"</span><span class="str">Mid-Square</span><span class="str">"</span>);</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> item : {<span class="num">54</span>, <span class="num">26</span>, <span class="num">93</span>, <span class="num">17</span>})</span>
+<span class="line">        printf(<span class="str">"</span><span class="str">%6d %10d %11d</span><span class="str">\n</span><span class="str">"</span>, item,</span>
+<span class="line">               remainderMethod(item, <span class="num">11</span>), midsquareMethod(item, <span class="num">11</span>));</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  Item  Remainder  Mid-Square
+    54         10           3
+    26          4           1
+    93          5           9
+    17          6           6</pre></div>
+  <p class="dx-note">平方取中：54² = 2916，取中間兩位 91，再 91 % 11 = 3。同一批鍵、兩種函數，落點完全不同：雜湊函數的選擇直接決定碰撞多寡。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · 線性探查的最終快照</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; items = {<span class="num">54</span>, <span class="num">26</span>, <span class="num">93</span>, <span class="num">17</span>, <span class="num">77</span>, <span class="num">31</span>, <span class="num">44</span>, <span class="num">55</span>, <span class="num">20</span>};</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; hashTable(<span class="num">11</span>, <span class="num">-1</span>);            <span class="com">// -1 代表空槽</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">int</span> item : items) {</span>
+<span class="line">        <span class="kw">int</span> hashIndex = item % <span class="num">11</span>;</span>
+<span class="line">        <span class="kw">while</span> (hashTable[hashIndex] != <span class="num">-1</span>)    <span class="com">// 碰撞就往下找（線性探查）</span>
+<span class="line"></span>            hashIndex = (hashIndex + <span class="num">1</span>) % <span class="num">11</span>;</span>
+<span class="line">        hashTable[hashIndex] = item;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> idx = <span class="num">0</span>; idx &lt; <span class="num">11</span>; idx++)</span>
+<span class="line">        cout &lt;&lt; idx &lt;&lt; <span class="str">"</span><span class="str">:</span><span class="str">"</span> &lt;&lt; hashTable[idx] &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span>;   <span class="com">// 槽位:元素</span>
+<span class="line"></span>    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0:77  1:44  2:55  3:20  4:26  5:93  6:17  7:-1  8:-1  9:31  10:54  </pre></div>
+  <p class="dx-note">值得手算一次：44 想進 0（44 % 11 = 0）但 77 已入住，探查到 1；55 探查到 2；20 想進 9，被 31、10 的 54、0、1、2 一路擋，最後落腳 3。這串「探查鏈」就是群聚（clustering）的長相。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · HashTable 類別的 put / get 使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"hashtable.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    HashTable h(<span class="num">11</span>);</span>
+<span class="line">    <span class="kw">int</span> keys[] = {<span class="num">54</span>, <span class="num">26</span>, <span class="num">93</span>, <span class="num">17</span>, <span class="num">77</span>, <span class="num">31</span>, <span class="num">44</span>, <span class="num">55</span>, <span class="num">20</span>};</span>
+<span class="line">    string vals[] = {<span class="str">"</span><span class="str">cat</span><span class="str">"</span>, <span class="str">"</span><span class="str">dog</span><span class="str">"</span>, <span class="str">"</span><span class="str">lion</span><span class="str">"</span>, <span class="str">"</span><span class="str">tiger</span><span class="str">"</span>, <span class="str">"</span><span class="str">bird</span><span class="str">"</span>,</span>
+<span class="line">                     <span class="str">"</span><span class="str">cow</span><span class="str">"</span>, <span class="str">"</span><span class="str">goat</span><span class="str">"</span>, <span class="str">"</span><span class="str">pig</span><span class="str">"</span>, <span class="str">"</span><span class="str">chicken</span><span class="str">"</span>};</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">9</span>; i++) h.put(keys[i], vals[i]);</span>
+<span class="line"> </span>
+<span class="line">    h.printSlots();</span>
+<span class="line">    h.printData();</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; h.get(<span class="num">20</span>) &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; h.get(<span class="num">17</span>) &lt;&lt; endl;</span>
+<span class="line">    h.put(<span class="num">20</span>, <span class="str">"</span><span class="str">duck</span><span class="str">"</span>);                            <span class="com">// 同鍵：換值</span>
+<span class="line"></span>    cout &lt;&lt; h.get(<span class="num">20</span>) &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">[</span><span class="str">"</span> &lt;&lt; h.get(<span class="num">99</span>) &lt;&lt; <span class="str">"</span><span class="str">]</span><span class="str">"</span> &lt;&lt; endl;      <span class="com">// 不在表裡：空字串</span>
+<span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>77 44 55 20 26 93 17 -1 -1 31 54 
+bird goat pig chicken dog lion tiger - - cow cat 
+chicken tiger
+duck
+[]</pre></div>
+  <p class="dx-note">slots 的排列跟上一張卡完全一致：類別只是把「鍵探查」和「值跟著住進同一格」包起來。put 遇到同鍵是<strong>更新</strong>不是再探查，get 沿著同一條探查鏈找、繞回起點就放棄。</p>
+</div>
 </section>
 
 
@@ -850,6 +1006,46 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line">        <span class="kw">if</span> !exchanges:</span>
 <span class="line">            <span class="kw">break</span>    <span class="com">// 已經排序好，可以離開</span></span></div>
   </div>
+
+<h3 id="dx-bub">講義完整實作與逐 pass 輸出</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · bubbleSort 的 C++ 全文（dscpp/sorting.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">void</span> <span class="fn">bubbleSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList) {</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = aList.size() - <span class="num">1</span>; i &gt; <span class="num">0</span>; i--) {</span>
+<span class="line">        printl(aList);</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; i; j++) {</span>
+<span class="line">            <span class="kw">if</span> (aList[j] &gt; aList[j + <span class="num">1</span>]) {</span>
+<span class="line">                <span class="kw">int</span> temp = aList[j];</span>
+<span class="line">                aList[j] = aList[j + <span class="num">1</span>];</span>
+<span class="line">                aList[j + <span class="num">1</span>] = temp;</span>
+<span class="line">            }</span>
+<span class="line">        }</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"sorting.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; aList = {<span class="num">4</span>, <span class="num">14</span>, <span class="num">5</span>, <span class="num">21</span>, <span class="num">29</span>, <span class="num">12</span>, <span class="num">16</span>};</span>
+<span class="line">    bubbleSort(aList);   <span class="com">// 每個 pass 開頭印出目前狀態</span>
+<span class="line"></span>    printl(aList);</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">輸出（每個 pass 一行）</span><pre>4 14 5 21 29 12 16 
+4 5 14 21 12 16 29 
+4 5 14 12 16 21 29 
+4 5 12 14 16 21 29 
+4 5 12 14 16 21 29 
+4 5 12 14 16 21 29 
+4 5 12 14 16 21 29 </pre></div>
+  <p class="dx-note">每一行是「該 pass 開始前」的內容：最大的值一輪一輪往右浮。最後一行是排序完成的結果。另有 bubbleSortShort：某一輪完全沒交換就提前收工。</p>
+</div>
 </section>
 
 <!-- ============================================================ -->
@@ -916,6 +1112,48 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">vs. 氣泡</span>
     <strong>比較次數相同</strong>都是 $O(n^2)$，但 selection sort <strong>每輪最多交換一次</strong>，氣泡排序每輪可能交換很多次。當「交換成本」很高（例如要移動的物件很大）時，selection sort 表現會比 bubble sort 好。
   </div>
+
+<h3 id="dx-sel">講義完整實作與逐 pass 輸出</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · selectionSort 的 C++ 全文（dscpp/sorting.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">void</span> <span class="fn">selectionSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList) {</span>
+<span class="line">    <span class="kw">int</span> n = aList.size();</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n - <span class="num">1</span>; i++) {</span>
+<span class="line">        printl(aList);</span>
+<span class="line">        <span class="kw">int</span> minIdx = i;</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> j = i + <span class="num">1</span>; j &lt; n; j++) {</span>
+<span class="line">            <span class="kw">if</span> (aList[j] &lt; aList[minIdx]) minIdx = j;</span>
+<span class="line">        }</span>
+<span class="line">        <span class="kw">if</span> (minIdx != i) swap(aList[i], aList[minIdx]);</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"sorting.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; aList = {<span class="num">11</span>, <span class="num">7</span>, <span class="num">12</span>, <span class="num">14</span>, <span class="num">19</span>, <span class="num">1</span>, <span class="num">6</span>, <span class="num">18</span>, <span class="num">8</span>, <span class="num">20</span>};</span>
+<span class="line">    selectionSort(aList);</span>
+<span class="line">    printl(aList);</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">輸出（每個 pass 一行）</span><pre>11 7 12 14 19 1 6 18 8 20 
+1 7 12 14 19 11 6 18 8 20 
+1 6 12 14 19 11 7 18 8 20 
+1 6 7 14 19 11 12 18 8 20 
+1 6 7 8 19 11 12 18 14 20 
+1 6 7 8 11 19 12 18 14 20 
+1 6 7 8 11 12 19 18 14 20 
+1 6 7 8 11 12 14 18 19 20 
+1 6 7 8 11 12 14 18 19 20 
+1 6 7 8 11 12 14 18 19 20 </pre></div>
+  <p class="dx-note">跟氣泡排序同樣 O(n²) 次比較，但每輪只交換一次：觀察每行開頭，已排序的前綴一格一格長大。</p>
+</div>
 </section>
 
 <!-- ============================================================ -->
@@ -981,6 +1219,46 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">為什麼適合「幾乎排序好」的資料？</span>
     insertion sort 處理已排序資料時非常快：每個 key 只需要一次比較就能確認位置，時間複雜度降到 $O(n)$。如果你正在「<strong>插入新資料到已排序的 list</strong>」這個情境，insertion sort 是最自然的選擇。
   </div>
+
+<h3 id="dx-ins">講義完整實作與逐 pass 輸出</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · insertionSort 的 C++ 全文（dscpp/sorting.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">void</span> <span class="fn">insertionSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList) {</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">unsigned</span> i = <span class="num">1</span>; i &lt; aList.size(); i++) {</span>
+<span class="line">        printl(aList);</span>
+<span class="line">        <span class="kw">int</span> curVal = aList[i];</span>
+<span class="line">        <span class="kw">int</span> curPos = i;</span>
+<span class="line">        <span class="kw">while</span> (curPos &gt; <span class="num">0</span> &amp;&amp; aList[curPos - <span class="num">1</span>] &gt; curVal) {</span>
+<span class="line">            aList[curPos] = aList[curPos - <span class="num">1</span>];</span>
+<span class="line">            curPos = curPos - <span class="num">1</span>;</span>
+<span class="line">        }</span>
+<span class="line">        aList[curPos] = curVal;</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"sorting.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; aList = {<span class="num">9</span>, <span class="num">2</span>, <span class="num">5</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">9</span>, <span class="num">1</span>};</span>
+<span class="line">    insertionSort(aList);</span>
+<span class="line">    printl(aList);</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">輸出（每個 pass 一行）</span><pre>9 2 5 5 7 9 1 
+2 9 5 5 7 9 1 
+2 5 9 5 7 9 1 
+2 5 5 9 7 9 1 
+2 5 5 7 9 9 1 
+2 5 5 7 9 9 1 
+1 2 5 5 7 9 9 </pre></div>
+  <p class="dx-note">curVal 抽出來、比它大的往右挪、找到洞再放回去：注意這裡是「挪動」不是「交換」，一次挪動只要一個指定，比一次交換便宜三倍。重複值 5、9 的相對順序不變：插入排序是穩定排序。</p>
+</div>
 </section>
 
 
@@ -1095,6 +1373,54 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     shellSort(aList);
     printl(aList);
 }</pre>
+
+<h3 id="dx-shl">講義完整實作與逐 pass 輸出</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · shellSort 的 C++ 全文（dscpp/sorting.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">void</span> <span class="fn">gapInsertionSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList, <span class="kw">int</span> start, <span class="kw">int</span> gap) {</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">unsigned</span> i = start + gap; i &lt; aList.size(); i += gap) {</span>
+<span class="line">        <span class="kw">int</span> curVal = aList[i];</span>
+<span class="line">        <span class="kw">int</span> curPos = i;</span>
+<span class="line">        <span class="kw">while</span> (curPos &gt;= gap &amp;&amp; aList[curPos - gap] &gt; curVal) {</span>
+<span class="line">            aList[curPos] = aList[curPos - gap];</span>
+<span class="line">            curPos = curPos - gap;</span>
+<span class="line">        }</span>
+<span class="line">        aList[curPos] = curVal;</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">shellSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList) {</span>
+<span class="line">    <span class="kw">int</span> sublistCount = aList.size() / <span class="num">2</span>;</span>
+<span class="line">    <span class="kw">while</span> (sublistCount &gt; <span class="num">0</span>) {</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> posStart = <span class="num">0</span>; posStart &lt; sublistCount; posStart++) {</span>
+<span class="line">            gapInsertionSort(aList, posStart, sublistCount);</span>
+<span class="line">        }</span>
+<span class="line">        cout &lt;&lt; <span class="str">"</span><span class="str">After increments of size </span><span class="str">"</span> &lt;&lt; sublistCount &lt;&lt; <span class="str">"</span><span class="str"> the list is </span><span class="str">"</span>;</span>
+<span class="line">        printl(aList);</span>
+<span class="line">        sublistCount = sublistCount / <span class="num">2</span>;</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"sorting.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; aList = {<span class="num">54</span>, <span class="num">26</span>, <span class="num">93</span>, <span class="num">17</span>, <span class="num">77</span>, <span class="num">31</span>, <span class="num">44</span>, <span class="num">55</span>, <span class="num">20</span>};</span>
+<span class="line">    shellSort(aList);</span>
+<span class="line">    printl(aList);</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">輸出（每個 pass 一行）</span><pre>After increments of size 4 the list is 20 26 44 17 54 31 93 55 77 
+After increments of size 2 the list is 20 17 44 26 54 31 77 55 93 
+After increments of size 1 the list is 17 20 26 31 44 54 55 77 93 
+17 20 26 31 44 54 55 77 93 </pre></div>
+  <p class="dx-note">gap 從 n/2 一路砍半到 1。gap=1 那一輪就是普通的插入排序，但這時序列已經「幾乎有序」，所以很便宜。</p>
+</div>
 </section>
 
 
@@ -1180,6 +1506,62 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">代價：額外空間</span>
     merge sort 需要<strong>額外 $O(n)$ 的暫存空間</strong>來存 L、R 半段（實作中需額外配置 L、R 兩段暫存 vector）。處理超大資料時，這個記憶體開銷可能成為問題。
   </div>
+
+<h3 id="dx-mrg">講義完整實作與逐 pass 輸出</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · mergeSort 的 C++ 全文（dscpp/sorting.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">void</span> <span class="fn">mergeSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList) {</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Splitting </span><span class="str">"</span>;</span>
+<span class="line">    printl(aList);</span>
+<span class="line">    <span class="kw">if</span> (aList.size() &gt; <span class="num">1</span>) {</span>
+<span class="line">        <span class="kw">int</span> mid = aList.size() / <span class="num">2</span>;</span>
+<span class="line">        vector&lt;<span class="kw">int</span>&gt; leftHalf(aList.begin(), aList.begin() + mid);</span>
+<span class="line">        vector&lt;<span class="kw">int</span>&gt; rightHalf(aList.begin() + mid, aList.end());</span>
+<span class="line">        mergeSort(leftHalf);</span>
+<span class="line">        mergeSort(rightHalf);</span>
+<span class="line">        <span class="kw">unsigned</span> i = <span class="num">0</span>, j = <span class="num">0</span>, k = <span class="num">0</span>;</span>
+<span class="line">        <span class="kw">while</span> (i &lt; leftHalf.size() &amp;&amp; j &lt; rightHalf.size()) {</span>
+<span class="line">            <span class="kw">if</span> (leftHalf[i] &lt;= rightHalf[j]) { aList[k] = leftHalf[i]; i++; }</span>
+<span class="line">            <span class="kw">else</span> { aList[k] = rightHalf[j]; j++; }</span>
+<span class="line">            k++;</span>
+<span class="line">        }</span>
+<span class="line">        <span class="kw">while</span> (i &lt; leftHalf.size()) { aList[k] = leftHalf[i]; i++; k++; }</span>
+<span class="line">        <span class="kw">while</span> (j &lt; rightHalf.size()) { aList[k] = rightHalf[j]; j++; k++; }</span>
+<span class="line">    }</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Merging </span><span class="str">"</span>;</span>
+<span class="line">    printl(aList);</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"sorting.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; aList = {<span class="num">54</span>, <span class="num">26</span>, <span class="num">93</span>, <span class="num">17</span>};</span>
+<span class="line">    mergeSort(aList);</span>
+<span class="line">    printl(aList);</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">輸出（每個 pass 一行）</span><pre>Splitting 54 26 93 17 
+Splitting 54 26 
+Splitting 54 
+Merging 54 
+Splitting 26 
+Merging 26 
+Merging 26 54 
+Splitting 93 17 
+Splitting 93 
+Merging 93 
+Splitting 17 
+Merging 17 
+Merging 17 93 
+Merging 17 26 54 93 </pre></div>
+  <p class="dx-note">Splitting 一路劈到單元素（基底情況），Merging 從最小的開始兩兩合併回來。最後一行 Merging 就是排序結果。注意它需要 O(n) 的額外空間放 leftHalf/rightHalf。</p>
+</div>
 </section>
 
 
@@ -1318,6 +1700,61 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       同一份 {54, 26, 93, 17, 77, 31, 44, 55, 20}：升冪得 17 20 26 31 44 54 55 77 93、降冪得 93 77 55 54 44 31 26 20 17。分割的想法一套通吃，變的只有「誰算放錯邊」。</div>
     </div>
   </div>
+
+<h3 id="dx-qck">講義完整實作與逐 partition 輸出</h3>
+<div class="deck-extra">
+  <div class="dx-label">講義 07 · partition + quickSort 的 C++ 全文</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">int</span> <span class="fn">partition</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList, <span class="kw">int</span> first, <span class="kw">int</span> last) {</span>
+<span class="line">    <span class="kw">int</span> pivotVal = aList[first];</span>
+<span class="line">    <span class="kw">int</span> leftMark = first + <span class="num">1</span>;</span>
+<span class="line">    <span class="kw">int</span> rightMark = last;</span>
+<span class="line">    <span class="kw">bool</span> done = <span class="fn">false</span>;</span>
+<span class="line">    <span class="kw">while</span> (!done) {</span>
+<span class="line">        <span class="kw">while</span> (leftMark &lt;= rightMark &amp;&amp; aList[leftMark] &lt;= pivotVal) leftMark++;</span>
+<span class="line">        <span class="kw">while</span> (leftMark &lt;= rightMark &amp;&amp; aList[rightMark] &gt;= pivotVal) rightMark--;</span>
+<span class="line">        <span class="kw">if</span> (rightMark &lt; leftMark) done = <span class="fn">true</span>;</span>
+<span class="line">        <span class="kw">else</span> swap(aList[leftMark], aList[rightMark]);</span>
+<span class="line">    }</span>
+<span class="line">    swap(aList[first], aList[rightMark]);</span>
+<span class="line">    <span class="kw">return</span> rightMark;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">quickSortHelper</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList, <span class="kw">int</span> first, <span class="kw">int</span> last) {</span>
+<span class="line">    <span class="kw">if</span> (first &lt; last) {</span>
+<span class="line">        <span class="kw">int</span> split = partition(aList, first, last);</span>
+<span class="line">        printl(aList);</span>
+<span class="line">        quickSortHelper(aList, first, split - <span class="num">1</span>);</span>
+<span class="line">        quickSortHelper(aList, split + <span class="num">1</span>, last);</span>
+<span class="line">    }</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">quickSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; aList) {</span>
+<span class="line">    quickSortHelper(aList, <span class="num">0</span>, aList.size() - <span class="num">1</span>);</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <p class="dx-note">partition 用左右兩根 mark 相向而行：左邊找「比 pivot 大的」、右邊找「比 pivot 小的」，交換，直到交錯；最後把 pivot 換到 rightMark 的位置，這格從此不再動。</p>
+</div>
+<div class="deck-extra">
+  <div class="dx-label">使用畫面</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"sorting.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; aList = {<span class="num">54</span>, <span class="num">26</span>, <span class="num">93</span>, <span class="num">17</span>, <span class="num">77</span>, <span class="num">31</span>, <span class="num">44</span>, <span class="num">55</span>, <span class="num">20</span>};</span>
+<span class="line">    quickSort(aList);   <span class="com">// 每次 partition 後印出</span>
+<span class="line"></span>    printl(aList);</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">輸出（每次 partition 一行）</span><pre>31 26 20 17 44 54 77 55 93 
+17 26 20 31 44 54 77 55 93 
+17 26 20 31 44 54 77 55 93 
+17 20 26 31 44 54 77 55 93 
+17 20 26 31 44 54 55 77 93 
+17 20 26 31 44 54 55 77 93 </pre></div>
+  <p class="dx-note">第一行：pivot 54 落到正確位置（左邊全 ≤ 54、右邊全 ≥ 54）。之後的行輪流處理左右子區段，每行都多一個「就定位」的 pivot。</p>
+</div>
 </section>
 
 

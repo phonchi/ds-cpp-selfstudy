@@ -1,0 +1,59 @@
+[
+ {
+  "question": "以下程式印出什麼？",
+  "code": "class Node {\n    private:\n        int data;\n        Node *next;\n    public:\n        Node(int d) { data = d; next = NULL; }\n        int getData() const { return data; }\n};\n\nint main() {\n    Node n(93);\n    cout << n.getData();\n}",
+  "answers": [
+   {"answer": "93", "correct": true, "feedback": "正確。Node n(93) 建立物件時會自動執行建構式，把 93 存進 data。getData 是公開的，所以外面讀得到。"},
+   {"answer": "0", "correct": false, "feedback": "不對。建構式已經把 data 設成 93 了。未初始化才會是垃圾值。"},
+   {"answer": "編譯錯誤，data 是 private", "correct": false, "feedback": "不對。程式並沒有從外面直接碰 data，而是透過公開的 getData。這正是封裝的用法。"},
+   {"answer": "會印出記憶體位址", "correct": false, "feedback": "不對。getData 回傳的是 int，不是指標。"}
+  ]
+ },
+ {
+  "question": "以下程式為什麼編不過？",
+  "code": "class Node {\n    private:\n        int data;\n    public:\n        Node(int d) { data = d; }\n};\n\nint main() {\n    Node n(93);\n    cout << n.data;\n}",
+  "answers": [
+   {"answer": "data 是 private，從類別外面不能存取", "correct": true, "feedback": "正確。C++ 的 private 是編譯器強制的，不像 Python 的底線只是約定。錯誤訊息會說 is private within this context。要讀它就得提供一個公開的 getter。"},
+   {"answer": "建構式寫錯了", "correct": false, "feedback": "不對。建構式與類別同名、沒有回傳型別，寫法完全正確。"},
+   {"answer": "cout 不能印 int", "correct": false, "feedback": "不對。cout 印 int 完全沒問題，問題出在存取權限。"},
+   {"answer": "少寫 return 0", "correct": false, "feedback": "不對。main 可以省略 return 0，編譯器會自動補上。"}
+  ]
+ },
+ {
+  "question": "類別的成員如果沒有寫任何存取區段，預設是什麼？",
+  "answers": [
+   {"answer": "class 預設 private，struct 預設 public", "correct": true, "feedback": "正確。這是 class 與 struct 在 C++ 裡唯一的差別。所以建構式忘了放在 public 底下就會出現「明明有建構式卻不能建立物件」的錯誤。"},
+   {"answer": "兩者都預設 public", "correct": false, "feedback": "不對。struct 是 public，但 class 是 private，這是它們唯一的差異。"},
+   {"answer": "兩者都預設 private", "correct": false, "feedback": "不對。struct 為了與 C 相容，預設是 public。"},
+   {"answer": "C++ 規定一定要明寫，不能省略", "correct": false, "feedback": "不對。可以省略，只是會套用各自的預設值。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？（Fraction 有兩參數、單參數、無參數三個建構式）",
+  "code": "Fraction a(3, 4);\nFraction b(5);\nFraction c;\ncout << a << \" \" << b << \" \" << c;",
+  "answers": [
+   {"answer": "3/4 5/1 1/1", "correct": true, "feedback": "正確。編譯器依引數個數挑建構式：兩個引數挑第一個、一個引數挑第二個（分母補 1）、沒有引數挑第三個（預設 1/1）。這叫多載，Python 只能靠預設參數繞。"},
+   {"answer": "3/4 5/0 0/0", "correct": false, "feedback": "不對。單參數與無參數版本都有明確設定分母，不會是 0。"},
+   {"answer": "編譯錯誤，同名函式不能有三個版本", "correct": false, "feedback": "不對。只要參數列不同就是合法的多載，這正是 C++ 與 Python 的差別之一。"},
+   {"answer": "3/4 然後兩個記憶體位址", "correct": false, "feedback": "不對。Fraction 有定義 operator<<，所以印得出人看得懂的內容。"}
+  ]
+ },
+ {
+  "question": "為什麼 operator<< 不能寫成類別的成員函式，而要寫在外面加 friend？",
+  "answers": [
+   {"answer": "因為 cout << f 的左運算元是 ostream 而不是你的物件", "correct": true, "feedback": "正確。成員函式的左運算元一定是自己那個類別的物件，但這裡左邊是 cout。所以只能寫成外部函式；而它又要讀 private 成員，就用 friend 開一道門。"},
+   {"answer": "因為 C++ 不允許多載 << 運算子", "correct": false, "feedback": "不對。<< 是可以多載的，這正是本題在做的事。"},
+   {"answer": "因為成員函式不能回傳參考", "correct": false, "feedback": "不對。成員函式當然可以回傳參考，這跟本題無關。"},
+   {"answer": "因為 friend 比較快", "correct": false, "feedback": "不對。friend 與效能無關，它只影響存取權限。"}
+  ]
+ },
+ {
+  "question": "把 Stack 內部的 vector 從 private 改成 public，會有什麼後果？",
+  "answers": [
+   {"answer": "使用者可以繞過 push／pop 直接操作 vector，堆疊的契約就守不住了", "correct": true, "feedback": "正確。公開之後別人可以對它呼叫 insert(3, x) 或 sort()，那就不再是「後進先出」了。封裝的判準就是問：這個成員被外面亂改會不會破壞結構的契約。"},
+   {"answer": "沒有差別，只是寫法不同", "correct": false, "feedback": "不對。差別在你對介面還有沒有控制權。內部實作一旦公開，之後想換成鏈結串列就會影響到所有呼叫端。"},
+   {"answer": "會編譯錯誤", "correct": false, "feedback": "不對。public 成員完全合法，問題是設計上的而不是語法上的。"},
+   {"answer": "效能會變差", "correct": false, "feedback": "不對。存取控制是編譯期的檢查，對執行效能沒有影響。"}
+  ]
+ }
+]

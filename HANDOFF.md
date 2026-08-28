@@ -21,7 +21,7 @@ C++ 並實際編譯執行過。
 
 | 頁 | stem | 狀態 |
 |---|---|---|
-| P8 物件導向（基礎） | `p8_oop_basics` | body 已組進 repo，**尚缺** `data/flashcards_zh/p8.json`、`data/questions_zh/p8.json`、FC/BQ 登記 |
+| ~~P8 物件導向（基礎）~~ | `p8_oop_basics` | **已完成**（10 節、6 題、18 卡；尚未 commit 時見下方） |
 | P9 物件導向（進階） | `p9_oop_advanced` | **未開始**（主 session 負責） |
 | P1 C++ 基礎與編譯流程 | `p1_cpp_basics` | subagent 撰寫中 |
 | P2 流程控制 | `p2_flow_control` | subagent 撰寫中 |

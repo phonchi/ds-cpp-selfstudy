@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物件導向（基礎）— 先備 P8（C++）</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+/* ===== 題庫自測區 ===== */
+.sq-item{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+.sq-item .sq-q{font-weight:700;margin-bottom:.7rem;}
+.sq-item .sq-q .sq-num{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:.4rem;}
+.sq-opts{display:flex;flex-direction:column;gap:.45rem;}
+.sq-opt{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.6;padding:.55rem .9rem;border-radius:8px;border:1px solid var(--card-border);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;}
+.sq-opt:hover{border-color:var(--accent2);}
+.sq-opt.correct{border-color:var(--accent3);background:rgba(26,107,74,.10);}
+.sq-opt.wrong{border-color:var(--accent);background:rgba(192,57,43,.08);}
+.sq-fb{display:none;margin-top:.7rem;font-size:.86rem;line-height:1.7;border-left:4px solid var(--accent2);padding:.5rem .9rem;background:var(--paper);border-radius:0 8px 8px 0;}
+.sq-fb.show{display:block;}
+.sq-fb.good{border-left-color:var(--accent3);}
+.sq-fb.bad{border-left-color:var(--accent);}
+.sq-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.55;padding:.7rem .9rem;border-radius:8px;margin:.2rem 0 .8rem;overflow-x:auto;white-space:pre;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">資料結構就是類別</span></a>
+  <a href="#classes" data-target="classes"><span class="fn-num">P01</span><span class="fn-name">類別與物件</span></a>
+  <a href="#ctor" data-target="ctor"><span class="fn-num">P02</span><span class="fn-name">建構式與 this</span></a>
+  <a href="#access" data-target="access"><span class="fn-num">P03</span><span class="fn-name">public 與 private</span></a>
+  <a href="#encap" data-target="encap"><span class="fn-num">P04</span><span class="fn-name">封裝：課程自己的矛盾</span></a>
+  <a href="#constfn" data-target="constfn"><span class="fn-num">P05</span><span class="fn-name">const 成員函式</span></a>
+  <a href="#overload" data-target="overload"><span class="fn-num">P06</span><span class="fn-name">建構式多載</span></a>
+  <a href="#stream" data-target="stream"><span class="fn-num">P07</span><span class="fn-name">operator<< 與 friend</span></a>
+  <a href="#compose" data-target="compose"><span class="fn-num">P08</span><span class="fn-name">組合：蓋出 Stack</span></a>
+  <a href="#header" data-target="header"><span class="fn-num">P09</span><span class="fn-name">標頭檔</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="90" y="26" width="120" height="52" rx="8"/>
+    <line x1="150" y1="78" x2="150" y2="104"/><line x1="60" y1="104" x2="240" y2="104"/>
+    <line x1="60" y1="104" x2="60" y2="130"/><line x1="150" y1="104" x2="150" y2="130"/>
+    <line x1="240" y1="104" x2="240" y2="130"/>
+    <rect x="20" y="130" width="80" height="44" rx="7"/>
+    <rect x="110" y="130" width="80" height="44" rx="7"/>
+    <rect x="200" y="130" width="80" height="44" rx="7"/>
+  </g>
+  <g fill="#fff" opacity=".75" font-family="monospace" font-size="12">
+    <text x="112" y="57">class</text>
+    <text x="43" y="157">obj</text><text x="133" y="157">obj</text><text x="223" y="157">obj</text>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P8</div>
+    <h1><span class="blue">物件導向</span>（基礎）：資料＋操作打包成一個東西</h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">class｜建構式｜this｜public / private｜const｜operator&lt;&lt;｜組合</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>一個資料結構就是一個類別</a>
+    <a href="#classes"><span class="toc-num">P01</span>類別與物件</a>
+    <a href="#ctor"><span class="toc-num">P02</span>建構式與 this</a>
+    <a href="#access"><span class="toc-num">P03</span>public 與 private</a>
+    <a href="#encap"><span class="toc-num">P04</span>封裝：課程自己的矛盾</a>
+    <a href="#constfn"><span class="toc-num">P05</span>const 成員函式</a>
+    <a href="#overload"><span class="toc-num">P06</span>建構式多載</a>
+    <a href="#stream"><span class="toc-num">P07</span>operator<< 與 friend</a>
+    <a href="#compose"><span class="toc-num">P08</span>組合：蓋出一個 Stack</a>
+    <a href="#header"><span class="toc-num">P09</span>標頭檔與 include guard</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>一個資料結構，就是一個類別</h2>
+  <p>先看本站首頁那段裝飾用的程式碼 —— 它不是隨便挑的，就是 <code>dscpp/stack.hpp</code> 的本體。</p>
+  <p>這門課的形狀就是這樣：<strong>資料結構 = 資料（要存什麼）＋ 操作（能對它做什麼）</strong>，而 C++ 用來把這兩件事包在一起的工具就是 <code>class</code>。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>抽象資料型別（ADT）的說法</th><th>C++ 的說法</th><th>例子</th></tr></thead>
+    <tbody>
+      <tr><td>這個結構「存什麼」</td><td>成員變數（member variable）</td><td class="mono">vector&lt;T&gt; items;</td></tr>
+      <tr><td>這個結構「能做什麼」</td><td>成員函式（member function）</td><td class="mono">push() / pop()</td></tr>
+      <tr><td>結構的規格（介面）</td><td><code>class</code> 定義</td><td class="mono">class Stack { … };</td></tr>
+      <tr><td>實際被建立出來的一個結構</td><td>物件／實例</td><td class="mono">Stack&lt;int&gt; s;</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 這一頁的目標</div>
+    <p style="margin-bottom:0;">讀完你要能<strong>從空白檔案寫出一個 <code>&#78;ode</code> 和一個 <code>Stack</code></strong>，並且說得出建構式什麼時候被呼叫、<code>private</code> 到底擋住了誰、為什麼要寫 <code>operator&lt;&lt;</code>。這三件事撐起第 04 章之後的每一章。</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但 P8 與 <a href="p9_oop_advanced.html">P9</a> 是整套先備頁裡除了 <a href="p4_pointers_memory.html">P4</a> 之外最該讀的兩頁。</p>
+  </div>
+</section>
+
+<section id="classes">
+  <div class="section-number">PART 01 · 類別與物件</div>
+  <h2>藍圖與成品 <span class="sec-badge">四個必背詞</span></h2>
+  <p><strong>類別是藍圖，物件是照著藍圖蓋出來的東西。</strong>藍圖只有一份，蓋出來的房子可以有很多間，每一間的門牌、住戶各自不同。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">最小可用的 Node 類別（第 04 章鏈結串列的主角）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">class</span> Node {                       <span class="com">// 藍圖</span>
+<span class="line"></span>    <span class="kw">private</span>:</span>
+<span class="line">        <span class="kw">int</span> data;                  <span class="com">// 成員變數：每個物件各有一份</span>
+<span class="line"></span>        Node *next;</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        Node(<span class="kw">int</span> initdata) {       <span class="com">// 建構式：建立物件時自動執行</span>
+<span class="line"></span>            data = initdata;</span>
+<span class="line">            next = <span class="fn">NULL</span>;</span>
+<span class="line">        }</span>
+<span class="line">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> data; }   <span class="com">// const：我保證不改動任何成員</span>
+<span class="line"></span>        Node *getNext() <span class="kw">const</span> { <span class="kw">return</span> next; }</span>
+<span class="line">        <span class="kw">void</span> setNext(Node *n) { next = n; }</span>
+<span class="line">};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Node n(<span class="num">93</span>);                    <span class="com">// 一個物件（實例）</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">n.getData() = </span><span class="str">"</span> &lt;&lt; n.getData() &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">n.getNext() = </span><span class="str">"</span> &lt;&lt; n.getNext() &lt;&lt; <span class="str">"</span><span class="str">   &lt;- NULL 印出來是 0</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">sizeof(Node) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(Node) &lt;&lt; <span class="str">"</span><span class="str"> bytes（一個 int + 一個指標）</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>n.getData() = 93
+n.getNext() = 0   &lt;- NULL 印出來是 0
+sizeof(Node) = 16 bytes（一個 int + 一個指標）</pre></div>
+  <p class="dx-note">三個觀察：① <code>&#78;ode n(93);</code> 建立一個物件，會自動去跑建構式。② <code>next</code> 一開始是 <code>&#78;ULL</code>，代表後面還沒接東西。③ <code>sizeof(&#78;ode)</code> 是 16 bytes —— 一個 <code>int</code>（4）加一個指標（8），再加上對齊補的 4。物件的大小是它所有成員加起來。</p>
+</div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04 章</div><p style='margin-bottom:0;'><code>&#78;ode</code> 是鏈結串列的基本磚塊。整章都在做同一件事：<code>new</code> 一個 &#78;ode、改它的 <code>next</code>、沿著 <code>next</code> 走訪。看不懂 class，那一章就只能死背。</p></div>
+</section>
+
+<section id="ctor">
+  <div class="section-number">PART 02 · 建構式</div>
+  <h2>建構式與 <code>this</code></h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.3rem 0 .5rem;color:var(--accent2);">建構式：跟類別同名、沒有回傳型別</h3>
+  <p>你寫 <code>&#78;ode n(93);</code> 的時候，C++ 先配置一塊記憶體，然後<strong>自動</strong>呼叫 <code>&#78;ode(93)</code> 把它填好。所以建構式裡做的事就是「這個物件一出生要帶著哪些資料」。</p>
+  <p>它有兩個外觀特徵：<strong>名字跟類別一模一樣</strong>，而且<strong>沒有回傳型別</strong>（連 <code>void</code> 都不寫）。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.3rem 0 .5rem;color:var(--accent2);"><code>this</code>：指向「是誰呼叫我」的指標</h3>
+  <p>成員函式被呼叫時，C++ 會偷偷傳一個 <code>this</code> 進來，它是<strong>指向呼叫者本人的指標</strong>。平常你不用寫它 —— 直接寫 <code>data</code> 就等於 <code>this-&gt;data</code>。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">class</span> Node {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        <span class="kw">int</span> data;</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        Node(<span class="kw">int</span> data) {</span>
+<span class="line">            <span class="kw">this</span>-&gt;data = data;     <span class="com">// 左邊是成員，右邊是參數，同名時要用 this 分辨</span>
+<span class="line"></span>        }</span>
+<span class="line">        <span class="kw">int</span> getData() <span class="kw">const</span> {</span>
+<span class="line">            <span class="kw">return</span> data;           <span class="com">// 等同 this-&gt;data，沒有同名問題就不用寫</span>
+<span class="line"></span>        }</span>
+<span class="line">};</span>
+<span class="line"> </span></div>
+
+  <div class="info-box">
+    <div class="info-label">💡 跟 Python 的 <code>self</code> 差在哪</div>
+    <p style="margin-bottom:0;">Python 的 <code>self</code> 是<strong>明寫在參數列裡的第一個參數</strong>；C++ 的 <code>this</code> 是<strong>編譯器偷偷傳進來的指標</strong>，不寫在參數列裡，而且因為是指標所以用 <code>-&gt;</code> 存取。兩者角色一樣，但 C++ 這邊你平常根本不會看到它。</p>
+  </div>
+</section>
+
+<section id="access">
+  <div class="section-number">PART 03 · 存取控制</div>
+  <h2><code>public</code> 與 <code>private</code>：C++ 靠編譯器擋，不靠約定</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">private 成員從外面碰不到（真的編不過）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">class</span> Node {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        <span class="kw">int</span> data;</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        Node(<span class="kw">int</span> d) { data = d; }</span>
+<span class="line">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> data; }</span>
+<span class="line">};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Node n(<span class="num">93</span>);</span>
+<span class="line">    cout &lt;&lt; n.getData() &lt;&lt; endl;   <span class="com">// 可以：透過公開介面</span>
+<span class="line"></span>    cout &lt;&lt; n.data &lt;&lt; endl;        <span class="com">// 不行：data 是 private</span>
+<span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:15:15: error: ‘int Node::data’ is private within this context
+   15 |     cout &lt;&lt; n.data &lt;&lt; endl;        // 不行：data 是 private</pre></div>
+  <p class="dx-note">這是 C++ 與 Python 一個很實際的差別：Python 的底線只是<strong>約定</strong>，你硬要碰還是碰得到；C++ 的 <code>private</code> 是<strong>編譯器強制</strong>的，碰了就編不過。訊息 <em>is private within this context</em> 值得認得。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>區段</th><th>誰能存取</th><th>通常放什麼</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">public:</td><td>任何人</td><td>建構式、對外的操作（介面）</td></tr>
+      <tr><td class="mono">private:</td><td>只有這個類別自己的成員函式</td><td>資料成員、內部輔助函式</td></tr>
+      <tr><td class="mono">protected:</td><td>自己 ＋ 子類別</td><td>要給子類別用的東西（見 <a href="p9_oop_advanced.html">P9</a>）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ <code>class</code> 預設是 private</div>
+    <p style="margin-bottom:0;">沒寫存取區段的話，<code>class</code> 裡的成員預設是 <code>private</code>（<code>struct</code> 則預設 <code>public</code>，這是兩者唯一的差別）。所以建構式忘了放在 <code>public:</code> 底下，就會出現「明明有建構式卻說不能建立物件」的錯誤。</p>
+  </div>
+</section>
+
+<section id="encap">
+  <div class="section-number">PART 04 · 封裝</div>
+  <h2>課程自己就有兩套寫法 —— 而且兩套都對</h2>
+  <p>這一節值得慢慢看，因為它是真實世界的取捨，不是教科書的標準答案。</p>
+  <p>同一門課、同一套 <code>dscpp/</code>，兩個類別的寫法完全相反：</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="info-card">
+        <div class="ic-title">dscpp/linked_list.hpp <span class="ic-badge">全包起來</span></div>
+<div class="pseudo-code" style="font-size:.76rem;"><span class="line"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
+<span class="line"><span class="kw">class</span> Node {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        T data;</span>
+<span class="line">        Node&lt;T&gt; *next;</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        T getData() <span class="kw">const</span> { <span class="kw">return</span> data; }</span>
+<span class="line">        Node&lt;T&gt; *getNext() <span class="kw">const</span> { <span class="kw">return</span> next; }</span>
+<span class="line">        <span class="kw">void</span> setData(T newData) { data = newData; }</span>
+<span class="line">        <span class="kw">void</span> setNext(Node&lt;T&gt; *n) { next = n; }</span>
+<span class="line">};</span>
+<span class="line"> </span></div>
+      </div>
+    </div>
+    <div>
+      <div class="info-card">
+        <div class="ic-title">dscpp/binarytree.hpp <span class="ic-badge">全公開</span></div>
+<div class="pseudo-code" style="font-size:.76rem;"><span class="line"><span class="kw">class</span> BinaryTree {</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        string key;</span>
+<span class="line">        BinaryTree* leftChild;</span>
+<span class="line">        BinaryTree* rightChild;</span>
+<span class="line"> </span>
+<span class="line">        BinaryTree(string rootObj) {</span>
+<span class="line">            key = rootObj;</span>
+<span class="line">            leftChild = <span class="fn">NULL</span>;</span>
+<span class="line">            rightChild = <span class="fn">NULL</span>;</span>
+<span class="line">        }</span>
+<span class="line">};</span>
+<span class="line"> </span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼可以不一樣</div>
+    <p style="margin-bottom:0;"><code>&#78;ode</code> 是<strong>被 <code>UnorderedList</code> 包起來的內部零件</strong>，使用者根本不該直接碰它，所以把資料藏起來、只留 getter/setter 是合理的。<code>BinaryTree</code> 則是<strong>直接當公開結構用</strong>，走訪演算法要一直讀 <code>leftChild</code>／<code>rightChild</code>，全部包起來只會讓程式碼變長。<br>
+    封裝是<strong>手段</strong>不是<strong>目的</strong>：問「這個成員被外面亂改會出事嗎」，會就藏起來，不會就算了。</p>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 該不該包起來</div>
+    <p>你要寫一個 <code>Stack</code>，內部用 <code>vector</code> 存元素。這個 <code>vector</code> 該放 <code>public</code> 還是 <code>private</code>？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="true" data-fb="正確。放 public 的話，使用者可以對它呼叫 insert(3, x) 或 sort()，那就違反了「後進先出」的契約——你的 Stack 就不再是 Stack 了。藏起來只留 push/pop/peek，契約才守得住。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> <code>private</code>，只留 push／pop／peek 對外</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。public 會讓使用者繞過你的介面直接操作 vector，堆疊的「只能從一端進出」就守不住了。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> <code>public</code>，這樣比較方便</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。這裡有明確的判準：這個成員被外面亂改會不會破壞結構的契約？會，所以要藏。BinaryTree 的 leftChild 之所以能公開，是因為走訪本來就需要讀它。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 都可以，沒有差別</div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、09 章</div><p style='margin-bottom:0;'>第 04 章的 <code>&#78;ode</code> 全部走 getter/setter；第 09 章的 <code>BinaryTree</code> 直接公開成員。讀原始碼時看到兩種風格不要以為自己看錯，那是刻意的取捨。</p></div>
+</section>
+
+<section id="constfn">
+  <div class="section-number">PART 05 · const 成員函式</div>
+  <h2><code>T getData() const</code>：括號後面那個 const 在承諾什麼</h2>
+  <p>寫在參數列<strong>後面</strong>的 <code>const</code> 是對編譯器的承諾：<strong>這個函式不會改動任何成員變數</strong>。改了就編不過。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">class</span> Node {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        <span class="kw">int</span> data;</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> data; }      <span class="com">// 只讀，加 const</span>
+<span class="line"></span>        <span class="kw">void</span> setData(<span class="kw">int</span> d) { data = d; }         <span class="com">// 要改，不能加 const</span>
+<span class="line"></span>};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">printIt</span>(<span class="kw">const</span> Node&amp; n) {      <span class="com">// 收到的是 const 參考</span>
+<span class="line"></span>    cout &lt;&lt; n.getData();           <span class="com">// 可以：getData 保證不改</span>
+<span class="line"></span>    <span class="com">// n.setData(5);               // 不行：setData 沒有 const 承諾</span>
+<span class="line"></span>}</span>
+<span class="line"> </span></div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 為什麼值得養成習慣</div>
+    <p style="margin-bottom:0;">因為 <strong><code>const</code> 物件只能呼叫 <code>const</code> 成員函式</strong>。傳大物件時用 <code>const T&amp;</code> 是標準做法（不複製又不讓改，見 <a href="p3_functions.html">P3</a>），而那時候所有的讀取函式都必須是 <code>const</code> 的，否則呼叫不了。<code>dscpp/linked_list.hpp</code> 的每個 getter 都有加。</p>
+  </div>
+</section>
+
+<section id="overload">
+  <div class="section-number">PART 06 · 多載</div>
+  <h2>同名不同參數：<code>Fraction</code> 的三種建立方式</h2>
+  <p>C++ 允許同一個名字有多個版本，只要<strong>參數列不同</strong>就好。編譯器會依你傳的引數挑一個。這在 Python 只能靠預設參數繞，C++ 直接支援。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">class</span> Fraction {</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        Fraction(<span class="kw">int</span> top, <span class="kw">int</span> bottom) { num = top;  den = bottom; }   <span class="com">// 兩個引數</span>
+<span class="line"></span>        Fraction(<span class="kw">int</span> top)             { num = top;  den = <span class="num">1</span>; }        <span class="com">// 整數：top/1</span>
+<span class="line"></span>        Fraction()                    { num = <span class="num">1</span>;    den = <span class="num">1</span>; }        <span class="com">// 沒給：1/1</span>
+<span class="line"></span>    <span class="kw">private</span>:</span>
+<span class="line">        <span class="kw">int</span> num, den;</span>
+<span class="line">};</span>
+<span class="line"> </span></div>
+
+<div class="deck-extra">
+  <div class="dx-label">三個建構式各自被挑中（引用課程的 dscpp/fraction.hpp 實跑）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"fraction.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Fraction a(<span class="num">3</span>, <span class="num">4</span>);      <span class="com">// 兩個引數 -&gt; Fraction(int, int)</span>
+<span class="line"></span>    Fraction b(<span class="num">5</span>);         <span class="com">// 一個引數 -&gt; Fraction(int)，也就是 5/1</span>
+<span class="line"></span>    Fraction c;            <span class="com">// 沒有引數 -&gt; Fraction()，也就是 1/1</span>
+<span class="line"></span></span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">a = </span><span class="str">"</span> &lt;&lt; a &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">c = </span><span class="str">"</span> &lt;&lt; c &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">a + b = </span><span class="str">"</span> &lt;&lt; (a + b) &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a = 3/4
+b = 5/1
+c = 1/1
+a + b = 23/4</pre></div>
+  <p class="dx-note"><code>Fraction b(5)</code> 挑中單參數版本、<code>Fraction c</code> 挑中無參數版本。注意最後一行 <code>a + b</code> 也能用 —— 那是 <code>operator+</code> 的功勞，屬於 <a href='p9_oop_advanced.html'>P9</a> 的運算子多載。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ <code>Fraction c;</code> 不要寫成 <code>Fraction c();</code></div>
+    <p style="margin-bottom:0;">加了括號，C++ 會把它當成「宣告一個回傳 <code>Fraction</code> 的函式 <code>c</code>」，而不是建立物件。這個坑有個名字叫 <em>most vexing parse</em>，錯誤訊息通常離現場很遠。要建立物件就不要加空括號。</p>
+  </div>
+</section>
+
+<section id="stream">
+  <div class="section-number">PART 07 · 印得出來</div>
+  <h2><code>operator&lt;&lt;</code> 與 <code>friend</code>：讓你的物件說人話</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">沒有定義 operator<< 的下場</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">class</span> Point {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        <span class="kw">int</span> x, y;</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        Point(<span class="kw">int</span> a, <span class="kw">int</span> b) { x = a; y = b; }</span>
+<span class="line">};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Point p(<span class="num">3</span>, <span class="num">4</span>);</span>
+<span class="line">    cout &lt;&lt; p &lt;&lt; endl;      <span class="com">// 沒有定義 operator&lt;&lt;，編譯器不知道怎麼印</span>
+<span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:13:10: error: no match for ‘operator&lt;&lt;’ (operand types are ‘std::ostream’ {aka ‘std::basic_ostream&lt;char&gt;’} and ‘Point’)
+   13 |     cout &lt;&lt; p &lt;&lt; endl;      // 沒有定義 operator&lt;&lt;，編譯器不知道怎麼印</pre></div>
+  <p class="dx-note"><code>cout &lt;&lt; p</code> 編不過。C++ 不像 Python 有預設的字串表示 —— 沒教過它怎麼印你的類別，它就直接拒絕。訊息 <em>no match for 'operator&lt;&lt;'</em> 第一次看到會嚇一跳，其實意思很單純：找不到能印這個型別的版本。</p>
+</div>
+
+  <p>解法是自己定義一個。因為 <code>cout &lt;&lt; f</code> 的左邊是 <code>ostream</code> 而不是你的物件，這個函式<strong>不能寫成成員函式</strong>，只能寫在類別外面 —— 但它又需要讀 <code>private</code> 的成員，所以要用 <code>friend</code> 開一道門：</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">class</span> Fraction {</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        <span class="com">// …建構式…</span>
+<span class="line"></span>    <span class="kw">friend</span> ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp; stream, <span class="kw">const</span> Fraction&amp; fraction);</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        <span class="kw">int</span> num, den;</span>
+<span class="line">};</span>
+<span class="line"> </span>
+<span class="line">ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp; stream, <span class="kw">const</span> Fraction&amp; fraction) {</span>
+<span class="line">    stream &lt;&lt; fraction.num &lt;&lt; <span class="str">"</span><span class="str">/</span><span class="str">"</span> &lt;&lt; fraction.den;    <span class="com">// 靠 friend 才碰得到 private</span>
+<span class="line"></span>    <span class="kw">return</span> stream;                                     <span class="com">// 回傳 stream 才能串接 &lt;&lt; &lt;&lt; &lt;&lt;</span>
+<span class="line"></span>}</span>
+<span class="line"> </span></div>
+
+  <div class="info-box">
+    <div class="info-label">💡 兩個容易漏的細節</div>
+    <p style="margin-bottom:0;">① <strong>一定要 <code>return stream;</code></strong>，否則 <code>cout &lt;&lt; a &lt;&lt; b</code> 這種串接就斷了。<br>
+    ② 參數用 <code>const Fraction&amp;</code>：參考避免複製、<code>const</code> 保證不改。這是傳物件的標準寫法。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 01、04、09 章</div><p style='margin-bottom:0;'>第 01 章的 <code>Fraction</code> 就是這個寫法的出處。到了第 04、09 章，沒有 <code>operator&lt;&lt;</code> 你就沒辦法把一條串列或一棵樹印出來看，debug 等於瞎子摸象。</p></div>
+</section>
+
+<section id="compose">
+  <div class="section-number">PART 08 · 組合</div>
+  <h2>用現成的東西蓋新的東西 <span class="sec-badge">has-a</span></h2>
+  <p>要做一個 <code>Stack</code>，不需要從零管理記憶體 —— 直接<strong>持有一個 <code>vector</code></strong> 就好。這種「A 擁有一個 B」的關係叫<strong>組合</strong>，是資料結構課裡最常見的蓋法。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">完整的 Stack：這一份會在第 05 章反覆出現</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
+<span class="line"><span class="kw">class</span> Stack {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        vector&lt;T&gt; items;               <span class="com">// 組合：Stack「擁有」一個 vector</span>
+<span class="line"></span>    <span class="kw">public</span>:</span>
+<span class="line">        <span class="kw">bool</span> isEmpty() { <span class="kw">return</span> items.empty(); }</span>
+<span class="line">        <span class="kw">void</span> push(T item) { items.push_back(item); }</span>
+<span class="line">        T pop() { T top = items.back(); items.pop_back(); <span class="kw">return</span> top; }</span>
+<span class="line">        T peek() { <span class="kw">return</span> items.back(); }</span>
+<span class="line">        <span class="kw">int</span> size() { <span class="kw">return</span> items.size(); }</span>
+<span class="line">        <span class="kw">void</span> display() { <span class="kw">for</span> (T x : items) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>; cout &lt;&lt; endl; }</span>
+<span class="line">};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Stack&lt;<span class="kw">char</span>&gt; s;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">char</span> c : {<span class="str">'</span><span class="str">a</span><span class="str">'</span>, <span class="str">'</span><span class="str">b</span><span class="str">'</span>, <span class="str">'</span><span class="str">c</span><span class="str">'</span>}) s.push(c);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">內容（底到頂）: </span><span class="str">"</span>; s.display();</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">peek = </span><span class="str">"</span> &lt;&lt; s.peek() &lt;&lt; <span class="str">"</span><span class="str">，size = </span><span class="str">"</span> &lt;&lt; s.size() &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">pop  = </span><span class="str">"</span> &lt;&lt; s.pop() &lt;&lt; <span class="str">"</span><span class="str">，剩下 </span><span class="str">"</span>; s.display();</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>內容（底到頂）: a b c 
+peek = c，size = 3
+pop  = c，剩下 a b </pre></div>
+  <p class="dx-note">重點在 <code>vector&lt;T&gt; items;</code> 這一行：Stack <strong>不是</strong>一個 vector，Stack <strong>有</strong>一個 vector。而且它是 <code>private</code> 的 —— 外面只看得到 push/pop/peek，看不到裡面是什麼。所以你哪天要把它換成鏈結串列，外面一行都不用改。</p>
+</div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 2 · 選對那一端</div>
+    <p>上面的 <code>Stack</code> 把 <code>vector</code> 的<strong>尾端</strong>當成堆疊頂端。課程的 <code>dscpp/stack.hpp</code> 另外附了一個 <code>Stack2</code>，改成用<strong>前端</strong>。會發生什麼？</p>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="結果會一樣正確沒錯，但成本完全不同——這正是課程把 Stack2 留在原始碼裡的原因。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 完全一樣，只是寫法不同</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。在 vector 前端插入或刪除，要把後面所有元素整排搬移，是 O(n)；尾端則是 O(1)。實測 n=50000 時差了一百倍。同樣的 ADT、同樣的正確結果，效能差兩個數量級。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 行為一樣正確，但每個操作從 $O(1)$ 變成 $O(n)$</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不會錯，vector 兩端都支援插入與刪除。問題不在對錯，在成本。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 會出錯，<code>vector</code> 不支援從前端刪除</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05 章</div><p style='margin-bottom:0;'><code>Stack</code>、<code>Queue</code>、<code>Deque</code> 三個 ADT 在 dscpp 裡全部用同一招：持有一個 <code>vector</code>，只是選擇從哪一端操作。選錯端就是 $O(n)$。</p></div>
+</section>
+
+<section id="header">
+  <div class="section-number">PART 09 · 標頭檔</div>
+  <h2><code>.hpp</code> 與 include guard：課程的 <code>dscpp/</code> 怎麼組起來的</h2>
+  <p>類別通常放在 <code>.hpp</code> 裡，讓別的檔案 <code>#include</code> 進來用。但 <code>#include</code> 就是<strong>把整個檔案的內容原地貼過來</strong>，同一個檔案被貼兩次，類別就重複定義了。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="com">// dscpp/stack.hpp</span>
+<span class="line"></span><span class="kw">#</span><span class="kw">ifnde<span></span>f DSCPP_STACK_HPP      </span><span class="com">// 如果還沒定義過這個名字</span>
+<span class="line"></span><span class="kw">#</span><span class="kw">define DSCPP_STACK_HPP      </span><span class="com">// 就定義它，然後往下走</span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
+<span class="line"><span class="kw">class</span> Stack { <span class="com">/* … */</span> };</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">#</span><span class="kw">endif                        </span><span class="com">// 第二次被 include 時，整段直接跳過</span>
+<span class="line"></span></span></div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼 template 類別整份都寫在 <code>.hpp</code> 裡</div>
+    <p style="margin-bottom:0;">一般類別可以把宣告放 <code>.hpp</code>、實作放 <code>.cpp</code>；但 <strong>template 不行</strong> —— 編譯器要看到完整的實作才能替 <code>Stack&lt;int&gt;</code> 產生程式碼。所以 <code>dscpp/</code> 底下全是 <code>.hpp</code>，沒有半個 <code>.cpp</code>。細節見 <a href="p9_oop_advanced.html">P9</a> 的 template 一節。</p>
+  </div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>動手做：從空白檔案寫一個 <code>&#78;ode</code></h2>
+  <p>把網頁關掉，開一個空檔案，試著不看答案寫出來：</p>
+
+  <div class="info-card">
+    <div class="ic-title">練習規格 <span class="ic-badge">TRY IT</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① 寫一個 <code>&#78;ode</code> 類別，<code>private</code> 放 <code>int data</code> 與 <code>&#78;ode *next</code>。<br>
+    ② 建構式吃一個值，把 <code>next</code> 設成 <code>&#78;ULL</code>。<br>
+    ③ 提供 <code>getData()</code>、<code>getNext()</code>、<code>setNext()</code>，讀取的那兩個加上 <code>const</code>。<br>
+    ④ 寫一個 <code>friend ostream&amp; operator&lt;&lt;</code>，印成 <code>&#78;ode(93)</code> 的樣子。<br>
+    ⑤ 在 <code>main()</code> 裡 <code>new</code> 三個節點串起來、印出來，最後<strong>記得 delete</strong>。</p>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 過關標準</div>
+    <p style="margin-bottom:0;">如果你能不看答案寫出來、而且五個 <code>delete</code> 都放對位置（提示：要<strong>從後面往前刪</strong>，先刪頭的話就找不到後面了），你已經準備好進第 04 章了。</p>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P8 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">class</span> 類別名稱 {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        型別 成員變數;                    <span class="com">// 預設就是 private</span>
+<span class="line"></span></span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        類別名稱(參數) { … }              <span class="com">// 建構式：同名、沒有回傳型別</span>
+<span class="line"></span>        類別名稱() { … }                  <span class="com">// 多載：參數列不同就是不同版本</span>
+<span class="line"></span></span>
+<span class="line">        回傳型別 成員函式(參數) <span class="kw">const</span> {    <span class="com">// const = 我保證不改成員</span>
+<span class="line"></span>            <span class="kw">return</span> 成員變數;</span>
+<span class="line">        }</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">friend</span> ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp;, <span class="kw">const</span> 類別名稱&amp;);   <span class="com">// 開門給外部函式</span>
+<span class="line"></span>};</span>
+<span class="line"> </span>
+<span class="line">類別名稱 <span class="fn">物件</span>(引數);            <span class="com">// 建在堆疊上，離開範圍自動消失</span>
+<span class="line"></span>類別名稱 *p = <span class="kw">new</span> 類別名稱(引數);  <span class="com">// 建在堆積上，要自己 delete</span>
+<span class="line"></span></span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">C++ ↔ Python 對照</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>概念</th><th>C++</th><th>Python</th></tr></thead>
+    <tbody>
+      <tr><td>建構式</td><td class="mono">類別名稱(…)</td><td class="mono">__init__</td></tr>
+      <tr><td>指向自己</td><td class="mono">this（指標，隱含）</td><td class="mono">self（參數，要明寫）</td></tr>
+      <tr><td>藏起來</td><td class="mono">private（編譯器強制）</td><td>底線開頭（只是約定）</td></tr>
+      <tr><td>印出來</td><td class="mono">operator&lt;&lt;</td><td class="mono">__str__</td></tr>
+      <tr><td>唯讀承諾</td><td class="mono">函式後面加 const</td><td>沒有對應機制</td></tr>
+      <tr><td>同名多版本</td><td>參數列不同即可</td><td>只能靠預設參數</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted);">繼承、多型、<code>virtual</code>、運算子多載與 template，見 <a href="p9_oop_advanced.html"><strong>P9 · 物件導向（進階）</strong></a>。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://github.com/pearcej/cppds/tree/master/_sources/Introduction" target="_blank" rel="noopener">cppds · Introduction</a></td><td>教科書用 <code>Fraction</code> 與邏輯閘介紹類別，本站<a href="introduction.html">第 01 章</a>有互動版。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/classes" target="_blank" rel="noopener">cppreference · Classes</a></td><td>存取控制、建構式、成員函式的完整規則。</td></tr>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的 <code>&#78;ode</code> 貼進去，看物件的成員在記憶體裡怎麼排。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="bankquiz">
+  <div class="section-number">QUIZ · 自我檢測</div>
+  <h2>自我檢測：物件導向基礎 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">class Node {
+    private:
+        int data;
+        Node *next;
+    public:
+        Node(int d) { data = d; next = NULL; }
+        int getData() const { return data; }
+};
+
+int main() {
+    Node n(93);
+    cout &lt;&lt; n.getData();
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。Node n(93) 建立物件時會自動執行建構式，把 93 存進 data。getData 是公開的，所以外面讀得到。">93</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。建構式已經把 data 設成 93 了。未初始化才會是垃圾值。">0</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。程式並沒有從外面直接碰 data，而是透過公開的 getData。這正是封裝的用法。">編譯錯誤，data 是 private</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。getData 回傳的是 int，不是指標。">會印出記憶體位址</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式為什麼編不過？</div>
+    <pre class="sq-code">class Node {
+    private:
+        int data;
+    public:
+        Node(int d) { data = d; }
+};
+
+int main() {
+    Node n(93);
+    cout &lt;&lt; n.data;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。C++ 的 private 是編譯器強制的，不像 Python 的底線只是約定。錯誤訊息會說 is private within this context。要讀它就得提供一個公開的 getter。">data 是 private，從類別外面不能存取</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。建構式與類別同名、沒有回傳型別，寫法完全正確。">建構式寫錯了</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。cout 印 int 完全沒問題，問題出在存取權限。">cout 不能印 int</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。main 可以省略 return 0，編譯器會自動補上。">少寫 return 0</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>類別的成員如果沒有寫任何存取區段，預設是什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。這是 class 與 struct 在 C++ 裡唯一的差別。所以建構式忘了放在 public 底下就會出現「明明有建構式卻不能建立物件」的錯誤。">class 預設 private，struct 預設 public</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。struct 是 public，但 class 是 private，這是它們唯一的差異。">兩者都預設 public</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。struct 為了與 C 相容，預設是 public。">兩者都預設 private</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。可以省略，只是會套用各自的預設值。">C++ 規定一定要明寫，不能省略</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>以下程式印出什麼？（Fraction 有兩參數、單參數、無參數三個建構式）</div>
+    <pre class="sq-code">Fraction a(3, 4);
+Fraction b(5);
+Fraction c;
+cout &lt;&lt; a &lt;&lt; &quot; &quot; &lt;&lt; b &lt;&lt; &quot; &quot; &lt;&lt; c;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。編譯器依引數個數挑建構式：兩個引數挑第一個、一個引數挑第二個（分母補 1）、沒有引數挑第三個（預設 1/1）。這叫多載，Python 只能靠預設參數繞。">3/4 5/1 1/1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。單參數與無參數版本都有明確設定分母，不會是 0。">3/4 5/0 0/0</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。只要參數列不同就是合法的多載，這正是 C++ 與 Python 的差別之一。">編譯錯誤，同名函式不能有三個版本</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。Fraction 有定義 operator&lt;&lt;，所以印得出人看得懂的內容。">3/4 然後兩個記憶體位址</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>為什麼 operator&lt;&lt; 不能寫成類別的成員函式，而要寫在外面加 friend？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。成員函式的左運算元一定是自己那個類別的物件，但這裡左邊是 cout。所以只能寫成外部函式；而它又要讀 private 成員，就用 friend 開一道門。">因為 cout &lt;&lt; f 的左運算元是 ostream 而不是你的物件</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。&lt;&lt; 是可以多載的，這正是本題在做的事。">因為 C++ 不允許多載 &lt;&lt; 運算子</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。成員函式當然可以回傳參考，這跟本題無關。">因為成員函式不能回傳參考</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。friend 與效能無關，它只影響存取權限。">因為 friend 比較快</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>把 Stack 內部的 vector 從 private 改成 public，會有什麼後果？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。公開之後別人可以對它呼叫 insert(3, x) 或 sort()，那就不再是「後進先出」了。封裝的判準就是問：這個成員被外面亂改會不會破壞結構的契約。">使用者可以繞過 push／pop 直接操作 vector，堆疊的契約就守不住了</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。差別在你對介面還有沒有控制權。內部實作一旦公開，之後想換成鏈結串列就會影響到所有呼叫端。">沒有差別，只是寫法不同</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。public 成員完全合法，問題是設計上的而不是語法上的。">會編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。存取控制是編譯期的檢查，對執行效能沒有影響。">效能會變差</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p7_files_exceptions.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">檔案與例外</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p9_oop_advanced.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">物件導向（進階）</div></a></div>
+</div>
+
+<footer>
+  先備知識 P8 · 物件導向（基礎）· 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "類別（Class）", "back": "建立物件的藍圖：定義這一族物件會有哪些成員變數與成員函式。藍圖只有一份，照著它可以蓋出無數個物件。"}, {"front": "物件／實例（Object / Instance）", "back": "照著類別藍圖實際建立出來的東西。每個實例各自持有自己的成員變數，彼此互不影響。"}, {"front": "成員變數（Member Variable）", "back": "類別裡用來存放資料的變數，例如 Node 的 data 與 next。物件的大小就是所有成員加起來（再加上對齊補的位元組）。"}, {"front": "成員函式（Member Function）", "back": "定義在類別裡的函式，可以直接存取自己的成員變數。C++ 沒有像 Python 那樣把 self 寫在參數列，而是由編譯器偷偷傳一個 this 進來。"}, {"front": "建構式（Constructor）", "back": "與類別同名、沒有回傳型別的特殊成員函式，建立物件時自動執行，負責把初始狀態填好。你不會自己呼叫它。"}, {"front": "本體指標（this）", "back": "成員函式裡隱含可用的指標，指向呼叫這個函式的物件本人。平常不必寫，只有在參數與成員同名時才需要用 this->data 來分辨。"}, {"front": "存取控制（Access Specifier）", "back": "public 任何人都能存取、private 只有自己的成員函式能存取、protected 再加上子類別。class 沒寫的話預設是 private，struct 預設是 public。"}, {"front": "封裝（Encapsulation）", "back": "把內部實作細節藏起來、只暴露有意義操作的設計原則。判準是問「這個成員被外面亂改會不會破壞結構的契約」，會就藏起來。"}, {"front": "取值與設值函式（Getter / Setter）", "back": "用來讀寫 private 成員的公開函式。dscpp 的 Node 就有 getData／getNext／setData／setNext 四個。好處是之後想加檢查時，呼叫端一行都不用改。"}, {"front": "唯讀成員函式（const Member Function）", "back": "寫在參數列後面的 const，是對編譯器承諾這個函式不會改動任何成員。const 物件只能呼叫 const 成員函式，所以傳 const 參考時所有讀取函式都必須加。"}, {"front": "多載（Overloading）", "back": "同一個名字可以有多個版本，只要參數列不同就好，由編譯器依引數挑選。dscpp 的 Fraction 就有兩參數、單參數、無參數三個建構式。"}, {"front": "運算子多載（Operator Overloading）", "back": "讓內建運算子對自訂型別也有意義。Fraction 定義了 operator+ 與 operator== 之後就能直接寫 a + b。詳見 P9。"}, {"front": "串流輸出運算子（operator<<）", "back": "讓 cout << 你的物件 能運作的函式。因為左邊是 ostream 而不是你的物件，它不能寫成成員函式，只能寫在類別外面並用 friend 開門。記得要 return stream 才能串接。"}, {"front": "友誼宣告（friend）", "back": "允許某個外部函式或類別存取自己 private 成員的宣告。最常見的用途就是 operator<<，因為它必須寫在類別外面卻又要讀私有資料。"}, {"front": "組合（Composition）", "back": "「A 擁有一個 B」的設計關係，例如 Stack 內部持有一個 vector。資料結構課裡最常用的蓋法：外界只看得到你提供的操作，內部實作可以隨時抽換。"}, {"front": "標頭檔（Header File, .hpp）", "back": "放類別定義、讓別的檔案 #include 進來用的檔案。#include 的行為就是把整份內容原地貼過來，所以需要 include guard 防止重複定義。"}, {"front": "引入防護（Include Guard）", "back": "用 #ifndef／#define／#endif 包住整份標頭檔，確保同一個檔案被 include 第二次時整段跳過。dscpp 的每一支 .hpp 開頭都有。"}, {"front": "抽象資料型別（Abstract Data Type, ADT）", "back": "只描述「有哪些操作、各自代表什麼意思」而不指定如何實作的資料模型。堆疊、佇列、映射都是 ADT；class 則是把某個 ADT 具體實作出來的工具。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+</body>
+</html>

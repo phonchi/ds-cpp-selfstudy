@@ -1,0 +1,157 @@
+[
+ {
+  "question": "以下程式印出什麼？",
+  "code": "#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, int> m;\n    m[\"pear\"] = 30;\n    cout << m[\"mango\"] << \" \";\n    cout << m.count(\"kiwi\") << \" \";\n    cout << m.size() << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "0 0 2",
+    "correct": true,
+    "feedback": "正確。m[\"mango\"] 查不到會當場插入一筆，值是預設初始化的 0，所以印出 0 而且 size 從 1 變成 2。m.count(\"kiwi\") 回傳 0 且不會建鍵，所以最後 size 是 2 而不是 3。"
+   },
+   {
+    "answer": "0 0 1",
+    "correct": false,
+    "feedback": "漏算了 m[\"mango\"] 造成的插入。operator[] 是會改動容器的操作，只有 count 與 find 才是唯讀的。"
+   },
+   {
+    "answer": "0 0 3",
+    "correct": false,
+    "feedback": "count 不會建鍵，它只是數符合的筆數。會建鍵的只有 operator[] 那一行。"
+   },
+   {
+    "answer": "程式會丟出例外",
+    "correct": false,
+    "feedback": "那是 Python dict 的行為（KeyError）。C++ 的 map 用 [] 查不到不會出錯，要丟例外得改用 m.at(k)。"
+   }
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "#include <iostream>\n#include <set>\nusing namespace std;\n\nint main() {\n    set<int> s;\n    s.insert(93); s.insert(17); s.insert(93);\n    s.insert(31); s.insert(17);\n    cout << s.size() << \": \";\n    for (set<int>::iterator it = s.begin(); it != s.end(); ++it)\n        cout << *it << \" \";\n    cout << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "3: 17 31 93",
+    "correct": true,
+    "feedback": "正確。set 自動去重，丟五次只留三種；走訪又是照鍵排好的，所以是由小到大的 17 31 93，跟插入順序無關。"
+   },
+   {
+    "answer": "5: 93 17 93 31 17",
+    "correct": false,
+    "feedback": "set 不是 vector。重複的鍵在 insert 時就被吃掉了，不會留兩份。"
+   },
+   {
+    "answer": "3: 93 17 31",
+    "correct": false,
+    "feedback": "去重的部分對了，但 set 的走訪是排序好的，不是插入順序。想保留插入順序要自己用 vector 加一個 set 來記錄看過沒。"
+   },
+   {
+    "answer": "3: 93 31 17",
+    "correct": false,
+    "feedback": "set 預設由小到大。要由大到小可以用 rbegin()／rend() 反向走訪，或宣告 set 時把第二個樣板參數指定成 greater。"
+   }
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    string w[5] = {\"b\", \"a\", \"b\", \"c\", \"b\"};\n    map<string, int> freq;\n    for (int i = 0; i < 5; i++) freq[w[i]]++;\n    for (auto& [k, n] : freq) cout << k << n << \" \";\n    cout << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "a1 b3 c1",
+    "correct": true,
+    "feedback": "正確。freq[w[i]]++ 對沒看過的鍵會先建一筆值為 0 的資料再加一，所以不必先判斷鍵在不在。輸出照鍵排序，是 map 的走訪特性。"
+   },
+   {
+    "answer": "b3 a1 c1",
+    "correct": false,
+    "feedback": "次數算對了，但順序錯。map 走訪是照鍵排好的，不是照第一次出現的順序。要照插入順序得自己另外記錄。"
+   },
+   {
+    "answer": "b1 a1 b1 c1 b1",
+    "correct": false,
+    "feedback": "map 的鍵不會重複，同一個鍵只會有一筆資料，++ 是累加在同一筆上。"
+   },
+   {
+    "answer": "編譯錯誤，freq[w[i]] 還不存在不能 ++",
+    "correct": false,
+    "feedback": "operator[] 在鍵不存在時會回傳一個新建資料的參考，++ 作用在那個真實存在的 0 上面，完全合法。這正是計數寫法可以只有一行的原因。"
+   }
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, int> m;\n    m[\"pear\"] = 30;\n    map<string, int>::iterator it = m.find(\"kiwi\");\n    if (it == m.end()) cout << \"miss \";\n    else cout << it->second << \" \";\n    cout << m.size() << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "miss 1",
+    "correct": true,
+    "feedback": "正確。find 找不到時回傳 end()，這是一個哨兵位置，不能解參考。find 是唯讀的，所以 size 還是 1。想同時判斷與取值就用 find，比先 count 再 [] 少查一次。"
+   },
+   {
+    "answer": "miss 2",
+    "correct": false,
+    "feedback": "find 不會建鍵，只有 operator[] 會。size 維持 1。"
+   },
+   {
+    "answer": "0 1",
+    "correct": false,
+    "feedback": "find 回傳的是迭代器不是值，找不到時等於 end()，所以走的是 if 那一支。回傳 0 的是 count。"
+   },
+   {
+    "answer": "程式當掉",
+    "correct": false,
+    "feedback": "程式沒有解參考 end()，只是拿它來比較，這是合法而且標準的寫法。真的寫 it->second 而 it 等於 end() 才會出事。"
+   }
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "#include <iostream>\n#include <map>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, vector<string>> adj;\n    adj[\"A\"].push_back(\"B\");\n    adj[\"A\"].push_back(\"C\");\n    adj[\"B\"].push_back(\"C\");\n    cout << adj.size() << \" \";\n    cout << adj[\"C\"].size() << \" \";\n    cout << adj.size() << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "2 0 3",
+    "correct": true,
+    "feedback": "正確。前兩行只建了 A 與 B 兩個鍵，所以第一個 adj.size() 是 2。接著 adj[\"C\"] 是一次 operator[]，它替 C 建了一個空的 vector（size 0），於是最後一個 adj.size() 變成 3。相鄰串列常見的 bug 就是這樣多出一堆空頂點。"
+   },
+   {
+    "answer": "2 0 2",
+    "correct": false,
+    "feedback": "adj[\"C\"] 不是唯讀操作。即使只是讀它的 size()，鍵 C 也已經被插進 map 裡了，最後的 size 會是 3。"
+   },
+   {
+    "answer": "2 1 3",
+    "correct": false,
+    "feedback": "C 只出現在別人的鄰居串列裡，它自己的鄰居串列是空的，size 是 0。有向圖裡「被指到」不等於「指出去」。"
+   },
+   {
+    "answer": "3 0 3",
+    "correct": false,
+    "feedback": "第一次印 size 時只有 A 與 B 兩個鍵，C 還沒被建出來。C 是下一行的 adj[\"C\"] 才生出來的。"
+   }
+  ]
+ },
+ {
+  "question": "你要處理一份一百萬筆的資料，只需要不斷查詢「這個鍵在不在」，完全不需要照順序輸出。應該選哪個容器，為什麼？",
+  "answers": [
+   {
+    "answer": "unordered_set，因為雜湊查詢平均是常數時間，比紅黑樹的對數時間快一個檔次",
+    "correct": true,
+    "feedback": "正確。只查不排就選雜湊版。代價是走訪順序不保證，而且最壞情況（大量碰撞）會退化成線性時間，但一般的鍵分布不會發生。第 07 章會解釋雜湊表為什麼做得到這件事。"
+   },
+   {
+    "answer": "set，因為它會自動排序，查起來比較快",
+    "correct": false,
+    "feedback": "排序跟查詢速度沒有因果關係。set 是紅黑樹，查詢是對數時間，比雜湊版慢；排序只有在你需要有序輸出時才是好處。"
+   },
+   {
+    "answer": "vector，先排序再用二分搜尋",
+    "correct": false,
+    "feedback": "這在資料固定不變時是可行的方案，但只要中途要插入新鍵就得重新排序，成本很高。純查詢的場合雜湊版更直接。"
+   },
+   {
+    "answer": "map，因為只有 map 才有 count 可以查",
+    "correct": false,
+    "feedback": "四個容器都有 count。而且這題只有鍵沒有值，用 map 等於浪費一個值的空間，該選 set 這一系列。"
+   }
+  ]
+ }
+]

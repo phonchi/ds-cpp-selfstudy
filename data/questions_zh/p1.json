@@ -1,0 +1,61 @@
+[
+ {
+  "question": "以下程式印出什麼？",
+  "code": "int a = 7, b = 2;\ncout << a / b << \" \" << a % b << endl;",
+  "answers": [
+   {"answer": "3 1", "correct": true, "feedback": "正確。兩邊都是 int，/ 做的是整數除法，小數直接截掉得到 3；% 取的是餘數 1。第 06 章的進位制轉換 toStr 就是靠這兩個運算子，一個往下遞迴、一個取出這一位。"},
+   {"answer": "3.5 1", "correct": false, "feedback": "不對。3.5 是 Python 3 的答案。C++ 只要 / 的兩邊都是整數就做整數除法，要浮點結果得先把一邊轉成 double。"},
+   {"answer": "3 3.5", "correct": false, "feedback": "不對。% 是取餘數運算子，不是除法，而且它只能用在整數上，7.0 % 2 會編譯錯誤。"},
+   {"answer": "4 1", "correct": false, "feedback": "不對。整數除法是往零的方向截斷，不是四捨五入。7 / 2 得到 3 而不是 4。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "int x = 10;\ndouble y = x / 4;\ncout << y << endl;",
+  "answers": [
+   {"answer": "2", "correct": true, "feedback": "正確。y 雖然是 double，但等號右邊的 x / 4 兩邊都是 int，除法先做完得到 2，才被轉成 2.0 存進 y。轉型必須發生在除法之前才有用。"},
+   {"answer": "2.5", "correct": false, "feedback": "不對。這是很多人以為的答案，但編譯器不會因為左邊是 double 就回頭改變右邊的算法。要拿到 2.5 得寫 static_cast<double>(x) / 4。"},
+   {"answer": "2.0", "correct": false, "feedback": "值確實是 2.0，但 cout 預設不印多餘的 0，所以螢幕上會看到 2。要固定印小數位得用 setprecision 搭配 fixed。"},
+   {"answer": "編譯錯誤", "correct": false, "feedback": "不對。把 int 指派給 double 是合法的隱式轉換，完全編得過。這正是這個坑危險的地方：沒有任何錯誤訊息。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？（注意這在 Python 是另一個意思）",
+  "code": "cout << boolalpha << (10 < 5 < 3) << endl;",
+  "answers": [
+   {"answer": "true", "correct": true, "feedback": "正確。C++ 從左邊算起：10 < 5 得到 false，也就是 0；接著算 0 < 3，成立，所以是 true。要表達範圍檢查一定要寫成 (5 < x) && (x < 10)。"},
+   {"answer": "false", "correct": false, "feedback": "不對。false 是 Python 的答案，因為 Python 的連續比較會自動展開成 and。C++ 沒有這個語法糖，只會從左到右兩兩比較。"},
+   {"answer": "1", "correct": false, "feedback": "值確實是真，但這行先丟了 boolalpha 進 cout，之後的 bool 就會印成 true 或 false 而不是 1 或 0。"},
+   {"answer": "編譯錯誤", "correct": false, "feedback": "不對。這行完全合法，這正是它危險的地方。編譯器只看到兩個合法的比較運算，不會知道你想寫的是範圍檢查。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "int i = 5;\ncout << i++ << \" \";\ncout << i << endl;",
+  "answers": [
+   {"answer": "5 6", "correct": true, "feedback": "正確。i++ 是後置遞增：先把舊值 5 交出去印，之後才把 i 加成 6。如果寫成 ++i，印出來的就會是 6 6。"},
+   {"answer": "6 6", "correct": false, "feedback": "不對，那是 ++i 的行為。前置遞增先加再交出新值，後置遞增先交出舊值再加。"},
+   {"answer": "5 5", "correct": false, "feedback": "不對。i++ 確實會把 i 加一，只是加的時機在把舊值交出去之後。第二行印的是已經變成 6 的 i。"},
+   {"answer": "6 5", "correct": false, "feedback": "不對。第一個 cout 一定先執行，不可能印出比第二個大的值。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？（在 64 位元 Linux 上）",
+  "code": "int a[5] = {1, 2, 3, 4, 5};\ncout << sizeof(int) << \" \" << sizeof(a) << \" \" << sizeof(a) / sizeof(int) << endl;",
+  "answers": [
+   {"answer": "4 20 5", "correct": true, "feedback": "正確。一個 int 佔 4 bytes，五個就是 20，相除得到元素個數 5。第 03 章算陣列元素位址就是用這個 4：第 i 格在起始位址加上 i 乘以 sizeof(元素)。"},
+   {"answer": "4 5 1", "correct": false, "feedback": "不對。sizeof(a) 量的是整個陣列佔的位元組數 20，不是元素個數。元素個數要自己用 sizeof(a) / sizeof(int) 算出來。"},
+   {"answer": "8 40 5", "correct": false, "feedback": "不對。8 是指標與 double 的大小，int 在主流平台上是 4 bytes。要問大小就寫 sizeof，不要用機器位元數去猜。"},
+   {"answer": "4 20 4", "correct": false, "feedback": "不對。20 除以 4 是 5，剛好等於元素個數。這個除法在陣列傳進函式之後就失效了，因為那時 sizeof 量到的是指標。"}
+  ]
+ },
+ {
+  "question": "編譯時出現 undefined reference to addUp(int, int)，這個錯誤發生在哪一個階段？該往哪裡找？",
+  "answers": [
+   {"answer": "連結階段。某個函式只有宣告沒有定義，或編譯指令少放了一個原始檔", "correct": true, "feedback": "正確。這類訊息開頭通常是 /usr/bin/ld，而且不會指到你的哪一行，因為連結器看的是整個程式而不是單一檔案。前面三個階段都已經順利通過了。"},
+   {"answer": "前處理階段。include 的路徑寫錯了", "correct": false, "feedback": "不對。前處理找不到檔案的訊息是 fatal error 加上 No such file or directory，那是另一種錯。"},
+   {"answer": "編譯階段。函式的參數型別打錯了", "correct": false, "feedback": "不對。參數型別對不上是編譯階段的錯，訊息會是 no matching function for call to，而且會指到你呼叫的那一行。"},
+   {"answer": "執行階段。程式跑到那一行才發現函式不存在", "correct": false, "feedback": "不對。C++ 在產生執行檔之前就必須把每個名字接上實作，接不上就根本產不出執行檔，程式一次都沒跑過。"}
+  ]
+ }
+]

@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>map、set 與迭代器 — 先備 P6（C++）</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+/* ===== 題庫自測區 ===== */
+.sq-item{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+.sq-item .sq-q{font-weight:700;margin-bottom:.7rem;}
+.sq-item .sq-q .sq-num{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:.4rem;}
+.sq-opts{display:flex;flex-direction:column;gap:.45rem;}
+.sq-opt{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.6;padding:.55rem .9rem;border-radius:8px;border:1px solid var(--card-border);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;}
+.sq-opt:hover{border-color:var(--accent2);}
+.sq-opt.correct{border-color:var(--accent3);background:rgba(26,107,74,.10);}
+.sq-opt.wrong{border-color:var(--accent);background:rgba(192,57,43,.08);}
+.sq-fb{display:none;margin-top:.7rem;font-size:.86rem;line-height:1.7;border-left:4px solid var(--accent2);padding:.5rem .9rem;background:var(--paper);border-radius:0 8px 8px 0;}
+.sq-fb.show{display:block;}
+.sq-fb.good{border-left-color:var(--accent3);}
+.sq-fb.bad{border-left-color:var(--accent);}
+.sq-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.55;padding:.7rem .9rem;border-radius:8px;margin:.2rem 0 .8rem;overflow-x:auto;white-space:pre;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">用名字查東西</span></a>
+  <a href="#mapbasic" data-target="mapbasic"><span class="fn-num">P01</span><span class="fn-name">map 基礎</span></a>
+  <a href="#bracket" data-target="bracket"><span class="fn-num">P02</span><span class="fn-name">operator[] 的陷阱</span></a>
+  <a href="#set" data-target="set"><span class="fn-num">P03</span><span class="fn-name">set</span></a>
+  <a href="#ordered" data-target="ordered"><span class="fn-num">P04</span><span class="fn-name">有序 vs 無序</span></a>
+  <a href="#iterator" data-target="iterator"><span class="fn-num">P05</span><span class="fn-name">迭代器</span></a>
+  <a href="#traverse" data-target="traverse"><span class="fn-num">P06</span><span class="fn-name">走訪 map</span></a>
+  <a href="#patterns" data-target="patterns"><span class="fn-num">P07</span><span class="fn-name">三個常用組合</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="26" y="40" width="96" height="34" rx="6"/>
+    <rect x="26" y="88" width="96" height="34" rx="6"/>
+    <rect x="26" y="136" width="96" height="34" rx="6"/>
+    <rect x="186" y="64" width="86" height="34" rx="6"/>
+    <rect x="186" y="112" width="86" height="34" rx="6"/>
+    <path d="M122 57 L186 81"/>
+    <path d="M122 105 L186 129"/>
+    <path d="M122 153 L186 129"/>
+  </g>
+  <g fill="#fff" opacity=".8" font-family="monospace" font-size="12">
+    <text x="46" y="62">"pear"</text><text x="46" y="110">"kiwi"</text><text x="46" y="158">"fig"</text>
+    <text x="216" y="86">30</text><text x="216" y="134">60</text>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P6</div>
+    <h1><span class="blue">map</span>、<span class="green">set</span> 與<span class="orange">迭代器</span></h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">m[k]｜count／find｜set 去重｜有序 vs 雜湊｜begin() / end()｜m[k]++</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>用名字查，不是用編號查</a>
+    <a href="#mapbasic"><span class="toc-num">P01</span>map 基礎操作</a>
+    <a href="#bracket"><span class="toc-num">P02</span>operator[] 會自己建鍵</a>
+    <a href="#set"><span class="toc-num">P03</span>set：只有鍵的容器</a>
+    <a href="#ordered"><span class="toc-num">P04</span>有序 vs 無序：什麼時候用哪個</a>
+    <a href="#iterator"><span class="toc-num">P05</span>迭代器：容器的共同語言</a>
+    <a href="#traverse"><span class="toc-num">P06</span>走訪 map 的三種寫法</a>
+    <a href="#patterns"><span class="toc-num">P07</span>計數、去重、分組</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>用名字查東西</h2>
+  <p><code>vector</code> 用編號查：<code>v[3]</code> 是「第 4 格」。可是現實裡你想查的通常是「<span class="mono">"pear"</span> 賣多少錢」「<span class="mono">"A"</span> 這個頂點連到誰」。名字不是編號，沒辦法當索引用，於是你只剩一條路：從頭一筆一筆比對過去。</p>
+  <p>那條路有多慢，跑一次就知道：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同樣一組 10 萬筆資料，查 1000 次（真的跑出來的）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_set&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">100000</span>, Q = <span class="num">1000</span>;</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; v;</span>
+<span class="line">    unordered_set&lt;<span class="kw">int</span>&gt; s;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) { v.push_back(i * <span class="num">2</span>); s.insert(i * <span class="num">2</span>); }</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 一：用 vector 從頭找到尾，查 Q 個不存在的鍵</span>
+<span class="line"></span>    <span class="kw">auto</span> t0 = chrono::steady_clock::now();</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> q = <span class="num">0</span>; q &lt; Q; q++)</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++)</span>
+<span class="line">            <span class="kw">if</span> (v[i] == q * <span class="num">2</span> + <span class="num">1</span>) <span class="kw">break</span>;</span>
+<span class="line">    <span class="kw">auto</span> t1 = chrono::steady_clock::now();</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 二：用 unordered_set 查表，查同樣那 Q 個鍵</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">int</span> q = <span class="num">0</span>; q &lt; Q; q++)</span>
+<span class="line">        s.count(q * <span class="num">2</span> + <span class="num">1</span>);</span>
+<span class="line">    <span class="kw">auto</span> t2 = chrono::steady_clock::now();</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">long</span> a = chrono::duration_cast&lt;chrono::microseconds&gt;(t1 - t0).count();</span>
+<span class="line">    <span class="kw">long</span> b = chrono::duration_cast&lt;chrono::microseconds&gt;(t2 - t1).count();</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">vector 線性搜尋 </span><span class="str">"</span> &lt;&lt; Q &lt;&lt; <span class="str">"</span><span class="str"> 次： </span><span class="str">"</span> &lt;&lt; a &lt;&lt; <span class="str">"</span><span class="str"> us</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">unordered_set 查表  </span><span class="str">"</span> &lt;&lt; Q &lt;&lt; <span class="str">"</span><span class="str"> 次： </span><span class="str">"</span> &lt;&lt; b &lt;&lt; <span class="str">"</span><span class="str"> us</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">差距： </span><span class="str">"</span> &lt;&lt; a / (b ? b : <span class="num">1</span>) &lt;&lt; <span class="str">"</span><span class="str"> 倍</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>vector 線性搜尋 1000 次： 97072 us
+unordered_set 查表  1000 次： 33 us
+差距： 2941 倍</pre></div>
+  <p class="dx-note">兩段迴圈做的事一模一樣：查 1000 個不存在的鍵。差別只在資料放在哪裡。<code>vector</code> 每查一次都要從頭掃到尾，1000 次就是一億次比較；<code>unordered_set</code> 把鍵丟進雜湊函式算一次，直接跳到該去的桶。時間會因機器而異，但量級差距是穩定的。</p>
+</div>
+
+  <div class="stats-grid">
+    <div class="stat-tile"><div class="stat-value">O(n)</div><div class="stat-label">vector 線性搜尋</div></div>
+    <div class="stat-tile"><div class="stat-value">O(1)</div><div class="stat-label">unordered_set 平均</div></div>
+    <div class="stat-tile"><div class="stat-value">O(log n)</div><div class="stat-label">map 有序版本</div></div>
+  </div>
+
+  <p>這一頁講的 <code>map</code> 與 <code>set</code>，就是 C++ 幫你準備好的「用名字查」的容器。它們同時是第 07 章雜湊表與第 08 章圖的前置知識：那兩章的程式碼你只要打開來看，滿滿都是這兩個東西。</p>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 07 章</div><p style='margin-bottom:0;'>〈搜尋與排序〉那一章會把 <code>unordered_map</code> 的蓋子掀開來：雜湊函式怎麼把鍵算成桶編號、兩個鍵算到同一個桶（碰撞）時怎麼辦、負載因子多大就該重新配置。上面那個「差幾千倍」的數字，整章都在解釋它為什麼成立。你也會自己寫一個 <code>HashTable</code>，寫完再回頭看 <code>unordered_map</code> 就不神祕了。</p></div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 本頁最容易踩的坑：課程的 C++ kernel 不會自動 include</div>
+    <p>notebook 的 kernel 預設只幫你帶 <code>&lt;iostream&gt;</code> 那一類的基本標頭。<strong><code>&lt;map&gt;</code>、<code>&lt;set&gt;</code>、<code>&lt;unordered_map&gt;</code>、<code>&lt;unordered_set&gt;</code>、<code>&lt;iterator&gt;</code> 都要自己寫。</strong></p>
+    <p style="margin-bottom:0;">所以本頁每一段可執行的範例都寫成<strong>完整程式</strong>（<code>#include</code> ＋ <code>main()</code>），你可以整段複製貼上。另外注意：<code>#include</code> 不能被 kernel 的自動包裝塞進 <code>main()</code> 裡面，一格裡有 <code>#include</code> 就把整支程式（含 <code>main</code>）寫完整。詳細規矩看 <a href="00b_setup.html">00B · 環境設定</a> 的 FAQ。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">忘記 #include &lt;map&gt; 的下場（編譯錯誤前三行）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; price;      <span class="com">// 忘了 #include &lt;map&gt;</span>
+<span class="line"></span>    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;</span>
+<span class="line">    cout &lt;&lt; price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">編譯訊息</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:5:5: error: ‘map’ was not declared in this scope
+    5 |     map&lt;string, int&gt; price;      // 忘了 #include &lt;map&gt;</pre></div>
+  <p class="dx-note"><code>&lt;iostream&gt;</code> 不會順便把 <code>map</code> 帶進來。看到 <code>‘map’ was not declared in this scope</code>，九成是漏了 include，不是你的語法寫錯。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但第 08 章的相鄰串列是 <code>map&lt;頂點, vector&lt;鄰居&gt;&gt;</code>、第 07 章整章在講 <code>unordered_map</code> 的內部，這一頁不熟，那兩章會卡在語法上而不是卡在觀念上。</p>
+  </div>
+</section>
+<section id="mapbasic">
+  <div class="section-number">PART 01 · map 基礎</div>
+  <h2><code>map&lt;K, V&gt;</code>：一張鍵對值的表</h2>
+  <p>宣告的時候要講清楚兩件事：鍵長什麼樣、值長什麼樣。<code>map&lt;string, int&gt;</code> 就是「用字串查整數」。Python 的 <code>dict</code> 不必先講，因為它同一個容器裡可以塞各種型別；C++ 的容器是同質的，型別在編譯期就釘死。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">map 的六個基本動作</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
+<span class="line"> </span>
+<span class="line">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;                       <span class="com">// 用 [] 放進去</span>
+<span class="line"></span>    price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>;</span>
+<span class="line">    price.insert(make_pair(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>, <span class="num">60</span>));      <span class="com">// 用 insert 放進去</span>
+<span class="line"></span></span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">apple 賣 </span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">有沒有 kiwi？ </span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">有沒有 mango？ </span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">mango</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">50</span>;                      <span class="com">// 同一個鍵再指派＝覆蓋</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">改價後 apple 賣 </span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] &lt;&lt; <span class="str">"</span><span class="str">，size 還是 </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    price.erase(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">刪掉 pear 後 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>size = 3
+apple 賣 45
+有沒有 kiwi？ 1
+有沒有 mango？ 0
+改價後 apple 賣 50，size 還是 3
+刪掉 pear 後 size = 2</pre></div>
+  <p class="dx-note">四件事值得注意：① <code>map&lt;string, int&gt;</code> 的兩個型別是<strong>鍵的型別</strong>與<strong>值的型別</strong>，順序不能反。② <code>insert</code> 要包成一組 <code>pair</code>，所以有 <code>make_pair</code>。③ <code>count</code> 只回傳 0 或 1（<code>map</code> 的鍵不會重複），拿來當「在不在」的判斷剛好。④ 同一個鍵再指派一次是<strong>覆蓋</strong>，<code>size()</code> 不會變。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>你想做的事</th><th>寫法</th><th>回傳什麼</th></tr></thead>
+    <tbody>
+      <tr><td>放進去／改掉</td><td class="mono">m[k] = v;</td><td>沒有回傳值，鍵不存在就新增</td></tr>
+      <tr><td>放進去（已存在就不動）</td><td class="mono">m.insert(make_pair(k, v));</td><td>一組 pair：迭代器 ＋ 有沒有成功放進去</td></tr>
+      <tr><td>問「在不在」</td><td class="mono">m.count(k)</td><td>0 或 1</td></tr>
+      <tr><td>找到並拿出來</td><td class="mono">m.find(k)</td><td>迭代器，找不到時等於 <code>m.end()</code></td></tr>
+      <tr><td>刪掉一個鍵</td><td class="mono">m.erase(k);</td><td>刪掉幾筆（0 或 1）</td></tr>
+      <tr><td>問有幾筆</td><td class="mono">m.size()</td><td>目前的鍵數</td></tr>
+      <tr><td>清空</td><td class="mono">m.clear();</td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">count 與 find 的分工</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
+<span class="line">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// count：只想知道在不在</span>
+<span class="line"></span>    <span class="kw">if</span> (price.count(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>)) cout &lt;&lt; <span class="str">"</span><span class="str">count 說 pear 在</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// find：想知道在不在，順便把值拿出來</span>
+<span class="line"></span>    map&lt;string, <span class="kw">int</span>&gt;::iterator it = price.find(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
+<span class="line">    <span class="kw">if</span> (it != price.end())</span>
+<span class="line">        cout &lt;&lt; <span class="str">"</span><span class="str">find 找到 </span><span class="str">"</span> &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str"> = </span><span class="str">"</span> &lt;&lt; it-&gt;second &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt;::iterator miss = price.find(<span class="str">"</span><span class="str">mango</span><span class="str">"</span>);</span>
+<span class="line">    <span class="kw">if</span> (miss == price.end())</span>
+<span class="line">        cout &lt;&lt; <span class="str">"</span><span class="str">find 找不到 mango，回傳的是 end()</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>count 說 pear 在
+find 找到 pear = 30
+find 找不到 mango，回傳的是 end()</pre></div>
+  <p class="dx-note"><code>count</code> 回答「在不在」，<code>find</code> 回傳一個<strong>迭代器</strong>：找到就指著那一組資料，找不到就等於 <code>end()</code>。想拿值就用 <code>find</code>，只想判斷就用 <code>count</code>，免得同一個鍵查兩次。<code>it-&gt;first</code> 是鍵、<code>it-&gt;second</code> 是值，這兩個名字後面會一直出現。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 鍵的型別有一個條件</div>
+    <p style="margin-bottom:0;"><code>map</code> 內部靠「比大小」把鍵排好，所以鍵的型別必須支援 <code>&lt;</code>。<code>int</code>、<code>double</code>、<code>string</code> 都內建有，直接可以用。等你到 <a href="p9_oop_advanced.html">P9</a> 想把自己寫的類別當鍵，就得自己多載 <code>operator&lt;</code>，否則編譯器會噴一大串看不懂的樣板錯誤。</p>
+  </div>
+</section>
+<section id="bracket">
+  <div class="section-number">PART 02 · operator[] 的陷阱</div>
+  <h2><code>m[k]</code> 查不到，會自己建一個 <span class="sec-badge">與 Python 差最多的一點</span></h2>
+  <p>Python 的 <code>d["mango"]</code> 查不到會丟 <code>KeyError</code>，很吵，但也很誠實 —— 你馬上知道出事了。C++ 的 <code>m["mango"]</code> 不吵，它安靜地替你插一筆進去，然後回傳那筆的值。程式照跑，錯誤要等到很後面才會浮出來。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">只是查一下，size 卻自己長大了</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
+<span class="line">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">一開始 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 只是「查」一個不存在的鍵而已</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">查 mango：</span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">mango</span><span class="str">"</span>] &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">查完 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 再查兩個不存在的</span>
+<span class="line"></span>    price[<span class="str">"</span><span class="str">mango</span><span class="str">"</span>]; price[<span class="str">"</span><span class="str">guava</span><span class="str">"</span>]; price[<span class="str">"</span><span class="str">lychee</span><span class="str">"</span>];</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">又查三個之後 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 正確的查法：count 或 find，不會動到容器</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">count 查 durian：</span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">durian</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">用 count 查完 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>一開始 size = 1
+查 mango：0
+查完 size = 2
+又查三個之後 size = 4
+count 查 durian：0
+用 count 查完 size = 4</pre></div>
+  <p class="dx-note">從 1 變 2、再變 4。<strong><code>m[k]</code> 查不到就會當場建一個</strong>，值是<strong>預設初始化</strong>的結果：<code>int</code> 是 0、<code>double</code> 是 0.0、<code>string</code> 是空字串、<code>vector</code> 是空的。所以印出來的 <code>0</code> 不是「查不到」，是「剛剛替你建了一個 0」。最後兩行是對照組：<code>count</code> 查完 <code>size</code> 一動也不動。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>查一個不存在的鍵</th><th>Python <code>dict</code></th><th>C++ <code>map</code></th></tr></thead>
+    <tbody>
+      <tr><td>會發生什麼</td><td>丟出 KeyError，程式中斷</td><td><strong>建一個新鍵</strong>，值是預設初始化的結果</td></tr>
+      <tr><td>容器大小</td><td>不變</td><td><strong>加一</strong></td></tr>
+      <tr><td>不想動到容器的查法</td><td>d.get(k) 或 k in d</td><td class="mono">m.count(k)｜m.find(k)</td></tr>
+      <tr><td>唯讀情境</td><td>照樣可以用中括號</td><td>const map 不能用 <code>[]</code>，編譯器直接擋下來</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="brkStage" style="min-height:170px;"></div>
+        <div class="status-banner" id="brkStatus"><span class="status-icon">›</span><span class="status-text">按左邊的按鈕查一個不存在的鍵，看 <code>size()</code> 有沒有變。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="brkLookup('bracket')">▶ 用 m[k] 查</button>
+          <button class="btn btn-step" onclick="brkLookup('count')">→ 用 m.count(k) 查</button>
+          <button class="btn btn-reset" onclick="brkReset()">⟲ 重設</button>
+          <span class="mono" style="font-size:.78rem;color:var(--muted);">m.size() = <b id="brkSize">1</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">兩種查法 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="brkCode" style="font-size:.76rem;"><span class="line"><span class="kw">if</span> (m[k] != <span class="num">0</span>) { ... }        <span class="com">// 會建鍵</span>
+<span class="line"></span><span class="kw">if</span> (m.count(k)) { ... }       <span class="com">// 不會建鍵</span>
+<span class="line"></span></span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">什麼時候該用哪個 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><strong>確定要寫入</strong>（指派、<code>++</code>、<code>push_back</code>）就用 <code>m[k]</code>，它順便建鍵反而幫了你的忙。<br>
+        <strong>只是要讀或判斷</strong>就用 <code>count</code> 或 <code>find</code>。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 這段程式跑完 size 是多少</div>
+    <p>一個空的 <code>map&lt;string, int&gt; m;</code>，接著執行：<code>m["a"] = 1;</code>、<code>if (m["b"] &gt; 0) cout &lt;&lt; "yes";</code>、<code>m.count("c");</code>。最後 <code>m.size()</code> 是？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="只算了指派的那一筆。中間那個 if 裡的 m[&quot;b&quot;] 也是一次 operator[]，一樣會建鍵。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 1</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。m[&quot;a&quot;] 建了一筆、m[&quot;b&quot;] 在 if 的條件裡也建了一筆（值預設是 0，所以條件不成立，但鍵已經進去了）、m.count(&quot;c&quot;) 不會建鍵。所以是 2。這種在 if 條件裡誤建鍵的寫法最難抓，因為程式行為看起來完全正常。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 2</div>
+      <div class="quiz-opt" data-correct="false" data-fb="count 只是「數有幾筆符合」，它是唯讀操作，不會動到容器。三個鍵全建的話才會是 3。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 3</div>
+      <div class="quiz-opt" data-correct="false" data-fb="C++ 的 map 不會因為查不到而丟例外，那是 Python dict 的行為。C++ 想要「查不到就丟例外」得改用 m.at(k)。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> 程式會丟出例外</div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">想要「查不到就當場出事」的行為，用 <code>m.at(k)</code>：它查不到會丟 <code>std::out_of_range</code>，跟 Python 的 <code>KeyError</code> 是同一個脾氣。C++20 之後還有 <code>m.contains(k)</code>，比 <code>count(k)</code> 讀起來直白。<strong>本課照 cppds 教科書，考試以課程風格為準</strong>，課程用的是 <code>count</code>。</p>
+  </div>
+</section>
+<section id="set">
+  <div class="section-number">PART 03 · set</div>
+  <h2><code>set&lt;T&gt;</code>：一個「這個我見過沒有」的容器</h2>
+  <p>三個特性，一次到手：<strong>不重複</strong>、<strong>自動排序</strong>、<strong>查得快</strong>。你只要問它「這個在不在」，它不存值。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">丟了五次 apple，裡面只留一個</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    set&lt;string&gt; seen;</span>
+<span class="line"> </span>
+<span class="line">    seen.insert(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
+<span class="line">    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);</span>
+<span class="line">    seen.insert(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>);</span>
+<span class="line">    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);            <span class="com">// 重複的，直接被吃掉</span>
+<span class="line"></span>    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">丟了 5 次，size = </span><span class="str">"</span> &lt;&lt; seen.size() &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">走訪：</span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (set&lt;string&gt;::iterator it = seen.begin(); it != seen.end(); ++it)</span>
+<span class="line">        cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">apple 在嗎？ </span><span class="str">"</span> &lt;&lt; seen.count(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line">    seen.erase(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">erase 之後還在嗎？ </span><span class="str">"</span> &lt;&lt; seen.count(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>) &lt;&lt; <span class="str">"</span><span class="str">，size = </span><span class="str">"</span> &lt;&lt; seen.size() &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>丟了 5 次，size = 3
+走訪：apple kiwi pear 
+apple 在嗎？ 1
+erase 之後還在嗎？ 0，size = 2</pre></div>
+  <p class="dx-note"><code>set</code> 就是<strong>只有鍵、沒有值</strong>的 <code>map</code>：同樣不重複、同樣自動排序、同樣用 <code>count</code> 查、用 <code>erase</code> 刪。差別只在 <code>insert</code> 直接丟元素進去，以及走訪時 <code>*it</code> 就是元素本身，不必再拆 <code>first</code>／<code>second</code>。注意走訪印出來是 apple kiwi pear —— 字典序，不是丟進去的順序。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>操作</th><th class="mono">set&lt;T&gt;</th><th class="mono">map&lt;K, V&gt;</th></tr></thead>
+    <tbody>
+      <tr><td>放進去</td><td class="mono">s.insert(x);</td><td class="mono">m[k] = v;</td></tr>
+      <tr><td>查在不在</td><td class="mono">s.count(x)</td><td class="mono">m.count(k)</td></tr>
+      <tr><td>刪掉</td><td class="mono">s.erase(x);</td><td class="mono">m.erase(k);</td></tr>
+      <tr><td>走訪時 <code>*it</code> 是</td><td>元素本身</td><td>一組 pair（<code>first</code>／<code>second</code>）</td></tr>
+      <tr><td>重複丟同一個</td><td>只留一份，<code>size</code> 不變</td><td>值被覆蓋，<code>size</code> 不變</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 去重的一行寫法</div>
+    <p style="margin-bottom:0;">要「這串資料有幾種不同的值」，把整串丟進 <code>set</code> 再讀 <code>size()</code> 就好，不必先排序再掃一遍。第 08 章判斷「這個頂點走過了沒有」用的也是同一招：廣度優先搜尋的 <code>visited</code> 就是一個 <code>set</code>。</p>
+  </div>
+</section>
+<section id="ordered">
+  <div class="section-number">PART 04 · 有序 vs 無序</div>
+  <h2>兩套實作，同一組介面</h2>
+  <p><code>map</code> 與 <code>unordered_map</code> 的用法幾乎一模一樣，差別藏在底下：一個是樹，一個是雜湊表。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同一組鍵，兩種容器走訪出來的順序（真的跑出來的）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    string keys[<span class="num">8</span>] = {<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>, <span class="str">"</span><span class="str">apple</span><span class="str">"</span>, <span class="str">"</span><span class="str">durian</span><span class="str">"</span>, <span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">mango</span><span class="str">"</span>, <span class="str">"</span><span class="str">guava</span><span class="str">"</span>, <span class="str">"</span><span class="str">lychee</span><span class="str">"</span>, <span class="str">"</span><span class="str">fig</span><span class="str">"</span>};</span>
+<span class="line"> </span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; ordered;</span>
+<span class="line">    unordered_map&lt;string, <span class="kw">int</span>&gt; hashed;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) { ordered[keys[i]] = i; hashed[keys[i]] = i; }</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">插入順序      ： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) cout &lt;&lt; keys[i] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">map 走訪      ： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (map&lt;string, <span class="kw">int</span>&gt;::iterator it = ordered.begin(); it != ordered.end(); ++it)</span>
+<span class="line">        cout &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">unordered_map ： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (unordered_map&lt;string, <span class="kw">int</span>&gt;::iterator it = hashed.begin(); it != hashed.end(); ++it)</span>
+<span class="line">        cout &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">桶數 bucket_count = </span><span class="str">"</span> &lt;&lt; hashed.bucket_count() &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>插入順序      ： kiwi apple durian pear mango guava lychee fig 
+map 走訪      ： apple durian fig guava kiwi lychee mango pear 
+unordered_map ： fig lychee mango durian pear apple guava kiwi 
+桶數 bucket_count = 13</pre></div>
+  <p class="dx-note"><code>map</code> 那行是<strong>字典序</strong>：apple durian fig guava…，跟丟進去的順序完全無關。<code>unordered_map</code> 那行看起來像亂的，其實是<strong>桶的順序</strong>：每個鍵被雜湊函式算出一個桶編號，走訪就是把 13 個桶從頭掃到尾。這個順序會隨編譯器、標準函式庫版本、甚至插入歷史而改變，<strong>不要寫任何依賴它的程式</strong>。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="ordStage" style="min-height:230px;"></div>
+        <div class="status-banner" id="ordStatus"><span class="status-icon">›</span><span class="status-text">按「開始走訪」，把同一組鍵在兩種容器裡的順序一格一格比出來。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="ordStart()">▶ 開始走訪</button>
+          <button class="btn btn-step" onclick="ordPlayer &amp;&amp; ordPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="ordReset()">⟲ 重設</button>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">底下差在哪 <span class="ic-badge">WHY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><code>map</code>：紅黑樹。每次查詢是一路往下比大小，走 $O(\log n)$ 層。<br>
+        <code>unordered_map</code>：雜湊表。鍵算成桶編號，一步到位，平均 $O(1)$，但最壞（全部撞在同一個桶）會退化成 $O(n)$。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">桶序不保證 <span class="ic-badge">WARN</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;">右欄那個順序只是<strong>這台機器、這個版本</strong>跑出來的結果。你在自己的 notebook 跑，很可能得到另一個順序，那是正常的。</p>
+      </div>
+    </div>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">有序才做得到的三件事</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;<span class="kw">int</span>, string&gt; score;</span>
+<span class="line">    score[<span class="num">91</span>] = <span class="str">"</span><span class="str">Ann</span><span class="str">"</span>; score[<span class="num">58</span>] = <span class="str">"</span><span class="str">Bob</span><span class="str">"</span>; score[<span class="num">77</span>] = <span class="str">"</span><span class="str">Cid</span><span class="str">"</span>; score[<span class="num">64</span>] = <span class="str">"</span><span class="str">Dee</span><span class="str">"</span>;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 插入順序是 91 58 77 64，走訪出來卻是排好的</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">走訪： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [s, name] : score) cout &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str">:</span><span class="str">"</span> &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 有序才做得到的事：最小、最大、第一個 &gt;= 70 的</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">最低分 </span><span class="str">"</span> &lt;&lt; score.begin()-&gt;first &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">最高分 </span><span class="str">"</span> &lt;&lt; score.rbegin()-&gt;first &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">第一個不低於 70 的： </span><span class="str">"</span> &lt;&lt; score.lower_bound(<span class="num">70</span>)-&gt;first &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>走訪： 58:Bob 64:Dee 77:Cid 91:Ann 
+最低分 58
+最高分 91
+第一個不低於 70 的： 77</pre></div>
+  <p class="dx-note">插入順序是 91、58、77、64，走訪卻是 58 64 77 91。因為 <code>map</code> 內部是一棵<strong>平衡二元搜尋樹</strong>（紅黑樹），中序走訪自然就是排好的。<code>begin()</code> 拿最小、<code>rbegin()</code> 拿最大、<code>lower_bound(70)</code> 拿第一個不小於 70 的 —— 這三個在 <code>unordered_map</code> 上全都沒有意義。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">什麼時候用哪個</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>你的需求</th><th>選誰</th><th>為什麼</th></tr></thead>
+    <tbody>
+      <tr><td>只是查得到就好，量很大</td><td class="mono">unordered_map</td><td>平均 $O(1)$，比 $O(\log n)$ 快一個檔次</td></tr>
+      <tr><td>要照鍵的順序輸出</td><td class="mono">map</td><td>走訪本身就是排好的，省一次排序</td></tr>
+      <tr><td>要「最小的鍵」「第一個大於 x 的鍵」</td><td class="mono">map</td><td><code>begin()</code>／<code>lower_bound()</code>，雜湊版沒有這些</td></tr>
+      <tr><td>鍵是自己寫的類別</td><td class="mono">map</td><td>多載一個 <code>operator&lt;</code> 就好；雜湊版要自己寫雜湊函式，麻煩得多</td></tr>
+      <tr><td>要求最壞情況也穩定</td><td class="mono">map</td><td>紅黑樹保證 $O(\log n)$；雜湊表碰撞嚴重時會退化成 $O(n)$</td></tr>
+      <tr><td>作業沒特別要求</td><td class="mono">map</td><td>輸出順序固定，比對答案時不會因為桶序不同而看起來像錯的</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 09 章</div><p style='margin-bottom:0;'><code>map</code> 走訪出來是排序好的，這件事在第 09 章會被拆開來看：<code>dscpp/bst.hpp</code> 的 <code>BinarySearchTree</code> 就是一個自己動手寫的 Map，<code>put()</code> 對應 <code>m[k] = v</code>、<code>get()</code> 對應 <code>m[k]</code>、<code>contains()</code> 對應 <code>m.count(k)</code>。而「為什麼走訪是排序好的」的答案是<strong>中序走訪</strong>：先左子樹、再自己、再右子樹。<code>map</code> 只是把這棵樹再加上平衡機制（紅黑樹），保證它不會退化成一條鏈。</p></div>
+</section>
+<section id="iterator">
+  <div class="section-number">PART 05 · 迭代器</div>
+  <h2><code>begin()</code>／<code>end()</code>：所有 STL 容器的共同語言</h2>
+  <p>迭代器是一個「指著容器裡某個位置」的東西，用起來像指標：<code>*it</code> 取值、<code>++it</code> 往前一格、<code>it-&gt;</code> 存取成員。學會這四個符號，<code>vector</code>、<code>set</code>、<code>map</code>、<code>list</code> 就全部會走訪了。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>意思</th><th>要注意</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">c.begin()</td><td>指向<strong>第一個</strong>元素</td><td>容器是空的時候，它等於 <code>end()</code></td></tr>
+      <tr><td class="mono">c.end()</td><td>指向<strong>最後一個的再下一格</strong></td><td>不能解參考，它只是個哨兵</td></tr>
+      <tr><td class="mono">++it</td><td>往後移一格</td><td>慣例寫前置 <code>++it</code>，不寫 <code>it++</code>：後置版會多複製一份</td></tr>
+      <tr><td class="mono">*it</td><td>取出它指著的東西</td><td><code>map</code> 拿到的是 pair，<code>set</code>／<code>vector</code> 拿到的是元素</td></tr>
+      <tr><td class="mono">it-&gt;first</td><td>等同 <code>(*it).first</code></td><td>跟指標的 <code>-&gt;</code> 完全同一個符號</td></tr>
+      <tr><td class="mono">it != c.end()</td><td>還沒走完</td><td>迴圈條件用 <code>!=</code> 不用 <code>&lt;</code>：樹和雜湊表的迭代器沒有大小可比</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">三種容器，同一套走訪語法</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; v;</span>
+<span class="line">    v.push_back(<span class="num">31</span>); v.push_back(<span class="num">17</span>); v.push_back(<span class="num">93</span>);</span>
+<span class="line">    set&lt;<span class="kw">int</span>&gt; s;</span>
+<span class="line">    s.insert(<span class="num">31</span>); s.insert(<span class="num">17</span>); s.insert(<span class="num">93</span>);</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; m;</span>
+<span class="line">    m[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>; m[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 同一套語法：begin() / end() / ++it / *it</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">vector： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (vector&lt;<span class="kw">int</span>&gt;::iterator it = v.begin(); it != v.end(); ++it) cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">set   ： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (set&lt;<span class="kw">int</span>&gt;::iterator it = s.begin(); it != s.end(); ++it) cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// map 的 *it 是一組 pair，所以改用 it-&gt;first / it-&gt;second</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">map   ： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (map&lt;string, <span class="kw">int</span>&gt;::iterator it = m.begin(); it != m.end(); ++it)</span>
+<span class="line">        cout &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str">=</span><span class="str">"</span> &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>vector： 31 17 93 
+set   ： 17 31 93 
+map   ： apple=45 pear=30 </pre></div>
+  <p class="dx-note"><code>vector</code> 印出來是插入順序、<code>set</code> 是排好的、<code>map</code> 是照鍵排好的，但<strong>三個迴圈長得一模一樣</strong>。這就是迭代器的價值：容器內部是陣列、樹還是雜湊表，走訪的人不必知道。<code>map</code> 唯一的不同是 <code>*it</code> 拿到的是一組 pair，所以改用 <code>it-&gt;first</code> 與 <code>it-&gt;second</code>。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 走訪途中不要亂刪</div>
+    <p style="margin-bottom:0;"><code>erase</code> 掉一個元素之後，指著它的迭代器就<strong>失效</strong>了，跟 <a href="p4_pointers_memory.html">P4</a> 的懸空指標是同一種病。正確寫法是 <code>it = m.erase(it);</code>（<code>erase</code> 會回傳下一格），而且回圈裡就不要再寫 <code>++it</code>。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05、09 章</div><p style='margin-bottom:0;'>迭代器不只是拿來用的，第 05、09 章你會<strong>自己提供</strong>一個。<code>dscpp/</code> 底下的 <code>UnorderedList</code>、<code>BinaryTree</code> 都是自訂型別，要讓它們能被 <code>for (auto x : list)</code> 走訪，就得替類別寫出 <code>begin()</code>、<code>end()</code>，並且讓回傳的那個東西支援 <code>*</code>、<code>++</code>、<code>!=</code> —— 這三個運算子怎麼多載，看 <a href='p9_oop_advanced.html'>P9</a>。range-for 迴圈其實只是編譯器幫你展開成 <code>begin()</code>／<code>end()</code> 的語法糖，弄懂這件事，你就知道為什麼「加了三個函式，一個迴圈就自己會動了」。</p></div>
+</section>
+<section id="traverse">
+  <div class="section-number">PART 06 · 走訪 map</div>
+  <h2>從 <code>it-&gt;first</code> 到 <code>auto&amp; [k, v]</code></h2>
+  <p><code>map</code> 裡每一筆資料是一組 <code>pair&lt;const K, V&gt;</code>：<code>first</code> 是鍵、<code>second</code> 是值。走訪就是把這些 pair 一組一組拿出來。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">走訪 map 的三種寫法，結果完全一樣</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
+<span class="line">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>; price[<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>] = <span class="num">60</span>;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 寫法一：range-for ＋ pair</span>
+<span class="line"></span>    <span class="kw">for</span> (map&lt;string, <span class="kw">int</span>&gt;::iterator it = price.begin(); it != price.end(); ++it)</span>
+<span class="line">        cout &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 寫法二：range-for，p 是一組 pair</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : price)</span>
+<span class="line">        cout &lt;&lt; p.first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; p.second &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 寫法三：C++17 結構化繫結，直接拆成兩個名字</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price)</span>
+<span class="line">        cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; dollars &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 加上 &amp; 才改得動；沒有 &amp; 就是複製一份</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price) dollars += <span class="num">5</span>;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">全部漲五元後：</span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price) cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str">=</span><span class="str">"</span> &lt;&lt; dollars &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>apple 45 / kiwi 60 / pear 30 / 
+apple 45 / kiwi 60 / pear 30 / 
+apple 45 / kiwi 60 / pear 30 / 
+全部漲五元後：apple=50 kiwi=65 pear=35 </pre></div>
+  <p class="dx-note">三行輸出一模一樣，選最好讀的那個就好。<strong>結構化繫結</strong>（C++17）把 pair 當場拆成兩個有名字的變數，比 <code>p.first</code>／<code>p.second</code> 好懂太多。最後一段是關鍵：<code>auto&amp;</code> 的 <code>&amp;</code> 不能省，少了它你改的是複製品，原本的 map 不會變。順帶一提，鍵是唯讀的 —— 改了鍵，樹的排序就壞了，所以編譯器直接禁止。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>長什麼樣</th><th>什麼時候用</th></tr></thead>
+    <tbody>
+      <tr><td>迭代器</td><td class="mono" style="font-size:.78rem;">for (map&lt;string,int&gt;::iterator it = m.begin(); it != m.end(); ++it)</td><td>要在迴圈裡刪東西，或需要拿到位置</td></tr>
+      <tr><td>range-for ＋ pair</td><td class="mono" style="font-size:.78rem;">for (auto&amp; p : m)</td><td>C++11 起可用，最通用</td></tr>
+      <tr><td>結構化繫結</td><td class="mono" style="font-size:.78rem;">for (auto&amp; [k, v] : m)</td><td><strong>C++17 起可用，最好讀，優先選這個</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 一個 &amp; 的差別</div>
+    <p style="margin-bottom:0;"><code>for (auto p : m)</code>：每一輪<strong>複製</strong>一組 pair，改了不算數，而且鍵是 <code>string</code> 的話每輪都在複製字串。<br>
+    <code>for (auto&amp; p : m)</code>：<strong>參考</strong>本尊，改得動，也不複製。<br>
+    <code>for (const auto&amp; p : m)</code>：參考但唯讀，只是要印出來時最安全。這三個差別在 <a href="p3_functions.html">P3</a> 講過，這裡是它最常出現的場合。</p>
+  </div>
+</section>
+<section id="patterns">
+  <div class="section-number">PART 07 · 三個常用組合</div>
+  <h2>計數、去重、分組</h2>
+  <p>這三個組合會覆蓋你在這門課用到 <code>map</code>／<code>set</code> 的絕大多數場合。每個都只有一行。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">計數、去重、分組：一段程式跑完三個</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    string words[<span class="num">8</span>] = {<span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">apple</span><span class="str">"</span>, <span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>, <span class="str">"</span><span class="str">apple</span><span class="str">"</span>, <span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">fig</span><span class="str">"</span>, <span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>};</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 組合一：計數</span>
+<span class="line"></span>    map&lt;string, <span class="kw">int</span>&gt; freq;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) freq[words[i]]++;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">計數： </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [w, n] : freq) cout &lt;&lt; w &lt;&lt; <span class="str">"</span><span class="str">x</span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 組合二：去重</span>
+<span class="line"></span>    set&lt;string&gt; uniq;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) uniq.insert(words[i]);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">去重： </span><span class="str">"</span> &lt;&lt; uniq.size() &lt;&lt; <span class="str">"</span><span class="str"> 種 → </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : uniq) cout &lt;&lt; w &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="com">// 組合三：分組（第 08 章的相鄰串列就是這個形狀）</span>
+<span class="line"></span>    map&lt;<span class="kw">int</span>, vector&lt;string&gt;&gt; byLength;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) byLength[words[i].size()].push_back(words[i]);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">依長度分組：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [len, group] : byLength) {</span>
+<span class="line">        cout &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; len &lt;&lt; <span class="str">"</span><span class="str"> 個字母： </span><span class="str">"</span>;</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : group) cout &lt;&lt; w &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">        cout &lt;&lt; endl;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>計數： applex2 figx1 kiwix2 pearx3 
+去重： 4 種 → apple fig kiwi pear 
+依長度分組：
+  3 個字母： fig 
+  4 個字母： pear pear kiwi pear kiwi 
+  5 個字母： apple apple </pre></div>
+  <p class="dx-note"><strong>計數</strong>：<code>freq[w]++</code> 這一行同時處理了兩種情況：沒看過的鍵先被建出來、值預設是 0，再 <code>++</code> 變 1；看過的鍵就直接加一。PART 02 說 <code>m[k]</code> 會自己建鍵是個陷阱，在這裡它反而是整個寫法成立的理由。<br><strong>去重</strong>：全丟進 <code>set</code>，<code>size()</code> 就是種類數。<br><strong>分組</strong>：<code>byLength[len].push_back(w)</code>：<code>[]</code> 先生出一個空的 <code>vector</code>，再往裡面塞。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>要做的事</th><th>容器</th><th>核心那一行</th></tr></thead>
+    <tbody>
+      <tr><td>算每個東西出現幾次</td><td class="mono">map&lt;T, int&gt;</td><td class="mono">freq[x]++;</td></tr>
+      <tr><td>問「有幾種不同的」</td><td class="mono">set&lt;T&gt;</td><td class="mono">uniq.insert(x);</td></tr>
+      <tr><td>問「這個處理過了沒」</td><td class="mono">set&lt;T&gt;</td><td class="mono">if (visited.count(x)) continue;</td></tr>
+      <tr><td>把同類的收在一起</td><td class="mono">map&lt;K, vector&lt;V&gt;&gt;</td><td class="mono">group[key].push_back(v);</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">分組的最重要用途：圖的相鄰串列</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="com">// 一張小圖：用 map&lt;頂點, vector&lt;鄰居&gt;&gt; 存相鄰串列</span>
+<span class="line"></span>    map&lt;string, vector&lt;string&gt;&gt; adj;</span>
+<span class="line">    adj[<span class="str">"</span><span class="str">A</span><span class="str">"</span>].push_back(<span class="str">"</span><span class="str">B</span><span class="str">"</span>);     <span class="com">// [] 會自己建出空的 vector，這裡剛好好用</span>
+<span class="line"></span>    adj[<span class="str">"</span><span class="str">A</span><span class="str">"</span>].push_back(<span class="str">"</span><span class="str">C</span><span class="str">"</span>);</span>
+<span class="line">    adj[<span class="str">"</span><span class="str">B</span><span class="str">"</span>].push_back(<span class="str">"</span><span class="str">C</span><span class="str">"</span>);</span>
+<span class="line">    adj[<span class="str">"</span><span class="str">C</span><span class="str">"</span>].push_back(<span class="str">"</span><span class="str">A</span><span class="str">"</span>);</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [v, nbrs] : adj) {</span>
+<span class="line">        cout &lt;&lt; v &lt;&lt; <span class="str">"</span><span class="str"> → </span><span class="str">"</span>;</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">auto</span>&amp; n : nbrs) cout &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">        cout &lt;&lt; <span class="str">"</span><span class="str">（分支度 </span><span class="str">"</span> &lt;&lt; nbrs.size() &lt;&lt; <span class="str">"</span><span class="str">）</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    }</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">頂點數 = </span><span class="str">"</span> &lt;&lt; adj.size() &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>A → B C （分支度 2）
+B → C （分支度 1）
+C → A （分支度 1）
+頂點數 = 3</pre></div>
+  <p class="dx-note">這就是第 08 章的 <code>Graph</code>。<code>adj["A"].push_back("B")</code> 一行做了三件事：沒有 A 這個頂點就建一個、給它一個空的鄰居串列、把 B 加進去。<code>adj.size()</code> 是頂點數、<code>nbrs.size()</code> 是那個頂點的分支度。</p>
+</div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 08 章</div><p style='margin-bottom:0;'>分組這個組合在第 08 章是主角。<code>dscpp/graph.hpp</code> 的 <code>Graph</code> 用 <code>map&lt;鍵, Vertex*&gt;</code> 存所有頂點，每個 <code>Vertex</code> 裡再用一個 map 存「連到誰、權重多少」—— 這就是<strong>相鄰串列</strong>。字梯（word ladder）問題更直接：先建 <code>map&lt;string, vector&lt;string&gt;&gt;</code>，把 <span class='mono'>"_OPE"</span>、<span class='mono'>"R_PE"</span> 這種挖掉一個字母的樣板當鍵，同一個桶裡的單字彼此只差一個字母，連起來就是一張圖。整個建圖過程就是本節的 <code>group[key].push_back(v)</code> 跑一遍。</p></div>
+</section>
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>兩題確認觀念</h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 1 · 選容器</div>
+    <p>你要統計一份成績單裡每個分數出現幾次，最後<strong>從低分到高分</strong>印出來。哪一個選擇最省事？</p>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="unordered_map 查得快，但走訪是桶序，印出來不會照分數排。你還得把鍵倒進 vector 再排序一次，多做一步。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> <code>unordered_map&lt;int, int&gt;</code>，走訪直接印</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。map 的走訪本身就是照鍵排好的，freq[score]++ 統計完直接 range-for 印出來就是低分到高分。需要有序輸出時，map 幫你省掉一次排序。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> <code>map&lt;int, int&gt;</code>，走訪直接印</div>
+      <div class="quiz-opt" data-correct="false" data-fb="set 只存鍵不存值，沒地方放次數。它適合回答「有幾種不同的分數」，不適合計數。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> <code>set&lt;int&gt;</code>，走訪直接印</div>
+      <div class="quiz-opt" data-correct="false" data-fb="vector 用編號索引，分數當索引雖然勉強行得通（開一個夠大的陣列），但分數如果是字串或範圍很散就完全不管用，而且要先掃過一遍才知道要開多大。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> <code>vector&lt;int&gt;</code>，每次查都掃一遍</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 2 · 這行為什麼不會爆</div>
+    <p>一個空的 <code>map&lt;string, int&gt; freq;</code>，第一次執行 <code>freq["pear"]++;</code>。<code>freq["pear"]</code> 明明還不存在，為什麼可以直接 <code>++</code>？</p>
+    <div class="quiz-options" id="qcOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="C++ 的 map 沒有這種特殊規則。++ 作用的對象是一個實際存在的 int，不是什麼預設值機制。" onclick="quizCheck('qc', this)"><span class="opt-letter">(A)</span> 因為 <code>map</code> 對不存在的鍵會回傳 0</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。operator[] 查不到鍵時會當場插入一筆，值是預設初始化的 int，也就是 0，然後回傳它的參考。++ 作用在那個真實存在的 0 上面，變成 1。也就是說這一行執行完 freq.size() 已經是 1 了。" onclick="quizCheck('qc', this)"><span class="opt-letter">(B)</span> <code>[]</code> 先插入一筆值為 0 的資料，<code>++</code> 再把它加成 1</div>
+      <div class="quiz-opt" data-correct="false" data-fb="剛好相反。C++ 不會丟例外，Python 的 dict 才會（那是 KeyError）。想在 C++ 得到丟例外的行為要改用 at()。" onclick="quizCheck('qc', this)"><span class="opt-letter">(C)</span> 其實會丟出例外，要用 <code>try</code> 包起來</div>
+      <div class="quiz-opt" data-correct="false" data-fb="編譯得過，跑起來也正常。這正是它危險又好用的地方：同一個行為在計數時是福，在唯讀查詢時是禍。" onclick="quizCheck('qc', this)"><span class="opt-letter">(D)</span> 編譯不會過，必須先 <code>insert</code></div>
+    </div>
+    <div class="quiz-feedback" id="qcFeedback"></div>
+  </div>
+</section>
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P6 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">四個容器怎麼選</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th class="mono">map</th><th class="mono">unordered_map</th><th class="mono">set</th><th class="mono">unordered_set</th></tr></thead>
+    <tbody>
+      <tr><td>存什麼</td><td>鍵 ＋ 值</td><td>鍵 ＋ 值</td><td>只有鍵</td><td>只有鍵</td></tr>
+      <tr><td>底層</td><td>紅黑樹</td><td>雜湊表</td><td>紅黑樹</td><td>雜湊表</td></tr>
+      <tr><td>查詢／插入／刪除</td><td>$O(\log n)$</td><td>平均 $O(1)$<br>最壞 $O(n)$</td><td>$O(\log n)$</td><td>平均 $O(1)$<br>最壞 $O(n)$</td></tr>
+      <tr><td>走訪順序</td><td><strong>照鍵排好</strong></td><td>桶序（不保證）</td><td><strong>照鍵排好</strong></td><td>桶序（不保證）</td></tr>
+      <tr><td>鍵的型別要有</td><td class="mono">operator&lt;</td><td class="mono">hash ＋ operator==</td><td class="mono">operator&lt;</td><td class="mono">hash ＋ operator==</td></tr>
+      <tr><td>要 include</td><td class="mono">&lt;map&gt;</td><td class="mono">&lt;unordered_map&gt;</td><td class="mono">&lt;set&gt;</td><td class="mono">&lt;unordered_set&gt;</td></tr>
+      <tr><td>有 <code>lower_bound</code>／<code>rbegin</code></td><td>有</td><td>沒有</td><td>有</td><td>沒有</td></tr>
+      <tr><td>典型用途</td><td>要排序輸出、要範圍查詢</td><td>純查表、量大</td><td>去重、走過沒</td><td>去重、量大</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">語法骨架（整段可以直接貼進 notebook）</h3>
+<div class="pseudo-code" style="font-size:.78rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; m;</span>
+<span class="line">    m[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;                       <span class="com">// 放進去（沒有就新增）</span>
+<span class="line"></span>    <span class="kw">if</span> (m.count(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>)) { <span class="com">/* 有 */</span> }     <span class="com">// 查在不在，不會建鍵</span>
+<span class="line"></span>    m.erase(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);                      <span class="com">// 刪掉</span>
+<span class="line"></span></span>
+<span class="line">    set&lt;string&gt; s;</span>
+<span class="line">    s.insert(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);                     <span class="com">// 重複丟不會變多</span>
+<span class="line"></span></span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [k, v] : m)                <span class="com">// C++17 走訪</span>
+<span class="line"></span>        cout &lt;&lt; k &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; v &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python ↔ C++ 對照</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>你在 Python 寫</th><th>C++ 寫法</th><th>差在哪</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">d = {}</td><td class="mono">map&lt;string, int&gt; d;</td><td>C++ 要先講清楚鍵與值的型別</td></tr>
+      <tr><td class="mono">d[k] = v</td><td class="mono">d[k] = v;</td><td>一樣</td></tr>
+      <tr><td class="mono">d[k]（k 不存在）</td><td class="mono">d[k]</td><td><strong>Python 丟 KeyError；C++ 建一個新鍵</strong></td></tr>
+      <tr><td class="mono">k in d</td><td class="mono">d.count(k)</td><td>C++ 回傳 0 或 1，可以直接當條件</td></tr>
+      <tr><td class="mono">d.get(k, 0)</td><td class="mono">d.count(k) ? d[k] : 0</td><td>C++ 沒有現成的 get，自己判斷</td></tr>
+      <tr><td class="mono">del d[k]</td><td class="mono">d.erase(k);</td><td>C++ 刪不存在的鍵不會出錯，回傳 0</td></tr>
+      <tr><td class="mono">len(d)</td><td class="mono">d.size()</td><td>一樣</td></tr>
+      <tr><td class="mono">for k, v in d.items()</td><td class="mono">for (auto&amp; [k, v] : d)</td><td>C++17 起可用</td></tr>
+      <tr><td class="mono">s = set()</td><td class="mono">set&lt;string&gt; s;</td><td>C++ 的 set 自動排序，Python 的不排</td></tr>
+      <tr><td class="mono">s.add(x)</td><td class="mono">s.insert(x);</td><td>一樣</td></tr>
+      <tr><td>走訪 dict 的順序</td><td>C++ <code>map</code> 是排序的</td><td>Python 3.7 起是插入順序；C++ 沒有插入順序的版本</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">四條記得住的規則</h3>
+  <div class="info-box green">
+    <p style="margin-bottom:0;">① 要寫入就用 <code>m[k]</code>，只是要查就用 <code>m.count(k)</code>。<br>
+    ② <code>&lt;map&gt;</code>、<code>&lt;set&gt;</code>、<code>&lt;unordered_map&gt;</code> 一定要自己 include。<br>
+    ③ 需要排序輸出、需要 <code>lower_bound</code> 就選 <code>map</code>；純查表選 <code>unordered_map</code>。<br>
+    ④ 走訪 map 優先寫 <code>for (auto&amp; [k, v] : m)</code>，那個 <code>&amp;</code> 不要漏。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/container/map" target="_blank" rel="noopener">cppreference · std::map</a></td><td>完整的成員函式清單。查 <code>lower_bound</code>、<code>at</code>、<code>emplace</code> 的正確用法。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/container/unordered_map" target="_blank" rel="noopener">cppreference · std::unordered_map</a></td><td><code>bucket_count</code>、<code>load_factor</code>、<code>rehash</code>，第 07 章會用到這些名詞。</td></tr>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把 PART 02 那段貼進去，一步一步看 <code>m["mango"]</code> 執行完 map 裡多了什麼。</td></tr>
+      <tr><td><a href="searching_sorting.html">本站第 07 章 · 搜尋與排序</a></td><td>雜湊表的內部：雜湊函式、碰撞處理、負載因子。</td></tr>
+      <tr><td><a href="graphs.html">本站第 08 章 · 圖</a></td><td>相鄰串列與字梯問題，<code>map&lt;K, vector&lt;V&gt;&gt;</code> 的實戰場。</td></tr>
+      <tr><td><a href="trees.html">本站第 09 章 · 樹</a></td><td>自己動手寫一個 <code>map</code>：二元搜尋樹。</td></tr>
+    </tbody>
+  </table>
+</section>
+<section id="bankquiz">
+  <div class="section-number">QUIZ · 自我檢測</div>
+  <h2>自我檢測：map、set 與迭代器 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    map&lt;string, int&gt; m;
+    m[&quot;pear&quot;] = 30;
+    cout &lt;&lt; m[&quot;mango&quot;] &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; m.count(&quot;kiwi&quot;) &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; m.size() &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。m[&quot;mango&quot;] 查不到會當場插入一筆，值是預設初始化的 0，所以印出 0 而且 size 從 1 變成 2。m.count(&quot;kiwi&quot;) 回傳 0 且不會建鍵，所以最後 size 是 2 而不是 3。">0 0 2</button>
+      <button class="sq-opt" data-c="0" data-fb="漏算了 m[&quot;mango&quot;] 造成的插入。operator[] 是會改動容器的操作，只有 count 與 find 才是唯讀的。">0 0 1</button>
+      <button class="sq-opt" data-c="0" data-fb="count 不會建鍵，它只是數符合的筆數。會建鍵的只有 operator[] 那一行。">0 0 3</button>
+      <button class="sq-opt" data-c="0" data-fb="那是 Python dict 的行為（KeyError）。C++ 的 map 用 [] 查不到不會出錯，要丟例外得改用 m.at(k)。">程式會丟出例外</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+#include &lt;set&gt;
+using namespace std;
+
+int main() {
+    set&lt;int&gt; s;
+    s.insert(93); s.insert(17); s.insert(93);
+    s.insert(31); s.insert(17);
+    cout &lt;&lt; s.size() &lt;&lt; &quot;: &quot;;
+    for (set&lt;int&gt;::iterator it = s.begin(); it != s.end(); ++it)
+        cout &lt;&lt; *it &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。set 自動去重，丟五次只留三種；走訪又是照鍵排好的，所以是由小到大的 17 31 93，跟插入順序無關。">3: 17 31 93</button>
+      <button class="sq-opt" data-c="0" data-fb="set 不是 vector。重複的鍵在 insert 時就被吃掉了，不會留兩份。">5: 93 17 93 31 17</button>
+      <button class="sq-opt" data-c="0" data-fb="去重的部分對了，但 set 的走訪是排序好的，不是插入順序。想保留插入順序要自己用 vector 加一個 set 來記錄看過沒。">3: 93 17 31</button>
+      <button class="sq-opt" data-c="0" data-fb="set 預設由小到大。要由大到小可以用 rbegin()／rend() 反向走訪，或宣告 set 時把第二個樣板參數指定成 greater。">3: 93 31 17</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string w[5] = {&quot;b&quot;, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;b&quot;};
+    map&lt;string, int&gt; freq;
+    for (int i = 0; i &lt; 5; i++) freq[w[i]]++;
+    for (auto&amp; [k, n] : freq) cout &lt;&lt; k &lt;&lt; n &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。freq[w[i]]++ 對沒看過的鍵會先建一筆值為 0 的資料再加一，所以不必先判斷鍵在不在。輸出照鍵排序，是 map 的走訪特性。">a1 b3 c1</button>
+      <button class="sq-opt" data-c="0" data-fb="次數算對了，但順序錯。map 走訪是照鍵排好的，不是照第一次出現的順序。要照插入順序得自己另外記錄。">b3 a1 c1</button>
+      <button class="sq-opt" data-c="0" data-fb="map 的鍵不會重複，同一個鍵只會有一筆資料，++ 是累加在同一筆上。">b1 a1 b1 c1 b1</button>
+      <button class="sq-opt" data-c="0" data-fb="operator[] 在鍵不存在時會回傳一個新建資料的參考，++ 作用在那個真實存在的 0 上面，完全合法。這正是計數寫法可以只有一行的原因。">編譯錯誤，freq[w[i]] 還不存在不能 ++</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    map&lt;string, int&gt; m;
+    m[&quot;pear&quot;] = 30;
+    map&lt;string, int&gt;::iterator it = m.find(&quot;kiwi&quot;);
+    if (it == m.end()) cout &lt;&lt; &quot;miss &quot;;
+    else cout &lt;&lt; it-&gt;second &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; m.size() &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。find 找不到時回傳 end()，這是一個哨兵位置，不能解參考。find 是唯讀的，所以 size 還是 1。想同時判斷與取值就用 find，比先 count 再 [] 少查一次。">miss 1</button>
+      <button class="sq-opt" data-c="0" data-fb="find 不會建鍵，只有 operator[] 會。size 維持 1。">miss 2</button>
+      <button class="sq-opt" data-c="0" data-fb="find 回傳的是迭代器不是值，找不到時等於 end()，所以走的是 if 那一支。回傳 0 的是 count。">0 1</button>
+      <button class="sq-opt" data-c="0" data-fb="程式沒有解參考 end()，只是拿它來比較，這是合法而且標準的寫法。真的寫 it-&gt;second 而 it 等於 end() 才會出事。">程式當掉</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    map&lt;string, vector&lt;string&gt;&gt; adj;
+    adj[&quot;A&quot;].push_back(&quot;B&quot;);
+    adj[&quot;A&quot;].push_back(&quot;C&quot;);
+    adj[&quot;B&quot;].push_back(&quot;C&quot;);
+    cout &lt;&lt; adj.size() &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; adj[&quot;C&quot;].size() &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; adj.size() &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。前兩行只建了 A 與 B 兩個鍵，所以第一個 adj.size() 是 2。接著 adj[&quot;C&quot;] 是一次 operator[]，它替 C 建了一個空的 vector（size 0），於是最後一個 adj.size() 變成 3。相鄰串列常見的 bug 就是這樣多出一堆空頂點。">2 0 3</button>
+      <button class="sq-opt" data-c="0" data-fb="adj[&quot;C&quot;] 不是唯讀操作。即使只是讀它的 size()，鍵 C 也已經被插進 map 裡了，最後的 size 會是 3。">2 0 2</button>
+      <button class="sq-opt" data-c="0" data-fb="C 只出現在別人的鄰居串列裡，它自己的鄰居串列是空的，size 是 0。有向圖裡「被指到」不等於「指出去」。">2 1 3</button>
+      <button class="sq-opt" data-c="0" data-fb="第一次印 size 時只有 A 與 B 兩個鍵，C 還沒被建出來。C 是下一行的 adj[&quot;C&quot;] 才生出來的。">3 0 3</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>你要處理一份一百萬筆的資料，只需要不斷查詢「這個鍵在不在」，完全不需要照順序輸出。應該選哪個容器，為什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。只查不排就選雜湊版。代價是走訪順序不保證，而且最壞情況（大量碰撞）會退化成線性時間，但一般的鍵分布不會發生。第 07 章會解釋雜湊表為什麼做得到這件事。">unordered_set，因為雜湊查詢平均是常數時間，比紅黑樹的對數時間快一個檔次</button>
+      <button class="sq-opt" data-c="0" data-fb="排序跟查詢速度沒有因果關係。set 是紅黑樹，查詢是對數時間，比雜湊版慢；排序只有在你需要有序輸出時才是好處。">set，因為它會自動排序，查起來比較快</button>
+      <button class="sq-opt" data-c="0" data-fb="這在資料固定不變時是可行的方案，但只要中途要插入新鍵就得重新排序，成本很高。純查詢的場合雜湊版更直接。">vector，先排序再用二分搜尋</button>
+      <button class="sq-opt" data-c="0" data-fb="四個容器都有 count。而且這題只有鍵沒有值，用 map 等於浪費一個值的空間，該選 set 這一系列。">map，因為只有 map 才有 count 可以查</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p5_vector_string.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">vector 與 string</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p7_files_exceptions.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">檔案與例外</div></a></div>
+</div>
+
+<footer>
+  先備知識 P6 · map、set 與迭代器 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+/* ---------- P02 m[k] 誤建鍵計數器 ---------- */
+const BRK_MISS = ['mango', 'guava', 'lychee', 'durian', 'fig'];
+let brkMap = [['pear', 30]];
+let brkStep = 0;
+
+function brkRender(hi) {
+  const cells = brkMap.map(([k, v], i) => {
+    const on = i === hi;
+    return `<div style="border:2px solid ${on ? 'var(--node-current)' : 'var(--card-border)'};` +
+           `background:${on ? 'rgba(243,156,18,.16)' : 'var(--card)'};border-radius:9px;padding:.4rem .7rem;min-width:118px;">` +
+           `<div style="font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;">"${k}"</div>` +
+           `<div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent2);">${v}</div>` +
+           `<div style="font-size:.66rem;color:var(--muted);margin-top:.15rem;">${on ? '剛剛被建出來' : ''}</div></div>`;
+  }).join('');
+  $('brkStage').innerHTML =
+    `<div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;">map&lt;string, int&gt; m</div>` +
+    `<div style="display:flex;gap:.7rem;flex-wrap:wrap;margin:.3rem 0;">${cells}</div>`;
+  $('brkSize').textContent = brkMap.length;
+  $('brkSize').style.color = brkMap.length > 1 ? 'var(--accent)' : '';
+}
+
+function brkLookup(mode) {
+  if (mode === 'count') {
+    const k = BRK_MISS[brkStep % BRK_MISS.length];
+    brkRender(-1);
+    hlLine('brkCode', 2);
+    setStatus('brkStatus',
+      `<code>m.count("${k}")</code> 回傳 <strong>0</strong> —— 查得到答案，容器<strong>一動也沒動</strong>，` +
+      `<code>size()</code> 還是 <strong>${brkMap.length}</strong>。只是要判斷在不在，就用這個。`);
+    return;
+  }
+  if (brkStep >= BRK_MISS.length) {
+    setStatus('brkStatus', '示範到五次就好，按「重設」再來一次。真實程式裡這種鍵會一直長，直到你發現 size 不對勁。');
+    return;
+  }
+  const k = BRK_MISS[brkStep++];
+  brkMap.push([k, 0]);
+  brkRender(brkMap.length - 1);
+  hlLine('brkCode', 1);
+  setStatus('brkStatus',
+    `<code>m["${k}"]</code> 查不到，於是 <strong>當場插了一筆</strong>：鍵是 "${k}"，值是預設初始化的 <strong>0</strong>。` +
+    `<code>size()</code> 從 ${brkMap.length - 1} 變成 <strong>${brkMap.length}</strong>。程式沒有報錯，這正是麻煩的地方。`);
+}
+
+function brkReset() {
+  brkMap = [['pear', 30]];
+  brkStep = 0;
+  brkRender(-1);
+  hlLine('brkCode', null);
+  setStatus('brkStatus', '按左邊的按鈕查一個不存在的鍵，看 <code>size()</code> 有沒有變。');
+}
+
+/* ---------- P04 有序 vs 無序走訪對照 ---------- */
+/* 三列資料都來自本頁 PART 04 那段程式的真實輸出 */
+const ORD_INSERT = ['kiwi', 'apple', 'durian', 'pear', 'mango', 'guava', 'lychee', 'fig'];
+const ORD_MAP    = ['apple', 'durian', 'fig', 'guava', 'kiwi', 'lychee', 'mango', 'pear'];
+const ORD_HASH   = ['fig', 'lychee', 'mango', 'durian', 'pear', 'apple', 'guava', 'kiwi'];
+let ordPlayer = null;
+
+function ordChip(k, tone) {
+  const map = {
+    idle: ['var(--card-border)', 'var(--card)', 'var(--fg)'],
+    hot:  ['var(--node-current)', 'rgba(243,156,18,.16)', 'var(--fg)'],
+    done: ['var(--node-found)', 'rgba(22,160,133,.12)', 'var(--fg)'],
+  };
+  const [bd, bg] = map[tone] || map.idle;
+  return `<div style="border:2px solid ${bd};background:${bg};border-radius:8px;padding:.22rem .5rem;` +
+         `font-family:'JetBrains Mono',monospace;font-size:.82rem;">${k}</div>`;
+}
+
+function ordColumn(title, sub, chips, color) {
+  return `<div style="flex:1;min-width:180px;border:1px solid var(--card-border);border-radius:10px;padding:.55rem .7rem;background:var(--paper);">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1px;color:${color};">${title}</div>
+    <div style="font-size:.7rem;color:var(--muted);margin-bottom:.45rem;">${sub}</div>
+    <div style="display:flex;gap:.35rem;flex-wrap:wrap;">${chips || '<span style="font-size:.8rem;color:var(--muted);">（還沒開始走訪）</span>'}</div>
+  </div>`;
+}
+
+function ordPanel(n) {
+  const build = arr => arr.slice(0, n).map((k, i) => ordChip(k, i === n - 1 ? 'hot' : 'done')).join('');
+  const ins = ORD_INSERT.map(k => ordChip(k, 'idle')).join('');
+  return `<div style="margin-bottom:.6rem;">${ordColumn('INSERT 插入順序', '兩個容器都照這個順序丟進去', ins, 'var(--muted)')}</div>
+    <div style="display:flex;gap:.7rem;flex-wrap:wrap;">
+      ${ordColumn('map 走訪', '紅黑樹 · 中序 · 字典序', build(ORD_MAP), 'var(--accent2)')}
+      ${ordColumn('unordered_map 走訪', '雜湊表 · 一個桶一個桶掃', build(ORD_HASH), 'var(--accent)')}
+    </div>`;
+}
+
+function ordFrames() {
+  const F = [];
+  for (let n = 1; n <= ORD_MAP.length; n++) {
+    F.push({
+      n,
+      msg: `第 <strong>${n}</strong> 個：<code>map</code> 給你 <b>${ORD_MAP[n - 1]}</b>，` +
+           `<code>unordered_map</code> 給你 <b>${ORD_HASH[n - 1]}</b>。` +
+           (n === 1 ? '左邊從字典序最小的開始；右邊從第一個非空的桶開始。' : ''),
+    });
+  }
+  F.push({
+    n: ORD_MAP.length,
+    msg: '走完了。左邊那排<strong>照字典序排好</strong>，跟插入順序無關；右邊那排是<strong>桶的順序</strong>，' +
+         '換一台機器或換一個標準函式庫版本就可能不一樣。要有序輸出就選 <code>map</code>，只是要查得快就選 <code>unordered_map</code>。',
+  });
+  return F;
+}
+
+function ordStart() {
+  if (ordPlayer) ordPlayer.stop();
+  ordPlayer = new Player({frames: ordFrames(), apply: f => {
+    $('ordStage').innerHTML = ordPanel(f.n);
+    setStatus('ordStatus', f.msg);
+  }});
+  ordPlayer.play();
+}
+
+function ordReset() {
+  if (ordPlayer) ordPlayer.stop();
+  ordPlayer = null;
+  $('ordStage').innerHTML = ordPanel(0);
+  setStatus('ordStatus', '按「開始走訪」，把同一組鍵在兩種容器裡的順序一格一格比出來。');
+}
+
+(function () {
+  if ($('brkStage')) brkReset();
+  if ($('ordStage')) ordReset();
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "映射（map）", "back": "C++ 標準函式庫的鍵對值容器，底層是紅黑樹，查詢、插入、刪除都是 O(log n)。走訪時照鍵由小到大排好，需要有序輸出時選它。第 09 章的二元搜尋樹就是自己動手寫的簡化版。"}, {"front": "無序映射（unordered_map）", "back": "用雜湊表實作的鍵對值容器，平均 O(1) 查詢，最壞情況會退化成 O(n)。走訪順序是桶序，不保證也不該依賴。第 07 章整章都在解釋它的內部怎麼運作。"}, {"front": "集合（set）", "back": "只有鍵沒有值的容器，自動去重、自動排序。拿來回答「這個我見過沒有」最直接，第 08 章圖走訪的 visited 就是一個 set。"}, {"front": "無序集合（unordered_set）", "back": "set 的雜湊版本，平均 O(1) 查詢，走訪順序不保證。資料量大又只需要查「在不在」時選它，本頁開場那個快幾千倍的實測用的就是這個。"}, {"front": "成對資料（pair）", "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"}, {"front": "中括號運算子（operator[]）", "back": "map 的 m[k] 寫法。鍵存在就回傳它的值，鍵不存在會當場插入一筆並做預設初始化，然後回傳新建那筆的參考。這跟 Python dict 查不到就丟 KeyError 完全相反，是本頁最容易踩的坑。"}, {"front": "預設初始化（default initialization）", "back": "operator[] 建新鍵時給值的初始狀態：int 是 0、double 是 0.0、string 是空字串、vector 是空容器。因為 int 會是 0，m[x]++ 這種計數寫法才不必先判斷鍵在不在。"}, {"front": "計數查詢（count）", "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀的，不會像 operator[] 那樣偷偷建鍵，只想判斷在不在就用它。"}, {"front": "尋找（find）", "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"}, {"front": "尾後迭代器（end()）", "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"}, {"front": "迭代器（iterator）", "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"}, {"front": "結構化繫結（structured binding）", "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"}, {"front": "紅黑樹（red-black tree）", "back": "map 與 set 的底層結構，一種會自我平衡的二元搜尋樹，保證樹高是 O(log n) 不會退化成一條鏈。它的中序走訪就是排序結果，這是 map 走訪有序的原因。"}, {"front": "桶（bucket）", "back": "雜湊表裡存放元素的格子。unordered_map 把鍵算成桶編號直接跳過去，所以平均只要常數時間；走訪則是把桶從頭掃到尾，這就是為什麼順序看起來像亂的。"}, {"front": "下界查詢（lower_bound）", "back": "m.lower_bound(x) 回傳第一個不小於 x 的鍵的迭代器，是有序容器才有的操作。搭配 begin() 拿最小、rbegin() 拿最大，這三個在 unordered 版本上完全不存在。"}, {"front": "相鄰串列（adjacency list）", "back": "用 map<頂點, vector<鄰居>> 表示一張圖，每個頂點對應一串它連到的頂點。第 08 章的 dscpp/graph.hpp 就是這個結構，建圖那一行 adj[v].push_back(w) 靠的正是 operator[] 會自動建出空 vector 的特性。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+</body>
+</html>

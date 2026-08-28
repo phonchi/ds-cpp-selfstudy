@@ -1,0 +1,157 @@
+[
+ {
+  "question": "以下程式印出什麼？",
+  "code": "#include <iostream>\nusing namespace std;\n\nvoid bump(int n) { n = n + 10; }\n\nint main() {\n    int n = 5;\n    bump(n);\n    cout << n << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "5",
+    "correct": true,
+    "feedback": "正確。bump 的參數是 int n，屬於傳值，函式拿到的是一份副本，加 10 加在副本上。函式一結束副本就消失，main 裡的 n 從頭到尾都是 5。C++ 不會警告你這種寫法沒有效果。"
+   },
+   {
+    "answer": "15",
+    "correct": false,
+    "feedback": "要印出 15，參數必須寫成 int &n 或 int *p。目前的簽章是傳值，函式碰不到 main 裡的那一格。"
+   },
+   {
+    "answer": "10",
+    "correct": false,
+    "feedback": "函式沒有回傳值，也沒有把結果寫回任何地方，main 裡的 n 完全沒被動過。"
+   },
+   {
+    "answer": "編譯錯誤",
+    "correct": false,
+    "feedback": "語法完全合法。傳值是最基本的傳法，編譯器不會有任何意見，這正是這個錯誤難抓的原因。"
+   }
+  ]
+ },
+ {
+  "question": "跟上一題的程式只差一個符號，這次印出什麼？",
+  "code": "#include <iostream>\nusing namespace std;\n\nvoid bump(int &n) { n = n + 10; }\n\nint main() {\n    int n = 5;\n    bump(n);\n    cout << n << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "5",
+    "correct": false,
+    "feedback": "int &n 是傳參考，函式收到的是 main 裡那個 n 本人，加 10 會直接反映到外面。"
+   },
+   {
+    "answer": "15",
+    "correct": true,
+    "feedback": "正確。int &n 讓參數變成 main 裡那個 n 的別名，兩者位址相同，所以 n = n + 10 改的就是本尊。第 07 章的排序函式全部靠這一招把結果留在呼叫端。"
+   },
+   {
+    "answer": "10",
+    "correct": false,
+    "feedback": "起始值是 5，加 10 之後是 15。"
+   },
+   {
+    "answer": "編譯錯誤",
+    "correct": false,
+    "feedback": "傳參考是合法且常見的寫法。要注意的限制是非 const 參考只收得下有名字的變數，這裡傳的是變數 n，沒有問題。"
+   }
+  ]
+ },
+ {
+  "question": "這段程式印出什麼？",
+  "code": "#include <iostream>\nusing namespace std;\n\nvoid grow(int *p) { *p = *p * 2; }\n\nint main() {\n    int v = 21;\n    grow(&v);\n    cout << v << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "21",
+    "correct": false,
+    "feedback": "grow 收到的是 v 的位址，*p = *p * 2 是順著位址走進去把 v 本人改掉，不是改副本。"
+   },
+   {
+    "answer": "42",
+    "correct": true,
+    "feedback": "正確。呼叫端寫 grow(&v) 明著把位址交出去，函式用 *p 解參考後直接改動 main 裡的 v。跟傳參考效果相同，差別是指標可以是 NULL、也可以中途改指向別的東西。"
+   },
+   {
+    "answer": "0",
+    "correct": false,
+    "feedback": "v 的初始值是 21，乘 2 之後是 42。"
+   },
+   {
+    "answer": "一個記憶體位址",
+    "correct": false,
+    "feedback": "印出來的是 v 這個 int，不是指標。位址只存在 grow 的參數 p 裡，main 裡印的是 v 本身。"
+   }
+  ]
+ },
+ {
+  "question": "這段程式印出什麼？",
+  "code": "#include <iostream>\nusing namespace std;\n\nint f(int a, int b = 2) { return a * b; }\ndouble f(double a)      { return a + 0.5; }\n\nint main() {\n    cout << f(3) << \" \" << f(3, 4) << \" \" << f(3.0) << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "6 12 3.5",
+    "correct": true,
+    "feedback": "正確。f(3) 少給一個引數，b 吃預設值 2，得 6；f(3, 4) 給滿兩個，得 12；f(3.0) 的引數是 double，挑中另一個多載，得 3.5。多載看參數型別與個數，回傳型別不列入判斷。"
+   },
+   {
+    "answer": "3 12 3.5",
+    "correct": false,
+    "feedback": "f(3) 不是回傳 a 本身，b 用了預設值 2，所以是 3 乘 2。"
+   },
+   {
+    "answer": "6 12 3",
+    "correct": false,
+    "feedback": "f(3.0) 傳的是 double，挑中的是 double f(double a)，回傳 3.5 不是 3。"
+   },
+   {
+    "answer": "編譯錯誤，兩個 f 衝突",
+    "correct": false,
+    "feedback": "兩個 f 的參數型別不同，多載成立。真正會衝突的是同時寫 f(int) 與 f(int, int = 0)，那時 f(3) 兩邊都符合才會 ambiguous。"
+   }
+  ]
+ },
+ {
+  "question": "這個遞迴函式印出什麼？",
+  "code": "#include <iostream>\nusing namespace std;\n\nint mystery(int n) {\n    if (n == 0) return 0;\n    return n % 10 + mystery(n / 10);\n}\n\nint main() {\n    cout << mystery(9305) << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "9305",
+    "correct": false,
+    "feedback": "函式每次只取個位數 n % 10，再把 n / 10 交給下一層，累加的是各位數字。"
+   },
+   {
+    "answer": "17",
+    "correct": true,
+    "feedback": "正確。9 + 3 + 0 + 5 = 17。基底情形是 n == 0，每次呼叫讓問題小一位數，最深疊到 5 個堆疊框（含 n 為 0 的那一層）。這是第 06 章數字轉字串那一類題目的骨架。"
+   },
+   {
+    "answer": "5",
+    "correct": false,
+    "feedback": "只算了第一層的 n % 10。後面的 mystery(n / 10) 會繼續把剩下的位數加進來。"
+   },
+   {
+    "answer": "無窮遞迴",
+    "correct": false,
+    "feedback": "n / 10 是整數除法，9305 會依序變成 930、93、9、0，撞到基底情形 n == 0 就停下來。"
+   }
+  ]
+ },
+ {
+  "question": "一個函式只需要讀取一個很大的 vector，不會改動它。參數該怎麼寫？",
+  "answers": [
+   {
+    "answer": "vector<int> v",
+    "correct": false,
+    "feedback": "這是傳值，會把整個 vector 複製一份。元素越多成本越高，而且函式根本不需要那份副本。"
+   },
+   {
+    "answer": "const vector<int>& v",
+    "correct": true,
+    "feedback": "正確。const 參考不複製、也不允許函式改動內容，是 C++ 傳遞大型唯讀參數的標準做法。附帶好處是簽章直接告訴讀者這個函式不會動你的資料。"
+   },
+   {
+    "answer": "vector<int>& v",
+    "correct": false,
+    "feedback": "不複製這點對了，但少了 const，函式有能力改動呼叫端的資料，編譯器也不會替你把關。只讀的參數應該把這個能力關掉。"
+   },
+   {
+    "answer": "vector<int>* p",
+    "correct": false,
+    "feedback": "指標也能避開複製，但它多了「可以是 NULL」的語意，逼函式去檢查一個根本不會發生的情況。參數一定存在時優先用參考。"
+   }
+  ]
+ }
+]

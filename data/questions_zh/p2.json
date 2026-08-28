@@ -1,0 +1,157 @@
+[
+ {
+  "question": "這段程式印出什麼？",
+  "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int sum = 0;\n    for (int i = 1; i <= 4; i++) {\n        sum += i;\n    }\n    cout << sum << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "10",
+    "correct": true,
+    "feedback": "正確。i 從 1 跑到 4，1+2+3+4 = 10。注意條件寫的是 i <= 4，所以最後一圈 i 是 4；如果寫成 i < 4 就只加到 3，答案會變成 6。這個邊界差一格是初學最常見的錯。"
+   },
+   {
+    "answer": "6",
+    "correct": false,
+    "feedback": "6 是 1+2+3，也就是條件寫成 i < 4 的結果。這裡寫的是 i <= 4，多跑了一圈。"
+   },
+   {
+    "answer": "15",
+    "correct": false,
+    "feedback": "15 是 1 加到 5。i 的初始值是 1、上界是 4，只跑四圈。"
+   },
+   {
+    "answer": "4",
+    "correct": false,
+    "feedback": "sum 是累加，不是只留最後一個值。每一圈都做 sum += i。"
+   }
+  ]
+ },
+ {
+  "question": "switch 少了 break，這段印出什麼？",
+  "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n = 2;\n    switch (n) {\n        case 1: cout << \"one \";\n        case 2: cout << \"two \";\n        case 3: cout << \"three \";\n                break;\n        case 4: cout << \"four \";\n    }\n    cout << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "two three",
+    "correct": true,
+    "feedback": "正確。n 是 2，控制流從 case 2 跳進去印 two，因為沒有 break 就掉進 case 3 印 three，直到 case 3 底下的 break 才離開。case 4 完全沒有機會執行。"
+   },
+   {
+    "answer": "two",
+    "correct": false,
+    "feedback": "這是「每個 case 各自獨立」的直覺，但 C++ 的 case 只是一個跳進去的標籤。沒有 break 就會繼續往下執行。"
+   },
+   {
+    "answer": "two three four",
+    "correct": false,
+    "feedback": "case 3 底下有 break，控制流在那裡就離開 switch 了，跑不到 case 4。"
+   },
+   {
+    "answer": "one two three",
+    "correct": false,
+    "feedback": "case 1 在 case 2 上面。switch 不會往回跑，只會從相符的標籤往下掉。"
+   }
+  ]
+ },
+ {
+  "question": "兩個範圍 for 只差一個 & 符號，最後印出什麼？",
+  "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> v = {1, 2, 3};\n    for (int x : v) x += 10;\n    for (int &y : v) y += 100;\n    for (int z : v) cout << z << \" \";\n    cout << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "101 102 103",
+    "correct": true,
+    "feedback": "正確。第一個迴圈的 x 是每個元素的複本，x += 10 改完就被丟掉，v 沒有變。第二個迴圈的 y 宣告成 int&，是元素本身的別名，所以 y += 100 真的改到了 v。少那個 & 的版本 g++ 連警告都不會給。"
+   },
+   {
+    "answer": "111 112 113",
+    "correct": false,
+    "feedback": "這假設兩個迴圈都改到了 v。第一個迴圈的 x 沒有 &，拿到的是複本，那 10 加在複本上。"
+   },
+   {
+    "answer": "11 12 13",
+    "correct": false,
+    "feedback": "剛好相反：有效的是第二個迴圈（宣告成 int&），無效的是第一個。"
+   },
+   {
+    "answer": "1 2 3",
+    "correct": false,
+    "feedback": "第二個迴圈的 y 是參考，確實改到了容器。只有第一個迴圈是白做工。"
+   }
+  ]
+ },
+ {
+  "question": "條件一開始就不成立，這段的 count 是多少？",
+  "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int i = 5;\n    int count = 0;\n    do {\n        count++;\n        i++;\n    } while (i < 3);\n    cout << count << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "1",
+    "correct": true,
+    "feedback": "正確。do-while 是先跑主體再檢查條件，所以主體保證至少執行一次。i 從 5 變成 6，回頭檢查 6 < 3 不成立就結束，count 停在 1。同樣的條件換成 while 迴圈，count 會是 0。"
+   },
+   {
+    "answer": "0",
+    "correct": false,
+    "feedback": "0 是 while 迴圈的答案。do-while 把檢查放在主體之後，所以主體一定會先跑過一次。"
+   },
+   {
+    "answer": "3",
+    "correct": false,
+    "feedback": "條件是 i < 3，而 i 從 5 開始，一次都不會成立。迴圈不會跑三圈。"
+   },
+   {
+    "answer": "程式會無窮迴圈",
+    "correct": false,
+    "feedback": "i 每圈遞增，而且條件從一開始就不成立，跑一次就結束了。無窮迴圈的成因是主體沒有把條件推向不成立。"
+   }
+  ]
+ },
+ {
+  "question": "這個三角形雙層迴圈，內層主體執行幾次？",
+  "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int hits = 0;\n    for (int i = 0; i < 5; i++) {\n        for (int j = i + 1; j < 5; j++) {\n            hits++;\n        }\n    }\n    cout << hits << endl;\n    return 0;\n}",
+  "answers": [
+   {
+    "answer": "10",
+    "correct": true,
+    "feedback": "正確。i 是 0 時內層跑 4 次、i 是 1 時 3 次，依序是 4+3+2+1+0 = 10，也就是 n(n-1)/2 = 5×4/2。第 07 章的氣泡、選擇、插入排序都是這個形狀，丟掉常數 1/2 之後複雜度是 O(n^2)。"
+   },
+   {
+    "answer": "25",
+    "correct": false,
+    "feedback": "25 是兩層都跑滿 5 次的方形迴圈。這裡內層從 i+1 開始，所以每一圈都比上一圈短。"
+   },
+   {
+    "answer": "20",
+    "correct": false,
+    "feedback": "20 是 n(n-1)，也就是三角形的兩倍。內層每一圈只跑剩下的那一半。"
+   },
+   {
+    "answer": "5",
+    "correct": false,
+    "feedback": "5 是外層的圈數。題目問的是內層主體被執行的總次數。"
+   }
+  ]
+ },
+ {
+  "question": "第 04 章走訪鏈結串列時寫的是 while (current != NULL && current->getData() != item)。如果把 && 兩邊對調，會發生什麼？",
+  "answers": [
+   {
+    "answer": "找不到目標時會發生 segmentation fault",
+    "correct": true,
+    "feedback": "正確。走到串列尾巴時 current 已經是 NULL，對調之後左邊的 current->getData() 會先被求值，等於解參考一個空指標，程式當場被作業系統攔下來。原本的順序靠短路求值保證：左邊不成立就完全不會碰右邊。"
+   },
+   {
+    "answer": "編譯錯誤，因為條件的順序不合法",
+    "correct": false,
+    "feedback": "兩種寫法在語法上都完全合法，g++ 一句警告都不會給。這種錯只會在執行時爆炸，這也是它危險的地方。"
+   },
+   {
+    "answer": "結果一樣，&& 兩邊可以任意對調",
+    "correct": false,
+    "feedback": "&& 的求值是有先後的，左邊先算，左邊為假就不算右邊。順序在這裡是正確性問題，不是風格問題。"
+   },
+   {
+    "answer": "會變慢，但結果仍然正確",
+    "correct": false,
+    "feedback": "效能不是重點。目標不在串列裡時，程式會直接崩潰而不是回報找不到。"
+   }
+  ]
+ }
+]

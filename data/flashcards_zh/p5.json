@@ -1,0 +1,20 @@
+[
+{"front": "動態陣列（vector）", "back": "C++ 標準函式庫的可變長度陣列，元素放在一整塊連續記憶體裡。它解決原生陣列的三個痛點：長度能變、傳進函式不會退化成指標、自己記得有多長。課程九章的程式碼裡出現 78 次。"},
+{"front": "大小（size）", "back": "vector 目前實際裝了幾個元素，v.size() 是 O(1)，因為長度是存起來的欄位而不是每次去數。回傳的是無號整數，跟 int 比大小時編譯器會警告。"},
+{"front": "容量（capacity）", "back": "vector 目前配到的位子有幾格，一定大於等於 size。位子坐滿時再 push_back 就會觸發擴容搬家。clear() 只把 size 歸零，capacity 不會跟著變 0。"},
+{"front": "尾端加入（push_back）", "back": "把一個元素接在 vector 尾巴。容量夠的時候只是寫進下一格，容量滿時要把所有現有元素複製到新的記憶體，所以是攤還 O(1)：個別一次可能貴，平均下來是常數。"},
+{"front": "尾端移除（pop_back）", "back": "把最後一個元素拿掉，是真正的 O(1)，因為沒有任何元素需要移動。它不回傳被拿掉的值，要先用 back() 取出來——課程第 05 章的 Stack::pop() 就是 back() 加 pop_back() 兩步。"},
+{"front": "插入（insert）", "back": "v.insert(pos, x) 把元素插在 iterator pos 指的位置前面，插入點之後的每個元素都要往後挪一格，所以是 O(n)。課程 dscpp/stack.hpp 的 Stack2 故意用 insert(begin()) 當 push，示範選錯一端的代價。"},
+{"front": "刪除（erase）", "back": "v.erase(pos) 刪掉 iterator pos 指的元素，後面每個元素往前補位，是 O(n)。它會回傳下一個有效的 iterator，走訪中邊刪要寫成 it = v.erase(it)，否則舊的 it 已經失效。"},
+{"front": "清空（clear）", "back": "把所有元素移除、size 變成 0，但配到的記憶體不還給系統，capacity 維持原樣。這樣清空後重新填不必再配置一次；真的要釋放記憶體得用 shrink_to_fit()。"},
+{"front": "預留容量（reserve）", "back": "v.reserve(n) 先把 n 格位子訂下來。已經知道要放幾個元素時先呼叫它，之後的 push_back 一次搬家都不會發生——實測塞 1000 個元素可以把 11 次擴容降成 0 次。"},
+{"front": "範圍檢查存取（at）", "back": "v.at(i) 和 v[i] 都取第 i 個元素，差別只在越界時：at 丟出 out_of_range 例外並在訊息裡寫出索引與長度，[] 什麼都不檢查，讀到隔壁的記憶體或直接當掉。"},
+{"front": "攤還分析（Amortized Analysis）", "back": "把一連串操作的總成本平均到每次操作上的分析方式。push_back 個別一次可能要搬 n 個元素，但因為容量每次翻倍，n 次 push_back 的總搬移量不超過 2n，平均每次仍是常數，所以說它是攤還 O(1)。"},
+{"front": "迭代器（Iterator）", "back": "指向容器中某個位置的物件，用法跟指標很像：*it 取值、++it 往下一個走。v.begin() 是第一個元素，v.end() 是最後一個的再下一個。insert 與 erase 吃的參數就是它。"},
+{"front": "迭代器失效（Iterator Invalidation）", "back": "容器改變之後，先前取得的 iterator 或指標可能指向已經釋放的記憶體。vector 擴容時整批元素會搬到新位址，舊的 iterator 全部失效，再使用就是未定義行為。對策是記索引而不是記位址。"},
+{"front": "範圍 for 迴圈（Range-based for loop）", "back": "寫成 for (int x : v) 的走訪語法，最好讀但拿不到索引。x 預設是複製品，改它不會影響容器；要修改元素得寫 int& x，要避免複製又不想改到就寫 const string& x。"},
+{"front": "二維向量（Vector of Vectors）", "back": "vector<vector<int>> 就是每個元素本身又是一個 vector。宣告 4x4 全 0 的矩陣寫成 adj(4, vector<int>(4, 0))，第 08 章的相鄰矩陣就是這樣存的，每一列還可以不一樣長。"},
+{"front": "字串（string）", "back": "本質是 vector<char> 加上一堆為文字準備的方法：length、substr、find、+=、[]。底層同樣是連續記憶體、同樣有 capacity、同樣會擴容搬家，所以成本規則跟 vector 一模一樣。"},
+{"front": "取子字串（substr）", "back": "s.substr(pos, len) 從索引 pos 取 len 個字元複製成一個新字串，成本是 O(len)。第二個參數是長度而不是結束位置，這點跟 Python 的切片不同。第 08 章的字梯用它把單字切成桶子。"},
+{"front": "找不到的標記（string::npos）", "back": "find 系列函式找不到目標時回傳的特殊值，實際上是一個超大的無號數。判斷要寫 if (s.find(t) == string::npos)，寫成小於 0 永遠不成立——這是從 Python 的 -1 慣例轉過來時最常犯的錯。"}
+]

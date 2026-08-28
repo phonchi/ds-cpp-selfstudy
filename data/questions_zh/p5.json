@@ -1,0 +1,61 @@
+[
+ {
+  "question": "以下程式印出什麼？",
+  "code": "vector<int> v = {31, 17, 93};\nv.insert(v.begin(), 54);\nv.erase(v.begin() + 2);\nfor (int x : v) cout << x << \" \";",
+  "answers": [
+   {"answer": "54 31 93", "correct": true, "feedback": "正確。insert(v.begin(), 54) 把 31、17、93 全部往後挪一格，變成 54 31 17 93；erase(v.begin() + 2) 刪掉索引 2 的 17，後面的 93 再往前補位。兩個操作都是 O(n)，因為每一個動作都牽動後面所有元素。"},
+   {"answer": "31 17 93", "correct": false, "feedback": "不對。insert 和 erase 都會真的改動 v，不是回傳一份新的 vector。"},
+   {"answer": "54 17 93", "correct": false, "feedback": "不對。erase 的參數是 v.begin() + 2，指的是插入之後的索引 2，也就是 17，不是 31。"},
+   {"answer": "54 31 17", "correct": false, "feedback": "不對。刪掉的是索引 2，不是最後一個。要刪最後一個請用 pop_back()。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "vector<int> v = {1, 2, 3};\nfor (int x : v) x = x * 10;\nfor (int& y : v) y = y + 1;\nfor (int x : v) cout << x << \" \";",
+  "answers": [
+   {"answer": "2 3 4", "correct": true, "feedback": "正確。第一個迴圈的 x 是複製品，乘 10 只改到那份暫存值，v 完全沒動；第二個迴圈的 y 宣告成 int&，是元素本人的別名，加 1 才真的寫回 vector。要改元素就一定要加 &。"},
+   {"answer": "11 21 31", "correct": false, "feedback": "不對。for (int x : v) 的 x 是複製品，那個乘 10 的結果每一輪都被丟掉了。"},
+   {"answer": "1 2 3", "correct": false, "feedback": "不對。第二個迴圈用了 int&，那一次修改是有效的。"},
+   {"answer": "10 20 30", "correct": false, "feedback": "不對。乘 10 的那個迴圈沒有效果，而加 1 的那個有效果，剛好跟這個選項相反。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "vector<int> v(3, 7);\ntry {\n    cout << v.at(3) << endl;\n} catch (out_of_range& e) {\n    cout << \"caught\" << endl;\n}\ncout << v.size() << endl;",
+  "answers": [
+   {"answer": "先印 caught，再印 3", "correct": true, "feedback": "正確。v(3, 7) 建出三個 7，合法索引只有 0 到 2，所以 at(3) 丟出 out_of_range，被 catch 接住印出 caught。丟例外不會改動 vector，size 仍然是 3。"},
+   {"answer": "先印 7，再印 3", "correct": false, "feedback": "不對。at(3) 越界了。v(3, 7) 的第一個參數是元素個數、第二個才是填進去的值。"},
+   {"answer": "先印 0，再印 3", "correct": false, "feedback": "不對。at() 越界時不會回傳 0，它會丟例外；回傳未定義的垃圾值是 v[3] 的行為。"},
+   {"answer": "程式當掉，什麼都印不出來", "correct": false, "feedback": "不對。有 catch 接住例外，程式正常往下跑。沒有 catch 才會被 abort 掉。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？（在一般的 libstdc++ 上）",
+  "code": "vector<int> v = {1, 2, 3, 4};\nv.clear();\ncout << v.size() << \" \" << v.capacity();",
+  "answers": [
+   {"answer": "0 4", "correct": true, "feedback": "正確。clear() 把元素清掉、size 歸零，但那塊記憶體沒有還給系統，capacity 還是 4。這樣設計是為了讓你清空後重新填時不必再配置一次；真的想釋放要用 swap 技巧或 shrink_to_fit()。"},
+   {"answer": "0 0", "correct": false, "feedback": "不對。size 和 capacity 是兩回事，clear() 只管前者。"},
+   {"answer": "4 4", "correct": false, "feedback": "不對。clear() 之後 size 一定是 0，vector 已經沒有元素了。"},
+   {"answer": "0 8", "correct": false, "feedback": "不對。clear() 不會擴容。初始化列表建出來的 vector 容量剛好等於元素個數 4。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "string s = \"fool\";\ns += \"s\";\ncout << s.substr(1, 2) << \" \" << s.find(\"ol\") << \" \" << s.length();",
+  "answers": [
+   {"answer": "oo 2 5", "correct": true, "feedback": "正確。s 變成 fools；substr(1, 2) 從索引 1 取兩個字元得到 oo，第二個參數是長度不是結束位置；find(\"ol\") 在索引 2 找到 ol；長度是 5。"},
+   {"answer": "oo 2 4", "correct": false, "feedback": "不對。s += \"s\" 已經把長度變成 5 了，+= 是就地修改。"},
+   {"answer": "ool 2 5", "correct": false, "feedback": "不對。substr 的第二個參數是要取幾個字元，這裡是 2，不是取到索引 2 為止。"},
+   {"answer": "oo -1 5", "correct": false, "feedback": "不對。C++ 的 find 找不到時回傳 string::npos 而不是 -1，而且這裡本來就找得到，答案是 2。"}
+  ]
+ },
+ {
+  "question": "你用 vector 實作一個佇列：enqueue 用 push_back 加在尾端，dequeue 用 erase(v.begin()) 從前端拿。dequeue 的複雜度是什麼？",
+  "answers": [
+   {"answer": "O(n)，因為前端拿走一個之後，後面每個元素都要往前挪一格", "correct": true, "feedback": "正確。vector 的元素放在一整塊連續記憶體裡，拿掉第 0 格就必須讓後面 n-1 個元素全部往前補位。課程第 05 章的佇列正是這樣實作的；要兩端都是常數時間，得換成鏈結串列或 deque。"},
+   {"answer": "O(1)，因為只拿走一個元素", "correct": false, "feedback": "不對。拿走的動作本身很快，但為了維持連續性而做的補位是線性的。只有 pop_back() 才是真正的 O(1)。"},
+   {"answer": "O(log n)，因為 vector 內部有排序", "correct": false, "feedback": "不對。vector 不會幫你排序，也沒有任何二分搜尋的結構，跟對數複雜度無關。"},
+   {"answer": "O(n^2)，因為每個元素都要被搬 n 次", "correct": false, "feedback": "不對。單次 dequeue 只掃一輪；連做 n 次 dequeue 才會累積成 O(n^2)。"}
+  ]
+ }
+]

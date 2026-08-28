@@ -1,0 +1,20 @@
+[
+{"front":"函式原型（Function Prototype）","back":"只寫回傳型別、函式名與參數型別，結尾加分號的那一行宣告。C++ 編譯器由上而下讀一遍，呼叫前沒見過這個名字就會報 was not declared in this scope。原型通常放在 .hpp，定義放在 .cpp。"},
+{"front":"傳值（Pass by Value）","back":"呼叫時把引數整個複製一份放進參數裡。函式改的是副本，呼叫端的變數完全不受影響。適合 int、double 這種小型別，用在大物件上會付出整份複製的成本。"},
+{"front":"複製建構式（Copy Constructor）","back":"形式是 T(const T& other)，物件被複製時由編譯器自動呼叫。傳值傳一個物件、回傳一個物件、用另一個物件初始化時都會觸發它，所以它是 C++ 隱藏成本最常見的來源。"},
+{"front":"參考（Reference）","back":"寫成 T&，是既有變數的另一個名字。它不配置新記憶體、位址與本尊相同、一旦綁定就不能改綁別的東西，也不存在空參考。課程九章總共用了 57 次。"},
+{"front":"傳參考（Pass by Reference）","back":"參數寫成 T&，函式收到的是呼叫端那個變數本人，改動會直接反映到外面，而且完全不複製。第 07 章的 void bubbleSort(vector<int>& v) 就是靠這個把排序結果留在呼叫端。"},
+{"front":"傳指標（Pass by Pointer）","back":"參數寫成 T*，呼叫端寫 f(&x)，函式用 *p 走進去改。效果跟傳參考一樣，多的是可以傳 NULL、也可以中途改指向別的目標。第 04 章追蹤前一個節點的 previous 就必須用它。"},
+{"front":"空指標（NULL）","back":"代表指標目前沒有指向任何東西。它讓「這個參數可以是沒有」變成可表達的語意，這是參考做不到的。解參考一個 NULL 是未定義行為，通常直接 segmentation fault。"},
+{"front":"常數參考（const Reference）","back":"寫成 const T&，不複製也不允許函式改動內容，違反時編譯期就報 assignment of read-only reference。這是 C++ 傳遞大物件的標準做法，看到 const vector<int>& v 就是這個意思。"},
+{"front":"常數成員函式（const Member Function）","back":"參數列後面掛 const，例如 int getNum() const，承諾不動到任何成員。唯讀物件只准呼叫這種函式，所以 getter 不寫 const，你的類別就沒辦法用 const T& 傳遞。"},
+{"front":"回傳參考（Return by Reference）","back":"回傳型別寫成 T&，交出去的是那個東西本人，所以函式呼叫可以出現在等號左邊。前提是被指向的東西活得比函式久，通常是類別的成員，絕不能是區域變數。"},
+{"front":"懸空指標（Dangling Pointer）","back":"指標指向一塊已經失效的記憶體，最典型的成因就是回傳區域變數的位址。函式一 return，它的堆疊框連同區域變數一起被彈掉，交出去的位址立刻過期。"},
+{"front":"未定義行為（Undefined Behavior）","back":"標準不規定會發生什麼的操作，例如解參考懸空指標。它的可怕之處在於結果不保證一致：同一支程式換個編譯器或最佳化等級，可能印出正確答案、印出垃圾、或當場崩潰，所以你無法靠試跑證明它是對的。"},
+{"front":"函式多載（Function Overloading）","back":"好幾個函式共用一個名字，靠參數的個數或型別讓編譯器挑選。回傳型別不列入判斷。課程第 01 章的 Fraction 就用三個同名建構式提供 Fraction(3,4)、Fraction(5)、Fraction() 三種建立方式。"},
+{"front":"預設引數（Default Argument）","back":"在參數列直接給參數一個預設值，呼叫時可以省略。因為呼叫端由左往右對位，有預設值的參數必須排在最後面而且一路排到底，否則編譯器直接報 default argument missing。"},
+{"front":"呼叫堆疊（Call Stack）","back":"系統用來記錄函式呼叫關係的堆疊，每呼叫一次就推一個框上去，回傳時彈掉。它的大小有上限，Linux 上預設通常是 8 MB，所以遞迴太深會直接撞牆。"},
+{"front":"堆疊框（Stack Frame）","back":"一次函式呼叫在堆疊上佔的那一塊，裡面放這一次專屬的參數、區域變數，以及回去之後要從哪裡繼續執行。遞迴時每一層都有自己的框，所以各層的 n 互不干擾。"},
+{"front":"基底情形（Base Case）","back":"遞迴中小到不必再往下呼叫、可以直接給答案的情況，例如 sumTo 裡的 n <= 1。少了它，或問題沒有真的變小，遞迴就停不下來，堆疊會一路疊到爆。"},
+{"front":"堆疊溢位（Stack Overflow）","back":"遞迴深度超過呼叫堆疊容量時發生的崩潰。Python 會丟出 RecursionError 明確告訴你，C++ 不做檢查，程式直接收到 SIGSEGV 結束，第 06 章討論遞迴極限時會再遇到。"}
+]

@@ -1,6 +1,6 @@
 # 資料結構 × C++ 互動自學網站
 
-NSYSU 資料結構課程（MATH208）的互動自學配套網站：兩章課前準備 ＋ 九章互動教材，
+NSYSU 資料結構課程（MATH208）的互動自學配套網站：兩章課前準備 ＋ 九章互動教材 ＋ 九頁選讀先備知識，
 每一節都能動手操作、預測、驗證，配上每節 quiz、關鍵詞彙卡（flashcards）與 REF 速查表。
 
 - 線上閱讀：https://phonchi.github.io/ds-cpp-selfstudy/
@@ -30,6 +30,26 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "dsc
 | 07 | [搜尋與排序](searching_sorting.html) | cppds Ch.6–7 |
 | 08 | [圖與圖演算法](graphs.html) | cppds Ch.9 |
 | 09 | [樹與樹演算法](trees.html) | cppds Ch.8 |
+
+## 先備知識（選讀，不列入評分）
+
+複習課程「預設你已經會」的 C++。全部程式碼範例都以 `g++ -std=c++17` 實際編譯執行過，
+並直接引用課程的 `dscpp/` 標頭檔。
+
+| # | 頁面 | 內容 |
+|---|------|------|
+| P1 | [C++ 基礎與編譯流程](p1_cpp_basics.html) | 編譯四階段、靜態型別、整數除法、讀懂 g++ 錯誤訊息 |
+| P2 | [流程控制](p2_flow_control.html) | 短路求值、if／switch、while／for、範圍 for 的 `&` |
+| P3 | [函式](p3_functions.html) | 傳值 vs 傳參考 vs 傳指標、`const T&`、遞迴與呼叫堆疊 |
+| P4 | [陣列、指標與動態記憶體](p4_pointers_memory.html) | `&x`、`*p`、`NULL`、`a[i]` 就是 `*(a+i)`、`new`／`delete`、三種災難 |
+| P5 | [vector 與 string](p5_vector_string.html) | 增刪成本、容量與攤還、iterator 失效、二維 vector |
+| P6 | [map、set 與迭代器](p6_map_set.html) | `m[k]` 的陷阱、紅黑樹 vs 雜湊表、迭代器 |
+| P7 | [檔案與例外](p7_files_exceptions.html) | `ifstream`／`ofstream`、`try`／`catch`、`at()` vs `[]` |
+| P8 | [物件導向（基礎）](p8_oop_basics.html) | class、建構式與 `this`、封裝、`operator<<`、組合 |
+| P9 | [物件導向（進階）](p9_oop_advanced.html) | 繼承、`virtual` 與多型、`operator<`、組合 vs 繼承、template |
+
+課程全程用了 218 次 `new`、114 次 `NULL`，光第 09 章一章就有 102 個 `new`，
+所以 **P4 是最該讀的一頁**；其次是 P8／P9，第 04 章之後每個資料結構都是一個 `class`。
 
 每頁皆為單檔自足 HTML（互動元件為原生 JS，僅外連 MathJax 與 Google Fonts CDN）。
 詞彙卡與自測題取自課程題庫並譯為繁體中文（母檔在 `data/flashcards_zh/`、`data/questions_zh/`，

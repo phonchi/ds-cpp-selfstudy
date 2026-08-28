@@ -17,18 +17,13 @@ C++ 並實際編譯執行過。
 | `f27e006` | 課前準備 00A、00B；`index.html` 課前準備區；`introduction.html` 上一章接到 00B；README |
 | `ae4149e` | 先備頁 P4（陣列、指標與動態記憶體）＋ 四個互動元件 |
 
-## 進行中
+## 全部完成（2026-08-28）
 
-| 頁 | stem | 狀態 |
-|---|---|---|
-| ~~P8 物件導向（基礎）~~ | `p8_oop_basics` | **已完成**（10 節、6 題、18 卡；尚未 commit 時見下方） |
-| P9 物件導向（進階） | `p9_oop_advanced` | **未開始**（主 session 負責） |
-| P1 C++ 基礎與編譯流程 | `p1_cpp_basics` | subagent 撰寫中 |
-| P2 流程控制 | `p2_flow_control` | subagent 撰寫中 |
-| P3 函式 | `p3_functions` | subagent 撰寫中 |
-| P5 vector 與 string | `p5_vector_string` | subagent 撰寫中 |
-| P6 map、set 與迭代器 | `p6_map_set` | subagent 撰寫中 |
-| P7 檔案與例外 | `p7_files_exceptions` | **未開始** |
+11 頁全數上站：課前章 00A／00B，先備頁 P1–P9。`index.html` 的「課前準備」與
+「先備知識」兩區、README 兩張表、`introduction.html` 的上一章連結都接好了。
+既有九章正課頁除 introduction 的一行 nav 外零變動。
+
+尚未 push。
 
 ## 產出物在哪（這就是復原點）
 

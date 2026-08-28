@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>檔案與例外 — 先備 P7（C++）</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+/* ===== 題庫自測區 ===== */
+.sq-item{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+.sq-item .sq-q{font-weight:700;margin-bottom:.7rem;}
+.sq-item .sq-q .sq-num{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:.4rem;}
+.sq-opts{display:flex;flex-direction:column;gap:.45rem;}
+.sq-opt{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.6;padding:.55rem .9rem;border-radius:8px;border:1px solid var(--card-border);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;}
+.sq-opt:hover{border-color:var(--accent2);}
+.sq-opt.correct{border-color:var(--accent3);background:rgba(26,107,74,.10);}
+.sq-opt.wrong{border-color:var(--accent);background:rgba(192,57,43,.08);}
+.sq-fb{display:none;margin-top:.7rem;font-size:.86rem;line-height:1.7;border-left:4px solid var(--accent2);padding:.5rem .9rem;background:var(--paper);border-radius:0 8px 8px 0;}
+.sq-fb.show{display:block;}
+.sq-fb.good{border-left-color:var(--accent3);}
+.sq-fb.bad{border-left-color:var(--accent);}
+.sq-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.55;padding:.7rem .9rem;border-radius:8px;margin:.2rem 0 .8rem;overflow-x:auto;white-space:pre;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">為什麼這頁比較短</span></a>
+  <a href="#read" data-target="read"><span class="fn-num">P01</span><span class="fn-name">讀檔與寫檔</span></a>
+  <a href="#check" data-target="check"><span class="fn-num">P02</span><span class="fn-name">開檔失敗</span></a>
+  <a href="#exception" data-target="exception"><span class="fn-num">P03</span><span class="fn-name">例外是什麼</span></a>
+  <a href="#standard" data-target="standard"><span class="fn-num">P04</span><span class="fn-name">標準例外</span></a>
+  <a href="#custom" data-target="custom"><span class="fn-num">P05</span><span class="fn-name">raise 自訂例外</span></a>
+  <a href="#uncaught" data-target="uncaught"><span class="fn-num">P06</span><span class="fn-name">沒人接會怎樣</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <path d="M70 40 h110 l40 40 v140 h-150 z"/><path d="M180 40 v40 h40"/>
+    <line x1="95" y1="120" x2="200" y2="120"/><line x1="95" y1="146" x2="200" y2="146"/>
+    <line x1="95" y1="172" x2="160" y2="172"/>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P7</div>
+    <h1><span class="green">檔案</span>與<span class="blue">例外</span></h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">ifstream｜ofstream｜getline｜try / catch｜throw｜at()</div>
+    <div class="scroll-hint">向下捲動開始<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>為什麼這一頁比較短</a>
+    <a href="#read"><span class="toc-num">P01</span>讀檔與寫檔</a>
+    <a href="#check"><span class="toc-num">P02</span>開檔失敗怎麼知道</a>
+    <a href="#exception"><span class="toc-num">P03</span>例外是什麼</a>
+    <a href="#standard"><span class="toc-num">P04</span>標準例外與 at()</a>
+    <a href="#custom"><span class="toc-num">P05</span>throw 與自訂例外</a>
+    <a href="#uncaught"><span class="toc-num">P06</span>沒有人接會怎樣</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>這一頁比別頁短，而且是刻意的</h2>
+  <p>先講清楚份量：掃過課程全部九章講義，<code>throw</code> 出現 <strong>6 次</strong>、<code>catch</code> <strong>4 次</strong>（全在第 01 章）、<code>ifstream</code> <strong>1 次</strong>、<code>ofstream</code> <strong>0 次</strong>。</p>
+  <p>換句話說，這門課<strong>幾乎不碰檔案與例外</strong> —— 資料多半直接寫死在程式裡。所以這一頁只給你「看到會認得、需要時查得到」的程度，不做深入。你的時間花在 <a href="p4_pointers_memory.html">P4 指標</a> 與 <a href="p8_oop_basics.html">P8</a>／<a href="p9_oop_advanced.html">P9</a> 的物件導向上，投資報酬率高得多。</p>
+
+  <div class="info-box">
+    <div class="info-label">💡 那為什麼還要有這一頁</div>
+    <p style="margin-bottom:0;">兩個理由：① 第 01 章確實會示範例外處理，看不懂就卡住。② <code>vector::at()</code> 與 <code>vector::operator[]</code> 的差別（一個丟例外、一個不檢查）是很實際的除錯知識，而那是<strong>整學期都用得到</strong>的。</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。份量約是其他先備頁的一半。</p>
+  </div>
+</section>
+
+<section id="read">
+  <div class="section-number">PART 01 · 檔案</div>
+  <h2>讀檔與寫檔：三個型別、一個模式</h2>
+  <p><code>ofstream</code> 寫、<code>ifstream</code> 讀，用法跟 <code>cout</code>／<code>cin</code> 一模一樣 —— 因為它們是同一家族。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">寫進去再讀回來</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;fstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    ofstream out(<span class="str">"</span><span class="str">words.txt</span><span class="str">"</span>);            <span class="com">// 開檔寫入，不存在就建立</span>
+<span class="line" data-l="8"></span>    <span class="kw">if</span> (!out.is_open()) {</span>
+<span class="line" data-l="9">        cout &lt;&lt; <span class="str">"</span><span class="str">開檔失敗</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">        <span class="kw">return</span> <span class="num">1</span>;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    out &lt;&lt; <span class="str">"</span><span class="str">FOOL</span><span class="str">"</span> &lt;&lt; endl &lt;&lt; <span class="str">"</span><span class="str">POOL</span><span class="str">"</span> &lt;&lt; endl &lt;&lt; <span class="str">"</span><span class="str">POLL</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">    out.close();                          <span class="com">// 也可以讓它離開範圍自動關</span>
+<span class="line" data-l="14"></span></span>
+<span class="line" data-l="15">    ifstream in(<span class="str">"</span><span class="str">words.txt</span><span class="str">"</span>);             <span class="com">// 開檔讀取</span>
+<span class="line" data-l="16"></span>    string line;</span>
+<span class="line" data-l="17">    <span class="kw">int</span> n = <span class="num">0</span>;</span>
+<span class="line" data-l="18">    <span class="kw">while</span> (getline(in, line)) {           <span class="com">// 逐行讀到檔尾</span>
+<span class="line" data-l="19"></span>        cout &lt;&lt; ++n &lt;&lt; <span class="str">"</span><span class="str">: </span><span class="str">"</span> &lt;&lt; line &lt;&lt; endl;</span>
+<span class="line" data-l="20">    }</span>
+<span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="22">}</span>
+<span class="line" data-l="23"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1: FOOL
+2: POOL
+3: POLL</pre></div>
+  <p class="dx-note">三個重點：① 要 <code>#include &lt;fstream&gt;</code>。② <code>getline(in, line)</code> 讀到檔尾會回傳 false，所以可以直接當 while 的條件。③ <code>close()</code> 可以不寫 —— 物件離開範圍時<strong>解構式會自動關檔</strong>，這是 C++ 版的「自動收尾」，對應 Python 的 <code>with</code>。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>意思</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">ifstream in("a.txt");</td><td>開檔讀取</td></tr>
+      <tr><td class="mono">ofstream out("a.txt");</td><td>開檔寫入，<strong>清空原內容</strong></td></tr>
+      <tr><td class="mono">ofstream out("a.txt", ios::app);</td><td>附加到結尾</td></tr>
+      <tr><td class="mono">getline(in, line)</td><td>讀一整行（含空白），讀到檔尾回傳 false</td></tr>
+      <tr><td class="mono">in &gt;&gt; word</td><td>讀一個「詞」，以空白切開</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 08 章</div><p style='margin-bottom:0;'>字梯問題需要一份四千多個五字母單字的清單。課程實際上是把單字寫死在 <code>vector</code> 裡（所以 <code>ifstream</code> 全課只出現一次），但如果你想自己換一份字典來玩，就是這一節的內容。</p></div>
+</section>
+
+<section id="check">
+  <div class="section-number">PART 02 · 開檔失敗</div>
+  <h2>檔案不存在時，C++ 不會告訴你</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">開一個不存在的檔案</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;fstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    ifstream in(<span class="str">"</span><span class="str">no_such_file.txt</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">is_open() = </span><span class="str">"</span> &lt;&lt; in.is_open() &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">檔案不存在時 ifstream 不會丟例外，只是進入失敗狀態。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">所以開檔之後一定要自己檢查。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>is_open() = 0
+檔案不存在時 ifstream 不會丟例外，只是進入失敗狀態。
+所以開檔之後一定要自己檢查。</pre></div>
+  <p class="dx-note"><strong>它不丟例外、不當掉、什麼都不說</strong>，只是把串流設成失敗狀態。你如果不檢查就直接讀，會讀到零筆資料然後困惑半天。所以 <code>ifstream</code> 開完<strong>一定要接一句 <code>if (!in.is_open())</code></strong>。</p>
+</div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 相對路徑是相對於「執行時的工作目錄」</div>
+    <p style="margin-bottom:0;">不是相對於程式檔的位置。在 Jupyter 裡就是你啟動 <code>jupyter lab</code> 的那個目錄（跟 <a href="00b_setup.html#faq">00B</a> 講的 <code>-I.</code> 是同一個目錄）。「明明檔案就在旁邊卻開不起來」十次有九次是這個原因。</p>
+  </div>
+</section>
+
+<section id="exception">
+  <div class="section-number">PART 03 · 例外</div>
+  <h2>例外不是「壞掉」，是「這條路走不通，換你決定」</h2>
+  <p>例外處理的骨架只有兩個關鍵字：<code>try</code> 圈出可能失敗的程式，<code>catch</code> 接住失敗。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">try</span> {</span>
+<span class="line" data-l="2">    <span class="com">// 可能失敗的那幾行，範圍越小越好找錯</span>
+<span class="line" data-l="3"></span>    risky();</span>
+<span class="line" data-l="4">} <span class="kw">catch</span> (<span class="kw">const</span> SpecificError&amp; e) {</span>
+<span class="line" data-l="5">    <span class="com">// 只接住你預期會發生的那一種</span>
+<span class="line" data-l="6"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">出事了: </span><span class="str">"</span> &lt;&lt; e.what() &lt;&lt; endl;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"><span class="com">// 接住之後程式繼續往下跑</span>
+<span class="line" data-l="9"></span></span></div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>C++</th><th>Python</th><th>備註</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">try { } catch (…) { }</td><td class="mono">try: / except:</td><td>概念相同</td></tr>
+      <tr><td class="mono">throw X();</td><td class="mono">raise X()</td><td>主動拋出</td></tr>
+      <tr><td class="mono">e.what()</td><td class="mono">str(e)</td><td>取得訊息</td></tr>
+      <tr><td>沒有對應</td><td class="mono">finally:</td><td>C++ 用解構式自動收尾（RAII）</td></tr>
+      <tr><td>沒有對應</td><td class="mono">else:</td><td>C++ 沒有這個區塊</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 不要寫 <code>catch (...)</code> 把所有東西一起接住</div>
+    <p style="margin-bottom:0;">它會連你自己寫錯造成的問題一起吞掉，讓程式默默給出錯誤答案。<strong>接住你預期會發生的那一種就好</strong>，其餘讓它往上傳。<code>catch</code> 的順序也要由窄到寬，寬的放後面 —— 放前面的話後面那些永遠接不到。</p>
+  </div>
+</section>
+
+<section id="standard">
+  <div class="section-number">PART 04 · at() 與 []</div>
+  <h2>兩個下標寫法，一個檢查範圍一個不檢查 <span class="sec-badge">整學期用得到</span></h2>
+
+<div class="deck-extra">
+  <div class="dx-label">同一個越界存取，兩種下場</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>};</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">v[10]     -&gt; </span><span class="str">"</span> &lt;&lt; v[<span class="num">10</span>] &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 不檢查範圍，讀到垃圾值或當掉</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11">    <span class="kw">try</span> {</span>
+<span class="line" data-l="12">        cout &lt;&lt; <span class="str">"</span><span class="str">v.at(10)  -&gt; </span><span class="str">"</span> &lt;&lt; v.at(<span class="num">10</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="13">    } <span class="kw">catch</span> (<span class="kw">const</span> out_of_range&amp; e) {</span>
+<span class="line" data-l="14">        cout &lt;&lt; <span class="str">"</span><span class="str">v.at(10)  -&gt; 被 catch 接住了: </span><span class="str">"</span> &lt;&lt; e.what() &lt;&lt; endl;</span>
+<span class="line" data-l="15">    }</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">程式繼續往下跑。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="18">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="19">}</span>
+<span class="line" data-l="20"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>v[10]     -&gt; 1043144736   &lt;- 不檢查範圍，讀到垃圾值或當掉
+v.at(10)  -&gt; v.at(10)  -&gt; 被 catch 接住了: vector::_M_range_check: __n (which is 10) &gt;= this-&gt;size() (which is 3)
+程式繼續往下跑。</pre></div>
+  <p class="dx-note"><code>v[10]</code> <strong>不檢查範圍</strong>，直接讀那塊記憶體 —— 印出一個垃圾值（你跑會拿到不同的數字），而且沒有任何警告。<code>v.at(10)</code> 會丟 <code>out_of_range</code>，被 catch 接住。<br>順帶注意輸出裡 <code>v.at(10) -&gt;</code> 印了兩次：左邊那段 <code>cout</code> 在例外拋出<strong>之前</strong>就已經送出去了。例外會中斷整條敘述，但已經發生的副作用不會被回復。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>常見標準例外</th><th>什麼時候發生</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">out_of_range</td><td><code>vector::at()</code>、<code>string::at()</code> 越界</td></tr>
+      <tr><td class="mono">invalid_argument</td><td><code>stoi("abc")</code> 這種轉不了的輸入</td></tr>
+      <tr><td class="mono">bad_alloc</td><td><code>new</code> 要不到記憶體</td></tr>
+      <tr><td class="mono">runtime_error</td><td>通用的執行期錯誤，自訂例外常繼承它</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 什麼時候用哪個</div>
+    <p style="margin-bottom:0;"><strong>開發與除錯時用 <code>at()</code></strong> —— 越界會當場講清楚，比讀到垃圾值好追一百倍。<strong>確定索引安全的熱迴圈用 <code>[]</code></strong> —— 少一次範圍檢查。課程的程式碼幾乎都用 <code>[]</code>，但你自己 debug 時把它換成 <code>at()</code> 常常一秒找到問題。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 03、05、07 章</div><p style='margin-bottom:0;'>第 03 章的 <code>ArrayList</code>、第 05 章的堆疊佇列、第 07 章的雜湊表與排序，全部在對 <code>vector</code> 下標。索引算錯是這幾章最常見的 bug，<code>at()</code> 是最快的診斷工具。</p></div>
+</section>
+
+<section id="custom">
+  <div class="section-number">PART 05 · 主動拋出</div>
+  <h2><code>throw</code> 與自訂例外</h2>
+  <p>當函式<strong>無法完成它承諾的事</strong>時就該拋例外，而不是悄悄回傳一個假值。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">空堆疊的 pop 該抗議</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">class</span> EmptyStackError : <span class="kw">public</span> runtime_error {          <span class="com">// 自訂例外，繼承標準的就好</span>
+<span class="line" data-l="7"></span>    <span class="kw">public</span>:</span>
+<span class="line" data-l="8">        EmptyStackError() : runtime_error(<span class="str">"</span><span class="str">堆疊是空的，沒有東西可以彈出</span><span class="str">"</span>) { }</span>
+<span class="line" data-l="9">};</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
+<span class="line" data-l="12"><span class="kw">class</span> Stack {</span>
+<span class="line" data-l="13">    <span class="kw">private</span>:</span>
+<span class="line" data-l="14">        vector&lt;T&gt; items;</span>
+<span class="line" data-l="15">    <span class="kw">public</span>:</span>
+<span class="line" data-l="16">        <span class="kw">void</span> push(T item) { items.push_back(item); }</span>
+<span class="line" data-l="17">        T pop() {</span>
+<span class="line" data-l="18">            <span class="kw">if</span> (items.empty()) <span class="kw">throw</span> EmptyStackError();  <span class="com">// 我做不到，交給呼叫端決定</span>
+<span class="line" data-l="19"></span>            T top = items.back();</span>
+<span class="line" data-l="20">            items.pop_back();</span>
+<span class="line" data-l="21">            <span class="kw">return</span> top;</span>
+<span class="line" data-l="22">        }</span>
+<span class="line" data-l="23">};</span>
+<span class="line" data-l="24"> </span>
+<span class="line" data-l="25"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="26">    Stack&lt;<span class="kw">int</span>&gt; s;</span>
+<span class="line" data-l="27">    <span class="kw">try</span> {</span>
+<span class="line" data-l="28">        s.pop();</span>
+<span class="line" data-l="29">    } <span class="kw">catch</span> (<span class="kw">const</span> EmptyStackError&amp; e) {</span>
+<span class="line" data-l="30">        cout &lt;&lt; <span class="str">"</span><span class="str">接住了: </span><span class="str">"</span> &lt;&lt; e.what() &lt;&lt; endl;</span>
+<span class="line" data-l="31">    }</span>
+<span class="line" data-l="32">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="33">}</span>
+<span class="line" data-l="34"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>接住了: 堆疊是空的，沒有東西可以彈出</pre></div>
+  <p class="dx-note">自訂例外<strong>繼承 <code>runtime_error</code> 就好</strong>，連內容都不必寫，訊息透過建構式傳給父類別、再用 <code>e.what()</code> 取回。好處是呼叫端可以<strong>精準地只接住這一種</strong>，而不是用一個 catch 把所有問題一起吞掉。這也是 <a href='p9_oop_advanced.html'>P9</a> 繼承的實際應用。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼不回傳一個特殊值就好</div>
+    <p style="margin-bottom:0;">因為<strong>沒有哪個值是安全的</strong>。空堆疊 <code>pop</code> 回傳 0？那真的存了 0 的時候怎麼辦？回傳 <code>-1</code>？那存負數呢？而且呼叫端很容易忘記檢查，錯誤就一路往下傳，最後在很遠的地方才爆出來。例外的價值就在於<strong>它不會被無視</strong>。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05、09 章</div><p style='margin-bottom:0;'><code>dscpp/stack.hpp</code> 的 <code>pop()</code> 沒有檢查空的情況——對空的 <code>vector</code> 呼叫 <code>back()</code> 是未定義行為。這是教材的簡化；你自己實作時加一個檢查會讓 debug 輕鬆很多。</p></div>
+</section>
+
+<section id="uncaught">
+  <div class="section-number">PART 06 · 沒人接</div>
+  <h2>例外沒有人接住會怎樣</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">讓它直接炸給你看</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">接下來這行會丟例外，而且沒有人接：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; v.at(<span class="num">99</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">這一行永遠不會被執行</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>接下來這行會丟例外，而且沒有人接：
+
+[執行結束碼 -6]
+terminate called after throwing an instance of &#x27;std::out_of_range&#x27;
+  what():  vector::_M_range_check: __n (which is 99) &gt;= this-&gt;size() (which is 3)</pre></div>
+  <p class="dx-note">程式<strong>直接終止</strong>，最後一行永遠不會執行。訊息 <code>terminate called after throwing an instance of …</code> 加上 <code>what()</code> 的內容，已經把「哪一種例外、為什麼」講得很清楚了 —— 這比讀到垃圾值好太多。結束碼 <code>-6</code> 是 <code>SIGABRT</code>，看到它就知道是例外沒接住或 assert 失敗。</p>
+</div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 沒接住其實常常是對的</div>
+    <p style="margin-bottom:0;">不要為了「讓程式不要當」而到處包 <code>try</code>。<strong>你不知道怎麼處理的錯誤，就讓它炸</strong> —— 帶著清楚訊息的當機，遠好過默默算出錯誤答案。只在你<strong>真的有辦法處理</strong>的地方才 catch。</p>
+  </div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>兩題確認觀念</h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 1 · 開檔失敗</div>
+    <p><code>ifstream in("data.txt");</code> 檔案不存在時會發生什麼？</p>
+    <div class="quiz-options" id="q1Options">
+      <div class="quiz-opt" data-correct="false" data-fb="不對。C++ 的檔案串流不會為了「檔案不存在」丟例外，除非你自己設定它這麼做。" onclick="quizCheck('q1', this)"><span class="opt-letter">(A)</span> 丟出一個例外</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。它只是進入失敗狀態，什麼都不說。之後所有讀取都會失敗但也不報錯，你會拿到零筆資料然後困惑半天。所以開檔之後一定要接一句 if (!in.is_open())。" onclick="quizCheck('q1', this)"><span class="opt-letter">(B)</span> 安靜地進入失敗狀態，要自己用 <code>is_open()</code> 檢查</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對，那是 ofstream 的行為。ifstream 是讀取用的，不會建立檔案。" onclick="quizCheck('q1', this)"><span class="opt-letter">(C)</span> 自動建立一個空檔案</div>
+    </div>
+    <div class="quiz-feedback" id="q1Feedback"></div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 2 · 該用哪個下標</div>
+    <p>你在 debug 一個索引算錯的排序程式。應該把 <code>v[i]</code> 暫時換成什麼？</p>
+    <div class="quiz-options" id="q2Options">
+      <div class="quiz-opt" data-correct="true" data-fb="正確。at() 會檢查範圍，越界時直接丟 out_of_range 並告訴你索引是多少、容器多大。比讀到垃圾值再倒推快太多了。找到之後再換回 [] 就好。" onclick="quizCheck('q2', this)"><span class="opt-letter">(A)</span> <code>v.at(i)</code></div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。front() 固定回傳第一個元素，跟索引無關。" onclick="quizCheck('q2', this)"><span class="opt-letter">(B)</span> <code>v.front()</code></div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。data() 回傳的是底層陣列的指標，一樣不檢查範圍，對 debug 沒有幫助。" onclick="quizCheck('q2', this)"><span class="opt-letter">(C)</span> <code>v.data()[i]</code></div>
+    </div>
+    <div class="quiz-feedback" id="q2Feedback"></div>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P7 速查表</h2>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;fstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span></span>
+<span class="line" data-l="4"><span class="com">// 讀</span>
+<span class="line" data-l="5"></span>ifstream in(<span class="str">"</span><span class="str">data.txt</span><span class="str">"</span>);</span>
+<span class="line" data-l="6"><span class="kw">if</span> (!in.is_open()) { <span class="com">/* 處理開檔失敗 */</span> }</span>
+<span class="line" data-l="7">string line;</span>
+<span class="line" data-l="8"><span class="kw">while</span> (getline(in, line)) { <span class="com">/* 逐行處理 */</span> }</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10"><span class="com">// 寫（"a.txt" 會被清空；要附加用 ios::app）</span>
+<span class="line" data-l="11"></span>ofstream out(<span class="str">"</span><span class="str">out.txt</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">out &lt;&lt; <span class="str">"</span><span class="str">一行內容</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13"><span class="com">// 不必 close()，離開範圍時解構式會自動關</span>
+<span class="line" data-l="14"></span></span>
+<span class="line" data-l="15"><span class="com">// 例外</span>
+<span class="line" data-l="16"></span><span class="kw">try</span> {</span>
+<span class="line" data-l="17">    cout &lt;&lt; v.at(i);                 <span class="com">// 越界會丟 out_of_range</span>
+<span class="line" data-l="18"></span>} <span class="kw">catch</span> (<span class="kw">const</span> out_of_range&amp; e) {</span>
+<span class="line" data-l="19">    cout &lt;&lt; e.what();</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span>
+<span class="line" data-l="22"><span class="com">// 自訂例外：繼承 runtime_error 就好</span>
+<span class="line" data-l="23"></span><span class="kw">class</span> MyError : <span class="kw">public</span> runtime_error {</span>
+<span class="line" data-l="24">    <span class="kw">public</span>:</span>
+<span class="line" data-l="25">        MyError() : runtime_error(<span class="str">"</span><span class="str">說清楚哪裡出錯</span><span class="str">"</span>) { }</span>
+<span class="line" data-l="26">};</span>
+<span class="line" data-l="27"><span class="kw">throw</span> MyError();</span>
+<span class="line" data-l="28"> </span></div>
+
+  <div class="info-box green">
+    <p style="margin-bottom:0;">① <code>ifstream</code> 開完一定要檢查 <code>is_open()</code>。<br>
+    ② 相對路徑是相對於<strong>執行時的工作目錄</strong>。<br>
+    ③ debug 時把 <code>[]</code> 換成 <code>at()</code>。<br>
+    ④ 只接住你真的有辦法處理的例外，其餘讓它炸。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/io/basic_fstream" target="_blank" rel="noopener">cppreference · fstream</a></td><td>開檔模式與串流狀態的完整說明。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/error/exception" target="_blank" rel="noopener">cppreference · Exceptions</a></td><td>標準例外的完整階層。</td></tr>
+      <tr><td><a href="introduction.html">本站第 01 章</a></td><td>課程唯一示範例外處理的地方。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="bankquiz">
+  <div class="section-number">QUIZ · 自我檢測</div>
+  <h2>自我檢測：檔案與例外 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">vector&lt;int&gt; v = {10, 20, 30};
+try {
+    cout &lt;&lt; v.at(10);
+} catch (const out_of_range&amp; e) {
+    cout &lt;&lt; &quot;接住了&quot;;
+}
+cout &lt;&lt; &quot;|繼續&quot;;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。at() 會檢查範圍，越界時丟 out_of_range，被 catch 接住之後程式繼續往下跑。這正是例外的價值：出錯不等於整支程式陣亡。">接住了|繼續</button>
+      <button class="sq-opt" data-c="0" data-fb="不對，那是 v[10] 的行為。at() 會檢查範圍。">一個垃圾值然後 |繼續</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。例外有被 catch 接住，所以不會終止。沒接住才會。">程式直接終止</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是標準的例外處理寫法，需要 #include &lt;stdexcept&gt;。">編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>ifstream in(&quot;data.txt&quot;); 而 data.txt 不存在時會發生什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。C++ 的檔案串流預設不為此丟例外。你如果不用 is_open() 檢查就直接讀，會拿到零筆資料然後困惑半天。開檔之後一定要接一句檢查。">安靜地進入失敗狀態，之後所有讀取都失敗但也不報錯</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。那是 Python 的行為，C++ 沒有這個例外型別，而且預設也不丟例外。">丟出 FileNotFoundError</button>
+      <button class="sq-opt" data-c="0" data-fb="不對，那是 ofstream 的行為。ifstream 是讀取用的。">自動建立一個空檔案</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。它什麼都不做，繼續往下執行——這才是危險的地方。">程式直接終止</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">ofstream out(&quot;log.txt&quot;);   // log.txt 原本有 100 行
+out &lt;&lt; &quot;新的一行&quot; &lt;&lt; endl;
+out.close();
+
+ifstream in(&quot;log.txt&quot;);
+string line;
+int n = 0;
+while (getline(in, line)) n++;
+cout &lt;&lt; n;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。ofstream 預設會清空原檔案內容再寫。想附加到結尾必須傳 ios::app。這是不可逆的資料遺失，而且沒有任何警告。">1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對，那是 ios::app 模式的行為。預設是清空重寫。">101</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。寫入一定會發生，問題在於它先把舊內容清掉了。">100</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。新的那一行確實寫進去了。">0</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>你在 debug 一個索引算錯的程式。把 v[i] 換成 v.at(i) 有什麼好處？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。operator[] 不檢查範圍，越界會讀到垃圾值而且毫無警告，你得從錯誤的結果倒推回去。at() 讓錯誤在發生的那一行就爆出來。找到問題之後再換回 [] 就好。">越界時會當場丟 out_of_range，並告訴你索引是多少、容器多大</button>
+      <button class="sq-opt" data-c="0" data-fb="不對，正好相反：at() 多了一次範圍檢查，所以稍慢。它換來的是安全性。">at() 執行比較快</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。它不會修正你的錯誤，只會誠實地告訴你越界了。">at() 會自動把索引調整到合法範圍</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。一個檢查範圍一個不檢查，這是它們唯一但關鍵的差別。">沒有差別，兩者完全一樣</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>自訂例外時，為什麼建議繼承 runtime_error 而不是從零寫一個類別？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。訊息透過建構式傳給父類別，what() 就能用了，連內容都不必寫。而且呼叫端如果寫 catch (const exception&amp; e) 也接得到你的例外。">可以直接沿用 what() 的機制，而且能被接住標準例外的程式碼一併處理</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。技術上你可以拋任何型別，甚至一個 int。但那樣就享受不到標準機制的好處。">C++ 規定自訂例外一定要繼承標準例外</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這跟效能無關，是關於介面一致性與可用性。">因為繼承之後執行比較快</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。catch 可以接任何型別，只要型別對得上。問題是不繼承就沒有統一的介面。">因為不繼承的話 catch 接不到</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>一個例外沒有被任何 catch 接住，會發生什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。結束碼是 SIGABRT。而且這通常是對的行為：你不知道怎麼處理的錯誤就該讓它炸，帶著清楚訊息的當機遠好過默默算出錯誤答案。不要為了讓程式不當而到處包 try。">程式直接終止，並印出 terminate called after throwing 加上 what() 的內容</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。例外會一路往上傳，沒人接就終止整支程式，後面的程式碼不會執行。">程式會跳過那一行繼續執行</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。C++ 不強制檢查例外，編譯器不會要求你處理它。">編譯器會在編譯時就攔下來</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。例外的價值就在於它不會被無視。">例外會被自動忽略</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p6_map_set.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">map、set 與迭代器</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p8_oop_basics.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">物件導向（基礎）</div></a></div>
+</div>
+
+<footer>
+  先備知識 P7 · 檔案與例外 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "輸入檔案串流（ifstream）", "back": "開檔讀取用的型別，用法跟 cin 一樣。要 #include <fstream>。檔案不存在時它不丟例外，只是進入失敗狀態，所以開完一定要檢查 is_open()。"}, {"front": "輸出檔案串流（ofstream）", "back": "開檔寫入用的型別，用法跟 cout 一樣。預設會清空原檔案內容；要附加到結尾得傳 ios::app。"}, {"front": "逐行讀取（getline）", "back": "讀一整行（含空白）進 string 的函式，讀到檔尾會回傳 false，所以可以直接當 while 的條件。用 >> 則是以空白切開讀一個詞。"}, {"front": "自動收尾（RAII）", "back": "C++ 用「物件離開範圍時解構式一定會執行」來自動釋放資源。檔案串流不必手動 close，這是 C++ 版的 Python with 陳述式。"}, {"front": "例外（Exception）", "back": "程式執行中發生無法繼續的狀況時被拋出的物件。它不代表壞掉，而是「這條路走不通，交給呼叫我的人決定怎麼辦」。"}, {"front": "例外處理（try / catch）", "back": "把可能失敗的程式放進 try，失敗時跳到對應的 catch 處理。try 區塊應該只包含真正可能失敗的那幾行，範圍越小越好找錯。"}, {"front": "主動拋出（throw）", "back": "當函式無法完成它承諾的事時主動丟出例外，例如對空堆疊做 pop。比回傳一個特殊值好，因為沒有哪個回傳值是安全的，而且呼叫端容易忘記檢查。"}, {"front": "例外訊息（what()）", "back": "標準例外提供的成員函式，回傳描述錯誤的字串。對應 Python 的 str(e)。自訂例外通常把訊息透過建構式傳給父類別。"}, {"front": "越界例外（out_of_range）", "back": "vector 或 string 的 at() 存取越界時丟出的標準例外，訊息會告訴你索引是多少、容器多大。這是 debug 索引錯誤最快的工具。"}, {"front": "檢查與不檢查的下標（at() vs operator[]）", "back": "at() 會檢查範圍、越界丟例外；operator[] 不檢查，越界是未定義行為，通常讀到垃圾值而且毫無警告。開發時用 at()，確定安全的熱迴圈才用 []。"}, {"front": "自訂例外（Custom Exception）", "back": "繼承 runtime_error 或 exception 而來的錯誤類別，通常連內容都不必寫。好處是呼叫端可以精準地只接住這一種，而不是用一個 catch 把所有問題一起吞掉。"}, {"front": "未接住的例外（Uncaught Exception）", "back": "沒有任何 catch 接住的例外會讓程式直接終止，印出 terminate called after throwing 加上 what() 的內容，結束碼是 SIGABRT。帶著清楚訊息的當機遠好過默默算出錯誤答案。"}, {"front": "貪心捕捉（catch 全包）", "back": "寫成 catch (...) 把所有例外一起接住的反模式。它會連你自己寫錯造成的問題一起吞掉，讓程式默默給出錯誤答案。只接住你預期的那一種。"}, {"front": "工作目錄（Working Directory）", "back": "程式執行時所在的目錄，相對路徑是相對於它而不是程式檔的位置。在 Jupyter 裡就是你啟動 jupyter lab 的那個目錄，也是 -I. 所指的目錄。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+</body>
+</html>

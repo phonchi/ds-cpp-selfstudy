@@ -1,0 +1,58 @@
+[
+ {
+  "question": "以下程式印出什麼？",
+  "code": "vector<int> v = {10, 20, 30};\ntry {\n    cout << v.at(10);\n} catch (const out_of_range& e) {\n    cout << \"接住了\";\n}\ncout << \"|繼續\";",
+  "answers": [
+   {"answer": "接住了|繼續", "correct": true, "feedback": "正確。at() 會檢查範圍，越界時丟 out_of_range，被 catch 接住之後程式繼續往下跑。這正是例外的價值：出錯不等於整支程式陣亡。"},
+   {"answer": "一個垃圾值然後 |繼續", "correct": false, "feedback": "不對，那是 v[10] 的行為。at() 會檢查範圍。"},
+   {"answer": "程式直接終止", "correct": false, "feedback": "不對。例外有被 catch 接住，所以不會終止。沒接住才會。"},
+   {"answer": "編譯錯誤", "correct": false, "feedback": "不對。這是標準的例外處理寫法，需要 #include <stdexcept>。"}
+  ]
+ },
+ {
+  "question": "ifstream in(\"data.txt\"); 而 data.txt 不存在時會發生什麼？",
+  "answers": [
+   {"answer": "安靜地進入失敗狀態，之後所有讀取都失敗但也不報錯", "correct": true, "feedback": "正確。C++ 的檔案串流預設不為此丟例外。你如果不用 is_open() 檢查就直接讀，會拿到零筆資料然後困惑半天。開檔之後一定要接一句檢查。"},
+   {"answer": "丟出 FileNotFoundError", "correct": false, "feedback": "不對。那是 Python 的行為，C++ 沒有這個例外型別，而且預設也不丟例外。"},
+   {"answer": "自動建立一個空檔案", "correct": false, "feedback": "不對，那是 ofstream 的行為。ifstream 是讀取用的。"},
+   {"answer": "程式直接終止", "correct": false, "feedback": "不對。它什麼都不做，繼續往下執行——這才是危險的地方。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "ofstream out(\"log.txt\");   // log.txt 原本有 100 行\nout << \"新的一行\" << endl;\nout.close();\n\nifstream in(\"log.txt\");\nstring line;\nint n = 0;\nwhile (getline(in, line)) n++;\ncout << n;",
+  "answers": [
+   {"answer": "1", "correct": true, "feedback": "正確。ofstream 預設會清空原檔案內容再寫。想附加到結尾必須傳 ios::app。這是不可逆的資料遺失，而且沒有任何警告。"},
+   {"answer": "101", "correct": false, "feedback": "不對，那是 ios::app 模式的行為。預設是清空重寫。"},
+   {"answer": "100", "correct": false, "feedback": "不對。寫入一定會發生，問題在於它先把舊內容清掉了。"},
+   {"answer": "0", "correct": false, "feedback": "不對。新的那一行確實寫進去了。"}
+  ]
+ },
+ {
+  "question": "你在 debug 一個索引算錯的程式。把 v[i] 換成 v.at(i) 有什麼好處？",
+  "answers": [
+   {"answer": "越界時會當場丟 out_of_range，並告訴你索引是多少、容器多大", "correct": true, "feedback": "正確。operator[] 不檢查範圍，越界會讀到垃圾值而且毫無警告，你得從錯誤的結果倒推回去。at() 讓錯誤在發生的那一行就爆出來。找到問題之後再換回 [] 就好。"},
+   {"answer": "at() 執行比較快", "correct": false, "feedback": "不對，正好相反：at() 多了一次範圍檢查，所以稍慢。它換來的是安全性。"},
+   {"answer": "at() 會自動把索引調整到合法範圍", "correct": false, "feedback": "不對。它不會修正你的錯誤，只會誠實地告訴你越界了。"},
+   {"answer": "沒有差別，兩者完全一樣", "correct": false, "feedback": "不對。一個檢查範圍一個不檢查，這是它們唯一但關鍵的差別。"}
+  ]
+ },
+ {
+  "question": "自訂例外時，為什麼建議繼承 runtime_error 而不是從零寫一個類別？",
+  "answers": [
+   {"answer": "可以直接沿用 what() 的機制，而且能被接住標準例外的程式碼一併處理", "correct": true, "feedback": "正確。訊息透過建構式傳給父類別，what() 就能用了，連內容都不必寫。而且呼叫端如果寫 catch (const exception& e) 也接得到你的例外。"},
+   {"answer": "C++ 規定自訂例外一定要繼承標準例外", "correct": false, "feedback": "不對。技術上你可以拋任何型別，甚至一個 int。但那樣就享受不到標準機制的好處。"},
+   {"answer": "因為繼承之後執行比較快", "correct": false, "feedback": "不對。這跟效能無關，是關於介面一致性與可用性。"},
+   {"answer": "因為不繼承的話 catch 接不到", "correct": false, "feedback": "不對。catch 可以接任何型別，只要型別對得上。問題是不繼承就沒有統一的介面。"}
+  ]
+ },
+ {
+  "question": "一個例外沒有被任何 catch 接住，會發生什麼？",
+  "answers": [
+   {"answer": "程式直接終止，並印出 terminate called after throwing 加上 what() 的內容", "correct": true, "feedback": "正確。結束碼是 SIGABRT。而且這通常是對的行為：你不知道怎麼處理的錯誤就該讓它炸，帶著清楚訊息的當機遠好過默默算出錯誤答案。不要為了讓程式不當而到處包 try。"},
+   {"answer": "程式會跳過那一行繼續執行", "correct": false, "feedback": "不對。例外會一路往上傳，沒人接就終止整支程式，後面的程式碼不會執行。"},
+   {"answer": "編譯器會在編譯時就攔下來", "correct": false, "feedback": "不對。C++ 不強制檢查例外，編譯器不會要求你處理它。"},
+   {"answer": "例外會被自動忽略", "correct": false, "feedback": "不對。例外的價值就在於它不會被無視。"}
+  ]
+ }
+]

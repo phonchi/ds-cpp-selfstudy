@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>流程控制 — 先備 P2（C++）</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+/* ===== 題庫自測區 ===== */
+.sq-item{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+.sq-item .sq-q{font-weight:700;margin-bottom:.7rem;}
+.sq-item .sq-q .sq-num{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:.4rem;}
+.sq-opts{display:flex;flex-direction:column;gap:.45rem;}
+.sq-opt{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.6;padding:.55rem .9rem;border-radius:8px;border:1px solid var(--card-border);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;}
+.sq-opt:hover{border-color:var(--accent2);}
+.sq-opt.correct{border-color:var(--accent3);background:rgba(26,107,74,.10);}
+.sq-opt.wrong{border-color:var(--accent);background:rgba(192,57,43,.08);}
+.sq-fb{display:none;margin-top:.7rem;font-size:.86rem;line-height:1.7;border-left:4px solid var(--accent2);padding:.5rem .9rem;background:var(--paper);border-radius:0 8px 8px 0;}
+.sq-fb.show{display:block;}
+.sq-fb.good{border-left-color:var(--accent3);}
+.sq-fb.bad{border-left-color:var(--accent);}
+.sq-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.55;padding:.7rem .9rem;border-radius:8px;margin:.2rem 0 .8rem;overflow-x:auto;white-space:pre;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">迴圈與複雜度</span></a>
+  <a href="#bool" data-target="bool"><span class="fn-num">P01</span><span class="fn-name">布林與比較</span></a>
+  <a href="#ifelse" data-target="ifelse"><span class="fn-num">P02</span><span class="fn-name">條件</span></a>
+  <a href="#switch" data-target="switch"><span class="fn-num">P03</span><span class="fn-name">switch</span></a>
+  <a href="#while" data-target="while"><span class="fn-num">P04</span><span class="fn-name">while 迴圈</span></a>
+  <a href="#forloop" data-target="forloop"><span class="fn-num">P05</span><span class="fn-name">for 迴圈</span></a>
+  <a href="#rangefor" data-target="rangefor"><span class="fn-num">P06</span><span class="fn-name">範圍 for</span></a>
+  <a href="#nested" data-target="nested"><span class="fn-num">P07</span><span class="fn-name">巢狀與跳出</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <path d="M150 40 L196 76 L150 112 L104 76 Z"/>
+    <path d="M150 112 L150 150"/>
+    <rect x="100" y="150" width="100" height="40" rx="6"/>
+    <path d="M100 170 C 50 170, 50 76, 104 76"/>
+    <path d="M196 76 L250 76 L250 220"/>
+  </g>
+  <g fill="#fff" opacity=".8" font-family="monospace" font-size="11">
+    <text x="128" y="82">i &lt; n ?</text>
+    <text x="124" y="175">body</text>
+    <text x="44" y="128">i++</text>
+    <text x="228" y="238">done</text>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P2</div>
+    <h1><span class="blue">流程控制</span>：把<span class="orange">迴圈</span>讀成<span class="green">複雜度</span></h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">bool｜&amp;&amp; 短路｜switch fall-through｜while｜for(初;條件;增)｜for (T&amp; x : v)</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>看懂迴圈就是看懂複雜度</a>
+    <a href="#bool"><span class="toc-num">P01</span>布林、比較與短路求值</a>
+    <a href="#ifelse"><span class="toc-num">P02</span>if / else 與大括號</a>
+    <a href="#switch"><span class="toc-num">P03</span>switch 與掉落</a>
+    <a href="#while"><span class="toc-num">P04</span>while 與 do-while</a>
+    <a href="#forloop"><span class="toc-num">P05</span>三段式 for 的執行順序</a>
+    <a href="#rangefor"><span class="toc-num">P06</span>範圍 for：一個 &amp; 之差</a>
+    <a href="#nested"><span class="toc-num">P07</span>巢狀迴圈、break 與 continue</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>這門課的演算法，幾乎每一個都是一個迴圈</h2>
+  <p>翻開課程的 <code>dscpp/</code> 標頭檔，你會看到同一件事一直重複：搜尋是迴圈、排序是兩層迴圈、走訪串列是迴圈、廣度優先搜尋是「佇列不空就繼續」的迴圈。整學期的分析工作，說穿了就是回答一個問題：<strong>這個迴圈會跑幾次。</strong></p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>課程裡的程式</th><th>迴圈長什麼樣</th><th>跑幾次</th><th>複雜度</th></tr></thead>
+    <tbody>
+      <tr><td>第 04 章 <code>UnorderedList::search()</code></td><td class="mono">while (current != NULL)</td><td>最多走完每個節點</td><td class="mono">O(n)</td></tr>
+      <tr><td>第 07 章 <code>binarySearch()</code></td><td class="mono">while (first &lt;= last)</td><td>範圍每圈砍一半</td><td class="mono">O(log n)</td></tr>
+      <tr><td>第 07 章 <code>bubbleSort()</code></td><td class="mono">for … for …</td><td>n(n−1)/2 次比較</td><td class="mono">O(n²)</td></tr>
+      <tr><td>第 08 章 <code>bfs()</code></td><td class="mono">while (!vertQueue.empty())</td><td>每個頂點進出佇列一次</td><td class="mono">O(V+E)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>右邊那一欄不是背出來的，是<strong>從迴圈的終止條件直接讀出來</strong>的。<code>while (first &lt;= last)</code> 每一圈把 <code>last - first</code> 砍一半，砍到剩 1 要 $\log_2 n$ 圈，$O(\log n)$ 就是這樣來的。這一頁要練的就是這個讀法。</p>
+
+  <p>C++ 的流程控制長得跟 Python 很像，但有四個地方會咬人：大括號、<code>switch</code> 的掉落、三段式 <code>for</code> 的執行時機、範圍 <code>for</code> 那個決定「改得動還是改不動」的 <code>&amp;</code>。這四個各有一節。</p>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但第 04 章走訪串列的那一行 <code>while (current != &#78;ULL &amp;&amp; current-&gt;getData() != item)</code> 為什麼順序不能顛倒，答案只在這一頁的 PART 01。</p>
+  </div>
+</section>
+
+<section id="bool">
+  <div class="section-number">PART 01 · 布林與比較</div>
+  <h2><code>bool</code>、六個比較運算子，以及會救你一命的短路求值</h2>
+  <p>C++ 的 <code>bool</code> 只有兩個值：<code>true</code> 與 <code>false</code>。它底下就是整數，<code>true</code> 是 1、<code>false</code> 是 0，所以任何非零的東西當條件都算真。這件事在下一節會變成一個經典 bug。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">布林與比較運算子的實際行為</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">bool</span> a = <span class="fn">true</span>;</span>
+<span class="line" data-l="6">    <span class="kw">bool</span> b = <span class="fn">false</span>;</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8">    cout &lt;&lt; boolalpha;                       <span class="com">// 讓 bool 印成 true / false</span>
+<span class="line" data-l="9"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">a = </span><span class="str">"</span> &lt;&lt; a &lt;&lt; <span class="str">"</span><span class="str">，b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; endl;</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">3 &lt; 5    -&gt; </span><span class="str">"</span> &lt;&lt; (<span class="num">3</span> &lt; <span class="num">5</span>)  &lt;&lt; endl;</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">3 == 5   -&gt; </span><span class="str">"</span> &lt;&lt; (<span class="num">3</span> == <span class="num">5</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">3 != 5   -&gt; </span><span class="str">"</span> &lt;&lt; (<span class="num">3</span> != <span class="num">5</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">a &amp;&amp; b   -&gt; </span><span class="str">"</span> &lt;&lt; (a &amp;&amp; b) &lt;&lt; endl;</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">a || b   -&gt; </span><span class="str">"</span> &lt;&lt; (a || b) &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">!a       -&gt; </span><span class="str">"</span> &lt;&lt; (!a)     &lt;&lt; endl;</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">    cout &lt;&lt; noboolalpha;                     <span class="com">// 換回數字</span>
+<span class="line" data-l="18"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">true 印成數字是 </span><span class="str">"</span> &lt;&lt; <span class="fn">true</span> &lt;&lt; <span class="str">"</span><span class="str">，false 是 </span><span class="str">"</span> &lt;&lt; <span class="fn">false</span> &lt;&lt; endl;</span>
+<span class="line" data-l="19">    cout &lt;&lt; <span class="str">"</span><span class="str">非零整數當條件時是真：(bool)42 = </span><span class="str">"</span> &lt;&lt; (<span class="kw">bool</span>)<span class="num">42</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">空字元 '</span><span class="str">\\</span><span class="str">0' 轉成 bool = </span><span class="str">"</span> &lt;&lt; (<span class="kw">bool</span>)<span class="str">'</span><span class="str">\0</span><span class="str">'</span> &lt;&lt; endl;</span>
+<span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="22">}</span>
+<span class="line" data-l="23"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a = true，b = false
+3 &lt; 5    -&gt; true
+3 == 5   -&gt; false
+3 != 5   -&gt; true
+a &amp;&amp; b   -&gt; false
+a || b   -&gt; true
+!a       -&gt; false
+true 印成數字是 1，false 是 0
+非零整數當條件時是真：(bool)42 = 1
+空字元 &#x27;\0&#x27; 轉成 bool = 0</pre></div>
+  <p class="dx-note"><code>boolalpha</code> 這個操作子讓 <code>cout</code> 把 <code>bool</code> 印成 <code>true</code>／<code>false</code>，不加的話印出來是 <strong>1 與 0</strong>。最後兩行是重點：<code>42</code> 轉成 <code>bool</code> 是 1，<code>'\0'</code> 轉成 <code>bool</code> 是 0，也就是說 <strong>C++ 的條件不必是 <code>bool</code>，是整數就行</strong>。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>運算子</th><th>唸法</th><th>要注意什麼</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">==　!=</td><td>相等、不相等</td><td>比較用兩個等號。一個等號是<strong>賦值</strong></td></tr>
+      <tr><td class="mono">&lt;　&lt;=　&gt;　&gt;=</td><td>大小比較</td><td>用在自訂型別上要自己多載，第 03 章的 <code>Fraction</code> 就要寫</td></tr>
+      <tr><td class="mono">&amp;&amp;</td><td>而且（and）</td><td><strong>左邊為假就不看右邊</strong></td></tr>
+      <tr><td class="mono">||</td><td>或者（or）</td><td><strong>左邊為真就不看右邊</strong></td></tr>
+      <tr><td class="mono">!</td><td>否定（not）</td><td>Python 寫 <span class="mono">not</span>，C++ 寫驚嘆號</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">短路求值：<code>&amp;&amp;</code> 的右邊不一定會被執行</h3>
+  <p>這是本頁最該記住的一件事。<code>a &amp;&amp; b</code> 求值時，C++ 會先算 <code>a</code>；如果 <code>a</code> 已經是假，整個式子不可能為真，<strong><code>b</code> 就完全不會被求值</strong>。<code>||</code> 反過來：左邊為真就直接收工。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">誰被求值了，讓程式自己說</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="com">// 兩個會「留下痕跡」的函式，方便看誰被求值了</span>
+<span class="line" data-l="5"></span><span class="kw">bool</span> <span class="fn">lhs</span>(<span class="kw">bool</span> v) { cout &lt;&lt; <span class="str">"</span><span class="str">    左邊求值了</span><span class="str">"</span> &lt;&lt; endl; <span class="kw">return</span> v; }</span>
+<span class="line" data-l="6"><span class="kw">bool</span> <span class="fn">rhs</span>(<span class="kw">bool</span> v) { cout &lt;&lt; <span class="str">"</span><span class="str">    右邊求值了</span><span class="str">"</span> &lt;&lt; endl; <span class="kw">return</span> v; }</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    cout &lt;&lt; boolalpha;</span>
+<span class="line" data-l="10">    <span class="kw">bool</span> r;</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">false &amp;&amp; 右邊：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">    r = lhs(<span class="fn">false</span>) &amp;&amp; rhs(<span class="fn">true</span>);</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">  整式結果 </span><span class="str">"</span> &lt;&lt; r &lt;&lt; endl;</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">true &amp;&amp; 右邊：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17">    r = lhs(<span class="fn">true</span>) &amp;&amp; rhs(<span class="fn">false</span>);</span>
+<span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">  整式結果 </span><span class="str">"</span> &lt;&lt; r &lt;&lt; endl;</span>
+<span class="line" data-l="19"> </span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">true || 右邊：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="21">    r = lhs(<span class="fn">true</span>) || rhs(<span class="fn">false</span>);</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">  整式結果 </span><span class="str">"</span> &lt;&lt; r &lt;&lt; endl;</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24">    cout &lt;&lt; <span class="str">"</span><span class="str">false || 右邊：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="25">    r = lhs(<span class="fn">false</span>) || rhs(<span class="fn">true</span>);</span>
+<span class="line" data-l="26">    cout &lt;&lt; <span class="str">"</span><span class="str">  整式結果 </span><span class="str">"</span> &lt;&lt; r &lt;&lt; endl;</span>
+<span class="line" data-l="27">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="28">}</span>
+<span class="line" data-l="29"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>false &amp;&amp; 右邊：
+    左邊求值了
+  整式結果 false
+true &amp;&amp; 右邊：
+    左邊求值了
+    右邊求值了
+  整式結果 false
+true || 右邊：
+    左邊求值了
+  整式結果 true
+false || 右邊：
+    左邊求值了
+    右邊求值了
+  整式結果 true</pre></div>
+  <p class="dx-note">四組裡有兩組只印了「左邊求值了」——右邊那個函式<strong>連呼叫都沒有發生</strong>。這不是最佳化，是 C++ 標準規定的行為，你可以放心依賴它。</p>
+</div>
+
+  <p>為什麼這件事在資料結構課這麼重要？因為走訪鏈結串列時，你要同時檢查兩件事：<strong>指標還在不在</strong>，以及<strong>找到目標了沒有</strong>。第二件事需要解參考，而解參考一個 <code>&#78;ULL</code> 會當場當掉。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">正確順序：先確認不是 &#78;ULL，再解參考</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Node {</span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        <span class="kw">int</span> data;</span>
+<span class="line" data-l="7">        Node *next;</span>
+<span class="line" data-l="8">        Node(<span class="kw">int</span> d) { data = d; next = <span class="fn">NULL</span>; }</span>
+<span class="line" data-l="9">};</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="12">    Node *head = <span class="kw">new</span> Node(<span class="num">31</span>);</span>
+<span class="line" data-l="13">    head-&gt;next = <span class="kw">new</span> Node(<span class="num">17</span>);              <span class="com">// 串列是 31 -&gt; 17 -&gt; NULL</span>
+<span class="line" data-l="14"></span>    <span class="kw">int</span> item = <span class="num">93</span>;                          <span class="com">// 這個值不在串列裡</span>
+<span class="line" data-l="15"></span></span>
+<span class="line" data-l="16">    Node *current = head;</span>
+<span class="line" data-l="17">    <span class="com">// 先確認不是 NULL，再解參考。左邊不成立時右邊根本不會被碰</span>
+<span class="line" data-l="18"></span>    <span class="kw">while</span> (current != <span class="fn">NULL</span> &amp;&amp; current-&gt;data != item) {</span>
+<span class="line" data-l="19">        cout &lt;&lt; <span class="str">"</span><span class="str">  看到 </span><span class="str">"</span> &lt;&lt; current-&gt;data &lt;&lt; <span class="str">"</span><span class="str">，不是要找的，往下走</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20">        current = current-&gt;next;</span>
+<span class="line" data-l="21">    }</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">迴圈結束，current 是 </span><span class="str">"</span> &lt;&lt; (current == <span class="fn">NULL</span> ? <span class="str">"</span><span class="str">NULL（沒找到）</span><span class="str">"</span> : <span class="str">"</span><span class="str">找到的節點</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24">    <span class="kw">delete</span> head-&gt;next;</span>
+<span class="line" data-l="25">    <span class="kw">delete</span> head;</span>
+<span class="line" data-l="26">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="27">}</span>
+<span class="line" data-l="28"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  看到 31，不是要找的，往下走
+  看到 17，不是要找的，往下走
+迴圈結束，current 是 NULL（沒找到）</pre></div>
+  <p class="dx-note">走到第三圈時 <code>current</code> 已經是 <code>&#78;ULL</code>，左邊的 <code>current != &#78;ULL</code> 不成立，右邊的 <code>current-&gt;data</code> <strong>根本沒被碰</strong>，迴圈乾淨地結束。</p>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">順序寫反：同一支程式，直接當掉</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Node {</span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        <span class="kw">int</span> data;</span>
+<span class="line" data-l="7">        Node *next;</span>
+<span class="line" data-l="8">        Node(<span class="kw">int</span> d) { data = d; next = <span class="fn">NULL</span>; }</span>
+<span class="line" data-l="9">};</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="12">    Node *head = <span class="kw">new</span> Node(<span class="num">31</span>);</span>
+<span class="line" data-l="13">    head-&gt;next = <span class="kw">new</span> Node(<span class="num">17</span>);</span>
+<span class="line" data-l="14">    <span class="kw">int</span> item = <span class="num">93</span>;</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16">    Node *current = head;</span>
+<span class="line" data-l="17">    <span class="com">// 順序寫反：還沒確認不是 NULL 就先解參考</span>
+<span class="line" data-l="18"></span>    <span class="kw">while</span> (current-&gt;data != item &amp;&amp; current != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="19">        cout &lt;&lt; <span class="str">"</span><span class="str">  看到 </span><span class="str">"</span> &lt;&lt; current-&gt;data &lt;&lt; <span class="str">"</span><span class="str">，往下走</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20">        current = current-&gt;next;</span>
+<span class="line" data-l="21">    }</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">這一行永遠印不出來</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="24">}</span>
+<span class="line" data-l="25"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  看到 31，往下走
+  看到 17，往下走
+
+[執行結束碼 -11]</pre></div>
+  <p class="dx-note">只是把 <code>&amp;&amp;</code> 兩邊對調，程式就死在第三圈。<strong>結束碼 -11 是 SIGSEGV</strong>，也就是 segmentation fault ——作業系統攔下了一個「讀取不屬於你的記憶體」的動作。注意 g++ <strong>一句警告都沒給</strong>，它認為這是合法的 C++。這種錯只會在執行時爆炸。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 這個順序是課程整學期的前提</div>
+    <p style="margin-bottom:0;"><code>&amp;&amp;</code> 左右兩邊的順序在這裡<strong>不是風格問題，是正確性問題</strong>。凡是「先檢查指標、再看它裡面的值」的條件，檢查一定要放左邊。同理 <code>while (i &lt; v.size() &amp;&amp; v[i] != x)</code> 也要這個順序，否則索引會越界。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、05、09 章</div><p style='margin-bottom:0;'><code>dscpp/linked_list.hpp</code> 的 <code>UnorderedList::remove()</code> 寫的是 <code>while (!found &amp;&amp; current != &#78;ULL)</code>，教科書版的 <code>search()</code> 則寫成 <code>while (current != &#78;ULL &amp;&amp; current-&gt;getData() != item)</code>，兩種寫法都靠短路求值保證不會解參考到空指標。第 05 章的鏈結版 <code>Stack</code>／<code>Queue</code>、第 09 章樹的走訪，用的是同一個模式。</p></div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">C++ 也支援 <code>and</code>／<code>or</code>／<code>not</code> 這三個關鍵字，語意跟 <code>&amp;&amp;</code>／<code>||</code>／<code>!</code> 完全一樣。<strong>本課照 cppds 教科書用符號版</strong>，考試以課程風格為準；你看別人程式碼時偶爾會遇到文字版。</p>
+  </div>
+</section>
+
+<section id="ifelse">
+  <div class="section-number">PART 02 · 條件</div>
+  <h2><code>if</code> / <code>else if</code> / <code>else</code>：大括號不是可有可無</h2>
+  <p>語法本身沒什麼好講的：條件要用小括號包起來，<code>else if</code> 中間有空格，主體用大括號。真正會出事的是<strong>你決定不寫大括號的那一次</strong>。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">if</span> (score &gt;= <span class="num">90</span>) {</span>
+<span class="line" data-l="2">    grade = <span class="str">'</span><span class="str">A</span><span class="str">'</span>;</span>
+<span class="line" data-l="3">} <span class="kw">else</span> <span class="kw">if</span> (score &gt;= <span class="num">80</span>) {          <span class="com">// 注意：else if 是兩個字</span>
+<span class="line" data-l="4"></span>    grade = <span class="str">'</span><span class="str">B</span><span class="str">'</span>;</span>
+<span class="line" data-l="5">} <span class="kw">else</span> {</span>
+<span class="line" data-l="6">    grade = <span class="str">'</span><span class="str">F</span><span class="str">'</span>;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span></div>
+
+  <p>C++ 靠大括號決定範圍，縮排對編譯器<strong>完全沒有意義</strong>。省略大括號時，<code>if</code> 只管接在它後面的<strong>那一個敘述</strong>，第二行縮排得再整齊也沒有用。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">縮排騙了你，編譯器沒有</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">-5</span>;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">沒加大括號的版本：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">if</span> (x &gt; <span class="num">0</span>)</span>
+<span class="line" data-l="9">        cout &lt;&lt; <span class="str">"</span><span class="str">  x 是正數</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">        cout &lt;&lt; <span class="str">"</span><span class="str">  我以為這行也在 if 裡面</span><span class="str">"</span> &lt;&lt; endl;   <span class="com">// 其實一定會執行</span>
+<span class="line" data-l="11"></span></span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">加了大括號的版本：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">if</span> (x &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="14">        cout &lt;&lt; <span class="str">"</span><span class="str">  x 是正數</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="15">        cout &lt;&lt; <span class="str">"</span><span class="str">  這行才真的在 if 裡面</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="16">    }</span>
+<span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">（第二段什麼都沒印，因為 x = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str">）</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="18">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="19">}</span>
+<span class="line" data-l="20"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>沒加大括號的版本：
+  我以為這行也在 if 裡面
+加了大括號的版本：
+（第二段什麼都沒印，因為 x = -5）</pre></div>
+  <p class="dx-note"><code>x</code> 是 −5，第一段的 <code>if</code> 明明不成立，「我以為這行也在 if 裡面」<strong>還是印出來了</strong>。第二段加了大括號，兩行就一起被跳過。這個 bug 難抓的地方在於：程式看起來完全正常，只有在條件不成立時才會露餡。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 一條沒有例外的規則</div>
+    <p style="margin-bottom:0;"><strong>永遠寫大括號。</strong>即使現在只有一行，你或別人之後加第二行時就會踩到。歷史上最有名的案例是 2014 年 Apple 的 <code>goto fail</code> —— 一個沒有大括號的 <code>if</code> 底下多了一行重複的 <code>goto</code>，SSL 憑證驗證整個失效。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);"><code>if (x = 5)</code> 為什麼編得過</h3>
+  <p>Python 會直接給你語法錯誤，C++ 不會。理由在 PART 01 已經鋪好了：<strong>賦值本身是一個運算式，它的值就是被賦進去的那個值</strong>，而任何非零整數當條件都算真。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">少打一個等號，條件永遠成立</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">0</span>;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7">    <span class="kw">if</span> (x = <span class="num">5</span>) {                    <span class="com">// 想寫的是 x == 5，少打一個等號</span>
+<span class="line" data-l="8"></span>        cout &lt;&lt; <span class="str">"</span><span class="str">進到 if 裡面了，而且 x 已經被改成 </span><span class="str">"</span> &lt;&lt; x &lt;&lt; endl;</span>
+<span class="line" data-l="9">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="10">        cout &lt;&lt; <span class="str">"</span><span class="str">沒進來</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    <span class="kw">int</span> y = <span class="num">3</span>;</span>
+<span class="line" data-l="14">    <span class="kw">if</span> (y == <span class="num">5</span>) {</span>
+<span class="line" data-l="15">        cout &lt;&lt; <span class="str">"</span><span class="str">y 等於 5</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="16">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="17">        cout &lt;&lt; <span class="str">"</span><span class="str">y 不等於 5，y 還是 </span><span class="str">"</span> &lt;&lt; y &lt;&lt; endl;</span>
+<span class="line" data-l="18">    }</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>進到 if 裡面了，而且 x 已經被改成 5
+y 不等於 5，y 還是 3</pre></div>
+  <p class="dx-note"><code>x = 5</code> 這個運算式的值是 5，5 不是零，所以條件成立，而且 <code>x</code> 被<strong>順手改掉了</strong>。g++ 預設不會警告；加上 <code>-Wall</code> 才會提醒你 <code>suggest parentheses around assignment</code>。如果寫成 <code>if (x = 0)</code>，條件就永遠不成立——同樣沒有任何錯誤訊息。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 兩個自保習慣</div>
+    <p style="margin-bottom:0;">① 編譯時養成加 <code>-Wall -Wextra</code> 的習慣，這一類錯誤會被抓出來。<br>
+    ② 條件裡出現單一個 <code>=</code> 時，停下來看兩秒鐘：你是真的想在條件裡賦值，還是少打了一個等號？在這門課裡，答案幾乎都是後者。</p>
+  </div>
+</section>
+
+<section id="switch">
+  <div class="section-number">PART 03 · switch</div>
+  <h2><code>switch</code> 與掉落：Python 沒有的那個坑</h2>
+  <p>當你要拿<strong>同一個整數或字元</strong>去比對一長串固定值時，<code>switch</code> 比一串 <code>else if</code> 好讀。Python 到 3.10 才有 <code>match</code>，而且語意完全不同，所以這一節對你是全新的。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">switch</span> (運算式) {            <span class="com">// 運算式必須是整數型別：int、char、enum</span>
+<span class="line" data-l="2"></span>    <span class="kw">case</span> 常數1:</span>
+<span class="line" data-l="3">        敘述;</span>
+<span class="line" data-l="4">        <span class="kw">break</span>;               <span class="com">// 沒有 break 就會往下一個 case 掉</span>
+<span class="line" data-l="5"></span>    <span class="kw">case</span> 常數2:</span>
+<span class="line" data-l="6">        敘述;</span>
+<span class="line" data-l="7">        <span class="kw">break</span>;</span>
+<span class="line" data-l="8">    <span class="kw">default</span>:                 <span class="com">// 都不符合時走這裡，可以省略</span>
+<span class="line" data-l="9"></span>        敘述;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span></div>
+
+  <p><code>case</code> 後面必須是<strong>編譯期就知道的常數</strong>，不能放變數、不能放範圍、不能放字串。<code>break</code> 的作用是「跳出這個 <code>switch</code>」，少寫一個，控制流就會直接掉進下一個 <code>case</code> 的主體。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">四個 case 都忘了 break</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">grade</span>(<span class="kw">char</span> g) {</span>
+<span class="line" data-l="5">    cout &lt;&lt; <span class="str">"</span><span class="str">輸入 </span><span class="str">"</span> &lt;&lt; g &lt;&lt; <span class="str">"</span><span class="str"> -&gt; </span><span class="str">"</span>;</span>
+<span class="line" data-l="6">    <span class="kw">switch</span> (g) {                     <span class="com">// 每個 case 都忘了 break</span>
+<span class="line" data-l="7"></span>        <span class="kw">case</span> <span class="str">'</span><span class="str">A</span><span class="str">'</span>: cout &lt;&lt; <span class="str">"</span><span class="str">很好 </span><span class="str">"</span>;</span>
+<span class="line" data-l="8">        <span class="kw">case</span> <span class="str">'</span><span class="str">B</span><span class="str">'</span>: cout &lt;&lt; <span class="str">"</span><span class="str">不錯 </span><span class="str">"</span>;</span>
+<span class="line" data-l="9">        <span class="kw">case</span> <span class="str">'</span><span class="str">C</span><span class="str">'</span>: cout &lt;&lt; <span class="str">"</span><span class="str">及格 </span><span class="str">"</span>;</span>
+<span class="line" data-l="10">        <span class="kw">default</span>:  cout &lt;&lt; <span class="str">"</span><span class="str">（一路掉到底）</span><span class="str">"</span>;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="16">    grade(<span class="str">'</span><span class="str">A</span><span class="str">'</span>);</span>
+<span class="line" data-l="17">    grade(<span class="str">'</span><span class="str">B</span><span class="str">'</span>);</span>
+<span class="line" data-l="18">    grade(<span class="str">'</span><span class="str">C</span><span class="str">'</span>);</span>
+<span class="line" data-l="19">    grade(<span class="str">'</span><span class="str">F</span><span class="str">'</span>);</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>輸入 A -&gt; 很好 不錯 及格 （一路掉到底）
+輸入 B -&gt; 不錯 及格 （一路掉到底）
+輸入 C -&gt; 及格 （一路掉到底）
+輸入 F -&gt; （一路掉到底）</pre></div>
+  <p class="dx-note">輸入 <code>'A'</code> 時，四段全部被執行了。<code>switch</code> 的 <code>case</code> <strong>是跳進去的位置，不是一個個獨立的分支</strong>——找到相符的標籤就從那裡開始往下跑，一路跑到 <code>break</code> 或右大括號為止。這叫<strong>掉落（fall-through）</strong>。</p>
+</div>
+
+  <p>掉落也可以是故意的。把多個 <code>case</code> 疊在一起、中間什麼都不寫，就是「這幾個值走同一段程式」的標準寫法：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">刻意讓多個 case 共用同一段</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">classify</span>(<span class="kw">char</span> c) {</span>
+<span class="line" data-l="5">    cout &lt;&lt; <span class="str">"</span><span class="str">'</span><span class="str">"</span> &lt;&lt; c &lt;&lt; <span class="str">"</span><span class="str">' -&gt; </span><span class="str">"</span>;</span>
+<span class="line" data-l="6">    <span class="kw">switch</span> (c) {</span>
+<span class="line" data-l="7">        <span class="kw">case</span> <span class="str">'</span><span class="str">a</span><span class="str">'</span>:                    <span class="com">// 故意讓 a e i o u 掉到同一段</span>
+<span class="line" data-l="8"></span>        <span class="kw">case</span> <span class="str">'</span><span class="str">e</span><span class="str">'</span>:</span>
+<span class="line" data-l="9">        <span class="kw">case</span> <span class="str">'</span><span class="str">i</span><span class="str">'</span>:</span>
+<span class="line" data-l="10">        <span class="kw">case</span> <span class="str">'</span><span class="str">o</span><span class="str">'</span>:</span>
+<span class="line" data-l="11">        <span class="kw">case</span> <span class="str">'</span><span class="str">u</span><span class="str">'</span>:</span>
+<span class="line" data-l="12">            cout &lt;&lt; <span class="str">"</span><span class="str">母音</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">            <span class="kw">break</span>;</span>
+<span class="line" data-l="14">        <span class="kw">case</span> <span class="str">'</span><span class="str">+</span><span class="str">'</span>:</span>
+<span class="line" data-l="15">        <span class="kw">case</span> <span class="str">'</span><span class="str">-</span><span class="str">'</span>:</span>
+<span class="line" data-l="16">            cout &lt;&lt; <span class="str">"</span><span class="str">運算子</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17">            <span class="kw">break</span>;</span>
+<span class="line" data-l="18">        <span class="kw">default</span>:</span>
+<span class="line" data-l="19">            cout &lt;&lt; <span class="str">"</span><span class="str">其他</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20">    }</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span>
+<span class="line" data-l="23"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="24">    classify(<span class="str">'</span><span class="str">a</span><span class="str">'</span>);</span>
+<span class="line" data-l="25">    classify(<span class="str">'</span><span class="str">u</span><span class="str">'</span>);</span>
+<span class="line" data-l="26">    classify(<span class="str">'</span><span class="str">-</span><span class="str">'</span>);</span>
+<span class="line" data-l="27">    classify(<span class="str">'</span><span class="str">z</span><span class="str">'</span>);</span>
+<span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="29">}</span>
+<span class="line" data-l="30"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>&#x27;a&#x27; -&gt; 母音
+&#x27;u&#x27; -&gt; 母音
+&#x27;-&#x27; -&gt; 運算子
+&#x27;z&#x27; -&gt; 其他</pre></div>
+  <p class="dx-note">五個母音的 <code>case</code> 疊在一起，只在最後寫一次主體與 <code>break</code>。這是 <code>switch</code> 唯一比 <code>else if</code> 漂亮的地方，第 05 章判斷括號種類、第 03 章的邏輯閘分類都用得上。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th><code>switch</code></th><th>一串 <code>else if</code></th></tr></thead>
+    <tbody>
+      <tr><td>比對的東西</td><td>只能是整數／字元／列舉</td><td>任何布林運算式</td></tr>
+      <tr><td>能比範圍嗎</td><td>不行</td><td>可以，<code>x &gt; 10 &amp;&amp; x &lt; 20</code></td></tr>
+      <tr><td>忘記寫收尾</td><td><strong>掉落，靜靜地跑錯</strong></td><td>不會，分支天生互斥</td></tr>
+      <tr><td>什麼時候用</td><td>值是一組固定常數（選單、字元分類）</td><td>其他所有情況</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 掉落會掉多遠</div>
+    <p>下面這段的 <code>switch (2)</code> 會印出什麼？</p>
+<div class="pseudo-code" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">switch</span> (n) {                 <span class="com">// n = 2</span>
+<span class="line" data-l="2"></span>    <span class="kw">case</span> <span class="num">1</span>: cout &lt;&lt; <span class="str">"</span><span class="str">one </span><span class="str">"</span>;</span>
+<span class="line" data-l="3">    <span class="kw">case</span> <span class="num">2</span>: cout &lt;&lt; <span class="str">"</span><span class="str">two </span><span class="str">"</span>;</span>
+<span class="line" data-l="4">    <span class="kw">case</span> <span class="num">3</span>: cout &lt;&lt; <span class="str">"</span><span class="str">three </span><span class="str">"</span>;</span>
+<span class="line" data-l="5">            <span class="kw">break</span>;</span>
+<span class="line" data-l="6">    <span class="kw">case</span> <span class="num">4</span>: cout &lt;&lt; <span class="str">"</span><span class="str">four </span><span class="str">"</span>;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span></div>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="這是「每個 case 各自獨立」的直覺，但 C++ 不是這樣。case 只是一個跳進去的標籤。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> <span class="mono">two</span></div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。從 case 2 跳進去，印 two，沒有 break 就掉進 case 3 印 three，這時遇到 break 才跳出去。case 4 不會執行。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> <span class="mono">two three</span></div>
+      <div class="quiz-opt" data-correct="false" data-fb="case 3 那裡有 break，控制流在那裡就離開 switch 了，跑不到 case 4。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> <span class="mono">two three four</span></div>
+      <div class="quiz-opt" data-correct="false" data-fb="case 1 在 case 2 上面。switch 不會往回跑，只會從相符的標籤往下掉。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> <span class="mono">one two three</span></div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">C++17 加了 <code>[[fallthrough]];</code> 這個標註，寫在刻意掉落的地方，讓編譯器和讀者知道「我是故意的」。<strong>本課照 cppds 不用它</strong>，但你自己寫程式時值得養成習慣。</p>
+  </div>
+</section>
+
+<section id="while">
+  <div class="section-number">PART 04 · while 迴圈</div>
+  <h2><code>while</code>：不知道要跑幾圈的時候用它 <span class="sec-badge">二分搜尋的骨架</span></h2>
+  <p><code>while</code> 的規則只有一句：<strong>條件成立就再跑一次主體</strong>。它適合「跑到某個狀況出現為止」的情境：走到串列尾巴、搜尋範圍縮到空、佇列變空。這三個剛好就是第 04、07、08 章的主線。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">while</span> (條件) {              <span class="com">// 先檢查，再決定要不要跑</span>
+<span class="line" data-l="2"></span>    敘述;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">do</span> {                        <span class="com">// 先跑一次，再檢查</span>
+<span class="line" data-l="6"></span>    敘述;</span>
+<span class="line" data-l="7">} <span class="kw">while</span> (條件);             <span class="com">// 分號不能少</span>
+<span class="line" data-l="8"></span></span></div>
+
+<div class="deck-extra">
+  <div class="dx-label">同一個永遠不成立的條件，兩種迴圈的差別</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> n = <span class="num">10</span>;</span>
+<span class="line" data-l="6">    <span class="kw">int</span> rounds = <span class="num">0</span>;</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8">    <span class="kw">while</span> (n &lt; <span class="num">5</span>) {                  <span class="com">// 條件一開始就不成立</span>
+<span class="line" data-l="9"></span>        rounds++;</span>
+<span class="line" data-l="10">        n++;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">while    的主體跑了 </span><span class="str">"</span> &lt;&lt; rounds &lt;&lt; <span class="str">"</span><span class="str"> 次</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13"> </span>
+<span class="line" data-l="14">    <span class="kw">int</span> m = <span class="num">10</span>;</span>
+<span class="line" data-l="15">    rounds = <span class="num">0</span>;</span>
+<span class="line" data-l="16">    <span class="kw">do</span> {                             <span class="com">// 先跑一次再檢查</span>
+<span class="line" data-l="17"></span>        rounds++;</span>
+<span class="line" data-l="18">        m++;</span>
+<span class="line" data-l="19">    } <span class="kw">while</span> (m &lt; <span class="num">5</span>);</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">do-while 的主體跑了 </span><span class="str">"</span> &lt;&lt; rounds &lt;&lt; <span class="str">"</span><span class="str"> 次</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="22">}</span>
+<span class="line" data-l="23"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>while    的主體跑了 0 次
+do-while 的主體跑了 1 次</pre></div>
+  <p class="dx-note"><code>n</code> 一開始就是 10，<code>n &lt; 5</code> 從頭到尾不成立。<code>while</code> 一圈都沒跑，<code>do-while</code> 跑了一圈才發現。<strong><code>do-while</code> 的主體保證至少執行一次</strong>，所以它適合「先做一次，再問要不要繼續」，例如讀使用者輸入直到合法為止。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">無窮迴圈：條件永遠成立</h3>
+  <p>迴圈跑不完只有一個原因：<strong>主體沒有把條件推向不成立</strong>。下面兩種是最常見的寫法錯誤。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">int</span> i = <span class="num">0</span>;</span>
+<span class="line" data-l="2"><span class="kw">while</span> (i &lt; <span class="num">10</span>) {</span>
+<span class="line" data-l="3">    cout &lt;&lt; i;              <span class="com">// 忘了 i++，i 永遠是 0</span>
+<span class="line" data-l="4"></span>}</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6">Node *current = head;</span>
+<span class="line" data-l="7"><span class="kw">while</span> (current != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="8">    cout &lt;&lt; current-&gt;data;  <span class="com">// 忘了 current = current-&gt;next</span>
+<span class="line" data-l="9"></span>}</span>
+<span class="line" data-l="10"> </span></div>
+
+  <p>刻意寫的無窮迴圈也有，配 <code>break</code> 從中間跳出去。第 05 章的選單迴圈、第 08 章的某些搜尋會這樣寫：</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">while</span> (<span class="fn">true</span>) {              <span class="com">// 或 for (;;)</span>
+<span class="line" data-l="2"></span>    讀一筆輸入;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (輸入 == <span class="str">"</span><span class="str">quit</span><span class="str">"</span>) <span class="kw">break</span>;</span>
+<span class="line" data-l="4">    處理;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"> </span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">二分搜尋：一個 <code>while</code> 就是整個演算法</h3>
+  <p>第 07 章的 <code>binarySearch()</code> 是這門課最漂亮的迴圈。它的條件是 <code>first &lt;= last</code>，主體每跑一圈就把 <code>first</code> 或 <code>last</code> 移到中點旁邊，<strong>搜尋範圍直接砍一半</strong>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">課程 dscpp/searching.hpp 的二分搜尋，加上圈數計數</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">bool</span> <span class="fn">binarySearch</span>(vector&lt;<span class="kw">int</span>&gt; aList, <span class="kw">int</span> item) {</span>
+<span class="line" data-l="6">    <span class="kw">int</span> first = <span class="num">0</span>;</span>
+<span class="line" data-l="7">    <span class="kw">int</span> last = aList.size() - <span class="num">1</span>;</span>
+<span class="line" data-l="8">    <span class="kw">int</span> rounds = <span class="num">0</span>;</span>
+<span class="line" data-l="9">    <span class="kw">while</span> (first &lt;= last) {                       <span class="com">// 搜尋範圍還沒空掉就繼續</span>
+<span class="line" data-l="10"></span>        rounds++;</span>
+<span class="line" data-l="11">        <span class="kw">int</span> midpoint = (first + last) / <span class="num">2</span>;</span>
+<span class="line" data-l="12">        cout &lt;&lt; <span class="str">"</span><span class="str">  第 </span><span class="str">"</span> &lt;&lt; rounds &lt;&lt; <span class="str">"</span><span class="str"> 圈：範圍 [</span><span class="str">"</span> &lt;&lt; first &lt;&lt; <span class="str">"</span><span class="str">, </span><span class="str">"</span> &lt;&lt; last</span>
+<span class="line" data-l="13">             &lt;&lt; <span class="str">"</span><span class="str">]，中點值 </span><span class="str">"</span> &lt;&lt; aList[midpoint] &lt;&lt; endl;</span>
+<span class="line" data-l="14">        <span class="kw">if</span> (aList[midpoint] == item) <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line" data-l="15">        <span class="kw">else</span> <span class="kw">if</span> (item &lt; aList[midpoint]) last = midpoint - <span class="num">1</span>;</span>
+<span class="line" data-l="16">        <span class="kw">else</span> first = midpoint + <span class="num">1</span>;</span>
+<span class="line" data-l="17">    }</span>
+<span class="line" data-l="18">    <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="19">}</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="22">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">8</span>, <span class="num">13</span>, <span class="num">17</span>, <span class="num">19</span>, <span class="num">32</span>, <span class="num">42</span>};   <span class="com">// 9 個元素，已排序</span>
+<span class="line" data-l="23"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">找 42：</span><span class="str">"</span> &lt;&lt; (binarySearch(v, <span class="num">42</span>) ? <span class="str">"</span><span class="str">找到</span><span class="str">"</span> : <span class="str">"</span><span class="str">沒找到</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="24">    cout &lt;&lt; <span class="str">"</span><span class="str">找 3：</span><span class="str">"</span>  &lt;&lt; (binarySearch(v, <span class="num">3</span>)  ? <span class="str">"</span><span class="str">找到</span><span class="str">"</span> : <span class="str">"</span><span class="str">沒找到</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="25">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="26">}</span>
+<span class="line" data-l="27"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>找 42：  第 1 圈：範圍 [0, 8]，中點值 13
+  第 2 圈：範圍 [5, 8]，中點值 19
+  第 3 圈：範圍 [7, 8]，中點值 32
+  第 4 圈：範圍 [8, 8]，中點值 42
+找到
+找 3：  第 1 圈：範圍 [0, 8]，中點值 13
+  第 2 圈：範圍 [0, 3]，中點值 1
+  第 3 圈：範圍 [2, 3]，中點值 2
+  第 4 圈：範圍 [3, 3]，中點值 8
+沒找到</pre></div>
+  <p class="dx-note">9 個元素，兩次搜尋都只用了 <strong>4 圈</strong>。範圍從 9 → 4 → 2 → 1，每圈砍一半，所以圈數是 $\log_2 9 \approx 3.2$ 進位後的 4。把陣列放大到 1000 個元素也只要 10 圈，這就是 <code>O(log n)</code> 的意思，而你是<strong>從迴圈條件怎麼變化讀出來的</strong>，不是背的。</p>
+</div>
+
+  <div class="stats-grid">
+    <div class="stat-tile"><div class="stat-value">4</div><div class="stat-label">9 個元素要幾圈</div></div>
+    <div class="stat-tile"><div class="stat-value">10</div><div class="stat-label">1000 個元素要幾圈</div></div>
+    <div class="stat-tile"><div class="stat-value">20</div><div class="stat-label">一百萬個元素要幾圈</div></div>
+    <div class="stat-tile"><div class="stat-value">O(log n)</div><div class="stat-label">從條件讀出的複雜度</div></div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 07、08 章</div><p style='margin-bottom:0;'>第 07 章的 <code>binarySearch()</code> 用 <code>while (first &lt;= last)</code>，第 08 章的 <code>bfs()</code> 用 <code>while (!vertQueue.empty())</code>，意思是「佇列不空就繼續處理」。兩個都是「不知道要跑幾圈，只知道什麼時候該停」的典型。第 04 章的 <code>size()</code>、<code>search()</code>、<code>remove()</code> 則全是 <code>while (current != &#78;ULL)</code> 的變形。</p></div>
+</section>
+
+<section id="forloop">
+  <div class="section-number">PART 05 · for 迴圈</div>
+  <h2>三段式 <code>for</code>：三個位置，三個不同的執行時機</h2>
+  <p>Python 的 <code>for</code> 是「把可迭代物件的東西一個一個拿出來」。C++ 的三段式 <code>for</code> 不是那個意思，它就是一個 <code>while</code> 的縮寫，只是把三件事排在同一行：</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">for</span> (初始化; 條件; 遞增) {</span>
+<span class="line" data-l="2">    主體;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span></div>
+
+  <p>執行順序是這樣的：<strong>初始化只在最開始跑一次</strong>；接著檢查條件，成立就跑主體，跑完執行遞增，然後<strong>回去再檢查條件</strong>。所以條件被檢查的次數，永遠比主體多一次——最後那一次就是用來喊停的。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="forStage" style="min-height:190px;"></div>
+        <div class="status-banner" id="forStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，一步一步看三段式 for 的四個動作輪流發生。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="forStart()">▶ 開始</button>
+          <button class="btn btn-step" onclick="forPlayer &amp;&amp; forPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="forReset()">⟲ 重設</button>
+          <span class="mono" style="font-size:.78rem;color:var(--muted);">條件檢查次數：<b id="forChecks">0</b> ／ 主體執行次數：<b id="forBody">0</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">這一行 for <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" style="font-size:.78rem;"><span class="line" data-l="1"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {</span>
+<span class="line" data-l="2">    cout &lt;&lt; i &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">攤開來的等價寫法 <span class="ic-badge">SAME</span></div>
+<div class="pseudo-code" id="forCode" style="font-size:.74rem;"><span class="line" data-l="1"><span class="kw">int</span> i = <span class="num">0</span>;              <span class="com">// 1 初始化，只跑一次</span></span>
+<span class="line" data-l="2"><span class="kw">while</span> (i &lt; <span class="num">3</span>) {         <span class="com">// 2 檢查條件</span></span>
+<span class="line" data-l="3">    cout &lt;&lt; i &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;   <span class="com">// 3 主體</span></span>
+<span class="line" data-l="4">    i++;                <span class="com">// 4 遞增</span></span>
+<span class="line" data-l="5">}                       <span class="com">//   回到 2</span></span></div>
+        <p style="font-size:.85rem;margin:.5rem 0 0;">兩段程式碼<strong>完全等價</strong>。差別只在 <code>for</code> 把 ①②④ 收在同一行，讓讀的人一眼看見迴圈變數的生命週期。</p>
+      </div>
+    </div>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">讓程式自己報告每個動作發生的順序</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> checks = <span class="num">0</span>;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">bool</span> <span class="fn">cond</span>(<span class="kw">int</span> i) {</span>
+<span class="line" data-l="7">    checks++;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">  [2 檢查條件] i = </span><span class="str">"</span> &lt;&lt; i &lt;&lt; <span class="str">"</span><span class="str">，i &lt; 3 ? </span><span class="str">"</span> &lt;&lt; (i &lt; <span class="num">3</span> ? <span class="str">"</span><span class="str">成立</span><span class="str">"</span> : <span class="str">"</span><span class="str">不成立</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="9">    <span class="kw">return</span> i &lt; <span class="num">3</span>;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">void</span> <span class="fn">inc</span>(<span class="kw">int</span> &amp;i) {</span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">  [4 遞增] i 從 </span><span class="str">"</span> &lt;&lt; i &lt;&lt; <span class="str">"</span><span class="str"> 變成 </span><span class="str">"</span> &lt;&lt; i + <span class="num">1</span> &lt;&lt; endl;</span>
+<span class="line" data-l="14">    i++;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">[1 初始化] int i = 0，整支迴圈只跑這一次</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="19">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; cond(i); inc(i)) {</span>
+<span class="line" data-l="20">        cout &lt;&lt; <span class="str">"</span><span class="str">  [3 主體] 這是第 </span><span class="str">"</span> &lt;&lt; i + <span class="num">1</span> &lt;&lt; <span class="str">"</span><span class="str"> 圈</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="21">    }</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">主體跑了 3 圈，但條件被檢查了 </span><span class="str">"</span> &lt;&lt; checks &lt;&lt; <span class="str">"</span><span class="str"> 次</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="24">}</span>
+<span class="line" data-l="25"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[1 初始化] int i = 0，整支迴圈只跑這一次
+  [2 檢查條件] i = 0，i &lt; 3 ? 成立
+  [3 主體] 這是第 1 圈
+  [4 遞增] i 從 0 變成 1
+  [2 檢查條件] i = 1，i &lt; 3 ? 成立
+  [3 主體] 這是第 2 圈
+  [4 遞增] i 從 1 變成 2
+  [2 檢查條件] i = 2，i &lt; 3 ? 成立
+  [3 主體] 這是第 3 圈
+  [4 遞增] i 從 2 變成 3
+  [2 檢查條件] i = 3，i &lt; 3 ? 不成立
+主體跑了 3 圈，但條件被檢查了 4 次</pre></div>
+  <p class="dx-note">把三段各換成一個會印字的函式，順序就攤開了：初始化的字只出現一次，然後是「檢查 → 主體 → 遞增」重複三輪，最後多一次落空的檢查。<strong>主體 3 次、條件 4 次</strong>——分析複雜度時我們數的是主體那一欄，但別忘了條件那一次也要跑。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>跑幾圈</th><th>i 走過哪些值</th><th>常見用途</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">for (int i = 0; i &lt; n; i++)</td><td class="mono">n</td><td class="mono">0 … n−1</td><td>走訪長度 n 的陣列，最標準的寫法</td></tr>
+      <tr><td class="mono">for (int i = 1; i &lt;= n; i++)</td><td class="mono">n</td><td class="mono">1 … n</td><td>從 1 數到 n，數學公式對照時用</td></tr>
+      <tr><td class="mono">for (int i = n−1; i &gt; 0; i--)</td><td class="mono">n−1</td><td class="mono">n−1 … 1</td><td>倒著走，氣泡排序的外層</td></tr>
+      <tr><td class="mono">for (int i = 0; i &lt; n; i += 2)</td><td class="mono">⌈n/2⌉</td><td class="mono">0, 2, 4 …</td><td>跳著走</td></tr>
+      <tr><td class="mono">for (int i = n; i &gt; 0; i /= 2)</td><td class="mono">⌊log₂n⌋+1</td><td class="mono">n, n/2, n/4 …</td><td><strong>每圈砍一半，這是 log</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 迴圈變數的範圍</div>
+    <p style="margin-bottom:0;"><code>for (int i = 0; …)</code> 裡的 <code>i</code> <strong>只活在這個迴圈裡</strong>，迴圈結束後它就消失了，外面用 <code>i</code> 會編譯錯誤。如果你需要知道迴圈停在哪，就要把 <code>int i</code> 宣告在 <code>for</code> 外面。另外一個坑是 <code>v.size()</code> 回傳的是<strong>無號整數</strong>，拿 <code>int i</code> 去比會有警告，課程的 <code>insertionSort()</code> 就寫成 <code>unsigned i</code>。</p>
+  </div>
+</section>
+
+<section id="rangefor">
+  <div class="section-number">PART 06 · 範圍 for</div>
+  <h2><code>for (T x : v)</code>：最像 Python 的那個 for，也最容易寫錯</h2>
+  <p>C++11 開始有了範圍 <code>for</code>，語意跟 Python 的 <code>for x in v:</code> 幾乎一樣：把容器裡的東西一個一個拿出來。課程的 <code>dscpp/sorting.hpp</code> 裡 <code>printl()</code> 就是這樣寫的：<code>for (int x : aList) cout &lt;&lt; x &lt;&lt; " ";</code></p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>x 是什麼</th><th>能改到容器嗎</th><th>會複製嗎</th><th>什麼時候用</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">for (T x : v)</td><td>每個元素的<strong>複本</strong></td><td>不能</td><td>會，每圈一份</td><td>元素很小（<code>int</code>、<code>char</code>）且只是讀</td></tr>
+      <tr><td class="mono">for (T&amp; x : v)</td><td>每個元素的<strong>別名</strong></td><td><strong>能</strong></td><td>不會</td><td>要修改元素</td></tr>
+      <tr><td class="mono">for (const T&amp; x : v)</td><td>唯讀的別名</td><td>不能</td><td>不會</td><td><strong>元素很大又只是讀</strong>，例如 <code>string</code>、物件</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>差別就是一個 <code>&amp;</code>。沒有它，你改的是一份用完就丟的複本；有了它，你改的是容器裡的本尊。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">一個 &amp; 之差，改得動與改不動</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt; &amp;v, <span class="kw">const</span> <span class="kw">char</span> *tag) {</span>
+<span class="line" data-l="6">    cout &lt;&lt; tag;</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> x : v) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="12">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};</span>
+<span class="line" data-l="13">    show(v, <span class="str">"</span><span class="str">原始         ： </span><span class="str">"</span>);</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">    <span class="kw">for</span> (<span class="kw">int</span> x : v) x *= <span class="num">10</span>;          <span class="com">// x 是複本，改的是複本</span>
+<span class="line" data-l="16"></span>    show(v, <span class="str">"</span><span class="str">for (int x)  ： </span><span class="str">"</span>);</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    <span class="kw">for</span> (<span class="kw">int</span> &amp;x : v) x *= <span class="num">10</span>;         <span class="com">// x 是本尊的別名</span>
+<span class="line" data-l="19"></span>    show(v, <span class="str">"</span><span class="str">for (int &amp;x) ： </span><span class="str">"</span>);</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>原始         ： 1 2 3 
+for (int x)  ： 1 2 3 
+for (int &amp;x) ： 10 20 30 </pre></div>
+  <p class="dx-note">中間那一圈 <code>x *= 10</code> 明明執行了三次，<code>v</code> 卻<strong>一點都沒變</strong>——因為 <code>x</code> 每圈都是一份新的複本，改完就被丟掉。加上 <code>&amp;</code> 之後同一行才真的動到 <code>v</code>。g++ 對第一種寫法連警告都不會給，這個 bug 只能靠自己看出來。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 一個好記的判斷順序</div>
+    <p style="margin-bottom:0;">要改元素 → <code>T&amp;</code>。只是讀，而且元素是 <code>int</code> 這種小東西 → <code>T</code>。只是讀，但元素是 <code>string</code>、<code>vector</code> 或自訂物件 → <code>const T&amp;</code>。<strong>猶豫的時候寫 <code>const T&amp;</code></strong>，它在任何情況下都不會比另外兩種差。</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 為什麼複製這件事在這門課會變成效能問題</div>
+    <p style="margin-bottom:0;">第 07 章課程版的 <code>binarySearch(vector&lt;int&gt; aList, int item)</code> 收的是<strong>傳值</strong>，每次呼叫就整個陣列複製一份。遞迴版每一層再複製一次，一個號稱 $O(\log n)$ 的演算法，光是複製就吃掉 $O(n)$。真的要用時應該寫成 <code>const vector&lt;int&gt;&amp;</code>。範圍 <code>for</code> 的 <code>&amp;</code> 是同一件事的小尺寸版本。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05、07 章</div><p style='margin-bottom:0;'>第 05 章之後你會一直用 <code>vector</code> 走訪：<code>printl()</code> 印陣列、<code>bubbleSort()</code> 交換元素、第 08 章 <code>bfs()</code> 走訪鄰居時寫的是 <code>for (auto&amp; n : current.neighbors)</code>——那個 <code>&amp;</code> 就是為了不複製整張鄰接表。看到別人的程式裡有 <code>&amp;</code>，先問一句「他是要改它，還是不想複製它」。</p></div>
+</section>
+
+<section id="nested">
+  <div class="section-number">PART 07 · 巢狀與跳出</div>
+  <h2>數迴圈次數，就是在數複雜度 <span class="sec-badge">本頁與第 02 章的接點</span></h2>
+  <p>一層迴圈跑 n 次，在它裡面再放一層跑 n 次，內層主體就會被執行 n × n 次。這句話就是第 02 章複雜度分析的全部內容——剩下的只是把常數丟掉、把低次項丟掉。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">方形與三角形：兩種雙層迴圈的次數</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> n = <span class="num">8</span>;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7">    <span class="kw">long</span> square = <span class="num">0</span>;</span>
+<span class="line" data-l="8">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++)</span>
+<span class="line" data-l="9">        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; n; j++)</span>
+<span class="line" data-l="10">            square++;</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">方形雙層 n = </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">：內層跑 </span><span class="str">"</span> &lt;&lt; square &lt;&lt; <span class="str">"</span><span class="str"> 次，等於 n * n</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    <span class="kw">long</span> tri = <span class="num">0</span>;</span>
+<span class="line" data-l="14">    <span class="kw">for</span> (<span class="kw">int</span> i = n - <span class="num">1</span>; i &gt; <span class="num">0</span>; i--)          <span class="com">// 這是 dscpp/sorting.hpp 的 bubbleSort</span>
+<span class="line" data-l="15"></span>        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; i; j++)</span>
+<span class="line" data-l="16">            tri++;</span>
+<span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">氣泡排序的三角形雙層 n = </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">：內層跑 </span><span class="str">"</span> &lt;&lt; tri</span>
+<span class="line" data-l="18">         &lt;&lt; <span class="str">"</span><span class="str"> 次，等於 n(n-1)/2</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="19"> </span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">n 變兩倍，比較次數大約變四倍：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="21">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">8</span>; k &lt;= <span class="num">128</span>; k *= <span class="num">2</span>) {</span>
+<span class="line" data-l="22">        <span class="kw">long</span> t = (<span class="kw">long</span>)k * (k - <span class="num">1</span>) / <span class="num">2</span>;</span>
+<span class="line" data-l="23">        cout &lt;&lt; <span class="str">"</span><span class="str">  n = </span><span class="str">"</span> &lt;&lt; k &lt;&lt; <span class="str">"</span><span class="str"> -&gt; </span><span class="str">"</span> &lt;&lt; t &lt;&lt; <span class="str">"</span><span class="str"> 次</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="24">    }</span>
+<span class="line" data-l="25">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="26">}</span>
+<span class="line" data-l="27"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>方形雙層 n = 8：內層跑 64 次，等於 n * n
+氣泡排序的三角形雙層 n = 8：內層跑 28 次，等於 n(n-1)/2
+n 變兩倍，比較次數大約變四倍：
+  n = 8 -&gt; 28 次
+  n = 16 -&gt; 120 次
+  n = 32 -&gt; 496 次
+  n = 64 -&gt; 2016 次
+  n = 128 -&gt; 8128 次</pre></div>
+  <p class="dx-note">上面那組是 <strong>n × n = 64</strong>；下面那組是課程 <code>bubbleSort()</code> 的形狀，外層 <code>i</code> 從 n−1 遞減、內層 <code>j &lt; i</code>，總次數是 <strong>n(n−1)/2 = 28</strong>，剛好是方形的一半。但看最後那張表：n 每變兩倍，次數就變成大約四倍。<strong>常數 1/2 不影響這個成長速度</strong>，所以兩種寫法都是 $O(n^2)$。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="slider-row">
+          <span class="slider-label">外層次數 n</span>
+          <input id="nOuter" type="range" min="2" max="14" value="6">
+          <span class="slider-val mono" id="nOuterVal">6</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">內層次數 m</span>
+          <input id="nInner" type="range" min="2" max="14" value="6">
+          <span class="slider-val mono" id="nInnerVal">6</span>
+        </div>
+        <div id="nestStage" style="min-height:170px;"></div>
+        <div class="status-banner" id="nestStatus"><span class="status-icon">›</span><span class="status-text">拉動滑桿看內層主體被執行幾次。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="nestMode('rect')">▦ 方形 n × m</button>
+          <button class="btn btn-play" onclick="nestMode('tri')">◤ 氣泡排序（三角形）</button>
+          <button class="btn btn-reset" onclick="nestReset()">⟲ 重設</button>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">現在在數的迴圈 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="nestCode" style="font-size:.74rem;"></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">次數 <span class="ic-badge">COUNT</span></div>
+        <div class="stats-grid" style="margin:0;">
+          <div class="stat-tile"><div class="stat-value" id="nestTotal">36</div><div class="stat-label">內層主體執行次數</div></div>
+          <div class="stat-tile"><div class="stat-value" id="nestBig">O(n·m)</div><div class="stat-label">複雜度</div></div>
+        </div>
+        <p style="font-size:.84rem;margin:.6rem 0 0;" id="nestNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);"><code>break</code> 與 <code>continue</code>：提早離開的兩種方式</h3>
+  <p><code>break</code> 是「這個迴圈我不跑了」，<code>continue</code> 是「這一圈剩下的不做了，直接進下一圈」。兩個都<strong>只作用在最靠近的那一層迴圈</strong>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">break 只跳出一層</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">17</span>, <span class="num">93</span>, <span class="num">26</span>, <span class="num">54</span>, <span class="num">77</span>};</span>
+<span class="line" data-l="7">    <span class="kw">int</span> target = <span class="num">26</span>;</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">unsigned</span> i = <span class="num">0</span>; i &lt; v.size(); i++) {</span>
+<span class="line" data-l="10">        <span class="kw">if</span> (v[i] % <span class="num">2</span> != <span class="num">0</span>) {</span>
+<span class="line" data-l="11">            cout &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; v[i] &lt;&lt; <span class="str">"</span><span class="str"> 是奇數，continue 跳過剩下的主體</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="12">            <span class="kw">continue</span>;</span>
+<span class="line" data-l="13">        }</span>
+<span class="line" data-l="14">        cout &lt;&lt; <span class="str">"</span><span class="str">  檢查 </span><span class="str">"</span> &lt;&lt; v[i] &lt;&lt; endl;</span>
+<span class="line" data-l="15">        <span class="kw">if</span> (v[i] == target) {</span>
+<span class="line" data-l="16">            cout &lt;&lt; <span class="str">"</span><span class="str">  找到了，break 離開迴圈</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17">            <span class="kw">break</span>;</span>
+<span class="line" data-l="18">        }</span>
+<span class="line" data-l="19">    }</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">break 只跳出「最內層」那一圈：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="22">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {</span>
+<span class="line" data-l="23">        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; <span class="num">3</span>; j++) {</span>
+<span class="line" data-l="24">            <span class="kw">if</span> (j == <span class="num">1</span>) <span class="kw">break</span>;               <span class="com">// 只中斷 j 這一層</span>
+<span class="line" data-l="25"></span>            cout &lt;&lt; <span class="str">"</span><span class="str">  i = </span><span class="str">"</span> &lt;&lt; i &lt;&lt; <span class="str">"</span><span class="str">，j = </span><span class="str">"</span> &lt;&lt; j &lt;&lt; endl;</span>
+<span class="line" data-l="26">        }</span>
+<span class="line" data-l="27">    }</span>
+<span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="29">}</span>
+<span class="line" data-l="30"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  17 是奇數，continue 跳過剩下的主體
+  93 是奇數，continue 跳過剩下的主體
+  檢查 26
+  找到了，break 離開迴圈
+break 只跳出「最內層」那一圈：
+  i = 0，j = 0
+  i = 1，j = 0
+  i = 2，j = 0</pre></div>
+  <p class="dx-note">第二段的內層在 <code>j == 1</code> 時 <code>break</code>，但外層的 <code>i</code> 照樣跑完三圈——所以只印出 <code>j = 0</code> 那三行。要一次跳出兩層，常見做法是用一個旗標變數，或是把巢狀迴圈包成一個函式直接 <code>return</code>。課程 <code>bubbleSortShort()</code> 用的就是旗標：<code>if (!exchanges) break;</code>，已經排好就提早收工。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>迴圈形狀</th><th>次數</th><th>複雜度</th><th>課程裡的例子</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">for i &lt; n</td><td class="mono">n</td><td class="mono">O(n)</td><td>第 04 章走訪串列、第 07 章循序搜尋</td></tr>
+      <tr><td class="mono">for i &lt; n { for j &lt; n }</td><td class="mono">n²</td><td class="mono">O(n²)</td><td>第 03 章走訪二維陣列</td></tr>
+      <tr><td class="mono">for i = n−1 … { for j &lt; i }</td><td class="mono">n(n−1)/2</td><td class="mono">O(n²)</td><td><strong>第 07 章氣泡、選擇、插入排序</strong></td></tr>
+      <tr><td class="mono">while (範圍砍一半)</td><td class="mono">log₂n</td><td class="mono">O(log n)</td><td>第 07 章二分搜尋</td></tr>
+      <tr><td class="mono">for i &lt; n { 砍一半的迴圈 }</td><td class="mono">n log₂n</td><td class="mono">O(n log n)</td><td>第 07 章合併排序、快速排序</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 02、07 章</div><p style='margin-bottom:0;'>第 02 章教你把「跑幾次」寫成 $T(n)$、再丟掉常數變成大 O；第 07 章的六個排序演算法就是這張表的實例：氣泡、選擇、插入都是三角形雙層迴圈的 $O(n^2)$，合併與快速排序靠「每層砍一半」壓到 $O(n \log n)$。你在這一頁學會的「看迴圈形狀讀次數」，是那兩章唯一需要的技巧。</p></div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>把三個坑合在一題裡</h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE · 這段迴圈跑完之後，v 是什麼</div>
+    <p>下面這段程式印出什麼？</p>
+<div class="pseudo-code" style="font-size:.76rem;"><span class="line" data-l="1">vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">2</span>, <span class="num">4</span>, <span class="num">6</span>};</span>
+<span class="line" data-l="2"><span class="kw">for</span> (<span class="kw">int</span> x : v) {</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (x = <span class="num">0</span>) <span class="kw">continue</span>;           <span class="com">// 注意這裡只有一個等號</span>
+<span class="line" data-l="4"></span>    x *= <span class="num">3</span>;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"><span class="kw">for</span> (<span class="kw">int</span> y : v) cout &lt;&lt; y &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="7"> </span></div>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="這是「x 是元素本身」的直覺。但迴圈變數宣告成 int x 而不是 int &amp;x，改的是複本。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> <span class="mono">6 12 18</span></div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。兩個坑同時發生：x = 0 是賦值，值為 0 也就是假，所以 continue 從來不會執行；而 x 是複本，x *= 3 改完就丟掉。v 從頭到尾沒被動過。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> <span class="mono">2 4 6</span></div>
+      <div class="quiz-opt" data-correct="false" data-fb="if (x = 0) 的值是 0，也就是 false，所以 continue 一次都不會跑到。它不是判斷 x 是否等於 0。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> <span class="mono">0 0 0</span></div>
+      <div class="quiz-opt" data-correct="false" data-fb="這段完全合法，g++ 預設連警告都不給。真正的問題是它安靜地什麼都沒做。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 編譯錯誤</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 想自己再練，就改這三行</div>
+    <p style="margin-bottom:0;">把上面那段貼進 <a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a>，然後做三個改動：① 把 <code>int x</code> 改成 <code>int &amp;x</code>；② 把 <code>x = 0</code> 改成 <code>x == 0</code>；③ 兩個一起改。三次的輸出都不一樣，能講出為什麼，這一頁就讀完了。</p>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P2 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">if</span> (條件) { … } <span class="kw">else</span> <span class="kw">if</span> (條件) { … } <span class="kw">else</span> { … }</span>
+<span class="line" data-l="2"> </span>
+<span class="line" data-l="3"><span class="kw">switch</span> (整數運算式) {</span>
+<span class="line" data-l="4">    <span class="kw">case</span> 常數: … <span class="kw">break</span>;          <span class="com">// 少了 break 就會掉到下一個 case</span>
+<span class="line" data-l="5"></span>    <span class="kw">default</span>:  …</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">while</span> (條件) { … }              <span class="com">// 先檢查，可能一次都不跑</span>
+<span class="line" data-l="9"></span><span class="kw">do</span> { … } <span class="kw">while</span> (條件);          <span class="com">// 先跑一次，再檢查；分號不能少</span>
+<span class="line" data-l="10"></span></span>
+<span class="line" data-l="11"><span class="kw">for</span> (初始化; 條件; 遞增) { … }   <span class="com">// 初始化只跑一次；條件比主體多跑一次</span>
+<span class="line" data-l="12"></span></span>
+<span class="line" data-l="13"><span class="kw">for</span> (T x : v) { … }             <span class="com">// 複本，改不到 v</span>
+<span class="line" data-l="14"></span><span class="kw">for</span> (T&amp; x : v) { … }            <span class="com">// 別名，改得到 v</span>
+<span class="line" data-l="15"></span><span class="kw">for</span> (<span class="kw">const</span> T&amp; x : v) { … }      <span class="com">// 唯讀別名，不複製</span>
+<span class="line" data-l="16"></span></span>
+<span class="line" data-l="17"><span class="kw">break</span>;                          <span class="com">// 跳出最內層的迴圈或 switch</span>
+<span class="line" data-l="18"></span><span class="kw">continue</span>;                       <span class="com">// 這一圈剩下的不做，直接進下一圈</span>
+<span class="line" data-l="19"></span></span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">三種迴圈怎麼選</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th><code>while</code></th><th>三段式 <code>for</code></th><th>範圍 <code>for</code></th></tr></thead>
+    <tbody>
+      <tr><td>什麼時候用</td><td>不知道要跑幾圈</td><td>要用到索引 <code>i</code></td><td>只是把元素一個個拿出來</td></tr>
+      <tr><td>主體保證跑一次嗎</td><td>不保證（<code>do-while</code> 保證）</td><td>不保證</td><td>容器空的話一次都不跑</td></tr>
+      <tr><td>最常忘記什麼</td><td><strong>更新條件變數</strong></td><td>邊界寫成 <code>&lt;=</code> 而越界</td><td><strong>那個 <code>&amp;</code></strong></td></tr>
+      <tr><td>課程裡的代表</td><td>走訪串列、二分搜尋、BFS</td><td>六個排序演算法</td><td><code>printl()</code>、走訪鄰居</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python ↔ C++ 對照</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>你在 Python 寫的</th><th>C++ 對應</th><th>差在哪</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">if x &gt; 0:</td><td class="mono">if (x &gt; 0) { … }</td><td>條件要小括號，主體要大括號</td></tr>
+      <tr><td class="mono">el<span></span>if</td><td class="mono">else if</td><td>C++ 是兩個字，中間有空格</td></tr>
+      <tr><td class="mono">and / or / not</td><td class="mono">&amp;&amp; / || / !</td><td>兩邊都有短路求值</td></tr>
+      <tr><td class="mono">match / case</td><td class="mono">switch / case</td><td><strong>C++ 會掉落，要自己寫 break</strong></td></tr>
+      <tr><td class="mono">while cond:</td><td class="mono">while (cond) { … }</td><td>一樣，只差括號</td></tr>
+      <tr><td>沒有 do-while</td><td class="mono">do { … } while (cond);</td><td>主體保證至少跑一次</td></tr>
+      <tr><td class="mono">for i in range(n):</td><td class="mono">for (int i = 0; i &lt; n; i++)</td><td>C++ 把三段攤開給你控制</td></tr>
+      <tr><td class="mono">for x in v:</td><td class="mono">for (int x : v)</td><td><strong>C++ 預設是複本，要改要加 &amp;</strong></td></tr>
+      <tr><td class="mono">for i, x in enumerate(v):</td><td class="mono">for (unsigned i = 0; i &lt; v.size(); i++)</td><td>C++ 沒有內建的 enumerate</td></tr>
+      <tr><td class="mono">break / continue</td><td class="mono">break / continue</td><td>一樣，都只作用在最內層</td></tr>
+      <tr><td class="mono">for … else</td><td>沒有對應</td><td>用旗標變數自己做</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">五條記得住的規則</h3>
+  <div class="info-box green">
+    <p>① 條件裡「先檢查指標、再解參考」，順序不能顛倒，靠的是 <code>&amp;&amp;</code> 的短路求值。<br>
+    ② 永遠寫大括號，即使主體只有一行。<br>
+    ③ 每個 <code>case</code> 寫完就問一次：這裡要不要 <code>break</code>。<br>
+    ④ 迴圈寫完就問一次：主體有沒有把條件推向不成立。<br>
+    ⑤ 範圍 <code>for</code> 要改元素就加 <code>&amp;</code>，只讀又是大東西就寫 <code>const T&amp;</code>。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁每一段迴圈貼進去單步執行，看變數怎麼變、條件什麼時候被檢查。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/range-for" target="_blank" rel="noopener">cppreference · range-for</a></td><td>範圍 <code>for</code> 展開之後的真正樣子，以及為什麼 <code>&amp;</code> 會改變行為。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/switch" target="_blank" rel="noopener">cppreference · switch</a></td><td>掉落的完整規則，以及 C++17 的 <code>[[fallthrough]]</code>。</td></tr>
+      <tr><td><a href="https://github.com/pearcej/cppds/tree/master/_sources/AlgorithmAnalysis" target="_blank" rel="noopener">cppds · Algorithm Analysis</a></td><td>教科書把「迴圈跑幾次」變成大 O 的完整推導。</td></tr>
+      <tr><td><a href="analysis.html">本站第 02 章 · 演算法分析</a></td><td>本頁 PART 07 的正式版本。</td></tr>
+      <tr><td><a href="searching_sorting.html">本站第 07 章 · 搜尋與排序</a></td><td>二分搜尋的 <code>while</code>、六個排序的雙層 <code>for</code>，全部在這裡。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="bankquiz">
+  <div class="section-number">QUIZ · 自我檢測</div>
+  <h2>自我檢測：流程控制 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q1.</span>這段程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int sum = 0;
+    for (int i = 1; i &lt;= 4; i++) {
+        sum += i;
+    }
+    cout &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。i 從 1 跑到 4，1+2+3+4 = 10。注意條件寫的是 i &lt;= 4，所以最後一圈 i 是 4；如果寫成 i &lt; 4 就只加到 3，答案會變成 6。這個邊界差一格是初學最常見的錯。">10</button>
+      <button class="sq-opt" data-c="0" data-fb="6 是 1+2+3，也就是條件寫成 i &lt; 4 的結果。這裡寫的是 i &lt;= 4，多跑了一圈。">6</button>
+      <button class="sq-opt" data-c="0" data-fb="15 是 1 加到 5。i 的初始值是 1、上界是 4，只跑四圈。">15</button>
+      <button class="sq-opt" data-c="0" data-fb="sum 是累加，不是只留最後一個值。每一圈都做 sum += i。">4</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>switch 少了 break，這段印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n = 2;
+    switch (n) {
+        case 1: cout &lt;&lt; &quot;one &quot;;
+        case 2: cout &lt;&lt; &quot;two &quot;;
+        case 3: cout &lt;&lt; &quot;three &quot;;
+                break;
+        case 4: cout &lt;&lt; &quot;four &quot;;
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。n 是 2，控制流從 case 2 跳進去印 two，因為沒有 break 就掉進 case 3 印 three，直到 case 3 底下的 break 才離開。case 4 完全沒有機會執行。">two three</button>
+      <button class="sq-opt" data-c="0" data-fb="這是「每個 case 各自獨立」的直覺，但 C++ 的 case 只是一個跳進去的標籤。沒有 break 就會繼續往下執行。">two</button>
+      <button class="sq-opt" data-c="0" data-fb="case 3 底下有 break，控制流在那裡就離開 switch 了，跑不到 case 4。">two three four</button>
+      <button class="sq-opt" data-c="0" data-fb="case 1 在 case 2 上面。switch 不會往回跑，只會從相符的標籤往下掉。">one two three</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>兩個範圍 for 只差一個 &amp; 符號，最後印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    vector&lt;int&gt; v = {1, 2, 3};
+    for (int x : v) x += 10;
+    for (int &amp;y : v) y += 100;
+    for (int z : v) cout &lt;&lt; z &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。第一個迴圈的 x 是每個元素的複本，x += 10 改完就被丟掉，v 沒有變。第二個迴圈的 y 宣告成 int&amp;，是元素本身的別名，所以 y += 100 真的改到了 v。少那個 &amp; 的版本 g++ 連警告都不會給。">101 102 103</button>
+      <button class="sq-opt" data-c="0" data-fb="這假設兩個迴圈都改到了 v。第一個迴圈的 x 沒有 &amp;，拿到的是複本，那 10 加在複本上。">111 112 113</button>
+      <button class="sq-opt" data-c="0" data-fb="剛好相反：有效的是第二個迴圈（宣告成 int&amp;），無效的是第一個。">11 12 13</button>
+      <button class="sq-opt" data-c="0" data-fb="第二個迴圈的 y 是參考，確實改到了容器。只有第一個迴圈是白做工。">1 2 3</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>條件一開始就不成立，這段的 count 是多少？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int i = 5;
+    int count = 0;
+    do {
+        count++;
+        i++;
+    } while (i &lt; 3);
+    cout &lt;&lt; count &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。do-while 是先跑主體再檢查條件，所以主體保證至少執行一次。i 從 5 變成 6，回頭檢查 6 &lt; 3 不成立就結束，count 停在 1。同樣的條件換成 while 迴圈，count 會是 0。">1</button>
+      <button class="sq-opt" data-c="0" data-fb="0 是 while 迴圈的答案。do-while 把檢查放在主體之後，所以主體一定會先跑過一次。">0</button>
+      <button class="sq-opt" data-c="0" data-fb="條件是 i &lt; 3，而 i 從 5 開始，一次都不會成立。迴圈不會跑三圈。">3</button>
+      <button class="sq-opt" data-c="0" data-fb="i 每圈遞增，而且條件從一開始就不成立，跑一次就結束了。無窮迴圈的成因是主體沒有把條件推向不成立。">程式會無窮迴圈</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>這個三角形雙層迴圈，內層主體執行幾次？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int hits = 0;
+    for (int i = 0; i &lt; 5; i++) {
+        for (int j = i + 1; j &lt; 5; j++) {
+            hits++;
+        }
+    }
+    cout &lt;&lt; hits &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。i 是 0 時內層跑 4 次、i 是 1 時 3 次，依序是 4+3+2+1+0 = 10，也就是 n(n-1)/2 = 5×4/2。第 07 章的氣泡、選擇、插入排序都是這個形狀，丟掉常數 1/2 之後複雜度是 O(n^2)。">10</button>
+      <button class="sq-opt" data-c="0" data-fb="25 是兩層都跑滿 5 次的方形迴圈。這裡內層從 i+1 開始，所以每一圈都比上一圈短。">25</button>
+      <button class="sq-opt" data-c="0" data-fb="20 是 n(n-1)，也就是三角形的兩倍。內層每一圈只跑剩下的那一半。">20</button>
+      <button class="sq-opt" data-c="0" data-fb="5 是外層的圈數。題目問的是內層主體被執行的總次數。">5</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>第 04 章走訪鏈結串列時寫的是 while (current != NULL &amp;&amp; current-&gt;getData() != item)。如果把 &amp;&amp; 兩邊對調，會發生什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。走到串列尾巴時 current 已經是 NULL，對調之後左邊的 current-&gt;getData() 會先被求值，等於解參考一個空指標，程式當場被作業系統攔下來。原本的順序靠短路求值保證：左邊不成立就完全不會碰右邊。">找不到目標時會發生 segmentation fault</button>
+      <button class="sq-opt" data-c="0" data-fb="兩種寫法在語法上都完全合法，g++ 一句警告都不會給。這種錯只會在執行時爆炸，這也是它危險的地方。">編譯錯誤，因為條件的順序不合法</button>
+      <button class="sq-opt" data-c="0" data-fb="&amp;&amp; 的求值是有先後的，左邊先算，左邊為假就不算右邊。順序在這裡是正確性問題，不是風格問題。">結果一樣，&amp;&amp; 兩邊可以任意對調</button>
+      <button class="sq-opt" data-c="0" data-fb="效能不是重點。目標不在串列裡時，程式會直接崩潰而不是回報找不到。">會變慢，但結果仍然正確</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p1_cpp_basics.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">C++ 基礎與編譯流程</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p3_functions.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">函式</div></a></div>
+</div>
+
+<footer>
+  先備知識 P2 · 流程控制 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+/* ==========================================================
+   P2 · 流程控制　互動元件
+   ① forPlayer  三段式 for 的執行順序逐步器
+   ② nest       巢狀迴圈次數計數器
+   ========================================================== */
+
+/* ---------- 共用：小方框 ---------- */
+function p2Box(label, value, tone) {
+  const map = {
+    idle: ['var(--card-border)', 'var(--card)'],
+    hot:  ['var(--node-current)', 'rgba(243,156,18,.16)'],
+    ok:   ['var(--node-found)',   'rgba(22,160,133,.12)'],
+    off:  ['var(--accent)',       'rgba(192,57,43,.08)'],
+  };
+  const [bd, bg] = map[tone] || map.idle;
+  return `<div style="border:2px solid ${bd};background:${bg};border-radius:9px;padding:.4rem .8rem;min-width:110px;">
+    <div style="font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">${label}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;">${value}</div>
+  </div>`;
+}
+const p2Row = h => `<div style="display:flex;gap:.7rem;flex-wrap:wrap;margin:.5rem 0;">${h}</div>`;
+
+/* ================= ① 三段式 for 逐步器 ================= */
+let forPlayer = null;
+
+const FOR_STEP = {
+  1: ['① 初始化', 'var(--accent2)'],
+  2: ['② 檢查條件', 'var(--node-current)'],
+  3: ['③ 主體', 'var(--node-found)'],
+  4: ['④ 遞增', 'var(--accent3)'],
+};
+
+function forStage(f) {
+  const badge = f.line && FOR_STEP[f.line]
+    ? `<div style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:${FOR_STEP[f.line][1]};border:1px solid ${FOR_STEP[f.line][1]};border-radius:20px;padding:.15rem .7rem;margin-bottom:.4rem;">${FOR_STEP[f.line][0]}</div>`
+    : `<div style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--muted);border:1px solid var(--card-border);border-radius:20px;padding:.15rem .7rem;margin-bottom:.4rem;">迴圈結束</div>`;
+  return badge + p2Row(
+    p2Box('i', f.i === null ? '（還沒有）' : f.i, f.line === 4 ? 'hot' : 'idle') +
+    p2Box('i < 3 ?', f.cond, f.cond === '不成立' ? 'off' : (f.cond === '成立' ? 'ok' : 'idle')) +
+    p2Box('螢幕上的輸出', f.out || '（空的）', f.line === 3 ? 'hot' : 'idle')
+  ) + `<div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">紅框代表這一步剛動到的東西。右邊那段 while 就是這個 for 攤開的樣子。</div>`;
+}
+
+function forFrames() {
+  const F = [];
+  F.push({line: 1, i: 0, cond: '—', out: '', checks: 0, body: 0,
+    msg: '<code>int i = 0;</code> — 初始化。<strong>整支迴圈只會執行這一次</strong>，之後再也不會回來。'});
+  let out = '';
+  for (let i = 0; i < 3; i++) {
+    F.push({line: 2, i: i, cond: '成立', out: out, checks: i + 1, body: i,
+      msg: `<code>i &lt; 3</code> — 檢查條件。<strong>${i} &lt; 3 成立</strong>，所以進去跑主體。這是第 ${i + 1} 次檢查。`});
+    out += i + ' ';
+    F.push({line: 3, i: i, cond: '成立', out: out, checks: i + 1, body: i + 1,
+      msg: `主體執行，把 <strong>${i}</strong> 送到螢幕上。主體到目前為止跑了 ${i + 1} 次。`});
+    F.push({line: 4, i: i + 1, cond: '成立', out: out, checks: i + 1, body: i + 1,
+      msg: `<code>i++</code> — 遞增。<strong>i 從 ${i} 變成 ${i + 1}</strong>，然後<strong>回到條件那一行</strong>，不是回到初始化。`});
+  }
+  F.push({line: 2, i: 3, cond: '不成立', out: out, checks: 4, body: 3,
+    msg: '<code>3 &lt; 3</code> — 不成立，跳出迴圈。<strong>這一次檢查是白跑的，但它非跑不可</strong>，否則迴圈不知道該停。'});
+  F.push({line: null, i: 3, cond: '不成立', out: out, checks: 4, body: 3,
+    msg: '收工。<strong>主體 3 次、條件檢查 4 次</strong> —— 分析複雜度時數的是主體那一欄，條件永遠比它多一次。'});
+  return F;
+}
+
+function forApply(f) {
+  $('forStage').innerHTML = forStage(f);
+  $('forChecks').textContent = f.checks;
+  $('forBody').textContent = f.body;
+  hlLine('forCode', f.line);
+  setStatus('forStatus', f.msg);
+}
+
+function forStart() {
+  if (forPlayer) forPlayer.stop();
+  forPlayer = new Player({frames: forFrames(), apply: forApply});
+  forPlayer.play();
+}
+
+function forReset() {
+  if (forPlayer) forPlayer.stop();
+  forPlayer = null;
+  $('forStage').innerHTML = forStage({line: null, i: null, cond: '—', out: ''});
+  $('forChecks').textContent = '0';
+  $('forBody').textContent = '0';
+  hlLine('forCode', null);
+  setStatus('forStatus', '按「開始」，一步一步看三段式 for 的四個動作輪流發生。');
+}
+
+/* ================= ② 巢狀迴圈次數計數器 ================= */
+let nestCurMode = 'rect';
+
+const NEST_CODE = {
+  rect:
+    '<span class="line"><span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++)</span>\n' +
+    '<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; m; j++)</span>\n' +
+    '<span class="line">        doSomething();      <span class="com">// 每一格算一次</span></span>',
+  tri:
+    '<span class="line"><span class="com">// dscpp/sorting.hpp 的 bubbleSort</span></span>\n' +
+    '<span class="line"><span class="kw">for</span> (<span class="kw">int</span> i = n - <span class="num">1</span>; i &gt; <span class="num">0</span>; i--)</span>\n' +
+    '<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; i; j++)</span>\n' +
+    '<span class="line">        <span class="kw">if</span> (a[j] &gt; a[j+<span class="num">1</span>]) swap;</span>',
+};
+
+function nestGrid(rows) {
+  const cell = on =>
+    `<span style="display:inline-block;width:12px;height:12px;margin:1px;border-radius:2px;` +
+    `background:${on ? 'var(--node-current)' : 'transparent'};border:1px solid ${on ? 'var(--node-current)' : 'var(--card-border)'};"></span>`;
+  const maxw = Math.max(...rows, 1);
+  return '<div style="margin:.5rem 0;">' + rows.map((c, r) =>
+    `<div style="line-height:1;white-space:nowrap;">` +
+    Array.from({length: maxw}, (_, k) => cell(k < c)).join('') +
+    `<span style="font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--muted);margin-left:.5rem;">i = ${r}　內層 ${c} 次</span></div>`
+  ).join('') + '</div>';
+}
+
+function nestRender() {
+  const n = parseInt($('nOuter').value, 10);
+  const m = parseInt($('nInner').value, 10);
+  $('nOuterVal').textContent = n;
+  $('nInnerVal').textContent = m;
+  $('nestCode').innerHTML = NEST_CODE[nestCurMode];
+
+  let rows, total, big, note, msg;
+  if (nestCurMode === 'rect') {
+    rows = Array.from({length: n}, () => m);
+    total = n * m;
+    big = 'O(n·m)';
+    note = `外層 ${n} 圈，每一圈內層都跑滿 ${m} 次，所以是 <strong>${n} × ${m} = ${total}</strong> 次。` +
+           `兩邊都等於 n 時就是 <code>O(n&sup2;)</code>。`;
+    msg = `內層主體被執行 <strong>${total}</strong> 次。把外層拉大一倍，次數就變一倍；兩個一起拉大一倍，次數變四倍 —— 這就是 <code>O(n&sup2;)</code> 的手感。`;
+  } else {
+    rows = Array.from({length: n - 1}, (_, r) => n - 1 - r);
+    total = n * (n - 1) / 2;
+    big = 'O(n²)';
+    const dbl = 2 * n * (2 * n - 1) / 2;
+    note = `氣泡排序的外層 <code>i</code> 從 ${n - 1} 遞減到 1，內層 <code>j &lt; i</code> 跟著縮短，` +
+           `疊出一個三角形：<strong>${n}×${n - 1}/2 = ${total}</strong> 次比較。` +
+           `常數 1/2 在大 O 裡會被丟掉，所以還是 <code>O(n&sup2;)</code>。`;
+    msg = `n = ${n} 要比較 <strong>${total}</strong> 次；n 變兩倍（${2 * n}）要比較 <strong>${dbl}</strong> 次，大約是四倍。` +
+          `<strong>次數變四倍</strong>就是平方成長的定義。`;
+  }
+  $('nestStage').innerHTML = nestGrid(rows);
+  $('nestTotal').textContent = total;
+  $('nestBig').textContent = big;
+  $('nestNote').innerHTML = note;
+  setStatus('nestStatus', msg);
+}
+
+function nestMode(mode) {
+  nestCurMode = mode;
+  const inner = $('nInner');
+  inner.disabled = (mode === 'tri');
+  inner.style.opacity = (mode === 'tri') ? '.35' : '1';
+  nestRender();
+}
+
+function nestReset() {
+  $('nOuter').value = 6;
+  $('nInner').value = 6;
+  nestMode('rect');
+}
+
+/* ---------- 啟動 ---------- */
+(function () {
+  if ($('forStage')) forReset();
+  if ($('nestStage')) {
+    $('nOuter').addEventListener('input', nestRender);
+    $('nInner').addEventListener('input', nestRender);
+    nestMode('rect');
+  }
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "布林型別（bool）", "back": "只有 true 與 false 兩個值的型別，底下就是整數：true 是 1、false 是 0。反過來也成立，任何非零的整數當條件時都算真，這是 if (x = 5) 為什麼編得過的根本原因。"}, {"front": "邏輯運算子（Logical Operator）", "back": "C++ 用 && 表示「而且」、|| 表示「或者」、! 表示「否定」，對應 Python 的 and／or／not。兩個雙元運算子都有短路求值，走訪鏈結串列時整學期都靠這個特性。"}, {"front": "短路求值（Short-circuit Evaluation）", "back": "a && b 在 a 為假時完全不會求值 b；a || b 在 a 為真時完全不會求值 b。這是 C++ 標準規定的行為，不是編譯器的最佳化，所以可以放心依賴。第 04 章 while (current != NULL && current->getData() != item) 不會解參考空指標，靠的就是它。"}, {"front": "條件敘述（if Statement）", "back": "if / else if / else 的三段式分支。條件必須用小括號包起來，Python 的 el\u0069f 在 C++ 寫成兩個字的 else if。條件本身不必是 bool，任何整數運算式都可以。"}, {"front": "大括號區塊（Block）", "back": "用一對大括號把多個敘述綁成一個。C++ 靠它決定範圍，縮排對編譯器毫無意義。省略大括號時 if 只管接在後面的那一個敘述，第二行縮排得再整齊也不算數，這是最經典的無聲 bug。"}, {"front": "賦值運算式（Assignment Expression）", "back": "x = 5 在 C++ 裡是一個運算式，它的值就是被賦進去的 5。因此 if (x = 5) 合法且永遠成立，同時還把 x 改掉了。g++ 預設不警告，要加 -Wall 才會提醒。"}, {"front": "switch 敘述（switch Statement）", "back": "拿同一個整數或字元去比對一串編譯期常數的分支結構。case 後面不能放變數、範圍或字串。Python 沒有直接對應的東西，3.10 之後的 match 語意也不一樣。"}, {"front": "掉落（Fall-through）", "back": "switch 的 case 是跳進去的位置，不是互斥的分支。相符之後就從那裡一路往下執行，直到遇到 break 或右大括號。忘記寫 break 會安靜地多執行好幾段；把多個 case 疊在一起則是刻意利用掉落的標準寫法。"}, {"front": "break 敘述（break Statement）", "back": "立刻離開最靠近的那一層迴圈，或離開一個 switch。它只跳出一層，巢狀迴圈裡的 break 不會把外層也結束掉。課程的 bubbleSortShort() 用 if (!exchanges) break; 在已排序時提早收工。"}, {"front": "continue 敘述（continue Statement）", "back": "放棄這一圈剩下的主體，直接跳到下一圈。在 for 迴圈裡，遞增那一段仍然會執行。跟 break 一樣，只作用在最內層的迴圈。"}, {"front": "while 迴圈（while Loop）", "back": "條件成立就再跑一次主體，適合「不知道要跑幾圈、只知道什麼時候該停」的情況。第 04 章走訪串列、第 07 章二分搜尋、第 08 章 BFS 的主結構都是它。"}, {"front": "do-while 迴圈（do-while Loop）", "back": "先跑一次主體再檢查條件，所以主體保證至少執行一次；結尾的分號不能少。Python 沒有這個結構。適合「先做一次再問要不要繼續」，例如讀輸入直到合法為止。"}, {"front": "無窮迴圈（Infinite Loop）", "back": "條件永遠成立的迴圈。最常見的成因是主體忘了更新條件變數，例如漏掉 i++ 或漏掉 current = current->getNext()。刻意寫的版本是 while (true) 配 break，用於選單這類要從中間跳出的流程。"}, {"front": "迴圈終止條件（Termination Condition）", "back": "迴圈停下來的判斷式。看懂它就等於看懂複雜度：while (current != NULL) 走完每個節點是 O(n)，while (first <= last) 每圈把範圍砍一半是 O(log n)。第 02 章的分析工作本質上就是在讀這一行。"}, {"front": "三段式 for 迴圈（for Loop）", "back": "for (初始化; 條件; 遞增) 的形式，本質是一個 while 的縮寫。初始化只在最開始執行一次，之後是「檢查條件、跑主體、遞增」的循環，所以條件被檢查的次數永遠比主體多一次。"}, {"front": "迴圈變數範圍（Loop Variable Scope）", "back": "for (int i = 0; ...) 裡宣告的 i 只活在這個迴圈內，結束後在外面用它會編譯錯誤。需要知道迴圈停在哪就要把宣告搬到 for 外面。另外 vector 的 size() 回傳無號整數，課程的 insertionSort() 因此把索引宣告成 unsigned。"}, {"front": "範圍 for 迴圈（Range-based for Loop）", "back": "for (T x : v) 把容器的元素一個一個拿出來，寫法最接近 Python 的 for x in v。課程 dscpp/sorting.hpp 的 printl() 就是這樣印陣列的。要注意預設拿到的是複本。"}, {"front": "參考型迴圈變數（Reference Loop Variable）", "back": "for (T& x : v) 裡的 x 是元素本身的別名，改它就等於改容器。少了那個 & 就變成複本，主體裡的修改跑完就被丟掉，而編譯器連警告都不會給。第 07 章的排序要交換元素，靠的就是這個 &。"}, {"front": "常數參考（const Reference）", "back": "for (const T& x : v) 表示只讀又不複製，是走訪 string、vector 或自訂物件時的預設選擇。同樣的道理用在參數上：課程版 binarySearch(vector<int> aList, ...) 是傳值，每次呼叫複製整個陣列，寫成 const vector<int>& 才不會白白多花 O(n)。"}, {"front": "巢狀迴圈（Nested Loop）", "back": "迴圈裡面再放一層迴圈。外層 n 圈、內層 m 圈，內層主體就執行 n×m 次。第 07 章的氣泡、選擇、插入排序都是外層遞減、內層跟著縮短的三角形雙層迴圈，總次數 n(n-1)/2，丟掉常數之後就是 O(n^2)。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+</body>
+</html>

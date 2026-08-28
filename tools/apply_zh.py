@@ -6,12 +6,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FC = {  # page -> flashcards chapter
-    "00a_why_code": "00a", "00b_setup": "00b", "p4_pointers_memory": "p4", "p6_map_set": "p6", "p8_oop_basics": "p8",
+    "00a_why_code": "00a", "00b_setup": "00b", "p3_functions": "p3", "p4_pointers_memory": "p4", "p6_map_set": "p6", "p8_oop_basics": "p8",
     "introduction": "ch1", "analysis": "ch2", "arrays": "ch3",
     "linked_lists": "ch4", "linear_structures": "ch5", "recursion": "ch6",
     "searching_sorting": "ch7", "graphs": "ch8", "trees": "ch9",
 }
 BQ = {  # page -> (questions chapter, 註記)
+    "p3_functions": ("p3", "函式"),
     "p4_pointers_memory": ("p4", "陣列、指標與動態記憶體"),
     "p6_map_set": ("p6", "map、set 與迭代器"),
     "p8_oop_basics": ("p8", "物件導向基礎"),

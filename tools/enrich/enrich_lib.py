@@ -25,7 +25,10 @@ def hl(code):
         esc = _html.escape(val, quote=False)
         out.append(f'<span class="{cls}">{esc}</span>' if cls else esc)
     lines = "".join(out).split("\n")
-    res = "\n".join(f'<span class="line">{l if l.strip() else " "}</span>' for l in lines)
+    # 帶上 data-l（1-based）：頁面的 hlLine(rootId, n) 是用 .line[data-l="n"] 找行的，
+    # 少了這個屬性高亮會靜默失效（既有九章是手寫 data-l，所以看不出來）
+    res = "\n".join(f'<span class="line" data-l="{i}">{l if l.strip() else " "}</span>'
+                    for i, l in enumerate(lines, 1))
     # 打斷 check_selfstudy 的 Python-residue regex 誤中詞（空 span 不影響顯示）
     for pat, rep in [("print(", "pri<span></span>nt("), ("self.", "se<span></span>lf."),
                      ("None", "No<span></span>ne"), ("elif", "el<span></span>if"),

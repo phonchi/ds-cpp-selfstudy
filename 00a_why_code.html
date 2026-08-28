@@ -333,6 +333,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <style>
 .hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
 .cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
 .cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
 .ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
 .ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
@@ -462,31 +463,31 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <div class="deck-extra">
   <div class="dx-label">兩個都對，成本差兩個數量級（n = 50000，實際編譯執行）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"stack.hpp"</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std::chrono;</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">50000</span>;</span>
-<span class="line">    Stack&lt;<span class="kw">int</span>&gt; good;                    <span class="com">// top 在 vector 尾端：push/pop 都是 O(1)</span>
-<span class="line"></span>    Stack2&lt;<span class="kw">int</span>&gt; bad;                    <span class="com">// top 在 vector 前端：每次都要搬整排</span>
-<span class="line"></span></span>
-<span class="line">    <span class="kw">auto</span> t0 = high_resolution_clock::now();</span>
-<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) good.push(i);</span>
-<span class="line">    <span class="kw">while</span> (!good.isEmpty()) good.pop();</span>
-<span class="line"> </span>
-<span class="line">    <span class="kw">auto</span> t1 = high_resolution_clock::now();</span>
-<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) bad.push(i);</span>
-<span class="line">    <span class="kw">while</span> (!bad.isEmpty()) bad.pop();</span>
-<span class="line">    <span class="kw">auto</span> t2 = high_resolution_clock::now();</span>
-<span class="line"> </span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Stack  (top 在尾端): </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t1 - t0).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Stack2 (top 在前端): </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t2 - t1).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line">}</span>
-<span class="line"> </span></div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"stack.hpp"</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std::chrono;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="8">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">50000</span>;</span>
+<span class="line" data-l="9">    Stack&lt;<span class="kw">int</span>&gt; good;                    <span class="com">// top 在 vector 尾端：push/pop 都是 O(1)</span>
+<span class="line" data-l="10"></span>    Stack2&lt;<span class="kw">int</span>&gt; bad;                    <span class="com">// top 在 vector 前端：每次都要搬整排</span>
+<span class="line" data-l="11"></span></span>
+<span class="line" data-l="12">    <span class="kw">auto</span> t0 = high_resolution_clock::now();</span>
+<span class="line" data-l="13">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) good.push(i);</span>
+<span class="line" data-l="14">    <span class="kw">while</span> (!good.isEmpty()) good.pop();</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16">    <span class="kw">auto</span> t1 = high_resolution_clock::now();</span>
+<span class="line" data-l="17">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) bad.push(i);</span>
+<span class="line" data-l="18">    <span class="kw">while</span> (!bad.isEmpty()) bad.pop();</span>
+<span class="line" data-l="19">    <span class="kw">auto</span> t2 = high_resolution_clock::now();</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">Stack  (top 在尾端): </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t1 - t0).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">Stack2 (top 在前端): </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t2 - t1).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="24">}</span>
+<span class="line" data-l="25"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Stack  (top 在尾端): 1.13921 ms
 Stack2 (top 在前端): 122.423 ms</pre></div>
   <p class="dx-note">在 <code>vector</code> 的前端插入或刪除，要把後面所有元素整排往後搬，所以是 $O(n)$；尾端則是 $O(1)$。同樣的 ADT、同樣的正確結果，差了<strong>一百倍</strong>。課程把 <code>Stack2</code> 留在原始碼裡就是要你自己量一次。</p>
@@ -496,36 +497,36 @@ Stack2 (top 在前端): 122.423 ms</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">逐一比對 vs 雜湊查表（20 萬筆、查 200 次）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_set&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std::chrono;</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">200000</span>, ROUNDS = <span class="num">200</span>;</span>
-<span class="line">    vector&lt;<span class="kw">int</span>&gt; v;</span>
-<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) v.push_back(i);</span>
-<span class="line">    unordered_set&lt;<span class="kw">int</span>&gt; s(v.begin(), v.end());</span>
-<span class="line"> </span>
-<span class="line">    <span class="kw">auto</span> t0 = high_resolution_clock::now();</span>
-<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; ROUNDS; k++) {</span>
-<span class="line">        <span class="kw">volatile</span> <span class="kw">bool</span> hit = <span class="fn">false</span>;</span>
-<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> x : v) <span class="kw">if</span> (x == N - <span class="num">1</span>) { hit = <span class="fn">true</span>; <span class="kw">break</span>; }   <span class="com">// 逐一比對</span>
-<span class="line"></span>    }</span>
-<span class="line">    <span class="kw">auto</span> t1 = high_resolution_clock::now();</span>
-<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; ROUNDS; k++) {</span>
-<span class="line">        <span class="kw">volatile</span> <span class="kw">bool</span> hit = s.count(N - <span class="num">1</span>) &gt; <span class="num">0</span>;                  <span class="com">// 雜湊查表</span>
-<span class="line"></span>        (<span class="kw">void</span>)hit;</span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">auto</span> t2 = high_resolution_clock::now();</span>
-<span class="line"> </span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">vector        逐一比對: </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t1 - t0).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">unordered_set 雜湊查表: </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t2 - t1).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line">}</span>
-<span class="line"> </span></div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_set&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
+<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"><span class="kw">using</span> <span class="kw">namespace</span> std::chrono;</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">200000</span>, ROUNDS = <span class="num">200</span>;</span>
+<span class="line" data-l="10">    vector&lt;<span class="kw">int</span>&gt; v;</span>
+<span class="line" data-l="11">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) v.push_back(i);</span>
+<span class="line" data-l="12">    unordered_set&lt;<span class="kw">int</span>&gt; s(v.begin(), v.end());</span>
+<span class="line" data-l="13"> </span>
+<span class="line" data-l="14">    <span class="kw">auto</span> t0 = high_resolution_clock::now();</span>
+<span class="line" data-l="15">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; ROUNDS; k++) {</span>
+<span class="line" data-l="16">        <span class="kw">volatile</span> <span class="kw">bool</span> hit = <span class="fn">false</span>;</span>
+<span class="line" data-l="17">        <span class="kw">for</span> (<span class="kw">int</span> x : v) <span class="kw">if</span> (x == N - <span class="num">1</span>) { hit = <span class="fn">true</span>; <span class="kw">break</span>; }   <span class="com">// 逐一比對</span>
+<span class="line" data-l="18"></span>    }</span>
+<span class="line" data-l="19">    <span class="kw">auto</span> t1 = high_resolution_clock::now();</span>
+<span class="line" data-l="20">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; ROUNDS; k++) {</span>
+<span class="line" data-l="21">        <span class="kw">volatile</span> <span class="kw">bool</span> hit = s.count(N - <span class="num">1</span>) &gt; <span class="num">0</span>;                  <span class="com">// 雜湊查表</span>
+<span class="line" data-l="22"></span>        (<span class="kw">void</span>)hit;</span>
+<span class="line" data-l="23">    }</span>
+<span class="line" data-l="24">    <span class="kw">auto</span> t2 = high_resolution_clock::now();</span>
+<span class="line" data-l="25"> </span>
+<span class="line" data-l="26">    cout &lt;&lt; <span class="str">"</span><span class="str">vector        逐一比對: </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t1 - t0).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="27">    cout &lt;&lt; <span class="str">"</span><span class="str">unordered_set 雜湊查表: </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t2 - t1).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="29">}</span>
+<span class="line" data-l="30"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>vector        逐一比對: 102.673 ms
 unordered_set 雜湊查表: 0.006698 ms</pre></div>
   <p class="dx-note">一萬五千倍。你唯一要改的是換一個容器 —— 但你得先知道有 <code>unordered_set</code> 這種東西，以及它為什麼快。那正是第 07 章雜湊表整章在講的事。</p>
@@ -560,46 +561,46 @@ unordered_set 雜湊查表: 0.006698 ms</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">忘記還會怎樣：用一個計數器看給你看</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">class</span> Node {</span>
-<span class="line">    <span class="kw">public</span>:</span>
-<span class="line">        <span class="kw">static</span> <span class="kw">int</span> alive;          <span class="com">// 目前還活著的節點數</span>
-<span class="line"></span>        <span class="kw">int</span> data;</span>
-<span class="line">        Node *next;</span>
-<span class="line">        Node(<span class="kw">int</span> d) { data = d; next = <span class="fn">NULL</span>; alive++; }</span>
-<span class="line">        ~Node() { alive--; }</span>
-<span class="line">};</span>
-<span class="line"><span class="kw">int</span> Node::alive = <span class="num">0</span>;</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">void</span> <span class="fn">buildAndForget</span>() {</span>
-<span class="line">    Node *head = <span class="kw">new</span> Node(<span class="num">93</span>);     <span class="com">// 借了記憶體</span>
-<span class="line"></span>    head-&gt;next = <span class="kw">new</span> Node(<span class="num">26</span>);</span>
-<span class="line">    <span class="com">// ...用完就 return，忘記 delete</span>
-<span class="line"></span>}</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">void</span> <span class="fn">buildAndFree</span>() {</span>
-<span class="line">    Node *head = <span class="kw">new</span> Node(<span class="num">93</span>);</span>
-<span class="line">    head-&gt;next = <span class="kw">new</span> Node(<span class="num">26</span>);</span>
-<span class="line">    <span class="kw">delete</span> head-&gt;next;             <span class="com">// 借了就要還</span>
-<span class="line"></span>    <span class="kw">delete</span> head;</span>
-<span class="line">}</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">一開始還活著的節點: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; endl;</span>
-<span class="line"> </span>
-<span class="line">    buildAndFree();</span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">buildAndFree   之後: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 借兩個、還兩個，歸零</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line"> </span>
-<span class="line">    buildAndForget();</span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">buildAndForget 之後: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 借兩個、沒還，永遠回不來了</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line"> </span>
-<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) buildAndForget();</span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">再呼叫三次之後    : </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 每呼叫一次就漏兩個</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line">}</span>
-<span class="line"> </span></div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Node {</span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        <span class="kw">static</span> <span class="kw">int</span> alive;          <span class="com">// 目前還活著的節點數</span>
+<span class="line" data-l="7"></span>        <span class="kw">int</span> data;</span>
+<span class="line" data-l="8">        Node *next;</span>
+<span class="line" data-l="9">        Node(<span class="kw">int</span> d) { data = d; next = <span class="fn">NULL</span>; alive++; }</span>
+<span class="line" data-l="10">        ~Node() { alive--; }</span>
+<span class="line" data-l="11">};</span>
+<span class="line" data-l="12"><span class="kw">int</span> Node::alive = <span class="num">0</span>;</span>
+<span class="line" data-l="13"> </span>
+<span class="line" data-l="14"><span class="kw">void</span> <span class="fn">buildAndForget</span>() {</span>
+<span class="line" data-l="15">    Node *head = <span class="kw">new</span> Node(<span class="num">93</span>);     <span class="com">// 借了記憶體</span>
+<span class="line" data-l="16"></span>    head-&gt;next = <span class="kw">new</span> Node(<span class="num">26</span>);</span>
+<span class="line" data-l="17">    <span class="com">// ...用完就 return，忘記 delete</span>
+<span class="line" data-l="18"></span>}</span>
+<span class="line" data-l="19"> </span>
+<span class="line" data-l="20"><span class="kw">void</span> <span class="fn">buildAndFree</span>() {</span>
+<span class="line" data-l="21">    Node *head = <span class="kw">new</span> Node(<span class="num">93</span>);</span>
+<span class="line" data-l="22">    head-&gt;next = <span class="kw">new</span> Node(<span class="num">26</span>);</span>
+<span class="line" data-l="23">    <span class="kw">delete</span> head-&gt;next;             <span class="com">// 借了就要還</span>
+<span class="line" data-l="24"></span>    <span class="kw">delete</span> head;</span>
+<span class="line" data-l="25">}</span>
+<span class="line" data-l="26"> </span>
+<span class="line" data-l="27"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="28">    cout &lt;&lt; <span class="str">"</span><span class="str">一開始還活著的節點: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; endl;</span>
+<span class="line" data-l="29"> </span>
+<span class="line" data-l="30">    buildAndFree();</span>
+<span class="line" data-l="31">    cout &lt;&lt; <span class="str">"</span><span class="str">buildAndFree   之後: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 借兩個、還兩個，歸零</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="32"> </span>
+<span class="line" data-l="33">    buildAndForget();</span>
+<span class="line" data-l="34">    cout &lt;&lt; <span class="str">"</span><span class="str">buildAndForget 之後: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 借兩個、沒還，永遠回不來了</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="35"> </span>
+<span class="line" data-l="36">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) buildAndForget();</span>
+<span class="line" data-l="37">    cout &lt;&lt; <span class="str">"</span><span class="str">再呼叫三次之後    : </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 每呼叫一次就漏兩個</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="38">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="39">}</span>
+<span class="line" data-l="40"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>一開始還活著的節點: 0
 buildAndFree   之後: 0  &lt;- 借兩個、還兩個，歸零
 buildAndForget 之後: 2  &lt;- 借兩個、沒還，永遠回不來了

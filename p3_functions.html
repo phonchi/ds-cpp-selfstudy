@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>函式：傳值、傳參考與傳指標 — 先備 P3（C++）</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+/* ===== 題庫自測區 ===== */
+.sq-item{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+.sq-item .sq-q{font-weight:700;margin-bottom:.7rem;}
+.sq-item .sq-q .sq-num{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:.4rem;}
+.sq-opts{display:flex;flex-direction:column;gap:.45rem;}
+.sq-opt{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.6;padding:.55rem .9rem;border-radius:8px;border:1px solid var(--card-border);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;}
+.sq-opt:hover{border-color:var(--accent2);}
+.sq-opt.correct{border-color:var(--accent3);background:rgba(26,107,74,.10);}
+.sq-opt.wrong{border-color:var(--accent);background:rgba(192,57,43,.08);}
+.sq-fb{display:none;margin-top:.7rem;font-size:.86rem;line-height:1.7;border-left:4px solid var(--accent2);padding:.5rem .9rem;background:var(--paper);border-radius:0 8px 8px 0;}
+.sq-fb.show{display:block;}
+.sq-fb.good{border-left-color:var(--accent3);}
+.sq-fb.bad{border-left-color:var(--accent);}
+.sq-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.55;padding:.7rem .9rem;border-radius:8px;margin:.2rem 0 .8rem;overflow-x:auto;white-space:pre;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">三種寫法</span></a>
+  <a href="#declare" data-target="declare"><span class="fn-num">P01</span><span class="fn-name">宣告與定義</span></a>
+  <a href="#byvalue" data-target="byvalue"><span class="fn-num">P02</span><span class="fn-name">傳值</span></a>
+  <a href="#byref" data-target="byref"><span class="fn-num">P03</span><span class="fn-name">傳參考</span></a>
+  <a href="#byptr" data-target="byptr"><span class="fn-num">P04</span><span class="fn-name">傳指標</span></a>
+  <a href="#constref" data-target="constref"><span class="fn-num">P05</span><span class="fn-name">const 參考</span></a>
+  <a href="#retval" data-target="retval"><span class="fn-num">P06</span><span class="fn-name">回傳</span></a>
+  <a href="#overload" data-target="overload"><span class="fn-num">P07</span><span class="fn-name">多載與預設引數</span></a>
+  <a href="#recursion" data-target="recursion"><span class="fn-num">P08</span><span class="fn-name">遞迴與呼叫堆疊</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="26" y="46" width="104" height="52" rx="7"/>
+    <rect x="26" y="150" width="104" height="52" rx="7"/>
+    <rect x="176" y="46" width="96" height="52" rx="7"/>
+    <rect x="176" y="150" width="96" height="52" rx="7"/>
+    <path d="M130 72 L176 72"/>
+    <path d="M130 176 L176 176"/>
+    <path d="M176 176 L130 176"/>
+  </g>
+  <g fill="#fff" opacity=".8" font-family="monospace" font-size="11">
+    <text x="44" y="76">caller a</text><text x="192" y="76">副本 a</text>
+    <text x="44" y="180">caller b</text><text x="196" y="180">別名 b</text>
+    <text x="140" y="66">複製</text><text x="132" y="200">同一格</text>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P3</div>
+    <h1><span class="blue">函式</span>：傳值、<span class="green">傳參考</span>與<span class="orange">傳指標</span></h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">f(T x)｜f(T&amp; x)｜f(T* p)｜const T&amp;｜多載｜遞迴</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>同一個 swap，三種寫法</a>
+    <a href="#declare"><span class="toc-num">P01</span>宣告與定義</a>
+    <a href="#byvalue"><span class="toc-num">P02</span>傳值：函式拿到的是副本</a>
+    <a href="#byref"><span class="toc-num">P03</span>傳參考：同一個東西的另一個名字</a>
+    <a href="#byptr"><span class="toc-num">P04</span>傳指標：明著交出位址</a>
+    <a href="#constref"><span class="toc-num">P05</span>const 參考：不複製也不讓改</a>
+    <a href="#retval"><span class="toc-num">P06</span>回傳值與回傳參考</a>
+    <a href="#overload"><span class="toc-num">P07</span>多載與預設引數</a>
+    <a href="#recursion"><span class="toc-num">P08</span>遞迴與呼叫堆疊</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>同一個 <code>swap(a, b)</code>，三種寫法，只有兩種真的換得動</h2>
+  <p>下面這支程式把三種傳法一次跑完。三個函式的函式本體<strong>一模一樣</strong>，差別只在參數列上多不多一個符號。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">三種傳法，同一份交換邏輯（真的跑出來的）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">swapByValue</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {          <span class="com">// 收到的是副本</span>
+<span class="line" data-l="5"></span>    <span class="kw">int</span> t = a; a = b; b = t;</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"><span class="kw">void</span> <span class="fn">swapByRef</span>(<span class="kw">int</span> &amp;a, <span class="kw">int</span> &amp;b) {          <span class="com">// 收到的是本人的別名</span>
+<span class="line" data-l="8"></span>    <span class="kw">int</span> t = a; a = b; b = t;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"><span class="kw">void</span> <span class="fn">swapByPtr</span>(<span class="kw">int</span> *a, <span class="kw">int</span> *b) {          <span class="com">// 收到的是位址</span>
+<span class="line" data-l="11"></span>    <span class="kw">int</span> t = *a; *a = *b; *b = t;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"> </span>
+<span class="line" data-l="14"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="15">    <span class="kw">int</span> x = <span class="num">3</span>, y = <span class="num">7</span>;</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">    swapByValue(x, y);</span>
+<span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">傳值   之後: x=</span><span class="str">"</span> &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> y=</span><span class="str">"</span> &lt;&lt; y &lt;&lt; endl;</span>
+<span class="line" data-l="19"> </span>
+<span class="line" data-l="20">    x = <span class="num">3</span>; y = <span class="num">7</span>;</span>
+<span class="line" data-l="21">    swapByRef(x, y);</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">傳參考 之後: x=</span><span class="str">"</span> &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> y=</span><span class="str">"</span> &lt;&lt; y &lt;&lt; endl;</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24">    x = <span class="num">3</span>; y = <span class="num">7</span>;</span>
+<span class="line" data-l="25">    swapByPtr(&amp;x, &amp;y);</span>
+<span class="line" data-l="26">    cout &lt;&lt; <span class="str">"</span><span class="str">傳指標 之後: x=</span><span class="str">"</span> &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> y=</span><span class="str">"</span> &lt;&lt; y &lt;&lt; endl;</span>
+<span class="line" data-l="27">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="28">}</span>
+<span class="line" data-l="29"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>傳值   之後: x=3 y=7
+傳參考 之後: x=7 y=3
+傳指標 之後: x=7 y=3</pre></div>
+  <p class="dx-note">第一行是災難：<code>swapByValue</code> 認真地把 a 和 b 換了一遍，換的卻是它自己手上的兩份副本，函式一結束副本就沒了，<code>x</code> 與 <code>y</code> 原封不動。後面兩行成功，因為 <code>int &amp;a</code> 與 <code>int *a</code> 都讓函式碰得到 <code>main</code> 裡的那兩格記憶體。</p>
+</div>
+
+  <p>C++ 不會警告你第一種寫法沒有效果。它會安靜地編譯、安靜地執行、安靜地什麼都沒做。整頁要處理的就是這件事：<strong>參數列上那個 <code>&amp;</code> 到底改變了什麼</strong>。</p>
+
+  <div class="stats-grid">
+    <div class="stat-tile"><div class="stat-value">57</div><div class="stat-label">課程用到參考 &amp; 的次數</div></div>
+    <div class="stat-tile"><div class="stat-value">145</div><div class="stat-label">指標宣告</div></div>
+    <div class="stat-tile"><div class="stat-value">3</div><div class="stat-label">傳法，要分得清楚</div></div>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但第 07 章的排序全部寫成 <code>void bubbleSort(vector&lt;int&gt;&amp; v)</code>，那個 <code>&amp;</code> 拿掉之後你的排序函式會排得非常正確、然後把結果丟掉。</p>
+  </div>
+</section>
+
+<section id="declare">
+  <div class="section-number">PART 01 · 宣告與定義</div>
+  <h2>編譯器由上而下讀一遍，讀到才算數</h2>
+  <p>Python 直譯器是在呼叫的當下才去查函式在哪裡，所以函式定義寫在下面也沒關係。C++ 的編譯器只從頭到尾掃一遍原始碼，掃到函式呼叫時如果還沒見過這個名字，它連「這是不是函式」都不知道。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">定義寫在 main 後面，直接編不過</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    cout &lt;&lt; square(<span class="num">5</span>) &lt;&lt; endl;   <span class="com">// 編譯器讀到這裡時還沒見過 square</span>
+<span class="line" data-l="6"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="10">    <span class="kw">return</span> n * n;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:5:13: error: ‘square’ was not declared in this scope
+    5 |     cout &lt;&lt; square(5) &lt;&lt; endl;   // 編譯器讀到這裡時還沒見過 square</pre></div>
+  <p class="dx-note"><code>error: ‘square’ was not declared in this scope</code>。這是初學最常收到的錯誤訊息之一，意思很單純：<strong>你用了一個編譯器還沒認識的名字</strong>。</p>
+</div>
+
+  <p>解法是先寫一行<strong>函式原型</strong>（function prototype），把回傳型別、名稱、參數型別交代清楚，結尾用分號。這一行就是宣告；有函式本體的那一份才是定義。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">加一行宣告就過了</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);               <span class="com">// 宣告（函式原型）：先告訴編譯器它長什麼樣</span>
+<span class="line" data-l="5"></span></span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">square(5) = </span><span class="str">"</span> &lt;&lt; square(<span class="num">5</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {              <span class="com">// 定義：實際的程式碼可以擺在後面</span>
+<span class="line" data-l="12"></span>    <span class="kw">return</span> n * n;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>square(5) = 25</pre></div>
+  <p class="dx-note">宣告只需要<strong>型別</strong>，參數名可以省略：<code>int square(int);</code> 一樣合法。編譯器要的是「呼叫時該推幾個什麼型別的東西進去、回傳幾個 byte」，參數叫什麼跟它無關。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>宣告 declaration</th><th>定義 definition</th></tr></thead>
+    <tbody>
+      <tr><td>長相</td><td class="mono">int square(int n);</td><td class="mono">int square(int n) { ... }</td></tr>
+      <tr><td>作用</td><td>告訴編譯器這個名字的長相</td><td>提供實際的程式碼</td></tr>
+      <tr><td>可以出現幾次</td><td>幾次都行</td><td><strong>整個程式只能一次</strong></td></tr>
+      <tr><td>放哪個檔</td><td class="mono">.hpp</td><td class="mono">.cpp</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼課程的 dscpp 全部塞在 .hpp 裡</div>
+    <p style="margin-bottom:0;">一般的分工是宣告放標頭檔、定義放 <code>.cpp</code>，別人 <code>#include</code> 你的標頭檔就知道怎麼呼叫。但課程的 <code>dscpp/</code> 全部是 <code>template</code>：樣板要等到你寫出 <code>Stack&lt;int&gt;</code> 那一刻編譯器才知道要生哪一版程式碼，所以樣板的定義必須跟宣告放在同一個標頭檔裡。這就是為什麼 <code>linked_list.hpp</code> 裡連函式本體都在。</p>
+  </div>
+</section>
+
+<section id="byvalue">
+  <div class="section-number">PART 02 · 傳值</div>
+  <h2>傳值：函式拿到的是<strong>副本</strong></h2>
+  <p><code>void f(int n)</code> 這種寫法叫傳值（pass by value）。呼叫的瞬間，編譯器把你給的東西<strong>整個抄一份</strong>放進函式的參數裡。函式接下來怎麼折騰那份副本，外面那個都不會知道。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">addOne</span>(<span class="kw">int</span> v) {     <span class="com">// v 是一份全新的副本</span>
+<span class="line" data-l="2"></span>    v = v + <span class="num">1</span>;           <span class="com">// 改的是副本</span>
+<span class="line" data-l="3"></span>}                        <span class="com">// 函式結束，副本消失</span>
+<span class="line" data-l="4"></span></span>
+<span class="line" data-l="5"><span class="kw">int</span> score = <span class="num">60</span>;</span>
+<span class="line" data-l="6">addOne(score);           <span class="com">// score 還是 60</span>
+<span class="line" data-l="7"></span></span></div>
+
+  <p>這個規則沒有例外，而且對<strong>物件</strong>也一樣。物件被複製時，編譯器會呼叫它的<strong>複製建構式</strong>（copy constructor）。下面這支程式把複製這件事印出來給你看。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">複製是有成本的，而且成本看得見</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Big {</span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        Big(<span class="kw">int</span> id) { tag = id; cout &lt;&lt; <span class="str">"</span><span class="str">  [建構] Big </span><span class="str">"</span> &lt;&lt; tag &lt;&lt; endl; }</span>
+<span class="line" data-l="7">        Big(<span class="kw">const</span> Big &amp;other) {                 <span class="com">// 複製建構式</span>
+<span class="line" data-l="8"></span>            tag = other.tag;</span>
+<span class="line" data-l="9">            cout &lt;&lt; <span class="str">"</span><span class="str">  [複製] 又抄了一份 Big </span><span class="str">"</span> &lt;&lt; tag &lt;&lt; <span class="str">"</span><span class="str"> ← 這行就是成本</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">        }</span>
+<span class="line" data-l="11">        <span class="kw">int</span> getTag() <span class="kw">const</span> { <span class="kw">return</span> tag; }</span>
+<span class="line" data-l="12">    <span class="kw">private</span>:</span>
+<span class="line" data-l="13">        <span class="kw">int</span> tag;</span>
+<span class="line" data-l="14">};</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">void</span> <span class="fn">byValue</span>(Big b)        { cout &lt;&lt; <span class="str">"</span><span class="str">  函式裡看到 </span><span class="str">"</span> &lt;&lt; b.getTag() &lt;&lt; endl; }</span>
+<span class="line" data-l="17"><span class="kw">void</span> <span class="fn">byConstRef</span>(<span class="kw">const</span> Big &amp;b) { cout &lt;&lt; <span class="str">"</span><span class="str">  函式裡看到 </span><span class="str">"</span> &lt;&lt; b.getTag() &lt;&lt; endl; }</span>
+<span class="line" data-l="18"> </span>
+<span class="line" data-l="19"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="20">    Big item(<span class="num">7</span>);</span>
+<span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">呼叫 byValue(item):</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="22">    byValue(item);</span>
+<span class="line" data-l="23">    cout &lt;&lt; <span class="str">"</span><span class="str">呼叫 byConstRef(item):</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="24">    byConstRef(item);</span>
+<span class="line" data-l="25">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="26">}</span>
+<span class="line" data-l="27"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  [建構] Big 7
+呼叫 byValue(item):
+  [複製] 又抄了一份 Big 7 ← 這行就是成本
+  函式裡看到 7
+呼叫 byConstRef(item):
+  函式裡看到 7</pre></div>
+  <p class="dx-note"><code>byValue(item)</code> 那一行觸發了一次 <strong>[複製]</strong>。這裡只是一個 <code>int</code> 成員，所以看不出痛；換成一個裝了十萬個元素的 <code>vector</code>，這一行就是十萬次複製。第二個函式收 <code>const Big &amp;</code>，一次複製都沒有——那是 PART 05 的主題。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>傳值的時機</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>參數是 <code>int</code>、<code>double</code>、<code>char</code>、<code>bool</code> 這種小東西</td><td>複製 4 到 8 個 byte 比繞位址還快</td></tr>
+      <tr><td>函式<strong>本來就想要一份自己的</strong>，改了不該影響呼叫端</td><td>複製本身就是你要的效果</td></tr>
+      <tr><td class="mono" style="color:var(--accent);">大物件</td><td style="color:var(--accent);">別用傳值。用 <code>const T&amp;</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 Python 沒有這個問題，但也沒有這個選擇</div>
+    <p style="margin-bottom:0;">Python 傳的一律是物件的參考，所以一個 list 傳進函式，函式裡 <code>append</code> 一下外面就跟著變；整數則因為不可變而看起來像傳值。C++ 把這件事交給你在參數列上明講：抄一份、還是給本人。講清楚的代價是多打幾個字，好處是讀程式的人光看簽章就知道這個函式會不會動到你的資料。</p>
+  </div>
+</section>
+
+<section id="byref">
+  <div class="section-number">PART 03 · 傳參考</div>
+  <h2>傳參考：同一個東西的另一個名字 <span class="sec-badge">課程用 57 次</span></h2>
+  <p><code>int &amp;r = x;</code> 讀作「r 是 x 的參考」。它不配置新的記憶體，也不存位址，它就是<strong>編譯器層級的一個別名</strong>。從此以後寫 <code>r</code> 跟寫 <code>x</code> 完全等價。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">參考與本尊住同一個門牌</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">10</span>;</span>
+<span class="line" data-l="6">    <span class="kw">int</span> &amp;r = x;              <span class="com">// r 不是新變數，它就是 x 的另一個名字</span>
+<span class="line" data-l="7"></span></span>
+<span class="line" data-l="8">    r = <span class="num">99</span>;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">改了 r 之後 x = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; endl;</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">x 的位址 = </span><span class="str">"</span> &lt;&lt; &amp;x &lt;&lt; endl;</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">r 的位址 = </span><span class="str">"</span> &lt;&lt; &amp;r &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 完全一樣</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">sizeof(x)=</span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(x) &lt;&lt; <span class="str">"</span><span class="str">  sizeof(r)=</span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(r) &lt;&lt; endl;</span>
+<span class="line" data-l="14">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>改了 r 之後 x = 99
+x 的位址 = 0x7ffe931b930c
+r 的位址 = 0x7ffe931b930c   &lt;- 完全一樣
+sizeof(x)=4  sizeof(r)=4</pre></div>
+  <p class="dx-note">兩個位址一模一樣，<code>sizeof</code> 也一樣是 4——因為 <code>r</code> 根本沒有自己的身體。對照 <a href='p4_pointers_memory.html'>P4</a> 的指標：指標自己佔 8 個 byte，參考佔 0 個。</p>
+</div>
+
+  <p>參數列上寫 <code>T&amp;</code>，函式收到的就是呼叫端那個變數本人：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">一個 &amp; 的差別</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">addOneWrong</span>(<span class="kw">int</span> v)  { v = v + <span class="num">1</span>; }     <span class="com">// 漏了 &amp;</span>
+<span class="line" data-l="5"></span><span class="kw">void</span> <span class="fn">addOneRight</span>(<span class="kw">int</span> &amp;v) { v = v + <span class="num">1</span>; }     <span class="com">// 有 &amp;</span>
+<span class="line" data-l="6"></span></span>
+<span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="8">    <span class="kw">int</span> score = <span class="num">60</span>;</span>
+<span class="line" data-l="9">    addOneWrong(score);</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">呼叫 addOneWrong 之後: </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
+<span class="line" data-l="11">    addOneRight(score);</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">呼叫 addOneRight 之後: </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>呼叫 addOneWrong 之後: 60
+呼叫 addOneRight 之後: 61</pre></div>
+  <p class="dx-note">兩個函式的本體完全相同，只有參數列差一個 <code>&amp;</code>，結果一個做白工、一個真的加到了。編譯這支程式時 g++ 一個字都不會抱怨——<code>addOneWrong</code> 在語法上完全合法，它只是沒有用。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>傳值 <code>void f(T x)</code></th><th>傳參考 <code>void f(T&amp; x)</code></th></tr></thead>
+    <tbody>
+      <tr><td>函式拿到什麼</td><td>一份副本</td><td>呼叫端那個變數本人</td></tr>
+      <tr><td>改得動外面嗎</td><td><strong>改不動</strong></td><td><strong>改得動</strong></td></tr>
+      <tr><td>複製成本</td><td>整個物件抄一遍</td><td>零</td></tr>
+      <tr><td>呼叫端寫法</td><td class="mono">f(x);</td><td class="mono">f(x);　← 看不出差別</td></tr>
+      <tr><td>可以傳 3、傳 a+b 嗎</td><td>可以</td><td><strong>不行</strong>，非 const 參考只收得下有名字的變數</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 呼叫端看不出來</div>
+    <p style="margin-bottom:0;"><code>f(x);</code> 這一行，無論 <code>f</code> 收的是值還是參考，寫法完全一樣。所以<strong>你必須去看函式簽章</strong>才知道自己的變數會不會被改掉。指標就沒這個問題：<code>f(&amp;x)</code> 那個 <code>&amp;</code> 明擺在呼叫端。這是下一節要談的取捨。</p>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 少了一個符號</div>
+    <p>第 07 章的氣泡排序寫成 <code>void bubbleSort(vector&lt;int&gt; v)</code>（沒有 <code>&amp;</code>），主程式呼叫 <code>bubbleSort(data);</code> 之後印出 <code>data</code>。會看到什麼？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="不會編譯錯。傳值版在語法上完全合法，這正是它危險的地方：你要跑起來、印出來才會發現不對。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 編譯錯誤</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。函式確實把那份副本排得整整齊齊，然後在 return 的瞬間把副本丟掉。原本的 data 一根寒毛都沒動。而且整個 vector 還被完整複製了一次，白花的成本是 O(n)。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 原本的順序，完全沒排到</div>
+      <div class="quiz-opt" data-correct="false" data-fb="排序結果留在副本裡了，呼叫端拿不到。函式沒有回傳值，那份排好的資料就這樣消失。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 排好序的結果</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不會當掉。傳值是安全的操作，它只是沒有達到你要的效果，而這種「安靜地做錯」比當掉難抓多了。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> 執行時當掉</div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05、07 章</div><p style='margin-bottom:0;'>第 07 章 <code>dscpp/sorting.hpp</code> 裡每一支排序都是 <code>void bubbleSort(vector&lt;int&gt;&amp; v)</code>、<code>void mergeSort(vector&lt;int&gt;&amp; v)</code>——它們沒有回傳值，全靠那個 <code>&amp;</code> 就地改動你的資料。第 05 章的 <code>Stack</code> 與 <code>Queue</code> 也一樣：<code>push()</code> 收到的參數要能存進物件裡，物件本身則靠 <code>this</code> 被改動。這 57 個 <code>&amp;</code> 有一半以上長在排序上。</p></div>
+</section>
+
+<section id="byptr">
+  <div class="section-number">PART 04 · 傳指標</div>
+  <h2>傳指標：明著把位址交出去</h2>
+  <p>第三種寫法是 <code>void f(T* p)</code>，呼叫時寫 <code>f(&amp;x)</code>。函式收到一個位址，用 <code>*p</code> 走進去改。效果跟傳參考一樣，多的是兩件事：<strong>它可以是 <code>NULL</code>，而且可以中途改指向別的東西</strong>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">指標做得到、參考做不到的兩件事</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">tryFill</span>(<span class="kw">int</span> *p) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (p == <span class="fn">NULL</span>) {                 <span class="com">// 指標可以是 NULL，所以要檢查</span>
+<span class="line" data-l="6"></span>        cout &lt;&lt; <span class="str">"</span><span class="str">  收到 NULL，什麼都不做</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="7">        <span class="kw">return</span>;</span>
+<span class="line" data-l="8">    }</span>
+<span class="line" data-l="9">    *p = <span class="num">42</span>;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">void</span> <span class="fn">mustFill</span>(<span class="kw">int</span> &amp;r) {              <span class="com">// 參考保證後面有東西，不用檢查</span>
+<span class="line" data-l="13"></span>    r = <span class="num">42</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="17">    <span class="kw">int</span> a = <span class="num">0</span>;</span>
+<span class="line" data-l="18">    tryFill(&amp;a);   cout &lt;&lt; <span class="str">"</span><span class="str">tryFill(&amp;a)  之後 a = </span><span class="str">"</span> &lt;&lt; a &lt;&lt; endl;</span>
+<span class="line" data-l="19">    tryFill(<span class="fn">NULL</span>); cout &lt;&lt; <span class="str">"</span><span class="str">傳 NULL 進去也不會當掉</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">    <span class="kw">int</span> b = <span class="num">0</span>;</span>
+<span class="line" data-l="22">    mustFill(b);   cout &lt;&lt; <span class="str">"</span><span class="str">mustFill(b)  之後 b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; endl;</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24">    <span class="kw">int</span> c = <span class="num">1</span>, d = <span class="num">2</span>;</span>
+<span class="line" data-l="25">    <span class="kw">int</span> *p = &amp;c;</span>
+<span class="line" data-l="26">    p = &amp;d;                          <span class="com">// 指標可以改指向別的東西</span>
+<span class="line" data-l="27"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">p 改指向 d 之後 *p = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="29">}</span>
+<span class="line" data-l="30"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>tryFill(&amp;a)  之後 a = 42
+  收到 NULL，什麼都不做
+傳 NULL 進去也不會當掉
+mustFill(b)  之後 b = 42
+p 改指向 d 之後 *p = 2</pre></div>
+  <p class="dx-note"><code>tryFill(NULL)</code> 是合法呼叫，函式自己檢查後安全退場。參考沒有「空參考」這種東西，所以 <code>mustFill</code> 不必檢查——<strong>參考在型別上就保證了後面有東西</strong>。最後兩行則是指標的另一個能力：換一個目標。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>參考 <code>T&amp;</code></th><th>指標 <code>T*</code></th></tr></thead>
+    <tbody>
+      <tr><td>可以是「沒有」嗎</td><td>不行，一定綁著某個東西</td><td>可以，就是 <code>NULL</code></td></tr>
+      <tr><td>綁定之後能改嗎</td><td><strong>不行</strong>，一輩子只認一個</td><td>可以隨時改指向別的</td></tr>
+      <tr><td>取值怎麼寫</td><td class="mono">r</td><td class="mono">*p</td></tr>
+      <tr><td>呼叫端怎麼寫</td><td class="mono">f(x);</td><td class="mono">f(&amp;x);</td></tr>
+      <tr><td>自己佔記憶體嗎</td><td>不佔</td><td>佔，通常 8 bytes</td></tr>
+      <tr><td>這門課用在哪</td><td>參數與回傳（57 次）</td><td><strong>節點與資料結構本身</strong>（145 次）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 選哪一個</div>
+    <p style="margin-bottom:0;"><strong>預設用參考。</strong>只有在「這個參數可以是沒有」或「函式要換掉它指向的目標」時才用指標。第 04 章的 <code>remove()</code> 屬於前者，稍後就會看到。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">三種傳法，一次看清楚</h3>
+  <p>下面這個逐步器跑的就是開場那支程式。左邊是兩個函式框（呼叫端與被呼叫端）在記憶體裡的樣子，右邊的程式碼會同步高亮。三個按鈕換傳法，注意<strong>被呼叫端那兩格是新的還是舊的</strong>。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="swapStage" style="min-height:260px;"></div>
+        <div class="status-banner" id="swapStatus"><span class="status-icon">›</span><span class="status-text">選一種傳法開始。三個版本的函式本體完全一樣。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="swapStart('val')">▶ 傳值</button>
+          <button class="btn btn-play" onclick="swapStart('ref')">▶ 傳參考</button>
+          <button class="btn btn-play" onclick="swapStart('ptr')">▶ 傳指標</button>
+          <button class="btn btn-step" onclick="swapPlayer &amp;&amp; swapPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="swapReset()">⟲ 重設</button>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="swapCodeVal" style="font-size:.74rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">swapByValue</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> t = a;</span>
+<span class="line" data-l="3">    a = b;</span>
+<span class="line" data-l="4">    b = t;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> x = <span class="num">3</span>, y = <span class="num">7</span>;</span>
+<span class="line" data-l="8">swapByValue(x, y);</span>
+<span class="line" data-l="9"> </span></div>
+        <div class="pseudo-code" id="swapCodeRef" style="font-size:.74rem;display:none;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">swapByRef</span>(<span class="kw">int</span> &amp;a, <span class="kw">int</span> &amp;b) {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> t = a;</span>
+<span class="line" data-l="3">    a = b;</span>
+<span class="line" data-l="4">    b = t;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> x = <span class="num">3</span>, y = <span class="num">7</span>;</span>
+<span class="line" data-l="8">swapByRef(x, y);</span>
+<span class="line" data-l="9"> </span></div>
+        <div class="pseudo-code" id="swapCodePtr" style="font-size:.74rem;display:none;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">swapByPtr</span>(<span class="kw">int</span> *a, <span class="kw">int</span> *b) {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> t = *a;</span>
+<span class="line" data-l="3">    *a = *b;</span>
+<span class="line" data-l="4">    *b = t;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> x = <span class="num">3</span>, y = <span class="num">7</span>;</span>
+<span class="line" data-l="8">swapByPtr(&amp;x, &amp;y);</span>
+<span class="line" data-l="9"> </span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">看哪裡 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><strong>傳值</strong>：callee 那格是新配的，位址不同。<br>
+        <strong>傳參考</strong>：callee 那格根本沒有新配，<code>a</code> 只是 <code>x</code> 的另一個標籤。<br>
+        <strong>傳指標</strong>：callee 多了兩格，裡面裝的是 <code>x</code> 和 <code>y</code> 的門牌。</p>
+      </div>
+    </div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04 章</div><p style='margin-bottom:0;'><code>dscpp/linked_list.hpp</code> 的 <code>remove(T item)</code> 要一邊走訪一邊記住前一個節點：<code>Node&lt;T&gt; *current = head; Node&lt;T&gt; *previous = NULL;</code>。<code>previous</code> 一開始<strong>刻意</strong>是 <code>NULL</code>，因為第一個節點沒有前一個；刪除時就靠 <code>if (previous == NULL)</code> 分辨「刪的是不是頭」。這個「可以是沒有」的語意，參考做不到，只能用指標。</p></div>
+</section>
+
+<section id="constref">
+  <div class="section-number">PART 05 · const 參考</div>
+  <h2><code>const T&amp;</code>：不複製，也不讓你改</h2>
+  <p>前面兩節留了一個矛盾：傳值太貴，傳參考又讓函式有能力改動你的資料。<code>const T&amp;</code> 把兩邊的好處都拿走了——參數不複製，而且編譯器保證函式碰不了它。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">print</span>(<span class="kw">const</span> string &amp;s) {   <span class="com">// 不複製、不能改</span>
+<span class="line" data-l="2"></span>    cout &lt;&lt; s &lt;&lt; endl;</span>
+<span class="line" data-l="3">    <span class="com">// s = "x";                    // 這行會編譯錯</span>
+<span class="line" data-l="4"></span>}</span>
+<span class="line" data-l="5"> </span></div>
+
+<div class="deck-extra">
+  <div class="dx-label">試著改一個 const 參考</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">peek</span>(<span class="kw">const</span> <span class="kw">int</span> &amp;v) {</span>
+<span class="line" data-l="5">    v = <span class="num">99</span>;                 <span class="com">// const 參考不准改</span>
+<span class="line" data-l="6"></span>}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    <span class="kw">int</span> x = <span class="num">3</span>;</span>
+<span class="line" data-l="10">    peek(x);</span>
+<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘void peek(const int&amp;)’:
+cell.cpp:5:7: error: assignment of read-only reference ‘v’
+    5 |     v = 99;                 // const 參考不准改</pre></div>
+  <p class="dx-note"><code>error: assignment of read-only reference</code>。這是<strong>編譯期</strong>就擋下來的，不是跑到一半才出事。<code>const</code> 在 C++ 是一個會被檢查的承諾，不是註解。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">三種傳法的決策表（本頁核心）</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>你想做的事</th><th>寫法</th><th>複製嗎</th><th>改得動嗎</th></tr></thead>
+    <tbody>
+      <tr><td>參數很小，函式想要一份自己的</td><td class="mono">void f(int n)</td><td>會</td><td>只改副本</td></tr>
+      <tr><td><strong>要改動呼叫端的資料</strong></td><td class="mono">void f(T&amp; x)</td><td>不會</td><td>會</td></tr>
+      <tr><td><strong>只是要讀一個大物件</strong></td><td class="mono">void f(const T&amp; x)</td><td>不會</td><td>不會</td></tr>
+      <tr><td>參數可能是「沒有」，或要換目標</td><td class="mono">void f(T* p)</td><td>不會</td><td>會</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>第三列是<strong>傳大物件的標準做法</strong>。看到 <code>const vector&lt;int&gt;&amp; v</code> 這種簽章不用緊張，它只是在說「我要看你的資料，我保證不動它，而且我不想抄一份」。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">順帶解釋：為什麼 getter 要寫 <code>const</code></h3>
+  <p>成員函式的參數列後面也可以掛一個 <code>const</code>，例如 <code>int getNum() const</code>。它的意思是「這個函式不會動到物件的任何成員」。乍看多此一舉，直到你想把物件用 <code>const T&amp;</code> 傳出去：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">getter 有 const，const 參考才用得下去</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Fraction {</span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        Fraction(<span class="kw">int</span> t, <span class="kw">int</span> b) { num = t; den = b; }</span>
+<span class="line" data-l="7">        <span class="kw">int</span> getNum() <span class="kw">const</span> { <span class="kw">return</span> num; }      <span class="com">// const：保證不動到成員</span>
+<span class="line" data-l="8"></span>        <span class="kw">int</span> getDen() <span class="kw">const</span> { <span class="kw">return</span> den; }</span>
+<span class="line" data-l="9">    <span class="kw">private</span>:</span>
+<span class="line" data-l="10">        <span class="kw">int</span> num, den;</span>
+<span class="line" data-l="11">};</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> Fraction &amp;f) {                  <span class="com">// 收 const 參考：不複製也不改</span>
+<span class="line" data-l="14"></span>    cout &lt;&lt; f.getNum() &lt;&lt; <span class="str">"</span><span class="str">/</span><span class="str">"</span> &lt;&lt; f.getDen() &lt;&lt; endl;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="18">    Fraction half(<span class="num">1</span>, <span class="num">2</span>);</span>
+<span class="line" data-l="19">    show(half);</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1/2</pre></div>
+  <p class="dx-note"><code>show</code> 收的是 <code>const Fraction &amp;</code>，所以它手上的 <code>f</code> 是唯讀的。唯讀物件<strong>只准呼叫承諾過不改東西的成員函式</strong>，也就是尾巴有 <code>const</code> 的那些。</p>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">把 getter 的 const 拿掉，同一支程式就編不過</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Fraction {</span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        Fraction(<span class="kw">int</span> t, <span class="kw">int</span> b) { num = t; den = b; }</span>
+<span class="line" data-l="7">        <span class="kw">int</span> getNum() { <span class="kw">return</span> num; }            <span class="com">// 忘記寫 const</span>
+<span class="line" data-l="8"></span>    <span class="kw">private</span>:</span>
+<span class="line" data-l="9">        <span class="kw">int</span> num, den;</span>
+<span class="line" data-l="10">};</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> Fraction &amp;f) {</span>
+<span class="line" data-l="13">    cout &lt;&lt; f.getNum() &lt;&lt; endl;                 <span class="com">// const 物件不能呼叫非 const 成員函式</span>
+<span class="line" data-l="14"></span>}</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="17">    Fraction half(<span class="num">1</span>, <span class="num">2</span>);</span>
+<span class="line" data-l="18">    show(half);</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘void show(const Fraction&amp;)’:
+cell.cpp:13:21: error: passing ‘const Fraction’ as ‘this’ argument discards qualifiers [-fpermissive]
+   13 |     cout &lt;&lt; f.getNum() &lt;&lt; endl;                 // const 物件不能呼叫非 const 成員函式</pre></div>
+  <p class="dx-note"><code>discards qualifiers</code> 的意思是「你想把一個唯讀物件當成可寫的用」。所以規則很簡單：<strong>getter 一律加 <code>const</code></strong>，否則你的類別沒辦法用 <code>const T&amp;</code> 傳遞，等於逼所有人都得複製。</p>
+</div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">C++11 之後還有移動語意（move semantics）與 <code>T&amp;&amp;</code>，讓「回傳一個大物件」也能不複製。<strong>本課照 cppds，考試以課程風格為準</strong>：需要就地改動就用 <code>T&amp;</code>，只讀就用 <code>const T&amp;</code>，這兩招足以應付九章的全部程式碼。</p>
+  </div>
+</section>
+
+<section id="retval">
+  <div class="section-number">PART 06 · 回傳</div>
+  <h2>回傳：可以給值，可以給參考，就是不能給死掉的東西</h2>
+  <p>回傳值跟傳值是同一件事的反方向：<code>return x;</code> 會把 <code>x</code> 複製一份交給呼叫端，所以就算 <code>x</code> 是函式的區域變數也沒關係，函式結束時死的是原件，副本已經送出去了。</p>
+  <p>回傳參考 <code>T&amp;</code> 就不一樣了。它交出去的是「那個東西本人」，所以那個東西必須在函式結束後還活著。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">回傳參考的正當用法：指向的是成員，不是區域變數</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Counter {</span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        Counter() { n = <span class="num">0</span>; }</span>
+<span class="line" data-l="7">        <span class="kw">int</span> &amp;value() { <span class="kw">return</span> n; }        <span class="com">// 回傳參考：指向的是成員，不是區域變數</span>
+<span class="line" data-l="8"></span>    <span class="kw">private</span>:</span>
+<span class="line" data-l="9">        <span class="kw">int</span> n;</span>
+<span class="line" data-l="10">};</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="13">    Counter c;</span>
+<span class="line" data-l="14">    c.value() = <span class="num">5</span>;                        <span class="com">// 回傳參考，所以可以放在等號左邊</span>
+<span class="line" data-l="15"></span>    c.value() += <span class="num">3</span>;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">c.value() = </span><span class="str">"</span> &lt;&lt; c.value() &lt;&lt; endl;</span>
+<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="18">}</span>
+<span class="line" data-l="19"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>c.value() = 8</pre></div>
+  <p class="dx-note"><code>value()</code> 回傳的參考綁在成員 <code>n</code> 上，而 <code>n</code> 的壽命跟物件一樣長。所以 <code>c.value() = 5;</code> 這種「函式呼叫出現在等號左邊」的寫法是合法的，第 03 章你自己寫 <code>ArrayList</code> 的 <code>operator[]</code> 時就會用到這一招。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent);">絕對不能做的事</h3>
+  <p>回傳區域變數的<strong>位址</strong>或<strong>參考</strong>。區域變數住在呼叫堆疊上，函式一 <code>return</code>，那塊空間就還給系統了，你交出去的是一張過期的門牌。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">g++ 有警告，而且是預設就開的</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> *<span class="fn">makeNumber</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> local = <span class="num">1234</span>;        <span class="com">// 住在堆疊上，函式一結束就沒了</span>
+<span class="line" data-l="6"></span>    <span class="kw">return</span> &amp;local;           <span class="com">// 回傳一個馬上要失效的位址</span>
+<span class="line" data-l="7"></span>}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="10">    <span class="kw">int</span> *p = makeNumber();</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">p 拿到的位址 = </span><span class="str">"</span> &lt;&lt; p &lt;&lt; endl;</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">順著它讀出來 = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">g++ 的警告</span><pre>cell.cpp: In function ‘int* makeNumber()’:
+cell.cpp:6:12: warning: address of local variable ‘local’ returned [-Wreturn-local-addr]
+    6 |     return &amp;local;           // 回傳一個馬上要失效的位址
+      |            ^~~~~~
+cell.cpp:5:9: note: declared here
+    5 |     int local = 1234;        // 住在堆疊上，函式一結束就沒了
+      |         ^~~~~</pre></div>
+  <p class="dx-note"><code>-Wreturn-local-addr</code> 這個警告不需要 <code>-Wall</code> 就會出現。<strong>看到 warning 不要跳過</strong>——C++ 的警告訊息裡，這一類幾乎百分之百是真的錯。</p>
+</div>
+
+  <div class="deck-extra">
+    <div class="dx-label">那它跑起來會怎樣？</div>
+    <div class="expected-out"><span class="eo-tag">實際執行輸出</span><pre>p 拿到的位址 = 0
+
+[執行結束碼 -11]</pre></div>
+    <p class="dx-note">g++ 發現你回傳一個必死的位址，乾脆<strong>直接把它換成 0</strong>，於是印出來的位址是 <code>0</code>，接著解參考一個空位址，程式收到 SIGSEGV（結束碼 −11）當場結束。換一個編譯器、換一個最佳化等級，你可能會看到 1234、看到垃圾值、看到程式若無其事地跑完。<strong>未定義行為的意思就是連結果都不保證一致</strong>，所以你沒辦法靠「我試過了，可以跑」來證明它是對的。</p>
+  </div>
+
+  <p>需要一個活得比函式久的東西，就把它配在堆積上，然後講清楚誰負責 <code>delete</code>：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">要活得久，就 new 在堆積上</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> *<span class="fn">makeNumberOK</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> *p = <span class="kw">new</span> <span class="kw">int</span>(<span class="num">1234</span>);  <span class="com">// 配在堆積上，函式結束也不會消失</span>
+<span class="line" data-l="6"></span>    <span class="kw">return</span> p;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="10">    <span class="kw">int</span> *p = makeNumberOK();</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">讀出來 = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="12">    <span class="kw">delete</span> p;                <span class="com">// 呼叫端負責還</span>
+<span class="line" data-l="13"></span>    p = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="14">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>讀出來 = 1234</pre></div>
+  <p class="dx-note"><code>new</code> 出來的東西不歸呼叫堆疊管，函式結束也不會消失。代價是<strong>呼叫端必須記得 <code>delete</code></strong>——這就是第 04 章串列的節點所有權模型。<code>new</code>／<code>delete</code> 的細節在 <a href='p4_pointers_memory.html'>P4</a>。</p>
+</div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、09 章</div><p style='margin-bottom:0;'>第 04 章的 <code>add()</code> 每次都 <code>new</code> 一個 <code>Node&lt;T&gt;</code> 並把指標接進串列，這些節點的壽命必須長過 <code>add()</code> 本身；第 09 章的 <code>BST</code> 插入也是同一套。反過來說，<strong>只要你在函式裡寫 <code>Node&lt;T&gt; temp;</code>（沒有 <code>new</code>）再回傳它的位址，那棵樹就毀了</strong>。三種傳法與回傳的規則在 <a href='p4_pointers_memory.html'>P4</a> 會從記憶體佈局再看一次。</p></div>
+</section>
+
+<section id="overload">
+  <div class="section-number">PART 07 · 多載與預設引數</div>
+  <h2>同一個名字，好幾種呼叫法</h2>
+  <p>C++ 允許好幾個函式共用一個名字，只要<strong>參數的個數或型別不同</strong>就行。編譯器會依照你呼叫時給的東西挑一個，這叫<strong>函式多載</strong>（function overloading）。挑選只看參數，<strong>回傳型別不算</strong>——兩個函式只有回傳型別不同的話會直接編譯錯。</p>
+
+  <p>課程第 01 章的 <code>Fraction</code> 就是靠多載提供三種建立方式：</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Fraction {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        Fraction(<span class="kw">int</span> top, <span class="kw">int</span> bottom);   <span class="com">// 兩個引數：3/4</span>
+<span class="line" data-l="4"></span>        Fraction(<span class="kw">int</span> top);               <span class="com">// 一個引數：5/1</span>
+<span class="line" data-l="5"></span>        Fraction();                      <span class="com">// 沒有引數：1/1</span>
+<span class="line" data-l="6"></span>};</span>
+<span class="line" data-l="7"> </span></div>
+
+<div class="deck-extra">
+  <div class="dx-label">三個建構式都是同一個名字（引用課程的 fraction.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"fraction.hpp"</span><span class="kw"></span>
+<span class="line" data-l="2"></span></span>
+<span class="line" data-l="3"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="4">    Fraction a(<span class="num">3</span>, <span class="num">4</span>);      <span class="com">// 兩個引數</span>
+<span class="line" data-l="5"></span>    Fraction b(<span class="num">5</span>);         <span class="com">// 一個引數：5/1</span>
+<span class="line" data-l="6"></span>    Fraction c;            <span class="com">// 沒有引數：1/1</span>
+<span class="line" data-l="7"></span></span>
+<span class="line" data-l="8">    cout &lt;&lt; a &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; b &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; c &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">a + b = </span><span class="str">"</span> &lt;&lt; a + b &lt;&lt; endl;</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3/4  5/1  1/1
+a + b = 23/4</pre></div>
+  <p class="dx-note">三行宣告分別挑中三個不同的建構式。這支程式直接 <code>#include &quot;fraction.hpp&quot;</code>，用的就是課程 <code>dscpp/</code> 底下那一份，沒有另外抄。順帶一提，<code>a + b</code> 能寫成這樣是因為 <code>Fraction</code> 也多載了 <code>operator+</code>。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">預設引數</h3>
+  <p>另一條路是給參數一個預設值，呼叫時可以省略：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">省略的參數自動吃預設值</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">report</span>(string name, <span class="kw">int</span> score = <span class="num">60</span>, <span class="kw">bool</span> pass = <span class="fn">true</span>) {</span>
+<span class="line" data-l="5">    cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; score &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; (pass ? <span class="str">"</span><span class="str">通過</span><span class="str">"</span> : <span class="str">"</span><span class="str">未通過</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    report(<span class="str">"</span><span class="str">小明</span><span class="str">"</span>, <span class="num">92</span>, <span class="fn">true</span>);</span>
+<span class="line" data-l="10">    report(<span class="str">"</span><span class="str">小華</span><span class="str">"</span>, <span class="num">55</span>);          <span class="com">// pass 用預設值 true</span>
+<span class="line" data-l="11"></span>    report(<span class="str">"</span><span class="str">小美</span><span class="str">"</span>);              <span class="com">// score 與 pass 都用預設值</span>
+<span class="line" data-l="12"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>小明 92 通過
+小華 55 通過
+小美 60 通過</pre></div>
+  <p class="dx-note">三次呼叫分別給了 3、2、1 個引數。省略的部分從左到右對不上就補預設值，所以 <code>report(&quot;小華&quot;, 55)</code> 的 <code>pass</code> 用的是 <code>true</code>。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 預設引數只能靠右邊排</div>
+    <p style="margin-bottom:0;">因為呼叫端是<strong>由左往右</strong>對位的。如果 <code>void f(int a = 1, int b)</code> 合法，那 <code>f(5)</code> 到底是給 <code>a</code> 還是給 <code>b</code>？編譯器不猜，直接拒絕。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">把有預設值的參數放前面，編譯器直接擋下</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">report</span>(<span class="kw">int</span> score = <span class="num">60</span>, string name) {   <span class="com">// 有預設值的參數放前面</span>
+<span class="line" data-l="5"></span>    cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    report(<span class="num">90</span>, <span class="str">"</span><span class="str">小明</span><span class="str">"</span>);</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp:4:36: error: default argument missing for parameter 2 of ‘void report(int, std::string)’
+    4 | void report(int score = 60, string name) {   // 有預設值的參數放前面
+      |                             ~~~~~~~^~~~</pre></div>
+  <p class="dx-note"><code>default argument missing for parameter 2</code>，訊息說得很白：第 2 個參數也得有預設值。規則記成一句話：<strong>有預設值的參數必須排在最後面，而且一路排到底</strong>。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 多載與預設引數會打架</div>
+    <p style="margin-bottom:0;">同時寫 <code>void f(int a)</code> 與 <code>void f(int a, int b = 0)</code>，那 <code>f(3)</code> 兩邊都符合，編譯器會回報 <code>call of overloaded ... is ambiguous</code>。這兩個工具解決的是同一個問題，挑一個用就好。</p>
+  </div>
+</section>
+
+<section id="recursion">
+  <div class="section-number">PART 08 · 遞迴與呼叫堆疊</div>
+  <h2>函式呼叫自己，堆疊上就多一個框</h2>
+  <p>每次呼叫函式，系統會在<strong>呼叫堆疊</strong>（call stack）上開一個新的<strong>堆疊框</strong>（stack frame），裡面放這一次呼叫的參數、區域變數，以及「回去之後要從哪一行繼續」。函式回傳時這個框就被彈掉。遞迴沒有任何特別之處，它只是讓框疊得比較高。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">把進出的順序印出來</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> depth = <span class="num">0</span>;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; depth; i++) cout &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">進入 sumTo(</span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">)</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9">    depth++;</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11">    <span class="kw">int</span> result;</span>
+<span class="line" data-l="12">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="13">        result = n;                   <span class="com">// 基底情形：不再往下叫</span>
+<span class="line" data-l="14"></span>    } <span class="kw">else</span> {</span>
+<span class="line" data-l="15">        result = n + sumTo(n - <span class="num">1</span>);    <span class="com">// 遞迴情形：問題變小一號</span>
+<span class="line" data-l="16"></span>    }</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    depth--;</span>
+<span class="line" data-l="19">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; depth; i++) cout &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span>;</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">離開 sumTo(</span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">) 回傳 </span><span class="str">"</span> &lt;&lt; result &lt;&lt; endl;</span>
+<span class="line" data-l="21">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="22">}</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="25">    <span class="kw">int</span> answer = sumTo(<span class="num">4</span>);</span>
+<span class="line" data-l="26">    cout &lt;&lt; <span class="str">"</span><span class="str">答案 = </span><span class="str">"</span> &lt;&lt; answer &lt;&lt; endl;</span>
+<span class="line" data-l="27">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="28">}</span>
+<span class="line" data-l="29"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>進入 sumTo(4)
+  進入 sumTo(3)
+    進入 sumTo(2)
+      進入 sumTo(1)
+      離開 sumTo(1) 回傳 1
+    離開 sumTo(2) 回傳 3
+  離開 sumTo(3) 回傳 6
+離開 sumTo(4) 回傳 10
+答案 = 10</pre></div>
+  <p class="dx-note">縮排就是堆疊的高度。注意<strong>四個「進入」全部印完，才開始印「離開」</strong>——因為 <code>n + sumTo(n - 1)</code> 這一行必須等右邊算完才能相加，所以 <code>sumTo(4)</code> 的框會一直卡在堆疊上等。這就是為什麼遞迴的空間複雜度是 <code>O(深度)</code>。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="csStage" style="min-height:250px;"></div>
+        <div class="status-banner" id="csStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，看堆疊框怎麼疊上去、又怎麼收回來。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="csStart()">▶ 開始 sumTo(4)</button>
+          <button class="btn btn-step" onclick="csPlayer &amp;&amp; csPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="csReset()">⟲ 重設</button>
+          <span class="mono" style="font-size:.78rem;color:var(--muted);">堆疊上的框：<b id="csDepth">0</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="csCode" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="3">        <span class="kw">return</span> n;</span>
+<span class="line" data-l="4">    }</span>
+<span class="line" data-l="5">    <span class="kw">return</span> n + sumTo(n - <span class="num">1</span>);</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8">cout &lt;&lt; sumTo(<span class="num">4</span>);</span>
+<span class="line" data-l="9"> </span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">兩個必備零件 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><strong>基底情形</strong>：小到不必再遞迴的情況，這裡是 <code>n &lt;= 1</code>。<br>
+        <strong>遞迴情形</strong>：把問題變小一號再交給自己。<br>
+        少了基底情形，或問題沒有真的變小，堆疊就會一直疊上去。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent);">堆疊真的會爆</h3>
+  <p>呼叫堆疊的大小是有上限的，Linux 上預設通常是 8 MB。一個框就算只佔幾十個 byte，疊個幾十萬層也夠了。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同一支函式，換個輸入就當掉</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) <span class="kw">return</span> n;</span>
+<span class="line" data-l="6">    <span class="kw">return</span> n + sumTo(n - <span class="num">1</span>);</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">sumTo(1000)    = </span><span class="str">"</span> &lt;&lt; sumTo(<span class="num">1000</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">sumTo(1000000) = </span><span class="str">"</span> &lt;&lt; sumTo(<span class="num">1000000</span>) &lt;&lt; endl;   <span class="com">// 堆疊撐不住</span>
+<span class="line" data-l="12"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>sumTo(1000)    = 500500
+
+[執行結束碼 -11]</pre></div>
+  <p class="dx-note"><code>sumTo(1000)</code> 好端端地算出 500500，<code>sumTo(1000000)</code> 直接 SIGSEGV（結束碼 −11）。程式沒有一個字寫錯，錯的是<strong>遞迴深度超過堆疊容量</strong>——這就是堆疊溢位（stack overflow）。Python 遇到同樣的狀況會丟 <code>RecursionError</code> 讓你知道；C++ 不管，直接砍。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 遞迴的框裡有什麼</div>
+    <p style="margin-bottom:0;">每個框裝的是<strong>這一次呼叫專屬的</strong>參數與區域變數。所以 <code>sumTo(4)</code> 的 <code>n</code> 跟 <code>sumTo(3)</code> 的 <code>n</code> 是兩個不同的東西，互不干擾。這也回頭解釋了 PART 06：區域變數活在框裡，框一彈掉它就沒了，回傳它的位址當然拿不到東西。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 06、09 章</div><p style='margin-bottom:0;'>第 06 章整章都在練這件事：河內塔、碎形樹、找零錢、還有把堆疊框畫出來的 <code>toStr()</code>。第 09 章的樹走訪則是遞迴最自然的舞台——<code>preorder(node)</code> 先處理自己，再對左右子樹各叫自己一次，走訪一棵高度 h 的樹，堆疊上最多同時有 h 個框。第 05 章還會教你怎麼把遞迴改寫成用一個明確的 <code>Stack</code> 來做，那是同一件事的手動版。</p></div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>再一題確認觀念</h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE · 這個函式錯在哪</div>
+    <p>有人寫了一個「產生節點」的函式：函式裡宣告 <code>Node&lt;int&gt; n(31);</code>，然後 <code>return &amp;n;</code>。呼叫端拿到指標後讀 <code>data</code>。問題是什麼？</p>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="語法完全合法，g++ 會給一個 -Wreturn-local-addr 警告，但還是編得出執行檔。這正是最麻煩的地方：能編、能跑、結果隨機。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 語法錯誤，編不過</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。n 是區域變數，住在這個函式的堆疊框裡，函式一 return 框就被彈掉，交出去的位址立刻失效。這叫懸空指標，屬於未定義行為：可能印出 31、可能印出垃圾、可能當掉。正確做法是用 new 把節點配在堆積上再回傳，並由呼叫端負責 delete。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 回傳了區域變數的位址，函式一結束那塊就失效了</div>
+      <div class="quiz-opt" data-correct="false" data-fb="漏 delete 是記憶體洩漏，那是另一種病。這裡根本沒有 new，問題出在物件的壽命太短。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 忘了寫 delete，會記憶體洩漏</div>
+      <div class="quiz-opt" data-correct="false" data-fb="回傳指標本身沒有問題，第 04 章的串列到處都在回傳節點指標。關鍵在於那個節點是配在哪裡：堆積上的活得下來，堆疊上的活不了。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 函式不該回傳指標</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P3 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">三種傳法對照（整頁最該記住的一張表）</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>傳值 <code>f(T x)</code></th><th>傳參考 <code>f(T&amp; x)</code></th><th>const 參考 <code>f(const T&amp; x)</code></th><th>傳指標 <code>f(T* p)</code></th></tr></thead>
+    <tbody>
+      <tr><td>函式拿到什麼</td><td>副本</td><td>本人的別名</td><td>本人的唯讀別名</td><td>本人的位址</td></tr>
+      <tr><td>改得動呼叫端嗎</td><td>不行</td><td>可以</td><td>不行（編譯期擋）</td><td>可以</td></tr>
+      <tr><td>複製成本</td><td>整個物件</td><td>零</td><td>零</td><td>一個位址（8 bytes）</td></tr>
+      <tr><td>可以是「沒有」嗎</td><td>不行</td><td>不行</td><td>不行</td><td><strong>可以</strong>，<code>NULL</code></td></tr>
+      <tr><td>綁定後能換目標嗎</td><td>—</td><td>不行</td><td>不行</td><td><strong>可以</strong></td></tr>
+      <tr><td>呼叫端寫法</td><td class="mono">f(x);</td><td class="mono">f(x);</td><td class="mono">f(x);</td><td class="mono">f(&amp;x);</td></tr>
+      <tr><td>函式裡取值</td><td class="mono">x</td><td class="mono">x</td><td class="mono">x</td><td class="mono">*p</td></tr>
+      <tr><td>什麼時候用</td><td>小型別</td><td><strong>要就地改</strong></td><td><strong>只讀大物件</strong></td><td>可能沒有、要換目標</td></tr>
+      <tr><td>課程用量</td><td>到處都是</td><td colspan="2">57 個 <code>&amp;</code></td><td>145 個指標宣告</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
+<div class="pseudo-code" style="font-size:.78rem;"><span class="line" data-l="1"><span class="com">// 宣告（原型）：放 .hpp，結尾分號</span>
+<span class="line" data-l="2"></span><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);</span>
+<span class="line" data-l="3"><span class="kw">void</span> <span class="fn">bubbleSort</span>(vector&lt;<span class="kw">int</span>&gt; &amp;v);</span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> Fraction &amp;f);</span>
+<span class="line" data-l="5">Node&lt;<span class="kw">int</span>&gt; *makeNode(<span class="kw">int</span> v);</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="com">// 定義：放 .cpp（樣板則跟宣告一起放 .hpp）</span>
+<span class="line" data-l="8"></span><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="9">    <span class="kw">return</span> n * n;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="com">// 多載：參數不同就行，回傳型別不算</span>
+<span class="line" data-l="13"></span><span class="kw">int</span>  <span class="fn">area</span>(<span class="kw">int</span> side);</span>
+<span class="line" data-l="14"><span class="kw">int</span>  <span class="fn">area</span>(<span class="kw">int</span> w, <span class="kw">int</span> h);</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="com">// 預設引數：只能靠右邊排，而且一路排到底</span>
+<span class="line" data-l="17"></span><span class="kw">void</span> <span class="fn">report</span>(string name, <span class="kw">int</span> score = <span class="num">60</span>, <span class="kw">bool</span> pass = <span class="fn">true</span>);</span>
+<span class="line" data-l="18"> </span>
+<span class="line" data-l="19"><span class="com">// 成員函式的 const：承諾不改動任何成員，getter 一律加</span>
+<span class="line" data-l="20"></span><span class="kw">class</span> Fraction {</span>
+<span class="line" data-l="21">    <span class="kw">public</span>:</span>
+<span class="line" data-l="22">        <span class="kw">int</span> getNum() <span class="kw">const</span> { <span class="kw">return</span> num; }</span>
+<span class="line" data-l="23">    <span class="kw">private</span>:</span>
+<span class="line" data-l="24">        <span class="kw">int</span> num, den;</span>
+<span class="line" data-l="25">};</span>
+<span class="line" data-l="26"> </span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python ↔ C++ 對照</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>你在 Python 怎麼做</th><th>C++ 的對應</th><th>差在哪</th></tr></thead>
+    <tbody>
+      <tr><td>函式定義寫在檔案任何地方都能用</td><td>要先宣告或先定義</td><td>C++ 由上而下編譯一遍，沒見過的名字就是錯</td></tr>
+      <tr><td>參數一律傳物件參考</td><td class="mono">T x / T&amp; x / T* p</td><td>C++ 要你在簽章上明講抄不抄</td></tr>
+      <tr><td>函式裡對 list 做 append，外面跟著變</td><td class="mono">void f(vector&lt;int&gt;&amp; v)</td><td>少了 <code>&amp;</code> 就完全不會變</td></tr>
+      <tr><td>函式裡對整數重新指派，外面不變</td><td class="mono">void f(int n)</td><td>行為剛好一樣，理由不同</td></tr>
+      <tr><td>參數預設值 <code>score=60</code></td><td class="mono">int score = 60</td><td>C++ 規定有預設值的一律排在最後</td></tr>
+      <tr><td>同名函式只能有一個，後蓋前</td><td>多載，同名可以好幾個</td><td>C++ 靠參數型別挑</td></tr>
+      <tr><td>回傳一個區域 list 完全安全</td><td>回傳區域變數的位址是未定義行為</td><td>Python 有垃圾回收，C++ 的堆疊框說收就收</td></tr>
+      <tr><td>遞迴太深丟 RecursionError</td><td>遞迴太深直接 SIGSEGV</td><td>C++ 不幫你檢查深度</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">五條記得住的規則</h3>
+  <div class="info-box green">
+    <p>① 函式要改動呼叫端的資料，參數列一定要有 <code>&amp;</code>。<br>
+    ② 只讀的大物件用 <code>const T&amp;</code>，別用傳值。<br>
+    ③ getter 一律寫 <code>const</code>，否則你的物件沒辦法用 <code>const T&amp;</code> 傳。<br>
+    ④ 參數可能是「沒有」時才用指標，其餘場合優先用參考。<br>
+    ⑤ 永遠不要回傳區域變數的位址或參考。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的 <code>swap</code> 三個版本貼進去單步跑，看兩個函式框裡的方格與箭頭。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/reference" target="_blank" rel="noopener">cppreference · Reference declaration</a></td><td>參考的完整規則，包含它為什麼不能重新綁定。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/default_arguments" target="_blank" rel="noopener">cppreference · Default arguments</a></td><td>預設引數的完整限制。</td></tr>
+      <tr><td><a href="p4_pointers_memory.html">先備 P4 · 陣列、指標與動態記憶體</a></td><td>下一頁。<code>*</code> 與 <code>&amp;</code>、堆疊與堆積、<code>new</code>／<code>delete</code> 的完整版。</td></tr>
+      <tr><td><a href="recursion.html">本站第 06 章 · 遞迴</a></td><td>把 PART 08 的呼叫堆疊實際用起來。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="bankquiz">
+  <div class="section-number">QUIZ · 自我檢測</div>
+  <h2>自我檢測：函式 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+void bump(int n) { n = n + 10; }
+
+int main() {
+    int n = 5;
+    bump(n);
+    cout &lt;&lt; n &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。bump 的參數是 int n，屬於傳值，函式拿到的是一份副本，加 10 加在副本上。函式一結束副本就消失，main 裡的 n 從頭到尾都是 5。C++ 不會警告你這種寫法沒有效果。">5</button>
+      <button class="sq-opt" data-c="0" data-fb="要印出 15，參數必須寫成 int &amp;n 或 int *p。目前的簽章是傳值，函式碰不到 main 裡的那一格。">15</button>
+      <button class="sq-opt" data-c="0" data-fb="函式沒有回傳值，也沒有把結果寫回任何地方，main 裡的 n 完全沒被動過。">10</button>
+      <button class="sq-opt" data-c="0" data-fb="語法完全合法。傳值是最基本的傳法，編譯器不會有任何意見，這正是這個錯誤難抓的原因。">編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>跟上一題的程式只差一個符號，這次印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+void bump(int &amp;n) { n = n + 10; }
+
+int main() {
+    int n = 5;
+    bump(n);
+    cout &lt;&lt; n &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="int &amp;n 是傳參考，函式收到的是 main 裡那個 n 本人，加 10 會直接反映到外面。">5</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。int &amp;n 讓參數變成 main 裡那個 n 的別名，兩者位址相同，所以 n = n + 10 改的就是本尊。第 07 章的排序函式全部靠這一招把結果留在呼叫端。">15</button>
+      <button class="sq-opt" data-c="0" data-fb="起始值是 5，加 10 之後是 15。">10</button>
+      <button class="sq-opt" data-c="0" data-fb="傳參考是合法且常見的寫法。要注意的限制是非 const 參考只收得下有名字的變數，這裡傳的是變數 n，沒有問題。">編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>這段程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+void grow(int *p) { *p = *p * 2; }
+
+int main() {
+    int v = 21;
+    grow(&amp;v);
+    cout &lt;&lt; v &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="grow 收到的是 v 的位址，*p = *p * 2 是順著位址走進去把 v 本人改掉，不是改副本。">21</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。呼叫端寫 grow(&amp;v) 明著把位址交出去，函式用 *p 解參考後直接改動 main 裡的 v。跟傳參考效果相同，差別是指標可以是 NULL、也可以中途改指向別的東西。">42</button>
+      <button class="sq-opt" data-c="0" data-fb="v 的初始值是 21，乘 2 之後是 42。">0</button>
+      <button class="sq-opt" data-c="0" data-fb="印出來的是 v 這個 int，不是指標。位址只存在 grow 的參數 p 裡，main 裡印的是 v 本身。">一個記憶體位址</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>這段程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int f(int a, int b = 2) { return a * b; }
+double f(double a)      { return a + 0.5; }
+
+int main() {
+    cout &lt;&lt; f(3) &lt;&lt; &quot; &quot; &lt;&lt; f(3, 4) &lt;&lt; &quot; &quot; &lt;&lt; f(3.0) &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。f(3) 少給一個引數，b 吃預設值 2，得 6；f(3, 4) 給滿兩個，得 12；f(3.0) 的引數是 double，挑中另一個多載，得 3.5。多載看參數型別與個數，回傳型別不列入判斷。">6 12 3.5</button>
+      <button class="sq-opt" data-c="0" data-fb="f(3) 不是回傳 a 本身，b 用了預設值 2，所以是 3 乘 2。">3 12 3.5</button>
+      <button class="sq-opt" data-c="0" data-fb="f(3.0) 傳的是 double，挑中的是 double f(double a)，回傳 3.5 不是 3。">6 12 3</button>
+      <button class="sq-opt" data-c="0" data-fb="兩個 f 的參數型別不同，多載成立。真正會衝突的是同時寫 f(int) 與 f(int, int = 0)，那時 f(3) 兩邊都符合才會 ambiguous。">編譯錯誤，兩個 f 衝突</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>這個遞迴函式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int mystery(int n) {
+    if (n == 0) return 0;
+    return n % 10 + mystery(n / 10);
+}
+
+int main() {
+    cout &lt;&lt; mystery(9305) &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="函式每次只取個位數 n % 10，再把 n / 10 交給下一層，累加的是各位數字。">9305</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。9 + 3 + 0 + 5 = 17。基底情形是 n == 0，每次呼叫讓問題小一位數，最深疊到 5 個堆疊框（含 n 為 0 的那一層）。這是第 06 章數字轉字串那一類題目的骨架。">17</button>
+      <button class="sq-opt" data-c="0" data-fb="只算了第一層的 n % 10。後面的 mystery(n / 10) 會繼續把剩下的位數加進來。">5</button>
+      <button class="sq-opt" data-c="0" data-fb="n / 10 是整數除法，9305 會依序變成 930、93、9、0，撞到基底情形 n == 0 就停下來。">無窮遞迴</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>一個函式只需要讀取一個很大的 vector，不會改動它。參數該怎麼寫？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="這是傳值，會把整個 vector 複製一份。元素越多成本越高，而且函式根本不需要那份副本。">vector&lt;int&gt; v</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。const 參考不複製、也不允許函式改動內容，是 C++ 傳遞大型唯讀參數的標準做法。附帶好處是簽章直接告訴讀者這個函式不會動你的資料。">const vector&lt;int&gt;&amp; v</button>
+      <button class="sq-opt" data-c="0" data-fb="不複製這點對了，但少了 const，函式有能力改動呼叫端的資料，編譯器也不會替你把關。只讀的參數應該把這個能力關掉。">vector&lt;int&gt;&amp; v</button>
+      <button class="sq-opt" data-c="0" data-fb="指標也能避開複製，但它多了「可以是 NULL」的語意，逼函式去檢查一個根本不會發生的情況。參數一定存在時優先用參考。">vector&lt;int&gt;* p</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p2_flow_control.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">流程控制</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p4_pointers_memory.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">陣列、指標與動態記憶體</div></a></div>
+</div>
+
+<footer>
+  先備知識 P3 · 函式 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+/* ---------- 讓 hlLine 找得到行號：替每個 .pseudo-code 裡的 .line 編號 ---------- */
+(function numberLines() {
+  document.querySelectorAll('.pseudo-code').forEach(pc => {
+    pc.querySelectorAll('.line').forEach((l, i) => {
+      if (!l.hasAttribute('data-l')) l.setAttribute('data-l', i + 1);
+    });
+  });
+})();
+
+/* ---------- 共用：記憶體格子（取自 P4） ---------- */
+function memCell(name, val, addr, opts = {}) {
+  const {tone = 'idle', note = ''} = opts;
+  const map = {
+    idle: ['var(--card-border)', 'var(--card)'],
+    hot:  ['var(--node-current)', 'rgba(243,156,18,.14)'],
+    ok:   ['var(--node-found)',   'rgba(22,160,133,.12)'],
+    ptr:  ['var(--accent2)',      'rgba(44,62,122,.08)'],
+    gone: ['var(--accent)',       'rgba(192,57,43,.08)'],
+  };
+  const [bd, bg] = map[tone] || map.idle;
+  return `<div style="border:2px solid ${bd};background:${bg};border-radius:9px;padding:.4rem .7rem;min-width:126px;">
+    <div style="font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${addr}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;">${name}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent2);">${val}</div>
+    ${note ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.15rem;">${note}</div>` : ''}
+  </div>`;
+}
+function frameBox(label, cells, color) {
+  return `<div style="flex:1;min-width:180px;border:1px solid var(--card-border);border-radius:10px;padding:.5rem .7rem;background:var(--paper);">
+     <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1px;color:${color};margin-bottom:.4rem;">${label}</div>
+     <div style="display:flex;gap:.5rem;flex-wrap:wrap;">${cells.length ? cells.join('') : '<div style="font-size:.8rem;color:var(--muted);">（這個框還不存在）</div>'}</div>
+   </div>`;
+}
+function twoFrames(callerCells, calleeLabel, calleeCells) {
+  return `<div style="display:flex;gap:.7rem;flex-wrap:wrap;">
+    ${frameBox('main 的框（呼叫端）', callerCells, 'var(--accent2)')}
+    ${frameBox(calleeLabel, calleeCells, 'var(--accent3)')}</div>`;
+}
+
+/* ---------- PART 04 · 三種傳法逐步器 ---------- */
+let swapPlayer = null;
+const XA = '0x7ffc1040', YA = '0x7ffc1044';
+const AA = '0x7ffc1010', BA = '0x7ffc1014', TA = '0x7ffc1018';
+const MODE_LABEL = {val: '傳值', ref: '傳參考', ptr: '傳指標'};
+const MODE_CODE  = {val: 'swapCodeVal', ref: 'swapCodeRef', ptr: 'swapCodePtr'};
+
+function showCode(mode) {
+  ['val', 'ref', 'ptr'].forEach(m => {
+    const el = $(MODE_CODE[m]);
+    if (el) el.style.display = (m === mode ? '' : 'none');
+  });
+}
+
+function swapFrames(mode) {
+  const F = [];
+  const caller = (x, y, tx, ty) => [memCell('x', x, XA, {tone: tx || 'idle'}), memCell('y', y, YA, {tone: ty || 'idle'})];
+  const name = {val: 'swapByValue', ref: 'swapByRef', ptr: 'swapByPtr'}[mode];
+  const flabel = name + ' 的框（被呼叫端）';
+
+  F.push({line: 7, html: twoFrames(caller(3, 7, 'hot', 'hot'), flabel, []),
+          msg: 'main 裡配了兩格：<code>x</code> 放 3、<code>y</code> 放 7。函式還沒被呼叫，右邊的框還不存在。'});
+
+  if (mode === 'val') {
+    F.push({line: 8, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 3, AA, {tone: 'hot', note: '新的一格，抄來的'}), memCell('b', 7, BA, {tone: 'hot', note: '新的一格，抄來的'})]),
+            msg: '呼叫發生。<strong>編譯器在右邊的框裡新配了兩格</strong>，把 3 和 7 抄過去。注意位址：<span class="mono">' + AA + '</span> 跟 <span class="mono">' + XA + '</span> 是兩個不同的地方。'});
+    F.push({line: 2, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 3, AA), memCell('b', 7, BA), memCell('t', 3, TA, {tone: 'hot'})]),
+            msg: '<code>int t = a;</code> — 交換的第一步，把 a 存起來。'});
+    F.push({line: 3, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 7, AA, {tone: 'hot'}), memCell('b', 7, BA), memCell('t', 3, TA)]),
+            msg: '<code>a = b;</code> — 右邊的框裡確實在換，<strong>左邊完全沒動靜</strong>。'});
+    F.push({line: 4, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 7, AA), memCell('b', 3, BA, {tone: 'hot'}), memCell('t', 3, TA)]),
+            msg: '<code>b = t;</code> — 交換完成。副本裡的 a=7、b=3，看起來很成功。'});
+    F.push({line: 5, html: twoFrames(caller(3, 7, 'gone', 'gone'), flabel,
+              [memCell('a', 7, AA, {tone: 'gone'}), memCell('b', 3, BA, {tone: 'gone'}), memCell('t', 3, TA, {tone: 'gone'})]),
+            msg: '函式結束，<strong>整個框連同剛剛的成果一起被彈掉</strong>。'});
+    F.push({line: null, html: twoFrames(caller(3, 7, 'hot', 'hot'), flabel, []),
+            msg: '回到 main：<code>x</code> 還是 3、<code>y</code> 還是 7。<strong>忙了半天，換的是副本。</strong>'});
+  } else if (mode === 'ref') {
+    F.push({line: 8, html: twoFrames(caller(3, 7, 'ptr', 'ptr'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'ptr', note: '同一個位址，只是別名'}), memCell('b', '＝ y', YA, {tone: 'ptr', note: '同一個位址，只是別名'})]),
+            msg: '呼叫發生。<strong>右邊的框沒有配任何新的格子</strong> —— <code>a</code> 的位址就是 <span class="mono">' + XA + '</span>，它跟 <code>x</code> 是同一格的兩個名字。'});
+    F.push({line: 2, html: twoFrames(caller(3, 7, 'ptr', 'ptr'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'ptr'}), memCell('b', '＝ y', YA, {tone: 'ptr'}), memCell('t', 3, TA, {tone: 'hot', note: '這格是真的新配的'})]),
+            msg: '<code>int t = a;</code> — <code>t</code> 是區域變數，它才是這個框裡唯一真正新配的格子。'});
+    F.push({line: 3, html: twoFrames(caller(7, 7, 'hot', 'ptr'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'hot'}), memCell('b', '＝ y', YA, {tone: 'ptr'}), memCell('t', 3, TA)]),
+            msg: '<code>a = b;</code> — 寫進 <code>a</code> 就是寫進 <code>x</code>。<strong>左邊的 x 當場變成 7。</strong>'});
+    F.push({line: 4, html: twoFrames(caller(7, 3, 'ptr', 'hot'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'ptr'}), memCell('b', '＝ y', YA, {tone: 'hot'}), memCell('t', 3, TA)]),
+            msg: '<code>b = t;</code> — 同理，<code>y</code> 變成 3。'});
+    F.push({line: 5, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel,
+              [memCell('t', 3, TA, {tone: 'gone'})]),
+            msg: '函式結束，只有 <code>t</code> 被彈掉。<code>a</code> 和 <code>b</code> 本來就沒有身體，沒東西可彈。'});
+    F.push({line: null, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel, []),
+            msg: '回到 main：<code>x</code>=7、<code>y</code>=3。<strong>兩個字元的差別，結果完全相反。</strong>'});
+  } else {
+    F.push({line: 8, html: twoFrames(caller(3, 7, 'hot', 'hot'), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr', note: '存的是 x 的門牌'}), memCell('b', YA, BA, {tone: 'ptr', note: '存的是 y 的門牌'})]),
+            msg: '呼叫端寫的是 <code>swapByPtr(&amp;x, &amp;y)</code>，那個 <code>&amp;</code> 擺在明處。右邊<strong>多了兩格</strong>，但裡面裝的是位址，不是值。'});
+    F.push({line: 2, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr'}), memCell('b', YA, BA, {tone: 'ptr'}), memCell('t', 3, TA, {tone: 'hot'})]),
+            msg: '<code>int t = *a;</code> — 順著 <code>a</code> 存的門牌走進 <code>x</code>，讀出 3。'});
+    F.push({line: 3, html: twoFrames(caller(7, 7, 'hot', 'idle'), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr'}), memCell('b', YA, BA, {tone: 'ptr'}), memCell('t', 3, TA)]),
+            msg: '<code>*a = *b;</code> — 兩次解參考，把 y 的值寫進 x。<strong>x 變成 7。</strong>'});
+    F.push({line: 4, html: twoFrames(caller(7, 3, 'idle', 'hot'), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr'}), memCell('b', YA, BA, {tone: 'ptr'}), memCell('t', 3, TA)]),
+            msg: '<code>*b = t;</code> — y 變成 3。'});
+    F.push({line: 5, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel,
+              [memCell('a', XA, AA, {tone: 'gone'}), memCell('b', YA, BA, {tone: 'gone'}), memCell('t', 3, TA, {tone: 'gone'})]),
+            msg: '函式結束，三格全彈掉。<strong>但被它們指到的 x 與 y 住在別人的框裡，不受影響。</strong>'});
+    F.push({line: null, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel, []),
+            msg: '回到 main：<code>x</code>=7、<code>y</code>=3。跟傳參考結果一樣，代價是多兩格記憶體與滿篇的 <code>*</code>。'});
+  }
+  return F;
+}
+
+function swapStart(mode) {
+  if (swapPlayer) swapPlayer.stop();
+  showCode(mode);
+  const codeId = MODE_CODE[mode];
+  swapPlayer = new Player({frames: swapFrames(mode), apply: f => {
+    $('swapStage').innerHTML = f.html;
+    hlLine(codeId, f.line);
+    setStatus('swapStatus', `<b>${MODE_LABEL[mode]}</b> · ${f.msg}`);
+  }});
+  swapPlayer.play();
+}
+function swapReset() {
+  if (swapPlayer) swapPlayer.stop();
+  swapPlayer = null;
+  showCode('val');
+  hlLine('swapCodeVal', null); hlLine('swapCodeRef', null); hlLine('swapCodePtr', null);
+  $('swapStage').innerHTML = twoFrames([memCell('x', 3, XA), memCell('y', 7, YA)], '被呼叫端的框', []);
+  setStatus('swapStatus', '選一種傳法開始。三個版本的函式本體完全一樣。');
+}
+
+/* ---------- PART 08 · 呼叫堆疊逐步器 ---------- */
+let csPlayer = null;
+function csRender(stack, ret) {
+  const rows = stack.slice().reverse().map((fr, idx) => {
+    const top = idx === 0;
+    return `<div style="border:2px solid ${top ? 'var(--node-current)' : 'var(--card-border)'};
+       background:${top ? 'rgba(243,156,18,.14)' : 'var(--card)'};border-radius:8px;
+       padding:.35rem .7rem;margin:.25rem 0;display:flex;gap:.8rem;align-items:center;">
+       <span class="mono" style="font-weight:700;">sumTo(n=${fr.n})</span>
+       <span style="font-size:.78rem;color:var(--muted);">${fr.note}</span>
+       ${top ? '<span class="pill pill-green" style="margin-left:auto;">執行中</span>' : ''}
+     </div>`;
+  }).join('');
+  const retLine = ret === null ? '' :
+    `<div class="mono" style="margin-top:.5rem;color:var(--node-found);font-weight:700;">↑ 剛剛回傳：${ret}</div>`;
+  return `<div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1px;color:var(--accent3);margin-bottom:.3rem;">CALL STACK（最上面是正在執行的）</div>
+    ${stack.length ? rows : '<div style="font-size:.85rem;color:var(--muted);">（堆疊是空的）</div>'}${retLine}`;
+}
+function csFrames() {
+  const F = [];
+  const st = [];
+  const snap = (line, ret, msg) => F.push({line, depth: st.length, html: csRender(st, ret), msg});
+
+  snap(8, null, 'main 呼叫 <code>sumTo(4)</code> 之前，堆疊上還沒有它的框。');
+  st.push({n: 4, note: '參數 n=4'});
+  snap(1, null, '<code>sumTo(4)</code> 的框被推上堆疊，裡面放著<strong>這一次專屬的</strong> <code>n</code>。');
+  snap(2, null, '<code>n &lt;= 1</code>？4 不成立，往下走。');
+  st.push({n: 3, note: '參數 n=3'});
+  snap(5, null, '<code>n + sumTo(n - 1)</code> 要先算右邊，所以 <code>sumTo(3)</code> 的框疊上來。<strong>n=4 的框停在這裡等，不會消失。</strong>');
+  st.push({n: 2, note: '參數 n=2'});
+  snap(5, null, '同樣的事再來一次：<code>sumTo(2)</code> 疊上來。堆疊已經三層。');
+  st.push({n: 1, note: '參數 n=1'});
+  snap(5, null, '<code>sumTo(1)</code> 疊上來。四個框同時活著，每個都有自己的 <code>n</code>。');
+  snap(2, null, '<code>n &lt;= 1</code>？這次成立了。<strong>基底情形到了，不再往下叫。</strong>');
+  st.pop();
+  snap(3, 1, '<code>return n;</code> — 回傳 1，<code>sumTo(1)</code> 的框被彈掉。');
+  st.pop();
+  snap(5, 3, '<code>sumTo(2)</code> 拿到 1，算出 <code>2 + 1 = 3</code> 回傳，框彈掉。');
+  st.pop();
+  snap(5, 6, '<code>sumTo(3)</code> 拿到 3，算出 <code>3 + 3 = 6</code> 回傳，框彈掉。');
+  st.pop();
+  snap(5, 10, '<code>sumTo(4)</code> 拿到 6，算出 <code>4 + 6 = 10</code> 回傳，最後一個框也彈掉。');
+  F.push({line: null, depth: 0, html: csRender([], 10),
+          msg: '堆疊清空，答案是 <strong>10</strong>。整趟最深疊到 <strong>4</strong> 層，所以這個遞迴的空間成本是 <code>O(n)</code> —— 換成 <code>sumTo(1000000)</code> 就要一百萬個框，堆疊撐不住。'});
+  return F;
+}
+function csStart() {
+  if (csPlayer) csPlayer.stop();
+  csPlayer = new Player({frames: csFrames(), apply: f => {
+    $('csStage').innerHTML = f.html;
+    $('csDepth').textContent = f.depth;
+    $('csDepth').style.color = f.depth >= 4 ? 'var(--accent)' : '';
+    hlLine('csCode', f.line);
+    setStatus('csStatus', f.msg);
+  }});
+  csPlayer.play();
+}
+function csReset() {
+  if (csPlayer) csPlayer.stop();
+  csPlayer = null;
+  $('csStage').innerHTML = csRender([], null);
+  $('csDepth').textContent = '0';
+  $('csDepth').style.color = '';
+  hlLine('csCode', null);
+  setStatus('csStatus', '按「開始」，看堆疊框怎麼疊上去、又怎麼收回來。');
+}
+
+(function () {
+  if ($('swapStage')) swapReset();
+  if ($('csStage')) csReset();
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "函式原型（Function Prototype）", "back": "只寫回傳型別、函式名與參數型別，結尾加分號的那一行宣告。C++ 編譯器由上而下讀一遍，呼叫前沒見過這個名字就會報 was not declared in this scope。原型通常放在 .hpp，定義放在 .cpp。"}, {"front": "傳值（Pass by Value）", "back": "呼叫時把引數整個複製一份放進參數裡。函式改的是副本，呼叫端的變數完全不受影響。適合 int、double 這種小型別，用在大物件上會付出整份複製的成本。"}, {"front": "複製建構式（Copy Constructor）", "back": "形式是 T(const T& other)，物件被複製時由編譯器自動呼叫。傳值傳一個物件、回傳一個物件、用另一個物件初始化時都會觸發它，所以它是 C++ 隱藏成本最常見的來源。"}, {"front": "參考（Reference）", "back": "寫成 T&，是既有變數的另一個名字。它不配置新記憶體、位址與本尊相同、一旦綁定就不能改綁別的東西，也不存在空參考。課程九章總共用了 57 次。"}, {"front": "傳參考（Pass by Reference）", "back": "參數寫成 T&，函式收到的是呼叫端那個變數本人，改動會直接反映到外面，而且完全不複製。第 07 章的 void bubbleSort(vector<int>& v) 就是靠這個把排序結果留在呼叫端。"}, {"front": "傳指標（Pass by Pointer）", "back": "參數寫成 T*，呼叫端寫 f(&x)，函式用 *p 走進去改。效果跟傳參考一樣，多的是可以傳 NULL、也可以中途改指向別的目標。第 04 章追蹤前一個節點的 previous 就必須用它。"}, {"front": "空指標（NULL）", "back": "代表指標目前沒有指向任何東西。它讓「這個參數可以是沒有」變成可表達的語意，這是參考做不到的。解參考一個 NULL 是未定義行為，通常直接 segmentation fault。"}, {"front": "常數參考（const Reference）", "back": "寫成 const T&，不複製也不允許函式改動內容，違反時編譯期就報 assignment of read-only reference。這是 C++ 傳遞大物件的標準做法，看到 const vector<int>& v 就是這個意思。"}, {"front": "常數成員函式（const Member Function）", "back": "參數列後面掛 const，例如 int getNum() const，承諾不動到任何成員。唯讀物件只准呼叫這種函式，所以 getter 不寫 const，你的類別就沒辦法用 const T& 傳遞。"}, {"front": "回傳參考（Return by Reference）", "back": "回傳型別寫成 T&，交出去的是那個東西本人，所以函式呼叫可以出現在等號左邊。前提是被指向的東西活得比函式久，通常是類別的成員，絕不能是區域變數。"}, {"front": "懸空指標（Dangling Pointer）", "back": "指標指向一塊已經失效的記憶體，最典型的成因就是回傳區域變數的位址。函式一 return，它的堆疊框連同區域變數一起被彈掉，交出去的位址立刻過期。"}, {"front": "未定義行為（Undefined Behavior）", "back": "標準不規定會發生什麼的操作，例如解參考懸空指標。它的可怕之處在於結果不保證一致：同一支程式換個編譯器或最佳化等級，可能印出正確答案、印出垃圾、或當場崩潰，所以你無法靠試跑證明它是對的。"}, {"front": "函式多載（Function Overloading）", "back": "好幾個函式共用一個名字，靠參數的個數或型別讓編譯器挑選。回傳型別不列入判斷。課程第 01 章的 Fraction 就用三個同名建構式提供 Fraction(3,4)、Fraction(5)、Fraction() 三種建立方式。"}, {"front": "預設引數（Default Argument）", "back": "在參數列直接給參數一個預設值，呼叫時可以省略。因為呼叫端由左往右對位，有預設值的參數必須排在最後面而且一路排到底，否則編譯器直接報 default argument missing。"}, {"front": "呼叫堆疊（Call Stack）", "back": "系統用來記錄函式呼叫關係的堆疊，每呼叫一次就推一個框上去，回傳時彈掉。它的大小有上限，Linux 上預設通常是 8 MB，所以遞迴太深會直接撞牆。"}, {"front": "堆疊框（Stack Frame）", "back": "一次函式呼叫在堆疊上佔的那一塊，裡面放這一次專屬的參數、區域變數，以及回去之後要從哪裡繼續執行。遞迴時每一層都有自己的框，所以各層的 n 互不干擾。"}, {"front": "基底情形（Base Case）", "back": "遞迴中小到不必再往下呼叫、可以直接給答案的情況，例如 sumTo 裡的 n <= 1。少了它，或問題沒有真的變小，遞迴就停不下來，堆疊會一路疊到爆。"}, {"front": "堆疊溢位（Stack Overflow）", "back": "遞迴深度超過呼叫堆疊容量時發生的崩潰。Python 會丟出 RecursionError 明確告訴你，C++ 不做檢查，程式直接收到 SIGSEGV 結束，第 06 章討論遞迴極限時會再遇到。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ 基礎與編譯流程 — 先備 P1（C++）</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+/* ===== 題庫自測區 ===== */
+.sq-item{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+.sq-item .sq-q{font-weight:700;margin-bottom:.7rem;}
+.sq-item .sq-q .sq-num{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:.4rem;}
+.sq-opts{display:flex;flex-direction:column;gap:.45rem;}
+.sq-opt{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.6;padding:.55rem .9rem;border-radius:8px;border:1px solid var(--card-border);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;}
+.sq-opt:hover{border-color:var(--accent2);}
+.sq-opt.correct{border-color:var(--accent3);background:rgba(26,107,74,.10);}
+.sq-opt.wrong{border-color:var(--accent);background:rgba(192,57,43,.08);}
+.sq-fb{display:none;margin-top:.7rem;font-size:.86rem;line-height:1.7;border-left:4px solid var(--accent2);padding:.5rem .9rem;background:var(--paper);border-radius:0 8px 8px 0;}
+.sq-fb.show{display:block;}
+.sq-fb.good{border-left-color:var(--accent3);}
+.sq-fb.bad{border-left-color:var(--accent);}
+.sq-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.55;padding:.7rem .9rem;border-radius:8px;margin:.2rem 0 .8rem;overflow-x:auto;white-space:pre;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">編譯 vs 直譯</span></a>
+  <a href="#pipeline" data-target="pipeline"><span class="fn-num">P01</span><span class="fn-name">從原始碼到執行檔</span></a>
+  <a href="#skeleton" data-target="skeleton"><span class="fn-num">P02</span><span class="fn-name">程式骨架</span></a>
+  <a href="#types" data-target="types"><span class="fn-num">P03</span><span class="fn-name">變數與型別</span></a>
+  <a href="#io" data-target="io"><span class="fn-num">P04</span><span class="fn-name">輸入輸出</span></a>
+  <a href="#operators" data-target="operators"><span class="fn-num">P05</span><span class="fn-name">運算子</span></a>
+  <a href="#convert" data-target="convert"><span class="fn-num">P06</span><span class="fn-name">型別轉換</span></a>
+  <a href="#errors" data-target="errors"><span class="fn-num">P07</span><span class="fn-name">讀懂編譯錯誤</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="40" y="30" width="86" height="34" rx="6"/>
+    <rect x="40" y="90" width="86" height="34" rx="6"/>
+    <rect x="40" y="150" width="86" height="34" rx="6"/>
+    <rect x="40" y="210" width="86" height="34" rx="6"/>
+    <path d="M83 64 L83 90"/><path d="M83 124 L83 150"/><path d="M83 184 L83 210"/>
+  </g>
+  <g fill="#fff" opacity=".78" font-family="monospace" font-size="11">
+    <text x="140" y="52">.cpp</text><text x="140" y="112">.i</text>
+    <text x="140" y="172">.s / .o</text><text x="140" y="232">a.out</text>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P1</div>
+    <h1><span class="blue">C++ 基礎</span>與<span class="orange">編譯流程</span></h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">g++ -std=c++17｜int main()｜cout &lt;&lt;｜7 / 2 == 3｜static_cast</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>編譯與直譯的分岔</a>
+    <a href="#pipeline"><span class="toc-num">P01</span>從原始碼到執行檔</a>
+    <a href="#skeleton"><span class="toc-num">P02</span>程式骨架的四個零件</a>
+    <a href="#types"><span class="toc-num">P03</span>變數與型別</a>
+    <a href="#io"><span class="toc-num">P04</span>輸入輸出</a>
+    <a href="#operators"><span class="toc-num">P05</span>運算子與整數除法</a>
+    <a href="#convert"><span class="toc-num">P06</span>型別轉換與溢位</a>
+    <a href="#errors"><span class="toc-num">P07</span>讀懂 g++ 的錯誤訊息</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>你按下執行之後，C++ 比 Python 多做了四件事</h2>
+  <p>本頁那支 hello world 只有 <strong>9 行</strong>。把它丟給 g++，它會先展開成 <strong>46,577 行</strong>、再翻成 <strong>103 行</strong>組合語言，最後吐出一個 <strong>16 KB</strong> 的執行檔。這些全部發生在你看到 Hello 之前，而且是每改一次程式碼就重來一次。</p>
+
+  <p>Python 沒有這一段。你按下執行，直譯器就從第一行開始邊讀邊做；程式跑到第 40 行才會發現第 40 行的錯字。C++ 反過來：<strong>整份翻譯完才開始跑</strong>，所以第 40 行的錯字在你連一個字都還沒印出來之前就被抓到了。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>Python</th><th>C++</th></tr></thead>
+    <tbody>
+      <tr><td>怎麼跑起來</td><td>直譯器讀一行跑一行</td><td>先整份編譯成執行檔，再執行那個檔</td></tr>
+      <tr><td>什麼時候發現打錯字</td><td>執行到那一行才發現</td><td><strong>編譯時就發現</strong>，程式根本跑不起來</td></tr>
+      <tr><td>型別</td><td>執行時才決定，同一個變數可以換型別</td><td><strong>宣告時就定死</strong>，之後不能換</td></tr>
+      <tr><td>要不要自己管記憶體</td><td>不用，有垃圾回收</td><td>要，<code>new</code> 之後自己 <code>delete</code></td></tr>
+      <tr><td>速度</td><td>慢，但寫得快</td><td>快，通常差一到兩個數量級</td></tr>
+      <tr><td>執行需要什麼</td><td>目標機器上要有直譯器</td><td>執行檔本身，但換平台要重編</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>這門課選 C++ 不是為了折磨你。資料結構在意的是「這個操作要花多少時間」，而 Python 把陣列、記憶體配置、複製成本全部藏在 C 寫的內建型別底下 —— 你量不到自己寫的那層。C++ 把這些攤開來，你才有東西可以分析。</p>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。這一頁的目標很具體：讓你看懂課程第 01 章的第一個 cell，以及它下面那行 <code class="mono">g++ -std=c++17 -Wall main.cpp -o main</code> 到底做了什麼。</p>
+  </div>
+</section>
+
+<section id="pipeline">
+  <div class="section-number">PART 01 · 從原始碼到執行檔</div>
+  <h2><code class="mono">g++ -std=c++17 -Wall main.cpp -o main</code> 拆開來看</h2>
+  <p>這行指令你整個學期會打幾百次。先把每個零件認清楚：</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>零件</th><th>意思</th><th>不寫會怎樣</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">g++</td><td>GNU 的 C++ 編譯器驅動程式</td><td>—</td></tr>
+      <tr><td class="mono">-std=c++17</td><td>用 C++17 這版語言標準</td><td>吃到編譯器的預設版本，某些寫法會突然不能用</td></tr>
+      <tr><td class="mono">-Wall</td><td>把所有常見警告都打開</td><td>「變數宣告了沒用到」「有東西沒初始化」這類提醒全部消失，<strong>而它們常常就是 bug</strong></td></tr>
+      <tr><td class="mono">main.cpp</td><td>要編的原始碼</td><td>沒東西可編</td></tr>
+      <tr><td class="mono">-o main</td><td>產出的執行檔叫 main</td><td>預設叫 <code class="mono">a.out</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>跑起來就是 <code class="mono">./main</code>（Windows 上是 <code class="mono">main.exe</code>）。編譯成功時 g++ 什麼都不會印 —— <strong>沒有訊息就是好消息</strong>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">課程第 01 章的第一個 cell</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cmath&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">Hello, C++!</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="7">    cout &lt;&lt; sqrt(<span class="num">16</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Hello, C++!
+4</pre></div>
+  <p class="dx-note">三個地方值得停一下：① <code>#include &lt;cmath&gt;</code> 沒寫的話 <code>sqrt</code> 就是未宣告識別字，編譯直接失敗。② <code>sqrt(16)</code> 印出 <code>4</code> 而不是 <code>4.000000</code>，因為 <code>cout</code> 預設只印有意義的位數。③ <code>return 0</code> 是回報給作業系統的結束碼，0 代表正常結束。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="pipeStage" style="min-height:200px;"></div>
+        <div class="status-banner" id="pipeStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，看這 9 行原始碼怎麼一路變成執行檔。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="pipeStart()">▶ 開始</button>
+          <button class="btn btn-step" onclick="pipePlayer &amp;&amp; pipePlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="pipeReset()">⟲ 重設</button>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">四階段的旗標 <span class="ic-badge">CLI</span></div>
+        <div class="pseudo-code" id="pipeCode" style="font-size:.72rem;"><span class="line" data-l="1">g++ -E main.cpp -o main.i   # 只做前處理</span>
+<span class="line" data-l="2">g++ -S main.cpp -o main.s   # 停在組合語言</span>
+<span class="line" data-l="3">g++ -c main.cpp -o main.o   # 停在目的檔</span>
+<span class="line" data-l="4">g++ main.o -o main          # 只做連結</span>
+<span class="line" data-l="5"> </span></div>
+        <p style="font-size:.84rem;margin:.5rem 0 0;">平常那行 <code class="mono">g++ main.cpp -o main</code> 是把四步一次做完，中間檔案跑完就丟掉。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">實際量到的 <span class="ic-badge">REAL</span></div>
+        <p style="font-size:.84rem;margin-bottom:0;">前處理把 9 行變成 46,577 行，膨脹 <strong>5,175 倍</strong>。多出來的都是 <code>&lt;iostream&gt;</code> 與 <code>&lt;cmath&gt;</code> 整包貼進來的宣告。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-tile"><div class="stat-value">9</div><div class="stat-label">main.cpp 行數</div></div>
+    <div class="stat-tile"><div class="stat-value">46,577</div><div class="stat-label">前處理後 main.i 行數</div></div>
+    <div class="stat-tile"><div class="stat-value">103</div><div class="stat-label">組合語言 main.s 行數</div></div>
+    <div class="stat-tile"><div class="stat-value">16 KB</div><div class="stat-label">最後的執行檔</div></div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼要知道有四個階段</div>
+    <p style="margin-bottom:0;">因為<strong>錯誤訊息長得不一樣</strong>。編譯階段的錯會指到你的某一行（<code class="mono">main.cpp:6:5: error:</code>）；連結階段的錯不指行號，開頭是 <code class="mono">/usr/bin/ld:</code> 加上 <code class="mono">undefined reference to</code>。看到後者就不要再盯著那一行看了，問題是「某個函式只宣告沒定義」或「少編了一個檔」。PART 07 會拿真的訊息來對。</p>
+  </div>
+</section>
+
+
+<section id="skeleton">
+  <div class="section-number">PART 02 · 程式骨架</div>
+  <h2>四個零件，每支 C++ 程式都有</h2>
+  <p>Python 的檔案可以只有一行 <code>x = 1</code> 就能跑。C++ 不行，它要求一個固定的外框：</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="com">        // ① 把要用的東西宣告搬進來</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;      <span class="com">// ② 省掉 std:: 前綴</span>
+<span class="line" data-l="3"></span></span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {              <span class="com">// ③ 程式從這裡開始</span>
+<span class="line" data-l="5"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">hi</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="6">    <span class="kw">return</span> <span class="num">0</span>;             <span class="com">// ④ 回報結束碼給作業系統</span>
+<span class="line" data-l="7"></span>}</span>
+<span class="line" data-l="8"> </span></div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>零件</th><th>它在做什麼</th><th>Python 對應</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">#include &lt;iostream&gt;</td><td>把 <code>&lt;iostream&gt;</code> 這個標頭檔<strong>整份貼進來</strong>，於是編譯器才認得 <code>cout</code></td><td class="mono">import</td></tr>
+      <tr><td class="mono">using namespace std;</td><td>把 <code>std</code> 這個命名空間攤平，讓你可以寫 <code>cout</code> 而不是 <code>std::cout</code></td><td class="mono">from x import *</td></tr>
+      <tr><td class="mono">int main()</td><td>程式的進入點。名字固定叫 <code>main</code>，作業系統只找它</td><td class="mono">if __name__ == "__main__"</td></tr>
+      <tr><td class="mono">return 0;</td><td>回報結束碼，0 表示正常。非 0 代表出錯，shell 腳本會看這個值</td><td class="mono">sys.exit(0)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p><code>#include</code> 是<strong>前處理</strong>階段做的，字面上就是文字替換 —— PART 01 那個從 9 行變成 46,577 行的膨脹，全部是 <code>#include</code> 貼進來的。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">尖括號與雙引號的差別</h3>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>去哪裡找</th><th>什麼時候用</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">#include &lt;iostream&gt;</td><td>先找系統的標準路徑</td><td>標準函式庫：<code>&lt;iostream&gt;</code> <code>&lt;string&gt;</code> <code>&lt;vector&gt;</code> <code>&lt;cmath&gt;</code></td></tr>
+      <tr><td class="mono">#include "dscpp/stack.hpp"</td><td><strong>先找目前這個檔案的資料夾</strong>，找不到才去系統路徑</td><td>你自己寫的、或課程給的標頭檔</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>第 04 章開始，課程的每一個資料結構都住在 <code class="mono">dscpp/</code> 底下，用雙引號引進來。編譯時要用 <code class="mono">-I</code> 告訴 g++ 那個資料夾在哪：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">引用課程真正在用的那份 Stack 實作</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"dscpp/stack.hpp"</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    Stack&lt;<span class="kw">int</span>&gt; s;</span>
+<span class="line" data-l="7">    s.push(<span class="num">3</span>);</span>
+<span class="line" data-l="8">    s.push(<span class="num">1</span>);</span>
+<span class="line" data-l="9">    s.push(<span class="num">4</span>);</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">size = </span><span class="str">"</span> &lt;&lt; s.size() &lt;&lt; <span class="str">"</span><span class="str">, top = </span><span class="str">"</span> &lt;&lt; s.peek() &lt;&lt; endl;</span>
+<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>size = 3, top = 4</pre></div>
+  <p class="dx-note">編譯指令是 <code class='mono'>g++ -std=c++17 -I ~/ds_cpp/Slides main.cpp -o main</code>。<code class='mono'>-I</code> 加的是<strong>搜尋起點</strong>，所以 <code>&quot;dscpp/stack.hpp&quot;</code> 前面那段路徑要跟著寫。少了 <code class='mono'>-I</code>，錯誤訊息會是 <code class='mono'>fatal error: dscpp/stack.hpp: No such file or directory</code>。</p>
+</div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">實務上多數團隊禁止 <code>using namespace std;</code>，因為它會把整個標準函式庫的名字倒進來，容易跟你自己的名字撞（例如你也寫了一個 <code>count</code>）。<strong>本課照 cppds 教科書寫 <code>using namespace std;</code></strong>，考試以課程風格為準；等你開始寫多檔案專案，再改成逐個 <code>using std::cout;</code> 或直接寫 <code>std::</code>。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04 章之後全部</div><p style='margin-bottom:0;'>從第 04 章的 <code class='mono'>#include &quot;dscpp/linked_list.hpp&quot;</code> 開始，第 05 章的 <code class='mono'>stack.hpp</code> <code class='mono'>queue.hpp</code> <code class='mono'>deque.hpp</code>、第 07 章的 <code class='mono'>sorting.hpp</code> <code class='mono'>hashtable.hpp</code>、第 08 章的 <code class='mono'>graph.hpp</code>、第 09 章的 <code class='mono'>bst.hpp</code>，全部是雙引號加 <code class='mono'>-I</code>。作業編不起來時，八成先檢查這兩個東西。</p></div>
+</section>
+
+<section id="types">
+  <div class="section-number">PART 03 · 變數與型別</div>
+  <h2>宣告的時候就定死，之後不能換</h2>
+  <p>這是 Python 轉 C++ 第一個要改的習慣。Python 裡 <code>x</code> 前一行是整數、下一行變字串完全沒問題；C++ 的 <code>int x</code> 從出生到離開範圍都是 <code>int</code>。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>Python（動態型別）</th><th>C++（靜態型別）</th></tr></thead>
+    <tbody>
+      <tr><td>宣告</td><td class="mono">x = 5</td><td class="mono">int x = 5;</td></tr>
+      <tr><td>換型別</td><td class="mono">x = "hi"　合法</td><td class="mono">x = "hi";　編譯錯誤</td></tr>
+      <tr><td>型別寫在哪</td><td>不寫，執行時看值決定</td><td>寫在變數名前面，編譯時決定</td></tr>
+      <tr><td>沒給初值</td><td>不存在這種事，一定要指派</td><td><strong>合法，但值是垃圾</strong></td></tr>
+      <tr><td>字元</td><td>沒有單獨的字元型別，長度 1 的字串</td><td class="mono">char c = 'A';　單引號</td></tr>
+      <tr><td>字串</td><td class="mono">s = "hi"</td><td class="mono">string s = "hi";　要 #include &lt;string&gt;</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">五個基本型別各佔多少空間</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    <span class="kw">int</span>    n = <span class="num">42</span>;</span>
+<span class="line" data-l="7">    <span class="kw">double</span> d = <span class="num">3.14159</span>;</span>
+<span class="line" data-l="8">    <span class="kw">char</span>   c = <span class="str">'</span><span class="str">A</span><span class="str">'</span>;</span>
+<span class="line" data-l="9">    <span class="kw">bool</span>   b = <span class="fn">true</span>;</span>
+<span class="line" data-l="10">    string s = <span class="str">"</span><span class="str">David</span><span class="str">"</span>;</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">int    n = </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">   sizeof = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(n) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">double d = </span><span class="str">"</span> &lt;&lt; d &lt;&lt; <span class="str">"</span><span class="str">   sizeof = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(d) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">char   c = </span><span class="str">"</span> &lt;&lt; c &lt;&lt; <span class="str">"</span><span class="str">     sizeof = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(c) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">bool   b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; <span class="str">"</span><span class="str">     sizeof = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(b) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">string s = </span><span class="str">"</span> &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str"> sizeof = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(s) &lt;&lt; <span class="str">"</span><span class="str"> bytes (不含字元本身)</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    cout &lt;&lt; boolalpha &lt;&lt; <span class="str">"</span><span class="str">boolalpha 之後 b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; endl;</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>int    n = 42   sizeof = 4 bytes
+double d = 3.14159   sizeof = 8 bytes
+char   c = A     sizeof = 1 bytes
+bool   b = 1     sizeof = 1 bytes
+string s = David sizeof = 32 bytes (不含字元本身)
+boolalpha 之後 b = true</pre></div>
+  <p class="dx-note">最後兩行是重點：<code>sizeof(s)</code> 印出 32，那是 <code>string</code> 這個<strong>物件本身</strong>的大小（裡面存指標、長度、容量），不是字元佔的空間 —— 字元另外放在別的地方。另外 <code>bool</code> 預設印成 <code>1</code> 與 <code>0</code>，要印 <code>true</code> <code>false</code> 得先丟一個 <code>boolalpha</code> 進 <code>cout</code>。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="controls-bar" id="typeBtns"></div>
+        <div id="typeStage" style="min-height:190px;"></div>
+        <div class="status-banner" id="typeStatus"><span class="status-icon">›</span><span class="status-text">點一個型別，看它佔幾個 byte、裝得下多大的數，以及裝不下時會怎樣。</span></div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">怎麼選 <span class="ic-badge">RULE</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;">整數一律先用 <code>int</code>，會超過二十一億再換 <code>long long</code>。小數一律用 <code>double</code>，不要用 <code>float</code>（只有 6 位有效數字，這門課的累加會失真）。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">數字都是真的 <span class="ic-badge">REAL</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;">面板上的大小與範圍是在這台 64 位元 Linux 上用 <code>sizeof</code> 與 <code>&lt;climits&gt;</code> 實際印出來的。C++ 標準只規定<strong>下限</strong>，換平台可能不一樣，所以要問大小就用 <code>sizeof</code>，不要背。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">沒初始化的變數裡面是垃圾</h3>
+  <p>這件事在 Python 不可能發生，卻是 C++ 初學最常見的靈異現象來源：程式有時候對、有時候錯，改一行不相干的程式碼結果就變了。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同一支程式，兩個沒初始化的 int</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">dirty</span>() {                     <span class="com">// 先在堆疊上留下一些值</span>
+<span class="line" data-l="5"></span>    <span class="kw">int</span> a = <span class="num">123456</span>, b = <span class="num">-987654</span>;</span>
+<span class="line" data-l="6">    (<span class="kw">void</span>)a; (<span class="kw">void</span>)b;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="10">    dirty();</span>
+<span class="line" data-l="11">    <span class="kw">int</span> x;                         <span class="com">// 沒有初始化：值是上一個人留下的垃圾</span>
+<span class="line" data-l="12"></span>    <span class="kw">int</span> y;</span>
+<span class="line" data-l="13">    <span class="kw">int</span> z = <span class="num">0</span>;                     <span class="com">// 有初始化</span>
+<span class="line" data-l="14"></span></span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">x = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; endl;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">y = </span><span class="str">"</span> &lt;&lt; y &lt;&lt; endl;</span>
+<span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">z = </span><span class="str">"</span> &lt;&lt; z &lt;&lt; endl;</span>
+<span class="line" data-l="18">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="19">}</span>
+<span class="line" data-l="20"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>x = 1985727112
+y = 32767
+z = 0</pre></div>
+  <p class="dx-note"><code>x</code> 與 <code>y</code> 印出來的是<strong>上一個用過這塊堆疊記憶體的人留下的殘值</strong>，而且每次執行、每次編譯都可能不同 —— 標準把讀取未初始化變數列為<strong>未定義行為</strong>。<code>-Wall</code> 通常會警告你，這就是 PART 01 說「警告常常就是 bug」的意思。解法只有一個：<strong>宣告的同時就給值</strong>。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 最常見的翻車寫法</div>
+    <p style="margin-bottom:0;">寫累加器時 <code class="mono">int sum;</code> 就直接進迴圈 <code class="mono">sum += a[i];</code>。這不是加到 0 上面，是加到一個垃圾值上面。<strong>永遠寫 <code class="mono">int sum = 0;</code></strong>。同理，計數器要 <code class="mono">int count = 0;</code>，指標要 <code class="mono">&#78;ode *p = &#78;ULL;</code>。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 03 章</div><p style='margin-bottom:0;'>〈陣列與稀疏矩陣〉要你自己算元素位址：第 <code>i</code> 格在 <code>起始位址 + i × sizeof(元素)</code>，二維的 row-major 則是 <code>起始位址 + (i × 欄數 + j) × sizeof(元素)</code>。那個 <code>sizeof(元素)</code> 就是這一節量到的 4 或 8，寫錯就整排位址都偏掉。</p></div>
+</section>
+
+
+<section id="io">
+  <div class="section-number">PART 04 · 輸入輸出</div>
+  <h2><code>cout &lt;&lt;</code> 與 <code>cin &gt;&gt;</code>：箭頭指著資料流的方向</h2>
+  <p>記法很直觀：<code>cout &lt;&lt; x</code> 是把 <code>x</code> 推<strong>進</strong>輸出串流，<code>cin &gt;&gt; x</code> 是把輸入串流的東西倒<strong>出來</strong>放進 <code>x</code>。箭頭指哪邊，資料就往哪邊跑。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">cout 的四種常見用法</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    string name = <span class="str">"</span><span class="str">David</span><span class="str">"</span>;</span>
+<span class="line" data-l="7">    <span class="kw">int</span> age = <span class="num">20</span>;</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">姓名：</span><span class="str">"</span> &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str">，年齡：</span><span class="str">"</span> &lt;&lt; age &lt;&lt; endl;</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">一行</span><span class="str">"</span> &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span> &lt;&lt; <span class="str">"</span><span class="str">兩行</span><span class="str">"</span> &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="num">1</span> &lt;&lt; <span class="num">2</span> &lt;&lt; <span class="num">3</span> &lt;&lt; endl;          <span class="com">// &lt;&lt; 可以一直串下去</span>
+<span class="line" data-l="12"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">1 + 2 = </span><span class="str">"</span> &lt;&lt; <span class="num">1</span> + <span class="num">2</span> &lt;&lt; endl;  <span class="com">// 運算先做完才丟給 &lt;&lt;</span>
+<span class="line" data-l="13"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>姓名：David，年齡：20
+一行
+兩行
+123
+1 + 2 = 3</pre></div>
+  <p class="dx-note">第三行印出 <code>123</code> 而不是 <code>1 2 3</code> —— <code>&lt;&lt;</code> 不會自動加空格，要空格自己寫。第四行的 <code>1 + 2</code> 先算完才丟給 <code>&lt;&lt;</code>，但這是因為 <code>+</code> 的優先順序比 <code>&lt;&lt;</code> 高；碰到比較運算就得自己加括號，例如 <code>cout &lt;&lt; (a &lt; b);</code>。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>你想做的事</th><th>Python</th><th>C++</th></tr></thead>
+    <tbody>
+      <tr><td>印一個值並換行</td><td class="mono">pri<span></span>nt(x)</td><td class="mono">cout &lt;&lt; x &lt;&lt; endl;</td></tr>
+      <tr><td>印了不換行</td><td class="mono">pri<span></span>nt(x, end="")</td><td class="mono">cout &lt;&lt; x;</td></tr>
+      <tr><td>印兩個值中間有空格</td><td class="mono">pri<span></span>nt(a, b)</td><td class="mono">cout &lt;&lt; a &lt;&lt; " " &lt;&lt; b;</td></tr>
+      <tr><td>讀一整行</td><td class="mono">s = input()</td><td class="mono">getline(cin, s);</td></tr>
+      <tr><td>讀一個整數</td><td class="mono">n = int(input())</td><td class="mono">cin &gt;&gt; n;</td></tr>
+      <tr><td>印 true / false</td><td class="mono">pri<span></span>nt(True)</td><td class="mono">cout &lt;&lt; boolalpha &lt;&lt; b;</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);"><code>endl</code> 與 <code>'\n'</code> 差在哪</h3>
+  <p>兩個都換行，但 <code>endl</code> 多做一件事：<strong>強迫把緩衝區的東西立刻寫出去</strong>。輸出量大的時候（例如印一萬筆排序結果）每行都 <code>endl</code> 會明顯變慢。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th class="mono">endl</th><th class="mono">'\n'</th></tr></thead>
+    <tbody>
+      <tr><td>換行</td><td>會</td><td>會</td></tr>
+      <tr><td>清空緩衝區</td><td><strong>會</strong></td><td>不會</td></tr>
+      <tr><td>速度</td><td>慢</td><td>快</td></tr>
+      <tr><td>什麼時候用</td><td>要立刻看到輸出時，例如印 debug 訊息、程式可能會當掉</td><td>其他所有情況</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>順帶一提：<code>'\n'</code> 是<strong>單引號</strong>包的一個 <code>char</code>，<code>"\n"</code> 是雙引號包的字串。這門課裡單引號與雙引號不能互換，<code>char c = "A";</code> 會編譯錯誤。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">讀進來：<code>&gt;&gt;</code> 讀一個詞，<code>getline</code> 讀一整行</h3>
+
+<div class="pseudo-code" style="font-size:.78rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    <span class="kw">int</span> n;</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">請輸入一個整數：</span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    cin &gt;&gt; n;                    <span class="com">// 以空白或換行為界，讀進一個 int</span>
+<span class="line" data-l="9"></span></span>
+<span class="line" data-l="10">    cin.ignore();                <span class="com">// 丟掉 &gt;&gt; 沒吃掉的那個換行</span>
+<span class="line" data-l="11"></span>    string line;</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">請輸入一整行：</span><span class="str">"</span>;</span>
+<span class="line" data-l="13">    getline(cin, line);          <span class="com">// 連空白一起讀，直到換行</span>
+<span class="line" data-l="14"></span></span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">n = </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">，line = </span><span class="str">"</span> &lt;&lt; line &lt;&lt; endl;</span>
+<span class="line" data-l="16">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span></div>
+
+  <p>上面這支要你在終端機打字，所以沒辦法在網頁上附輸出。把輸入換成一段固定的文字，行為完全一樣，就能實際跑給你看：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同一組資料，>> 與 getline 各讀到什麼</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;sstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    <span class="com">// 用 istringstream 模擬鍵盤輸入，行為跟 cin 完全一樣</span>
+<span class="line" data-l="8"></span>    istringstream input(<span class="str">"</span><span class="str">David Malan 20</span><span class="str">\n</span><span class="str">Hello data structures</span><span class="str">\n</span><span class="str">"</span>);</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10">    string first, last;</span>
+<span class="line" data-l="11">    <span class="kw">int</span> age;</span>
+<span class="line" data-l="12">    input &gt;&gt; first &gt;&gt; last &gt;&gt; age;        <span class="com">// &gt;&gt; 以空白為分隔，一次讀一個 token</span>
+<span class="line" data-l="13"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">first=[</span><span class="str">"</span> &lt;&lt; first &lt;&lt; <span class="str">"</span><span class="str">] last=[</span><span class="str">"</span> &lt;&lt; last &lt;&lt; <span class="str">"</span><span class="str">] age=</span><span class="str">"</span> &lt;&lt; age &lt;&lt; endl;</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">    string line;</span>
+<span class="line" data-l="16">    getline(input, line);                 <span class="com">// &gt;&gt; 沒吃掉的換行還留著，先讀到空字串</span>
+<span class="line" data-l="17"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">第一次 getline=[</span><span class="str">"</span> &lt;&lt; line &lt;&lt; <span class="str">"</span><span class="str">]</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="18">    getline(input, line);                 <span class="com">// 這次才讀到整行</span>
+<span class="line" data-l="19"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">第二次 getline=[</span><span class="str">"</span> &lt;&lt; line &lt;&lt; <span class="str">"</span><span class="str">]</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>first=[David] last=[Malan] age=20
+第一次 getline=[]
+第二次 getline=[Hello data structures]</pre></div>
+  <p class="dx-note">看第二行輸出：<strong>第一次 <code>getline</code> 讀到的是空字串</strong>。因為 <code>&gt;&gt;</code> 讀完 <code>20</code> 就停了，那個換行還留在串流裡，<code>getline</code> 一讀就碰到它、當場結束。這是初學者最常卡住的地方 —— 解法是在 <code>&gt;&gt;</code> 之後、<code>getline</code> 之前補一行 <code>cin.ignore();</code>，把那個換行丟掉。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ <code>&gt;&gt;</code> 以空白分隔，讀不到有空格的名字</div>
+    <p style="margin-bottom:0;"><code class="mono">cin &gt;&gt; name;</code> 碰到 <code class="mono">David Malan</code> 只會拿到 <code class="mono">David</code>，<code class="mono">Malan</code> 留在串流裡等下一次讀。要整行就用 <code class="mono">getline(cin, name);</code>。</p>
+  </div>
+</section>
+
+<section id="operators">
+  <div class="section-number">PART 05 · 運算子</div>
+  <h2>整數除法：這一節最重要的一件事 <span class="sec-badge">第 06、07 章都靠它</span></h2>
+  <p>在 Python 3 裡 <code>7 / 2</code> 是 <code>3.5</code>，要整數除法得寫 <code>7 // 2</code>。C++ 沒有 <code>//</code> 這個運算子（那是註解），它的規則只有一句：<strong>兩邊都是整數，除法就是整數除法，小數直接丟掉</strong>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">整數除法與取餘數</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    cout &lt;&lt; <span class="str">"</span><span class="str">7 / 2     = </span><span class="str">"</span> &lt;&lt; <span class="num">7</span> / <span class="num">2</span>     &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 兩邊都是 int，小數被截掉</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">7 % 2     = </span><span class="str">"</span> &lt;&lt; <span class="num">7</span> % <span class="num">2</span>     &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 餘數</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">7.0 / 2   = </span><span class="str">"</span> &lt;&lt; <span class="num">7.0</span> / <span class="num">2</span>   &lt;&lt; <span class="str">"</span><span class="str"> &lt;- 有一邊是 double 就變浮點除法</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">-7 / 2    = </span><span class="str">"</span> &lt;&lt; <span class="num">-7</span> / <span class="num">2</span>    &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 往零的方向截，不是往下取整</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">-7 % 2    = </span><span class="str">"</span> &lt;&lt; <span class="num">-7</span> % <span class="num">2</span>    &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 餘數跟被除數同號</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">1453 / 16 = </span><span class="str">"</span> &lt;&lt; <span class="num">1453</span> / <span class="num">16</span> &lt;&lt; endl;</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">1453 % 16 = </span><span class="str">"</span> &lt;&lt; <span class="num">1453</span> % <span class="num">16</span> &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 進位制轉換就靠這兩個</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="12">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>7 / 2     = 3   &lt;- 兩邊都是 int，小數被截掉
+7 % 2     = 1   &lt;- 餘數
+7.0 / 2   = 3.5 &lt;- 有一邊是 double 就變浮點除法
+-7 / 2    = -3  &lt;- 往零的方向截，不是往下取整
+-7 % 2    = -1  &lt;- 餘數跟被除數同號
+1453 / 16 = 90
+1453 % 16 = 13   &lt;- 進位制轉換就靠這兩個</pre></div>
+  <p class="dx-note">四個要記住的點：① 只要有一邊是 <code>double</code>，整條式子就變浮點除法。② <code>-7 / 2</code> 是 <code>-3</code> 不是 <code>-4</code>，C++ 往<strong>零</strong>的方向截，跟 Python 的 <code>//</code> 往下取整不一樣。③ 因此 <code>-7 % 2</code> 是 <code>-1</code>，餘數跟被除數同號，Python 的 <code>%</code> 則跟除數同號。④ 最後兩行就是進位制轉換的全部：<code>/</code> 拿到下一輪要處理的數，<code>%</code> 拿到這一位的數字。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>式子</th><th>Python 3</th><th>C++</th><th>為什麼</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">7 / 2</td><td class="mono">3.5</td><td class="mono" style="color:var(--accent);font-weight:700;">3</td><td>C++ 兩邊都是 int，做整數除法</td></tr>
+      <tr><td class="mono">7.0 / 2</td><td class="mono">3.5</td><td class="mono">3.5</td><td>有一邊是浮點數就做浮點除法</td></tr>
+      <tr><td class="mono">7 // 2</td><td class="mono">3</td><td>語法錯誤</td><td class="mono">//</td></tr>
+      <tr><td class="mono">-7 / 2</td><td class="mono">-3.5</td><td class="mono">-3</td><td>往零截斷</td></tr>
+      <tr><td class="mono">-7 // 2</td><td class="mono">-4</td><td>—</td><td>Python 往下取整</td></tr>
+      <tr><td class="mono">-7 % 2</td><td class="mono">1</td><td class="mono" style="color:var(--accent);font-weight:700;">-1</td><td>C++ 的餘數跟被除數同號</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 06、07 章</div><p style='margin-bottom:0;'>第 07 章的雜湊表 <code class='mono'>dscpp/hashtable.hpp</code> 第 16 行就是 <code class='mono'>int hashFunction(int key) {{ return key % size; }}</code> —— 整張表能不能均勻分布，全靠這個 <code>%</code>。第 06 章的進位制轉換 <code class='mono'>toStr(n, base)</code> 則是 <code class='mono'>toStr(n / base, base) + convertString[n % base]</code>：<code>/</code> 負責往下一層遞迴，<code>%</code> 負責取出這一位。這兩個地方把 <code>/</code> 寫成 <code class='mono'>1.0 * n / base</code> 就整個垮掉。</p></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">遞增與複合指定</h3>
+
+<div class="deck-extra">
+  <div class="dx-label">i++ 與 ++i 差在什麼時候加</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> i = <span class="num">5</span>;</span>
+<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">i++ 印出 </span><span class="str">"</span> &lt;&lt; i++ &lt;&lt; <span class="str">"</span><span class="str">，之後 i = </span><span class="str">"</span> &lt;&lt; i &lt;&lt; endl;   <span class="com">// 先用後加</span>
+<span class="line" data-l="7"></span>    <span class="kw">int</span> j = <span class="num">5</span>;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">++j 印出 </span><span class="str">"</span> &lt;&lt; ++j &lt;&lt; <span class="str">"</span><span class="str">，之後 j = </span><span class="str">"</span> &lt;&lt; j &lt;&lt; endl;   <span class="com">// 先加後用</span>
+<span class="line" data-l="9"></span></span>
+<span class="line" data-l="10">    <span class="kw">int</span> total = <span class="num">10</span>;</span>
+<span class="line" data-l="11">    total += <span class="num">5</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total += 5  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
+<span class="line" data-l="12">    total -= <span class="num">3</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total -= 3  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
+<span class="line" data-l="13">    total *= <span class="num">2</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total *= 2  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
+<span class="line" data-l="14">    total /= <span class="num">4</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total /= 4  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 整數除法還是會截</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="15">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="16">}</span>
+<span class="line" data-l="17"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>i++ 印出 5，之後 i = 6
+++j 印出 6，之後 j = 6
+total += 5  -&gt; 15
+total -= 3  -&gt; 12
+total *= 2  -&gt; 24
+total /= 4  -&gt; 6  &lt;- 整數除法還是會截</pre></div>
+  <p class="dx-note"><code>i++</code> 是<strong>先把舊值交出去，再加一</strong>；<code>++i</code> 是<strong>先加一，再交出新值</strong>。單獨寫一行當作敘述時兩者沒差（<code>for</code> 迴圈的 <code>i++</code> 換成 <code>++i</code> 結果一樣），差別只在<strong>把它塞進別的式子裡</strong>的時候。最後一行提醒你：<code>/=</code> 一樣會截斷。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">優先順序，還有一個 Python 習慣帶不過來</h3>
+
+<div class="deck-extra">
+  <div class="dx-label">連續比較在 C++ 是另一個意思</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    cout &lt;&lt; boolalpha;</span>
+<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">2 + 3 * 4   = </span><span class="str">"</span> &lt;&lt; <span class="num">2</span> + <span class="num">3</span> * <span class="num">4</span>   &lt;&lt; endl;</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">(2 + 3) * 4 = </span><span class="str">"</span> &lt;&lt; (<span class="num">2</span> + <span class="num">3</span>) * <span class="num">4</span> &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">10 &lt; 5      = </span><span class="str">"</span> &lt;&lt; (<span class="num">10</span> &lt; <span class="num">5</span>)    &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">10 &lt; 5 &lt; 3  = </span><span class="str">"</span> &lt;&lt; (<span class="num">10</span> &lt; <span class="num">5</span> &lt; <span class="num">3</span>) &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 先算 10&lt;5 得到 0，再算 0&lt;3</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 + 3 * 4   = 14
+(2 + 3) * 4 = 20
+10 &lt; 5      = false
+10 &lt; 5 &lt; 3  = true   &lt;- 先算 10&lt;5 得到 0，再算 0&lt;3</pre></div>
+  <p class="dx-note">Python 的 <code>10 &lt; 5 &lt; 3</code> 是「同時滿足兩個條件」，答案是假。C++ 沒有這種語法糖，它從左邊算起：<code>10 &lt; 5</code> 得到 <code>false</code>（也就是 0），再算 <code>0 &lt; 3</code>，於是變成<strong>真</strong>。要表達範圍檢查，一定要寫成 <code>(5 &lt;= x) &amp;&amp; (x &lt;= 10)</code>。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>優先順序（高到低）</th><th>運算子</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td class="mono">()　[]　-&gt;　.</td></tr>
+      <tr><td>2</td><td class="mono">++　--　!　*（解參考）　&amp;（取址）</td></tr>
+      <tr><td>3</td><td class="mono">*　/　%</td></tr>
+      <tr><td>4</td><td class="mono">+　-</td></tr>
+      <tr><td>5</td><td class="mono">&lt;&lt;　&gt;&gt;</td></tr>
+      <tr><td>6</td><td class="mono">&lt;　&lt;=　&gt;　&gt;=</td></tr>
+      <tr><td>7</td><td class="mono">==　!=</td></tr>
+      <tr><td>8</td><td class="mono">&amp;&amp;</td></tr>
+      <tr><td>9</td><td class="mono">||</td></tr>
+      <tr><td>10</td><td class="mono">=　+=　-=　*=　/=　%=</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>不用背整張表，記兩件事就夠：<strong><code>&lt;&lt;</code> 的優先順序比比較運算高</strong>，所以 <code>cout &lt;&lt; a &lt; b</code> 會編譯錯誤，要寫 <code>cout &lt;&lt; (a &lt; b)</code>；<strong><code>&amp;&amp;</code> 比 <code>||</code> 高</strong>，混用時加括號比較安全。</p>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 平均分數</div>
+    <p>三個人的分數是 90、85、78，總分 253。<code class="mono">int avg = 253 / 3;</code> 之後 <code class="mono">avg</code> 是多少？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="84.33 是浮點除法的答案。但 253 和 3 都是 int，C++ 做的是整數除法，而且 avg 本身也是 int，裝不下小數。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 84.33</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。253 / 3 是 84.33…，整數除法把小數截掉得到 84。要拿到 84.33 得寫 static_cast&lt;double&gt;(253) / 3，而且接的變數要是 double。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 84</div>
+      <div class="quiz-opt" data-correct="false" data-fb="C++ 的整數除法是往零截斷，不是四捨五入。84.33 四捨五入才是 84，但 84.67 截斷後仍是 84 而不是 85 —— 兩者遇到 .5 以上就會分岔。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 85</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不會編譯錯誤。把 double 指派給 int 只是警告等級的窄化，整數除以整數更是完全合法。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> 編譯錯誤</div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+</section>
+
+
+<section id="convert">
+  <div class="section-number">PART 06 · 型別轉換</div>
+  <h2>編譯器會自己轉，問題是它轉的時機不是你要的</h2>
+  <p>C++ 遇到型別不同的兩邊，會偷偷把「小的」轉成「大的」再算，這叫<strong>隱式轉換</strong>。多數時候它很聰明，但 <code>int / int</code> 這個組合會讓你吃虧：兩邊都是 <code>int</code>，它就沒有理由轉，除法結果直接被截掉，<strong>之後再怎麼補救都來不及</strong>。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>式子</th><th>編譯器怎麼做</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">7 / 2.0</td><td>把 7 轉成 <code>7.0</code>，做浮點除法</td><td class="mono">3.5</td></tr>
+      <tr><td class="mono">7 / 2</td><td>兩邊都是 int，不轉</td><td class="mono" style="color:var(--accent);font-weight:700;">3</td></tr>
+      <tr><td class="mono">double d = 7 / 2;</td><td><strong>先算完 3，才轉成 3.0</strong></td><td class="mono" style="color:var(--accent);font-weight:700;">3</td></tr>
+      <tr><td class="mono">int n = 3.99;</td><td>截斷小數，不是四捨五入</td><td class="mono">3</td></tr>
+      <tr><td class="mono">int n = true;</td><td><code>bool</code> 轉 <code>int</code></td><td class="mono">1</td></tr>
+      <tr><td class="mono">int n = 'A';</td><td><code>char</code> 轉 <code>int</code>，取 ASCII 碼</td><td class="mono">65</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>第三列是最陰險的一個。<code class="mono">double avg = sum / n;</code> 看起來完全合理，但等號右邊是兩個 <code>int</code>，除法在轉成 <code>double</code> <strong>之前</strong>就做完了。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同一組數字，轉型位置不同，答案不同</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> a = <span class="num">7</span>, b = <span class="num">2</span>;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">a / b                       = </span><span class="str">"</span> &lt;&lt; a / b &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">(double)(a / b)             = </span><span class="str">"</span> &lt;&lt; (<span class="kw">double</span>)(a / b)</span>
+<span class="line" data-l="9">         &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 先做整數除法才轉，太晚了</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">static_cast&lt;double&gt;(a) / b  = </span><span class="str">"</span> &lt;&lt; <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(a) / b</span>
+<span class="line" data-l="11">         &lt;&lt; <span class="str">"</span><span class="str"> &lt;- 先把一邊變成 double，正確</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    <span class="kw">double</span> d = <span class="num">3.99</span>;</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">static_cast&lt;int&gt;(3.99)      = </span><span class="str">"</span> &lt;&lt; <span class="kw">static_cast</span>&lt;<span class="kw">int</span>&gt;(d)</span>
+<span class="line" data-l="15">         &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 轉 int 是截斷，不是四捨五入</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">    <span class="kw">int</span> scores[<span class="num">3</span>] = {<span class="num">90</span>, <span class="num">85</span>, <span class="num">78</span>};</span>
+<span class="line" data-l="18">    <span class="kw">int</span> sum = <span class="num">0</span>;</span>
+<span class="line" data-l="19">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) sum += scores[i];</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">平均（錯）= </span><span class="str">"</span> &lt;&lt; sum / <span class="num">3</span></span>
+<span class="line" data-l="21">         &lt;&lt; <span class="str">"</span><span class="str">，平均（對）= </span><span class="str">"</span> &lt;&lt; <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(sum) / <span class="num">3</span> &lt;&lt; endl;</span>
+<span class="line" data-l="22">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="23">}</span>
+<span class="line" data-l="24"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a / b                       = 3
+(double)(a / b)             = 3  &lt;- 先做整數除法才轉，太晚了
+static_cast&lt;double&gt;(a) / b  = 3.5 &lt;- 先把一邊變成 double，正確
+static_cast&lt;int&gt;(3.99)      = 3   &lt;- 轉 int 是截斷，不是四捨五入
+平均（錯）= 84，平均（對）= 84.3333</pre></div>
+  <p class="dx-note">第二行的 <code>(double)(a / b)</code> 是典型的錯法：括號包住整個除法，等於「先算出 3，再把 3 變成 3.0」。第三行才對 —— <strong>把其中一邊先變成 <code>double</code>，除法才會用浮點的規則做</strong>。只轉一邊就夠，另一邊會被隱式轉換帶上去。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 一個口訣</div>
+    <p style="margin-bottom:0;">要浮點的答案，<strong>轉型要放在除號的左邊、括號的裡面</strong>：<code class="mono">static_cast&lt;double&gt;(a) / b</code>。放錯位置的 <code class="mono">static_cast&lt;double&gt;(a / b)</code> 編得過、跑得動、答案錯，而且錯得很安靜。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">整數溢位：裝不下的時候會繞回去</h3>
+  <p><code>int</code> 是 4 個 byte，能表示的最大值是 2,147,483,647。加到超過這個數，位元進到最高位，整個值就翻成負的。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">int 撞到天花板</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;climits&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">int 的範圍：</span><span class="str">"</span> &lt;&lt; INT_MIN &lt;&lt; <span class="str">"</span><span class="str"> ~ </span><span class="str">"</span> &lt;&lt; INT_MAX &lt;&lt; endl;</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8">    <span class="kw">int</span> big = INT_MAX;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">big              = </span><span class="str">"</span> &lt;&lt; big &lt;&lt; endl;</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">big + 1（未定義）= </span><span class="str">"</span> &lt;&lt; big + <span class="num">1</span> &lt;&lt; endl;</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    <span class="kw">unsigned</span> <span class="kw">int</span> u = <span class="num">0</span>;</span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">unsigned 0 - 1   = </span><span class="str">"</span> &lt;&lt; u - <span class="num">1</span> &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 無號數會繞回最大值</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">    <span class="kw">long</span> <span class="kw">long</span> safe = <span class="kw">static_cast</span>&lt;<span class="kw">long</span> <span class="kw">long</span>&gt;(big) + <span class="num">1</span>;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">先轉 long long   = </span><span class="str">"</span> &lt;&lt; safe &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 這才是想要的答案</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="18">}</span>
+<span class="line" data-l="19"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>int 的範圍：-2147483648 ~ 2147483647
+big              = 2147483647
+big + 1（未定義）= -2147483648
+unsigned 0 - 1   = 4294967295  &lt;- 無號數會繞回最大值
+先轉 long long   = 2147483648  &lt;- 這才是想要的答案</pre></div>
+  <p class="dx-note">第三行 <code>big + 1</code> 印出最小的負數。<strong>要注意的是：有號整數溢位在 C++ 標準裡是未定義行為</strong>，這裡看到的繞回只是這台機器、這個最佳化等級下剛好如此，不保證。無號數就不一樣了 —— <code>unsigned</code> 的繞回是標準明文規定的，所以 <code>0u - 1</code> 一定得到最大值。最後一行給出正確作法：<strong>在溢位發生之前就把型別放大</strong>，而不是事後補救。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 這在第 02 章會咬到你</div>
+    <p style="margin-bottom:0;">分析演算法時常常要算「n 個元素兩兩配對有幾組」，也就是 <code class="mono">n * (n - 1) / 2</code>。<code>n</code> 到六萬五千左右，<code class="mono">n * n</code> 就爆掉 <code>int</code> 了。寫成 <code class="mono">long long total = static_cast&lt;long long&gt;(n) * (n - 1) / 2;</code> 才安全 —— 轉型要放在乘法<strong>之前</strong>，跟上面除法那個坑是同一個道理。</p>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">C 風格的 <code class="mono">(double)x</code> 跟 <code class="mono">static_cast&lt;double&gt;(x)</code> 在這裡效果一樣，但 <code>static_cast</code> 會擋掉一些不合理的轉換，而且在程式碼裡一眼就看得到（搜尋 <code>static_cast</code> 就能把所有轉型找出來）。<strong>本課兩種都會出現，考試以課程風格為準</strong>；自己寫的時候建議一律用 <code>static_cast</code>。</p>
+  </div>
+</section>
+
+<section id="errors">
+  <div class="section-number">PART 07 · 讀懂編譯錯誤</div>
+  <h2>g++ 罵人的話有固定格式，看懂前三行就夠了</h2>
+  <p>初學者看到滿螢幕紅字的反應通常是全選複製去問人。其實 g++ 的訊息有結構，而且<strong>只有第一個 <code>error:</code> 值得看</strong> —— 後面那幾十行多半是被第一個錯連累的。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1">main.cpp: In function '<span class="kw">int</span> main()':</span>
+<span class="line" data-l="2">main.cpp:<span class="num">6</span>:<span class="num">5</span>: error: expected <span class="str">'</span><span class="str">,</span><span class="str">'</span> <span class="kw">or</span> <span class="str">'</span><span class="str">;</span><span class="str">'</span> before 'cout'</span>
+<span class="line" data-l="3"> </span></div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>片段</th><th>意思</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">main.cpp</td><td>哪一個檔出事</td></tr>
+      <tr><td class="mono">6</td><td>第幾行</td></tr>
+      <tr><td class="mono">5</td><td>那一行的第幾個字元（欄）</td></tr>
+      <tr><td class="mono">error:</td><td>等級。<code class="mono">error</code> 一定要修，<code class="mono">warning</code> 編得過但通常也該修</td></tr>
+      <tr><td class="mono">expected ',' or ';' before 'cout'</td><td>錯在哪。這一段才是要讀的東西</td></tr>
+      <tr><td class="mono">In function 'int main()'</td><td>出事的位置在哪個函式裡。函式一多這行就很有用</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>下面四個是整學期出現頻率最高的，訊息都是真的跑 g++ 印出來的。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">① 漏了分號</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">10</span></span>
+<span class="line" data-l="6">    cout &lt;&lt; x &lt;&lt; endl;</span>
+<span class="line" data-l="7">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="8">}</span>
+<span class="line" data-l="9"> </span></div>
+  <div class="expected-out"><span class="eo-tag">g++ 錯誤訊息</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:6:5: error: expected ‘,’ or ‘;’ before ‘cout’
+    6 |     cout &lt;&lt; x &lt;&lt; endl;</pre></div>
+  <p class="dx-note">注意它指的是<strong>第 6 行</strong>，但分號其實漏在<strong>第 5 行</strong>。編譯器讀完 <code>int x = 10</code> 還在等分號，一路讀到下一行的 <code>cout</code> 才發現不對，所以行號會往後偏一行。<strong>看到 expected ';' 就往上一行找</strong>，這條規則幾乎百發百中。</p>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">② 型別不合</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    string name = <span class="str">"</span><span class="str">David</span><span class="str">"</span>;</span>
+<span class="line" data-l="7">    <span class="kw">int</span> n = name;</span>
+<span class="line" data-l="8">    cout &lt;&lt; n &lt;&lt; endl;</span>
+<span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span></div>
+  <div class="expected-out"><span class="eo-tag">g++ 錯誤訊息</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:7:13: error: cannot convert ‘std::string’ {aka ‘std::__cxx11::basic_string&lt;char&gt;’} to ‘int’ in initialization
+    7 |     int n = name;</pre></div>
+  <p class="dx-note"><code>cannot convert A to B</code> 是最好讀的一類：它明講了「有一個 A，但這裡要的是 B」。中間那串 <code>std::__cxx11::basic_string&lt;char&gt;</code> 是 <code>string</code> 的完整名字，看到 <code>aka</code> 後面才是人話。這一類錯誤在你開始用 <code>template &lt;typename T&gt;</code> 之後會變得又臭又長，訣竅一樣：<strong>只讀 cannot convert 那一句</strong>。</p>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">③ 未宣告的識別字</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> total = <span class="num">0</span>;</span>
+<span class="line" data-l="6">    total = total + conut;</span>
+<span class="line" data-l="7">    cout &lt;&lt; total &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span></div>
+  <div class="expected-out"><span class="eo-tag">g++ 錯誤訊息</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:6:21: error: ‘conut’ was not declared in this scope; did you mean ‘const’?
+    6 |     total = total + conut;</pre></div>
+  <p class="dx-note"><code>was not declared in this scope</code> 只有三種可能：<strong>打錯字</strong>（這裡是 <code>conut</code>）、<strong>忘了宣告</strong>、<strong>忘了 <code>#include</code></strong>。g++ 甚至會猜你想打什麼（<code>did you mean</code>），雖然這次猜錯了。如果訊息裡的名字是 <code>cout</code> 或 <code>sqrt</code> 這種標準函式庫的東西，那就是第三種。</p>
+</div>
+
+  <p>還有一類長得完全不一樣，因為它發生在<strong>連結</strong>階段而不是編譯階段：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">④ 連結錯誤：函式只宣告沒定義</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">addUp</span>(<span class="kw">int</span> a, <span class="kw">int</span> b);      <span class="com">// 只宣告，沒有定義</span>
+<span class="line" data-l="5"></span></span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    cout &lt;&lt; addUp(<span class="num">3</span>, <span class="num">4</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span></div>
+  <div class="expected-out"><span class="eo-tag">g++ 錯誤訊息</span><pre>[編譯失敗]
+/usr/bin/ld: main.o: in function `main&#x27;:
+main.cpp:(.text+0x13): undefined reference to `addUp(int, int)&#x27;
+collect2: error: ld returned 1 exit status</pre></div>
+  <p class="dx-note">認得出來的兩個特徵：開頭是 <code class='mono'>/usr/bin/ld:</code>（ld 是連結器），而且<strong>沒有指到你的哪一行</strong>。<code>undefined reference to</code> 的意思是「我知道有這個函式，但找不到它的身體」。常見原因是宣告了忘記實作、函式簽章打錯字，或多檔案專案只編了一個 <code>.cpp</code>。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>看到這句</th><th>八成是</th><th>先去哪裡看</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">expected ';' before …</td><td>漏分號</td><td><strong>它指的那行的上一行</strong></td></tr>
+      <tr><td class="mono">was not declared in this scope</td><td>打錯字／忘了 include</td><td>那個名字的拼字，或檔案開頭</td></tr>
+      <tr><td class="mono">cannot convert A to B</td><td>型別不合</td><td>等號兩邊、或函式的參數</td></tr>
+      <tr><td class="mono">no matching function for call to …</td><td>參數個數或型別對不上</td><td>函式的宣告與呼叫處比對</td></tr>
+      <tr><td class="mono">undefined reference to …</td><td><strong>連結</strong>階段：只宣告沒定義</td><td>該函式的實作，或編譯指令少了檔案</td></tr>
+      <tr><td class="mono">No such file or directory</td><td>include 的路徑不對</td><td><code class="mono">-I</code> 有沒有加對（見 PART 02）</td></tr>
+      <tr><td class="mono">Segmentation fault</td><td>這不是編譯錯誤，是<strong>執行時</strong>當掉</td><td>通常是指標，見 <a href="p4_pointers_memory.html">P4</a></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 三個習慣，可以少掉一半的 debug 時間</div>
+    <p style="margin-bottom:0;">① <strong>從第一個 error 開始修，修完馬上重編</strong> —— 一個錯常常引發後面二十個。<br>
+    ② <strong>永遠加 <code class="mono">-Wall</code></strong>。它抓得到「變數沒初始化」「比較有號跟無號」這類編譯得過但會出事的東西。<br>
+    ③ <strong>每寫十行就編譯一次</strong>。寫完兩百行才第一次按編譯，錯誤會互相糾纏到看不出源頭。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 整學期</div><p style='margin-bottom:0;'>這一節沒有對應到某一章，因為它<strong>每一章都會用到</strong>。第 04 章漏掉 <code class='mono'>template &lt;typename T&gt;</code> 會噴一整頁；第 09 章的 <code class='mono'>BST&lt;int&gt;</code> 型別參數寫錯，訊息會長到滾三個螢幕。能在三十秒內定位到第一個 <code>error:</code> 並看懂它，是這門課投報率最高的技能。</p></div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>兩題確認你抓到重點</h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE · 這段程式錯在哪</div>
+    <p>目標是印出 7 除以 2 的小數答案，但它印出 <code class="mono">3</code>：</p>
+    <div class="pseudo-code" style="font-size:.82rem;"><span class="line" data-l="1"><span class="kw">int</span> a = <span class="num">7</span>, b = <span class="num">2</span>;</span>
+<span class="line" data-l="2"><span class="kw">double</span> result = a / b;</span>
+<span class="line" data-l="3">cout &lt;&lt; result &lt;&lt; endl;</span>
+<span class="line" data-l="4"> </span></div>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="result 已經是 double 了，型別沒問題。問題出在等號右邊：a / b 這個運算在被指派給 result 之前就已經算完了。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> result 要宣告成 float</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。a 和 b 都是 int，a / b 先做整數除法得到 3，才被轉成 3.0 存進 result。要寫成 static_cast&lt;double&gt;(a) / b，把轉型放在除法之前、只轉一邊就夠。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> <code class="mono">a / b</code> 是整數除法，轉型要在除法之前做</div>
+      <div class="quiz-opt" data-correct="false" data-fb="cout 印 3.5 時會印成 3.5，它只是不印多餘的 0。這裡拿到的值本來就是 3.0。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> cout 把小數點吃掉了，要設精度</div>
+      <div class="quiz-opt" data-correct="false" data-fb="這段可以編譯也可以執行，沒有任何錯誤訊息。這正是它危險的地方——編譯器完全不會提醒你。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 這段根本編譯不過</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE · 錯誤訊息指到第 6 行</div>
+    <p>g++ 印出 <code class="mono">main.cpp:6:5: error: expected ',' or ';' before 'cout'</code>，第 6 行是 <code class="mono">cout &lt;&lt; x &lt;&lt; endl;</code>。你應該先做什麼？</p>
+    <div class="quiz-options" id="qcOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="第 6 行本身通常是對的。編譯器是讀到第 6 行才發現前面缺東西，所以行號會往後偏。" onclick="quizCheck('qc', this)"><span class="opt-letter">(A)</span> 把第 6 行整行重打一次</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。expected ';' 這一類的訊息幾乎都要往上一行找。編譯器讀完第 5 行還在等分號，一路讀到第 6 行的第一個 token 才確定出事，於是報在第 6 行。" onclick="quizCheck('qc', this)"><span class="opt-letter">(B)</span> 去看第 5 行結尾是不是漏了分號</div>
+      <div class="quiz-opt" data-correct="false" data-fb="這個訊息跟 include 無關。少了 include 的訊息會是 cout was not declared in this scope，或是 No such file or directory。" onclick="quizCheck('qc', this)"><span class="opt-letter">(C)</span> 檢查有沒有忘記 include iostream</div>
+      <div class="quiz-opt" data-correct="false" data-fb="順序反了。應該從第一個 error 開始修，修完立刻重編——後面那些訊息很可能只是被第一個錯連累的。" onclick="quizCheck('qc', this)"><span class="opt-letter">(D)</span> 先看最後一個錯誤訊息，那才是真正的原因</div>
+    </div>
+    <div class="quiz-feedback" id="qcFeedback"></div>
+  </div>
+</section>
+
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P1 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">程式骨架</h3>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="com">       // 標準函式庫用尖括號</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"dscpp/stack.hpp"</span><span class="com">  // 自己的或課程的用雙引號</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    <span class="kw">int</span> n = <span class="num">0</span>;              <span class="com">// 宣告的同時就給值</span>
+<span class="line" data-l="8"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">請輸入：</span><span class="str">"</span>;</span>
+<span class="line" data-l="9">    cin &gt;&gt; n;</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">答案是 </span><span class="str">"</span> &lt;&lt; n * <span class="num">2</span> &lt;&lt; endl;</span>
+<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;               <span class="com">// 0 代表正常結束</span>
+<span class="line" data-l="12"></span>}</span>
+<span class="line" data-l="13"> </span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">編譯指令</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>指令</th><th>做什麼</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">g++ -std=c++17 -Wall main.cpp -o main</td><td>四階段一次做完，產出執行檔 <code class="mono">main</code></td></tr>
+      <tr><td class="mono">./main</td><td>執行</td></tr>
+      <tr><td class="mono">g++ -std=c++17 -I ~/ds_cpp/Slides main.cpp -o main</td><td>要用課程 <code class="mono">dscpp/</code> 標頭檔時加 <code class="mono">-I</code></td></tr>
+      <tr><td class="mono">g++ -E main.cpp | wc -l</td><td>看前處理展開成幾行（本頁量到 46,577 行）</td></tr>
+      <tr><td class="mono">g++ -g main.cpp -o main</td><td>帶除錯資訊，之後可以用 <code class="mono">gdb ./main</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">型別大小與範圍（64 位元 Linux 實測）</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>型別</th><th>sizeof</th><th>範圍或精度</th><th>什麼時候用</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">bool</td><td class="mono">1</td><td class="mono">true / false</td><td>條件、旗標</td></tr>
+      <tr><td class="mono">char</td><td class="mono">1</td><td class="mono">-128 ~ 127</td><td>單一字元，單引號 <code class="mono">'A'</code></td></tr>
+      <tr><td class="mono">short</td><td class="mono">2</td><td class="mono">-32,768 ~ 32,767</td><td>這門課幾乎用不到</td></tr>
+      <tr><td class="mono">int</td><td class="mono">4</td><td class="mono">±2,147,483,647</td><td><strong>整數的預設選擇</strong></td></tr>
+      <tr><td class="mono">unsigned int</td><td class="mono">4</td><td class="mono">0 ~ 4,294,967,295</td><td>只會是非負數時；小心它減到負會繞回</td></tr>
+      <tr><td class="mono">long long</td><td class="mono">8</td><td class="mono">±9.22 × 10<sup>18</sup></td><td>會超過二十一億時</td></tr>
+      <tr><td class="mono">float</td><td class="mono">4</td><td>約 6 位有效數字</td><td>不要用</td></tr>
+      <tr><td class="mono">double</td><td class="mono">8</td><td>約 15 位有效數字</td><td><strong>小數的預設選擇</strong></td></tr>
+      <tr><td class="mono">int *</td><td class="mono">8</td><td>一個位址</td><td>指標一律 8 bytes，見 <a href="p4_pointers_memory.html">P4</a></td></tr>
+      <tr><td class="mono">string</td><td class="mono">32</td><td>物件本身的大小</td><td>字元另外存，長度用 <code class="mono">.length()</code> 問</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python ↔ C++ 對照表</h3>
+  <p>這張表是這一頁最該存下來的東西。左邊是你已經會的，右邊是同一件事在 C++ 怎麼寫。</p>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>要做的事</th><th>Python</th><th>C++</th><th>差在哪</th></tr></thead>
+    <tbody>
+      <tr><td>註解</td><td class="mono"># 一行</td><td class="mono">// 一行　　/* 多行 */</td><td>C++ 的 <code class="mono">//</code> 不是除法</td></tr>
+      <tr><td>宣告變數</td><td class="mono">x = 5</td><td class="mono">int x = 5;</td><td>要寫型別，要分號</td></tr>
+      <tr><td>常數</td><td class="mono">PI = 3.14</td><td class="mono">const double PI = 3.14;</td><td>C++ 的 <code>const</code> 是編譯器強制的</td></tr>
+      <tr><td>印出並換行</td><td class="mono">pri<span></span>nt(x)</td><td class="mono">cout &lt;&lt; x &lt;&lt; endl;</td><td>不會自動加空格</td></tr>
+      <tr><td>讀一行輸入</td><td class="mono">s = input()</td><td class="mono">getline(cin, s);</td><td><code class="mono">cin &gt;&gt; s</code> 只讀到第一個空白</td></tr>
+      <tr><td>條件</td><td class="mono">if a &gt; b:　el<span></span>if:　else:</td><td class="mono">if (a &gt; b) { } else if ( ) { } else { }</td><td>條件要括號，區塊用大括號不靠縮排</td></tr>
+      <tr><td>邏輯運算</td><td class="mono">and　or　not</td><td class="mono">&amp;&amp;　||　!</td><td>兩邊都有短路求值</td></tr>
+      <tr><td>連續比較</td><td class="mono">1 &lt; x &lt; 10</td><td class="mono">(1 &lt; x) &amp;&amp; (x &lt; 10)</td><td><strong>C++ 沒有這種語法糖，寫了會得到錯的答案</strong></td></tr>
+      <tr><td>計次迴圈</td><td class="mono">for i in range(10):</td><td class="mono">for (int i = 0; i &lt; 10; i++) { }</td><td>三段：起始、條件、每輪做的事</td></tr>
+      <tr><td>走訪容器</td><td class="mono">for x in items:</td><td class="mono">for (double x : items) { }</td><td>要寫元素型別</td></tr>
+      <tr><td>條件迴圈</td><td class="mono">while x &gt; 0:</td><td class="mono">while (x &gt; 0) { }</td><td>一樣</td></tr>
+      <tr><td>定義函式</td><td class="mono">de<span></span>f f(a, b):</td><td class="mono">int f(int a, int b) { }</td><td>回傳型別與參數型別都要寫</td></tr>
+      <tr><td>整數除法</td><td class="mono">7 // 2</td><td class="mono">7 / 2</td><td><strong>C++ 的 <code>/</code> 兩邊都是 int 就是整數除法</strong></td></tr>
+      <tr><td>浮點除法</td><td class="mono">7 / 2</td><td class="mono">static_cast&lt;double&gt;(7) / 2</td><td>轉型要放在除法之前</td></tr>
+      <tr><td>取餘數</td><td class="mono">7 % 2</td><td class="mono">7 % 2</td><td>負數時符號不同</td></tr>
+      <tr><td>次方</td><td class="mono">2 ** 10</td><td class="mono">pow(2, 10)</td><td>要 <code class="mono">#include &lt;cmath&gt;</code>，而且回傳 <code>double</code></td></tr>
+      <tr><td>強制轉整數</td><td class="mono">int(3.99)</td><td class="mono">static_cast&lt;int&gt;(3.99)</td><td>都是截斷</td></tr>
+      <tr><td>字串長度</td><td class="mono">len(s)</td><td class="mono">s.length()</td><td>C++ 的 <code>string</code> 要 <code class="mono">#include &lt;string&gt;</code></td></tr>
+      <tr><td>取子字串</td><td class="mono">s[2:5]</td><td class="mono">s.substr(2, 3)</td><td>第二個參數是<strong>長度</strong>不是結束位置</td></tr>
+      <tr><td>可變長度的串列</td><td class="mono">a = [1, 2, 3]</td><td class="mono">vector&lt;int&gt; a = {1, 2, 3};</td><td>見 <a href="p5_vector_string.html">P5</a></td></tr>
+      <tr><td>加到尾巴</td><td class="mono">a.append(x)</td><td class="mono">a.push_back(x);</td><td>名字不同，行為一樣</td></tr>
+      <tr><td>真假值</td><td class="mono">True　False</td><td class="mono">true　false</td><td>C++ 全小寫；印出來預設是 1 / 0</td></tr>
+      <tr><td>程式進入點</td><td class="mono">if __name__ == "__main__":</td><td class="mono">int main() { }</td><td>C++ 一定要有，而且只能有一個</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的程式貼進去單步執行，看每個變數的值怎麼變。整數除法那一段特別值得跑一次。</td></tr>
+      <tr><td><a href="https://godbolt.org/" target="_blank" rel="noopener">Compiler Explorer</a></td><td>左邊貼 C++、右邊即時出組合語言。PART 01 說的「翻成 103 行組合語言」，在這裡看得到。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/operator_precedence" target="_blank" rel="noopener">cppreference · 運算子優先順序</a></td><td>完整的優先順序表，寫括號猶豫時查這個。</td></tr>
+      <tr><td><a href="https://github.com/pearcej/cppds/tree/master/_sources/Introduction" target="_blank" rel="noopener">cppds · Introduction</a></td><td>課程用的教科書章節，本頁的程式風格出自這裡。</td></tr>
+      <tr><td><a href="00b_setup.html">P0b · 環境設定</a></td><td>還沒把 g++ 裝起來的話先看這頁。</td></tr>
+      <tr><td><a href="introduction.html">本站第 01 章 · 導論</a></td><td>把這一頁的東西實際用起來。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="bankquiz">
+  <div class="section-number">QUIZ · 自我檢測</div>
+  <h2>自我檢測：C++ 基礎與編譯流程 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">int a = 7, b = 2;
+cout &lt;&lt; a / b &lt;&lt; &quot; &quot; &lt;&lt; a % b &lt;&lt; endl;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。兩邊都是 int，/ 做的是整數除法，小數直接截掉得到 3；% 取的是餘數 1。第 06 章的進位制轉換 toStr 就是靠這兩個運算子，一個往下遞迴、一個取出這一位。">3 1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。3.5 是 Python 3 的答案。C++ 只要 / 的兩邊都是整數就做整數除法，要浮點結果得先把一邊轉成 double。">3.5 1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。% 是取餘數運算子，不是除法，而且它只能用在整數上，7.0 % 2 會編譯錯誤。">3 3.5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。整數除法是往零的方向截斷，不是四捨五入。7 / 2 得到 3 而不是 4。">4 1</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">int x = 10;
+double y = x / 4;
+cout &lt;&lt; y &lt;&lt; endl;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。y 雖然是 double，但等號右邊的 x / 4 兩邊都是 int，除法先做完得到 2，才被轉成 2.0 存進 y。轉型必須發生在除法之前才有用。">2</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是很多人以為的答案，但編譯器不會因為左邊是 double 就回頭改變右邊的算法。要拿到 2.5 得寫 static_cast&lt;double&gt;(x) / 4。">2.5</button>
+      <button class="sq-opt" data-c="0" data-fb="值確實是 2.0，但 cout 預設不印多餘的 0，所以螢幕上會看到 2。要固定印小數位得用 setprecision 搭配 fixed。">2.0</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。把 int 指派給 double 是合法的隱式轉換，完全編得過。這正是這個坑危險的地方：沒有任何錯誤訊息。">編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>以下程式印出什麼？（注意這在 Python 是另一個意思）</div>
+    <pre class="sq-code">cout &lt;&lt; boolalpha &lt;&lt; (10 &lt; 5 &lt; 3) &lt;&lt; endl;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。C++ 從左邊算起：10 &lt; 5 得到 false，也就是 0；接著算 0 &lt; 3，成立，所以是 true。要表達範圍檢查一定要寫成 (5 &lt; x) &amp;&amp; (x &lt; 10)。">true</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。false 是 Python 的答案，因為 Python 的連續比較會自動展開成 and。C++ 沒有這個語法糖，只會從左到右兩兩比較。">false</button>
+      <button class="sq-opt" data-c="0" data-fb="值確實是真，但這行先丟了 boolalpha 進 cout，之後的 bool 就會印成 true 或 false 而不是 1 或 0。">1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這行完全合法，這正是它危險的地方。編譯器只看到兩個合法的比較運算，不會知道你想寫的是範圍檢查。">編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">int i = 5;
+cout &lt;&lt; i++ &lt;&lt; &quot; &quot;;
+cout &lt;&lt; i &lt;&lt; endl;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。i++ 是後置遞增：先把舊值 5 交出去印，之後才把 i 加成 6。如果寫成 ++i，印出來的就會是 6 6。">5 6</button>
+      <button class="sq-opt" data-c="0" data-fb="不對，那是 ++i 的行為。前置遞增先加再交出新值，後置遞增先交出舊值再加。">6 6</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。i++ 確實會把 i 加一，只是加的時機在把舊值交出去之後。第二行印的是已經變成 6 的 i。">5 5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。第一個 cout 一定先執行，不可能印出比第二個大的值。">6 5</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>以下程式印出什麼？（在 64 位元 Linux 上）</div>
+    <pre class="sq-code">int a[5] = {1, 2, 3, 4, 5};
+cout &lt;&lt; sizeof(int) &lt;&lt; &quot; &quot; &lt;&lt; sizeof(a) &lt;&lt; &quot; &quot; &lt;&lt; sizeof(a) / sizeof(int) &lt;&lt; endl;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。一個 int 佔 4 bytes，五個就是 20，相除得到元素個數 5。第 03 章算陣列元素位址就是用這個 4：第 i 格在起始位址加上 i 乘以 sizeof(元素)。">4 20 5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。sizeof(a) 量的是整個陣列佔的位元組數 20，不是元素個數。元素個數要自己用 sizeof(a) / sizeof(int) 算出來。">4 5 1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。8 是指標與 double 的大小，int 在主流平台上是 4 bytes。要問大小就寫 sizeof，不要用機器位元數去猜。">8 40 5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。20 除以 4 是 5，剛好等於元素個數。這個除法在陣列傳進函式之後就失效了，因為那時 sizeof 量到的是指標。">4 20 4</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>編譯時出現 undefined reference to addUp(int, int)，這個錯誤發生在哪一個階段？該往哪裡找？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。這類訊息開頭通常是 /usr/bin/ld，而且不會指到你的哪一行，因為連結器看的是整個程式而不是單一檔案。前面三個階段都已經順利通過了。">連結階段。某個函式只有宣告沒有定義，或編譯指令少放了一個原始檔</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。前處理找不到檔案的訊息是 fatal error 加上 No such file or directory，那是另一種錯。">前處理階段。include 的路徑寫錯了</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。參數型別對不上是編譯階段的錯，訊息會是 no matching function for call to，而且會指到你呼叫的那一行。">編譯階段。函式的參數型別打錯了</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。C++ 在產生執行檔之前就必須把每個名字接上實作，接不上就根本產不出執行檔，程式一次都沒跑過。">執行階段。程式跑到那一行才發現函式不存在</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><span></span><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p2_flow_control.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">流程控制</div></a></div>
+</div>
+
+<footer>
+  先備知識 P1 · C++ 基礎與編譯流程 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+/* ---------- P01 編譯管線逐步器 ---------- */
+let pipePlayer = null;
+
+const PIPE_STAGES = [
+  {key: 'pp',  name: '前處理',   en: 'Preprocess', flag: '-E'},
+  {key: 'cc',  name: '編譯',     en: 'Compile',    flag: '-S'},
+  {key: 'as',  name: '組譯',     en: 'Assemble',   flag: '-c'},
+  {key: 'ld',  name: '連結',     en: 'Link',       flag: '(預設)'},
+];
+
+/* 這些數字是在同一台機器上對本頁那支 hello world 實際量到的 */
+const PIPE_FACTS = {srcLines: 9, iLines: 46577, sLines: 103, oBytes: 2936, exeBytes: 16696};
+
+function pipeBoxes(active) {
+  return '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0 .8rem;">' +
+    PIPE_STAGES.map((s, k) => {
+      const on = k === active, done = k < active;
+      const bd = on ? 'var(--node-current)' : (done ? 'var(--node-found)' : 'var(--card-border)');
+      const bg = on ? 'rgba(243,156,18,.16)' : (done ? 'rgba(22,160,133,.10)' : 'var(--card)');
+      return `<div style="flex:1;min-width:104px;border:2px solid ${bd};background:${bg};border-radius:9px;padding:.45rem .55rem;text-align:center;">
+        <div style="font-size:.64rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;">${k + 1} · ${s.en}</div>
+        <div style="font-weight:700;font-size:.98rem;">${s.name}</div>
+        <div class="mono" style="font-size:.7rem;color:var(--accent2);">${s.flag}</div>
+      </div>`;
+    }).join('') + '</div>';
+}
+
+function pipeFlow(items, hi) {
+  return '<div style="display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;justify-content:center;">' +
+    items.map((it, k) => {
+      const on = k === hi;
+      return `<div style="display:flex;align-items:center;gap:.35rem;">
+        <div style="border:2px solid ${on ? 'var(--accent2)' : 'var(--card-border)'};background:${on ? 'rgba(44,62,122,.10)' : 'var(--paper)'};border-radius:8px;padding:.3rem .55rem;text-align:center;min-width:96px;">
+          <div class="mono" style="font-size:.82rem;font-weight:700;">${it.f}</div>
+          <div style="font-size:.66rem;color:var(--muted);">${it.d}</div>
+        </div>${k < items.length - 1 ? '<span style="color:var(--muted);">→</span>' : ''}</div>`;
+    }).join('') + '</div>';
+}
+
+function pipeFrames() {
+  const F = PIPE_FACTS;
+  const A = [{f: 'main.cpp', d: F.srcLines + ' 行'}];
+  const B = A.concat([{f: 'main.i', d: F.iLines.toLocaleString() + ' 行'}]);
+  const C2 = B.concat([{f: 'main.s', d: F.sLines + ' 行組語'}]);
+  const D2 = C2.concat([{f: 'main.o', d: F.oBytes + ' bytes'}]);
+  const E2 = D2.concat([{f: 'main', d: (F.exeBytes / 1024).toFixed(1) + ' KB 可執行'}]);
+  return [
+    {stage: -1, line: null, items: A, hi: 0,
+     msg: '起點：一個文字檔。<strong>作業系統看不懂它</strong>，要先翻譯四次。'},
+    {stage: 0, line: 1, items: B, hi: 1,
+     msg: `<strong>前處理</strong>：把 <code>#include</code> 的檔案整份貼進來、展開巨集、刪掉註解。輸入 ${F.srcLines} 行，產出 <code>main.i</code> 有 <strong>${F.iLines.toLocaleString()} 行</strong>——多出來的都是標準函式庫的宣告。這一階段還只是文字。`},
+    {stage: 1, line: 2, items: C2, hi: 2,
+     msg: `<strong>編譯</strong>：這裡才真正檢查語法與型別，<strong>你看到的 error 幾乎都是這一階段噴的</strong>。產出 <code>main.s</code>，${F.sLines} 行組合語言——人還讀得懂，但已經是給 CPU 的指令了。`},
+    {stage: 2, line: 3, items: D2, hi: 3,
+     msg: `<strong>組譯</strong>：把組合語言翻成機器碼，產出目的檔 <code>main.o</code>（${F.oBytes} bytes 的二進位）。此時 <code>cout</code> 還只是一個「待補的名字」，實作不在這個檔裡。`},
+    {stage: 3, line: 4, items: E2, hi: 4,
+     msg: `<strong>連結</strong>：把 <code>main.o</code> 跟標準函式庫接起來，補上 <code>cout</code>、<code>sqrt</code> 的真正位址，產出可執行檔（${(F.exeBytes / 1024).toFixed(1)} KB）。<strong>undefined reference 就是在這裡噴的</strong>。`},
+    {stage: 4, line: null, items: E2, hi: 4,
+     msg: `四階段結束。<code>./main</code> 執行的是最後那個檔，跟 <code>main.cpp</code> 已經沒有關係了——所以<strong>改完程式碼一定要重新編譯</strong>，不然跑的還是舊版本。`},
+  ];
+}
+
+function pipeStart() {
+  if (pipePlayer) pipePlayer.stop();
+  pipePlayer = new Player({frames: pipeFrames(), apply: f => {
+    $('pipeStage').innerHTML = pipeBoxes(f.stage) + pipeFlow(f.items, f.hi);
+    hlLine('pipeCode', f.line);
+    setStatus('pipeStatus', f.msg);
+  }});
+  pipePlayer.play();
+}
+
+function pipeReset() {
+  if (pipePlayer) pipePlayer.stop();
+  pipePlayer = null;
+  $('pipeStage').innerHTML = pipeBoxes(-1) + pipeFlow([{f: 'main.cpp', d: PIPE_FACTS.srcLines + ' 行'}], -1);
+  hlLine('pipeCode', null);
+  setStatus('pipeStatus', '按「開始」，看這 ' + PIPE_FACTS.srcLines + ' 行原始碼怎麼一路變成執行檔。');
+}
+
+/* ---------- P03 型別探索器 ---------- */
+/* 大小與範圍都是在 64 位元 Linux 上用 sizeof 與 <climits> 實際印出來的 */
+const TYPES = [
+  {n: 'bool',   b: 1, lo: null, hi: null, range: 'true / false',
+   note: '只有兩個值，但仍然佔一整個 byte（記憶體最小的定址單位就是 byte）。',
+   over: '把 42 指派給 bool 會得到 true——所有非零都是 true。'},
+  {n: 'char',   b: 1, lo: -128, hi: 127, range: '-128 ~ 127',
+   note: '本質是一個小整數，存的是字元的 ASCII 碼。單引號寫法 \'A\' 就是 65。',
+   over: "char c = 127; c + 1 溢出成 -128。這也是為什麼比較字元大小要小心。"},
+  {n: 'short',  b: 2, lo: -32768, hi: 32767, range: '-32,768 ~ 32,767',
+   note: '省記憶體用的，這門課幾乎用不到。省下的 2 bytes 通常不值得多想一次。',
+   over: '32,767 + 1 繞回 -32,768。'},
+  {n: 'int',    b: 4, lo: -2147483648, hi: 2147483647, range: '-2,147,483,648 ~ 2,147,483,647',
+   note: '整數的預設選擇。二十一億出頭，日常夠用，但乘法很容易爆。',
+   over: 'INT_MAX + 1 得到 -2,147,483,648。標準說這是未定義行為，只是這台機器剛好這樣繞。'},
+  {n: 'unsigned int', b: 4, lo: 0, hi: 4294967295, range: '0 ~ 4,294,967,295',
+   note: '不存負數，換到多一倍的正數範圍。vector 的 size() 回傳的就是這一類。',
+   over: '0u - 1 得到 4,294,967,295。這個繞回是標準規定的，所以 for (unsigned i = n - 1; i >= 0; i--) 會變成無窮迴圈。'},
+  {n: 'long long', b: 8, lo: null, hi: null, range: '約 ±9.22 × 10^18',
+   note: '會超過二十一億時換這個。第 02 章算配對數 n * (n - 1) / 2 就需要它。',
+   over: '要爆掉得算到 9 百京，實務上碰不到。'},
+  {n: 'float',  b: 4, lo: null, hi: null, range: '約 6 位有效數字',
+   note: '精度太低，累加幾千次就明顯失真。這門課不要用。',
+   over: '0.1f + 0.2f 不等於 0.3f——浮點數本來就存不下精確的十進位小數。'},
+  {n: 'double', b: 8, lo: null, hi: null, range: '約 15 位有效數字',
+   note: '小數的預設選擇。cout 預設只印 6 位有效數字，要更多要設 setprecision。',
+   over: '0.1 + 0.2 也不等於 0.3，只是誤差落在第 17 位，平常看不到。'},
+];
+
+let typeIdx = 3;
+
+function typeBar(bytes) {
+  return '<div style="display:flex;gap:3px;margin:.35rem 0 .2rem;">' +
+    Array.from({length: 8}, (_, k) =>
+      `<div style="width:26px;height:20px;border-radius:3px;border:1px solid ${k < bytes ? 'var(--accent2)' : 'var(--card-border)'};background:${k < bytes ? 'rgba(44,62,122,.22)' : 'transparent'};"></div>`
+    ).join('') + '</div>';
+}
+
+function typeRender() {
+  const t = TYPES[typeIdx];
+  const bits = t.b * 8;
+  $('typeStage').innerHTML =
+    `<div style="border:1px solid var(--card-border);border-radius:10px;padding:.6rem .8rem;background:var(--paper);">
+       <div class="mono" style="font-size:1.05rem;font-weight:700;color:var(--accent2);">${t.n}</div>
+       ${typeBar(t.b)}
+       <div style="font-size:.72rem;color:var(--muted);margin-bottom:.5rem;">sizeof(${t.n}) = <b>${t.b}</b> bytes ＝ ${bits} bits（灰框是 8 bytes 的參考尺）</div>
+       <table class="cmp-table" style="margin:0;"><tbody>
+         <tr><td style="width:6.5rem;">能表示</td><td class="mono">${t.range}</td></tr>
+         <tr><td>怎麼用</td><td style="font-size:.88rem;">${t.note}</td></tr>
+         <tr><td>裝不下時</td><td style="font-size:.88rem;">${t.over}</td></tr>
+       </tbody></table>
+     </div>`;
+  const cmp = t.b === 4 ? '跟 <code>int</code> 一樣大' : (t.b > 4 ? `是 <code>int</code> 的 ${t.b / 4} 倍` : `只有 <code>int</code> 的 ${t.b}/4`);
+  setStatus('typeStatus',
+    `<code>${t.n}</code> 佔 <strong>${t.b}</strong> bytes，${cmp}。要問大小就寫 <code>sizeof</code>，換一台機器答案可能不同——C++ 標準只規定下限。`);
+  const btns = $('typeBtns');
+  if (btns) btns.querySelectorAll('button').forEach((b, k) =>
+    b.className = 'btn ' + (k === typeIdx ? 'btn-play' : 'btn-step'));
+}
+
+function typeInit() {
+  const btns = $('typeBtns');
+  if (!btns) return;
+  btns.innerHTML = TYPES.map((t, k) =>
+    `<button class="btn btn-step" onclick="typePick(${k})">${t.n}</button>`).join('');
+  typeRender();
+}
+function typePick(k) { typeIdx = k; typeRender(); }
+
+(function () {
+  if ($('pipeStage')) pipeReset();
+  typeInit();
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "把整份原始碼一次翻譯成機器碼的程式，這門課用的是 g++。翻譯完才開始執行，所以打錯字、型別不合這類問題在程式跑起來之前就被抓出來。"}, {"front": "直譯器（Interpreter）", "back": "讀一行執行一行的程式，Python 用的就是這種。好處是改完立刻能跑，代價是第 40 行的錯字要執行到第 40 行才會發現，而且速度通常比編譯式語言慢一到兩個數量級。"}, {"front": "前處理（Preprocessing）", "back": "編譯的第一階段，做的是純文字替換：把 #include 的檔案整份貼進來、展開巨集、刪掉註解。本頁那支 9 行的 hello world 前處理完會變成四萬多行。"}, {"front": "標頭檔（Header File）", "back": "放宣告用的檔案，副檔名通常是 .h 或 .hpp。用 #include 引進來之後編譯器才認得裡面的名字。課程的資料結構都放在 dscpp/ 底下，例如 dscpp/stack.hpp。"}, {"front": "目的檔（Object File）", "back": "組譯階段的產物，副檔名 .o，內容是機器碼但還不能執行。此時 cout 這類外部函式只是一個待補的名字，要等連結階段才接上真正的實作。"}, {"front": "連結器（Linker）", "back": "編譯四階段的最後一棒，把你的 .o 檔跟標準函式庫接起來，補上每個外部名字的真正位址，產出可執行檔。它報的錯不指行號，開頭是 /usr/bin/ld。"}, {"front": "命名空間（Namespace）", "back": "把一堆名字裝在一個袋子裡避免撞名的機制。標準函式庫全部住在 std 裡，所以完整寫法是 std::cout。寫了 using namespace std; 就可以省掉前綴，本課照教科書這樣寫。"}, {"front": "進入點（Entry Point）", "back": "程式開始執行的地方。C++ 規定叫 int main()，作業系統只找這個名字，一支程式只能有一個。Python 對應的習慣寫法是 if __name__ 那一段，但那是慣例不是規定。"}, {"front": "結束碼（Exit Status）", "back": "main 的 return 值，回報給作業系統看程式跑得順不順。0 代表正常結束，非 0 代表出錯。shell 腳本會用這個值決定要不要繼續往下做。"}, {"front": "靜態型別（Static Typing）", "back": "變數的型別在編譯時就決定、之後不能換，這是 C++ 跟 Python 最根本的差別。好處是型別錯誤在編譯階段就被抓到，代價是每個變數都要自己寫型別。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "宣告了卻沒給初值的區域變數，裡面是上一個用過那塊記憶體的人留下的殘值。讀它是未定義行為，症狀是程式時對時錯。習慣一律寫 int sum = 0; 而不是 int sum;。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準明講「這種寫法的結果我不管」的情況，例如讀未初始化的變數、有號整數溢位、解參考空指標。編譯器可以做任何事，包括看起來剛好正確，所以這種 bug 最難抓。"}, {"front": "大小運算子（sizeof）", "back": "問一個型別或變數佔幾個 byte，在編譯期就算好。實測 int 是 4、double 與指標是 8、char 是 1。第 03 章算陣列元素位址時，公式裡的那個乘數就是它。"}, {"front": "整數除法（Integer Division）", "back": "C++ 的 / 只要兩邊都是整數就截掉小數，7 / 2 得到 3。截斷方向是往零，所以 -7 / 2 是 -3 而不是 Python 的 -4。要浮點結果得先把一邊轉成 double。"}, {"front": "取餘數運算子（Modulo, %）", "back": "取整數除法的餘數，只能用在整數上。第 07 章的雜湊函數 key % size 靠它把鍵映射到表格範圍內，第 06 章的進位制轉換靠它取出每一位的數字。"}, {"front": "後置遞增（Post-increment）", "back": "i++ 先把舊值交出去、之後才加一；++i 則是先加再交出新值。單獨當一行敘述時兩者沒差別，差別只出現在把它塞進別的式子裡的時候。"}, {"front": "隱式型別轉換（Implicit Conversion）", "back": "編譯器自動把窄的型別轉成寬的再運算，例如 7 / 2.0 會先把 7 轉成 7.0。問題在於 int 除 int 時它沒有理由轉，於是 double avg = sum / n; 這種寫法會先截斷才轉。"}, {"front": "靜態轉型（static_cast）", "back": "明確要求編譯器做型別轉換的寫法，例如 static_cast<double>(a) / b。位置很重要：要放在除法之前、只轉一邊就夠。包住整個除法的 static_cast<double>(a / b) 是無效的。"}, {"front": "整數溢位（Integer Overflow）", "back": "算出來的值超過型別能表示的範圍。int 的上限是二十一億出頭，加過頭會翻成負數；有號數溢位是未定義行為，無號數則是標準規定會繞回。解法是在溢位之前就轉成 long long。"}, {"front": "輸出串流（Output Stream, cout）", "back": "標準輸出的物件，用 << 把資料推進去，可以一直串下去。它不會自動加空格，要空格自己寫。endl 除了換行還會清空緩衝區，輸出量大時改用 '\\n' 會快很多。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+</body>
+</html>

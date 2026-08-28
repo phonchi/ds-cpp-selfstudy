@@ -77,3 +77,35 @@ def insert_before(s, anchor, html_block, marker):
     assert s.count(anchor) >= 1, f"anchor not found: {anchor[:60]}"
     i = s.find(anchor)
     return s[:i] + html_block + "\n" + s[i:], True
+
+
+# ===== 實跑 helper（先備頁用；既有九頁的預期輸出是硬寫的，不受影響）=====
+import subprocess, tempfile, os
+from pathlib import Path
+
+DSCPP = Path.home() / "ds_cpp/Slides/dscpp"
+
+def run_cpp(code, timeout=30, include=DSCPP, std="c++17"):
+    """用 g++ 編譯執行 C++ 片段，回傳真實 stdout。
+
+    include 預設指到課程的 dscpp/ 標頭檔目錄，所以範例可以直接
+    #include "stack.hpp" 引用課程真正在用的那份實作。
+    編譯或執行失敗時，把訊息的末兩行接在輸出後面（比照 Python 版 run_py 的形狀）。
+    """
+    with tempfile.TemporaryDirectory() as d:
+        src = os.path.join(d, "snippet.cpp")
+        exe = os.path.join(d, "snippet")
+        Path(src).write_text(code)
+        cmd = ["g++", f"-std={std}", "-o", exe, src]
+        if include:
+            cmd[1:1] = ["-I", str(include)]
+        c = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        if c.returncode != 0:
+            tail = "\n".join(c.stderr.strip().splitlines()[-2:])
+            return f"[編譯失敗]\n{tail}"
+        r = subprocess.run([exe], capture_output=True, text=True, timeout=timeout)
+        out = r.stdout
+        if r.returncode != 0:
+            tail = "\n".join(r.stderr.strip().splitlines()[-2:])
+            out += f"\n[執行結束碼 {r.returncode}]\n{tail}"
+        return out.rstrip("\n")

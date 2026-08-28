@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>陣列、指標與動態記憶體 — 先備 P4（C++）</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+/* ===== 題庫自測區 ===== */
+.sq-item{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:1.1rem;}
+.sq-item .sq-q{font-weight:700;margin-bottom:.7rem;}
+.sq-item .sq-q .sq-num{font-family:'JetBrains Mono',monospace;color:var(--accent);margin-right:.4rem;}
+.sq-opts{display:flex;flex-direction:column;gap:.45rem;}
+.sq-opt{text-align:left;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;line-height:1.6;padding:.55rem .9rem;border-radius:8px;border:1px solid var(--card-border);background:var(--paper);color:var(--ink);cursor:pointer;transition:all .15s;}
+.sq-opt:hover{border-color:var(--accent2);}
+.sq-opt.correct{border-color:var(--accent3);background:rgba(26,107,74,.10);}
+.sq-opt.wrong{border-color:var(--accent);background:rgba(192,57,43,.08);}
+.sq-fb{display:none;margin-top:.7rem;font-size:.86rem;line-height:1.7;border-left:4px solid var(--accent2);padding:.5rem .9rem;background:var(--paper);border-radius:0 8px 8px 0;}
+.sq-fb.show{display:block;}
+.sq-fb.good{border-left-color:var(--accent3);}
+.sq-fb.bad{border-left-color:var(--accent);}
+.sq-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.55;padding:.7rem .9rem;border-radius:8px;margin:.2rem 0 .8rem;overflow-x:auto;white-space:pre;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">Python 藏起來的那層</span></a>
+  <a href="#addr" data-target="addr"><span class="fn-num">P01</span><span class="fn-name">記憶體與位址</span></a>
+  <a href="#ptr" data-target="ptr"><span class="fn-num">P02</span><span class="fn-name">指標是什麼</span></a>
+  <a href="#null" data-target="null"><span class="fn-num">P03</span><span class="fn-name">NULL 與走訪</span></a>
+  <a href="#array" data-target="array"><span class="fn-num">P04</span><span class="fn-name">陣列與指標</span></a>
+  <a href="#decay" data-target="decay"><span class="fn-num">P05</span><span class="fn-name">陣列退化</span></a>
+  <a href="#heap" data-target="heap"><span class="fn-num">P06</span><span class="fn-name">堆疊 vs 堆積</span></a>
+  <a href="#newdel" data-target="newdel"><span class="fn-num">P07</span><span class="fn-name">new 與 delete</span></a>
+  <a href="#disaster" data-target="disaster"><span class="fn-num">P08</span><span class="fn-name">三種災難</span></a>
+  <a href="#node" data-target="node"><span class="fn-num">P09</span><span class="fn-name">指向物件的指標</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="30" y="60" width="70" height="44" rx="6"/>
+    <rect x="130" y="60" width="70" height="44" rx="6"/>
+    <rect x="200" y="150" width="70" height="44" rx="6"/>
+    <path d="M100 82 L130 82" marker-end="url(#ar)"/>
+    <path d="M165 104 C 165 130, 200 140, 225 150"/>
+  </g>
+  <g fill="#fff" opacity=".75" font-family="monospace" font-size="11">
+    <text x="52" y="87">x=42</text><text x="152" y="87">p</text><text x="216" y="177">heap</text>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P4</div>
+    <h1><span class="blue">陣列、指標</span>與<span class="orange">動態記憶體</span></h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">&amp;x｜*p｜&#78;ULL｜a[i] == *(a+i)｜new / delete｜堆疊 vs 堆積</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>Python 幫你藏起來的那一層</a>
+    <a href="#addr"><span class="toc-num">P01</span>記憶體與位址</a>
+    <a href="#ptr"><span class="toc-num">P02</span>指標是什麼</a>
+    <a href="#null"><span class="toc-num">P03</span>NULL：走訪的終點</a>
+    <a href="#array"><span class="toc-num">P04</span>陣列與指標的關係</a>
+    <a href="#decay"><span class="toc-num">P05</span>陣列傳進函式會退化</a>
+    <a href="#heap"><span class="toc-num">P06</span>堆疊 vs 堆積</a>
+    <a href="#newdel"><span class="toc-num">P07</span>new 與 delete</a>
+    <a href="#disaster"><span class="toc-num">P08</span>三種災難</a>
+    <a href="#node"><span class="toc-num">P09</span>指向物件的指標</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>整套先備頁裡，這一頁最該讀</h2>
+  <p>如果 P1 到 P9 只能挑一頁，挑這頁。理由是數字：</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>課程講義</th><th><code>new</code></th><th><code>&#78;ULL</code></th><th>這一章在做什麼</th></tr></thead>
+    <tbody>
+      <tr><td>第 04 章 鏈結串列</td><td class="mono">31</td><td class="mono">33</td><td>每個節點都是 <code>new</code> 出來的，走訪走到 <code>&#78;ULL</code> 為止</td></tr>
+      <tr><td>第 05 章 堆疊與佇列</td><td class="mono">18</td><td class="mono">8</td><td>鏈結實作</td></tr>
+      <tr><td>第 08 章 圖</td><td class="mono">19</td><td class="mono">—</td><td>頂點與邊</td></tr>
+      <tr><td>第 09 章 樹</td><td class="mono" style="color:var(--accent);font-weight:700;">102</td><td class="mono" style="color:var(--accent);font-weight:700;">55</td><td>每插一個鍵就長一個節點</td></tr>
+      <tr><td><strong>全課合計</strong></td><td class="mono"><strong>218</strong></td><td class="mono"><strong>114</strong></td><td>另有 145 個指標宣告、57 個參考</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>Python 也有「參考」的概念，但它幫你把位址、配置、釋放全部藏起來了。C++ 把這一層攤開來給你 —— 多了控制權，也多了責任。這一頁就在補這一層。</p>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但第 04 章第一行程式碼就是 <code>&#78;ode&lt;T&gt; *next;</code>，看不懂這一頁，那一章只能死背。</p>
+  </div>
+</section>
+
+<section id="addr">
+  <div class="section-number">PART 01 · 位址</div>
+  <h2>每個變數都住在一個門牌號碼</h2>
+  <p>變數不是憑空存在的，它佔一塊記憶體。<code>&amp;x</code> 就是問「x 住在哪」，<code>sizeof(x)</code> 是問「它佔幾格」。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">每個變數的門牌與大小（真的跑出來的）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">int</span> x = <span class="num">42</span>;</span>
+<span class="line">    <span class="kw">double</span> d = <span class="num">3.14</span>;</span>
+<span class="line">    <span class="kw">char</span> c = <span class="str">'</span><span class="str">A</span><span class="str">'</span>;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">x  的值 = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str">，位址 = </span><span class="str">"</span> &lt;&lt; &amp;x &lt;&lt; <span class="str">"</span><span class="str">，佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(x) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">d  的值 = </span><span class="str">"</span> &lt;&lt; d &lt;&lt; <span class="str">"</span><span class="str">，位址 = </span><span class="str">"</span> &lt;&lt; &amp;d &lt;&lt; <span class="str">"</span><span class="str">，佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(d) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">c  的值 = </span><span class="str">"</span> &lt;&lt; c &lt;&lt; <span class="str">"</span><span class="str">，位址 = </span><span class="str">"</span> &lt;&lt; (<span class="kw">void</span>*)&amp;c &lt;&lt; <span class="str">"</span><span class="str">，佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(c) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>x  的值 = 42，位址 = 0x7ffe91aff68c，佔 4 bytes
+d  的值 = 3.14，位址 = 0x7ffe91aff690，佔 8 bytes
+c  的值 = A，位址 = 0x7ffe91aff68b，佔 1 bytes</pre></div>
+  <p class="dx-note">三個觀察：① 位址是十六進位的一長串，每次執行都不一樣（作業系統每次配的位置不同）。② 不同型別佔的大小不同：<code>int</code> 4 bytes、<code>double</code> 8、<code>char</code> 1。③ <code>char</code> 的位址要轉成 <code>(void*)</code> 才印得出數字，否則 <code>cout</code> 會把它當字串開頭。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="memStage" style="min-height:210px;"></div>
+        <div class="status-banner" id="memStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，一步一步看指標怎麼指到變數身上。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="memStart()">▶ 開始</button>
+          <button class="btn btn-step" onclick="memPlayer &amp;&amp; memPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="memReset()">⟲ 重設</button>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="memCode" style="font-size:.78rem;"><span class="line"><span class="kw">int</span> x = <span class="num">42</span>;</span>
+<span class="line"><span class="kw">int</span> *p = &amp;x;</span>
+<span class="line">cout &lt;&lt; *p;</span>
+<span class="line">*p = <span class="num">99</span>;</span>
+<span class="line">cout &lt;&lt; x;</span>
+<span class="line"> </span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">三個符號 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><code>int *p</code>：宣告 p 是「指向 int 的指標」<br>
+        <code>&amp;x</code>：取出 x 的<strong>位址</strong><br>
+        <code>*p</code>：順著 p 存的位址<strong>走進去</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ptr">
+  <div class="section-number">PART 02 · 指標</div>
+  <h2><code>int *p = &amp;x;</code>：三個符號，三件事</h2>
+  <p>初學最容易混的是：<strong><code>*</code> 在宣告時和在使用時意思不一樣。</strong></p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>出現在哪</th><th>意思</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">int *p;</td><td>宣告</td><td>p 是一個指標，指向 int</td></tr>
+      <tr><td class="mono">p = &amp;x;</td><td>使用</td><td>把 x 的位址存進 p</td></tr>
+      <tr><td class="mono">*p</td><td>使用</td><td>解參考：p 指向的那個東西（就是 x 本人）</td></tr>
+      <tr><td class="mono">*p = 99;</td><td>使用</td><td>透過 p 改動 x</td></tr>
+      <tr><td class="mono">p</td><td>使用</td><td>指標本身的值，也就是一個位址</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">同一段程式把五件事都做一遍</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">int</span> x = <span class="num">42</span>;</span>
+<span class="line">    <span class="kw">int</span> *p = &amp;x;          <span class="com">// p 存的是 x 的位址</span>
+<span class="line"></span></span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">x  = </span><span class="str">"</span> &lt;&lt; x  &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">&amp;x = </span><span class="str">"</span> &lt;&lt; &amp;x &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">p  = </span><span class="str">"</span> &lt;&lt; p  &lt;&lt; <span class="str">"</span><span class="str">   &lt;- p 存的就是 x 的位址</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">*p = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 順著位址走進去，看到 x 的值</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    *p = <span class="num">99</span>;              <span class="com">// 透過指標改動 x</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">把 *p 改成 99 之後，x = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">指標本身也佔空間: sizeof(p) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(p) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>x  = 42
+&amp;x = 0x7ffeec7bfa4c
+p  = 0x7ffeec7bfa4c   &lt;- p 存的就是 x 的位址
+*p = 42   &lt;- 順著位址走進去，看到 x 的值
+把 *p 改成 99 之後，x = 99
+指標本身也佔空間: sizeof(p) = 8 bytes</pre></div>
+  <p class="dx-note">注意倒數第二行：<strong>透過 <code>*p</code> 改值，<code>x</code> 真的變了</strong>——因為它們是同一塊記憶體。最後一行也重要：<strong>指標本身佔 8 bytes</strong>（64 位元系統），不管它指向的是 <code>int</code> 還是一整棵樹。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼要有指標</div>
+    <p style="margin-bottom:0;">兩個理由，這門課兩個都會用到：① <strong>不想複製</strong> —— 傳一個 8 bytes 的位址，比複製一整個物件便宜（見 <a href="p3_functions.html">P3</a>）。② <strong>結構要能長大</strong> —— 鏈結串列、樹、圖的節點數量在編譯時還不知道，只能執行時 <code>new</code> 出來，而 <code>new</code> 回傳的就是指標。</p>
+  </div>
+</section>
+
+<section id="null">
+  <div class="section-number">PART 03 · 空指標</div>
+  <h2><code>&#78;ULL</code>：指向「哪裡都不是」 <span class="sec-badge">課程用 114 次</span></h2>
+  <p><code>&#78;ULL</code> 代表「這個指標目前沒有指向任何東西」。它在這門課有一個固定用途：<strong>當作結構的終點標記</strong>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">走到 &#78;ULL 為止——這就是第 04 章整章的骨幹</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">class</span> Node {</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        <span class="kw">int</span> data;</span>
+<span class="line">        Node *next;</span>
+<span class="line">        Node(<span class="kw">int</span> d) { data = d; next = <span class="fn">NULL</span>; }</span>
+<span class="line">};</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    Node *a = <span class="kw">new</span> Node(<span class="num">31</span>);</span>
+<span class="line">    a-&gt;next = <span class="kw">new</span> Node(<span class="num">17</span>);</span>
+<span class="line">    a-&gt;next-&gt;next = <span class="kw">new</span> Node(<span class="num">93</span>);      <span class="com">// 最後一個的 next 是 NULL</span>
+<span class="line"></span></span>
+<span class="line">    <span class="com">// 走訪：一路走到 NULL 為止。這就是第 04 章整章的骨幹</span>
+<span class="line"></span>    Node *current = a;</span>
+<span class="line">    <span class="kw">while</span> (current != <span class="fn">NULL</span>) {</span>
+<span class="line">        cout &lt;&lt; current-&gt;data &lt;&lt; <span class="str">"</span><span class="str"> -&gt; </span><span class="str">"</span>;</span>
+<span class="line">        current = current-&gt;next;</span>
+<span class="line">    }</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">NULL</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">delete</span> a-&gt;next-&gt;next;</span>
+<span class="line">    <span class="kw">delete</span> a-&gt;next;</span>
+<span class="line">    <span class="kw">delete</span> a;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>31 -&gt; 17 -&gt; 93 -&gt; NULL</pre></div>
+  <p class="dx-note"><code>while (current != &#78;ULL)</code> 這一行，你在第 04、05、09 章會看到幾十次。它的意思是「只要還沒走到盡頭就繼續」。最後一個節點的 <code>next</code> 是 <code>&#78;ULL</code>，迴圈就停在那裡。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 解參考 <code>&#78;ULL</code> 會當掉</div>
+    <p style="margin-bottom:0;"><code>current-&gt;data</code> 在 <code>current</code> 是 <code>&#78;ULL</code> 時是<strong>未定義行為</strong>，通常直接 segmentation fault。所以走訪的迴圈條件一定要<strong>先檢查再解參考</strong>。這也是為什麼 <code>while (current != &#78;ULL &amp;&amp; current-&gt;data != item)</code> 的順序不能顛倒 —— <code>&amp;&amp;</code> 有短路求值，左邊不成立就不會去碰右邊。</p>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">C++11 之後有了 <code>nullptr</code>，型別更安全，是現在的標準寫法。<strong>本課照 cppds 教科書用 <code>&#78;ULL</code></strong>，你看別人的程式碼時會遇到 <code>nullptr</code>，兩者在這門課的用途完全一樣。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、09 章</div><p style='margin-bottom:0;'>第 04 章的 <code>size()</code>、<code>search()</code>、<code>remove()</code> 全部是 <code>while (current != &#78;ULL)</code> 的變形；第 09 章的樹走訪則是「左邊不是 &#78;ULL 就往左走」的遞迴版。</p></div>
+</section>
+
+<section id="array">
+  <div class="section-number">PART 04 · 陣列</div>
+  <h2><code>a[i]</code> 其實就是 <code>*(a + i)</code></h2>
+  <p>這不是比喻，是<strong>定義</strong>。陣列名就是首元素的位址，中括號只是「往後跳 i 格再解參考」的簡寫。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">三種寫法印出同一個東西</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>};</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">a       = </span><span class="str">"</span> &lt;&lt; a       &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 陣列名就是首元素的位址</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">&amp;a[0]   = </span><span class="str">"</span> &lt;&lt; &amp;a[<span class="num">0</span>]   &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 一模一樣</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {</span>
+<span class="line">        cout &lt;&lt; <span class="str">"</span><span class="str">i=</span><span class="str">"</span> &lt;&lt; i</span>
+<span class="line">             &lt;&lt; <span class="str">"</span><span class="str">  a[i]=</span><span class="str">"</span> &lt;&lt; a[i]</span>
+<span class="line">             &lt;&lt; <span class="str">"</span><span class="str">  *(a+i)=</span><span class="str">"</span> &lt;&lt; *(a + i)</span>
+<span class="line">             &lt;&lt; <span class="str">"</span><span class="str">  位址=</span><span class="str">"</span> &lt;&lt; (a + i)</span>
+<span class="line">             &lt;&lt; <span class="str">"</span><span class="str">  距離首位 </span><span class="str">"</span> &lt;&lt; (<span class="kw">char</span>*)(a + i) - (<span class="kw">char</span>*)a &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a       = 0x7ffef812b1b0  &lt;- 陣列名就是首元素的位址
+&amp;a[0]   = 0x7ffef812b1b0  &lt;- 一模一樣
+
+i=0  a[i]=10  *(a+i)=10  位址=0x7ffef812b1b0  距離首位 0 bytes
+i=1  a[i]=20  *(a+i)=20  位址=0x7ffef812b1b4  距離首位 4 bytes
+i=2  a[i]=30  *(a+i)=30  位址=0x7ffef812b1b8  距離首位 8 bytes</pre></div>
+  <p class="dx-note">看最後一欄：每跳一格，位址就前進 <strong>4 bytes</strong>——剛好是一個 <code>int</code> 的大小。指標算術會自動乘上型別大小，所以 <code>a + 1</code> 不是「位址加 1」，是「往後一個元素」。這也解釋了為什麼索引從 0 開始：<code>a[0]</code> 就是「往後跳 0 格」，也就是原地。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="slider-row">
+          <span class="slider-label">索引 i</span>
+          <input id="idxSlider" type="range" min="0" max="4" value="0">
+          <span class="slider-val mono" id="idxVal">0</span>
+        </div>
+        <div id="arrStage" style="min-height:150px;"></div>
+        <div class="status-banner" id="arrStatus"><span class="status-icon">›</span><span class="status-text">拉動滑桿，看三種寫法永遠指向同一格。</span></div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">為什麼要懂 <span class="ic-badge">WHY</span></div>
+        <p style="font-size:.88rem;margin-bottom:0;">第 03 章要你自己算二維陣列的位址：<code>student[i][j]</code> 在 row-major 佈局下是第 <code>i * 欄數 + j</code> 格。那個公式就是從這裡長出來的。</p>
+      </div>
+    </div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 03 章</div><p style='margin-bottom:0;'>〈陣列與稀疏矩陣〉整章都在算位址：低階陣列的位址計算、二維陣列的 row-major 佈局、自己動手寫 <code>ArrayList</code> 的容量加倍。</p></div>
+</section>
+
+<section id="decay">
+  <div class="section-number">PART 05 · 退化</div>
+  <h2>陣列一進函式，就變成一個指標</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">同一個陣列，sizeof 卻不一樣</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">f</span>(<span class="kw">int</span> arr[]) {                       <span class="com">// 看起來像陣列，其實是 int*</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">在函式裡 sizeof(arr) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(arr) &lt;&lt; <span class="str">"</span><span class="str"> bytes（這是指標的大小）</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>};</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">在 main 裡 sizeof(a) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(a) &lt;&lt; <span class="str">"</span><span class="str"> bytes（5 個 int）</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    f(a);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">所以陣列傳進函式一定要另外傳長度。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>在 main 裡 sizeof(a) = 20 bytes（5 個 int）
+在函式裡 sizeof(arr) = 8 bytes（這是指標的大小）
+所以陣列傳進函式一定要另外傳長度。</pre></div>
+  <p class="dx-note"><code>void f(int arr[])</code> 看起來收的是陣列，其實編譯器把它當成 <code>int*</code>。所以函式裡量到的是<strong>指標的大小</strong>（8 bytes），不是陣列的大小（20 bytes）。這叫<strong>陣列退化</strong>，是 C++ 初學最常踩的坑之一。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 所以陣列傳進函式一定要另外傳長度</div>
+    <p style="margin-bottom:0;">因為函式根本無從得知長度。<code>void printAll(int arr[], int n)</code> 這種簽章不是囉嗦，是必要。<strong>用 <code>vector</code> 就沒這個問題</strong>——它自己記得 <code>size()</code>，這也是 <a href="p5_vector_string.html">P5</a> 要講的第一個好處。</p>
+  </div>
+</section>
+
+<section id="heap">
+  <div class="section-number">PART 06 · 兩塊記憶體</div>
+  <h2>堆疊與堆積：生命週期完全不同</h2>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>堆疊 stack</th><th>堆積 heap</th></tr></thead>
+    <tbody>
+      <tr><td>怎麼配置</td><td>宣告區域變數就有</td><td>要自己寫 <code>new</code></td></tr>
+      <tr><td>怎麼釋放</td><td><strong>離開範圍自動消失</strong></td><td><strong>要自己寫 <code>delete</code></strong></td></tr>
+      <tr><td>大小</td><td>小（通常幾 MB），會爆</td><td>大，受限於實體記憶體</td></tr>
+      <tr><td>編譯時要知道大小嗎</td><td>要</td><td>不用，執行時決定</td></tr>
+      <tr><td>這門課用在哪</td><td>迴圈變數、暫存值</td><td><strong>所有節點</strong>：串列、樹、圖</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>遞迴太深會爆的是<strong>堆疊</strong>（第 06 章的 <code>RecursionError</code> 就是這個）；<code>new</code> 出來沒還的是<strong>堆積</strong>。</p>
+</section>
+
+<section id="newdel">
+  <div class="section-number">PART 07 · 借與還</div>
+  <h2><code>new</code> 與 <code>delete</code> <span class="sec-badge">課程用 218 / 32 次</span></h2>
+
+<div class="deck-extra">
+  <div class="dx-label">借了要還，而且形式要配對</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">int</span> onStack = <span class="num">42</span>;                 <span class="com">// 堆疊：離開範圍自動消失</span>
+<span class="line"></span>    <span class="kw">int</span> *onHeap = <span class="kw">new</span> <span class="kw">int</span>(<span class="num">42</span>);        <span class="com">// 堆積：你不 delete 就一直在</span>
+<span class="line"></span></span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">堆疊變數位址 = </span><span class="str">"</span> &lt;&lt; &amp;onStack &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">堆積變數位址 = </span><span class="str">"</span> &lt;&lt; onHeap   &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">兩者的值都是 </span><span class="str">"</span> &lt;&lt; onStack &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span> &lt;&lt; *onHeap &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">int</span> *arr = <span class="kw">new</span> <span class="kw">int</span>[<span class="num">5</span>];            <span class="com">// 配一整排</span>
+<span class="line"></span>    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) arr[i] = i * i;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">arr = </span><span class="str">"</span>;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) cout &lt;&lt; arr[i] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line">    cout &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">delete</span> onHeap;                    <span class="com">// 單一個用 delete</span>
+<span class="line"></span>    <span class="kw">delete</span>[] arr;                     <span class="com">// 一整排用 delete[]</span>
+<span class="line"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">都還回去了。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>堆疊變數位址 = 0x7fff825e572c
+堆積變數位址 = 0x6146265982b0
+兩者的值都是 42 / 42
+arr = 0 1 4 9 16 
+都還回去了。</pre></div>
+  <p class="dx-note">注意兩個位址差很多：堆疊那個是 <code>0x7fff…</code>，堆積那個是 <code>0x6146…</code>——它們住在記憶體的兩端。另外 <strong><code>new[]</code> 一定要配 <code>delete[]</code></strong>，配錯是未定義行為，編譯器不會提醒你。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="heapStage" style="min-height:220px;"></div>
+        <div class="status-banner" id="heapStatus"><span class="status-icon">›</span><span class="status-text">選一個版本，看堆積上的東西怎麼長、怎麼消。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="heapStart('good')">▶ 有 delete 的版本</button>
+          <button class="btn btn-play" onclick="heapStart('leak')">▶ 忘記 delete 的版本</button>
+          <button class="btn btn-step" onclick="heapPlayer &amp;&amp; heapPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="heapReset()">⟲ 重設</button>
+          <span class="mono" style="font-size:.78rem;color:var(--muted);">堆積上還沒還的：<b id="heapLeak">0</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="heapCode" style="font-size:.76rem;"><span class="line"><span class="kw">void</span> <span class="fn">build</span>() {</span>
+<span class="line">    Node *a = <span class="kw">new</span> Node(<span class="num">31</span>);</span>
+<span class="line">    a-&gt;next = <span class="kw">new</span> Node(<span class="num">17</span>);</span>
+<span class="line">    <span class="kw">delete</span> a-&gt;next;</span>
+<span class="line">    <span class="kw">delete</span> a;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">重點 <span class="ic-badge">WHY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;">函式結束時，<strong>指標 <code>a</code> 本身</strong>（住在堆疊上）會自動消失，但<strong>它指向的那塊堆積記憶體不會</strong>。沒有 <code>delete</code>，那塊就永遠找不回來了。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="disaster">
+  <div class="section-number">PART 08 · 三種災難</div>
+  <h2>指標出錯的三種典型死法</h2>
+  <p>共同點：<strong>編譯器都不會抱怨</strong>。這三個名字值得記起來，因為 debug 時你要先猜是哪一種。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>災難</th><th>長什麼樣</th><th>症狀</th></tr></thead>
+    <tbody>
+      <tr><td><strong>記憶體洩漏</strong><br>memory leak</td><td class="mono" style="font-size:.8rem;">new 了沒 delete</td><td>程式跑越久吃越多記憶體，最後被系統砍掉。短程式看不出來</td></tr>
+      <tr><td><strong>懸空指標</strong><br>dangling pointer</td><td class="mono" style="font-size:.8rem;">delete 之後還在用</td><td>讀到垃圾值，或當掉。<strong>最難 debug</strong>，因為有時候「剛好」還是對的</td></tr>
+      <tr><td><strong>二次釋放</strong><br>double free</td><td class="mono" style="font-size:.8rem;">同一塊 delete 兩次</td><td>通常當場當掉，訊息像 <code>free(): double free detected</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 一個習慣可以擋掉兩種</div>
+    <p style="margin-bottom:0;"><code>delete p;</code> 之後<strong>立刻</strong>寫 <code>p = &#78;ULL;</code>。這樣懸空指標會變成空指標（當掉得很明確、很好找），而 <code>delete</code> 一個 <code>&#78;ULL</code> 在 C++ 是<strong>合法的空操作</strong>，二次釋放也就不會發生。</p>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p style="margin-bottom:0;">現在的 C++ 會用 <code>std::unique_ptr</code>：它離開範圍時自動 <code>delete</code>，三種災難一次擋掉。<strong>本課照 cppds 用手動 <code>new</code>／<code>delete</code></strong>，因為要你先看懂記憶體是怎麼運作的 —— 這跟先學手排再開自排是一樣的道理。</p>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 誰該負責還</div>
+    <p>一個函式裡 <code>new</code> 出一個節點、把指標回傳給呼叫端。這塊記憶體該誰 <code>delete</code>？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="函式一結束就 delete 的話，回傳的指標會立刻變成懸空指標，呼叫端一用就出事。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 函式自己，在 <code>return</code> 之前</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。誰拿到指標誰負責。這叫「所有權」——C++ 沒有語法強制它，所以要靠註解與約定講清楚。第 04 章的串列就是這樣：節點由串列 new 出來，也由串列負責 delete。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 呼叫端，用完之後</div>
+      <div class="quiz-opt" data-correct="false" data-fb="C++ 沒有垃圾回收。沒有人 delete，那塊記憶體就會一直佔著到程式結束。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 不用管，程式會自己回收</div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+</section>
+
+<section id="node">
+  <div class="section-number">PART 09 · 收尾</div>
+  <h2>從指標到 <code>&#78;ode</code>：把第 04 章的第一段程式碼看懂</h2>
+  <p>把前面九節接起來，就是課程 <code>dscpp/linked_list.hpp</code> 的開頭：</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
+<span class="line"><span class="kw">class</span> Node {</span>
+<span class="line">    <span class="kw">private</span>:</span>
+<span class="line">        T data;</span>
+<span class="line">        Node&lt;T&gt; *next;              <span class="com">// 指向「同型別的下一個節點」</span>
+<span class="line"></span>    <span class="kw">public</span>:</span>
+<span class="line">        Node(T initdata) {</span>
+<span class="line">            data = initdata;</span>
+<span class="line">            next = <span class="fn">NULL</span>;            <span class="com">// 一出生先不指向任何東西</span>
+<span class="line"></span>        }</span>
+<span class="line">        T getData() <span class="kw">const</span> { <span class="kw">return</span> data; }</span>
+<span class="line">        Node&lt;T&gt; *getNext() <span class="kw">const</span> { <span class="kw">return</span> next; }</span>
+<span class="line">        <span class="kw">void</span> setNext(Node&lt;T&gt; *newnext) { next = newnext; }</span>
+<span class="line">};</span>
+<span class="line"> </span></div>
+
+  <div class="info-box">
+    <div class="info-label">💡 三個「為什麼」，現在都答得出來了</div>
+    <p style="margin-bottom:0;"><strong>為什麼 <code>next</code> 是指標而不是物件？</strong>因為一個型別不可能包含一個自己（那會無限大）；存位址就沒這個問題。<br>
+    <strong>為什麼建構式把 <code>next</code> 設成 <code>&#78;ULL</code>？</strong>因為新節點還沒接到任何東西，而走訪的迴圈靠 <code>&#78;ULL</code> 判斷終點。<br>
+    <strong>為什麼要 <code>new</code>？</strong>因為串列有幾個節點是執行時才知道的，堆疊上配不出來。</p>
+  </div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="nodeStage" style="min-height:140px;"></div>
+        <div class="status-banner" id="nodeStatus"><span class="status-icon">›</span><span class="status-text">按 add 在頭部插入一個節點，看指標怎麼接。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="nodeAdd()">▶ add(下一個值)</button>
+          <button class="btn btn-step" onclick="nodeTraverse()">→ 走訪一遍</button>
+          <button class="btn btn-reset" onclick="nodeReset()">⟲ 重設</button>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">add 的兩行 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="nodeCode" style="font-size:.78rem;"><span class="line"><span class="kw">void</span> <span class="fn">add</span>(T item) {</span>
+<span class="line">    Node&lt;T&gt; *temp = <span class="kw">new</span> Node&lt;T&gt;(item);</span>
+<span class="line">    temp-&gt;setNext(head);</span>
+<span class="line">    head = temp;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+        <p style="font-size:.85rem;margin:.5rem 0 0;">順序不能反：<strong>先讓新節點接上舊的頭，再把頭換成新的</strong>。反過來寫，舊的那串就找不回來了。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 2 · 順序反了會怎樣</div>
+    <p>如果把 <code>add()</code> 的兩行對調，先寫 <code>head = temp;</code> 再寫 <code>temp-&gt;setNext(head);</code>，會發生什麼？</p>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="不會編譯錯——兩行都是合法的敘述。C++ 不會幫你檢查邏輯順序，這正是它危險的地方。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 編譯錯誤</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。head 已經被換成 temp 了，所以 temp->setNext(head) 等於讓新節點指向自己，形成一個環。原本那串節點再也沒有人指向它——整串洩漏，而且走訪會變成無窮迴圈。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 新節點指向自己，原本那串全部洩漏</div>
+      <div class="quiz-opt" data-correct="false" data-fb="順序真的有差。指標賦值是有先後的，改了 head 之後就拿不回舊值了。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 沒差，結果一樣</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、05、09 章</div><p style='margin-bottom:0;'>這段 <code>&#78;ode</code> 就是第 04 章的主角；第 05 章的鏈結版 Stack 與 Queue 用同一個 <code>&#78;ode</code>；第 09 章的樹只是把一個 <code>next</code> 換成 <code>leftChild</code> 與 <code>rightChild</code> 兩個指標。看懂這一段，那三章就都有底了。</p></div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>再一題確認觀念</h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE · 這段程式漏了什麼</div>
+    <p><code>int *a = new int[10];</code> 用完之後寫 <code>delete a;</code>。問題在哪？</p>
+    <div class="quiz-options" id="qcOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="沒有漏寫。問題出在 delete 的形式不對。" onclick="quizCheck('qc', this)"><span class="opt-letter">(A)</span> 沒問題</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。new[] 配的是一整排，必須用 delete[] 還。用 delete 只還了第一個元素，其餘九個洩漏——而且這在標準裡是未定義行為，編譯器不會提醒你。口訣：中括號要成對。" onclick="quizCheck('qc', this)"><span class="opt-letter">(B)</span> <code>new[]</code> 要配 <code>delete[]</code>，寫成 <code>delete</code> 是未定義行為</div>
+      <div class="quiz-opt" data-correct="false" data-fb="配置本身沒問題，new int[10] 是合法的。" onclick="quizCheck('qc', this)"><span class="opt-letter">(C)</span> 配置的語法就錯了</div>
+    </div>
+    <div class="quiz-feedback" id="qcFeedback"></div>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P4 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">語法</h3>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>意思</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">int *p;</td><td>宣告一個指向 int 的指標</td></tr>
+      <tr><td class="mono">&amp;x</td><td>x 的位址</td></tr>
+      <tr><td class="mono">*p</td><td>解參考：p 指向的那個東西</td></tr>
+      <tr><td class="mono">p-&gt;field</td><td>等同 <code>(*p).field</code>，指向物件時用這個</td></tr>
+      <tr><td class="mono">a[i]</td><td>等同 <code>*(a + i)</code></td></tr>
+      <tr><td class="mono">new T(v)</td><td>在堆積配一個 T，回傳指標</td></tr>
+      <tr><td class="mono">new T[n]</td><td>在堆積配 n 個 T</td></tr>
+      <tr><td class="mono">delete p;</td><td>還一個</td></tr>
+      <tr><td class="mono">delete[] p;</td><td>還一整排</td></tr>
+      <tr><td class="mono">sizeof(x)</td><td>x 佔幾個 byte（編譯期就決定）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">四條記得住的規則</h3>
+  <div class="info-box green">
+    <p>① 每寫一個 <code>new</code>，當場想清楚它的 <code>delete</code> 在哪。<br>
+    ② <code>new[]</code> 配 <code>delete[]</code>，中括號要成對。<br>
+    ③ <code>delete</code> 之後立刻把指標設成 <code>&#78;ULL</code>。<br>
+    ④ 解參考之前先確認不是 <code>&#78;ULL</code>。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的每一段程式貼進去，一步一步看堆疊與堆積上的方框和箭頭。學指標最有效的工具。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/new" target="_blank" rel="noopener">cppreference · new expression</a></td><td><code>new</code> 的完整語意，包含配置失敗時會發生什麼。</td></tr>
+      <tr><td><a href="https://github.com/pearcej/cppds/tree/master/_sources/LinearLinked" target="_blank" rel="noopener">cppds · LinearLinked</a></td><td>教科書的鏈結串列章節，本頁 PART 09 那段程式碼的出處。</td></tr>
+      <tr><td><a href="linked_lists.html">本站第 04 章 · 鏈結串列</a></td><td>把這一頁的東西實際用起來。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="bankquiz">
+  <div class="section-number">QUIZ · 自我檢測</div>
+  <h2>自我檢測：陣列、指標與動態記憶體 <span class="sec-badge">隨堂自測 · 7 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">int x = 42;
+int *p = &amp;x;
+*p = 99;
+cout &lt;&lt; x &lt;&lt; &quot; &quot; &lt;&lt; *p;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。p 存的是 x 的位址，所以 *p 和 x 是同一塊記憶體的兩個名字。透過 *p 改值，x 就跟著變。">99 99</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。p 並沒有複製 x 的值，它存的是 x 的位址；透過 *p 寫入就是直接改 x 本人。">42 99</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。第三行已經把值改成 99 了。">42 42</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。int *p = &amp;x; 是合法的指標宣告與初始化。">編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">int a[5] = {10, 20, 30, 40, 50};
+cout &lt;&lt; a[2] &lt;&lt; &quot; &quot; &lt;&lt; *(a + 2);</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。a[i] 在 C++ 裡就是 *(a + i) 的簡寫，兩者完全等價。指標加法會自動乘上型別大小，所以 a + 2 是往後兩個 int，也就是前進 8 bytes。">30 30</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。*(a + 2) 是解參考，取出的是那一格的值，不是位址。">30 12</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。兩個寫法指的是同一格。索引從 0 開始，a[2] 是第三個元素。">20 30</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。陣列名會退化成指向首元素的指標，指標可以做算術。">編譯錯誤，陣列不能做加法</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>以下程式在 main 與函式裡分別印出什麼？</div>
+    <pre class="sq-code">void f(int arr[]) {
+    cout &lt;&lt; sizeof(arr) &lt;&lt; endl;
+}
+
+int main() {
+    int a[5];
+    cout &lt;&lt; sizeof(a) &lt;&lt; endl;
+    f(a);
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。這叫陣列退化：陣列傳進函式時會變成指向首元素的指標，所以函式裡量到的是指標大小 8 bytes，不是陣列的 20 bytes。這就是為什麼傳陣列一定要另外傳長度。">20 然後 8</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。函式的參數 int arr[] 其實是 int*，編譯器不會保留原本的長度資訊。">20 然後 20</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。sizeof 回傳的是位元組數，不是元素個數。五個 int 是 20 bytes。">5 然後 5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。在 main 裡 a 還是真正的陣列，sizeof 量得到完整的 20 bytes。">8 然後 8</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>以下這段函式有什麼問題？</div>
+    <pre class="sq-code">void build() {
+    Node *a = new Node(31);
+    a-&gt;next = new Node(17);
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。函式結束時，堆疊上的指標 a 會自動消失，但它指向的兩塊堆積記憶體不會，而且再也沒有人知道它們的位址。這就是記憶體洩漏。編譯器不會提醒你。">兩個節點都沒有 delete，每呼叫一次就洩漏兩塊記憶體</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。C++ 沒有垃圾回收。自動消失的只有堆疊上的指標本身，堆積上的東西要自己 delete。">沒問題，函式結束時系統會自動回收</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是標準的動態配置寫法。">new Node(31) 的語法錯了</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。a 是指標，透過指標存取成員就是用箭號；a.next 才是錯的。">a-&gt;next 應該寫成 a.next</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>int *a = new int[10]; 用完之後寫 delete a; 有什麼問題？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。中括號要成對。用 delete 還一整排的記憶體，標準沒有規定會發生什麼事，實務上通常只還了第一個元素、其餘九個洩漏。編譯器不會抱怨。">new[] 必須配 delete[]，寫成 delete 是未定義行為</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。兩者的行為不同：delete[] 會對每個元素呼叫解構式，delete 只處理一個。">沒問題，delete 和 delete[] 是一樣的</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。delete 接的是指標本身，不是解參考的結果。">應該寫 delete *a;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。配置本身完全合法。">new int[10] 的配置語法就錯了</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>為什麼 delete 之後建議立刻把指標設成 NULL？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。設成 NULL 之後，誤用它會當得很明確而不是讀到垃圾值；而且 delete 一個 NULL 在 C++ 是合法的空操作，所以就算不小心再 delete 一次也不會出事。一行程式擋掉兩種災難。">可以同時擋掉懸空指標與二次釋放兩種錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。delete 確實會把記憶體還給系統，設 NULL 只是讓那個指標變數不再指向已經無效的位址。">因為 delete 不會真的釋放記憶體，設 NULL 才會</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是正確性與可 debug 性的問題，跟效能無關。">為了讓程式跑得比較快</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是慣例與良好習慣，不是語法要求。編譯器不會強制。">C++ 語法規定 delete 之後一定要這樣寫</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q7.</span>鏈結串列的 add() 寫成下面這樣。如果把兩行對調，先寫 head = temp 再寫 temp-&gt;setNext(head)，會發生什麼？</div>
+    <pre class="sq-code">void add(T item) {
+    Node&lt;T&gt; *temp = new Node&lt;T&gt;(item);
+    temp-&gt;setNext(head);
+    head = temp;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。head 已經被換成 temp 了，所以 temp-&gt;setNext(head) 等於讓新節點指向自己。原本那串再也沒有人指向，整串洩漏，而且之後走訪會變成無窮迴圈。指標賦值有先後順序，改了就拿不回舊值。">新節點指向自己形成一個環，原本整串節點全部洩漏</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。兩行都是合法敘述，C++ 不會幫你檢查邏輯順序。這正是它危險的地方。">編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。順序決定了 head 在被讀取時是舊值還是新值，結果完全不同。">沒差，結果一樣</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這個寫法從頭到尾都只操作 head，不會走到尾端。">新節點會被加到串列尾端</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p3_functions.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">函式</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p5_vector_string.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">vector 與 string</div></a></div>
+</div>
+
+<footer>
+  先備知識 P4 · 陣列、指標與動態記憶體 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+/* ---------- 共用：記憶體格子 ---------- */
+function memCell(name, val, addr, opts = {}) {
+  const {tone = 'idle', note = ''} = opts;
+  const map = {
+    idle: ['var(--card-border)', 'var(--card)'],
+    hot:  ['var(--node-current)', 'rgba(243,156,18,.14)'],
+    ok:   ['var(--node-found)',   'rgba(22,160,133,.12)'],
+    ptr:  ['var(--accent2)',      'rgba(44,62,122,.08)'],
+    gone: ['var(--accent)',       'rgba(192,57,43,.08)'],
+  };
+  const [bd, bg] = map[tone] || map.idle;
+  return `<div style="border:2px solid ${bd};background:${bg};border-radius:9px;padding:.4rem .7rem;min-width:132px;">
+    <div style="font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${addr}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;">${name}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent2);">${val}</div>
+    ${note ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.15rem;">${note}</div>` : ''}
+  </div>`;
+}
+const memRow = html => `<div style="display:flex;gap:.7rem;flex-wrap:wrap;margin:.5rem 0;">${html}</div>`;
+
+/* ---------- P01 指標逐步器 ---------- */
+let memPlayer = null;
+const AX = '0x7ffd4c1a', PX = '0x7ffd4c20';
+
+function memFrames() {
+  const F = [];
+  F.push({line: 1, html: memRow(memCell('x', '42', AX, {tone: 'hot'})),
+          msg: '<code>int x = 42;</code> — 在堆疊上配一格，裡面放 42。'});
+  F.push({line: 2, html: memRow(memCell('x', '42', AX) + memCell('p', AX, PX, {tone: 'ptr', note: '存的是 x 的位址'})),
+          msg: '<code>int *p = &amp;x;</code> — p 也是一格，但它裡面放的是<strong>另一格的門牌號碼</strong>。'});
+  F.push({line: 3, html: memRow(memCell('x', '42', AX, {tone: 'ok'}) + memCell('p', AX, PX, {tone: 'ptr'})),
+          msg: '<code>*p</code> — 拿 p 裡的位址 <span class="mono">' + AX + '</span> 去找，找到 x，讀出 <strong>42</strong>。'});
+  F.push({line: 4, html: memRow(memCell('x', '99', AX, {tone: 'hot', note: '被 *p 改掉了'}) + memCell('p', AX, PX, {tone: 'ptr'})),
+          msg: '<code>*p = 99;</code> — 同一條路走進去，把裡面的值換掉。'});
+  F.push({line: 5, html: memRow(memCell('x', '99', AX, {tone: 'ok'}) + memCell('p', AX, PX, {tone: 'ptr'})),
+          msg: '所以 <code>x</code> 印出來是 <strong>99</strong>。<strong>p 和 x 從頭到尾都是同一塊記憶體的兩個名字。</strong>'});
+  return F;
+}
+function memStart() {
+  if (memPlayer) memPlayer.stop();
+  memPlayer = new Player({frames: memFrames(), apply: f => {
+    $('memStage').innerHTML = f.html; hlLine('memCode', f.line); setStatus('memStatus', f.msg);
+  }});
+  memPlayer.play();
+}
+function memReset() {
+  if (memPlayer) memPlayer.stop();
+  memPlayer = null;
+  $('memStage').innerHTML = memRow(memCell('（還沒宣告）', '—', '—'));
+  hlLine('memCode', null);
+  setStatus('memStatus', '按「開始」，一步一步看指標怎麼指到變數身上。');
+}
+
+/* ---------- P04 指標算術尺 ---------- */
+const ARR = [10, 20, 30, 40, 50], BASE = 0x5f2a10;
+function arrRender() {
+  const i = parseInt($('idxSlider').value, 10);
+  $('idxVal').textContent = i;
+  $('arrStage').innerHTML =
+    '<div style="display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin:.4rem 0 .8rem;">' +
+    ARR.map((v, k) => {
+      const hit = k === i;
+      return `<div style="border:2px solid ${hit ? 'var(--node-current)' : 'var(--card-border)'};` +
+             `background:${hit ? 'rgba(243,156,18,.16)' : 'var(--card)'};border-radius:8px;padding:.35rem .55rem;text-align:center;min-width:84px;">` +
+             `<div style="font-size:.64rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">0x${(BASE + k * 4).toString(16)}</div>` +
+             `<div class="mono" style="font-size:1.05rem;font-weight:700;">${v}</div>` +
+             `<div style="font-size:.66rem;color:var(--muted);">a[${k}]</div></div>`;
+    }).join('') + '</div>' +
+    `<table class="cmp-table" style="margin:0;"><tbody>
+       <tr><td class="mono">a[${i}]</td><td class="mono">${ARR[i]}</td><td style="font-size:.85rem;">中括號寫法</td></tr>
+       <tr><td class="mono">*(a + ${i})</td><td class="mono">${ARR[i]}</td><td style="font-size:.85rem;">指標算術，完全等價</td></tr>
+       <tr><td class="mono">a + ${i}</td><td class="mono">0x${(BASE + i * 4).toString(16)}</td><td style="font-size:.85rem;">位址：往後跳 ${i} × 4 = ${i * 4} bytes</td></tr>
+     </tbody></table>`;
+  setStatus('arrStatus', `<code>a + ${i}</code> 不是「位址加 ${i}」，是<strong>往後 ${i} 個元素</strong> —— 指標算術會自動乘上 <code>sizeof(int)</code> = 4。`);
+}
+
+/* ---------- P07 堆積逐步器 ---------- */
+let heapPlayer = null;
+function heapPanel(stack, heap) {
+  const box = (label, items, color) =>
+    `<div style="flex:1;min-width:150px;border:1px solid var(--card-border);border-radius:10px;padding:.5rem .7rem;background:var(--paper);">
+       <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1px;color:${color};margin-bottom:.4rem;">${label}</div>
+       ${items.length ? items.join('') : '<div style="font-size:.8rem;color:var(--muted);">（空）</div>'}
+     </div>`;
+  return `<div style="display:flex;gap:.7rem;flex-wrap:wrap;">${box('STACK 堆疊', stack, 'var(--accent2)')}${box('HEAP 堆積', heap, 'var(--accent)')}</div>`;
+}
+function heapFrames(mode) {
+  const leak = mode === 'leak';
+  const cell = (n, v, a, t) => memCell(n, v, a, {tone: t});
+  const F = [];
+  F.push({line: 1, leak: 0, html: heapPanel([], []), msg: '進入 <code>build()</code>，兩塊記憶體都還是空的。'});
+  F.push({line: 2, leak: 1,
+    html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')], [cell('Node', 'data=31', '0x61a0', 'hot')]),
+    msg: '<code>new Node(31)</code> — 在<strong>堆積</strong>配一個節點，把它的位址存進<strong>堆疊</strong>上的指標 a。'});
+  F.push({line: 3, leak: 2,
+    html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')],
+                    [cell('Node', 'data=31', '0x61a0'), cell('Node', 'data=17', '0x61c8', 'hot')]),
+    msg: '再 <code>new</code> 一個接在後面。堆積上現在有兩個節點。'});
+  if (leak) {
+    F.push({line: null, leak: 2,
+      html: heapPanel([cell('a', '（已消失）', '堆疊', 'gone')],
+                      [cell('Node', 'data=31', '0x61a0', 'gone'), cell('Node', 'data=17', '0x61c8', 'gone')]),
+      msg: '函式結束。<strong>堆疊上的 a 自動消失了，但堆積上那兩個節點還在</strong> —— 而且再也沒有人知道它們的位址。'});
+    F.push({line: null, leak: 2,
+      html: heapPanel([], [cell('Node', 'data=31', '0x61a0', 'gone'), cell('Node', 'data=17', '0x61c8', 'gone')]),
+      msg: '這就是<strong>記憶體洩漏</strong>：借了沒還，而且連還的門路都弄丟了。每呼叫一次漏兩個。'});
+  } else {
+    F.push({line: 4, leak: 1,
+      html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')], [cell('Node', 'data=31', '0x61a0')]),
+      msg: '<code>delete a-&gt;next;</code> — 把第二個節點還回去。<strong>要先還後面的</strong>，否則就找不到它了。'});
+    F.push({line: 5, leak: 0,
+      html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')], []),
+      msg: '<code>delete a;</code> — 再還第一個。堆積清空。'});
+    F.push({line: null, leak: 0,
+      html: heapPanel([], []),
+      msg: '函式結束，堆疊上的 a 也自動消失。<strong>借兩個、還兩個，收支平衡。</strong>'});
+  }
+  return F;
+}
+function heapStart(mode) {
+  if (heapPlayer) heapPlayer.stop();
+  heapPlayer = new Player({frames: heapFrames(mode), apply: f => {
+    $('heapStage').innerHTML = f.html;
+    $('heapLeak').textContent = f.leak;
+    $('heapLeak').style.color = f.leak ? 'var(--accent)' : 'var(--accent3)';
+    hlLine('heapCode', f.line);
+    setStatus('heapStatus', f.msg);
+  }});
+  heapPlayer.play();
+}
+function heapReset() {
+  if (heapPlayer) heapPlayer.stop();
+  heapPlayer = null;
+  $('heapStage').innerHTML = heapPanel([], []);
+  $('heapLeak').textContent = '0';
+  $('heapLeak').style.color = '';
+  hlLine('heapCode', null);
+  setStatus('heapStatus', '選一個版本，看堆積上的東西怎麼長、怎麼消。');
+}
+
+/* ---------- P09 Node 串接器 ---------- */
+let nodeList = [];
+const NODE_VALUES = [31, 17, 93, 26, 54];
+function nodeRender(hi) {
+  const boxes = nodeList.map((v, i) => {
+    const on = i === hi;
+    return `<div style="display:flex;align-items:center;gap:.35rem;">
+      <div style="border:2px solid ${on ? 'var(--node-current)' : 'var(--card-border)'};background:${on ? 'rgba(243,156,18,.16)' : 'var(--card)'};border-radius:8px;padding:.35rem .6rem;text-align:center;">
+        <div class="mono" style="font-size:1rem;font-weight:700;">${v}</div>
+        <div style="font-size:.64rem;color:var(--muted);">next</div>
+      </div>
+      <span style="color:var(--muted);">→</span></div>`;
+  }).join('');
+  const tail = `<div class="mono" style="align-self:center;color:var(--accent);font-weight:700;">&#78;ULL</div>`;
+  $('nodeStage').innerHTML =
+    `<div style="display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;margin:.5rem 0;">
+       <span class="mono" style="color:var(--accent2);font-weight:700;margin-right:.3rem;">head →</span>
+       ${nodeList.length ? boxes + tail : '<span class="mono" style="color:var(--accent);font-weight:700;">&#78;ULL</span>'}
+     </div>`;
+}
+function nodeAdd() {
+  if (nodeList.length >= NODE_VALUES.length) {
+    setStatus('nodeStatus', '示範到五個就好。按「重設」再來一次。');
+    return;
+  }
+  const v = NODE_VALUES[nodeList.length];
+  nodeList.unshift(v);          // 在頭部插入
+  nodeRender(0);
+  hlLine('nodeCode', 2);
+  setStatus('nodeStatus',
+    `<code>add(${v})</code> — 新節點<strong>插在最前面</strong>，所以是 <code>O(1)</code>：不必走到尾巴。` +
+    `這也是為什麼串列印出來的順序跟加入順序相反。`);
+}
+function nodeTraverse() {
+  if (!nodeList.length) { setStatus('nodeStatus', '先按 add 加幾個節點。'); return; }
+  let i = 0;
+  const step = () => {
+    if (i >= nodeList.length) {
+      nodeRender(-1);
+      setStatus('nodeStatus', `走到 <code>&#78;ULL</code>，迴圈結束。共走訪 <strong>${nodeList.length}</strong> 個節點，這是 <code>O(n)</code>。`);
+      return;
+    }
+    nodeRender(i);
+    setStatus('nodeStatus', `<code>current != &#78;ULL</code> → 成立，讀出 <strong>${nodeList[i]}</strong>，接著 <code>current = current-&gt;getNext()</code>。`);
+    i++;
+    setTimeout(step, 700);
+  };
+  hlLine('nodeCode', null);
+  step();
+}
+function nodeReset() {
+  nodeList = [];
+  nodeRender(-1);
+  hlLine('nodeCode', null);
+  setStatus('nodeStatus', '按 add 在頭部插入一個節點，看指標怎麼接。');
+}
+
+(function () {
+  if ($('memStage')) memReset();
+  if ($('heapStage')) heapReset();
+  if ($('nodeStage')) nodeReset();
+  const sl = $('idxSlider');
+  if (sl) { sl.addEventListener('input', arrRender); arrRender(); }
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體裡的門牌號碼，用 &x 取得。每次執行程式時作業系統配的位置都不一樣，所以印出來的數字每次都不同。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間，在 64 位元系統上一律 8 bytes，不管它指向的是一個 int 還是一整棵樹。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（NULL Pointer）", "back": "不指向任何東西的指標。這門課用 NULL（照 cppds 教科書），現代 C++ 用 nullptr。它在鏈結結構裡固定當作終點標記：走訪的迴圈條件就是 while (current != NULL)。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "對指標加減整數會自動乘上型別大小，所以 a + 1 是「往後一個元素」而不是「位址加 1」。這就是 a[i] 等同 *(a + i) 的原因，也解釋了索引為什麼從 0 開始。"}, {"front": "陣列退化（Array Decay）", "back": "陣列作為引數傳進函式時會退化成指向首元素的指標，因此函式裡的 sizeof 量到的是指標大小而非陣列大小。所以傳陣列一定要另外傳長度。"}, {"front": "堆疊（Stack）", "back": "存放區域變數與函式呼叫框的記憶體區域，離開範圍就自動釋放。空間小（通常幾 MB），遞迴太深會爆掉。"}, {"front": "堆積（Heap）", "back": "用 new 動態配置的記憶體區域，不會自動釋放，一定要自己 delete。空間大，而且大小可以在執行時才決定——鏈結串列、樹、圖的節點都住在這裡。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時向系統要一塊記憶體並回傳它的位址。new T(v) 配一個、new T[n] 配一整排。資料結構的節點數量在編譯時未知，只能靠它。"}, {"front": "釋放（Deallocation, delete）", "back": "把 new 來的記憶體還回去。delete 還一個、delete[] 還一整排，形式配錯是未定義行為。課程講義有 218 個 new、只有 32 個 delete，那是刻意的教學取捨。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "new 出來的記憶體沒有對應的 delete，那塊空間在程式結束前拿不回來。短程式看不出來，長時間執行的程式會越吃越多記憶體直到被系統砍掉。"}, {"front": "懸空指標（Dangling Pointer）", "back": "指向已經被 delete 或已經離開範圍的記憶體的指標。最難 debug 的一種錯誤，因為有時候「剛好」還讀得到正確的值。delete 之後立刻把指標設成 NULL 可以擋掉。"}, {"front": "二次釋放（Double Free）", "back": "同一塊記憶體被 delete 兩次，通常當場當掉。delete 之後把指標設成 NULL 就能避免，因為 delete 一個 NULL 在 C++ 是合法的空操作。"}, {"front": "所有權（Ownership）", "back": "「這塊記憶體該由誰負責 delete」的約定。C++ 沒有語法強制它，只能靠設計與註解講清楚。第 04 章的節點由串列 new 出來，也由串列負責 delete。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 NULL、讀取已釋放的記憶體、new[] 配 delete。它可能正常跑、可能當掉、也可能安靜地給出錯誤答案。"}, {"front": "智慧指標（Smart Pointer）", "back": "現代 C++ 用來自動管理記憶體的類別，例如 std::unique_ptr 會在離開範圍時自動 delete。本課照 cppds 用手動 new／delete，先看懂記憶體怎麼運作再談自動化。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+</body>
+</html>

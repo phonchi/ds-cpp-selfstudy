@@ -1,0 +1,70 @@
+[
+ {
+  "question": "以下程式印出什麼？",
+  "code": "int x = 42;\nint *p = &x;\n*p = 99;\ncout << x << \" \" << *p;",
+  "answers": [
+   {"answer": "99 99", "correct": true, "feedback": "正確。p 存的是 x 的位址，所以 *p 和 x 是同一塊記憶體的兩個名字。透過 *p 改值，x 就跟著變。"},
+   {"answer": "42 99", "correct": false, "feedback": "不對。p 並沒有複製 x 的值，它存的是 x 的位址；透過 *p 寫入就是直接改 x 本人。"},
+   {"answer": "42 42", "correct": false, "feedback": "不對。第三行已經把值改成 99 了。"},
+   {"answer": "編譯錯誤", "correct": false, "feedback": "不對。int *p = &x; 是合法的指標宣告與初始化。"}
+  ]
+ },
+ {
+  "question": "以下程式印出什麼？",
+  "code": "int a[5] = {10, 20, 30, 40, 50};\ncout << a[2] << \" \" << *(a + 2);",
+  "answers": [
+   {"answer": "30 30", "correct": true, "feedback": "正確。a[i] 在 C++ 裡就是 *(a + i) 的簡寫，兩者完全等價。指標加法會自動乘上型別大小，所以 a + 2 是往後兩個 int，也就是前進 8 bytes。"},
+   {"answer": "30 12", "correct": false, "feedback": "不對。*(a + 2) 是解參考，取出的是那一格的值，不是位址。"},
+   {"answer": "20 30", "correct": false, "feedback": "不對。兩個寫法指的是同一格。索引從 0 開始，a[2] 是第三個元素。"},
+   {"answer": "編譯錯誤，陣列不能做加法", "correct": false, "feedback": "不對。陣列名會退化成指向首元素的指標，指標可以做算術。"}
+  ]
+ },
+ {
+  "question": "以下程式在 main 與函式裡分別印出什麼？",
+  "code": "void f(int arr[]) {\n    cout << sizeof(arr) << endl;\n}\n\nint main() {\n    int a[5];\n    cout << sizeof(a) << endl;\n    f(a);\n}",
+  "answers": [
+   {"answer": "20 然後 8", "correct": true, "feedback": "正確。這叫陣列退化：陣列傳進函式時會變成指向首元素的指標，所以函式裡量到的是指標大小 8 bytes，不是陣列的 20 bytes。這就是為什麼傳陣列一定要另外傳長度。"},
+   {"answer": "20 然後 20", "correct": false, "feedback": "不對。函式的參數 int arr[] 其實是 int*，編譯器不會保留原本的長度資訊。"},
+   {"answer": "5 然後 5", "correct": false, "feedback": "不對。sizeof 回傳的是位元組數，不是元素個數。五個 int 是 20 bytes。"},
+   {"answer": "8 然後 8", "correct": false, "feedback": "不對。在 main 裡 a 還是真正的陣列，sizeof 量得到完整的 20 bytes。"}
+  ]
+ },
+ {
+  "question": "以下這段函式有什麼問題？",
+  "code": "void build() {\n    Node *a = new Node(31);\n    a->next = new Node(17);\n}",
+  "answers": [
+   {"answer": "兩個節點都沒有 delete，每呼叫一次就洩漏兩塊記憶體", "correct": true, "feedback": "正確。函式結束時，堆疊上的指標 a 會自動消失，但它指向的兩塊堆積記憶體不會，而且再也沒有人知道它們的位址。這就是記憶體洩漏。編譯器不會提醒你。"},
+   {"answer": "沒問題，函式結束時系統會自動回收", "correct": false, "feedback": "不對。C++ 沒有垃圾回收。自動消失的只有堆疊上的指標本身，堆積上的東西要自己 delete。"},
+   {"answer": "new Node(31) 的語法錯了", "correct": false, "feedback": "不對。這是標準的動態配置寫法。"},
+   {"answer": "a->next 應該寫成 a.next", "correct": false, "feedback": "不對。a 是指標，透過指標存取成員就是用箭號；a.next 才是錯的。"}
+  ]
+ },
+ {
+  "question": "int *a = new int[10]; 用完之後寫 delete a; 有什麼問題？",
+  "answers": [
+   {"answer": "new[] 必須配 delete[]，寫成 delete 是未定義行為", "correct": true, "feedback": "正確。中括號要成對。用 delete 還一整排的記憶體，標準沒有規定會發生什麼事，實務上通常只還了第一個元素、其餘九個洩漏。編譯器不會抱怨。"},
+   {"answer": "沒問題，delete 和 delete[] 是一樣的", "correct": false, "feedback": "不對。兩者的行為不同：delete[] 會對每個元素呼叫解構式，delete 只處理一個。"},
+   {"answer": "應該寫 delete *a;", "correct": false, "feedback": "不對。delete 接的是指標本身，不是解參考的結果。"},
+   {"answer": "new int[10] 的配置語法就錯了", "correct": false, "feedback": "不對。配置本身完全合法。"}
+  ]
+ },
+ {
+  "question": "為什麼 delete 之後建議立刻把指標設成 NULL？",
+  "answers": [
+   {"answer": "可以同時擋掉懸空指標與二次釋放兩種錯誤", "correct": true, "feedback": "正確。設成 NULL 之後，誤用它會當得很明確而不是讀到垃圾值；而且 delete 一個 NULL 在 C++ 是合法的空操作，所以就算不小心再 delete 一次也不會出事。一行程式擋掉兩種災難。"},
+   {"answer": "因為 delete 不會真的釋放記憶體，設 NULL 才會", "correct": false, "feedback": "不對。delete 確實會把記憶體還給系統，設 NULL 只是讓那個指標變數不再指向已經無效的位址。"},
+   {"answer": "為了讓程式跑得比較快", "correct": false, "feedback": "不對。這是正確性與可 debug 性的問題，跟效能無關。"},
+   {"answer": "C++ 語法規定 delete 之後一定要這樣寫", "correct": false, "feedback": "不對。這是慣例與良好習慣，不是語法要求。編譯器不會強制。"}
+  ]
+ },
+ {
+  "question": "鏈結串列的 add() 寫成下面這樣。如果把兩行對調，先寫 head = temp 再寫 temp->setNext(head)，會發生什麼？",
+  "code": "void add(T item) {\n    Node<T> *temp = new Node<T>(item);\n    temp->setNext(head);\n    head = temp;\n}",
+  "answers": [
+   {"answer": "新節點指向自己形成一個環，原本整串節點全部洩漏", "correct": true, "feedback": "正確。head 已經被換成 temp 了，所以 temp->setNext(head) 等於讓新節點指向自己。原本那串再也沒有人指向，整串洩漏，而且之後走訪會變成無窮迴圈。指標賦值有先後順序，改了就拿不回舊值。"},
+   {"answer": "編譯錯誤", "correct": false, "feedback": "不對。兩行都是合法敘述，C++ 不會幫你檢查邏輯順序。這正是它危險的地方。"},
+   {"answer": "沒差，結果一樣", "correct": false, "feedback": "不對。順序決定了 head 在被讀取時是舊值還是新值，結果完全不同。"},
+   {"answer": "新節點會被加到串列尾端", "correct": false, "feedback": "不對。這個寫法從頭到尾都只操作 head，不會走到尾端。"}
+  ]
+ }
+]

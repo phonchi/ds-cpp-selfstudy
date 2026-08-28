@@ -26,6 +26,8 @@ MATHJAX = """<script>
 PRE_CSS = """
 .hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
 .cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+/* th 是深藍底白字，而 code 預設也是深藍字 —— 不覆寫的話表頭裡的 code 會看不見 */
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
 .ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
 .ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
 """

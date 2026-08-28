@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 時代，為什麼還要學資料結構與演算法？ — 課前準備 00A</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">一個誠實的問題</span></a>
+  <a href="#cost" data-target="cost"><span class="fn-num">P01</span><span class="fn-name">能跑 ≠ 跑得動</span></a>
+  <a href="#wrongds" data-target="wrongds"><span class="fn-num">P02</span><span class="fn-name">選錯結構的代價</span></a>
+  <a href="#memory" data-target="memory"><span class="fn-num">P03</span><span class="fn-name">記憶體是你的責任</span></a>
+  <a href="#loop" data-target="loop"><span class="fn-num">P04</span><span class="fn-name">學習迴圈不能跳</span></a>
+  <a href="#you" data-target="you"><span class="fn-num">P05</span><span class="fn-name">這關你什麼事</span></a>
+  <a href="#habits" data-target="habits"><span class="fn-num">P06</span><span class="fn-name">五個具體習慣</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">自我檢核</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">資料來源</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <path d="M20 230 C 90 226, 150 214, 280 30"/>
+    <path d="M20 230 C 120 220, 200 200, 280 120"/>
+    <path d="M20 230 L 280 200"/>
+  </g>
+  <g fill="#fff" opacity=".7" font-family="monospace" font-size="13">
+    <text x="238" y="24">n&#178;</text><text x="238" y="116">n log n</text><text x="238" y="196">log n</text>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">CHAPTER 00A</div>
+    <h1>AI 時代，<span class="blue">為什麼還要學</span>資料結構與演算法？</h1>
+    <div class="subtitle">AI 三秒就寫得出一棵二元搜尋樹。那你坐在這裡，到底在學什麼？</div>
+    <div class="big-formula">能編譯 ≠ 跑得動｜選錯結構的代價｜記憶體是你的責任｜學習迴圈</div>
+    <div class="scroll-hint">向下捲動開始<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（課前準備 · 讀完再進第 01 章）</div>
+  <p>① <strong>照節次讀</strong>：每一節都短，不要跳著看。
+  ② <strong>動手驗證</strong>：有互動元件的地方先自己預測答案，再按按鈕對照。
+  ③ <strong>做完自我檢核</strong>再往下：答錯就回頭重讀該節。
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡</a>，能不看答案講出定義才算過關。</p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>一個誠實的問題</a>
+    <a href="#cost"><span class="toc-num">P01</span>能跑 ≠ 跑得動</a>
+    <a href="#wrongds"><span class="toc-num">P02</span>選錯結構的代價</a>
+    <a href="#memory"><span class="toc-num">P03</span>記憶體是你的責任</a>
+    <a href="#loop"><span class="toc-num">P04</span>學習迴圈不能跳過</a>
+    <a href="#you"><span class="toc-num">P05</span>說真的，這關你什麼事</a>
+    <a href="#habits"><span class="toc-num">P06</span>開始之前的五個習慣</a>
+    <a href="#exercises"><span class="toc-num">EX</span>自我檢核</a>
+    <a href="#reference"><span class="toc-num">REF</span>資料來源</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 一個誠實的問題</div>
+  <h2>「AI 三秒就寫得出 BST，那我在這裡幹嘛？」</h2>
+  <p>這個問題值得認真回答，而不是用「基本功很重要」六個字打發掉。</p>
+  <p>先承認事實：把「幫我用 C++ 實作一棵二元搜尋樹，含插入、搜尋、刪除」貼給任何一個主流模型，你會在幾秒內拿到一份看起來很專業、而且大部分情況真的會編譯過的程式碼。這門課教的每一個資料結構，AI 都寫得出來。</p>
+  <p>所以真正的問題只有一個：<strong>換你來當那個要為結果負責的人時，你憑什麼判斷它寫得對不對。</strong></p>
+  <div class="info-box">
+    <div class="info-label">💡 這一頁想說服你的一件事</div>
+    <p style="margin-bottom:0;">AI 讓「產出程式碼」變得幾乎免費，價值就整個移到另一端：<strong>選擇、驗證與取捨</strong>。這三件事剛好就是資料結構與演算法在教的東西。而 C++ 還多一層 —— 記憶體要你自己管，AI 幫你漏掉的 <code>delete</code> 不會有人提醒你。</p>
+  </div>
+</section>
+
+<section id="cost">
+  <div class="section-number">PART 01 · 能編譯 ≠ 跑得動</div>
+  <h2>AI 給你的是「能編譯」，不是「n 變成一百萬還能跑」</h2>
+  <p>你要 AI 排序，它給你一段程式。編譯過了，用 20 筆資料測試，0.001 秒，完美。三個月後資料變成一百萬筆，同一段程式跑了四十分鐘還沒結束。</p>
+  <p>AI 沒有寫錯。<strong>你沒說要多快，它也不知道你的 n 會長多大。</strong>而「n 長大時會怎樣」正是這門課第 02 章要教的東西：<em>漸近複雜度</em>。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="slider-row">
+          <span class="slider-label">資料量 n</span>
+          <input id="nSlider" type="range" min="1" max="7" value="3">
+          <span class="slider-val mono" id="nVal">1,000</span>
+        </div>
+        <table class="cmp-table" id="bigOTable">
+          <thead><tr><th>成長級數</th><th>典型代表</th><th>操作次數</th><th>估計時間<br><span style="font-weight:400;font-size:.75rem;">（每秒 10⁸ 次操作）</span></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="status-banner" id="bigOStatus"><span class="status-icon">›</span><span class="status-text">拉動滑桿，看同樣一件事在不同演算法下差多少。</span></div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">重點 <span class="ic-badge">WHY</span></div>
+        <p style="font-size:.88rem;">n 小的時候，所有演算法看起來都一樣快。這正是「用小資料測試」會騙人的原因。</p>
+        <p style="font-size:.88rem;margin-bottom:0;">這個差距要用<strong>數量級</strong>來算：n = 100 萬時，$O(n^2)$ 要花的時間是 $O(n \log n)$ 的<strong>五萬倍</strong>。到這個地步就不是效能調校的問題了，是<strong>能不能做</strong>的問題。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">課程對照 <span class="ic-badge">CH02</span></div>
+        <p style="font-size:.88rem;margin-bottom:0;">第 02 章〈演算法分析〉會帶你用 <code>&lt;chrono&gt;</code> 實際量出這張表，而不是只看理論曲線。</p>
+      </div>
+    </div>
+  </div>
+
+  <p>AI 不會主動告訴你「你選的這個做法在 n 很大時會爆炸」，除非你問。而<strong>你要先知道有這回事，才問得出來</strong>。</p>
+</section>
+
+<section id="wrongds">
+  <div class="section-number">PART 02 · 選錯結構的代價</div>
+  <h2>AI 會一本正經地選錯資料結構</h2>
+  <p>下面兩個都是真實常見的狀況：程式完全正確、測試全過、AI 也覺得沒問題，但效能是災難。而且這兩個坑，課程自己都準備好了教材。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.15rem;margin:1.4rem 0 .5rem;color:var(--accent2);">① 從容器的哪一端進出</h3>
+  <p>課程的 <code>dscpp/stack.hpp</code> 裡放了兩個堆疊：<code>Stack</code> 把頂端放在 <code>vector</code> 的<strong>尾端</strong>，<code>Stack2</code> 放在<strong>前端</strong>。兩者行為完全一樣，都通過測試。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">兩個都對，成本差兩個數量級（n = 50000，實際編譯執行）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"stack.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std::chrono;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">50000</span>;</span>
+<span class="line">    Stack&lt;<span class="kw">int</span>&gt; good;                    <span class="com">// top 在 vector 尾端：push/pop 都是 O(1)</span>
+<span class="line"></span>    Stack2&lt;<span class="kw">int</span>&gt; bad;                    <span class="com">// top 在 vector 前端：每次都要搬整排</span>
+<span class="line"></span></span>
+<span class="line">    <span class="kw">auto</span> t0 = high_resolution_clock::now();</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) good.push(i);</span>
+<span class="line">    <span class="kw">while</span> (!good.isEmpty()) good.pop();</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">auto</span> t1 = high_resolution_clock::now();</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) bad.push(i);</span>
+<span class="line">    <span class="kw">while</span> (!bad.isEmpty()) bad.pop();</span>
+<span class="line">    <span class="kw">auto</span> t2 = high_resolution_clock::now();</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Stack  (top 在尾端): </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t1 - t0).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Stack2 (top 在前端): </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t2 - t1).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Stack  (top 在尾端): 1.13921 ms
+Stack2 (top 在前端): 122.423 ms</pre></div>
+  <p class="dx-note">在 <code>vector</code> 的前端插入或刪除，要把後面所有元素整排往後搬，所以是 $O(n)$；尾端則是 $O(1)$。同樣的 ADT、同樣的正確結果，差了<strong>一百倍</strong>。課程把 <code>Stack2</code> 留在原始碼裡就是要你自己量一次。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.15rem;margin:1.6rem 0 .5rem;color:var(--accent2);">② 用什麼結構做「在不在裡面」的檢查</h3>
+
+<div class="deck-extra">
+  <div class="dx-label">逐一比對 vs 雜湊查表（20 萬筆、查 200 次）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_set&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">using</span> <span class="kw">namespace</span> std::chrono;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">200000</span>, ROUNDS = <span class="num">200</span>;</span>
+<span class="line">    vector&lt;<span class="kw">int</span>&gt; v;</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) v.push_back(i);</span>
+<span class="line">    unordered_set&lt;<span class="kw">int</span>&gt; s(v.begin(), v.end());</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">auto</span> t0 = high_resolution_clock::now();</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; ROUNDS; k++) {</span>
+<span class="line">        <span class="kw">volatile</span> <span class="kw">bool</span> hit = <span class="fn">false</span>;</span>
+<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> x : v) <span class="kw">if</span> (x == N - <span class="num">1</span>) { hit = <span class="fn">true</span>; <span class="kw">break</span>; }   <span class="com">// 逐一比對</span>
+<span class="line"></span>    }</span>
+<span class="line">    <span class="kw">auto</span> t1 = high_resolution_clock::now();</span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; ROUNDS; k++) {</span>
+<span class="line">        <span class="kw">volatile</span> <span class="kw">bool</span> hit = s.count(N - <span class="num">1</span>) &gt; <span class="num">0</span>;                  <span class="com">// 雜湊查表</span>
+<span class="line"></span>        (<span class="kw">void</span>)hit;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">auto</span> t2 = high_resolution_clock::now();</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">vector        逐一比對: </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t1 - t0).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">unordered_set 雜湊查表: </span><span class="str">"</span> &lt;&lt; duration&lt;<span class="kw">double</span>, milli&gt;(t2 - t1).count() &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>vector        逐一比對: 102.673 ms
+unordered_set 雜湊查表: 0.006698 ms</pre></div>
+  <p class="dx-note">一萬五千倍。你唯一要改的是換一個容器 —— 但你得先知道有 <code>unordered_set</code> 這種東西，以及它為什麼快。那正是第 07 章雜湊表整章在講的事。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 最危險的不是編譯錯誤，是「安靜的錯誤」</div>
+    <p style="margin-bottom:0;">編譯不過你至少知道要修。但「跑得出正確答案、只是慢一萬倍」不會噴任何訊息，它只會在你上線之後、資料長大之後才開始傷人。<strong>要抓到這種問題，你必須看得懂那段程式在做什麼。</strong></p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 02、05、07 章</div><p style="margin-bottom:0;">第 02 章教你怎麼估這些成本；第 05 章的 <code>Stack</code>、<code>Queue</code>、<code>Deque</code> 全部在做「選哪一端」的決定；第 07 章則是把 <code>unordered_set</code> 背後的雜湊表拆開來自己刻一遍。</p></div>
+</section>
+
+<section id="memory">
+  <div class="section-number">PART 03 · C++ 額外的一層</div>
+  <h2>記憶體是你的責任，AI 不會幫你記得還</h2>
+  <p>這一節是 C++ 學生獨有的。用 Python 的人不會遇到，因為那邊有垃圾回收；在 C++，<code>new</code> 出來的東西<strong>你不還就永遠不會回來</strong>。</p>
+  <p>而這門課從第 04 章開始，滿滿都是 <code>new</code>。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>課程講義</th><th><code>new</code> 出現次數</th><th>在做什麼</th></tr></thead>
+    <tbody>
+      <tr><td>第 04 章 鏈結串列</td><td class="mono">31</td><td>每加一個節點就 <code>new</code> 一次</td></tr>
+      <tr><td>第 05 章 堆疊與佇列</td><td class="mono">18</td><td>鏈結實作的節點</td></tr>
+      <tr><td>第 08 章 圖</td><td class="mono">19</td><td>頂點與邊</td></tr>
+      <tr><td>第 09 章 樹</td><td class="mono" style="color:var(--accent);font-weight:700;">102</td><td>每插入一個鍵就長一個節點</td></tr>
+      <tr><td><strong>全課合計</strong></td><td class="mono"><strong>218</strong></td><td>對應的 <code>delete</code> 只有 <strong>32</strong> 次</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">忘記還會怎樣：用一個計數器看給你看</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">class</span> Node {</span>
+<span class="line">    <span class="kw">public</span>:</span>
+<span class="line">        <span class="kw">static</span> <span class="kw">int</span> alive;          <span class="com">// 目前還活著的節點數</span>
+<span class="line"></span>        <span class="kw">int</span> data;</span>
+<span class="line">        Node *next;</span>
+<span class="line">        Node(<span class="kw">int</span> d) { data = d; next = <span class="fn">NULL</span>; alive++; }</span>
+<span class="line">        ~Node() { alive--; }</span>
+<span class="line">};</span>
+<span class="line"><span class="kw">int</span> Node::alive = <span class="num">0</span>;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">buildAndForget</span>() {</span>
+<span class="line">    Node *head = <span class="kw">new</span> Node(<span class="num">93</span>);     <span class="com">// 借了記憶體</span>
+<span class="line"></span>    head-&gt;next = <span class="kw">new</span> Node(<span class="num">26</span>);</span>
+<span class="line">    <span class="com">// ...用完就 return，忘記 delete</span>
+<span class="line"></span>}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">void</span> <span class="fn">buildAndFree</span>() {</span>
+<span class="line">    Node *head = <span class="kw">new</span> Node(<span class="num">93</span>);</span>
+<span class="line">    head-&gt;next = <span class="kw">new</span> Node(<span class="num">26</span>);</span>
+<span class="line">    <span class="kw">delete</span> head-&gt;next;             <span class="com">// 借了就要還</span>
+<span class="line"></span>    <span class="kw">delete</span> head;</span>
+<span class="line">}</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">一開始還活著的節點: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    buildAndFree();</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">buildAndFree   之後: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 借兩個、還兩個，歸零</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    buildAndForget();</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">buildAndForget 之後: </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 借兩個、沒還，永遠回不來了</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) buildAndForget();</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">再呼叫三次之後    : </span><span class="str">"</span> &lt;&lt; Node::alive &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 每呼叫一次就漏兩個</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>一開始還活著的節點: 0
+buildAndFree   之後: 0  &lt;- 借兩個、還兩個，歸零
+buildAndForget 之後: 2  &lt;- 借兩個、沒還，永遠回不來了
+再呼叫三次之後    : 8  &lt;- 每呼叫一次就漏兩個</pre></div>
+  <p class="dx-note"><code>Node::alive</code> 記錄目前還活著的節點數。<code>buildAndForget</code> 每呼叫一次就漏兩個，而且漏掉的那塊記憶體<strong>在程式結束前拿不回來</strong>。這種錯誤不會噴訊息，只會讓長時間執行的程式越吃越多記憶體。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 那課程自己為什麼漏這麼多？</div>
+    <p style="margin-bottom:0;">218 個 <code>new</code> 配 32 個 <code>delete</code>，課程確實在漏。這是<strong>刻意的教學取捨</strong>：教材程式跑幾秒就結束，作業系統會把整塊記憶體收回去，不會出事。但你要知道這是取捨，不是正確做法 —— 真的要寫會長時間跑的程式時，這裡每一個漏掉的 <code>delete</code> 都是一顆定時炸彈。<a href="index.html#prereq">先備頁 P4</a> 會把這件事講完整。</p>
+  </div>
+
+  <p>回到 AI：你請它「幫我實作一個鏈結串列」，它八成給你一份能跑的程式碼。但<strong>有沒有解構式？<code>remove()</code> 之後那個節點 <code>delete</code> 了嗎？</strong>它不會主動講，而編譯器也不會抱怨。這是你要看得出來的。</p>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、09 章</div><p style="margin-bottom:0;">第 04 章的 <code>UnorderedList::remove()</code> 與第 09 章的 BST 刪除，都是「把節點從結構裡摘掉」的操作 —— 摘掉之後那塊記憶體歸誰管，就是這一節在問的問題。</p></div>
+</section>
+
+<section id="loop">
+  <div class="section-number">PART 04 · 學習迴圈</div>
+  <h2>為什麼「學習迴圈」不能被跳過</h2>
+  <p>學會一件事的迴圈長這樣：<strong>想法 → 動手試 → 觀察結果 → 修正理解</strong>。四步缺一不可，而且卡住、debug、恍然大悟的那個瞬間，正是理解真正發生的地方。</p>
+  <p>直接把題目丟給 AI、拿回答案貼上去編譯，等於把整個迴圈砍掉只剩「觀察結果」。程式會動，作業會過，但你腦袋裡什麼都沒長出來。</p>
+
+  <div class="info-box green">
+    <div class="info-label">🍳 一個比喻</div>
+    <p style="margin-bottom:0;">照著食譜做菜，你會做出那道菜；但你不會變成廚師。廚師的能力在於：食材換了、火力不同、客人臨時說不吃辣，他還能重新設計一道菜。<strong>你想成為哪一種？</strong></p>
+  </div>
+
+  <p>這門課裡真正難的從來不是「寫出 quicksort」。難的是「為什麼 quicksort 平均是 $O(n \log n)$、最壞卻是 $O(n^2)$」、「為什麼要選這個 pivot」、「這個指標在遞迴回來之後還指著同一個地方嗎」。這些都是推理，抄一百遍程式碼也長不出來。</p>
+
+  <div class="info-box">
+    <div class="info-label">✅ 那 AI 到底能不能用？</div>
+    <p style="margin-bottom:0;">能，而且應該用，但用法要對。把 AI 當<strong>助教</strong>用，不要當<strong>代工</strong>：先自己寫、卡住了問「我這個 segfault 是怎麼來的」、拿到解釋之後自己改。C++ 的編譯錯誤訊息又長又難讀，請 AI 幫你翻譯錯誤訊息是很好的用法 —— 那是在幫你完成迴圈，不是繞過它。</p>
+  </div>
+</section>
+
+<section id="you">
+  <div class="section-number">PART 05 · 這關你什麼事</div>
+  <h2>說真的，這門課跟你的未來有什麼關係？</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.15rem;margin:1.4rem 0 .5rem;color:var(--accent2);">① 這是所有量化領域的共同語言</h3>
+  <p>不管你之後做的是遊戲引擎、嵌入式、高頻交易、影像處理還是科學計算，你都會遇到「資料太多、跑太慢」的那一天。到那天，你會需要雜湊表、堆積、圖的最短路徑這些詞。「再租一台更大的機器」買不了多少時間。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.15rem;margin:1.4rem 0 .5rem;color:var(--accent2);">② C++ 的世界裡，看得懂原始碼是基本生存技能</h3>
+  <p>這門課用的 <code>dscpp/</code>、你未來會用的 STL、Boost、Eigen，全部是別人寫的資料結構。C++ 的文件出了名地難讀，而 template 的錯誤訊息更是一長串。<strong>當文件講不清楚，唯一的辦法就是打開標頭檔看。</strong>而標頭檔裡面就是 class、就是指標、就是樹和圖。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.15rem;margin:1.4rem 0 .5rem;color:var(--accent2);">③ 「看得懂」正在變稀有</h3>
+  <p>當產出程式碼變得免費，會產出的人就不值錢了。真正變貴的是能<strong>審查</strong>的人：能看一眼就說「這裡會 $O(n^2)$」「這個 <code>new</code> 沒有配對的 <code>delete</code>」「這個迴圈裡 <code>push_back</code> 之後 iterator 就失效了」。技術面試考白板題、團隊要人 code review，考的都是這一層。</p>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 講白一點</div>
+    <p style="margin-bottom:0;">AI 會<strong>放大</strong>你的能力，也會<strong>放大</strong>你的無知。懂的人用它跑得更快；不懂的人用它把錯誤生產得更快。</p>
+  </div>
+</section>
+
+<section id="habits">
+  <div class="section-number">PART 06 · 行動指南</div>
+  <h2>開始之前：五個具體習慣</h2>
+
+  <div class="stats-grid">
+    <div class="stat-tile"><div class="stat-value">①</div><div class="stat-label">先估 Big-O 再動手</div></div>
+    <div class="stat-tile"><div class="stat-value">②</div><div class="stat-label">先預測再執行</div></div>
+    <div class="stat-tile"><div class="stat-value">③</div><div class="stat-label">問為什麼</div></div>
+    <div class="stat-tile"><div class="stat-value">④</div><div class="stat-label">每個 new 都找到它的 delete</div></div>
+    <div class="stat-tile"><div class="stat-value">⑤</div><div class="stat-label">逐行讀自己的碼</div></div>
+  </div>
+
+  <p style="margin-top:1.2rem;"><strong>① 先估 Big-O，再動手寫。</strong>拿到題目先問自己：n 會多大？我這個做法是幾次方？光是養成這個反射，你就贏過一半的人。</p>
+  <p><strong>② 先預測輸出，再按執行。</strong>本站每一個互動元件都是為了這件事設計的：先在心裡（或紙上）寫下你認為的答案，再按按鈕。<strong>猜錯的那一刻，才是你真正學到東西的一刻。</strong></p>
+  <p><strong>③ 問「為什麼」而不是「幫我寫」。</strong>把「幫我實作 AVL 樹」換成「我的旋轉寫在這裡，為什麼平衡因子沒有更新？」—— 前者你拿到程式碼，後者你拿到理解。</p>
+  <p><strong>④ 每寫一個 <code>new</code>，當場找到它的 <code>delete</code>。</strong>不是寫完再回頭補，是當下就想清楚「這塊記憶體誰負責還、什麼時候還」。想不清楚，就是你的設計還沒想好。</p>
+  <p><strong>⑤ 交出去之前逐行讀自己的程式。</strong>如果有任何一行你說不出「這行在幹嘛、拿掉會怎樣」，那行就不算你的。</p>
+
+  <div class="info-box green">
+    <div class="info-label">▶ 下一步</div>
+    <p style="margin-bottom:0;">讀完這頁，去 <a href="00b_setup.html"><strong>00B · 課前準備與環境安裝</strong></a> 把環境弄好，然後就可以從 <a href="introduction.html">第 01 章</a> 開始。如果你對 C++ 本身還不太有把握，先掃一遍 <a href="index.html#prereq">先備頁 P1–P9</a>（選讀，不評分）—— 尤其是 P4 的指標與動態記憶體，第 04 章以後幾乎每一頁都要用到。</p>
+  </div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 自我檢核</div>
+  <h2>讀完了嗎？用 3 題檢查你的理解 <span class="sec-badge">觀念題 · 不考語法</span></h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 1 · 成本直覺</div>
+    <p>一段程式在 1,000 筆資料上跑 0.01 秒。如果它是 $O(n^2)$，資料變成 100,000 筆時大約要多久？</p>
+    <div class="quiz-options" id="q1Options">
+      <div class="quiz-opt" data-correct="false" data-fb="這是把 n 乘 100 就把時間乘 100 的算法，那是 O(n) 的行為。" onclick="quizCheck('q1', this)"><span class="opt-letter">(A)</span> 約 1 秒</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。n 乘 100，O(n²) 的時間乘 100² = 10,000 倍，所以是 0.01 × 10,000 = 100 秒。同一份資料若換成 O(n log n) 的演算法，大約只要 0.017 秒。" onclick="quizCheck('q1', this)"><span class="opt-letter">(B)</span> 約 100 秒</div>
+      <div class="quiz-opt" data-correct="false" data-fb="太多了。O(n²) 是平方成長，不是指數成長；會長成這樣的是 O(2ⁿ)。" onclick="quizCheck('q1', this)"><span class="opt-letter">(C)</span> 約 3 小時</div>
+    </div>
+    <div class="quiz-feedback" id="q1Feedback"></div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 2 · 判斷 AI 的產出</div>
+    <p>AI 幫你寫了一個鏈結串列，<code>remove()</code> 的實作是把前一個節點的 <code>next</code> 接到後一個節點，然後 <code>return</code>。編譯過了，測試也過了。有問題嗎？</p>
+    <div class="quiz-options" id="q2Options">
+      <div class="quiz-opt" data-correct="false" data-fb="測試會過不代表沒問題。被摘掉的那個節點還在記憶體裡，只是再也沒有人指向它。" onclick="quizCheck('q2', this)"><span class="opt-letter">(A)</span> 沒問題，測試過了就好</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。被摘下來的節點是 new 出來的，接好指標之後必須 delete 它，否則就是記憶體洩漏。編譯器不會抱怨，測試也不會抓到——這正是 C++ 要你自己負責的那一層。" onclick="quizCheck('q2', this)"><span class="opt-letter">(B)</span> 摘下來的節點沒有 <code>delete</code>，會洩漏</div>
+      <div class="quiz-opt" data-correct="false" data-fb="接指標的順序確實要小心，但題目說測試過了，代表串接邏輯是對的。問題出在被摘掉的那塊記憶體。" onclick="quizCheck('q2', this)"><span class="opt-letter">(C)</span> 指標接的順序一定是錯的</div>
+    </div>
+    <div class="quiz-feedback" id="q2Feedback"></div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 3 · 學習方法</div>
+    <p>下面哪一種用 AI 的方式，最能幫助你真的學會這門課？</p>
+    <div class="quiz-options" id="q3Options">
+      <div class="quiz-opt" data-correct="false" data-fb="這樣你拿到的是程式碼，不是理解。下次沒有 AI 的時候（例如考試、白板題）你一樣寫不出來。" onclick="quizCheck('q3', this)"><span class="opt-letter">(A)</span> 直接請它完整實作，再讀一遍它寫的</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。先自己寫、卡住再問「為什麼錯」，學習迴圈是完整的：你有假設、有嘗試、有回饋、有修正。C++ 的編譯錯誤訊息又長又難讀，請 AI 翻譯錯誤訊息尤其划算。" onclick="quizCheck('q3', this)"><span class="opt-letter">(B)</span> 自己先寫，卡住時問「我這段為什麼不對」</div>
+      <div class="quiz-opt" data-correct="false" data-fb="完全不用 AI 也不是最佳解。它是很好的助教：解釋 template 錯誤訊息、比較兩種做法的取捨、當你的橡皮鴨。重點是誰在做決定。" onclick="quizCheck('q3', this)"><span class="opt-letter">(C)</span> 完全不用 AI，一切自己來</div>
+    </div>
+    <div class="quiz-feedback" id="q3Feedback"></div>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 延伸閱讀</div>
+  <h2>資料來源與延伸閱讀</h2>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>為什麼值得看</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://martinfowler.com/articles/exploring-gen-ai.html" target="_blank" rel="noopener">Martin Fowler — Exploring Generative AI</a></td><td>軟體工程視角看生成式 AI：什麼場合適合、什麼場合會付出長期維護代價。</td></tr>
+      <tr><td><a href="https://github.com/pearcej/cppds" target="_blank" rel="noopener">cppds（本課教科書）</a></td><td>Problem Solving with Algorithms and Data Structures using C++，本站每章 §徽章都對應此書節號。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/container" target="_blank" rel="noopener">cppreference · Containers</a></td><td>STL 各容器操作的複雜度保證，官方權威。想知道 <code>vector::insert</code> 為什麼慢，這裡有答案。</td></tr>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>逐行視覺化記憶體與指標變化。看不懂指標或遞迴時，貼進去按下一步。</td></tr>
+      <tr><td><a href="https://github.com/phonchi/nsysu-math208" target="_blank" rel="noopener">nsysu-math208</a></td><td>課程講義與投影片 repo，本站是它的互動版配套。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><span></span><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="00b_setup.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">課前準備與環境安裝</div></a></div>
+</div>
+
+<footer>
+  課前準備 00A · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+/* ---------- P01 Big-O 成本對照表 ---------- */
+const BIGO_N = [10, 100, 1000, 10000, 100000, 1000000, 10000000];
+const OPS_PER_SEC = 1e8;
+
+const BIGO_ROWS = [
+  {name: 'O(log n)',   rep: '二分搜尋（第 07 章）',        f: n => Math.log2(n)},
+  {name: 'O(n)',       rep: '線性搜尋、走訪一次串列',      f: n => n},
+  {name: 'O(n log n)', rep: 'merge sort、快速排序平均',    f: n => n * Math.log2(n)},
+  {name: 'O(n²)',      rep: 'bubble／selection／insertion', f: n => n * n},
+  {name: 'O(2ⁿ)',      rep: '沒加記憶化的遞迴費氏數列',    f: n => Math.pow(2, n)},
+];
+
+function fmtNum(x) {
+  if (!isFinite(x)) return '∞';
+  if (x < 1000) return x.toFixed(x < 10 ? 1 : 0);
+  if (x < 1e6) return Math.round(x).toLocaleString('en-US');
+  const e = Math.floor(Math.log10(x));
+  return (x / Math.pow(10, e)).toFixed(1) + ' × 10<sup>' + e + '</sup>';
+}
+
+function fmtTime(sec) {
+  if (!isFinite(sec)) return '算不完';
+  if (sec < 1e-6) return '< 1 微秒';
+  if (sec < 1e-3) return (sec * 1e6).toFixed(1) + ' 微秒';
+  if (sec < 1)    return (sec * 1e3).toFixed(1) + ' 毫秒';
+  if (sec < 60)   return sec.toFixed(2) + ' 秒';
+  if (sec < 3600) return (sec / 60).toFixed(1) + ' 分鐘';
+  if (sec < 86400) return (sec / 3600).toFixed(1) + ' 小時';
+  const years = sec / (86400 * 365);
+  if (years < 1) return (sec / 86400).toFixed(1) + ' 天';
+  if (years < 1e9) return fmtNum(years) + ' 年';
+  return '比宇宙年齡還久';
+}
+
+function bigOUpdate() {
+  const slider = $('nSlider');
+  if (!slider) return;
+  const n = BIGO_N[parseInt(slider.value, 10) - 1];
+  $('nVal').textContent = n.toLocaleString('en-US');
+
+  const tbody = $('bigOTable').querySelector('tbody');
+  tbody.innerHTML = BIGO_ROWS.map(r => {
+    const ops = r.f(n);
+    const sec = ops / OPS_PER_SEC;
+    const slow = sec > 60;
+    const style = slow ? ' style="color:var(--accent);font-weight:700;"' : '';
+    return `<tr><td class="mono">${r.name}</td><td style="font-size:.85rem;">${r.rep}</td>` +
+           `<td class="mono">${fmtNum(ops)}</td><td class="mono"${style}>${fmtTime(sec)}</td></tr>`;
+  }).join('');
+
+  const nlogn = n * Math.log2(n), nsq = n * n;
+  setStatus('bigOStatus',
+    `n = <strong>${n.toLocaleString('en-US')}</strong> 時，` +
+    `<code>O(n²)</code> 的工作量是 <code>O(n log n)</code> 的 <strong>${fmtNum(nsq / nlogn)}</strong> 倍。`);
+}
+
+(function () {
+  const slider = $('nSlider');
+  if (!slider) return;
+  slider.addEventListener('input', bigOUpdate);
+  bigOUpdate();
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "漸近複雜度（Asymptotic Complexity）", "back": "描述當輸入規模 n 趨近無限大時，執行成本如何成長的表示法。它刻意忽略常數與低次項，因為決定「n 很大時能不能跑」的是成長級數，不是常數倍率。"}, {"front": "大 O 記號（Big-O Notation）", "back": "成本成長的上界表示法。O(n log n) 的意思是：存在某個常數，使得 n 夠大以後執行成本不會超過該常數乘上 n log n。"}, {"front": "數量級（Order of Magnitude）", "back": "以 10 的次方為單位的規模差距。演算法的優劣通常差好幾個數量級：把 Stack 的頂端從 vector 尾端換到前端，n = 50000 時就慢了一百倍。"}, {"front": "安靜的錯誤（Silent Error）", "back": "編譯得過、跑得出正確答案、但成本或行為是錯的狀況。例如把 vector 當佇列用，或忘記 delete。編譯器不會抱怨，測試也抓不到，只能靠看得懂程式碼的人發現。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "用 new 配置的記憶體沒有對應的 delete，那塊空間在程式結束前再也拿不回來。課程講義有 218 個 new、只有 32 個 delete——那是刻意的教學取捨，不是正確做法。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如讀取已經 delete 的指標、陣列索引越界。它可能正常跑、可能當掉、也可能安靜地給出錯誤答案，換一台機器結果就不同。"}, {"front": "非決定性（Non-determinism）", "back": "同樣的輸入不保證得到同樣輸出的性質。生成式 AI 就是非決定性的：同一個問題問三次可能拿到三份不同實作，因此必須由人驗證與挑選。"}, {"front": "學習迴圈（Learning Loop）", "back": "想法 → 動手嘗試 → 觀察結果 → 修正理解的循環。理解真正發生在「卡住又想通」的瞬間；把題目整包外包出去，等於把迴圈砍到只剩觀察結果。"}, {"front": "攤還分析（Amortized Analysis）", "back": "把偶爾很貴的操作平均分攤到多次操作上的成本分析方式。例如 vector 的 push_back 偶爾要重新配置並搬移整排元素，但平均下來仍是 O(1)。"}, {"front": "抽象資料型別（Abstract Data Type, ADT）", "back": "只描述「有哪些操作、各自代表什麼意思」而不指定如何實作的資料模型。堆疊、佇列、映射都是 ADT；同一個 ADT 可以有多種實作，效能差很多。"}, {"front": "程式碼審查（Code Review）", "back": "由人逐行檢視程式碼、判斷正確性與取捨是否合理的過程。當產出程式碼變得便宜，能審查的能力就變貴：看一眼就指出「這個 new 沒有配對的 delete」。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+</script>
+</body>
+</html>

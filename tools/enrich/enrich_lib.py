@@ -85,12 +85,13 @@ from pathlib import Path
 
 DSCPP = Path.home() / "ds_cpp/Slides/dscpp"
 
-def run_cpp(code, timeout=30, include=DSCPP, std="c++17"):
+def run_cpp(code, timeout=30, include=DSCPP, std="c++17", err_head=0):
     """用 g++ 編譯執行 C++ 片段，回傳真實 stdout。
 
     include 預設指到課程的 dscpp/ 標頭檔目錄，所以範例可以直接
     #include "stack.hpp" 引用課程真正在用的那份實作。
     編譯或執行失敗時，把訊息的末兩行接在輸出後面（比照 Python 版 run_py 的形狀）。
+    err_head 給正整數時改取編譯錯誤的前 N 行——教「怎麼讀 g++ 錯誤訊息」時要的是開頭。
     """
     with tempfile.TemporaryDirectory() as d:
         src = os.path.join(d, "snippet.cpp")
@@ -101,8 +102,10 @@ def run_cpp(code, timeout=30, include=DSCPP, std="c++17"):
             cmd[1:1] = ["-I", str(include)]
         c = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         if c.returncode != 0:
-            tail = "\n".join(c.stderr.strip().splitlines()[-2:])
-            return f"[編譯失敗]\n{tail}"
+            lines = c.stderr.strip().splitlines()
+            # 編譯錯誤要教學用時，關鍵在「第一個 error」而不是結尾的收尾行
+            picked = lines[:err_head] if err_head else lines[-2:]
+            return "[編譯失敗]\n" + "\n".join(picked)
         r = subprocess.run([exe], capture_output=True, text=True, timeout=timeout)
         out = r.stdout
         if r.returncode != 0:

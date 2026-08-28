@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>課前準備與環境安裝 — 課前準備 00B</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+</style>
+</head>
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">為什麼先弄環境</span></a>
+  <a href="#kernel" data-target="kernel"><span class="fn-num">P01</span><span class="fn-name">方法一：Jupyter kernel</span></a>
+  <a href="#vscode" data-target="vscode"><span class="fn-num">P02</span><span class="fn-name">方法二：VS Code</span></a>
+  <a href="#online" data-target="online"><span class="fn-num">P03</span><span class="fn-name">方法三：線上編譯器</span></a>
+  <a href="#windows" data-target="windows"><span class="fn-num">P04</span><span class="fn-name">Windows 裝 g++</span></a>
+  <a href="#verify" data-target="verify"><span class="fn-num">P05</span><span class="fn-name">環境驗收</span></a>
+  <a href="#faq" data-target="faq"><span class="fn-num">P06</span><span class="fn-name">kernel 踩坑 FAQ</span></a>
+  <a href="#ai" data-target="ai"><span class="fn-num">P07</span><span class="fn-name">AI 家教</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">參考資源</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="45" y="45" width="210" height="150" rx="10"/>
+    <line x1="45" y1="78" x2="255" y2="78"/>
+    <circle cx="62" cy="61" r="5"/><circle cx="80" cy="61" r="5"/><circle cx="98" cy="61" r="5"/>
+    <line x1="70" y1="105" x2="150" y2="105"/><line x1="70" y1="130" x2="200" y2="130"/>
+    <line x1="70" y1="155" x2="120" y2="155"/>
+    <line x1="120" y1="195" x2="120" y2="215"/><line x1="90" y1="215" x2="210" y2="215"/>
+  </g>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">CHAPTER 00B</div>
+    <h1><span class="green">課前準備</span>與環境安裝</h1>
+    <div class="subtitle">三條路擇一，二十分鐘之內讓你能編譯、能執行、能跑課程 notebook。</div>
+    <div class="big-formula">g++｜jupyter-cpp-kernel｜VS Code｜winlibs｜dscpp</div>
+    <div class="scroll-hint">向下捲動開始<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（課前準備 · 讀完再進第 01 章）</div>
+  <p>① <strong>照節次讀</strong>：每一節都短，不要跳著看。
+  ② <strong>動手驗證</strong>：有互動元件的地方先自己預測答案，再按按鈕對照。
+  ③ <strong>做完自我檢核</strong>再往下：答錯就回頭重讀該節。
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡</a>，能不看答案講出定義才算過關。</p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>為什麼要先準備環境</a>
+    <a href="#kernel"><span class="toc-num">P01</span>方法一：Jupyter + C++ kernel</a>
+    <a href="#vscode"><span class="toc-num">P02</span>方法二：VS Code 或純 g++</a>
+    <a href="#online"><span class="toc-num">P03</span>方法三：線上編譯器</a>
+    <a href="#windows"><span class="toc-num">P04</span>Windows 怎麼裝 g++</a>
+    <a href="#verify"><span class="toc-num">P05</span>環境驗收</a>
+    <a href="#faq"><span class="toc-num">P06</span>C++ kernel 踩坑 FAQ</a>
+    <a href="#ai"><span class="toc-num">P07</span>把 AI 調成家教模式</a>
+    <a href="#reference"><span class="toc-num">REF</span>參考資源</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>C++ 不像 Python 打開就能跑</h2>
+  <p>Python 的直譯器讀一行執行一行；C++ 要先<strong>編譯</strong>成執行檔才能跑。所以你至少需要一個編譯器（<code>g++</code>），再加一個寫程式的地方。</p>
+  <p>這門課的講義是 Jupyter notebook，用的是一個能執行 C++ 的 kernel。下面三條路都能寫 C++，但<strong>只有第一條能直接跑課程的 notebook</strong>。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>方法</th><th>時間</th><th>能跑課程 notebook</th><th>適合誰</th></tr></thead>
+    <tbody>
+      <tr><td><strong>① Jupyter + C++ kernel</strong><br><span class="pill pill-green">推薦</span></td><td>15 分鐘</td><td>✅ 可以</td><td>要跟著講義一起動手的人</td></tr>
+      <tr><td><strong>② VS Code 或純 g++</strong></td><td>5–10 分鐘</td><td>❌ 只能編譯 <code>.cpp</code></td><td>只想寫程式、講義看 HTML 就好</td></tr>
+      <tr><td><strong>③ 線上編譯器</strong></td><td>0 分鐘</td><td>❌ 完全不行</td><td>臨時想試一小段、或電腦不能裝東西</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 這門課沒有 Colab 這條路</div>
+    <p style="margin-bottom:0;">Python 課可以用 Google Colab 免安裝，C++ 不行 —— Colab 只提供 Python kernel，裝不了 C++ kernel。所以本課的講義 notebook <strong>一定要在本機跑</strong>。這也是為什麼方法①值得花那 15 分鐘。</p>
+  </div>
+</section>
+
+<section id="kernel">
+  <div class="section-number">PART 01 · 方法一 · 推薦</div>
+  <h2>本機 Jupyter + C++ kernel <span class="sec-badge">能跑課程 notebook</span></h2>
+  <p>需要三樣東西：<code>g++</code>、Python 與 <code>pip</code>、以及 JupyterLab。Linux 與 WSL 通常已經有 <code>g++</code>；macOS 裝 Xcode Command Line Tools；Windows 請先看 <a href="#windows">PART 04</a>。</p>
+
+<div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 1. 先裝 JupyterLab（C++ kernel 本身沒有宣告相依，這步不能省）</span>
+<span class="line">pip install jupyterlab</span>
+<span class="line"> </span>
+<span class="line"># 2. 再裝打過 patch 的 C++ kernel</span>
+<span class="line">pip install git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
+<span class="line"> </span>
+<span class="line"># 3. 確認 cpp17 有出現在清單裡</span>
+<span class="line">jupyter kernelspec list</span></div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 為什麼裝的是這個 fork，而不是 PyPI 上的原版</div>
+    <p style="margin-bottom:0;">上游版本的編譯指令少了 <code>-I.</code>。kernel 會把每個 cell 寫進一個暫存檔再編譯，而 <code>#include "dscpp/stack.hpp"</code> 這種<strong>帶引號的相對 include</strong>，g++ 是相對「原始檔所在目錄」去找 —— 也就是暫存目錄，當然找不到。課程從第 06 章起大量使用這種寫法，所以要用補過這一行的版本。<br>
+    差異只有一行，原始碼在 <a href="https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208" target="_blank" rel="noopener">phonchi/jupyter-cpp-kernel（nsysu-math208 分支）</a>，fork 自 shiroinekotfs 的原專案，MIT 授權。</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 第一步不能省</div>
+    <p style="margin-bottom:0;">這個 kernel 套件<strong>沒有宣告任何相依套件</strong>。只裝它而沒裝 JupyterLab 的話，一 import 就會噴 <code>ModuleNotFoundError: No module named 'ipykernel'</code>。裝完 <code>jupyter kernelspec list</code> 應該會看到 <code>cpp03</code> 到 <code>cpp23</code> 一整排，這門課用 <code>cpp17</code>。</p>
+  </div>
+
+  <div class="info-card">
+    <div class="ic-title">開始上課 <span class="ic-badge">3 步</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① 把課程 notebook 與 <code>dscpp/</code> 資料夾放在<strong>同一層</strong>（<code>-I.</code> 是相對於你啟動 Jupyter 的目錄）。<br>
+    ② 在那個目錄執行 <code>jupyter lab</code>。<br>
+    ③ 開啟 <code>.ipynb</code>，右上角 kernel 選 <strong>C++ 17</strong>，按 <code>Shift + Enter</code> 執行第一格。</p>
+  </div>
+</section>
+
+<section id="vscode">
+  <div class="section-number">PART 02 · 方法二 · 輕量</div>
+  <h2>VS Code 或純 g++ —— 只想寫 <code>.cpp</code> 走這條</h2>
+  <p>不跑 notebook 的話，一個編譯器加一個編輯器就夠了。講義的 HTML 版一樣讀得到全部內容，只是沒辦法在裡面按執行。</p>
+
+<div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 編譯（-Wall 把警告打開，學習期一定要開）</span>
+<span class="line">g++ -std=c++17 -Wall -I. main.cpp -o main</span>
+<span class="line"> </span>
+<span class="line"># 執行</span>
+<span class="line">./main</span></div>
+
+  <div class="info-card">
+    <div class="ic-title">VS Code 設定 <span class="ic-badge">3 步</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① 安裝微軟官方的 <strong>C/C++</strong> 擴充套件。<br>
+    ② 開一個資料夾當工作區，把 <code>dscpp/</code> 放進去。<br>
+    ③ 按 <code>Ctrl + Shift + B</code> 建立編譯任務，把 <code>args</code> 設成 <code>["-std=c++17", "-Wall", "-I.", "${file}", "-o", "${fileBasenameNoExtension}"]</code>。</p>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 <code>-Wall</code> 是學習期最划算的一個旗標</div>
+    <p style="margin-bottom:0;">它會把「編譯得過但很可疑」的地方講出來：用了未初始化的變數、把陣列當指標算 <code>sizeof</code>、有分支沒回傳值。這些正是 C++ 最容易安靜出錯的地方。<a href="index.html#prereq">P1</a> 會教怎麼讀這些訊息。</p>
+  </div>
+</section>
+
+<section id="online">
+  <div class="section-number">PART 03 · 方法三 · 免安裝</div>
+  <h2>線上編譯器 <span class="sec-badge">跑不了課程 notebook</span></h2>
+  <p>想臨時試一小段語法、或手邊電腦不能安裝東西時很好用。但它<strong>只能跑單一檔案</strong>：課程的 <code>dscpp/*.hpp</code> 沒辦法 include，notebook 更不用說。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>工具</th><th>強項</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://godbolt.org/" target="_blank" rel="noopener">Compiler Explorer</a></td><td>看得到編譯出來的組合語言，也能同時比對不同編譯器與最佳化等級。想知道「編譯器到底幫我做了什麼」就用它。</td></tr>
+      <tr><td><a href="https://www.onlinegdb.com/online_c++_compiler" target="_blank" rel="noopener">OnlineGDB</a></td><td>附一個真的除錯器，可以下中斷點、單步、看變數。學指標時很有用。</td></tr>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把記憶體畫出來給你看：堆疊、堆積、指標的箭頭。<a href="index.html#prereq">P4</a> 會整頁靠它。</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="windows">
+  <div class="section-number">PART 04 · Windows</div>
+  <h2>Windows 怎麼裝 g++</h2>
+  <p>Windows 沒有內建 g++。兩條路，選一條：</p>
+
+  <div class="info-card">
+    <div class="ic-title">路線 A · winlibs（不用裝 WSL） <span class="ic-badge">課堂用這個</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① 到 <a href="https://winlibs.com/" target="_blank" rel="noopener">winlibs.com</a> 下載 UCRT runtime 的 GCC（課堂驗證過的是 12.1，更新版通常也可以）。<br>
+    ② 解壓到一個沒有中文與空白的路徑，例如 <code>C:\mingw64</code>。<br>
+    ③ 把 <code>C:\mingw64\bin</code> 加進系統環境變數 <code>Path</code>。<br>
+    ④ 開一個<strong>新的</strong>命令提示字元，執行 <code>g++ --version</code> 確認。</p>
+  </div>
+
+  <div class="info-card">
+    <div class="ic-title">路線 B · WSL（想要 Linux 環境）</div>
+    <p style="font-size:.9rem;margin-bottom:0;">系統管理員身分開 PowerShell，執行 <code>wsl --install</code>，重開機之後在 Ubuntu 裡執行 <code>sudo apt update &amp;&amp; sudo apt install g++ python3-pip</code>。之後所有指令都在 WSL 裡跑，跟 Linux 完全一樣。</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 改完 Path 一定要開新視窗</div>
+    <p style="margin-bottom:0;">環境變數只在新開的終端機生效。改完之後 <code>g++ --version</code> 還是說找不到指令的話，九成是視窗沒重開，不是路徑設錯。</p>
+  </div>
+</section>
+
+<section id="verify">
+  <div class="section-number">PART 05 · 驗收</div>
+  <h2>跑這一段，就知道環境好了沒</h2>
+  <p>不管你選哪條路，把下面這段存成 <code>check.cpp</code>（或貼進一個 notebook cell）執行。<strong>沒有噴錯、而且印出五行，就代表環境沒問題。</strong></p>
+
+<div class="deck-extra">
+  <div class="dx-label">環境驗收（真的編譯執行過的輸出）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"dscpp/stack.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"dscpp/linked_list.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"> </span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">C++ 標準  : </span><span class="str">"</span> &lt;&lt; __cplusplus &lt;&lt; <span class="str">"</span><span class="str">  (201703 = C++17)</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">g++ 版本  : </span><span class="str">"</span> &lt;&lt; __GNUC__ &lt;&lt; <span class="str">"</span><span class="str">.</span><span class="str">"</span> &lt;&lt; __GNUC_MINOR__ &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    Stack&lt;<span class="kw">int</span>&gt; s;</span>
+<span class="line">    s.push(<span class="num">42</span>);</span>
+<span class="line">    s.push(<span class="num">7</span>);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Stack     : pop=</span><span class="str">"</span> &lt;&lt; s.pop() &lt;&lt; <span class="str">"</span><span class="str"> peek=</span><span class="str">"</span> &lt;&lt; s.peek() &lt;&lt; <span class="str">"</span><span class="str"> size=</span><span class="str">"</span> &lt;&lt; s.size() &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    UnorderedList&lt;<span class="kw">int</span>&gt; lst;</span>
+<span class="line">    lst.add(<span class="num">31</span>);</span>
+<span class="line">    lst.add(<span class="num">17</span>);</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">LinkedList: size=</span><span class="str">"</span> &lt;&lt; lst.size() &lt;&lt; <span class="str">"</span><span class="str"> search(31)=</span><span class="str">"</span> &lt;&lt; lst.search(<span class="num">31</span>) &lt;&lt; endl;</span>
+<span class="line"> </span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">環境檢查通過，可以開始第 01 章。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>C++ 標準  : 201703  (201703 = C++17)
+g++ 版本  : 13.3
+Stack     : pop=7 peek=42 size=1
+LinkedList: size=2 search(31)=1
+環境檢查通過，可以開始第 01 章。</pre></div>
+  <p class="dx-note">版本號跟你的不一樣沒關係，C++17 以上都可以。重點是<strong>兩個 dscpp 標頭都 include 成功</strong>——那代表 <code>-I.</code> 有生效、而且 <code>dscpp/</code> 放對位置了。在終端機編譯的話記得加 <code>-I.</code>：<code>g++ -std=c++17 -I. check.cpp -o check</code>。</p>
+</div>
+
+  <div class="stats-grid">
+    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">g++ 版本印得出來</div></div>
+    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">dscpp 標頭 include 成功</div></div>
+    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">Stack 與串列都能用</div></div>
+    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">notebook 能選到 C++ 17</div></div>
+  </div>
+  <p style="margin-top:1rem;">四項都打勾就可以往下走了。接下來去 <a href="introduction.html">第 01 章 · C++ 導論</a>；若對 C++ 本身還不熟，先掃 <a href="index.html#prereq">先備頁 P1–P9</a>（選讀，不評分）。</p>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 01 章</div><p style='margin-bottom:0;'>第 01 章的第一個 cell 就會 <code>#include</code> 課程的標頭檔。這一節過不了，那一章一行都跑不動。</p></div>
+</section>
+
+<section id="faq">
+  <div class="section-number">PART 06 · 疑難排解</div>
+  <h2>C++ kernel 踩坑 FAQ：六個一定會遇到的</h2>
+  <p>這個 kernel 把<strong>每一個 cell 當成一支獨立的完整程式</strong>去編譯執行。理解這一句，下面六個坑就都說得通了。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">① 上一格定義的東西，下一格說找不到</h3>
+  <p><strong>cell 之間沒有共用狀態。</strong>每個 cell 各自編譯成一支程式，跑完就結束。所以 class 定義和用到它的 <code>main()</code> <strong>必須寫在同一格</strong>。這也是課程講義把「類別定義 + 示範」合併成一格的原因。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">② 裸的 <code>cout</code> 編不過</h3>
+<div class="deck-extra">
+  <div class="dx-label">沒有 using namespace std; 的下場</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">hello</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:2:5: error: ‘cout’ was not declared in this scope
+    2 |     cout &lt;&lt; &quot;hello&quot; &lt;&lt; endl;</pre></div>
+  <p class="dx-note">沒有寫 <code>main()</code> 的 cell 會被 kernel 自動包進一個 <code>main()</code>，但那個包裝<strong>不會</strong>幫你加 <code>using namespace std;</code>。短 cell 自己在開頭寫一行，或全部用 <code>std::cout</code> 前綴。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">③ <code>map</code>、<code>set</code> 說沒宣告</h3>
+<div class="deck-extra">
+  <div class="dx-label">自動附加的標頭檔清單裡沒有這些</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line">    map&lt;string, <span class="kw">int</span>&gt; m;</span>
+<span class="line">    m[<span class="str">"</span><span class="str">a</span><span class="str">"</span>] = <span class="num">1</span>;</span>
+<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line">}</span>
+<span class="line"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:4:5: error: ‘map’ was not declared in this scope
+    4 |     map&lt;string, int&gt; m;</pre></div>
+  <p class="dx-note">kernel 會自動幫你 include 二十幾個常用標頭（<code>iostream</code>、<code>vector</code>、<code>string</code>、<code>algorithm</code>…），但<strong>不含</strong> <code>&lt;map&gt;</code>、<code>&lt;set&gt;</code>、<code>&lt;unordered_map&gt;</code>、<code>&lt;iterator&gt;</code>、<code>&lt;chrono&gt;</code>。用到就自己寫 <code>#include</code>；而 <code>#include</code> 不能被包進 <code>main()</code>，所以這種 cell 一律寫成完整程式（include + main）。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">④ 只寫一個函式定義，編不過</h3>
+  <p>沒有 <code>main(</code> 的 cell 會被整段包進 <code>main()</code> —— 於是你的函式定義變成「函式裡面的函式」，C++ 不允許。想單獨展示一個函式，用 markdown 的程式碼區塊；要能執行就寫完整程式。<strong>template 類別也一樣</strong>：被包進 <code>main()</code> 之後會變成區域類別，而區域類別不能是 template，所以一定要自帶 <code>main()</code>。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑤ 字串裡不能出現 <code>//</code></h3>
+  <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:" "//example.com"</code> 兩段接起來。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "dscpp/…"</code> 找不到檔案</h3>
+  <p>兩個原因：一是你裝的是 PyPI 原版而不是 <a href="#kernel">PART 01</a> 那個 fork（缺 <code>-I.</code>）；二是你啟動 <code>jupyter lab</code> 的目錄跟 <code>dscpp/</code> 不在同一層。<code>-I.</code> 的「<code>.</code>」指的是<strong>啟動 Jupyter 的工作目錄</strong>，不是 notebook 所在的目錄。</p>
+</section>
+
+<section id="ai">
+  <div class="section-number">PART 07 · AI 家教</div>
+  <h2>把 AI 調成「家教模式」而不是「代工模式」</h2>
+  <p><a href="00a_why_code.html">00A</a> 說過：AI 要當助教，不要當代工。C++ 這門課有一個特別適合用 AI 的場合 —— <strong>翻譯編譯錯誤訊息</strong>。template 出錯時 g++ 可以吐出兩百行，那不是給人讀的。</p>
+
+  <div class="info-card">
+    <div class="ic-title">自訂指令範例 <span class="ic-badge">可直接貼</span></div>
+    <p style="font-size:.9rem;">不管你用 VS Code 的 Copilot、還是網頁版的模型，把這段設成常駐指令：</p>
+    <div class="pseudo-code" style="font-size:.8rem;"><span class="line">我正在修一門資料結構與演算法的課，用 C++17，教材風格照 cppds 這本書</span>
+<span class="line">（手動 new／delete、NULL 而非 nullptr、手刻結構而非直接用 STL 容器）。</span>
+<span class="line"> </span>
+<span class="line">請不要直接給我完整的解答程式碼。</span>
+<span class="line">請改成：先反問我目前的想法，指出我錯在哪一行、為什麼，並提示下一步該想什麼。</span>
+<span class="line">只有在我明確說「給我完整答案」時才給。</span>
+<span class="line"> </span>
+<span class="line">另外兩件事每次都要做：</span>
+<span class="line">一、說明這段程式的時間複雜度。</span>
+<span class="line">二、如果程式裡有 new，指出對應的 delete 在哪裡；沒有就講出來。</span></div>
+    <p class="dx-note" style="margin-top:.5rem;">最後兩行是這門課的重點。讓它每次都順便講複雜度與記憶體歸屬，你會被動地養成這兩個反射。</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 提醒</div>
+    <p style="margin-bottom:0;">AI 給的程式碼<strong>你要為它負責</strong>。作業與考試考的是你會不會，不是它會不會。把它當成隨時在旁邊的助教：可以問、可以吵，但最後那一行要自己按下去。</p>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 參考資源</div>
+  <h2>參考資源</h2>
+  <table class="cmp-table">
+    <thead><tr><th>資源</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208" target="_blank" rel="noopener">jupyter-cpp-kernel（課程 fork）</a></td><td>補過 <code>-I.</code> 的 C++ kernel，PART 01 用的就是它。</td></tr>
+      <tr><td><a href="https://winlibs.com/" target="_blank" rel="noopener">winlibs</a></td><td>Windows 的 GCC 免安裝版，解壓加 Path 就能用。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/" target="_blank" rel="noopener">cppreference</a></td><td>C++ 標準函式庫的權威文件，含各操作的複雜度保證。</td></tr>
+      <tr><td><a href="https://github.com/pearcej/cppds" target="_blank" rel="noopener">cppds 教科書原文</a></td><td>本站每章 §徽章對應的章節。</td></tr>
+      <tr><td><a href="https://github.com/phonchi/nsysu-math208" target="_blank" rel="noopener">nsysu-math208</a></td><td>課程講義、投影片與 notebook。</td></tr>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>逐行視覺化記憶體與指標，不需要安裝任何東西。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="00a_why_code.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">為什麼還要學資料結構</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="introduction.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">C++ 導論</div></a></div>
+</div>
+
+<footer>
+  課前準備 00B · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* step player: frames = [{...}], apply(frame) renders */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.onDone = onDone || (()=>{});
+  }
+  step() {
+    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+    this.i += 1; this.apply(this.frames[this.i]);
+  }
+  play() {
+    this.stop();
+    const tick = () => {
+      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
+      this.step();
+      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+    };
+    tick();
+  }
+  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
+  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+}
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "把 C++ 原始碼翻成機器碼的程式，本課用 g++。這是 C++ 與 Python 最根本的差別：Python 逐行直譯，C++ 要先整份編譯成執行檔才能跑。"}, {"front": "編譯旗標（Compiler Flag）", "back": "傳給 g++ 的選項。本課常用 -std=c++17 指定標準、-Wall 打開警告、-I. 指定標頭檔搜尋路徑、-o 指定輸出檔名。"}, {"front": "標頭檔搜尋路徑（Include Path, -I）", "back": "g++ 尋找 #include 檔案的目錄清單。帶引號的 #include \"foo.hpp\" 預設只找原始檔所在目錄，加上 -I. 才會也找編譯當下的工作目錄。"}, {"front": "Jupyter 核心（Kernel）", "back": "Notebook 背後負責執行 cell 的程式。本課用的 C++ kernel 把每個 cell 當成一支獨立的完整程式編譯執行，因此 cell 之間沒有共用狀態。"}, {"front": "核心規格（Kernelspec）", "back": "向 Jupyter 註冊的可用核心清單，用 jupyter kernelspec list 查看。C++ kernel 會註冊 cpp03 到 cpp23 一整排，本課用 cpp17。"}, {"front": "儲存格（Cell）", "back": "Notebook 的最小執行單位。在 C++ kernel 裡，一個 cell 就是一支完整程式：類別定義與使用它的 main() 必須寫在同一格。"}, {"front": "自動包裝（Auto-wrap）", "back": "C++ kernel 對沒有寫 main( 的 cell 會自動包一層 main()。代價是這種 cell 不能有 #include、不能定義函式或 template 類別，而且不會自動加上 using namespace std;。"}, {"front": "命名空間（Namespace）", "back": "避免名稱衝突的分組機制。標準函式庫的東西都在 std 裡，所以要寫 std::cout 或先寫 using namespace std;。kernel 的自動包裝不會幫你加這一行。"}, {"front": "整合開發環境（IDE）", "back": "把編輯、編譯、除錯整合在一起的工具，例如 VS Code 加上 C/C++ 擴充套件。相對於只用文字編輯器加終端機指令的做法。"}, {"front": "除錯器（Debugger）", "back": "可以設中斷點、單步執行、檢視變數與記憶體的工具。學指標時特別有用，因為可以直接看到位址與指向的內容。"}, {"front": "警告旗標（-Wall）", "back": "要 g++ 把「編譯得過但很可疑」的地方報出來：未初始化的變數、對陣列參數取 sizeof、有分支沒回傳值。這些正是 C++ 最容易安靜出錯的地方。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+</script>
+</body>
+</html>

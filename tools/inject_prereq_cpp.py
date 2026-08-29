@@ -10,7 +10,11 @@
 的 HTML 抽出來（已驗證與 Python 版姊妹站的同名常數位元組相容）。
 """
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import contrast_fix  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKER = "<!-- prereq-injected -->"
@@ -113,6 +117,12 @@ def inject(entry):
         print(f"miss {fname}.html（尚未撰寫，略過）")
         return
     s = path.read_text()
+
+    # 深色底對比修正：放在 MARKER 檢查之前，所以已注入過的頁面重跑也會被回填。
+    # 它自己有成對標記、自己判斷要不要更新，這裡不必管冪等。
+    if contrast_fix.ensure(path):
+        print(f"  {fname}.html 補上 contrast-fix")
+        s = path.read_text()
 
     # MathJax：本 repo 的頁面都有，但移植進來的頁面若缺就補上（冪等，放在 MARKER 之前）
     if "MathJax" not in s:

@@ -78,3 +78,30 @@ python3 ~/ds_cpp/Slides/tools/check_selfstudy.py <file>.html
 - 全站在 375px 寬會橫向溢位 —— 這是既有特性，九章正課頁本來就這樣，不是新頁引入的。
 - `enrich_search.py` 目前是手工把 C++ 翻成 Python 模擬跑來取得逐 pass 輸出。
   有了 `run_cpp()` 之後可以簡化，但會動到既有頁面，沒做。
+
+---
+
+## 深色底對比（2026-08-29）
+
+`base.css` 的 `code{color:var(--accent2)}`（#2c3e7a）與 `strong{color:var(--ink)}`（#1a1a2e）
+只要落進深色底容器就會消失。本站清查出 **62 處**，最嚴重的兩類是
+`.info-box .info-label` 與表頭裡的 `<code>`——底色也是 #2c3e7a，**對比 1.00，完全同色**；
+以及 `.status-banner` 裡的 `<strong>`（1.07，`introduction.html` 那個 `int` 就是）。
+
+修正放在每頁 `</head>` 之前一個帶成對標記的 `<style>`（`<!-- contrast-fix v1 -->`），
+由 `tools/contrast_fix.py` 冪等維護。**它完全不碰既有的 `<style>` 區塊**——
+本站 CSS inline 在每頁而且有 8 種複本，靠層疊順序取勝就不必管複本差異。
+`tools/inject_prereq_cpp.py` 在 MARKER 檢查之前呼叫 `contrast_fix.ensure()`，
+所以新頁自帶修正、舊頁重跑也會回填。
+`PRE_CSS` 裡原本那條 `.cmp-table th code` 變成惰性重複，留著不動。
+
+`tools/check_contrast.py` 是守門員，**驗的是 CSS 合約不是內容**：
+最嚴重的案例是 `setStatus()` 執行時才生出 `<strong>`，靜態走 DOM 看不到。
+它掃出所有深色底選擇器，逐標籤確認被覆寫區塊涵蓋。改 CSS 之後記得跑它。
+
+`tools/contrast_fix.py` 與 `tools/check_contrast.py` **與 `ds-python-selfstudy` 逐位元組相同**，
+改一邊要記得同步另一邊（跟 `check_links_*.py` 一樣的雙胞胎慣例）。
+
+**還沒處理的**：幾個容器自身的白字就已經不合格——`#fff` on `#d68910` = 2.82、
+on `#8e44ad` = 4.42、on `#5b7eb8` = 4.10。這批修正只讓行內元素追平容器，
+沒讓它們更差，但那幾個色票本身該另案調整。

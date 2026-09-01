@@ -505,14 +505,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div class="mono" id="sumcmpOut" style="font-size:.9rem;line-height:2;min-height:120px;"></div>
-        <div class="status-banner" id="sumcmpStatus"><span class="status-icon">›</span><span class="status-text">1 加到 n：迴圈法 T(n)=n 次加法 vs 高斯公式 3 個運算。按按鈕比較「操作次數」。</span></div>
-        <div class="controls-bar">
-          <select id="sumcmpN" class="mono" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
-            <option value="1000">n = 1,000</option><option value="100000" selected>n = 100,000</option><option value="10000000">n = 10,000,000</option>
-          </select>
-          <button class="btn" onclick="sumcmpRun()">計數比較</button>
+        <div style="overflow-x:auto;">
+        <table class="cmp-table" style="width:100%;font-size:.88rem;">
+          <thead><tr><th>n</th><th>迴圈法（次加法）</th><th>高斯公式（次運算）</th><th>比值</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1,000</td><td class="mono">1,000</td><td class="mono">3</td><td class="mono">333×</td></tr>
+            <tr><td class="mono">100,000</td><td class="mono">100,000</td><td class="mono">3</td><td class="mono">33,333×</td></tr>
+            <tr><td class="mono">10,000,000</td><td class="mono">10,000,000</td><td class="mono">3</td><td class="mono">3,333,333×</td></tr>
+          </tbody>
+        </table>
         </div>
+        <div class="status-banner"><span class="status-icon">›</span><span class="status-text">1 加到 n：迴圈法 T(n)=n 次加法 vs 高斯公式 3 個運算。n 增加 100 倍，迴圈法工作量也增加 100 倍；公式法不動如山：這就是 O(n) 與 O(1) 的差別。</span></div>
       </div>
     </div>
     <div class="side-panel">
@@ -722,6 +725,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           <input id="anaS2" class="mono" style="width:110px;padding:.35rem .5rem;border:1px solid var(--card-border);border-radius:6px;" value="heart">
           <button class="btn" onclick="anaStart()">▶ 開始（解法 4）</button>
           <button class="btn" onclick="anaPlayer &amp;&amp; anaPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="anaPlayer &amp;&amp; anaPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="anaSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -919,9 +924,17 @@ direct index         2.10 ms</pre></div>
           </tbody>
         </table>
         </div>
-        <div class="status-banner" id="hashStatus"><span class="status-icon">›</span><span class="status-text">按按鈕模擬「在 10 萬元素中查 1000 次」的操作次數比較。</span></div>
-        <div class="controls-bar"><button class="btn" onclick="hashRace()">▶ 查找次數比賽</button></div>
-        <div class="mono" id="hashOut" style="font-size:.86rem;line-height:2;"></div>
+        <div class="status-banner"><span class="status-icon">›</span><span class="status-text">在 10 萬元素中查 1000 次：三種容器要做的「操作次數」差了 4 個數量級。</span></div>
+        <div style="overflow-x:auto;">
+        <table class="cmp-table" style="width:100%;font-size:.88rem;margin-top:.6rem;">
+          <thead><tr><th>容器</th><th>估計比較／探查次數（10 萬元素查 1000 次）</th></tr></thead>
+          <tbody>
+            <tr><td>vector 線性查找</td><td class="mono">約 50,000,000 次</td></tr>
+            <tr><td>排序 vector + binary search</td><td class="mono">約 17,000 次</td></tr>
+            <tr><td>unordered_set</td><td class="mono">約 1,200 次（平均每查 1.2 次探查）</td></tr>
+          </tbody>
+        </table>
+        </div>
       </div>
     </div>
     <div class="side-panel">
@@ -1086,29 +1099,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1164,18 +1210,6 @@ function renderBoxQueue(containerId, items, opts={}) {
   update();
 })();
 
-
-/* ---------- P00 sum compare ---------- */
-function sumcmpRun() {
-  const n = parseInt($('sumcmpN').value, 10);
-  const gauss = 3;
-  $('sumcmpOut').innerHTML =
-    `迴圈法：<strong>${n.toLocaleString()}</strong> 次加法<br>` +
-    `高斯公式：<strong>3</strong> 個運算（乘、加、除）<br>` +
-    `比值：<strong>${(n/gauss).toLocaleString(undefined,{maximumFractionDigits:0})}×</strong>`;
-  setStatus('sumcmpStatus', 'n 增加 100 倍，迴圈法工作量也增加 100 倍；公式法不動如山：這就是 O(n) 與 O(1) 的差別。');
-}
-sumcmpRun();
 
 /* ---------- P02 growth lab ---------- */
 const GFUNCS = {
@@ -1261,7 +1295,7 @@ function anaApply(f) {
   setStatus('anaStatus', f.msg); hlLine('anaCode', f.line);
 }
 function anaStart() {
-  anaPlayer = new Player({frames: anaFrames($('anaS1').value.toLowerCase(), $('anaS2').value.toLowerCase()), apply: anaApply});
+  anaPlayer = new Player({frames: anaFrames($('anaS1').value.toLowerCase(), $('anaS2').value.toLowerCase()), apply: anaApply, delayInput: $('anaSpeed')});
   anaPlayer.reset(); anaPlayer.play();
 }
 
@@ -1300,18 +1334,6 @@ function vecFront() {
 function vecReset() { vec = {size:0, cap:1, moves:0}; vecRender('已重置：size 0 / capacity 1。'); }
 vecReset();
 
-/* ---------- P05 hash race ---------- */
-function hashRace() {
-  const n = 100000, q = 1000;
-  const linear = n/2 * q;
-  const binary = Math.ceil(Math.log2(n)) * q;
-  const hash = 1.2 * q;
-  $('hashOut').innerHTML =
-    `vector 線性查找：約 <strong>${linear.toLocaleString()}</strong> 次比較<br>` +
-    `排序 + binary search：約 <strong>${binary.toLocaleString()}</strong> 次比較<br>` +
-    `unordered_set：約 <strong>${Math.round(hash).toLocaleString()}</strong> 次（平均每查 1.2 次探查）`;
-  setStatus('hashStatus', '同樣 1000 次查詢，三種容器差了 4 個數量級：資料一大，容器選擇就是生死題。');
-}
 </script>
 <script>
 const FLASHCARDS = [{"front": "可讀性（Readability）", "back": "人類讀者理解原始碼的目的、控制流程與運作方式的容易程度，衡量程式碼好不好懂、好不好維護。"}, {"front": "演算法分析（Algorithm Analysis）", "back": "判定演算法計算複雜度的過程：衡量一個演算法用掉多少計算資源（時間與空間）。"}, {"front": "基準測試（Benchmark Analysis）", "back": "用一系列標準測試實際執行程式來評估效能，比較不同實作之間的相對表現。"}, {"front": "空間複雜度（Space Complexity）", "back": "演算法執行所需的記憶體空間量，表示成輸入長度的函數。"}, {"front": "時間複雜度（Time Complexity）", "back": "描述演算法執行所需時間的計算複雜度，通常表示成輸入大小的函數。"}, {"front": "Big-O 記號（Big-O）", "back": "表達演算法時間或空間複雜度上界的記號，描述輸入變大時演算法的成長趨勢，只保留主導項、忽略常數。"}, {"front": "平均情況效能（Average-Case Performance）", "back": "把所有可能輸入納入考量後，演算法的期望時間或空間複雜度，反映典型情況下的效率。"}, {"front": "最壞情況效能（Worst-Case Performance）", "back": "演算法在所有可能輸入中最大的時間或空間複雜度，代表最不利條件下的效率保證。"}, {"front": "暴力法（Brute-Force）", "back": "把所有可能的解全部試過一遍來找答案的演算法策略：實作簡單，但通常效率不佳。"}, {"front": "時間與空間取捨（Time and Space Trade-offs）", "back": "「用空間換時間」或「用時間換空間」的概念：多用一些記憶體可能讓演算法更快，省記憶體則可能付出變慢的代價。"}, {"front": "索引（Indexing）", "back": "建立索引以加速資料檢索的過程，讓資料結構中的資料能被有效率地定位與存取。"}, {"front": "包含檢查（Contains Operator）", "back": "檢查某個元素是否存在於資料結構中的操作，例如在 vector 裡線性搜尋是 O(n)，在 set／unordered_map 裡則快得多。"}];

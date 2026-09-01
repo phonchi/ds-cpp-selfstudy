@@ -1374,6 +1374,9 @@ u x y z </pre></div>
         <div class="controls-bar">
           <button class="btn btn-play" onclick="tsRunDFS()">▶ ① 跑 DFS 標 closing time</button>
           <button class="btn btn-step" onclick="tsOrder()">② 依 closing 遞減排出順序</button>
+          <button class="btn" onclick="tsPlayer &amp;&amp; tsPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="tsPlayer &amp;&amp; tsPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="tsSpeed" type="range" min="150" max="1200" value="550" style="vertical-align:middle;"></span>
           <button class="btn btn-reset" onclick="tsReset()">↺ 重置</button>
         </div>
         <div class="mono" id="tsOrderOut" style="font-size:.85rem;line-height:1.9;min-height:34px;padding:.4rem .2rem;"></div>
@@ -1446,6 +1449,9 @@ u x y z </pre></div>
           <button class="btn btn-play" onclick="sccStep1()">▶ ① DFS on G</button>
           <button class="btn btn-step" onclick="sccStep2()">② 轉置成 G&#7488;</button>
           <button class="btn btn-step" onclick="sccStep3()">③ G&#7488; 上依 closing 遞減 DFS</button>
+          <button class="btn" onclick="sccPlayer &amp;&amp; sccPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="sccPlayer &amp;&amp; sccPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="sccSpeed" type="range" min="150" max="1200" value="550" style="vertical-align:middle;"></span>
           <button class="btn btn-reset" onclick="sccReset()">↺ 重置</button>
         </div>
         <div class="mono" id="sccOut" style="font-size:.85rem;line-height:1.9;min-height:34px;padding:.4rem .2rem;"></div>
@@ -1697,6 +1703,63 @@ u x y z </pre></div>
 </footer>
 
 <script>
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
+    this.onDone = onDone || (()=>{});
+  }
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
+  }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
+  play() {
+    this.pause(); this.playing = true;
+    const tick = () => {
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
+    };
+    tick();
+    this._sync();
+  }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
+}
+/* /player-v2 */
+
 /* =============================================================
    通用：SVG 圖渲染工具
    ============================================================= */
@@ -3197,7 +3260,7 @@ tsConfig.edges.forEach(([u, v]) => { (tsAdj[u] = tsAdj[u] || []).push(v); });
 const tsR = new GraphRenderer('canvas-ts', tsConfig, {
   directed: true, showWeights: false, width: 600, height: 400,
 });
-let tsTimer = null, tsClose = null;
+let tsPlayer = null, tsClose = null;
 
 function tsStatus(html) {
   document.querySelector('#tsStatus').innerHTML = html;
@@ -3207,14 +3270,7 @@ function tsRunDFS() {
   const events = dfsCloseEvents(Object.keys(tsConfig.vertices), tsAdj);
   const startT = {};
   tsClose = {};
-  let i = 0;
-  tsTimer = setInterval(() => {
-    if (i >= events.length) {
-      clearInterval(tsTimer); tsTimer = null;
-      tsStatus('DFS 完成：每個節點都有 start/close time。接著按 ②。');
-      return;
-    }
-    const e = events[i++];
+  const apply = (e) => {
     if (e.act === 'start') {
       startT[e.v] = e.t;
       tsR.setNodeClass(e.v, 'gray');
@@ -3226,33 +3282,41 @@ function tsRunDFS() {
       tsR.setNodeMeta(e.v, startT[e.v] + '/' + e.t);
       tsStatus(`t=${e.t}：「${TS_FULL[e.v]}」完成（黑），closing time = ${e.t}`);
     }
-  }, 420);
+  };
+  tsPlayer = new Player({
+    frames: events,
+    apply,
+    delayInput: document.getElementById('tsSpeed'),
+    onDone: () => tsStatus('DFS 完成：每個節點都有 start/close time。接著按 ②。'),
+  });
+  tsPlayer.play();
 }
 function tsOrder() {
   if (!tsClose || !Object.keys(tsClose).length) {
     tsStatus('要先按 ① 跑 DFS，才有 closing time 可排。'); return;
   }
-  if (tsTimer) { clearInterval(tsTimer); tsTimer = null; }
+  if (tsPlayer) tsPlayer.pause();
   const order = Object.keys(tsClose).sort((a, b) => tsClose[b] - tsClose[a]);
   const out = document.getElementById('tsOrderOut');
   out.innerHTML = '';
-  let i = 0;
-  tsTimer = setInterval(() => {
-    if (i >= order.length) {
-      clearInterval(tsTimer); tsTimer = null;
-      tsStatus('完成！這一列保證每條邊的起點都排在終點前面：照著做就不會把生麵糊吃下肚。');
-      return;
-    }
-    const v = order[i++];
-    tsR.setNodeClass(v, 'found');
-    out.innerHTML = order.slice(0, i)
+  const frames = order.map((v, idx) => ({ v, idx }));
+  const apply = (f) => {
+    tsR.setNodeClass(f.v, 'found');
+    out.innerHTML = order.slice(0, f.idx + 1)
       .map(k => `${TS_FULL[k]}<span style="opacity:.55;">(f=${tsClose[k]})</span>`)
       .join(' → ');
-    tsStatus(`第 ${i} 位：「${TS_FULL[v]}」（closing time ${tsClose[v]}）`);
-  }, 520);
+    tsStatus(`第 ${f.idx + 1} 位：「${TS_FULL[f.v]}」（closing time ${tsClose[f.v]}）`);
+  };
+  tsPlayer = new Player({
+    frames,
+    apply,
+    delayInput: document.getElementById('tsSpeed'),
+    onDone: () => tsStatus('完成！這一列保證每條邊的起點都排在終點前面：照著做就不會把生麵糊吃下肚。'),
+  });
+  tsPlayer.play();
 }
 function tsReset(keepStatus) {
-  if (tsTimer) { clearInterval(tsTimer); tsTimer = null; }
+  if (tsPlayer) { tsPlayer.pause(); tsPlayer = null; }  // 舊 frames 引用已失效的 tsClose，不能再被 ⏸/單步 喚醒
   tsR.resetAll();
   tsClose = null;
   document.getElementById('tsOrderOut').innerHTML = '';
@@ -3276,7 +3340,7 @@ const sccEdges = [
 ];
 const sccOpts = { directed: true, showWeights: false, width: 600, height: 400 };
 let sccR = new GraphRenderer('canvas-scc', { vertices: sccPos, edges: sccEdges }, sccOpts);
-let sccTimer = null, sccCloseT = null, sccOnGT = false;
+let sccPlayer = null, sccCloseT = null, sccOnGT = false;
 
 function sccStatus(html) { document.querySelector('#sccStatus').innerHTML = html; }
 function sccAdjOf(edges) {
@@ -3289,14 +3353,7 @@ function sccStep1() {
   const events = dfsCloseEvents(Object.keys(sccPos), sccAdjOf(sccEdges));
   const startT = {};
   sccCloseT = {};
-  let i = 0;
-  sccTimer = setInterval(() => {
-    if (i >= events.length) {
-      clearInterval(sccTimer); sccTimer = null;
-      sccStatus('第 ① 步完成：每個頂點都有 closing time。接著按 ② 轉置。');
-      return;
-    }
-    const e = events[i++];
+  const apply = (e) => {
     if (e.act === 'start') {
       startT[e.v] = e.t;
       sccR.setNodeClass(e.v, 'gray');
@@ -3307,13 +3364,20 @@ function sccStep1() {
       sccR.setNodeMeta(e.v, startT[e.v] + '/' + e.t);
     }
     sccStatus(`t=${e.t}：${e.act === 'start' ? '發現' : '完成'} ${e.v}`);
-  }, 380);
+  };
+  sccPlayer = new Player({
+    frames: events,
+    apply,
+    delayInput: document.getElementById('sccSpeed'),
+    onDone: () => sccStatus('第 ① 步完成：每個頂點都有 closing time。接著按 ② 轉置。'),
+  });
+  sccPlayer.play();
 }
 function sccStep2() {
   if (!sccCloseT || !Object.keys(sccCloseT).length) {
     sccStatus('要先按 ① 在 G 上跑 DFS。'); return;
   }
-  if (sccTimer) { clearInterval(sccTimer); sccTimer = null; }
+  if (sccPlayer) { sccPlayer.pause(); sccPlayer = null; }  // 換到 G^T 之後，① 的 frames 不能再重播
   const rev = sccEdges.map(([u, v]) => [v, u]);
   sccR = new GraphRenderer('canvas-scc', { vertices: sccPos, edges: rev }, sccOpts);
   Object.keys(sccCloseT).forEach(v => sccR.setNodeMeta(v, 'f=' + sccCloseT[v]));
@@ -3322,7 +3386,7 @@ function sccStep2() {
 }
 function sccStep3() {
   if (!sccOnGT) { sccStatus('要先按 ② 轉置成 G&#7488;。'); return; }
-  if (sccTimer) { clearInterval(sccTimer); sccTimer = null; }
+  if (sccPlayer) sccPlayer.pause();
   const revAdj = sccAdjOf(sccEdges.map(([u, v]) => [v, u]));
   const roots = Object.keys(sccCloseT).sort((a, b) => sccCloseT[b] - sccCloseT[a]);
   // 依 closing 遞減長森林；每棵樹＝一個 SCC
@@ -3339,21 +3403,23 @@ function sccStep3() {
   trees.forEach((tree, ti) => tree.forEach(v => steps.push({ v, ti })));
   const out = document.getElementById('sccOut');
   out.innerHTML = '';
-  let i = 0;
-  sccTimer = setInterval(() => {
-    if (i >= steps.length) {
-      clearInterval(sccTimer); sccTimer = null;
-      out.innerHTML = trees.map((t, k) => `SCC${k + 1} = { ${t.join(', ')} }`).join('　｜　');
-      sccStatus(`完成：${trees.length} 棵樹＝${trees.length} 個強連通元件。跨元件的邊在 G&#7488; 裡走不出去，樹被「困」在元件內。`);
-      return;
-    }
-    const s = steps[i++];
+  const apply = (s) => {
     sccR.setNodeClass(s.v, treeCls[s.ti % treeCls.length]);
     sccStatus(`第 ${s.ti + 1} 棵樹收下 ${s.v}（起點是剩餘 closing time 最大者）`);
-  }, 380);
+  };
+  sccPlayer = new Player({
+    frames: steps,
+    apply,
+    delayInput: document.getElementById('sccSpeed'),
+    onDone: () => {
+      out.innerHTML = trees.map((t, k) => `SCC${k + 1} = { ${t.join(', ')} }`).join('　｜　');
+      sccStatus(`完成：${trees.length} 棵樹＝${trees.length} 個強連通元件。跨元件的邊在 G&#7488; 裡走不出去，樹被「困」在元件內。`);
+    },
+  });
+  sccPlayer.play();
 }
 function sccReset(keepStatus) {
-  if (sccTimer) { clearInterval(sccTimer); sccTimer = null; }
+  if (sccPlayer) { sccPlayer.pause(); sccPlayer = null; }  // 同 tsReset：清掉指向舊圖狀態的 player
   sccR = new GraphRenderer('canvas-scc', { vertices: sccPos, edges: sccEdges }, sccOpts);
   sccCloseT = null; sccOnGT = false;
   document.getElementById('sccOut').innerHTML = '';

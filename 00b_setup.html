@@ -819,29 +819,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;

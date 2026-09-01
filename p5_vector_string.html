@@ -815,6 +815,128 @@ Stack2 前端 insert(begin)       61.20 ms
   <h2><code>size()</code> 是住了幾個，<code>capacity()</code> 是有幾個位子</h2>
   <p><code>vector</code> 的元素一定放在<strong>一整塊連續記憶體</strong>裡——這是 <code>v[i]</code> 能 $O(1)$ 的原因。連續就代表不能隨便往後長，隔壁可能已經被別人佔走了。所以位子坐滿時，<code>vector</code> 的做法是：<strong>另外找一塊更大的，把所有元素搬過去，再把舊的還掉。</strong></p>
 
+  <div class="viz-panel">
+    <svg viewBox="0 0 760 500" width="760" height="500" style="max-width:100%;height:auto;display:block;margin:0 auto;" role="img" aria-label="vector 擴容四步驟：位子坐滿、配置兩倍新記憶體、整批複製、釋放舊塊">
+      <defs>
+        <marker id="p5GrowCopyArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"></path>
+        </marker>
+      </defs>
+      <g style="stroke:var(--card-border);stroke-width:1.5;fill:none" stroke-dasharray="5 5">
+        <path d="M380 16 V486"></path>
+        <path d="M24 249 H736"></path>
+      </g>
+
+      <text x="30" y="40" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">① size 到頂</text>
+      <text x="30" y="62" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">四個位子全滿，下一個 push_back 塞不進去</text>
+      <g style="fill:var(--accent2);stroke:var(--ink);stroke-width:1.5">
+        <rect x="30" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="62" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="94" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="126" y="80" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="45" y="102">31</text><text x="77" y="102">17</text><text x="109" y="102">93</text><text x="141" y="102">54</text>
+      </g>
+      <rect x="176" y="80" width="30" height="34" rx="4" style="fill:none;stroke:var(--accent);stroke-width:1.8" stroke-dasharray="4 3"></rect>
+      <text x="191" y="102" style="fill:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">26</text>
+      <text x="216" y="98" style="fill:var(--accent);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">← 沒有位子了</text>
+      <text x="30" y="134" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">size 4 ／ capacity 4</text>
+
+      <text x="398" y="40" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">② 配置兩倍新記憶體</text>
+      <text x="398" y="62" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">另外找一塊 capacity 8 的空地，舊塊還在</text>
+      <g style="fill:var(--accent2);stroke:var(--ink);stroke-width:1.5">
+        <rect x="398" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="80" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="413" y="102">31</text><text x="445" y="102">17</text><text x="477" y="102">93</text><text x="509" y="102">54</text>
+      </g>
+      <text x="398" y="134" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">舊塊 capacity 4</text>
+      <g style="fill:var(--card);stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="398" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="526" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="558" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="590" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="622" y="158" width="30" height="34" rx="4"></rect>
+      </g>
+      <text x="398" y="212" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">新塊 capacity 8（全空）</text>
+
+      <text x="30" y="282" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">③ 整批複製</text>
+      <text x="30" y="304" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">舊塊的每一個元素逐一搬到新塊</text>
+      <g style="fill:var(--accent2);stroke:var(--ink);stroke-width:1.5">
+        <rect x="30" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="62" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="94" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="126" y="320" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="45" y="342">31</text><text x="77" y="342">17</text><text x="109" y="342">93</text><text x="141" y="342">54</text>
+      </g>
+      <g style="stroke:var(--accent);stroke-width:2;fill:none;marker-end:url(#p5GrowCopyArrow)">
+        <path d="M45 354 V392"></path>
+        <path d="M77 354 V392"></path>
+        <path d="M109 354 V392"></path>
+        <path d="M141 354 V392"></path>
+      </g>
+      <text x="176" y="380" style="fill:var(--accent);font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700">複製 O(n)</text>
+      <g style="fill:var(--accent3);stroke:var(--ink);stroke-width:1.5">
+        <rect x="30" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="62" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="94" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="126" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:var(--card);stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="158" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="190" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="222" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="254" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="45" y="418">31</text><text x="77" y="418">17</text><text x="109" y="418">93</text><text x="141" y="418">54</text>
+      </g>
+      <text x="30" y="450" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">新塊 size 4 ／ capacity 8</text>
+
+      <text x="398" y="282" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">④ 釋放舊塊</text>
+      <text x="398" y="304" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">舊記憶體還給系統，26 這才放得進去</text>
+      <g style="fill:none;stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="398" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="320" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="stroke:var(--accent);stroke-width:2.5;fill:none">
+        <path d="M398 320 L524 354"></path>
+        <path d="M398 354 L524 320"></path>
+      </g>
+      <text x="398" y="378" style="fill:var(--accent);font-family:'Noto Sans TC',sans-serif;font-size:12px">已釋放：舊位址上的指標與 iterator 全部失效</text>
+      <g style="fill:var(--accent3);stroke:var(--ink);stroke-width:1.5">
+        <rect x="398" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <rect x="526" y="396" width="30" height="34" rx="4" style="fill:var(--node-current);stroke:var(--ink);stroke-width:1.5"></rect>
+      <g style="fill:var(--card);stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="558" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="590" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="622" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="413" y="418">31</text><text x="445" y="418">17</text><text x="477" y="418">93</text><text x="509" y="418">54</text>
+      </g>
+      <text x="541" y="418" style="fill:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700" text-anchor="middle">26</text>
+      <text x="398" y="450" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">新塊 size 5 ／ capacity 8　還剩 3 格</text>
+      <text x="398" y="470" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12px">接下來 3 次 push_back 直接放，不必再搬</text>
+    </svg>
+    <p style="font-size:.86rem;color:var(--ink);margin:.9rem 0 0;line-height:1.75;">▲ 一次擴容其實做了四件事，而<strong>只有第三步是 O(n)</strong>：其餘三步都是常數時間。位子坐滿才會走這四步，容量每次翻倍，所以走這條路的次數只有 $\log_2 n$ 回——這就是 <code>push_back</code> 攤還 $O(1)$ 的來源。順帶一提，第四步把舊塊還掉，正是本頁 PART 05 講的 iterator 失效的根本原因。</p>
+  </div>
+
 <div class="deck-extra">
   <div class="dx-label">17 次 push_back，容量變化與搬移總量</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
@@ -864,6 +986,8 @@ Stack2 前端 insert(begin)       61.20 ms
           <button class="btn btn-play" onclick="growStart()">▶ 開始</button>
           <button class="btn btn-step" onclick="growPlayer &amp;&amp; growPlayer.step()">→ 單步</button>
           <button class="btn btn-reset" onclick="growReset()">⟲ 重設</button>
+          <button class="btn" onclick="growPlayer &amp;&amp; growPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="growSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
         <div class="stats-grid" style="margin-top:.7rem;">
           <div class="stat-tile"><div class="stat-value mono" id="growN">0</div><div class="stat-label">push_back 次數</div></div>
@@ -1542,29 +1666,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1678,13 +1835,13 @@ function growApply(f) {
 
 function growStart() {
   if (growPlayer) growPlayer.stop();
-  growPlayer = new Player({frames: growFrames(), apply: growApply});
+  growPlayer = new Player({frames: growFrames(), delayInput: $('growSpeed'), apply: growApply});
   growPlayer.play();
 }
 
 function growReset() {
   if (growPlayer) growPlayer.stop();
-  growPlayer = new Player({frames: growFrames(), apply: growApply});
+  growPlayer = new Player({frames: growFrames(), delayInput: $('growSpeed'), apply: growApply});
   growApply(growPlayer.frames[0]);
   setStatus('growStatus', '按「開始」，一次一次 push_back，看什麼時候會搬家。');
 }

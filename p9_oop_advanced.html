@@ -837,14 +837,11 @@ pq 頂 -&gt; 備份（預設是最大優先）</pre></div>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div id="ltStage" style="min-height:150px;"></div>
-        <div class="status-banner" id="ltStatus"><span class="status-icon">›</span><span class="status-text">按「開始」看排序過程中每一次 operator&lt; 被呼叫的樣子。</span></div>
-        <div class="controls-bar">
-          <button class="btn btn-play" onclick="ltStart()">▶ 開始排序</button>
-          <button class="btn btn-step" onclick="ltPlayer &amp;&amp; ltPlayer.step()">→ 單步</button>
-          <button class="btn btn-reset" onclick="ltReset()">⟲ 重設</button>
-          <span class="mono" style="font-size:.78rem;color:var(--muted);">已呼叫 operator&lt;：<b id="ltCount">0</b> 次</span>
-        </div>
+        <div class="mono" style="font-size:.72rem;letter-spacing:1px;color:var(--muted);margin-bottom:.35rem;">排序前</div>
+        <div class="bq-row"><div class="bq-item">備份(5)</div><div class="bq-item">修bug(1)</div><div class="bq-item">回信(3)</div><div class="bq-item">寫報告(2)</div></div>
+        <div class="status-banner"><span class="status-icon">›</span><span class="status-text"><code>sort</code> 內部靠 <code>operator&lt;</code> 兩兩比較 —— 這組插入排序總共呼叫了 <strong>6</strong> 次。</span></div>
+        <div class="mono" style="font-size:.72rem;letter-spacing:1px;color:var(--accent2);margin:.7rem 0 .35rem;">排序後</div>
+        <div class="bq-row"><div class="bq-item">修bug(1)</div><div class="bq-item">寫報告(2)</div><div class="bq-item">回信(3)</div><div class="bq-item">備份(5)</div></div>
       </div>
     </div>
     <div class="side-panel">
@@ -1268,29 +1265,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1344,95 +1374,6 @@ function renderBoxQueue(containerId, items, opts={}) {
   }
   window.addEventListener('scroll', update, { passive: true });
   update();
-})();
-
-/* ---------- P04 operator< 逐次比較逐步器 ---------- */
-let ltPlayer = null;
-const LT_TASKS = [
-  {name: '備份',   p: 5},
-  {name: '修 bug', p: 1},
-  {name: '回信',   p: 3},
-  {name: '寫報告', p: 2},
-];
-
-function ltRenderList(arr, opts = {}) {
-  const {cur = -1, cmp = -1, sorted = -1} = opts;
-  return '<div style="display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin:.6rem 0 1rem;">' +
-    arr.map((t, i) => {
-      let bg = 'var(--card)', bd = 'var(--card-border)', fg = 'var(--ink)';
-      if (i <= sorted) { bd = 'var(--node-found)'; bg = 'rgba(22,160,133,.10)'; }
-      if (i === cmp)   { bd = 'var(--node-current)'; bg = 'rgba(243,156,18,.18)'; }
-      if (i === cur)   { bd = 'var(--accent2)'; bg = 'var(--accent2)'; fg = '#fff'; }
-      return `<div style="border:2px solid ${bd};background:${bg};color:${fg};border-radius:9px;` +
-             `padding:.35rem .7rem;text-align:center;min-width:76px;">` +
-             `<div style="font-size:.78rem;">${t.name}</div>` +
-             `<div class="mono" style="font-size:1.05rem;font-weight:700;">${t.p}</div></div>`;
-    }).join('') + '</div>';
-}
-
-function ltFrames() {
-  const a = LT_TASKS.map(t => ({...t}));
-  const frames = [];
-  let calls = 0;
-  frames.push({html: ltRenderList(a, {sorted: 0}), calls, line: 1,
-               msg: '插入排序：把 <b>a[0]</b> 當成已排好的部分，從 a[1] 開始一個一個插進去。'});
-  for (let i = 1; i < a.length; i++) {
-    const cur = a[i];
-    frames.push({html: ltRenderList(a, {cur: i, sorted: i - 1}), calls, line: 3,
-                 msg: `取出 <b>${cur.name}（${cur.p}）</b>，準備插進左邊排好的部分。`});
-    let j = i - 1;
-    const work = a.slice();
-    while (j >= 0) {
-      calls++;
-      const less = cur.p < work[j].p;
-      frames.push({
-        html: ltRenderList(work, {cur: -1, cmp: j, sorted: i - 1}), calls, line: 5,
-        msg: `呼叫 <code>${cur.name} &lt; ${work[j].name}</code> → <b style="color:${less ? 'var(--accent3)' : 'var(--accent)'};">${less}</b>` +
-             `（${cur.p} &lt; ${work[j].p} ?）`,
-      });
-      if (!less) break;
-      work[j + 1] = work[j];
-      j -= 1;
-      frames.push({html: ltRenderList(work, {cmp: j + 1, sorted: i - 1}), calls, line: 6,
-                   msg: '比較小 → 把大的往右挪一格，繼續往左比。'});
-    }
-    work[j + 1] = cur;
-    for (let k = 0; k < a.length; k++) a[k] = work[k];
-    frames.push({html: ltRenderList(a, {sorted: i}), calls, line: 8,
-                 msg: `<b>${cur.name}</b> 就位。左邊 ${i + 1} 個已經排好。`});
-  }
-  frames.push({html: ltRenderList(a, {sorted: a.length - 1}), calls, line: null,
-               msg: `排序完成，總共呼叫了 <b>${calls}</b> 次 <code>operator&lt;</code>。` +
-                    '沒有它，第一次比較就會 <code>TypeError</code>。'});
-  return frames;
-}
-
-function ltStart() {
-  if (ltPlayer) ltPlayer.stop();
-  ltPlayer = new Player({
-    frames: ltFrames(),
-    apply: f => {
-      $('ltStage').innerHTML = f.html;
-      $('ltCount').textContent = f.calls;
-      hlLine('ltCode', f.line);
-      setStatus('ltStatus', f.msg);
-    },
-  });
-  ltPlayer.play();
-}
-
-function ltReset() {
-  if (ltPlayer) ltPlayer.stop();
-  ltPlayer = null;
-  $('ltStage').innerHTML = ltRenderList(LT_TASKS);
-  $('ltCount').textContent = '0';
-  hlLine('ltCode', null);
-  setStatus('ltStatus', '按「開始排序」，看每一次 <code>operator&lt;</code> 被呼叫的樣子。');
-}
-
-
-(function () {
-  if ($('ltStage')) ltReset();
 })();
 
 </script>

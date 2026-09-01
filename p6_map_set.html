@@ -766,15 +766,14 @@ count 查 durian：0
 
   <div class="viz-layout">
     <div>
-      <div class="viz-panel">
-        <div id="brkStage" style="min-height:170px;"></div>
-        <div class="status-banner" id="brkStatus"><span class="status-icon">›</span><span class="status-text">按左邊的按鈕查一個不存在的鍵，看 <code>size()</code> 有沒有變。</span></div>
-        <div class="controls-bar">
-          <button class="btn btn-play" onclick="brkLookup('bracket')">▶ 用 m[k] 查</button>
-          <button class="btn btn-step" onclick="brkLookup('count')">→ 用 m.count(k) 查</button>
-          <button class="btn btn-reset" onclick="brkReset()">⟲ 重設</button>
-          <span class="mono" style="font-size:.78rem;color:var(--muted);">m.size() = <b id="brkSize">1</b></span>
-        </div>
+      <div class="cmp-table-wrap">
+      <table class="cmp-table">
+        <thead><tr><th>對 <code>map&lt;string,int&gt; m</code>（已有 pear:30）</th><th class="mono">m[k]</th><th class="mono">m.count(k)</th></tr></thead>
+        <tbody>
+          <tr><td>查一個<strong>存在</strong>的鍵（<code>"pear"</code>）</td><td>回傳 <strong>30</strong>，不動容器，size 仍是 1</td><td>回傳 <strong>1</strong>，不動容器，size 仍是 1</td></tr>
+          <tr><td>查一個<strong>不存在</strong>的鍵（<code>"mango"</code>）</td><td><strong>當場插入</strong> ("mango", 0)，回傳 0，size 從 1 變 <strong>2</strong></td><td>回傳 <strong>0</strong>，容器<strong>一動也不動</strong>，size 仍是 1</td></tr>
+        </tbody>
+      </table>
       </div>
     </div>
     <div class="side-panel">
@@ -916,13 +915,13 @@ unordered_map ： fig lychee mango durian pear apple guava kiwi
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div id="ordStage" style="min-height:230px;"></div>
-        <div class="status-banner" id="ordStatus"><span class="status-icon">›</span><span class="status-text">按「開始走訪」，把同一組鍵在兩種容器裡的順序一格一格比出來。</span></div>
-        <div class="controls-bar">
-          <button class="btn btn-play" onclick="ordStart()">▶ 開始走訪</button>
-          <button class="btn btn-step" onclick="ordPlayer &amp;&amp; ordPlayer.step()">→ 單步</button>
-          <button class="btn btn-reset" onclick="ordReset()">⟲ 重設</button>
-        </div>
+        <div class="mono" style="font-size:.72rem;letter-spacing:1px;color:var(--muted);margin-bottom:.35rem;">INSERT 插入順序</div>
+        <div class="bq-row"><div class="bq-item">kiwi</div><div class="bq-item">apple</div><div class="bq-item">durian</div><div class="bq-item">pear</div><div class="bq-item">mango</div><div class="bq-item">guava</div><div class="bq-item">lychee</div><div class="bq-item">fig</div></div>
+        <div class="mono" style="font-size:.72rem;letter-spacing:1px;color:var(--accent2);margin:.7rem 0 .35rem;">map 走訪（紅黑樹 · 字典序）</div>
+        <div class="bq-row"><div class="bq-item">apple</div><div class="bq-item">durian</div><div class="bq-item">fig</div><div class="bq-item">guava</div><div class="bq-item">kiwi</div><div class="bq-item">lychee</div><div class="bq-item">mango</div><div class="bq-item">pear</div></div>
+        <div class="mono" style="font-size:.72rem;letter-spacing:1px;color:var(--accent);margin:.7rem 0 .35rem;">unordered_map 走訪（雜湊表 · 桶序）</div>
+        <div class="bq-row"><div class="bq-item">fig</div><div class="bq-item">lychee</div><div class="bq-item">mango</div><div class="bq-item">durian</div><div class="bq-item">pear</div><div class="bq-item">apple</div><div class="bq-item">guava</div><div class="bq-item">kiwi</div></div>
+        <div class="status-banner"><span class="status-icon">›</span><span class="status-text">同一組鍵、同一個插入順序，<code>map</code> 走出來是字典序，<code>unordered_map</code> 走出來是桶序 —— 跟插入順序都無關。</span></div>
       </div>
     </div>
     <div class="side-panel">
@@ -1505,29 +1504,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1581,133 +1613,6 @@ function renderBoxQueue(containerId, items, opts={}) {
   }
   window.addEventListener('scroll', update, { passive: true });
   update();
-})();
-
-/* ---------- P02 m[k] 誤建鍵計數器 ---------- */
-const BRK_MISS = ['mango', 'guava', 'lychee', 'durian', 'fig'];
-let brkMap = [['pear', 30]];
-let brkStep = 0;
-
-function brkRender(hi) {
-  const cells = brkMap.map(([k, v], i) => {
-    const on = i === hi;
-    return `<div style="border:2px solid ${on ? 'var(--node-current)' : 'var(--card-border)'};` +
-           `background:${on ? 'rgba(243,156,18,.16)' : 'var(--card)'};border-radius:9px;padding:.4rem .7rem;min-width:118px;">` +
-           `<div style="font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;">"${k}"</div>` +
-           `<div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent2);">${v}</div>` +
-           `<div style="font-size:.66rem;color:var(--muted);margin-top:.15rem;">${on ? '剛剛被建出來' : ''}</div></div>`;
-  }).join('');
-  $('brkStage').innerHTML =
-    `<div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;">map&lt;string, int&gt; m</div>` +
-    `<div style="display:flex;gap:.7rem;flex-wrap:wrap;margin:.3rem 0;">${cells}</div>`;
-  $('brkSize').textContent = brkMap.length;
-  $('brkSize').style.color = brkMap.length > 1 ? 'var(--accent)' : '';
-}
-
-function brkLookup(mode) {
-  if (mode === 'count') {
-    const k = BRK_MISS[brkStep % BRK_MISS.length];
-    brkRender(-1);
-    hlLine('brkCode', 2);
-    setStatus('brkStatus',
-      `<code>m.count("${k}")</code> 回傳 <strong>0</strong> —— 查得到答案，容器<strong>一動也沒動</strong>，` +
-      `<code>size()</code> 還是 <strong>${brkMap.length}</strong>。只是要判斷在不在，就用這個。`);
-    return;
-  }
-  if (brkStep >= BRK_MISS.length) {
-    setStatus('brkStatus', '示範到五次就好，按「重設」再來一次。真實程式裡這種鍵會一直長，直到你發現 size 不對勁。');
-    return;
-  }
-  const k = BRK_MISS[brkStep++];
-  brkMap.push([k, 0]);
-  brkRender(brkMap.length - 1);
-  hlLine('brkCode', 1);
-  setStatus('brkStatus',
-    `<code>m["${k}"]</code> 查不到，於是 <strong>當場插了一筆</strong>：鍵是 "${k}"，值是預設初始化的 <strong>0</strong>。` +
-    `<code>size()</code> 從 ${brkMap.length - 1} 變成 <strong>${brkMap.length}</strong>。程式沒有報錯，這正是麻煩的地方。`);
-}
-
-function brkReset() {
-  brkMap = [['pear', 30]];
-  brkStep = 0;
-  brkRender(-1);
-  hlLine('brkCode', null);
-  setStatus('brkStatus', '按左邊的按鈕查一個不存在的鍵，看 <code>size()</code> 有沒有變。');
-}
-
-/* ---------- P04 有序 vs 無序走訪對照 ---------- */
-/* 三列資料都來自本頁 PART 04 那段程式的真實輸出 */
-const ORD_INSERT = ['kiwi', 'apple', 'durian', 'pear', 'mango', 'guava', 'lychee', 'fig'];
-const ORD_MAP    = ['apple', 'durian', 'fig', 'guava', 'kiwi', 'lychee', 'mango', 'pear'];
-const ORD_HASH   = ['fig', 'lychee', 'mango', 'durian', 'pear', 'apple', 'guava', 'kiwi'];
-let ordPlayer = null;
-
-function ordChip(k, tone) {
-  const map = {
-    idle: ['var(--card-border)', 'var(--card)', 'var(--fg)'],
-    hot:  ['var(--node-current)', 'rgba(243,156,18,.16)', 'var(--fg)'],
-    done: ['var(--node-found)', 'rgba(22,160,133,.12)', 'var(--fg)'],
-  };
-  const [bd, bg] = map[tone] || map.idle;
-  return `<div style="border:2px solid ${bd};background:${bg};border-radius:8px;padding:.22rem .5rem;` +
-         `font-family:'JetBrains Mono',monospace;font-size:.82rem;">${k}</div>`;
-}
-
-function ordColumn(title, sub, chips, color) {
-  return `<div style="flex:1;min-width:180px;border:1px solid var(--card-border);border-radius:10px;padding:.55rem .7rem;background:var(--paper);">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1px;color:${color};">${title}</div>
-    <div style="font-size:.7rem;color:var(--muted);margin-bottom:.45rem;">${sub}</div>
-    <div style="display:flex;gap:.35rem;flex-wrap:wrap;">${chips || '<span style="font-size:.8rem;color:var(--muted);">（還沒開始走訪）</span>'}</div>
-  </div>`;
-}
-
-function ordPanel(n) {
-  const build = arr => arr.slice(0, n).map((k, i) => ordChip(k, i === n - 1 ? 'hot' : 'done')).join('');
-  const ins = ORD_INSERT.map(k => ordChip(k, 'idle')).join('');
-  return `<div style="margin-bottom:.6rem;">${ordColumn('INSERT 插入順序', '兩個容器都照這個順序丟進去', ins, 'var(--muted)')}</div>
-    <div style="display:flex;gap:.7rem;flex-wrap:wrap;">
-      ${ordColumn('map 走訪', '紅黑樹 · 中序 · 字典序', build(ORD_MAP), 'var(--accent2)')}
-      ${ordColumn('unordered_map 走訪', '雜湊表 · 一個桶一個桶掃', build(ORD_HASH), 'var(--accent)')}
-    </div>`;
-}
-
-function ordFrames() {
-  const F = [];
-  for (let n = 1; n <= ORD_MAP.length; n++) {
-    F.push({
-      n,
-      msg: `第 <strong>${n}</strong> 個：<code>map</code> 給你 <b>${ORD_MAP[n - 1]}</b>，` +
-           `<code>unordered_map</code> 給你 <b>${ORD_HASH[n - 1]}</b>。` +
-           (n === 1 ? '左邊從字典序最小的開始；右邊從第一個非空的桶開始。' : ''),
-    });
-  }
-  F.push({
-    n: ORD_MAP.length,
-    msg: '走完了。左邊那排<strong>照字典序排好</strong>，跟插入順序無關；右邊那排是<strong>桶的順序</strong>，' +
-         '換一台機器或換一個標準函式庫版本就可能不一樣。要有序輸出就選 <code>map</code>，只是要查得快就選 <code>unordered_map</code>。',
-  });
-  return F;
-}
-
-function ordStart() {
-  if (ordPlayer) ordPlayer.stop();
-  ordPlayer = new Player({frames: ordFrames(), apply: f => {
-    $('ordStage').innerHTML = ordPanel(f.n);
-    setStatus('ordStatus', f.msg);
-  }});
-  ordPlayer.play();
-}
-
-function ordReset() {
-  if (ordPlayer) ordPlayer.stop();
-  ordPlayer = null;
-  $('ordStage').innerHTML = ordPanel(0);
-  setStatus('ordStatus', '按「開始走訪」，把同一組鍵在兩種容器裡的順序一格一格比出來。');
-}
-
-(function () {
-  if ($('brkStage')) brkReset();
-  if ($('ordStage')) ordReset();
 })();
 
 </script>

@@ -815,6 +815,47 @@ a + b = 23/4</pre></div>
   <p class="dx-note"><code>Fraction b(5)</code> 挑中單參數版本、<code>Fraction c</code> 挑中無參數版本。注意最後一行 <code>a + b</code> 也能用 —— 那是 <code>operator+</code> 的功勞，屬於 <a href='p9_oop_advanced.html'>P9</a> 的運算子多載。</p>
 </div>
 
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">編譯器怎麼挑：一個一個比參數列</h3>
+  <p>「編譯器會依你傳的引數挑一個」這句話講得太快了。它實際上做三件事：<strong>先把同名的建構式全抓出來當候選</strong>，再<strong>逐一比對參數列，個數或型別對不上就淘汰</strong>，最後從活下來的裡面挑一個。下面的逐步器把這個過程放慢給你看。</p>
+  <p>候選名單裡多了一個你沒寫的 <code>Fraction(const Fraction &amp;other)</code> —— 那是<strong>複製建構式</strong>。你沒寫的話編譯器會自動幫你生一個，所以它永遠在名單上，也因此永遠參與比對。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="mono" id="ovlCall" style="font-size:.9rem;font-weight:600;color:var(--accent2);margin-bottom:.2rem;">呼叫端：（按下面任一顆按鈕開始）</div>
+        <div class="mono" id="ovlOut" style="font-size:.8rem;color:var(--muted);min-height:1.2rem;">&nbsp;</div>
+        <div class="bq-row" id="ovlArgs"></div>
+        <div class="pseudo-code" id="ovlCands" style="font-size:.78rem;"><span class="line" data-l="1">#1  Fraction()                      <span class="com">// 候選 A：不收引數</span></span>
+<span class="line" data-l="2">#2  Fraction(<span class="kw">int</span> top)               <span class="com">// 候選 B：1 個 int</span></span>
+<span class="line" data-l="3">#3  Fraction(<span class="kw">int</span> top, <span class="kw">int</span> bottom)   <span class="com">// 候選 C：2 個 int</span></span>
+<span class="line" data-l="4">#4  Fraction(<span class="kw">const</span> Fraction &amp;other) <span class="com">// 候選 D：複製建構式（自動生成）</span></span></div>
+        <div class="status-banner" id="ovlStatus"><span class="status-icon">›</span><span class="status-text">選一種呼叫寫法開始。四個候選的名字一模一樣，決勝負的只有括號裡那一段。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="ovlStart('none')">▶ Fraction f;</button>
+          <button class="btn btn-play" onclick="ovlStart('one')">▶ Fraction f(3);</button>
+          <button class="btn btn-play" onclick="ovlStart('two')">▶ Fraction f(3, 5);</button>
+          <button class="btn btn-play" onclick="ovlStart('copy')">▶ Fraction g = f;</button>
+          <button class="btn btn-step" onclick="ovlPlayer &amp;&amp; ovlPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="ovlReset()">⟲ 重設</button>
+          <button class="btn" onclick="ovlPlayer &amp;&amp; ovlPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="ovlSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">看簽名，不看名字 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:.5rem;">能區分多載的只有<strong>參數列</strong>：型別、個數、順序。名字全部相同，回傳型別也<strong>不算</strong>在內 —— 兩個函式只差回傳型別的話，那不是多載，是重複定義，直接編不過。</p>
+        <p style="font-size:.86rem;margin-bottom:0;"><strong>複製建構式什麼時候被呼叫？</strong>用同型別的物件初始化另一個物件時（<code>Fraction g = f;</code>、<code>Fraction g(f);</code>）、物件<strong>以傳值方式</strong>當引數傳進函式時、以及函式<strong>以傳值回傳</strong>物件時。這也是 <a href="p3_functions.html">P3</a> 說「大物件請用 <code>const T&amp;</code>」的理由 —— 傳值會多跑一次複製。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">預設參數 vs 多載 <span class="ic-badge">取捨</span></div>
+        <p style="font-size:.86rem;margin-bottom:.5rem;">前三個候選也可以用<strong>一個</strong>帶預設值的建構式取代：<code>Fraction(int top = 1, int bottom = 1);</code>。少寫兩份本體、少兩份要一起維護的程式碼，這是它的好處。</p>
+        <p style="font-size:.86rem;margin-bottom:0;">代價是<strong>兩者不能並存</strong>：留著預設參數版又留著 <code>Fraction()</code>，寫 <code>Fraction c;</code> 時兩個都可行、也分不出高下，編譯器會報 <em>call of overloaded … is ambiguous</em>。判準很簡單：各版本<strong>本體一樣、只差沒填的值</strong>就用預設參數；<strong>本體真的要做不同的事</strong>（例如收 <code>int</code> 跟收 <code>Fraction</code>）就寫成多載。</p>
+      </div>
+    </div>
+  </div>
+
   <div class="warn-box">
     <div class="info-label">⚠️ <code>Fraction c;</code> 不要寫成 <code>Fraction c();</code></div>
     <p style="margin-bottom:0;">加了括號，C++ 會把它當成「宣告一個回傳 <code>Fraction</code> 的函式 <code>c</code>」，而不是建立物件。這個坑有個名字叫 <em>most vexing parse</em>，錯誤訊息通常離現場很遠。要建立物件就不要加空括號。</p>
@@ -1159,29 +1200,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1236,6 +1310,112 @@ function renderBoxQueue(containerId, items, opts={}) {
   window.addEventListener('scroll', update, { passive: true });
   update();
 })();
+
+/* ---------- PART 06 · 建構式多載解析逐步器 ---------- */
+let ovlPlayer = null;
+
+const OVL_CASE = {
+  none: {
+    call: 'Fraction f;',
+    args: ['（無引數）'],
+    lead: '呼叫端寫 <code>Fraction f;</code>，引數 <b>0</b> 個。四個同名建構式全都進候選名單，接下來一個一個比參數列。',
+    verdict: [
+      {ok: true,  msg: '<b>#1</b> 收 0 個引數，你給 0 個 —— 個數吻合，留著。'},
+      {ok: false, msg: '<b>#2</b> 要 1 個 <code>int</code>，你一個都沒給 —— 個數就對不上，淘汰。'},
+      {ok: false, msg: '<b>#3</b> 要 2 個 <code>int</code>，同理 —— 淘汰。'},
+      {ok: false, msg: '<b>#4</b> 要 1 個 <code>Fraction</code>，你也沒給 —— 淘汰。'}
+    ],
+    done: '只有 <b>#1</b> 活下來，編譯器就挑它。它把 <code>num</code> 設 1、<code>den</code> 設 1。',
+    out: 'f = 1/1'
+  },
+  one: {
+    call: 'Fraction f(3);',
+    args: ['3 : int'],
+    lead: '呼叫端寫 <code>Fraction f(3);</code>，引數 <b>1</b> 個，型別是 <code>int</code>。比對從個數開始，個數過了才看型別。',
+    verdict: [
+      {ok: false, msg: '<b>#1</b> 收 0 個，你給 1 個 —— 個數不合，淘汰。'},
+      {ok: true,  msg: '<b>#2</b> 收 1 個 <code>int</code>：個數對、型別也完全吻合 —— 這是目前最好的一個。'},
+      {ok: false, msg: '<b>#3</b> 收 2 個，你只給 1 個 —— 淘汰。C++ 不會自己幫你補第二個引數，除非那個參數有預設值。'},
+      {ok: false, msg: '<b>#4</b> 個數對，但參數是 <code>Fraction</code>、你給的是 <code>int</code> —— 要先靠 #2 把 3 轉成 <code>Fraction</code> 才對得上，多繞一次的排名輸給完全吻合的 #2。'}
+    ],
+    done: '挑中 <b>#2</b>：<code>num</code> 設 3、<code>den</code> 補 1。這就是為什麼一個整數也能當分數用。',
+    out: 'f = 3/1'
+  },
+  two: {
+    call: 'Fraction f(3, 5);',
+    args: ['3 : int', '5 : int'],
+    lead: '呼叫端寫 <code>Fraction f(3, 5);</code>，引數 <b>2</b> 個，型別都是 <code>int</code>。注意編譯器比對的是型別與個數，參數叫 <code>top</code> 還是 <code>a</code> 完全不影響。',
+    verdict: [
+      {ok: false, msg: '<b>#1</b> 收 0 個，你給 2 個 —— 淘汰。'},
+      {ok: false, msg: '<b>#2</b> 收 1 個，你給 2 個 —— 淘汰。多給的引數沒地方放。'},
+      {ok: true,  msg: '<b>#3</b> 收 2 個 <code>int</code>：個數對、兩個型別也都對 —— 完全吻合。'},
+      {ok: false, msg: '<b>#4</b> 收 1 個 <code>Fraction</code>，你給 2 個 —— 淘汰。'}
+    ],
+    done: '挑中 <b>#3</b>：<code>num</code> 設 3、<code>den</code> 設 5。這是最常見的那一條路。',
+    out: 'f = 3/5'
+  },
+  copy: {
+    call: 'Fraction g = f;',
+    args: ['f : Fraction'],
+    lead: '接著上一步，假設已經有 <code>Fraction f(3, 5);</code>。這裡的 <code>=</code> 看起來像賦值，其實是<b>初始化</b> —— <code>g</code> 是新物件，這一行仍然在挑建構式，引數 <b>1</b> 個、型別 <code>Fraction</code>。',
+    verdict: [
+      {ok: false, msg: '<b>#1</b> 收 0 個，你給 1 個 —— 淘汰。'},
+      {ok: false, msg: '<b>#2</b> 個數對，但參數是 <code>int</code>、你給的是 <code>Fraction</code> —— 沒有任何路徑能把 <code>Fraction</code> 變成 <code>int</code>，淘汰。'},
+      {ok: false, msg: '<b>#3</b> 收 2 個，你給 1 個 —— 淘汰。'},
+      {ok: true,  msg: '<b>#4</b> 收 1 個 <code>const Fraction &amp;</code>：個數對、型別完全吻合 —— 這正是複製建構式該上場的時候。'}
+    ],
+    done: '挑中 <b>#4</b>，複製建構式把 <code>f</code> 的成員一個一個抄進 <code>g</code>。再說一次：這一行是<b>初始化</b>不是賦值，<code>g</code> 從頭到尾只被建構一次。',
+    out: 'g = 3/5   （f 仍然是 3/5，兩個物件各有一份成員）'
+  }
+};
+
+function ovlFrames(kind) {
+  const c = OVL_CASE[kind];
+  const F = [{scan: null, dead: [], out: '', msg: c.lead}];
+  const dead = [];
+  let win = null;
+  c.verdict.forEach((v, idx) => {
+    const n = idx + 1;
+    if (v.ok) win = n; else dead.push(n);   // 先定生死，這一幀的畫面才跟訊息同步
+    F.push({scan: n, dead: dead.slice(), out: '', msg: v.msg});
+  });
+  F.push({scan: win, dead: dead.slice(), out: c.out, msg: c.done});
+  return F;
+}
+
+function ovlPaint(f) {
+  const root = $('ovlCands');
+  if (root) {
+    root.querySelectorAll('.line').forEach(l => {
+      const gone = f.dead.indexOf(parseInt(l.dataset.l, 10)) >= 0;
+      l.style.opacity = gone ? '.32' : '';
+      l.style.textDecoration = gone ? 'line-through' : '';
+    });
+  }
+  hlLine('ovlCands', f.scan);
+  $('ovlOut').innerHTML = f.out ? '結果：' + f.out : '&nbsp;';
+}
+
+function ovlStart(kind) {
+  if (ovlPlayer) ovlPlayer.stop();
+  const c = OVL_CASE[kind];
+  $('ovlCall').textContent = '呼叫端：' + c.call;
+  $('ovlArgs').innerHTML = c.args.map(a => `<div class="bq-item">${a}</div>`).join('');
+  ovlPlayer = new Player({frames: ovlFrames(kind), apply: f => {
+    ovlPaint(f);
+    setStatus('ovlStatus', f.msg);
+  }, delayInput: $('ovlSpeed')});
+  ovlPlayer.play();
+}
+
+function ovlReset() {
+  if (ovlPlayer) ovlPlayer.stop();
+  ovlPlayer = null;
+  ovlPaint({scan: null, dead: [], out: ''});
+  $('ovlCall').textContent = '呼叫端：（按下面任一顆按鈕開始）';
+  $('ovlArgs').innerHTML = '';
+  setStatus('ovlStatus', '選一種呼叫寫法開始。四個候選的名字一模一樣，決勝負的只有括號裡那一段。');
+}
 
 
 </script>

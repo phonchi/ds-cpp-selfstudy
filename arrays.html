@@ -692,8 +692,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
         <div class="bq-row" id="mdFlat" style="min-height:56px;"></div>
         <div class="status-banner" id="mdStatus"><span class="status-icon">›</span><span class="status-text">3×4 的 int 陣列。點上面格子，看它攤平後的位置；或播放兩種走訪順序。</span></div>
         <div class="controls-bar">
-          <button class="btn" onclick="mdWalk('row')">▶ row-major 走訪</button>
-          <button class="btn" onclick="mdWalk('col')">▶ column 走訪（跳格！）</button>
+          <button class="btn" onclick="mdRun('row')">▶ row-major 走訪</button>
+          <button class="btn" onclick="mdRun('col')">▶ column 走訪（跳格！）</button>
+          <button class="btn" onclick="mdPlayer &amp;&amp; mdPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="mdPlayer &amp;&amp; mdPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="mdSpeed" type="range" min="120" max="1200" value="500" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -1005,29 +1008,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1129,17 +1165,18 @@ cmpShow('compact');
 
 /* ---------- P03 multidim ---------- */
 const MD_R = 3, MD_C = 4;
-let mdTimer = null;
-function mdRender(hl) {
+let mdPlayer = null;
+function mdRender(hl, visited) {
+  visited = visited || new Set();
   const g = $('mdGrid'); g.innerHTML = '';
   for (let i = 0; i < MD_R; i++) for (let j = 0; j < MD_C; j++) {
     const k = i * MD_C + j;
     const d = document.createElement('div');
-    d.className = 'char-cell' + (k === hl ? ' char-cur' : '');
+    d.className = 'char-cell' + (k === hl ? ' char-cur' : (visited.has(k) ? ' char-done' : ''));
     d.style.cssText += 'padding:.6rem .3rem;cursor:pointer;';
     d.innerHTML = `a[${i}][${j}]`;
     d.onclick = () => {
-      mdRender(k);
+      mdRender(k, visited);
       setStatus('mdStatus', `a[${i}][${j}] → 攤平 offset = ${i}×${MD_C} + ${j} = <strong>${k}</strong>，位址 = 1000 + ${k}×4 = ${1000 + k*4}。`);
     };
     g.appendChild(d);
@@ -1155,20 +1192,34 @@ function mdRender(hl) {
     f.appendChild(d);
   }
 }
-function mdWalk(mode) {
-  if (mdTimer) clearInterval(mdTimer);
+function mdFrames(mode) {
   const order = [];
   if (mode === 'row') { for (let i=0;i<MD_R;i++) for (let j=0;j<MD_C;j++) order.push(i*MD_C+j); }
   else { for (let j=0;j<MD_C;j++) for (let i=0;i<MD_R;i++) order.push(i*MD_C+j); }
-  let t = 0;
-  mdTimer = setInterval(() => {
-    if (t >= order.length) { clearInterval(mdTimer);
-      setStatus('mdStatus', mode === 'row'
-        ? 'row-major 走訪：攤平索引 0,1,2,…連續前進：cache line 一路吃到飽。'
-        : 'column 走訪：攤平索引 0,4,8,1,5,9,…每步跳 4 格：大矩陣時 cache miss 連發。');
-      return; }
-    mdRender(order[t]); t++;
-  }, 260);
+  const frames = [];
+  const visited = [];
+  for (let t = 0; t < order.length; t++) {
+    const k = order[t];
+    visited.push(k);
+    const i = Math.floor(k / MD_C), j = k % MD_C;
+    let text = `${mode === 'row' ? 'row-major' : 'column'} 走訪（${t+1}/${order.length}）：<code>a[${i}][${j}]</code> → 攤平索引 <code>${k}</code>`;
+    if (t === order.length - 1) {
+      text += mode === 'row'
+        ? '。攤平索引 0,1,2,…連續前進：cache line 一路吃到飽。'
+        : '。攤平索引 0,4,8,1,5,9,…每步跳 4 格：大矩陣時 cache miss 連發。';
+    }
+    frames.push({hl: k, visited: new Set(visited), text});
+  }
+  return frames;
+}
+function mdRun(mode) {
+  if (mdPlayer) mdPlayer.pause();
+  mdPlayer = new Player({
+    frames: mdFrames(mode),
+    apply: (f) => { mdRender(f.hl, f.visited); setStatus('mdStatus', f.text); },
+    delayInput: $('mdSpeed'),
+  });
+  mdPlayer.play();
 }
 mdRender(-1);
 

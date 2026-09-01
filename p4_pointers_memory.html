@@ -597,6 +597,8 @@ c  的值 = A，位址 = 0x7ffe91aff68b，佔 1 bytes</pre></div>
           <button class="btn btn-play" onclick="memStart()">▶ 開始</button>
           <button class="btn btn-step" onclick="memPlayer &amp;&amp; memPlayer.step()">→ 單步</button>
           <button class="btn btn-reset" onclick="memReset()">⟲ 重設</button>
+          <button class="btn" onclick="memPlayer &amp;&amp; memPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="memSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -617,6 +619,60 @@ c  的值 = A，位址 = 0x7ffe91aff68b，佔 1 bytes</pre></div>
         <code>*p</code>：順著 p 存的位址<strong>走進去</strong></p>
       </div>
     </div>
+  </div>
+
+  <div class="viz-panel" style="margin-top:1.4rem;">
+    <svg viewBox="0 0 720 350" style="max-width:100%;height:auto" role="img" aria-label="一般變數與指標的記憶體對照圖：p 存著 x 的位址，透過 *p 可以改到 x 本人">
+      <defs>
+        <marker id="p4f1ArrowBlue" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--accent2)"></path>
+        </marker>
+        <marker id="p4f1ArrowRed" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#c0392b"></path>
+        </marker>
+      </defs>
+
+      <!-- 第一排：宣告完的樣子 -->
+      <text x="14" y="24" font-size="15" font-weight="700" style="fill:var(--ink)">① 宣告之後</text>
+      <text x="122" y="24" font-size="13.5" font-family="'JetBrains Mono',monospace" style="fill:var(--accent2)">int x = 25;　int *p = &amp;x;</text>
+      <rect x="8" y="36" width="704" height="124" rx="10" fill="#fafafa" stroke="#ececec"></rect>
+      <text x="700" y="54" font-size="11.5" text-anchor="end" style="fill:var(--muted)">記憶體</text>
+
+      <text x="135" y="56" font-size="13.5" font-weight="700" text-anchor="middle" style="fill:var(--accent2)">x（一般變數）</text>
+      <rect x="70" y="64" width="130" height="60" rx="6" fill="#ffffff" stroke-width="2" style="stroke:var(--ink)"></rect>
+      <text x="135" y="103" font-size="26" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--ink)">25</text>
+      <text x="135" y="146" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1000</text>
+
+      <text x="551" y="56" font-size="13.5" font-weight="700" text-anchor="middle" style="fill:var(--accent2)">p（指標）</text>
+      <rect x="466" y="64" width="170" height="60" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
+      <text x="551" y="101" font-size="22" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">0x1000</text>
+      <text x="551" y="146" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1008</text>
+
+      <line x1="462" y1="94" x2="208" y2="94" stroke-width="2.5" marker-end="url(#p4f1ArrowBlue)" style="stroke:var(--accent2)"></line>
+      <text x="335" y="84" font-size="12.5" text-anchor="middle" style="fill:var(--accent2)">p 存的是 x 的門牌</text>
+      <text x="335" y="116" font-size="12" text-anchor="middle" style="fill:var(--muted)">箭頭＝「這串位址所指的地方」</text>
+
+      <!-- 第二排：透過指標改值 -->
+      <text x="14" y="192" font-size="15" font-weight="700" style="fill:var(--ink)">② 執行之後</text>
+      <text x="122" y="192" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#c0392b">*p = 50;</text>
+      <rect x="8" y="204" width="704" height="124" rx="10" fill="#fafafa" stroke="#ececec"></rect>
+      <text x="700" y="222" font-size="11.5" text-anchor="end" style="fill:var(--muted)">記憶體</text>
+
+      <text x="135" y="224" font-size="13.5" font-weight="700" text-anchor="middle" fill="#c0392b">x 被改了</text>
+      <rect x="70" y="232" width="130" height="60" rx="6" stroke="#c0392b" stroke-width="2.5" style="fill:var(--highlight)"></rect>
+      <text x="135" y="271" font-size="26" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#c0392b">50</text>
+      <text x="135" y="314" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1000（沒變）</text>
+
+      <text x="551" y="224" font-size="13.5" font-weight="700" text-anchor="middle" style="fill:var(--accent2)">p 本身沒變</text>
+      <rect x="466" y="232" width="170" height="60" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
+      <text x="551" y="269" font-size="22" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">0x1000</text>
+      <text x="551" y="314" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1008</text>
+
+      <line x1="462" y1="262" x2="208" y2="262" stroke="#c0392b" stroke-width="2.5" marker-end="url(#p4f1ArrowRed)"></line>
+      <text x="335" y="252" font-size="12.5" text-anchor="middle" fill="#c0392b">順著箭頭走進去</text>
+      <text x="335" y="284" font-size="12" text-anchor="middle" style="fill:var(--muted)">改到的是 x 本人，不是副本</text>
+    </svg>
+    <p class="mono" style="font-size:.8rem;color:var(--muted);margin:.7rem 0 0;text-align:center;line-height:1.7;">圖 1：<code>x</code> 盒裡裝的是值 25，<code>p</code> 盒裡裝的是「x 的位址」——所以 <code>*p = 50;</code> 改的是箭頭那一頭的 x，不是 p 自己。上面的動畫演逐步，這張圖給你前後對照。</p>
   </div>
 </section>
 
@@ -885,6 +941,8 @@ arr = 0 1 4 9 16
           <button class="btn btn-play" onclick="heapStart('leak')">▶ 忘記 delete 的版本</button>
           <button class="btn btn-step" onclick="heapPlayer &amp;&amp; heapPlayer.step()">→ 單步</button>
           <button class="btn btn-reset" onclick="heapReset()">⟲ 重設</button>
+          <button class="btn" onclick="heapPlayer &amp;&amp; heapPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="heapSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
           <span class="mono" style="font-size:.78rem;color:var(--muted);">堆積上還沒還的：<b id="heapLeak">0</b></span>
         </div>
       </div>
@@ -905,6 +963,64 @@ arr = 0 1 4 9 16
         <p style="font-size:.86rem;margin-bottom:0;">函式結束時，<strong>指標 <code>a</code> 本身</strong>（住在堆疊上）會自動消失，但<strong>它指向的那塊堆積記憶體不會</strong>。沒有 <code>delete</code>，那塊就永遠找不回來了。</p>
       </div>
     </div>
+  </div>
+
+  <div class="viz-panel" style="margin-top:1.4rem;">
+    <svg viewBox="0 0 760 230" style="max-width:100%;height:auto" role="img" aria-label="new、delete 與懸空指標三格圖：配置、釋放後成為懸空指標、指回 NULL 收尾">
+      <defs>
+        <marker id="p4f2ArrowBlue" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--accent2)"></path>
+        </marker>
+        <marker id="p4f2ArrowRed" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#c0392b"></path>
+        </marker>
+      </defs>
+
+      <!-- ① 配置 -->
+      <rect x="8" y="8" width="236" height="206" rx="10" fill="#fafafa" stroke="#ececec"></rect>
+      <text x="22" y="32" font-size="13" font-family="'JetBrains Mono',monospace" style="fill:var(--accent2)">① int *p = new int(7);</text>
+      <text x="60" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆疊</text>
+      <text x="186" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆積</text>
+      <rect x="28" y="68" width="64" height="44" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
+      <text x="60" y="97" font-size="17" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">p</text>
+      <rect x="148" y="66" width="76" height="48" rx="6" fill="#ffffff" stroke-width="2" style="stroke:var(--ink)"></rect>
+      <text x="186" y="99" font-size="24" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--ink)">7</text>
+      <line x1="96" y1="90" x2="144" y2="90" stroke-width="2.5" marker-end="url(#p4f2ArrowBlue)" style="stroke:var(--accent2)"></line>
+      <text x="126" y="144" font-size="12.5" font-weight="700" text-anchor="middle" style="fill:var(--accent3)">正常使用</text>
+      <text x="126" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">p 指著堆積上那塊 7</text>
+      <text x="126" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">這時 *p 讀得到 7</text>
+
+      <!-- ② 釋放後 -->
+      <rect x="262" y="8" width="236" height="206" rx="10" fill="#fafafa" stroke="#ececec"></rect>
+      <text x="276" y="32" font-size="13" font-family="'JetBrains Mono',monospace" fill="#c0392b">② delete p;</text>
+      <text x="314" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆疊</text>
+      <text x="440" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆積</text>
+      <rect x="282" y="68" width="64" height="44" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
+      <text x="314" y="97" font-size="17" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">p</text>
+      <rect x="402" y="66" width="76" height="48" rx="6" fill="#f0ece4" stroke="#b9b2a4" stroke-width="2" stroke-dasharray="5 4"></rect>
+      <text x="440" y="99" font-size="24" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">?</text>
+      <line x1="402" y1="66" x2="478" y2="114" stroke="#c0392b" stroke-width="3"></line>
+      <line x1="478" y1="66" x2="402" y2="114" stroke="#c0392b" stroke-width="3"></line>
+      <line x1="350" y1="90" x2="398" y2="90" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#p4f2ArrowRed)"></line>
+      <text x="380" y="144" font-size="12.5" font-weight="700" text-anchor="middle" fill="#c0392b">懸空指標 dangling</text>
+      <text x="380" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">記憶體還回去了</text>
+      <text x="380" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">p 卻還指著，碰它就當掉</text>
+
+      <!-- ③ 收尾 -->
+      <rect x="516" y="8" width="236" height="206" rx="10" fill="#fafafa" stroke="#ececec"></rect>
+      <text x="530" y="32" font-size="13" font-family="'JetBrains Mono',monospace" style="fill:var(--accent3)">③ p = &#78;ULL;</text>
+      <text x="568" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆疊</text>
+      <text x="694" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆積</text>
+      <rect x="530" y="68" width="76" height="44" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
+      <text x="568" y="96" font-size="15" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffe9a8">&#78;ULL</text>
+      <rect x="656" y="66" width="76" height="48" rx="6" fill="none" stroke="#d8d2c6" stroke-width="2" stroke-dasharray="4 5"></rect>
+      <text x="694" y="95" font-size="12" text-anchor="middle" style="fill:var(--muted)">已還給</text>
+      <text x="694" y="109" font-size="12" text-anchor="middle" style="fill:var(--muted)">系統</text>
+      <text x="634" y="144" font-size="12.5" font-weight="700" text-anchor="middle" style="fill:var(--accent3)">安全的收尾</text>
+      <text x="634" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">箭頭消失，不會誤用</text>
+      <text x="634" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">再 delete 一次也合法</text>
+    </svg>
+    <p class="mono" style="font-size:.8rem;color:var(--muted);margin:.7rem 0 0;text-align:center;line-height:1.7;">圖 2：<code>delete</code> 還的是<strong>堆積上那塊記憶體</strong>，不是指標 <code>p</code> —— p 還留著舊門牌，就成了懸空指標。多寫一行 <code>p = &#78;ULL;</code>，箭頭才真的斷乾淨。</p>
   </div>
 </section>
 
@@ -981,8 +1097,11 @@ arr = 0 1 4 9 16
         <div class="status-banner" id="nodeStatus"><span class="status-icon">›</span><span class="status-text">按 add 在頭部插入一個節點，看指標怎麼接。</span></div>
         <div class="controls-bar">
           <button class="btn btn-play" onclick="nodeAdd()">▶ add(下一個值)</button>
-          <button class="btn btn-step" onclick="nodeTraverse()">→ 走訪一遍</button>
+          <button class="btn btn-play" onclick="nodeTraverseStart()">▶ 走訪一遍</button>
+          <button class="btn btn-step" onclick="nodePlayer &amp;&amp; nodePlayer.step()">→ 單步</button>
           <button class="btn btn-reset" onclick="nodeReset()">⟲ 重設</button>
+          <button class="btn" onclick="nodePlayer &amp;&amp; nodePlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="nodeSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -1215,29 +1334,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1333,7 +1485,7 @@ function memFrames() {
 }
 function memStart() {
   if (memPlayer) memPlayer.stop();
-  memPlayer = new Player({frames: memFrames(), apply: f => {
+  memPlayer = new Player({frames: memFrames(), delayInput: $('memSpeed'), apply: f => {
     $('memStage').innerHTML = f.html; hlLine('memCode', f.line); setStatus('memStatus', f.msg);
   }});
   memPlayer.play();
@@ -1414,7 +1566,7 @@ function heapFrames(mode) {
 }
 function heapStart(mode) {
   if (heapPlayer) heapPlayer.stop();
-  heapPlayer = new Player({frames: heapFrames(mode), apply: f => {
+  heapPlayer = new Player({frames: heapFrames(mode), delayInput: $('heapSpeed'), apply: f => {
     $('heapStage').innerHTML = f.html;
     $('heapLeak').textContent = f.leak;
     $('heapLeak').style.color = f.leak ? 'var(--accent)' : 'var(--accent3)';
@@ -1435,6 +1587,7 @@ function heapReset() {
 
 /* ---------- P09 Node 串接器 ---------- */
 let nodeList = [];
+let nodePlayer = null;
 const NODE_VALUES = [31, 17, 93, 26, 54];
 function nodeRender(hi) {
   const boxes = nodeList.map((v, i) => {
@@ -1454,6 +1607,7 @@ function nodeRender(hi) {
      </div>`;
 }
 function nodeAdd() {
+  if (nodePlayer) { nodePlayer.stop(); nodePlayer = null; }  // 走訪中插入會讓 frames 的快照與串列對不上
   if (nodeList.length >= NODE_VALUES.length) {
     setStatus('nodeStatus', '示範到五個就好。按「重設」再來一次。');
     return;
@@ -1466,24 +1620,29 @@ function nodeAdd() {
     `<code>add(${v})</code> — 新節點<strong>插在最前面</strong>，所以是 <code>O(1)</code>：不必走到尾巴。` +
     `這也是為什麼串列印出來的順序跟加入順序相反。`);
 }
-function nodeTraverse() {
+function nodeTraverseFrames() {
+  const F = [];
+  for (let i = 0; i < nodeList.length; i++) {
+    F.push({hi: i,
+      msg: `<code>current != &#78;ULL</code> → 成立，讀出 <strong>${nodeList[i]}</strong>，接著 <code>current = current-&gt;getNext()</code>。`});
+  }
+  F.push({hi: -1,
+    msg: `走到 <code>&#78;ULL</code>，迴圈結束。共走訪 <strong>${nodeList.length}</strong> 個節點，這是 <code>O(n)</code>。`});
+  return F;
+}
+function nodeTraverseStart() {
   if (!nodeList.length) { setStatus('nodeStatus', '先按 add 加幾個節點。'); return; }
-  let i = 0;
-  const step = () => {
-    if (i >= nodeList.length) {
-      nodeRender(-1);
-      setStatus('nodeStatus', `走到 <code>&#78;ULL</code>，迴圈結束。共走訪 <strong>${nodeList.length}</strong> 個節點，這是 <code>O(n)</code>。`);
-      return;
-    }
-    nodeRender(i);
-    setStatus('nodeStatus', `<code>current != &#78;ULL</code> → 成立，讀出 <strong>${nodeList[i]}</strong>，接著 <code>current = current-&gt;getNext()</code>。`);
-    i++;
-    setTimeout(step, 700);
-  };
+  if (nodePlayer) nodePlayer.stop();
   hlLine('nodeCode', null);
-  step();
+  nodePlayer = new Player({frames: nodeTraverseFrames(), delayInput: $('nodeSpeed'), apply: f => {
+    nodeRender(f.hi);
+    setStatus('nodeStatus', f.msg);
+  }});
+  nodePlayer.play();
 }
 function nodeReset() {
+  if (nodePlayer) nodePlayer.stop();
+  nodePlayer = null;
   nodeList = [];
   nodeRender(-1);
   hlLine('nodeCode', null);

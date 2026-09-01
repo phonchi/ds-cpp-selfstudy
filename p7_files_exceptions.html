@@ -655,6 +655,53 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="info-label">⚠️ 不要寫 <code>catch (...)</code> 把所有東西一起接住</div>
     <p style="margin-bottom:0;">它會連你自己寫錯造成的問題一起吞掉，讓程式默默給出錯誤答案。<strong>接住你預期會發生的那一種就好</strong>，其餘讓它往上傳。<code>catch</code> 的順序也要由窄到寬，寬的放後面 —— 放前面的話後面那些永遠接不到。</p>
   </div>
+
+  <p>同一段程式，餵不同的輸入就會走出兩條完全不同的路。按下面兩顆 ▶ 各跑一次，注意<strong>例外那條路上 <code>readAge</code> 的框是什麼時候消失的</strong>。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="pseudo-code" id="excCode" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">readAge</span>() {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> age;</span>
+<span class="line" data-l="3">    cin &gt;&gt; age;</span>
+<span class="line" data-l="4">    <span class="kw">if</span> (age &lt; <span class="num">0</span>) {</span>
+<span class="line" data-l="5">        <span class="kw">throw</span> <span class="fn">invalid_argument</span>(<span class="str">"年齡不能是負數"</span>);</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">    <span class="kw">return</span> age;</span>
+<span class="line" data-l="8">}</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="11">    <span class="kw">try</span> {</span>
+<span class="line" data-l="12">        <span class="kw">int</span> age = readAge();</span>
+<span class="line" data-l="13">        cout &lt;&lt; <span class="str">"年齡："</span> &lt;&lt; age &lt;&lt; endl;</span>
+<span class="line" data-l="14">    } <span class="kw">catch</span> (<span class="kw">const</span> invalid_argument&amp; e) {</span>
+<span class="line" data-l="15">        cout &lt;&lt; <span class="str">"輸入有問題："</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;</span>
+<span class="line" data-l="16">    }</span>
+<span class="line" data-l="17">    cout &lt;&lt; <span class="str">"程式繼續往下跑"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="18">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="19">}</span></div>
+        <div class="bq-row" id="excStack"></div>
+        <div class="status-banner" id="excStatus"><span class="status-icon">›</span><span class="status-text">選一條路開始。同一份程式碼，合法輸入與負數輸入走的路完全不同。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="excStart(false)">▶ 合法輸入</button>
+          <button class="btn btn-play" onclick="excStart(true)">▶ 丟出例外</button>
+          <button class="btn btn-step" onclick="excPlayer &amp;&amp; excPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="excPlayer &amp;&amp; excPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="excSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">堆疊解開 <span class="ic-badge">UNWIND</span></div>
+        <p style="margin:0;font-size:.85rem;">例外<strong>不是</strong>從 <code>throw</code> 直接跳到 <code>catch</code>。它會沿著呼叫鏈往回走，把中間每一個函式的框架逐一撤掉，撤掉時該框架裡區域物件的解構式都會被呼叫 —— 這叫 <strong>stack unwinding</strong>。所以檔案串流這類物件不必手動收尾，例外飛過去的時候它們也會自己關好。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">型別要對得上 <span class="ic-badge">MATCH</span></div>
+        <p style="margin:0;font-size:.85rem;"><code>catch</code> 只接住型別相符的例外。丟 <code>invalid_argument</code>、只寫 <code>catch (const out_of_range&amp; e)</code>，例外就會穿過去繼續往上飛；一路到 <code>main</code> 外面都沒人接，程式直接 <code>terminate</code> 當掉。父類別接得住子類別，所以 <code>catch (const exception&amp; e)</code> 是最寬的那一層，要放最後面。</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="standard">
@@ -996,29 +1043,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1058,6 +1138,64 @@ function renderBoxQueue(containerId, items, opts={}) {
   rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
   el.appendChild(rear);
 }
+
+/* ---------- PART 03 · try/catch 執行路徑逐步器 ---------- */
+let excPlayer = null;
+function excRender(stack) {
+  const el = $('excStack'); if (!el) return;
+  el.innerHTML = '';
+  const lab = document.createElement('div');
+  lab.className = 'mono';
+  lab.style.cssText = 'font-size:.7rem;letter-spacing:1px;color:var(--accent3);font-weight:700;';
+  lab.textContent = stack.length ? 'CALL STACK →' : 'CALL STACK（空的）';
+  el.appendChild(lab);
+  stack.forEach(fr => {
+    const d = document.createElement('div');
+    d.className = 'bq-item';
+    d.textContent = fr.name;
+    if (fr.state === 'run') d.style.cssText = 'box-shadow:0 0 0 3px var(--node-current);';
+    else if (fr.state === 'gone') d.style.cssText = 'opacity:.35;text-decoration:line-through;';
+    else d.style.cssText = 'opacity:.6;';
+    el.appendChild(d);
+  });
+}
+function excFrames(thrown) {
+  const F = [];
+  const snap = (line, stack, msg) => F.push({line, stack, msg});
+  const M = s => ({name: 'main', state: s});
+  const R = s => ({name: 'readAge', state: s});
+
+  snap(11, [M('run')], 'main 進入 <code>try</code>。這個區塊只圈住真正可能失敗的那兩行，範圍越小越好找錯。');
+  snap(12, [M('wait'), R('run')], '呼叫 <code>readAge()</code>，它的框疊到 main 上面。main 停在這裡等回傳。');
+  if (!thrown) {
+    snap(3, [M('wait'), R('run')], '<code>cin &gt;&gt; age</code> 讀進 <code>20</code>。');
+    snap(4, [M('wait'), R('run')], '檢查 <code>age &lt; 0</code>？20 不成立，整個 <code>throw</code> 被跳過。');
+    snap(7, [M('wait'), R('run')], '<code>return age;</code> —— 正常回傳 20，<code>readAge</code> 的框正常收掉。');
+    snap(13, [M('run')], '回到 main，印出「年齡：20」。<strong>這條路上 catch 一次都沒被碰到</strong>，它只是在旁邊備著。');
+    snap(17, [M('run')], '<code>try</code> 區塊平安走完，程式往下跑。');
+    F.push({line: 18, stack: [M('run')], msg: '結束。合法輸入的路徑跟沒寫 <code>try</code> 完全一樣快 —— <strong>沒丟例外時，try 幾乎不花成本</strong>。'});
+  } else {
+    snap(3, [M('wait'), R('run')], '<code>cin &gt;&gt; age</code> 這次讀到 <code>-5</code>。');
+    snap(4, [M('wait'), R('run')], '<code>age &lt; 0</code> 成立了。<code>readAge</code> 沒辦法履行「回傳一個合理年齡」的承諾。');
+    snap(5, [M('wait'), R('run')], '<code>throw</code>：丟出一個 <code>invalid_argument</code> 物件。<strong>從這一行起，第 7 行的 <code>return</code> 永遠不會執行。</strong>');
+    snap(5, [M('wait'), R('gone')], '<strong>stack unwinding</strong>：例外往回傳的路上，<code>readAge</code> 的框先被撤掉，框裡區域物件的解構式一個個被呼叫。<strong>這時候還沒進到 catch。</strong>');
+    snap(14, [M('run')], '回到 main 的框，才開始找 <code>catch</code>。丟出來的是 <code>invalid_argument</code>，這裡接的也是 <code>invalid_argument&amp;</code> —— <strong>型別對得上，接住</strong>。');
+    snap(15, [M('run')], '執行 catch 內容：<code>e.what()</code> 把當初 throw 時帶的訊息拿出來，印成「輸入有問題：年齡不能是負數」。');
+    snap(17, [M('run')], 'catch 收完，程式從 <code>try/catch</code> 後面繼續 —— <strong>沒有當掉</strong>。這就是例外的重點：出事之後還能決定怎麼辦。');
+    F.push({line: 18, stack: [M('run')], msg: '結束。如果 catch 的型別寫成 <code>out_of_range&amp;</code>，例外會直接穿過去、一路飛出 main，程式就 <code>terminate</code> 當掉了。'});
+  }
+  return F;
+}
+function excStart(thrown) {
+  if (excPlayer) excPlayer.stop();
+  excPlayer = new Player({frames: excFrames(thrown), apply: f => {
+    hlLine('excCode', f.line);
+    excRender(f.stack);
+    setStatus('excStatus', f.msg);
+  }, delayInput: $('excSpeed')});
+  excPlayer.play();
+}
+excRender([]);
 
 /* floating nav scroll spy */
 (function setupNav() {

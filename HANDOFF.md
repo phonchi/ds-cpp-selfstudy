@@ -72,8 +72,6 @@ python3 ~/ds_cpp/Slides/tools/check_selfstudy.py <file>.html
 
 ## 已知待辦
 
-- **P7 與 P8 沒有 `.viz-panel` 互動元件。** P8 最適合的題材是建構式多載的解析過程，
-  P7 則是 `try`／`catch` 的執行路徑。
 - `searching_sorting.html` 表頭裡的 `<code>put</code>` 看不見（同上第 4 點，兩站都有）。
 - 全站在 375px 寬會橫向溢位 —— 這是既有特性，九章正課頁本來就這樣，不是新頁引入的。
 - `enrich_search.py` 目前是手工把 C++ 翻成 Python 模擬跑來取得逐 pass 輸出。
@@ -105,3 +103,69 @@ python3 ~/ds_cpp/Slides/tools/check_selfstudy.py <file>.html
 **還沒處理的**：幾個容器自身的白字就已經不合格——`#fff` on `#d68910` = 2.82、
 on `#8e44ad` = 4.42、on `#5b7eb8` = 4.10。這批修正只讓行內元素追平容器，
 沒讓它們更差，但那幾個色票本身該另案調整。
+
+---
+
+## 視覺化全面 refine（2026-09-01）
+
+使用者回饋「有些撥放太快、有些沒意義」後的一輪全站整修（21 個 HTML 全動到，
+精確行數見這個 commit 的 diff stat）。
+
+### player-v2（`tools/upgrade_player.py`）
+
+17 頁 byte-identical 的 `class Player`（v1，寫死 700ms、無暫停）已由
+`tools/upgrade_player.py` 冪等替換成 v2：成對 JS 註解標記
+`/* player-v2 */ … /* /player-v2 */`，首次替換前 md5 核對 v1 原文（e885dbe62cca），
+不符即 abort。v2 向下相容 v1 全部 API，新增 `pause()`／`playing`／`toggle(btn)`
+（▶/⏸ 文字自動切換）／`setDelay(ms)`；`play()` 每 tick 重讀 `delayInput.value`，
+滑桿拖了即時生效。graphs.html 原本沒有 Player，用 `--inject graphs.html` 注入同一區塊。
+trees.html（Player B 變體，自帶 setDelay）與 searching_sorting.html（Animator）**不在
+替換範圍**，SKIP 清單寫在腳本裡。升版 v2 時改 NEW_BLOCK 再重跑即可整段換新。
+
+### 控制項慣例（新頁照抄）
+
+每個 Player 實例的 controls-bar 標配：`▶`／`→ 單步`／`⏸ 暫停`
+（`onclick="xxPlayer &amp;&amp; xxPlayer.toggle(this)"`，屬性裡 `&&` 必須寫實體）／
+速度滑桿 `id="xxSpeed"`（range 120–1200，教學類預設 650）＋建構呼叫帶
+`delayInput: $('xxSpeed')`。實例變數一律外層 `let xxPlayer = null;`，
+⏸ 靠 `xxPlayer &&` 守衛在未播放時安全 no-op。
+
+### 這輪動過的東西
+
+- **27 個 Player 實例**全數補上 ⏸＋滑桿（11 頁）；trees 的 nrPlay/delPlay 補滑桿接
+  setDelay；searching_sorting 四個排序預設 350/300→500；mazeSpeed 預設 180→300。
+- **裸 timer 全數接上 Player**：arrays mdWalk（原 260ms 無控制）、linear_structures
+  introDemo、p4 nodeTraverse、graphs 的 tsRunDFS/tsOrder/sccStep1/sccStep3。
+  全站已無動畫用裸 setInterval。
+- **11 處「過程無資訊量」的動畫改靜態**（數據都從原 frames 產生器抄出、非手寫）：
+  introduction typeBtns/colDemo/fnDemo/frCalc、analysis sumcmpRun/hashRace、
+  linear_structures s2Race/printerRun、p6 ordPlayer/brkLookup、p9 ltPlayer、
+  recursion spiral（改一次畫完）。
+- **P7/P8 補上第一個互動元件**（原待辦）：p7 excPlayer（try/catch 執行路徑＋stack
+  unwinding）、p8 ovlPlayer（建構式多載解析，四種呼叫各 6 frames）。
+- **7 張 inline SVG 圖解**（站內維持零 `<img>`，藍本是 `~/cppds/_sources/*/Figures/`
+  與 `~/ds_cpp/Slides/imgs/`）：introduction 電路圖（gateRun 升級成 SVG、select
+  onchange 即時重算）＋Fraction 深相等圖、p2 流程控制總圖、p4 指標語意×2、
+  p5 擴容四格、linear_structures stack 單端進出＋全括號法。SVG 慣例：`viewBox`＋
+  `style="max-width:100%;height:auto"`；**顏色變數必須寫在 style 屬性**
+  （`fill="var(...)"` 這種 presentation attribute 不解析）；marker id 加頁面前綴。
+
+### codex 審查後補的四個修正（同步姊妹站時會踩一樣的坑）
+
+- **reset 類 handler 必須把 player 設回 null**，不能只 pause——frames 的 closure
+  抓著已被清空的狀態（graphs 的 `tsClose`/`sccCloseT`），重設後按 ⏸/單步會喚醒殭屍。
+  見 `tsReset`/`sccReset`/`sccStep2` 的寫法。
+- **▶ handler 重建 player 前先 `pause()` 舊實例**，否則連按 ▶ 會留下失控的 timer
+  （`introStart` 已修）。注意：**既有約 25 個實例的重建沒有這個守衛**，那是上線前就有的
+  行為（連按 ▶ 會短暫交錯），這輪刻意只修新寫的程式碼，沒有回頭整批加。
+- **動畫播放中改資料要先停 player**（p4 `nodeAdd` 已修），否則 frames 快照與畫面對不上。
+- **v2.1 語意**：`onDone` 播畢只觸發一次；播畢後按 ⏸ ＝ 從頭重播（按鈕文字同步）。
+- **v2.2（codex 二審後）**：Player 在 `toggle(btn)` 記住按鈕（`_btn`），之後
+  `play()`/`pause()`（含單步、自然播畢）都經 `_sync()` 同步 ▶/⏸ 文字；
+  p8 淘汰幀改為「先定生死再入幀」，畫面與訊息同幀。二審也確認全部 marker/id
+  無衝突、p7/p8 frames 正確。
+
+### 姊妹站待同步
+
+`ds-python-selfstudy` 的 Player v1 應該也是同一份（先驗 md5）。`upgrade_player.py`
+可直接搬過去；其餘（滑桿補齊、改靜態、SVG）是逐頁語意編輯，要照本節清單重做一輪。

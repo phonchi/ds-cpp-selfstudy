@@ -528,11 +528,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           <div style="text-align:center;"><div class="bq-row" id="introQueue"></div>
             <div class="mono" style="font-size:.78rem;color:var(--muted);">Queue：尾進頭出（FIFO）</div></div>
         </div>
-        <div class="status-banner" id="introStatus"><span class="status-icon">›</span><span class="status-text">按下方按鈕，把同一串資料 4→7→2 分別放進 stack 與 queue，再全部取出，觀察順序差異。</span></div>
+        <div class="status-banner" id="introStatus"><span class="status-icon">›</span><span class="status-text">按「▶ 開始」把同一串資料 4→7→2 分別放進 stack 與 queue，再全部取出，觀察順序差異；也可以用「→ 單步」逐格看。</span></div>
         <div class="controls-bar">
-          <button class="btn" onclick="introDemo('push')">放入 4, 7, 2</button>
-          <button class="btn" onclick="introDemo('pop')">全部取出</button>
-          <button class="btn" onclick="introDemo('reset')">重置</button>
+          <button class="btn" onclick="introStart()">▶ 開始</button>
+          <button class="btn" onclick="introPlayer &amp;&amp; introPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="introPlayer &amp;&amp; introPlayer.toggle(this)">⏸ 暫停</button>
+          <button class="btn" onclick="introReset()">⟲ 重設</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="introSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -559,6 +561,48 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <h2>Stack：後進先出的「盤子塔」 <span class="sec-badge">cppds §3.3–3.5</span></h2>
   <p>堆疊只在同一端（<strong>top</strong>）加入與移除。想像疊盤子：最後放上去的盤子一定最先被拿走
   ： <strong>LIFO</strong>（last-in first-out）。它天生就是「<strong>反轉順序</strong>」的機器。</p>
+
+  <div class="viz-panel" style="margin:1rem 0;">
+    <svg viewBox="0 0 480 300" style="max-width:100%;height:auto;display:block;margin:0 auto;" role="img" aria-label="堆疊示意圖：一疊書只能從頂端 top 放入與取出">
+      <title>Stack 的單端進出：push 與 pop 都發生在 top</title>
+      <!-- 桌面 -->
+      <rect x="88" y="246" width="194" height="7" rx="3" style="fill:var(--muted)"/>
+      <!-- 書堆：由下往上 -->
+      <g style="stroke:var(--ink);stroke-width:1.6">
+        <rect x="110" y="212" width="150" height="32" rx="4" style="fill:var(--card)"/>
+        <rect x="110" y="178" width="150" height="32" rx="4" style="fill:var(--card)"/>
+        <rect x="110" y="144" width="150" height="32" rx="4" style="fill:var(--card)"/>
+        <rect x="110" y="110" width="150" height="32" rx="4" style="fill:var(--accent2);stroke:var(--accent2)"/>
+      </g>
+      <g style="font-size:15px;text-anchor:middle">
+        <text x="185" y="233" style="fill:var(--ink)">歷史</text>
+        <text x="185" y="199" style="fill:var(--ink)">音樂</text>
+        <text x="185" y="165" style="fill:var(--ink)">物理</text>
+        <text x="185" y="131" style="fill:#ffe9a8;font-weight:700">微積分</text>
+      </g>
+      <text x="104" y="132" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--accent);text-anchor:end">top →</text>
+      <!-- push：從右上彎進 top -->
+      <path d="M 446 76 C 384 56, 300 58, 240 96" style="fill:none;stroke:var(--accent2);stroke-width:2.4"/>
+      <path d="M 240 96 L 246 85.1 L 252.4 95.1 Z" style="fill:var(--accent2)"/>
+      <text x="452" y="64" style="font-size:14px;font-weight:700;fill:var(--accent2);text-anchor:end">push 進</text>
+      <!-- pop：從 top 彎出右上 -->
+      <path d="M 150 102 C 170 44, 270 26, 352 36" style="fill:none;stroke:var(--accent);stroke-width:2.4"/>
+      <path d="M 352 36 L 339.4 40.5 L 340.8 28.5 Z" style="fill:var(--accent)"/>
+      <text x="362" y="41" style="font-size:14px;font-weight:700;fill:var(--accent);text-anchor:start">pop 出</text>
+      <!-- 底部：不能動 -->
+      <path d="M 330 228 L 266 228" style="fill:none;stroke:var(--muted);stroke-width:1.6;stroke-dasharray:4 5"/>
+      <g style="stroke:var(--accent);stroke-width:3">
+        <path d="M 292 220 L 308 236"/>
+        <path d="M 308 220 L 292 236"/>
+      </g>
+      <text x="340" y="233" style="font-size:13px;fill:var(--accent)">不能從這裡動</text>
+      <!-- 結論 -->
+      <rect x="70" y="264" width="340" height="28" rx="14" style="fill:var(--highlight);stroke:var(--accent);stroke-width:1.4"/>
+      <text x="240" y="283" style="font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle">LIFO：後進先出，所有動作都在 top</text>
+    </svg>
+    <div class="mono" style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.5rem;">圖 1：stack 只有一個開口 top；push 放上去、pop 拿下來都在同一端，底部與中間的元素完全動不了。</div>
+  </div>
+
   <h3>先把 ADT 說清楚</h3>
   <p>Stack ADT 有六個操作：<code>push(item)</code>、<code>pop()</code>（移除並回傳 top）、
   <code>peek()</code>（只看不拿）、<code>isEmpty()</code>、<code>size()</code>，加上建構子。
@@ -625,14 +669,15 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div class="mono" id="s2Out" style="font-size:.9rem;line-height:2;min-height:60px;"></div>
-        <div class="status-banner" id="s2Status"><span class="status-icon">›</span><span class="status-text">數字會說話：對兩種實作各做 n 次 push，數一數總共搬移了幾個元素。</span></div>
-        <div class="controls-bar">
-          <select id="s2N" class="mono" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
-            <option value="10">n = 10</option><option value="100" selected>n = 100</option><option value="1000">n = 1000</option>
-          </select>
-          <button class="btn" onclick="s2Race()">▶ 比一比</button>
-        </div>
+        <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.85rem;">
+          <thead><tr><th>n（push n 次、再全部 pop）</th><th>Stack（top 在尾端）搬移元素數</th><th>Stack2（top 在前端）搬移元素數</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">n = 10</td><td class="mono">0</td><td class="mono">90</td></tr>
+            <tr><td class="mono">n = 100</td><td class="mono">0</td><td class="mono">9,900</td></tr>
+            <tr><td class="mono">n = 1,000</td><td class="mono">0</td><td class="mono">999,000</td></tr>
+          </tbody>
+        </table></div>
+        <div class="status-banner"><span class="status-icon">›</span><span class="status-text">數字會說話：同樣是 n 次 push 再全部 pop，Stack（尾端當 top）完全不用搬移元素；Stack2（前端當 top）搬移次數約 n²（精確值是 n(n-1)）。</span></div>
       </div>
     </div>
     <div class="side-panel">
@@ -712,6 +757,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           <button class="btn" onclick="parPlayer &amp;&amp; parPlayer.step()">→ 單步</button>
           <button class="btn" onclick="parLoad('(()')">試試 (()</button>
           <button class="btn" onclick="parLoad('())(')">試試 ())(</button>
+          <button class="btn" onclick="parPlayer &amp;&amp; parPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="parSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -775,6 +822,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           </select>
           <button class="btn" onclick="baseStart()">▶ 開始</button>
           <button class="btn" onclick="basePlayer &amp;&amp; basePlayer.step()">→ 單步</button>
+          <button class="btn" onclick="basePlayer &amp;&amp; basePlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="baseSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -883,6 +932,57 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     然後把每個運算子搬到它那對括號的<strong>右括號</strong>位置、拆掉括號，就是後序；
     搬到<strong>左括號</strong>位置就是前序。考試手算用這招又快又不會錯。
   </div>
+
+  <div class="viz-panel" style="margin:1rem 0;">
+    <svg viewBox="0 22 460 222" style="max-width:100%;height:auto;display:block;margin:0 auto;" role="img" aria-label="中序轉後序示意圖：A + B * C 先完全加括號，再把運算子搬到右括號的位置">
+      <title>全括號法：A + B * C → (A + (B * C)) → A B C * +</title>
+      <!-- 兩對括號的顏色框：紅＝外層配 +，綠＝內層配 * -->
+      <rect x="106" y="98" width="334" height="44" rx="10" style="fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:5 4"/>
+      <rect x="220" y="104" width="180" height="32" rx="8" style="fill:none;stroke:var(--accent3);stroke-width:1.6;stroke-dasharray:5 4"/>
+      <!-- 運算子搬家：搬到自己那對括號的右括號（兩條弧巢狀，不交叉） -->
+      <path d="M 196 94 C 196 56, 424 56, 424 94" style="fill:none;stroke:var(--accent);stroke-width:2.2"/>
+      <path d="M 424 94 L 419 83 L 429 83 Z" style="fill:var(--accent)"/>
+      <path d="M 310 94 C 310 76, 386 76, 386 94" style="fill:none;stroke:var(--accent3);stroke-width:2.2"/>
+      <path d="M 386 94 L 381 83 L 391 83 Z" style="fill:var(--accent3)"/>
+      <!-- 右括號的欄位，就是運算子在後序式裡的落點 -->
+      <path d="M 386 140 L 386 190" style="fill:none;stroke:var(--accent3);stroke-width:1.6;stroke-dasharray:4 4"/>
+      <path d="M 386 192 L 381 181 L 391 181 Z" style="fill:var(--accent3)"/>
+      <path d="M 424 146 L 424 190" style="fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:4 4"/>
+      <path d="M 424 192 L 419 181 L 429 181 Z" style="fill:var(--accent)"/>
+      <!-- 列標籤 -->
+      <g style="font-size:13px;text-anchor:end;fill:var(--muted)">
+        <text x="96" y="44">中序</text>
+        <text x="96" y="120">完全括號</text>
+        <text x="96" y="210">後序</text>
+      </g>
+      <g style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;text-anchor:middle">
+        <!-- 第一列：中序 -->
+        <text x="158" y="44" style="fill:var(--ink)">A</text>
+        <text x="196" y="44" style="fill:var(--accent)">+</text>
+        <text x="272" y="44" style="fill:var(--ink)">B</text>
+        <text x="310" y="44" style="fill:var(--accent3)">*</text>
+        <text x="348" y="44" style="fill:var(--ink)">C</text>
+        <!-- 第二列：完全括號 -->
+        <text x="120" y="120" style="fill:var(--accent)">(</text>
+        <text x="158" y="120" style="fill:var(--ink)">A</text>
+        <text x="196" y="120" style="fill:var(--accent)">+</text>
+        <text x="234" y="120" style="fill:var(--accent3)">(</text>
+        <text x="272" y="120" style="fill:var(--ink)">B</text>
+        <text x="310" y="120" style="fill:var(--accent3)">*</text>
+        <text x="348" y="120" style="fill:var(--ink)">C</text>
+        <text x="386" y="120" style="fill:var(--accent3)">)</text>
+        <text x="424" y="120" style="fill:var(--accent)">)</text>
+        <!-- 第三列：後序（欄位與上一列對齊） -->
+        <text x="158" y="210" style="fill:var(--ink)">A</text>
+        <text x="272" y="210" style="fill:var(--ink)">B</text>
+        <text x="348" y="210" style="fill:var(--ink)">C</text>
+        <text x="386" y="210" style="fill:var(--accent3)">*</text>
+        <text x="424" y="210" style="fill:var(--accent)">+</text>
+      </g>
+      <text x="250" y="238" style="font-size:13px;fill:var(--muted);text-anchor:middle">右括號的位置，就是那個運算子的落點</text>
+    </svg>
+    <div class="mono" style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.5rem;">圖 2：綠色是內層的 <b style="color:var(--accent3)">*</b>、紅色是外層的 <b style="color:var(--accent)">+</b>；三列的欄位是對齊的，可以直接看出誰搬到哪裡。</div>
+  </div>
   <p style="margin-top:.8rem;">機器轉換用 stack：<strong>運算元照抄、運算子進 stack 等待</strong>。
   關鍵觀察是後序式裡運算子的出現順序，可能跟中序相反（+ 先讀到卻最後輸出），
   「需要反轉的暫存」正是 stack 的主場。演算法四步：</p>
@@ -915,6 +1015,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           </select>
           <button class="btn" onclick="i2pStart()">▶ 開始</button>
           <button class="btn" onclick="i2pPlayer &amp;&amp; i2pPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="i2pPlayer &amp;&amp; i2pPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="i2pSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
       <div class="viz-panel" style="margin-top:1rem;">
@@ -928,6 +1030,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
         <div class="controls-bar">
           <button class="btn" onclick="pevalStart()">▶ 開始（7 8 + 3 2 + /）</button>
           <button class="btn" onclick="pevalPlayer &amp;&amp; pevalPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="pevalPlayer &amp;&amp; pevalPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="pevalSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -1182,6 +1286,7 @@ A B + C * D E - F G + * -</pre></div>
           <label class="mono" style="font-size:.8rem;">num: <input id="hpNum" type="number" min="1" max="20" value="7" style="width:60px;padding:.3rem;border:1px solid var(--card-border);border-radius:6px;"></label>
           <button class="btn" onclick="hpStart()">▶ 開始</button>
           <button class="btn" onclick="hpPlayer &amp;&amp; hpPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="hpPlayer &amp;&amp; hpPlayer.toggle(this)">⏸ 暫停</button>
           <span class="mono" style="font-size:.8rem;color:var(--muted);">速度<input id="hpSpeed" type="range" min="120" max="1200" value="450" style="vertical-align:middle;"></span>
         </div>
       </div>
@@ -1284,15 +1389,15 @@ A B + C * D E - F G + * -</pre></div>
   </div>
   <div class="viz-panel">
     <div style="overflow-x:auto;">
-    <table class="cmp-table" id="printerTable" style="width:100%;font-size:.85rem;">
-      <thead><tr><th>run</th><th>5 頁/分 平均等待（秒）</th><th>10 頁/分 平均等待（秒）</th></tr></thead>
-      <tbody></tbody>
+    <table class="cmp-table" style="width:100%;font-size:.85rem;">
+      <thead><tr><th>印表機設定</th><th>平均等待時間（秒）</th><th>平均殘留未完成工作數</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">5 頁/分（高品質）</td><td class="mono">108.2</td><td class="mono">1.2</td></tr>
+        <tr><td class="mono">10 頁/分（草稿）</td><td class="mono">23.7</td><td class="mono">0.2</td></tr>
+      </tbody>
     </table>
     </div>
-    <div class="status-banner" id="printerStatus"><span class="status-icon">›</span><span class="status-text">按下方按鈕各跑 10 次 3600 秒的模擬（固定亂數種子，可重現），跟講義同規模。</span></div>
-    <div class="controls-bar">
-      <button class="btn" onclick="printerRun()">▶ 跑 10 × 3600 秒模擬</button>
-    </div>
+    <div class="status-banner"><span class="status-icon">›</span><span class="status-text">這是模擬 10 次 3600 秒（固定亂數種子，可重現）的代表性結果：5 頁/分等待起伏很大、常有工作卡在隊伍裡沒印完；10 頁/分穩定壓在半分鐘內、隊伍清空。</span></div>
   </div>
   <div class="info-box warm" style="margin-top:.8rem;">
     <span class="info-label">結論怎麼讀？</span>
@@ -1352,6 +1457,8 @@ A B + C * D E - F G + * -</pre></div>
           <button class="btn" onclick="palStart()">▶ 開始</button>
           <button class="btn" onclick="palPlayer &amp;&amp; palPlayer.step()">→ 單步</button>
           <button class="btn" onclick="$('palInput').value='lsdkjfskf';palStart()">試試非迴文</button>
+          <button class="btn" onclick="palPlayer &amp;&amp; palPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="palSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
         </div>
       </div>
     </div>
@@ -1513,29 +1620,62 @@ function hlLine(rootId, n) {
   }
 }
 
-/* step player: frames = [{...}], apply(frame) renders */
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
 class Player {
   constructor({frames, apply, delayInput, onDone}) {
     this.frames = frames; this.apply = apply;
     this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
     this.onDone = onDone || (()=>{});
   }
-  step() {
-    if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-    this.i += 1; this.apply(this.frames[this.i]);
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
   }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
   play() {
-    this.stop();
+    this.pause(); this.playing = true;
     const tick = () => {
-      if (this.i + 1 >= this.frames.length) { this.stop(); this.onDone(); return; }
-      this.step();
-      this.timer = setTimeout(tick, this.delayInput ? parseInt(this.delayInput.value,10) : 700);
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
     };
     tick();
+    this._sync();
   }
-  stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
-  reset() { this.stop(); this.i = -1; if (this.frames.length) this.apply(this.frames[0]); }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
 }
+/* /player-v2 */
 
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
@@ -1593,33 +1733,41 @@ function renderBoxQueue(containerId, items, opts={}) {
 
 
 /* ---------- P00 intro ---------- */
-let introS = [], introQ = [];
-function introRender(msg) {
-  renderBoxStack('introStack', introS);
-  renderBoxQueue('introQueue', introQ);
-  if (msg) setStatus('introStatus', msg);
+let introPlayer = null;
+function introFrames() {
+  const vals = [4, 7, 2];
+  const frames = [{s:[], q:[], msg:'按「▶ 開始」依序把 4 → 7 → 2 放進 stack 與 queue，再全部取出。'}];
+  let s = [], q = [];
+  for (const v of vals) {
+    s.push(v); q.push(v);
+    frames.push({s:[...s], q:[...q], msg:`放入 <code>${v}</code>（stack 與 queue 同步）`});
+  }
+  frames.push({s:[...s], q:[...q], msg:'放入完成，兩邊的順序都是 <code>4 → 7 → 2</code>。接下來全部取出，觀察順序差異。'});
+  const outS = [], outQ = [];
+  while (s.length || q.length) {
+    if (s.length) outS.push(s.pop());
+    if (q.length) outQ.push(q.shift());
+    frames.push({s:[...s], q:[...q], msg:`stack 取出：<code>${outS.join(' ')}</code>　|　queue 取出：<code>${outQ.join(' ')}</code>`});
+  }
+  frames.push({s:[], q:[], msg:`<strong>stack 取出 <code>${outS.join(' ')}</code>（反轉！）；queue 取出 <code>${outQ.join(' ')}</code>（保序）。</strong>這就是 LIFO 與 FIFO 的全部差別。`});
+  return frames;
 }
-function introDemo(mode) {
-  if (mode === 'push') {
-    introS = []; introQ = [];
-    const vals = [4, 7, 2]; let i = 0;
-    const t = setInterval(() => {
-      if (i >= vals.length) { clearInterval(t); introRender('放入順序都是 4 → 7 → 2。現在按「全部取出」。'); return; }
-      introS.push(vals[i]); introQ.push(vals[i]); i++; introRender(`放入 ${vals[i-1]}`);
-    }, 500);
-  } else if (mode === 'pop') {
-    const outS = [], outQ = [];
-    const t = setInterval(() => {
-      let moved = false;
-      if (introS.length) { outS.push(introS.pop()); moved = true; }
-      if (introQ.length) { outQ.push(introQ.shift()); moved = true; }
-      introRender(`stack 取出：${outS.join(' ')}　|　queue 取出：${outQ.join(' ')}`);
-      if (!moved) { clearInterval(t);
-        setStatus('introStatus', `<strong>stack 取出 2 7 4（反轉！）；queue 取出 4 7 2（保序）。</strong>這就是 LIFO 與 FIFO 的全部差別。`); }
-    }, 600);
-  } else { introS = []; introQ = []; introRender('已重置。'); }
+function introApply(f) {
+  renderBoxStack('introStack', f.s);
+  renderBoxQueue('introQueue', f.q);
+  setStatus('introStatus', f.msg);
 }
-introRender();
+function introStart() {
+  if (introPlayer) introPlayer.pause();   // 連按 ▶ 時先收掉舊實例的 timer
+  introPlayer = new Player({frames: introFrames(), apply: introApply, delayInput: $('introSpeed')});
+  introPlayer.reset(); introPlayer.play();
+}
+function introReset() {
+  if (!introPlayer) introPlayer = new Player({frames: introFrames(), apply: introApply, delayInput: $('introSpeed')});
+  else introPlayer.pause();
+  introPlayer.reset();
+}
+introReset();
 
 /* ---------- P01 stack ---------- */
 let stackItems = [4, 'dog', true];
@@ -1639,18 +1787,6 @@ function stackPeek() {
 function stackReset() { stackItems = [4, 'dog', true]; stackRender('已重置為 [4, dog, true]。'); }
 stackRender();
 
-/* Stack vs Stack2: count element moves for n pushes + n pops */
-function s2Race() {
-  const n = parseInt($('s2N').value, 10);
-  const s1 = 0;                       // push_back/pop_back never shift others
-  let s2 = 0;
-  for (let i = 0; i < n; i++) s2 += i;   // push #i shifts i elements
-  for (let i = n - 1; i >= 0; i--) s2 += i;  // pop shifts the rest
-  $('s2Out').innerHTML =
-    `Stack（top 在尾端）：搬移 <strong>${s1}</strong> 個元素<br>` +
-    `Stack2（top 在前端）：搬移 <strong>${s2.toLocaleString()}</strong> 個元素（約 n²）`;
-  setStatus('s2Status', `n = ${n}：同樣的介面、同樣的答案，工作量差了 ${s2 === 0 ? 0 : s2.toLocaleString()} 倍不止。第 2 章會把這件事寫成 O(1) 對 O(n)。`);
-}
 
 /* ---------- P02 parens ---------- */
 let parPlayer = null;
@@ -1698,7 +1834,7 @@ function parApply(f) {
   setStatus('parStatus', f.msg); hlLine('parCode', f.line);
 }
 function parStart() {
-  parPlayer = new Player({frames: parFrames($('parInput').value), apply: parApply});
+  parPlayer = new Player({frames: parFrames($('parInput').value), apply: parApply, delayInput: $('parSpeed')});
   parPlayer.reset(); parPlayer.play();
 }
 function parLoad(s) { $('parInput').value = s; parStart(); }
@@ -1733,7 +1869,7 @@ function baseApply(f) {
 function baseStart() {
   const n = Math.max(1, parseInt($('baseInput').value || '233', 10));
   const b = parseInt($('baseSel').value, 10);
-  basePlayer = new Player({frames: baseFrames(n, b), apply: baseApply});
+  basePlayer = new Player({frames: baseFrames(n, b), apply: baseApply, delayInput: $('baseSpeed')});
   basePlayer.reset(); basePlayer.play();
 }
 
@@ -1795,7 +1931,7 @@ function i2pApply(f) {
   setStatus('i2pStatus', f.msg); hlLine('i2pCode', f.line);
 }
 function i2pStart() {
-  i2pPlayer = new Player({frames: i2pFrames($('i2pSel').value), apply: i2pApply});
+  i2pPlayer = new Player({frames: i2pFrames($('i2pSel').value), apply: i2pApply, delayInput: $('i2pSpeed')});
   i2pPlayer.reset(); i2pPlayer.play();
 }
 function pevalFrames() {
@@ -1823,7 +1959,7 @@ function pevalApply(f) {
   setStatus('pevalStatus', f.msg); hlLine('pevalCode', f.line);
 }
 function pevalStart() {
-  pevalPlayer = new Player({frames: pevalFrames(), apply: pevalApply});
+  pevalPlayer = new Player({frames: pevalFrames(), apply: pevalApply, delayInput: $('pevalSpeed')});
   pevalPlayer.reset(); pevalPlayer.play();
 }
 
@@ -1869,37 +2005,6 @@ function hpStart() {
   hpPlayer.reset(); hpPlayer.play();
 }
 
-/* ---------- P07 printer ---------- */
-function lcg(seed) { let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
-function printerSim(ppm, seed) {
-  const rand = lcg(seed);
-  const q = []; let currentTask = null, remain = 0;
-  const waits = [];
-  const rate = ppm / 60; // pages per second
-  for (let sec = 0; sec < 3600; sec++) {
-    if (Math.floor(rand() * 180) === 0) q.push({born: sec, pages: 1 + Math.floor(rand()*20)});
-    if (!currentTask && q.length) {
-      currentTask = q.shift(); waits.push(sec - currentTask.born);
-      remain = currentTask.pages;
-    }
-    if (currentTask) { remain -= rate; if (remain <= 0) currentTask = null; }
-  }
-  return waits.length ? waits.reduce((a,b)=>a+b,0) / waits.length : 0;
-}
-function printerRun() {
-  const tb = $('printerTable').querySelector('tbody'); tb.innerHTML = '';
-  let s5 = 0, s10 = 0;
-  const RUNS = 10;
-  for (let r = 0; r < RUNS; r++) {
-    const w5 = printerSim(5, 42 + r), w10 = printerSim(10, 42 + r);
-    s5 += w5; s10 += w10;
-    tb.insertAdjacentHTML('beforeend',
-      `<tr><td>${r+1}</td><td>${w5.toFixed(1)}</td><td>${w10.toFixed(1)}</td></tr>`);
-  }
-  tb.insertAdjacentHTML('beforeend',
-    `<tr style="font-weight:700;background:var(--highlight);"><td>平均</td><td>${(s5/RUNS).toFixed(1)}</td><td>${(s10/RUNS).toFixed(1)}</td></tr>`);
-  setStatus('printerStatus', `同一組工作到達序列下，10 頁/分的平均等待約為 5 頁/分的 ${(s5/s10).toFixed(1)} 分之一。`);
-}
 
 /* ---------- P08 deque / palindrome ---------- */
 let palPlayer = null;
@@ -1934,7 +2039,7 @@ function palApply(f) {
   setStatus('palStatus', f.msg); hlLine('palCode', f.line);
 }
 function palStart() {
-  palPlayer = new Player({frames: palFrames($('palInput').value.trim()), apply: palApply});
+  palPlayer = new Player({frames: palFrames($('palInput').value.trim()), apply: palApply, delayInput: $('palSpeed')});
   palPlayer.reset(); palPlayer.play();
 }
 </script>

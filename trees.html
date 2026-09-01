@@ -652,6 +652,10 @@ hello</pre></div>
           <button class="btn btn-step" id="nrStep">→ 下一步</button>
           <button class="btn btn-reset" id="nrReset">↺ 重置</button>
           <button class="btn btn-play" id="nrPlay">▶ 自動播放</button>
+          <div style="flex:1;min-width:120px;display:flex;align-items:center;gap:.5rem;">
+            <span style="font-size:.78rem;color:var(--muted);">速度</span>
+            <input type="range" id="nrSpeed" min="200" max="1500" step="100" value="700" style="flex:1;accent-color:var(--accent3);">
+          </div>
         </div>
       </div>
     </div>
@@ -1190,6 +1194,10 @@ brown dog fox jumps lazy over quick the </pre></div>
           <button class="btn btn-play" id="delPlay">▶ 刪除</button>
           <button class="btn btn-step" id="delStep">→ 單步</button>
           <button class="btn btn-reset" id="delReset">↺ 重建</button>
+          <div style="flex:1;min-width:120px;display:flex;align-items:center;gap:.5rem;">
+            <span style="font-size:.78rem;color:var(--muted);">速度</span>
+            <input type="range" id="delSpeed" min="200" max="1800" step="100" value="700" style="flex:1;accent-color:var(--accent3);">
+          </div>
         </div>
         <div class="preset-row">
           <button class="preset-btn" data-delk="20">Case 1：刪 20（葉）</button>
@@ -2124,14 +2132,14 @@ function initNodesRefs() {
       if (stepIdx + 1 < steps.length) {
         stepIdx++;
         applyStep(stepIdx);
-        timer = setTimeout(tick, 900);
+        timer = setTimeout(tick, parseInt($('nrSpeed').value, 10));
       } else {
         timer = null;
         $('nrPlay').classList.remove('active');
         $('nrPlay').textContent = '▶ 自動播放';
       }
     }
-    timer = setTimeout(tick, 900);
+    timer = setTimeout(tick, parseInt($('nrSpeed').value, 10));
   };
 
   reset();
@@ -3240,7 +3248,7 @@ function initBSTDelete() {
     if (isNaN(k)) return;
     if (player) player.stop();
     const steps = genDeleteSteps(k);
-    player = new Player({ steps, apply: applyStep, delay: 800 });
+    player = new Player({ steps, apply: applyStep, delay: parseInt($('delSpeed').value, 10) });
     player.reset();
     player.play();
   }
@@ -3249,6 +3257,9 @@ function initBSTDelete() {
   $('delPlay').onclick = startDel;
   $('delStep').onclick = () => { if (!player) startDel(); else player.step(); };
   $('delReset').onclick = rebuild;
+  $('delSpeed').addEventListener('input', () => {
+    if (player) player.setDelay(parseInt($('delSpeed').value, 10));
+  });
   document.querySelectorAll('#bst-delete .preset-btn[data-delk]').forEach(btn => {
     btn.onclick = () => {
       $('delKey').value = btn.dataset.delk;

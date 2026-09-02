@@ -16,7 +16,7 @@ NSYSU 資料結構課程（MATH208）的互動自學配套網站：三章課前�
 | 00C | [Windows VS Code 作業實戰](00c_vscode_windows.html) | C/C++ extension、三份 JSON、多檔編譯、執行參數與基本除錯 |
 
 課程 notebook 需要打過 `-I.` patch 的 C++ kernel（[phonchi/jupyter-cpp-kernel @ nsysu-math208](https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208)，
-fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "dscpp/…"` 會找不到檔案。安裝方式見 00B。
+fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pythonds3/cppds/…"` 會找不到檔案。安裝方式見 00B。
 
 ## 章節（授課順序）
 
@@ -35,7 +35,7 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "dsc
 ## 先備知識（選讀，不列入評分）
 
 複習課程「預設你已經會」的 C++。全部程式碼範例都以 `g++ -std=c++17` 實際編譯執行過，
-並直接引用課程的 `dscpp/` 標頭檔。
+並直接引用課程的 `pythonds3/cppds/` 標頭檔（[phonchi/pythonds3](https://github.com/phonchi/pythonds3)）。
 
 | # | 頁面 | 內容 |
 |---|------|------|

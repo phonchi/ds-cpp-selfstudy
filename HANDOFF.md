@@ -15,11 +15,11 @@
 | 先備知識 | `p1_cpp_basics` … `p9_oop_advanced` |
 
 先備頁合計 61 題題庫、195 張詞彙卡、16 個互動元件。**所有程式碼範例都以
-`g++ -std=c++17` 實際編譯執行過**，並直接 `#include "dscpp/…"` 引用課程的標頭檔。
+`g++ -std=c++17` 實際編譯執行過**，並直接 `#include "pythonds3/cppds/…"` 引用課程的標頭檔（自 2026-09-02 起由 [phonchi/pythonds3](https://github.com/phonchi/pythonds3) 的 `cppds/*.hpp` 發布，學生 `git clone` 到啟動 Jupyter 的目錄；舊的 `dscpp/` 已全數移除）。
 
 課程 notebook 需要打過 `-I.` patch 的 C++ kernel：
 [phonchi/jupyter-cpp-kernel @ nsysu-math208](https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208)
-（fork 自 shiroinekotfs，MIT，與上游只差一行）。PyPI 原版缺這一行，`#include "dscpp/…"` 會找不到檔案。
+（fork 自 shiroinekotfs，MIT）。與上游的差異見下方「kernel fork 現況」；PyPI 原版缺 `-I.`，`#include "pythonds3/cppds/…"` 會找不到檔案。
 安裝方式見 00B —— 注意該套件**沒有宣告任何相依**，要先自己裝 `jupyterlab`。
 
 ### 00B / 00C Windows 工具鏈契約（2026-09-02）
@@ -28,6 +28,43 @@
 - 00B 並列 MSYS2 UCRT64 與 WinLibs，兩者都必須能通過 `where.exe g++`、`where.exe gdb`、版本檢查；WSL 是進階選讀，Dev-C++ 可應急但不推薦。
 - 00C 的 `tasks.json.command`、`launch.json.miDebuggerPath`、`c_cpp_properties.json.compilerPath` 必須指向同一套工具鏈。三個 JSON 區塊有固定 `id`，驗證腳本可抽出解析。
 - 多檔範例只用匿名 `main.cpp`／`MyClass.cpp`，不揭露未發布作業；一般規則是 include header、明列來源檔，但教師模板若已 include 支援 `.cpp`，不可再重複編譯它。
+
+### Windows 學生環境這一輪（2026-09-02）
+
+學生（Windows + Anaconda + winlibs）實際回報後補的東西：
+
+- **00B 新增**：PART 01 警告框「Anaconda Prompt 啟動 Jupyter 會載到 conda 的舊 `libstdc++-6.dll`」
+  （症狀：對話框「無法找到程序輸入點 …seekpos…」；診斷 `where.exe libstdc++-6.dll`；修法 `activate.d\mingw64.bat`）；
+  PART 01 `<details>` RISE 備註（Notebook 7 要 `jupyterlab_rise`，Ctrl+R）；FAQ ⑦（同 libstdc++）、⑧（`ERR_FILE_NOT_FOUND`，
+  `file:///` 網址改貼終端機的 localhost URL）。FAQ 標題改為「六個 kernel 的、兩個 Windows 環境的」。
+- **標頭路徑遷移** `dscpp/` → `pythonds3/cppds/`：自學站 22 頁 + `tools/enrich/`、`~/ds_cpp/Slides`（notebook、匯出 html、
+  `tools/selfstudy_builders/`）、課程站 `static_files/presentations/`（含小寫自學頁鏡像，**那些頁不是本站的逐位元組鏡像**，
+  只能就地替換不能覆蓋）。敘述中「dscpp 的 X」一律改「課程標頭的 X」；站內 `cppds` 一詞另指 Runestone 教科書（`cppds §8.x`），
+  指標頭時寫「課程標頭」或完整路徑。**Slides 的 10 個 .pdf 未重做，仍印舊路徑。** include guard 仍叫 `DSCPP_*`，未改。
+- **quiz JSON 去破折號**：`questions/`、`flashcards/` 的 13 個「—」換成 ASCII，因為 jupyterquiz 讀檔不指定 encoding，繁中 Windows
+  以 cp950 解會炸。之後題目若要加中文，靠 kernel.json 的 `PYTHONUTF8=1`（見下）。
+
+#### kernel fork 現況（`phonchi/jupyter-cpp-kernel@nsysu-math208`，commit `23263cd`）
+
+與上游的差異已不只一行：
+1. `-I.`（原有）。
+2. 暫存 .cpp 以 UTF-8 寫入、子行程輸出 `decode("utf-8", errors="replace")` —— 修 Windows cp950 導致的 `UnicodeDecodeError` kernel 崩潰。
+3. 7 個 `kernel.json`：`"{connection_file}"` 去掉多餘引號（消 traitlets FutureWarning）、加 `"env": {"PYTHONUTF8": "1"}`。
+4. `jcppkernel/python_quiz_cells.py`：講義裡 `from jupyterquiz import display_quiz` / `display_quiz(...)` /
+   `display_flashcards(...)` 這類 Python 測驗 cell 由 kernel 內嵌 Python 執行並送 `display_data`，notebook 不用改。
+   辨識是保守白名單（每行都得是 import／字串賦值／display 呼叫／註解，且至少一行 import 或 display），其他一律走 g++。
+   `path` 變數跨 cell 存活。jupyter_client 實測 10/10；**瀏覧器互動性未實測**（環境無瀏覽器）。
+   已知：重開已存檔的 notebook 時 output 為 untrusted，要重跑該 cell 才會互動（與一般 ipykernel 行為相同）。
+   需另裝 `pip install jupyterquiz jupytercards`（00B 安裝指令已加）。
+
+學生端重裝（`kernel.json` 走 `data_files`，一般 upgrade 不會覆寫）：
+```
+pip install --force-reinstall --no-deps "git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208"
+pip install jupyterquiz jupytercards
+jupyter kernelspec list   # cpp17 應在 sys.prefix\share\jupyter\kernels；%APPDATA%\jupyter\kernels\cpp17 是舊殘留，刪掉
+```
+
+姊妹站 `ds-python-selfstudy`：RISE 備註與 `ERR_FILE_NOT_FOUND` 兩則同樣適用其 setup 頁，尚未同步；libstdc++ 與標頭遷移不適用。
 - `assets/00c/` 的三張官方 VS Code 截圖需和 `README.md` attribution 同步保存；不得以熱連結替代。
 - `.github/workflows/check-00c-windows.yml` 是 Windows 真實工具鏈 gate：MSYS2 UCRT64、GCC、GDB、`-lgdi32` 與三種匿名專案模式都必須通過。
 

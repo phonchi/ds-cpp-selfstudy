@@ -540,7 +540,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="kernel">
   <div class="section-number">PART 01 · NOTEBOOK 路線</div>
   <h2>本機 Jupyter + C++ kernel <span class="sec-badge">課程講義用</span></h2>
-  <p>需要三樣東西：<code>g++</code>、Python 與 <code>pip</code>、以及 JupyterLab。Linux 與 WSL 通常已經有 <code>g++</code>；macOS 裝 Xcode Command Line Tools；Windows 請先看 <a href="#windows">PART 04</a>。裝完之後<strong>還要把教材抓下來</strong>：講義 notebook 不是單一檔案，它會去讀旁邊的課程標頭，沒放對位置就跑不動（見下面「先下載教材」）。</p>
+  <p>需要三樣東西：<code>g++</code>、Python 與 <code>pip</code>、以及 JupyterLab。Linux 與 WSL 通常已經有 <code>g++</code>；macOS 裝 Xcode Command Line Tools；Windows 請先看 <a href="#windows">PART 04</a>。裝完之後，講義 notebook <strong>只要下載 .ipynb 一個檔案</strong>就能跑：課程標頭內建在 kernel 裡，測驗題目從 GitHub 線上載入。</p>
 
 <div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 1. 先裝 JupyterLab 與講義用的測驗套件（C++ kernel 本身沒有宣告相依，這步不能省）</span>
 <span class="line">pip install jupyterlab jupyterquiz jupytercards</span>
@@ -563,19 +563,18 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
   <div class="info-card">
-    <div class="ic-title">先下載教材：一個資料夾、兩樣東西 <span class="ic-badge">只做一次</span></div>
-    <p style="font-size:.9rem;">先建一個<strong>沒有中文與空白</strong>的資料夾當教材目錄（例如 <code>C:\ds208</code>），之後 <code>jupyter lab</code> 一律從這裡啟動。把下面兩樣東西放進去：</p>
-    <p style="font-size:.9rem;">① <strong>課程標頭</strong>：在這個資料夾執行 <code>git clone https://github.com/phonchi/pythonds3</code>。沒有 git 的話到 <a href="https://github.com/phonchi/pythonds3" target="_blank" rel="noopener">該 GitHub 頁面</a> 按 <em>Code → Download ZIP</em>，解壓後把 <code>pythonds3-master</code> <strong>改名成 <code>pythonds3</code></strong>。標頭在 <code>pythonds3/cppds/*.hpp</code>，就是課程網站 Resources 指的那個 repo。<br>
-    ② <strong>講義 notebook</strong>：每週從課程網站 <a href="https://phonchi.github.io/nsysu-math208/lectures/" target="_blank" rel="noopener">Lectures</a> 頁下載當週的 <code>.ipynb</code>（GitHub 頁面右上角 <em>Download raw file</em>），直接放在這個資料夾裡，<strong>不要另開子資料夾</strong>。</p>
+    <div class="ic-title">教材怎麼拿：只要 .ipynb <span class="ic-badge">每週一個檔</span></div>
+    <p style="font-size:.9rem;">建一個<strong>沒有中文與空白</strong>的資料夾當教材目錄（例如 <code>C:\ds208</code>），之後 <code>jupyter lab</code> 一律從這裡啟動。每週從課程網站 <a href="https://phonchi.github.io/nsysu-math208/lectures/" target="_blank" rel="noopener">Lectures</a> 頁下載當週的 <code>.ipynb</code>（GitHub 頁面右上角 <em>Download raw file</em>）放進去，就這樣。</p>
+    <p style="font-size:.9rem;">不用另外抓任何東西：講義 <code>#include "pythonds3/cppds/stack.hpp"</code> 用到的<strong>課程標頭已經內建在 C++ kernel 套件裡</strong>（kernel 編譯時自動加 <code>-I</code>），選擇題與詞彙卡則<strong>從 GitHub 線上載入</strong>（執行時要有網路）。</p>
     <div class="pseudo-code" style="font-size:.8rem;"><span class="line">C:\ds208\</span>
-<span class="line">├── pythonds3\cppds\stack.hpp …   ← ① git clone</span>
-<span class="line">└── 01_Introduction.ipynb          ← ② 每週下載</span></div>
-    <p class="dx-note" style="margin-bottom:0;">為什麼一定要同一層：kernel 編譯時的 <code>-I.</code> 是相對於<strong>你啟動 Jupyter 的目錄</strong>解析的，少了 ① 會 <code>#include</code> 失敗（FAQ ⑥）。notebook 裡的選擇題與詞彙卡則是<strong>從 GitHub 線上載入</strong>，不用另外下載，但執行時要有網路。</p>
+<span class="line">├── 01_Introduction.ipynb   ← 每週下載</span>
+<span class="line">└── 02_Analysis.ipynb</span></div>
+    <p class="dx-note" style="margin-bottom:0;">想在終端機或 VS Code 直接編譯用到課程標頭的 .cpp（notebook 以外），才需要 <code>git clone https://github.com/phonchi/pythonds3</code> 到 .cpp 同一層，並以 <code>g++ -std=c++17 -I. main.cpp</code> 編譯；標頭在 <code>pythonds3/cppds/*.hpp</code>，就是課程網站 Resources 指的那個 repo。</p>
   </div>
 
   <div class="info-card">
     <div class="ic-title">開始上課 <span class="ic-badge">每次 3 步</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">① 開終端機，<code>cd</code> 到教材資料夾（有裝 Anaconda 的同學先看下面的警告框）。<br>
+    <p style="font-size:.9rem;margin-bottom:0;">① 開終端機，<code>cd</code> 到放 .ipynb 的教材資料夾（有裝 Anaconda 的同學先看下面的警告框）。<br>
     ② 執行 <code>jupyter lab</code>。<br>
     ③ 開啟 <code>.ipynb</code>，右上角 kernel 選 <strong>C++ 17</strong>，按 <code>Shift + Enter</code> 執行第一格。</p>
   </div>
@@ -717,7 +716,7 @@ g++ 版本  : 13.3
 Stack     : pop=7 peek=42 size=1
 LinkedList: size=2 search(31)=1
 環境檢查通過，可以開始第 01 章。</pre></div>
-  <p class="dx-note">版本號跟你的不一樣沒關係，C++17 以上都可以。重點是<strong>兩個課程標頭都 include 成功</strong>——那代表 <code>-I.</code> 有生效、而且 <code>pythonds3/</code> clone 在對的位置。在終端機編譯的話記得加 <code>-I.</code>：<code>g++ -std=c++17 -I. check.cpp -o check</code>。</p>
+  <p class="dx-note">版本號跟你的不一樣沒關係，C++17 以上都可以。重點是<strong>兩個課程標頭都 include 成功</strong>——在 notebook 裡那代表 kernel 裝的是課程 fork（標頭內建）；在終端機編譯則要先 clone <code>pythonds3</code> 到同一層並加 <code>-I.</code>：<code>g++ -std=c++17 -I. check.cpp -o check</code>。</p>
 </div>
 
   <div class="stats-grid">
@@ -779,7 +778,8 @@ cell.cpp:4:5: error: ‘map’ was not declared in this scope
   <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:" "//example.com"</code> 兩段接起來。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "pythonds3/cppds/…"</code> 找不到檔案</h3>
-  <p>兩個原因：一是你裝的是 PyPI 原版而不是 <a href="#kernel">PART 01</a> 那個 fork（缺 <code>-I.</code>）；二是你啟動 <code>jupyter lab</code> 的目錄跟 clone 下來的 <code>pythonds3/</code> 不在同一層（或根本還沒 clone，見 <a href="#kernel">PART 01</a>「先下載教材」）。測驗與詞彙卡的題目是從 GitHub 線上抓的，不受這個目錄問題影響；它們沒出現時先確認有網路。<code>-I.</code> 的「<code>.</code>」指的是<strong>啟動 Jupyter 的工作目錄</strong>，不是 notebook 所在的目錄。</p>
+  <p>在 notebook 裡：課程標頭內建在 kernel 套件裡，會找不到幾乎只有一個原因——你裝的是 PyPI 原版、或 2026-09-02 之前的舊版 fork。照 <a href="#kernel">PART 01</a> 的指令加 <code>--force-reinstall</code> 重裝一次即可（<code>pip install --force-reinstall --no-deps "git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208"</code>），重啟 JupyterLab。<br>
+  在終端機用 <code>g++</code> 編譯：要先 <code>git clone https://github.com/phonchi/pythonds3</code> 到 .cpp 同一層，並加 <code>-I.</code>。測驗與詞彙卡的題目是從 GitHub 線上抓的，與目錄無關；沒出現時先確認有網路。</p>
 
   <p style="margin-top:2rem;"><strong>下面兩個跟 kernel 無關</strong>，是 Windows 環境本身的問題，但回報頻率一樣高。</p>
 

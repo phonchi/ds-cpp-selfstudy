@@ -41,10 +41,11 @@
   `tools/selfstudy_builders/`）、課程站 `static_files/presentations/`（含小寫自學頁鏡像，**那些頁不是本站的逐位元組鏡像**，
   只能就地替換不能覆蓋）。敘述中「dscpp 的 X」一律改「課程標頭的 X」；站內 `cppds` 一詞另指 Runestone 教科書（`cppds §8.x`），
   指標頭時寫「課程標頭」或完整路徑。**Slides 的 10 個 .pdf 未重做，仍印舊路徑。** include guard 仍叫 `DSCPP_*`，未改。
-- **教材取得**：00B PART 01 新增「先下載教材」卡片（教材資料夾 = `pythonds3/` clone + 每週 .ipynb）。
-  測驗與詞彙卡自 2026-09-02 起與上學期 Python 版相同，`path` 直接指向
-  `https://raw.githubusercontent.com/phonchi/nsysu-math208/refs/heads/main/extra/{questions/chN,flashcards}/`，
-  學生不用下載題庫（曾短暫放過 `quiz_data.zip`，已移除）。改題目 push 到課程站 main 即生效。
+- **教材取得（學生零額外下載）**：學生只下載每週 .ipynb。課程標頭 `pythonds3/cppds/*.hpp` **內建在 kernel 套件**
+  （`jcppkernel/resources/pythonds3/cppds/`，編譯自動加 `-I<resources>`，`-I.` 仍優先）；測驗與詞彙卡的 `path` 直接指向
+  `https://raw.githubusercontent.com/phonchi/nsysu-math208/refs/heads/main/extra/{questions/chN,flashcards}/`，與上學期 Python 版相同。
+  **標頭有兩份**：canonical 在 github.com/phonchi/pythonds3 的 `cppds/`（終端機／VS Code 用），kernel 內是複本，改標頭要兩邊都推。
+  曾短暫放過 `quiz_data.zip`，已移除。
 - **quiz JSON 去破折號**：`questions/`、`flashcards/` 的 13 個「—」換成 ASCII，因為 jupyterquiz 讀檔不指定 encoding，繁中 Windows
   以 cp950 解會炸。之後題目若要加中文：在 C++ kernel 下跑靠 kernel.json 的 `PYTHONUTF8=1`（見下）；用 Python kernel（例如 `rise` 環境放投影片）則要 `conda env config vars set PYTHONUTF8=1 -n rise`。
 
@@ -54,7 +55,8 @@
 1. `-I.`（原有）。
 2. 暫存 .cpp 以 UTF-8 寫入、子行程輸出 `decode("utf-8", errors="replace")` —— 修 Windows cp950 導致的 `UnicodeDecodeError` kernel 崩潰。
 3. 7 個 `kernel.json`：`"{connection_file}"` 去掉多餘引號（消 traitlets FutureWarning）、加 `"env": {"PYTHONUTF8": "1"}`。
-4. `jcppkernel/python_quiz_cells.py`：講義裡 `from jupyterquiz import display_quiz` / `display_quiz(...)` /
+4. `jcppkernel/resources/pythonds3/cppds/*.hpp` 內建課程標頭，`_compile_with_gpp` 加 `-I<resDir>`（commit `44fbc22`）。
+5. `jcppkernel/python_quiz_cells.py`：講義裡 `from jupyterquiz import display_quiz` / `display_quiz(...)` /
    `display_flashcards(...)` 這類 Python 測驗 cell 由 kernel 內嵌 Python 執行並送 `display_data`，notebook 不用改。
    辨識是保守白名單（每行都得是 import／字串賦值／display 呼叫／註解，且至少一行 import 或 display），其他一律走 g++。
    `path` 變數跨 cell 存活。jupyter_client 實測 10/10；**瀏覧器互動性未實測**（環境無瀏覽器）。

@@ -62,6 +62,7 @@
    `path` 變數跨 cell 存活。jupyter_client 實測 10/10；**瀏覧器互動性未實測**（環境無瀏覽器）。
    已知：重開已存檔的 notebook 時 output 為 untrusted，要重跑該 cell 才會互動（與一般 ipykernel 行為相同）。
    需另裝 `pip install jupyterquiz jupytercards`（00B 安裝指令已加）。
+6. stdout 改為 `stream` 純文字（commit `64df1ba`）：上游把換行加倍後以 `text/markdown` 送出，每行變一個段落、`* _ <` 會被吃掉；現在換行一比一、`\r\n` 統一成 `\n`。
 
 學生端重裝（`kernel.json` 走 `data_files`，一般 upgrade 不會覆寫）：
 ```

@@ -4,13 +4,13 @@
 `recursion.html` 的整個 `<head>`（1–332 行）除了 `<title>` 之外逐位元組一致。改動任一站之前，
 先看另一站有沒有已經解過同一個問題。
 
-## 現況（2026-08-28 已上線）
+## 現況（2026-09-02）
 
-站上共 21 頁：**兩章課前準備 ＋ 九章正課 ＋ 九頁選讀先備知識**。
+站上共 22 頁：**三章課前準備 ＋ 九章正課 ＋ 九頁選讀先備知識**。
 
 | 區塊 | 頁面 |
 |---|---|
-| 課前準備 | `00a_why_code`（為什麼還要學）、`00b_setup`（環境安裝） |
+| 課前準備 | `00a_why_code`（為什麼還要學）、`00b_setup`（compiler + notebook）、`00c_vscode_windows`（Windows 作業） |
 | 正課 | `introduction` → `trees` 九章（本次未改內容，只動了 introduction 的一行導覽） |
 | 先備知識 | `p1_cpp_basics` … `p9_oop_advanced` |
 
@@ -22,6 +22,15 @@
 （fork 自 shiroinekotfs，MIT，與上游只差一行）。PyPI 原版缺這一行，`#include "dscpp/…"` 會找不到檔案。
 安裝方式見 00B —— 注意該套件**沒有宣告任何相依**，要先自己裝 `jupyterlab`。
 
+### 00B / 00C Windows 工具鏈契約（2026-09-02）
+
+- 00B 完整保留 Jupyter + patched C++ kernel 教學，但用途改為 notebook；Windows 作業首選 00C 的 VS Code 流程。
+- 00B 並列 MSYS2 UCRT64 與 WinLibs，兩者都必須能通過 `where.exe g++`、`where.exe gdb`、版本檢查；WSL 是進階選讀，Dev-C++ 可應急但不推薦。
+- 00C 的 `tasks.json.command`、`launch.json.miDebuggerPath`、`c_cpp_properties.json.compilerPath` 必須指向同一套工具鏈。三個 JSON 區塊有固定 `id`，驗證腳本可抽出解析。
+- 多檔範例只用匿名 `main.cpp`／`MyClass.cpp`，不揭露未發布作業；一般規則是 include header、明列來源檔，但教師模板若已 include 支援 `.cpp`，不可再重複編譯它。
+- `assets/00c/` 的三張官方 VS Code 截圖需和 `README.md` attribution 同步保存；不得以熱連結替代。
+- `.github/workflows/check-00c-windows.yml` 是 Windows 真實工具鏈 gate：MSYS2 UCRT64、GCC、GDB、`-lgdi32` 與三種匿名專案模式都必須通過。
+
 ## 工具鏈與它們的契約
 
 | 腳本 | 做什麼 | 冪等靠什麼 |
@@ -29,6 +38,7 @@
 | `tools/apply_zh.py` | 從 `data/` 重生各頁的 `const FLASHCARDS` 與 `<section id="bankquiz">` | 整段以邊界重生 |
 | `tools/inject_prereq_cpp.py` | 課前章與先備頁的尾段注入（導讀框、bankquiz 錨點、詞彙卡區、上下頁導覽、CSS/JS、補 MathJax） | `<!-- prereq-injected -->` 標記 |
 | `tools/check_links_cpp.py` | 錨點、站內連結、注入前置條件、Python 殘留 | — |
+| `tools/check_00c.py` | 00C JSON／圖片／未發布內容守門，並以 g++ 編譯三種匿名專案模式 | — |
 | `tools/enrich/enrich_lib.py` | `hl()` C++ 上色、`card()` 範例卡、`run_cpp()` 編譯實跑 | — |
 | `tools/enrich/enrich_*.py` | 九章正課頁的一次性充實，已全部注入完畢 | `dx-*` 標記 |
 | `~/ds_cpp/Slides/tools/check_selfstudy.py` | 外部 gate：掃 Python 殘留、quiz 單一正解、錨點 | — |

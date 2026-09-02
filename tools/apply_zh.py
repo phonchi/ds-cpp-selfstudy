@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 FC = {  # page -> flashcards chapter
-    "00a_why_code": "00a", "00b_setup": "00b", "p1_cpp_basics": "p1", "p2_flow_control": "p2", "p3_functions": "p3",
+    "00a_why_code": "00a", "00b_setup": "00b", "00c_vscode_windows": "00c", "p1_cpp_basics": "p1", "p2_flow_control": "p2", "p3_functions": "p3",
     "p5_vector_string": "p5", "p7_files_exceptions": "p7", "p9_oop_advanced": "p9", "p4_pointers_memory": "p4", "p6_map_set": "p6", "p8_oop_basics": "p8",
     "introduction": "ch1", "analysis": "ch2", "arrays": "ch3",
     "linked_lists": "ch4", "linear_structures": "ch5", "recursion": "ch6",

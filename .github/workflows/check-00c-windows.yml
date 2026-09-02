@@ -1,0 +1,43 @@
+name: Check Windows VS Code lesson
+
+on:
+  push:
+    paths:
+      - "00b_setup.html"
+      - "00c_vscode_windows.html"
+      - "assets/00c/**"
+      - "data/flashcards_zh/00c.json"
+      - "tools/check_00c.py"
+      - ".github/workflows/check-00c-windows.yml"
+  pull_request:
+    paths:
+      - "00b_setup.html"
+      - "00c_vscode_windows.html"
+      - "assets/00c/**"
+      - "data/flashcards_zh/00c.json"
+      - "tools/check_00c.py"
+      - ".github/workflows/check-00c-windows.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  msys2-ucrt64:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            python
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-gdb
+      - name: Validate compiler, debugger, JSON, and project patterns
+        shell: msys2 {0}
+        run: |
+          g++ --version
+          gdb --version
+          python tools/check_00c.py --require-gdb

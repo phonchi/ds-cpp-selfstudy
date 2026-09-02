@@ -450,8 +450,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <nav class="float-nav" id="floatNav" aria-label="章節導覽">
   <div class="fn-title">章節導覽</div>
   <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">為什麼先弄環境</span></a>
-  <a href="#kernel" data-target="kernel"><span class="fn-num">P01</span><span class="fn-name">方法一：Jupyter kernel</span></a>
-  <a href="#vscode" data-target="vscode"><span class="fn-num">P02</span><span class="fn-name">方法二：VS Code</span></a>
+  <a href="#kernel" data-target="kernel"><span class="fn-num">P01</span><span class="fn-name">Notebook：Jupyter kernel</span></a>
+  <a href="#vscode" data-target="vscode"><span class="fn-num">P02</span><span class="fn-name">作業：Windows VS Code</span></a>
   <a href="#online" data-target="online"><span class="fn-num">P03</span><span class="fn-name">方法三：線上編譯器</span></a>
   <a href="#windows" data-target="windows"><span class="fn-num">P04</span><span class="fn-name">Windows 裝 g++</span></a>
   <a href="#verify" data-target="verify"><span class="fn-num">P05</span><span class="fn-name">環境驗收</span></a>
@@ -477,18 +477,18 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="hero-content">
     <div class="chapter-tag">CHAPTER 00B</div>
     <h1><span class="green">課前準備</span>與環境安裝</h1>
-    <div class="subtitle">三條路擇一，二十分鐘之內讓你能編譯、能執行、能跑課程 notebook。</div>
-    <div class="big-formula">g++｜jupyter-cpp-kernel｜VS Code｜winlibs｜dscpp</div>
+    <div class="subtitle">先裝好 C++ compiler，再分成兩條路：notebook 用 Jupyter，作業用 Windows VS Code。</div>
+    <div class="big-formula">g++ + gdb｜Jupyter kernel｜Windows VS Code｜MSYS2 / WinLibs</div>
     <div class="scroll-hint">向下捲動開始<span>↓</span></div>
   </div>
 </div>
 
 <div class="container">
 <div class="study-guide">
-  <div class="sg-title">📌 本頁使用方式（課前準備 · 讀完再進第 01 章）</div>
-  <p>① <strong>照節次讀</strong>：每一節都短，不要跳著看。
-  ② <strong>動手驗證</strong>：有互動元件的地方先自己預測答案，再按按鈕對照。
-  ③ <strong>做完自我檢核</strong>再往下：答錯就回頭重讀該節。
+  <div class="sg-title">📌 本頁使用方式（先裝 compiler，再準備 notebook）</div>
+  <p>① <strong>Windows 同學先完成 PART 04</strong>：VS Code 與 C/C++ 擴充套件都不會附送 compiler。
+  ② <strong>照用途選工具</strong>：課程 notebook 走 PART 01；作業程式接著讀 <a href="00c_vscode_windows.html">00C</a>。
+  ③ <strong>完成 PART 05 環境驗收</strong>：指令或 include 失敗就回到對應步驟。
   ④ 最後翻 <a href="#cards">關鍵詞彙卡</a>，能不看答案講出定義才算過關。</p>
   <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
 </div>
@@ -498,8 +498,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="toc-title">CONTENTS · 內容目錄</div>
   <div class="toc-grid">
     <a href="#prologue"><span class="toc-num">P00</span>為什麼要先準備環境</a>
-    <a href="#kernel"><span class="toc-num">P01</span>方法一：Jupyter + C++ kernel</a>
-    <a href="#vscode"><span class="toc-num">P02</span>方法二：VS Code 或純 g++</a>
+    <a href="#kernel"><span class="toc-num">P01</span>Notebook：Jupyter + C++ kernel</a>
+    <a href="#vscode"><span class="toc-num">P02</span>作業首選：Windows VS Code</a>
     <a href="#online"><span class="toc-num">P03</span>方法三：線上編譯器</a>
     <a href="#windows"><span class="toc-num">P04</span>Windows 怎麼裝 g++</a>
     <a href="#verify"><span class="toc-num">P05</span>環境驗收</a>
@@ -513,15 +513,19 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="prologue">
   <div class="section-number">PROLOGUE · 開場</div>
   <h2>C++ 不像 Python 打開就能跑</h2>
-  <p>Python 的直譯器讀一行執行一行；C++ 要先<strong>編譯</strong>成執行檔才能跑。所以你至少需要一個編譯器（<code>g++</code>），再加一個寫程式的地方。</p>
-  <p>這門課的講義是 Jupyter notebook，用的是一個能執行 C++ 的 kernel。下面三條路都能寫 C++，但<strong>只有第一條能直接跑課程的 notebook</strong>。</p>
+  <p>Python 的直譯器讀一行執行一行；C++ 要先<strong>編譯</strong>成執行檔才能跑。所以你至少需要一個編譯器（<code>g++</code>）；想下中斷點除錯，還需要 <code>gdb</code>。</p>
+  <div class="warn-box">
+    <div class="info-label">⚠️ 安裝 VS Code ≠ 安裝 C++</div>
+    <p style="margin-bottom:0;">VS Code 是編輯器，微軟的 <strong>C/C++</strong> 擴充套件提供語法上色、IntelliSense 與除錯介面，<strong>兩者都不包含 compiler 或 debugger</strong>。Windows 同學必須另外完成 <a href="#windows">PART 04</a>，直到 <code>g++ --version</code> 與 <code>gdb --version</code> 都有輸出。</p>
+  </div>
+  <p>這門課有兩種工作：講義是 Jupyter notebook；作業則是一般的 <code>.cpp</code> 專案。它們共用同一套 compiler，但操作介面不同：</p>
 
   <div class="cmp-table-wrap">
   <table class="cmp-table">
     <thead><tr><th>方法</th><th>時間</th><th>能跑課程 notebook</th><th>適合誰</th></tr></thead>
     <tbody>
-      <tr><td><strong>① Jupyter + C++ kernel</strong><br><span class="pill pill-green">推薦</span></td><td>15 分鐘</td><td>✅ 可以</td><td>要跟著講義一起動手的人</td></tr>
-      <tr><td><strong>② VS Code 或純 g++</strong></td><td>5–10 分鐘</td><td>❌ 只能編譯 <code>.cpp</code></td><td>只想寫程式、講義看 HTML 就好</td></tr>
+      <tr><td><strong>① Jupyter + C++ kernel</strong><br><span class="pill pill-green">講義用</span></td><td>15 分鐘</td><td>✅ 可以</td><td>執行課程 notebook、逐格練習</td></tr>
+      <tr><td><strong>② Windows VS Code + g++/gdb</strong><br><span class="pill pill-green">作業首選</span></td><td>20–30 分鐘</td><td>❌ 編譯一般 <code>.cpp</code></td><td>寫作業、編譯多檔、執行與除錯</td></tr>
       <tr><td><strong>③ 線上編譯器</strong></td><td>0 分鐘</td><td>❌ 完全不行</td><td>臨時想試一小段、或電腦不能裝東西</td></tr>
     </tbody>
   </table>
@@ -534,8 +538,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </section>
 
 <section id="kernel">
-  <div class="section-number">PART 01 · 方法一 · 推薦</div>
-  <h2>本機 Jupyter + C++ kernel <span class="sec-badge">能跑課程 notebook</span></h2>
+  <div class="section-number">PART 01 · NOTEBOOK 路線</div>
+  <h2>本機 Jupyter + C++ kernel <span class="sec-badge">課程講義用</span></h2>
   <p>需要三樣東西：<code>g++</code>、Python 與 <code>pip</code>、以及 JupyterLab。Linux 與 WSL 通常已經有 <code>g++</code>；macOS 裝 Xcode Command Line Tools；Windows 請先看 <a href="#windows">PART 04</a>。</p>
 
 <div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 1. 先裝 JupyterLab（C++ kernel 本身沒有宣告相依，這步不能省）</span>
@@ -567,21 +571,21 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </section>
 
 <section id="vscode">
-  <div class="section-number">PART 02 · 方法二 · 輕量</div>
-  <h2>VS Code 或純 g++ —— 只想寫 <code>.cpp</code> 走這條</h2>
-  <p>不跑 notebook 的話，一個編譯器加一個編輯器就夠了。講義的 HTML 版一樣讀得到全部內容，只是沒辦法在裡面按執行。</p>
+  <div class="section-number">PART 02 · 作業首選</div>
+  <h2>Windows VS Code —— 作業程式走這條</h2>
+  <p>作業常有多個 <code>.cpp</code>、自己的標頭檔、命令列參數與資料檔，不能只按「執行目前檔案」。本站把完整流程獨立成 <a href="00c_vscode_windows.html"><strong>00C · Windows VS Code 作業實戰</strong></a>：從開資料夾、設定三份 JSON，到編譯、執行與中斷點除錯都會實做。</p>
 
 <div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 編譯（-Wall 把警告打開，學習期一定要開）</span>
 <span class="line">g++ -std=c++17 -Wall -I. main.cpp -o main</span>
 <span class="line"> </span>
-<span class="line"># 執行</span>
-<span class="line">./main</span></div>
+<span class="line"># Windows PowerShell 執行</span>
+<span class="line">.\main.exe</span></div>
 
   <div class="info-card">
-    <div class="ic-title">VS Code 設定 <span class="ic-badge">3 步</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">① 安裝微軟官方的 <strong>C/C++</strong> 擴充套件。<br>
-    ② 開一個資料夾當工作區，把 <code>dscpp/</code> 放進去。<br>
-    ③ 按 <code>Ctrl + Shift + B</code> 建立編譯任務，把 <code>args</code> 設成 <code>["-std=c++17", "-Wall", "-I.", "${file}", "-o", "${fileBasenameNoExtension}"]</code>。</p>
+    <div class="ic-title">這一頁先記住 <span class="ic-badge">3 件事</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① C/C++ 擴充套件不含 <code>g++</code> 或 <code>gdb</code>。<br>
+    ② 寫作業要在 VS Code <strong>開啟整個資料夾</strong>，不是只點開某一個 <code>.cpp</code>。<br>
+    ③ 多檔作業要明列需要編譯的 <code>.cpp</code>；完整範例與三份 JSON 請讀 <a href="00c_vscode_windows.html">00C</a>。</p>
   </div>
 
   <div class="info-box">
@@ -609,32 +613,52 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <section id="windows">
   <div class="section-number">PART 04 · Windows</div>
-  <h2>Windows 怎麼裝 g++</h2>
-  <p>Windows 沒有內建 g++。兩條路，選一條：</p>
+  <h2>Windows 怎麼裝 g++ 與 gdb</h2>
+  <p>Windows 沒有內建 GNU C++ 工具鏈。下面兩條原生 Windows 路線選一條即可；<strong>不要兩套都裝</strong>，以免 Path 先後順序互相打架。</p>
 
   <div class="info-card">
-    <div class="ic-title">路線 A · winlibs（不用裝 WSL） <span class="ic-badge">課堂用這個</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">① 到 <a href="https://winlibs.com/" target="_blank" rel="noopener">winlibs.com</a> 下載 UCRT runtime 的 GCC（課堂驗證過的是 12.1，更新版通常也可以）。<br>
-    ② 解壓到一個沒有中文與空白的路徑，例如 <code>C:\mingw64</code>。<br>
-    ③ 把 <code>C:\mingw64\bin</code> 加進系統環境變數 <code>Path</code>。<br>
-    ④ 開一個<strong>新的</strong>命令提示字元，執行 <code>g++ --version</code> 確認。</p>
+    <div class="ic-title">路線 A · MSYS2 MinGW-w64 <span class="ic-badge">官方 VS Code 教學</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① 安裝 <a href="https://www.msys2.org/" target="_blank" rel="noopener">MSYS2</a>，保留預設位置 <code>C:\msys64</code>。<br>
+    ② 在剛開啟的 MSYS2 終端執行 <code>pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain</code>，按 Enter 接受整組套件，再輸入 <code>Y</code>。<br>
+    ③ 完成後工具通常在 <code>C:\msys64\ucrt64\bin</code>；確認裡面真的有 <code>g++.exe</code> 與 <code>gdb.exe</code>。</p>
   </div>
 
   <div class="info-card">
-    <div class="ic-title">路線 B · WSL（想要 Linux 環境）</div>
-    <p style="font-size:.9rem;margin-bottom:0;">系統管理員身分開 PowerShell，執行 <code>wsl --install</code>，重開機之後在 Ubuntu 裡執行 <code>sudo apt update &amp;&amp; sudo apt install g++ python3-pip</code>。之後所有指令都在 WSL 裡跑，跟 Linux 完全一樣。</p>
+    <div class="ic-title">路線 B · WinLibs 免安裝版 <span class="ic-badge">解壓即可</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① 到 <a href="https://winlibs.com/" target="_blank" rel="noopener">winlibs.com</a> 下載 64-bit GCC + MinGW-w64 套件。<br>
+    ② 解壓到沒有中文與空白的路徑。若解壓後是 <code>C:\mingw64\bin\g++.exe</code>，要加進 Path 的就是 <code>C:\mingw64\bin</code>；不要憑印象猜資料夾。<br>
+    ③ 同一個 <code>bin</code> 裡也必須看到 <code>gdb.exe</code>，否則只能編譯、不能照 00C 除錯。</p>
+  </div>
+
+  <div class="deck-extra">
+    <div class="dx-label">兩條路共用：把 bin 加進使用者 Path</div>
+    <ol style="padding-left:1.4rem;margin-bottom:.7rem;">
+      <li>Windows 搜尋「<strong>編輯您帳戶的環境變數</strong>」。</li>
+      <li>在「使用者變數」選 <code>Path</code> →「編輯」→「新增」。</li>
+      <li>貼上你剛才確認過的 <code>bin</code> 完整路徑，連按「確定」關閉視窗。</li>
+      <li><strong>完全關閉 VS Code 與所有終端機，再重新開啟。</strong></li>
+    </ol>
+    <div class="pseudo-code" style="font-size:.82rem;"><span class="line">where.exe g++</span>
+<span class="line">where.exe gdb</span>
+<span class="line">g++ --version</span>
+<span class="line">gdb --version</span></div>
+    <p class="dx-note"><code>where.exe</code> 可能列出多筆。真正會被使用的是第一筆；00C 三份 JSON 裡的路徑也要指向同一套工具鏈。</p>
   </div>
 
   <div class="warn-box">
-    <div class="info-label">⚠️ 改完 Path 一定要開新視窗</div>
-    <p style="margin-bottom:0;">環境變數只在新開的終端機生效。改完之後 <code>g++ --version</code> 還是說找不到指令的話，九成是視窗沒重開，不是路徑設錯。</p>
+    <div class="info-label">⚠️ Dev-C++ 可應急，但本站不以它示範</div>
+    <p style="margin-bottom:0;">電腦教室若已有 Dev-C++，可以臨時開舊專案；但版本與內附 compiler 常較舊，設定方式也和本課作業支援不同。自己電腦上的作業請優先使用 <strong>Windows VS Code</strong>。</p>
   </div>
+
+  <details style="margin-top:1rem;"><summary><strong>進階選讀：已經熟悉 Linux 才走 WSL</strong></summary>
+    <p style="margin-top:.7rem;">系統管理員 PowerShell 執行 <code>wsl --install</code>，重開機後在 Ubuntu 裡安裝 <code>g++</code>、<code>gdb</code> 與 Python。VS Code 還要安裝 WSL extension，並從 WSL 資料夾執行 <code>code .</code>。Windows 路徑與 WSL 路徑是兩個環境；初學者不要混用。</p>
+  </details>
 </section>
 
 <section id="verify">
   <div class="section-number">PART 05 · 驗收</div>
   <h2>跑這一段，就知道環境好了沒</h2>
-  <p>不管你選哪條路，把下面這段存成 <code>check.cpp</code>（或貼進一個 notebook cell）執行。<strong>沒有噴錯、而且印出五行，就代表環境沒問題。</strong></p>
+  <p>先確認 <code>g++ --version</code> 與 <code>gdb --version</code> 都成功；再把下面這段存成 <code>check.cpp</code>（或貼進一個 notebook cell）執行。<strong>沒有噴錯、而且印出五行，才代表編譯環境與課程標頭都就緒。</strong></p>
 
 <div class="deck-extra">
   <div class="dx-label">環境驗收（真的編譯執行過的輸出）</div>
@@ -672,12 +696,12 @@ LinkedList: size=2 search(31)=1
 </div>
 
   <div class="stats-grid">
-    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">g++ 版本印得出來</div></div>
+    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">g++ 與 gdb 都找得到</div></div>
     <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">dscpp 標頭 include 成功</div></div>
     <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">Stack 與串列都能用</div></div>
     <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">notebook 能選到 C++ 17</div></div>
   </div>
-  <p style="margin-top:1rem;">四項都打勾就可以往下走了。接下來去 <a href="introduction.html">第 01 章 · C++ 導論</a>；若對 C++ 本身還不熟，先掃 <a href="index.html#prereq">先備頁 P1–P9</a>（選讀，不評分）。</p>
+  <p style="margin-top:1rem;">四項都打勾後，執行 notebook 的同學可進 <a href="introduction.html">第 01 章 · C++ 導論</a>；準備寫作業的同學接著完成 <a href="00c_vscode_windows.html">00C · Windows VS Code 作業實戰</a>。</p>
 
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 01 章</div><p style='margin-bottom:0;'>第 01 章的第一個 cell 就會 <code>#include</code> 課程的標頭檔。這一節過不了，那一章一行都跑不動。</p></div>
 </section>
@@ -767,7 +791,8 @@ cell.cpp:4:5: error: ‘map’ was not declared in this scope
     <thead><tr><th>資源</th><th>用途</th></tr></thead>
     <tbody>
       <tr><td><a href="https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208" target="_blank" rel="noopener">jupyter-cpp-kernel（課程 fork）</a></td><td>補過 <code>-I.</code> 的 C++ kernel，PART 01 用的就是它。</td></tr>
-      <tr><td><a href="https://winlibs.com/" target="_blank" rel="noopener">winlibs</a></td><td>Windows 的 GCC 免安裝版，解壓加 Path 就能用。</td></tr>
+      <tr><td><a href="https://code.visualstudio.com/docs/cpp/config-mingw" target="_blank" rel="noopener">VS Code · Using GCC with MinGW</a></td><td>微軟官方的 MSYS2、Path、編譯與除錯教學。</td></tr>
+      <tr><td><a href="https://www.msys2.org/" target="_blank" rel="noopener">MSYS2</a>／<a href="https://winlibs.com/" target="_blank" rel="noopener">WinLibs</a></td><td>Windows 原生 GCC/GDB 的兩種安裝來源。</td></tr>
       <tr><td><a href="https://en.cppreference.com/" target="_blank" rel="noopener">cppreference</a></td><td>C++ 標準函式庫的權威文件，含各操作的複雜度保證。</td></tr>
       <tr><td><a href="https://github.com/pearcej/cppds" target="_blank" rel="noopener">cppds 教科書原文</a></td><td>本站每章 §徽章對應的章節。</td></tr>
       <tr><td><a href="https://github.com/phonchi/nsysu-math208" target="_blank" rel="noopener">nsysu-math208</a></td><td>課程講義、投影片與 notebook。</td></tr>
@@ -787,7 +812,7 @@ cell.cpp:4:5: error: ‘map’ was not declared in this scope
   </div>
   <div class="fc-grid" id="fcGrid"></div>
 </section>
-<div class="chapter-nav"><a class="prev" href="00a_why_code.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">為什麼還要學資料結構</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="introduction.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">C++ 導論</div></a></div>
+<div class="chapter-nav"><a class="prev" href="00a_why_code.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">為什麼還要學資料結構</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="00c_vscode_windows.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">Windows VS Code 作業實戰</div></a></div>
 </div>
 
 <footer>

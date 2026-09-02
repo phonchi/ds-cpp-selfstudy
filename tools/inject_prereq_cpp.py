@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ds-cpp-selfstudy 課前章（00A/00B）與先備頁（P1–P9）的尾段注入。
+"""ds-cpp-selfstudy 課前章（00A/00B/00C）與先備頁（P1–P9）的尾段注入。
 
 分工與既有腳本一致：本檔負責「結構」（導讀框、float-nav/TOC 補項、bankquiz 錨點、
 詞彙卡區、上下頁導覽、CSS/JS 引擎），內容則交給 tools/apply_zh.py 從 data/ 灌入。
@@ -70,7 +70,8 @@ QUIZ_JS = _slice("searching_sorting.html",
 PRE, PQ = "pre", "prereq"
 PPAGES = [
     ("00a_why_code",        "為什麼還要學資料結構",   "00a", None, PRE, None,                   "00b_setup",           "課前準備與環境安裝"),
-    ("00b_setup",           "課前準備與環境安裝",     "00b", None, PRE, "00a_why_code",         "introduction",        "C++ 導論"),
+    ("00b_setup",           "課前準備與環境安裝",     "00b", None, PRE, "00a_why_code",         "00c_vscode_windows",  "Windows VS Code 作業實戰"),
+    ("00c_vscode_windows",  "Windows VS Code 作業實戰", "00c", None, PRE, "00b_setup",           "introduction",        "C++ 導論"),
     ("p1_cpp_basics",       "C++ 基礎與編譯流程",     "p1",  "p1", PQ,  None,                   "p2_flow_control",     "流程控制"),
     ("p2_flow_control",     "流程控制",               "p2",  "p2", PQ,  "p1_cpp_basics",        "p3_functions",        "函式"),
     ("p3_functions",        "函式",                   "p3",  "p3", PQ,  "p2_flow_control",      "p4_pointers_memory",  "陣列、指標與動態記憶體"),

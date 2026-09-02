@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows VS Code 作業實戰 — 課前準備 00C</title>
+<script>
+  MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#1a1a2e;--paper:#f7f3eb;--accent:#c0392b;--accent2:#2c3e7a;--accent3:#1a6b4a;
+  --muted:#8a8578;--card:#fffdf7;--card-border:#e8e2d6;--highlight:#fff3cd;
+  --code-bg:#2d2d3f;--code-fg:#e8e6df;
+  --node-white:#ffffff;--node-gray:#bdc3c7;--node-black:#34495e;
+  --node-current:#f39c12;--node-found:#16a085;--node-start:#9b59b6;
+  --edge-default:#95a5a6;--edge-tree:#27ae60;--edge-explore:#f39c12;--edge-mst:#1a6b4a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;font-size:17px;}
+
+/* Hero */
+.hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2rem;position:relative;overflow:hidden;background:linear-gradient(170deg,#1a1a2e 0%,#2c3e7a 40%,#1a6b4a 100%);}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.04) 0%,transparent 40%);}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);}
+.hero-content{position:relative;z-index:1;max-width:860px;}
+.hero h1{font-family:'Noto Serif TC',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;letter-spacing:.04em;line-height:1.3;margin-bottom:1rem;}
+.hero h1 .green{color:#2ecc71;}
+.hero h1 .blue{color:#5dade2;}
+.hero h1 .orange{color:#f39c12;}
+.hero h1 .purple{color:#bb8fce;}
+.hero .subtitle{font-size:clamp(.95rem,2.2vw,1.2rem);color:rgba(255,255,255,.65);font-weight:300;margin-bottom:2rem;}
+.hero .big-formula{color:#2ecc71;background:rgba(0,0,0,.3);padding:.8rem 2rem;border-radius:12px;display:inline-block;border:1px solid rgba(255,255,255,.1);margin-bottom:2rem;backdrop-filter:blur(4px);font-size:1.05rem;}
+.scroll-hint{color:rgba(255,255,255,.4);font-size:.9rem;animation:bounce 2s infinite;}
+.scroll-hint span{display:block;font-size:1.4rem;margin-top:.3rem;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+
+/* Hero mini-graph illustration */
+.hero-graph{position:absolute;right:5%;top:50%;transform:translateY(-50%);opacity:.18;pointer-events:none;}
+@media(max-width:900px){.hero-graph{display:none;}}
+
+/* Layout */
+.container{max-width:1180px;margin:0 auto;padding:3rem 1.5rem;}
+.section-number{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.5rem;}
+h2{font-family:'Noto Serif TC',serif;font-size:1.65rem;font-weight:700;color:var(--ink);margin-bottom:1.2rem;line-height:1.4;}
+h3{font-family:'Noto Serif TC',serif;font-size:1.15rem;font-weight:700;color:var(--accent2);margin:1.4rem 0 .8rem;}
+section{margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid var(--card-border);}
+section:last-of-type{border-bottom:none;}
+p{margin-bottom:1rem;}
+code{font-family:'JetBrains Mono',monospace;font-size:.92em;background:rgba(44,62,122,.08);padding:1px 6px;border-radius:4px;color:var(--accent2);}
+strong{color:var(--ink);}
+
+/* TOC */
+.toc{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1.2rem 1.5rem;margin:1rem 0 2rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.toc-title{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);font-weight:600;letter-spacing:.15em;margin-bottom:.7rem;}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem .8rem;}
+.toc-grid a{color:var(--accent2);text-decoration:none;font-size:.9rem;padding:.3rem 0;display:flex;align-items:center;gap:.4rem;transition:color .2s;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .toc-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);min-width:34px;}
+
+/* Viz layout */
+.viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
+@media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+
+.viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
+
+/* Graph SVG canvas */
+.graph-canvas{position:relative;width:100%;height:380px;background:#fafafa;border-radius:8px;overflow:hidden;border:1px solid #ececec;}
+.graph-canvas svg{width:100%;height:100%;display:block;}
+
+/* SVG elements styles */
+.graph-edge{stroke:var(--edge-default);stroke-width:2;fill:none;transition:stroke .25s, stroke-width .25s;}
+.graph-edge.tree{stroke:var(--edge-tree);stroke-width:3.5;}
+.graph-edge.exploring{stroke:var(--edge-explore);stroke-width:3.5;stroke-dasharray:5 4;animation:dash 1s linear infinite;}
+.graph-edge.mst{stroke:var(--edge-mst);stroke-width:4;}
+.graph-edge.path{stroke:var(--accent);stroke-width:4;}
+.graph-edge.dotted{stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 4;}
+@keyframes dash{to{stroke-dashoffset:-18;}}
+
+.edge-label{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;fill:var(--ink);pointer-events:none;}
+.edge-label-bg{fill:#fafafa;stroke:#ececec;stroke-width:1;}
+
+.graph-node{cursor:pointer;}
+.graph-node circle{fill:var(--node-white);stroke:var(--ink);stroke-width:2;transition:fill .25s, stroke .25s, r .2s;}
+.graph-node.gray circle{fill:var(--node-gray);}
+.graph-node.black circle{fill:var(--node-black);stroke:var(--node-black);}
+.graph-node.current circle{fill:var(--node-current);stroke:#d68910;stroke-width:3;}
+.graph-node.start circle{fill:var(--node-start);stroke:#7d3c98;stroke-width:3;}
+.graph-node.found circle{fill:var(--node-found);stroke:#117a65;stroke-width:3;}
+.graph-node.in-mst circle{fill:#82e0aa;stroke:var(--accent3);stroke-width:3;}
+.graph-node text.node-key{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+.graph-node.black text.node-key{fill:#fff;}
+.graph-node.current text.node-key{fill:#fff;}
+.graph-node.start text.node-key{fill:#fff;}
+.graph-node.found text.node-key{fill:#fff;}
+.graph-node text.node-meta{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;fill:var(--accent);text-anchor:middle;pointer-events:none;}
+
+/* Status banner */
+.status-banner{margin-top:.8rem;padding:.7rem 1rem;background:var(--code-bg);color:#fff;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.85rem;min-height:42px;display:flex;align-items:center;gap:.6rem;}
+.status-banner .status-icon{color:#2ecc71;font-weight:700;}
+.status-banner .status-text{flex:1;}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-top:1rem;padding-top:.8rem;border-top:1px solid var(--card-border);}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:none;cursor:pointer;transition:all .2s;}
+.btn-play{background:var(--accent3);color:#fff;}
+.btn-play:hover{background:#22845c;}
+.btn-play.active{background:var(--accent);}
+.btn-step{background:var(--accent2);color:#fff;}
+.btn-step:hover{background:#1f2e5f;}
+.btn-step:disabled{background:#ccc;cursor:not-allowed;}
+.btn-reset{background:var(--card-border);color:var(--ink);}
+.btn-reset:hover{background:#ccc;}
+.btn-toggle{background:var(--accent2);color:#fff;}
+.btn-toggle:hover{background:#1f2e5f;}
+.btn-toggle.off{background:#bbb;color:#555;}
+.btn-shuffle{background:#8e44ad;color:#fff;}
+.btn-shuffle:hover{background:#6c3485;}
+
+/* Slider row */
+.slider-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;background:var(--paper);border-radius:8px;margin-bottom:.5rem;}
+.slider-row .slider-label{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--accent2);font-weight:600;min-width:60px;}
+.slider-row input[type="range"]{flex:1;accent-color:var(--accent3);height:5px;cursor:pointer;}
+.slider-row .slider-val{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent);font-weight:600;min-width:60px;text-align:right;}
+
+/* Side panel */
+.side-panel{display:flex;flex-direction:column;gap:.85rem;}
+.info-card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:.85rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.info-card .ic-title{font-size:.72rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.5rem;border-bottom:1px solid var(--card-border);padding-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;}
+.info-card .ic-title .ic-badge{font-size:.7rem;color:#fff;background:var(--accent3);padding:1px 7px;border-radius:3px;letter-spacing:.05em;font-weight:700;}
+.info-card .ic-row{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.83rem;padding:.2rem 0;}
+.info-card .ic-label{color:var(--muted);}
+.info-card .ic-value{color:var(--ink);font-weight:600;}
+.info-card .ic-value.highlight{color:var(--accent);}
+.info-card .ic-value.big{font-size:1.4rem;color:var(--accent2);}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem;}
+.stat-tile{background:var(--paper);border-radius:8px;padding:.5rem .7rem;text-align:center;}
+.stat-tile .stat-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.stat-tile .stat-value{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent2);}
+
+/* Queue / Stack / PQ visualization */
+.ds-display{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--paper);border-radius:6px;padding:.5rem .7rem;min-height:36px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px dashed var(--card-border);}
+.ds-display .ds-empty{color:var(--muted);font-style:italic;}
+.ds-item{background:var(--accent2);color:#fff;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ds-item.front{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.top{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-item.pq{background:var(--accent3);}
+.ds-item.pq.min{background:var(--accent);box-shadow:0 0 0 2px rgba(192,57,43,.3);}
+.ds-arrow{color:var(--muted);}
+
+/* Pseudo code */
+.pseudo-code{background:var(--code-bg);color:var(--code-fg);border-radius:10px;padding:.85rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;}
+.pseudo-code .line{padding:1px 4px;border-radius:3px;display:block;white-space:pre;}
+.pseudo-code .line.active{background:rgba(243,156,18,.3);color:#fff;border-left:3px solid var(--node-current);padding-left:6px;}
+.pseudo-code .kw{color:#ff79c6;}
+.pseudo-code .fn{color:#50fa7b;}
+.pseudo-code .num{color:#bd93f9;}
+.pseudo-code .com{color:#6272a4;font-style:italic;}
+.pseudo-code .str{color:#f1fa8c;}
+
+/* Adjacency table */
+.adj-display{margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.adj-matrix{border-collapse:collapse;margin:.5rem auto;}
+.adj-matrix td,.adj-matrix th{border:1px solid var(--card-border);padding:6px 10px;text-align:center;min-width:34px;background:#fff;}
+.adj-matrix th{background:var(--accent2);color:#fff;font-weight:700;}
+.adj-matrix td.zero{color:#ccc;}
+.adj-matrix td.nonzero{background:#eafaf1;color:var(--accent3);font-weight:700;}
+.adj-matrix td.highlight{background:#fff3cd;}
+.adj-list{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.7rem 1rem;}
+.adj-list .adj-row{padding:3px 0;border-bottom:1px dashed var(--card-border);}
+.adj-list .adj-row:last-child{border-bottom:none;}
+.adj-list .adj-key{color:var(--accent);font-weight:700;display:inline-block;min-width:32px;}
+.adj-list .adj-arrow{color:var(--muted);margin:0 6px;}
+.adj-list .adj-neighbor{background:#eef2ff;color:var(--accent2);padding:1px 8px;border-radius:4px;margin:1px 3px;display:inline-block;font-weight:600;}
+
+/* Chess board for Knight's tour */
+.chess-board{display:grid;background:#fff;border:2px solid var(--ink);border-radius:6px;overflow:hidden;margin:.5rem auto;width:fit-content;}
+.chess-cell{display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:700;position:relative;transition:background .2s;}
+.chess-cell.light{background:#f0d9b5;color:#666;}
+.chess-cell.dark{background:#b58863;color:#fff;}
+.chess-cell.visited{background:#27ae60 !important;color:#fff;}
+.chess-cell.current{background:#f39c12 !important;color:#fff;box-shadow:inset 0 0 0 3px #d68910;}
+.chess-cell.start{background:#9b59b6 !important;color:#fff;}
+.chess-cell .knight{font-size:1.4em;line-height:1;}
+.chess-cell .step-num{font-size:.7em;}
+
+/* Info box */
+.info-box{background:#eef2ff;border:2px solid var(--accent2);border-radius:10px;padding:1.1rem 1.4rem;margin:1.3rem 0;position:relative;}
+.info-box .info-label{position:absolute;top:-11px;left:14px;background:var(--accent2);color:#fff;font-size:.74rem;font-weight:700;padding:2px 10px;border-radius:4px;letter-spacing:.05em;}
+.info-box.warm{background:#fef5e7;border-color:#d68910;}
+.info-box.warm .info-label{background:#d68910;}
+.info-box.green{background:#eafaf1;border-color:var(--accent3);}
+.info-box.green .info-label{background:var(--accent3);}
+.info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
+.info-box.purple .info-label{background:#8e44ad;}
+
+/* Pill labels */
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;font-weight:600;padding:2px 9px;border-radius:4px;margin:0 .15rem;vertical-align:1px;}
+.pill-blue{background:rgba(41,128,185,.12);color:#2980b9;border:1px solid rgba(41,128,185,.3);}
+.pill-red{background:rgba(192,57,43,.12);color:var(--accent);border:1px solid rgba(192,57,43,.3);}
+.pill-green{background:rgba(39,174,96,.12);color:var(--accent3);border:1px solid rgba(39,174,96,.3);}
+.pill-orange{background:rgba(243,156,18,.12);color:#d68910;border:1px solid rgba(243,156,18,.3);}
+.pill-purple{background:rgba(142,68,173,.12);color:#8e44ad;border:1px solid rgba(142,68,173,.3);}
+.pill-gray{background:rgba(0,0,0,.06);color:var(--muted);border:1px solid rgba(0,0,0,.12);}
+
+/* Comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-size:.86rem;margin:.8rem 0;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.cmp-table th{background:var(--accent2);color:#fff;padding:.6rem .8rem;text-align:center;font-weight:600;font-size:.82rem;}
+.cmp-table td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--card-border);font-family:'JetBrains Mono',monospace;font-size:.82rem;}
+.cmp-table td:first-child{font-family:'Noto Sans TC',sans-serif;color:var(--accent2);font-weight:600;text-align:left;}
+.cmp-table tr:last-child td{border-bottom:none;}
+.cmp-table tr:nth-child(even){background:rgba(0,0,0,.015);}
+.cmp-table .best{color:var(--accent3);font-weight:700;}
+.cmp-table .worst{color:var(--accent);font-weight:700;}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:.6rem;margin:.6rem 0;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+.legend-item{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--paper);border-radius:5px;}
+.legend-item .lg-swatch{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink);}
+.legend-item .lg-edge{width:18px;height:3px;border-radius:2px;}
+
+/* Quiz */
+.quiz-box{background:var(--card);border:2px solid var(--accent2);border-radius:12px;padding:1.3rem 1.5rem;margin:1.5rem 0;}
+.quiz-box .quiz-label{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:.5rem;}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin:.8rem 0;}
+.quiz-opt{display:flex;align-items:center;gap:.6rem;padding:.55rem .9rem;background:var(--paper);border:2px solid var(--card-border);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'JetBrains Mono',monospace;font-size:.86rem;}
+.quiz-opt:hover{border-color:var(--accent2);}
+.quiz-opt .opt-letter{font-weight:700;color:var(--accent2);min-width:22px;}
+.quiz-opt.correct{background:#eafaf1;border-color:var(--accent3);}
+.quiz-opt.correct .opt-letter{color:var(--accent3);}
+.quiz-opt.wrong{background:#fef5e7;border-color:var(--accent);}
+.quiz-opt.wrong .opt-letter{color:var(--accent);}
+.quiz-feedback{margin-top:.7rem;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:#eafaf1;color:var(--accent3);border-left:4px solid var(--accent3);}
+.quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
+
+/* Floating sidebar navigation */
+.float-nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:2px;background:rgba(255,253,250,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:12px;padding:10px 7px;box-shadow:0 6px 24px rgba(0,0,0,.10);font-family:'JetBrains Mono',monospace;max-height:88vh;overflow-y:auto;transition:padding .25s ease;}
+.float-nav .fn-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.68rem;color:var(--accent2);text-align:center;letter-spacing:1.5px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid var(--card-border);max-width:0;overflow:hidden;transition:max-width .25s ease;}
+.float-nav:hover .fn-title{max-width:220px;}
+.float-nav a{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:7px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:all .2s ease;border-left:3px solid transparent;}
+.float-nav a .fn-num{font-weight:700;font-size:.66rem;color:var(--muted);letter-spacing:.4px;flex-shrink:0;width:30px;text-align:left;}
+.float-nav a .fn-name{font-family:'Noto Sans TC',sans-serif;font-size:.76rem;font-weight:500;max-width:0;overflow:hidden;transition:max-width .25s ease,padding .25s ease;padding:0;}
+.float-nav:hover a .fn-name{max-width:220px;padding-left:2px;}
+.float-nav a:hover{background:var(--card);}
+.float-nav a.active{background:var(--accent2);color:#fff;border-left-color:var(--accent);box-shadow:0 2px 6px rgba(192,57,43,.25);}
+.float-nav a.active .fn-num{color:rgba(255,255,255,.85);}
+.float-nav a.active .fn-name{color:#fff;}
+.float-nav .fn-top{margin-top:6px;padding-top:6px;border-top:1px solid var(--card-border);justify-content:center;}
+.float-nav .fn-top .fn-num{width:auto;color:var(--accent2);font-size:.78rem;}
+@media(max-width:768px){
+  .float-nav{right:8px;top:auto;bottom:14px;transform:none;padding:6px 5px;max-height:70vh;}
+  .float-nav .fn-title{display:none;}
+  .float-nav a{padding:4px 7px;}
+  .float-nav a .fn-num{width:26px;font-size:.62rem;}
+}
+
+footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--card-border);}
+
+/* Distance / table inside graph viz */
+.vert-table{margin-top:.6rem;width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+.vert-table th,.vert-table td{padding:4px 6px;text-align:center;border:1px solid var(--card-border);}
+.vert-table th{background:var(--accent2);color:#fff;font-weight:600;font-size:.74rem;}
+.vert-table td.tcell-current{background:#fff3cd;font-weight:700;color:var(--accent);}
+.vert-table td.tcell-done{background:#eafaf1;color:var(--accent3);}
+.vert-table td.tcell-inf{color:#ccc;}
+.sec-badge{font-size:.6em;color:var(--muted);border:1px solid var(--card-border);background:var(--card);padding:2px 10px;border-radius:999px;vertical-align:middle;margin-left:.6rem;font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.02em;white-space:nowrap;}
+
+/* Phase 8 shared widgets */
+.bs-stack{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;min-height:180px;justify-content:flex-start;padding:.6rem;}
+.bs-item{width:110px;text-align:center;padding:.4rem .6rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;box-shadow:0 2px 5px rgba(0,0,0,.15);}
+.bs-hl{background:#f39c12;}
+.bs-toplabel,.bq-label{font-size:.72rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.bq-row{display:flex;align-items:center;gap:6px;min-height:64px;flex-wrap:wrap;padding:.4rem;}
+.bq-item{min-width:52px;text-align:center;padding:.45rem .5rem;background:#5b7eb8;color:#fff;border-radius:6px;font-family:'JetBrains Mono',monospace;font-weight:600;}
+.char-strip{display:flex;gap:3px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;padding:.4rem 0;}
+.char-cell{min-width:30px;text-align:center;padding:.35rem .25rem;border:1px solid var(--card-border);border-radius:5px;background:var(--card);}
+.char-cur{background:#f39c12;color:#fff;border-color:#f39c12;}
+.char-done{background:#e8f5ec;color:#1a6b4a;border-color:#bfe3cd;}
+.char-bad{background:#c0392b;color:#fff;border-color:#c0392b;}
+.token-out{display:flex;gap:4px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;min-height:40px;padding:.3rem 0;}
+.tok{padding:.3rem .55rem;border-radius:5px;background:#2c3e7a;color:#fff;font-weight:600;}
+.tok-op{background:#8e44ad;}
+.tok-new{outline:3px solid #f39c12;}
+.mono{font-family:'JetBrains Mono',monospace;}
+</style>
+<style>
+/* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
+.study-guide{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:12px;padding:1.2rem 1.4rem;margin:0 0 2.2rem;}
+.study-guide .sg-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:1.5px;color:var(--accent3);margin-bottom:.5rem;}
+.study-guide p{font-size:.92rem;margin-bottom:.5rem;}
+.study-guide .sg-links{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.7rem;}
+.study-guide .sg-links a{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;color:var(--accent2);border:1px solid var(--card-border);border-radius:999px;padding:.3rem .85rem;text-decoration:none;transition:all .2s;}
+.study-guide .sg-links a:hover{background:var(--accent2);color:#fff;}
+.fc-controls{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0 1.2rem;}
+.fc-controls button{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;padding:.45rem 1rem;border-radius:6px;border:1px solid var(--card-border);cursor:pointer;background:var(--card);color:var(--ink);transition:all .2s;}
+.fc-controls button:hover{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem;}
+.fc-card{perspective:900px;height:170px;cursor:pointer;}
+.fc-card .fc-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;}
+.fc-card.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-card .fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:.9rem;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.fc-card .fc-front{background:linear-gradient(150deg,var(--accent2),var(--ink));color:#fff;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;letter-spacing:.02em;flex-direction:column;gap:.4rem;}
+.fc-card:focus-visible{outline:3px solid #f5b82e;outline-offset:4px;border-radius:12px;}
+.fc-card .fc-front .fc-hint{font-size:.62rem;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;font-weight:400;letter-spacing:.1em;}
+.fc-card .fc-back{background:var(--card);border:2px solid var(--accent3);color:var(--ink);font-size:.78rem;line-height:1.55;transform:rotateY(180deg);overflow-y:auto;}
+.chapter-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:.8rem;align-items:stretch;margin:2.5rem 0 1rem;}
+.chapter-nav a{display:block;border:1px solid var(--card-border);border-radius:12px;padding:.8rem 1.1rem;text-decoration:none;color:var(--ink);background:var(--card);transition:all .2s;}
+.chapter-nav a:hover{border-color:var(--accent2);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.chapter-nav .nav-dir{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--muted);margin-bottom:.2rem;}
+.chapter-nav .nav-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:.95rem;color:var(--accent2);}
+.chapter-nav a.next{text-align:right;}
+.chapter-nav a.home{display:flex;flex-direction:column;justify-content:center;text-align:center;}
+@media(max-width:700px){.chapter-nav{grid-template-columns:1fr;}}
+</style>
+<style>
+/* ===== 講義範例卡 ===== */
+.deck-extra{margin:1.2rem 0;}
+.deck-extra .dx-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;color:var(--accent3);margin-bottom:.4rem;}
+.deck-extra .dx-note{font-size:.9rem;margin-top:.6rem;}
+.expected-out{background:var(--card);border:1px solid var(--card-border);border-left:4px solid var(--accent3);border-radius:0 8px 8px 0;padding:.5rem .9rem;margin-top:.5rem;}
+.expected-out .eo-tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:1px;color:var(--accent3);display:block;margin-bottom:.2rem;}
+.expected-out pre{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;margin:0;}
+.warn-box{background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.25);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.8rem 0;font-size:.9rem;}
+.warn-box b{color:var(--accent);}
+</style>
+<!-- prereq-injected -->
+<style>
+.hero .chapter-tag{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#f5b82e;letter-spacing:.3em;margin-bottom:.8rem;}
+.cmp-table-wrap{overflow-x:auto;margin-bottom:1rem;}
+.cmp-table th code{background:rgba(255,255,255,.16);color:#fff;}
+.ds-hook{background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:10px;padding:.8rem 1.1rem;margin:1rem 0;font-size:.9rem;}
+.ds-hook .dh-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1.2px;color:var(--accent3);margin-bottom:.3rem;}
+</style>
+<!-- contrast-fix v1 -->
+<style>
+/* ══ contrast-fix v1 ═══════════════════════════════════════════════
+   base.css 有兩條全域規則：code{color:var(--accent2)}（#2c3e7a）與
+   strong{color:var(--ink)}（#1a1a2e）。它們一旦落進深色底容器就會消失——
+   最糟的是 .cmp-table th 與 .info-box .info-label，底色也是 #2c3e7a，
+   對比 1.00，字跟背景完全同色。
+
+   下面把「深色底容器裡的行內元素」統一改掉。chip 用 rgba(26,26,46,.7)
+   配 #ffe9a8：對本設計系統的每一個深色底，最差的對比是 7.84（在 #f39c12 上），
+   全部過 WCAG AA。單一組值、不分層，才驗得動。
+
+   只列 code/kbd/a/strong/b/em/i 七個標籤，**從不用 * 、從不碰 span**——
+   .pseudo-code 的 .kw/.str/.fn/.com/.num 與 .status-banner 的 .status-icon
+   本來就是為深底調好的，不能被蓋掉。
+
+   容器清單是三站的聯集（多列的在該站只是無效的死規則，漏列才會出事）。
+   真正的把關者是 tools/check_contrast.py，它會逐站掃出所有深色底選擇器再比對這份清單。
+   ═══════════════════════════════════════════════════════════════════════ */
+.adj-matrix th code,.adj-matrix th kbd,.adj-matrix th a,.ai-box .ai-label code,.ai-box .ai-label kbd,
+.ai-box .ai-label a,.bar code,.bar kbd,.bar a,.bar-fill code,.bar-fill kbd,.bar-fill a,.bq-item code,
+.bq-item kbd,.bq-item a,.bs-hl code,.bs-hl kbd,.bs-hl a,.bs-item code,.bs-item kbd,.bs-item a,.btn code,
+.btn kbd,.btn a,.btn-play code,.btn-play kbd,.btn-play a,.btn-shuffle code,.btn-shuffle kbd,.btn-shuffle a,
+.btn-step code,.btn-step kbd,.btn-step a,.btn-toggle code,.btn-toggle kbd,.btn-toggle a,.chain-node code,
+.chain-node kbd,.chain-node a,.char-bad code,.char-bad kbd,.char-bad a,.char-cur code,.char-cur kbd,
+.char-cur a,.chess-cell.current code,.chess-cell.current kbd,.chess-cell.current a,.chess-cell.dark code,
+.chess-cell.dark kbd,.chess-cell.dark a,.chess-cell.start code,.chess-cell.start kbd,.chess-cell.start a,
+.chess-cell.visited code,.chess-cell.visited kbd,.chess-cell.visited a,.cmp-table th code,.cmp-table th kbd,
+.cmp-table th a,.fib-card.memo .bar-fill code,.fib-card.memo .bar-fill kbd,.fib-card.memo .bar-fill a,
+.heap-cell.active code,.heap-cell.active kbd,.heap-cell.active a,.token.active code,.token.active kbd,
+.token.active a,.console code,.console kbd,.console a,.ds-item code,.ds-item kbd,.ds-item a,.eq-card code,
+.eq-card kbd,.eq-card a,.eslx code,.eslx kbd,.eslx a,.fc-card .fc-front code,.fc-card .fc-front kbd,
+.fc-card .fc-front a,.fc-controls button:hover code,.fc-controls button:hover kbd,
+.fc-controls button:hover a,.float-nav a.active code,.float-nav a.active kbd,.float-nav a.active a,
+.game-console code,.game-console kbd,.game-console a,.heap-cell.parent code,.heap-cell.parent kbd,
+.heap-cell.parent a,.heap-cell.swap code,.heap-cell.swap kbd,.heap-cell.swap a,.hero code,.hero kbd,.hero a,
+.info-box .info-label code,.info-box .info-label kbd,.info-box .info-label a,
+.info-card .ic-title .ic-badge code,.info-card .ic-title .ic-badge kbd,.info-card .ic-title .ic-badge a,
+.kv-pair .kv-key code,.kv-pair .kv-key kbd,.kv-pair .kv-key a,.num-cell.sel code,.num-cell.sel kbd,
+.num-cell.sel a,.obj-box .obj-type code,.obj-box .obj-type kbd,.obj-box .obj-type a,.obj-box .tag code,
+.obj-box .tag kbd,.obj-box .tag a,.preset-btn.active code,.preset-btn.active kbd,.preset-btn.active a,
+.pseudo-code code,.pseudo-code kbd,.pseudo-code a,.quiz-box .quiz-code code,.quiz-box .quiz-code kbd,
+.quiz-box .quiz-code a,.quiz-box .quiz-label .multi-badge code,.quiz-box .quiz-label .multi-badge kbd,
+.quiz-box .quiz-label .multi-badge a,.sandbox .sandbox-label code,.sandbox .sandbox-label kbd,
+.sandbox .sandbox-label a,.sandbox-result code,.sandbox-result kbd,.sandbox-result a,
+.seq-cell .order-badge code,.seq-cell .order-badge kbd,.seq-cell .order-badge a,.sol-links a:hover code,
+.sol-links a:hover kbd,.sol-links a:hover a,.sq-code code,.sq-code kbd,.sq-code a,.stack-frame code,
+.stack-frame kbd,.stack-frame a,.status-banner code,.status-banner kbd,.status-banner a,
+.strip .cell.held code,.strip .cell.held kbd,.strip .cell.held a,.strip .cell.picked code,
+.strip .cell.picked kbd,.strip .cell.picked a,.strip .cell.train code,.strip .cell.train kbd,
+.strip .cell.train a,.study-guide .sg-links a:hover code,.study-guide .sg-links a:hover kbd,
+.study-guide .sg-links a:hover a,.t-node code,.t-node kbd,.t-node a,.tok code,.tok kbd,.tok a,.tok-op code,
+.tok-op kbd,.tok-op a,.traceback code,.traceback kbd,.traceback a,.trav-mini .mini-output code,
+.trav-mini .mini-output kbd,.trav-mini .mini-output a,.traversal-output code,.traversal-output kbd,
+.traversal-output a,.tree-node.done code,.tree-node.done kbd,.tree-node.done a,.vert-table th code,
+.vert-table th kbd,.vert-table th a{background:rgba(26,26,46,.7);color:#ffe9a8;}
+.adj-matrix th strong,.adj-matrix th b,.ai-box .ai-label strong,.ai-box .ai-label b,.bar strong,.bar b,
+.bar-fill strong,.bar-fill b,.bq-item strong,.bq-item b,.bs-hl strong,.bs-hl b,.bs-item strong,.bs-item b,
+.btn strong,.btn b,.btn-play strong,.btn-play b,.btn-shuffle strong,.btn-shuffle b,.btn-step strong,
+.btn-step b,.btn-toggle strong,.btn-toggle b,.chain-node strong,.chain-node b,.char-bad strong,.char-bad b,
+.char-cur strong,.char-cur b,.chess-cell.current strong,.chess-cell.current b,.chess-cell.dark strong,
+.chess-cell.dark b,.chess-cell.start strong,.chess-cell.start b,.chess-cell.visited strong,
+.chess-cell.visited b,.cmp-table th strong,.cmp-table th b,.fib-card.memo .bar-fill strong,
+.fib-card.memo .bar-fill b,.heap-cell.active strong,.heap-cell.active b,.token.active strong,.token.active b,
+.console strong,.console b,.ds-item strong,.ds-item b,.eq-card strong,.eq-card b,.eslx strong,.eslx b,
+.fc-card .fc-front strong,.fc-card .fc-front b,.fc-controls button:hover strong,.fc-controls button:hover b,
+.float-nav a.active strong,.float-nav a.active b,.game-console strong,.game-console b,
+.heap-cell.parent strong,.heap-cell.parent b,.heap-cell.swap strong,.heap-cell.swap b,.hero strong,.hero b,
+.info-box .info-label strong,.info-box .info-label b,.info-card .ic-title .ic-badge strong,
+.info-card .ic-title .ic-badge b,.kv-pair .kv-key strong,.kv-pair .kv-key b,.num-cell.sel strong,
+.num-cell.sel b,.obj-box .obj-type strong,.obj-box .obj-type b,.obj-box .tag strong,.obj-box .tag b,
+.preset-btn.active strong,.preset-btn.active b,.pseudo-code strong,.pseudo-code b,
+.quiz-box .quiz-code strong,.quiz-box .quiz-code b,.quiz-box .quiz-label .multi-badge strong,
+.quiz-box .quiz-label .multi-badge b,.sandbox .sandbox-label strong,.sandbox .sandbox-label b,
+.sandbox-result strong,.sandbox-result b,.seq-cell .order-badge strong,.seq-cell .order-badge b,
+.sol-links a:hover strong,.sol-links a:hover b,.sq-code strong,.sq-code b,.stack-frame strong,.stack-frame b,
+.status-banner strong,.status-banner b,.strip .cell.held strong,.strip .cell.held b,
+.strip .cell.picked strong,.strip .cell.picked b,.strip .cell.train strong,.strip .cell.train b,
+.study-guide .sg-links a:hover strong,.study-guide .sg-links a:hover b,.t-node strong,.t-node b,.tok strong,
+.tok b,.tok-op strong,.tok-op b,.traceback strong,.traceback b,.trav-mini .mini-output strong,
+.trav-mini .mini-output b,.traversal-output strong,.traversal-output b,.tree-node.done strong,
+.tree-node.done b,.vert-table th strong,.vert-table th b{color:#fff;}
+.adj-matrix th em,.adj-matrix th i,.ai-box .ai-label em,.ai-box .ai-label i,.bar em,.bar i,.bar-fill em,
+.bar-fill i,.bq-item em,.bq-item i,.bs-hl em,.bs-hl i,.bs-item em,.bs-item i,.btn em,.btn i,.btn-play em,
+.btn-play i,.btn-shuffle em,.btn-shuffle i,.btn-step em,.btn-step i,.btn-toggle em,.btn-toggle i,
+.chain-node em,.chain-node i,.char-bad em,.char-bad i,.char-cur em,.char-cur i,.chess-cell.current em,
+.chess-cell.current i,.chess-cell.dark em,.chess-cell.dark i,.chess-cell.start em,.chess-cell.start i,
+.chess-cell.visited em,.chess-cell.visited i,.cmp-table th em,.cmp-table th i,.fib-card.memo .bar-fill em,
+.fib-card.memo .bar-fill i,.heap-cell.active em,.heap-cell.active i,.token.active em,.token.active i,
+.console em,.console i,.ds-item em,.ds-item i,.eq-card em,.eq-card i,.eslx em,.eslx i,.fc-card .fc-front em,
+.fc-card .fc-front i,.fc-controls button:hover em,.fc-controls button:hover i,.float-nav a.active em,
+.float-nav a.active i,.game-console em,.game-console i,.heap-cell.parent em,.heap-cell.parent i,
+.heap-cell.swap em,.heap-cell.swap i,.hero em,.hero i,.info-box .info-label em,.info-box .info-label i,
+.info-card .ic-title .ic-badge em,.info-card .ic-title .ic-badge i,.kv-pair .kv-key em,.kv-pair .kv-key i,
+.num-cell.sel em,.num-cell.sel i,.obj-box .obj-type em,.obj-box .obj-type i,.obj-box .tag em,.obj-box .tag i,
+.preset-btn.active em,.preset-btn.active i,.pseudo-code em,.pseudo-code i,.quiz-box .quiz-code em,
+.quiz-box .quiz-code i,.quiz-box .quiz-label .multi-badge em,.quiz-box .quiz-label .multi-badge i,
+.sandbox .sandbox-label em,.sandbox .sandbox-label i,.sandbox-result em,.sandbox-result i,
+.seq-cell .order-badge em,.seq-cell .order-badge i,.sol-links a:hover em,.sol-links a:hover i,.sq-code em,
+.sq-code i,.stack-frame em,.stack-frame i,.status-banner em,.status-banner i,.strip .cell.held em,
+.strip .cell.held i,.strip .cell.picked em,.strip .cell.picked i,.strip .cell.train em,.strip .cell.train i,
+.study-guide .sg-links a:hover em,.study-guide .sg-links a:hover i,.t-node em,.t-node i,.tok em,.tok i,
+.tok-op em,.tok-op i,.traceback em,.traceback i,.trav-mini .mini-output em,.trav-mini .mini-output i,
+.traversal-output em,.traversal-output i,.tree-node.done em,.tree-node.done i,.vert-table th em,
+.vert-table th i{color:inherit;}
+</style>
+<!-- /contrast-fix -->
+
+<style>
+.shot{margin:1.2rem 0;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 3px 12px rgba(0,0,0,.05);}
+.shot img{display:block;width:100%;height:auto;max-height:520px;object-fit:contain;border:1px solid #d9d5ca;border-radius:8px;background:#fff;}
+.shot figcaption{font-size:.78rem;color:var(--muted);margin-top:.55rem;line-height:1.55;}
+.json-code{background:var(--code-bg);color:var(--code-fg);font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.55;padding:1rem;border-radius:10px;overflow-x:auto;white-space:pre;tab-size:2;margin:.7rem 0 1rem;}
+.path-chip{display:inline-block;font-family:'JetBrains Mono',monospace;background:#eef3ff;color:var(--accent2);border:1px solid #ccd8f0;border-radius:5px;padding:.15rem .45rem;margin:.15rem 0;}
+.checklist{display:grid;gap:.65rem;margin:1rem 0;counter-reset:item;}
+.checkitem{counter-increment:item;background:var(--card);border:1px solid var(--card-border);border-left:5px solid var(--accent3);border-radius:9px;padding:.7rem .9rem;}
+.checkitem::before{content:counter(item);display:inline-flex;align-items:center;justify-content:center;width:1.55rem;height:1.55rem;border-radius:50%;background:var(--accent3);color:white;font-weight:700;margin-right:.5rem;}
+.key-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.6rem;margin:.9rem 0;}
+.key{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.6rem .75rem;font-size:.86rem;}
+.key kbd{font-family:'JetBrains Mono',monospace;background:#283044;color:white;border-radius:4px;padding:.1rem .35rem;box-shadow:0 2px 0 #111827;}
+.mobile-break{display:none;}
+.json-code code,.json-code kbd,.json-code a,.key kbd code,.key kbd kbd,.key kbd a{background:rgba(26,26,46,.7);color:#ffe9a8;}
+.json-code strong,.json-code b,.key kbd strong,.key kbd b{color:#fff;}
+@media(max-width:600px){
+  .hero-content{width:100%;}
+  .mobile-break{display:initial;}
+  .hero h1{font-size:1.85rem;letter-spacing:0;}
+  .hero .subtitle{font-size:.86rem;}
+  .hero .big-formula{display:block;width:100%;font-size:.78rem;padding:.7rem .85rem;overflow-wrap:anywhere;}
+  .study-guide{padding:1rem;}
+  .study-guide code{white-space:nowrap;}
+  .json-code{font-size:.68rem}.shot{padding:.55rem}.cmp-table-wrap .cmp-table{min-width:680px}
+}
+</style>
+</head>
+<body>
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#ready" data-target="ready"><span class="fn-num">P01</span><span class="fn-name">安裝前驗收</span></a>
+  <a href="#workspace" data-target="workspace"><span class="fn-num">P02</span><span class="fn-name">開啟作業資料夾</span></a>
+  <a href="#include" data-target="include"><span class="fn-num">P03</span><span class="fn-name">標頭與 .cpp</span></a>
+  <a href="#compile" data-target="compile"><span class="fn-num">P04</span><span class="fn-name">編譯與執行</span></a>
+  <a href="#json" data-target="json"><span class="fn-num">P05</span><span class="fn-name">三份 JSON</span></a>
+  <a href="#debug" data-target="debug"><span class="fn-num">P06</span><span class="fn-name">簡單除錯</span></a>
+  <a href="#trouble" data-target="trouble"><span class="fn-num">P07</span><span class="fn-name">錯誤對照表</span></a>
+  <a href="#check" data-target="check"><span class="fn-num">P08</span><span class="fn-name">完成檢核</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">參考資源</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260" aria-hidden="true">
+    <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+      <rect x="35" y="35" width="230" height="170" rx="10"/><line x1="35" y1="70" x2="265" y2="70"/>
+      <circle cx="53" cy="53" r="5"/><circle cx="71" cy="53" r="5"/><circle cx="89" cy="53" r="5"/>
+      <path d="M62 96h52m-52 25h92m-92 25h72m-72 25h126"/>
+      <path d="M187 93l25 25-25 25m-12-25h37" stroke="#2ecc71"/>
+    </g>
+  </svg>
+  <div class="hero-content">
+    <div class="chapter-tag">CHAPTER 00C</div>
+    <h1><span class="green">Windows VS Code</span><br>作業實戰</h1>
+    <div class="subtitle">從開啟資料夾、編譯多檔，<br class="mobile-break">到 F5 中斷點除錯：把作業真的跑起來。</div>
+    <div class="big-formula">C/C++ extension + g++ + gdb <br class="mobile-break">+ tasks.json + launch.json</div>
+    <div class="scroll-hint">向下捲動開始<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 先決條件：00B 的 Windows 驗收必須先通過</div>
+  <p>先在<strong>全新開啟</strong>的 PowerShell 或 VS Code 終端機執行 <code>g++ --version</code> 與 <code>gdb --version</code>。任一個找不到，就先回 <a href="00b_setup.html#windows">00B · Windows 安裝</a>；不要急著改 JSON。</p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="00b_setup.html">🧰 回到環境安裝</a><a href="https://code.visualstudio.com/docs/cpp/config-mingw" target="_blank" rel="noopener">📖 VS Code 官方教學</a></div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#ready"><span class="toc-num">P01</span>確認 compiler、debugger 與 extension</a>
+    <a href="#workspace"><span class="toc-num">P02</span>開啟整個作業資料夾</a>
+    <a href="#include"><span class="toc-num">P03</span>該 include 什麼？該編譯什麼？</a>
+    <a href="#compile"><span class="toc-num">P04</span>先用終端機編譯與執行</a>
+    <a href="#json"><span class="toc-num">P05</span>設定 tasks / launch / IntelliSense</a>
+    <a href="#debug"><span class="toc-num">P06</span>中斷點、單步與變數</a>
+    <a href="#trouble"><span class="toc-num">P07</span>常見錯誤對照表</a>
+    <a href="#check"><span class="toc-num">P08</span>七項完成檢核</a>
+    <a href="#reference"><span class="toc-num">REF</span>官方參考資源</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="ready">
+  <div class="section-number">PART 01 · 安裝前驗收</div>
+  <h2>VS Code 不是 compiler：三樣東西缺一不可</h2>
+  <div class="cmp-table-wrap"><table class="cmp-table">
+    <thead><tr><th>元件</th><th>負責什麼</th><th>怎麼驗收</th></tr></thead>
+    <tbody>
+      <tr><td><strong>VS Code</strong></td><td>編輯器與工作區介面</td><td>能以「檔案 → 開啟資料夾」進入專案</td></tr>
+      <tr><td><strong>Microsoft C/C++ extension</strong></td><td>IntelliSense、錯誤定位、GDB 介面</td><td>Extensions 搜尋 <code>@id:ms-vscode.cpptools</code></td></tr>
+      <tr><td><strong>g++ 與 gdb</strong></td><td>真正編譯程式與執行除錯</td><td><code>g++ --version</code>、<code>gdb --version</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="pseudo-code" style="font-size:.82rem;"><span class="line">where.exe g++</span>
+<span class="line">where.exe gdb</span>
+<span class="line">g++ --version</span>
+<span class="line">gdb --version</span></div>
+  <p>若 <code>where.exe</code> 列出多筆，先記下你要使用的第一筆。後面的三份 JSON 必須指向<strong>同一個 bin 資料夾</strong>，不能讓 IntelliSense 用 A、編譯用 B、除錯又用 C。</p>
+  <figure class="shot"><img src="assets/00c/cpp-extension.png" alt="VS Code Extensions 畫面中的 Microsoft C/C++ 擴充套件" loading="lazy" decoding="async"><figcaption>確認名稱是「C/C++」、發行者是 Microsoft。圖片：<a href="https://code.visualstudio.com/docs/cpp/config-mingw" target="_blank" rel="noopener">Microsoft VS Code 官方 C++ 文件</a>（本地保存供教學使用）。</figcaption></figure>
+  <div class="warn-box"><div class="info-label">⚠️ 本課不靠 Code Runner 編譯作業</div><p style="margin-bottom:0;">Code Runner 常只編譯目前這一檔，容易漏掉其他 <code>.cpp</code>、執行參數與 linker flags。它可以留著，但本頁統一使用終端機、<code>Ctrl + Shift + B</code> 與 F5。</p></div>
+</section>
+
+<section id="workspace">
+  <div class="section-number">PART 02 · 工作區</div>
+  <h2>解壓縮後，開啟「整個資料夾」</h2>
+  <p>在 VS Code 選「檔案 → 開啟資料夾」，選到能同時看到主程式、標頭檔、其他來源檔與測試資料的那一層。不要只在檔案總管雙擊一支 <code>.cpp</code>。</p>
+  <div class="deck-extra"><div class="dx-label">一個典型的多檔 C++ 資料夾</div><div class="pseudo-code" style="font-size:.82rem;"><span class="line">course_program/</span>
+<span class="line">├─ .vscode/</span>
+<span class="line">│  ├─ tasks.json</span>
+<span class="line">│  ├─ launch.json</span>
+<span class="line">│  └─ c_cpp_properties.json</span>
+<span class="line">├─ main.cpp</span>
+<span class="line">├─ MyClass.h</span>
+<span class="line">├─ MyClass.cpp</span>
+<span class="line">└─ input.txt</span></div></div>
+  <p><code>${workspaceFolder}</code> 就是你開啟的這一層。之後把編譯輸出、執行時的 <code>cwd</code> 和資料檔位置都綁在這裡，換電腦後才不用重改一堆絕對路徑。</p>
+</section>
+
+<section id="include">
+  <div class="section-number">PART 03 · INCLUDE 與編譯單元</div>
+  <h2>程式裡 include 標頭；命令列決定哪些 .cpp 要一起編譯</h2>
+  <div class="deck-extra"><div class="dx-label">main.cpp：用到什麼，就 include 對應標頭</div><pre class="json-code">#include &lt;iostream&gt;    // std::cout
+#include &lt;vector&gt;      // std::vector
+#include &lt;fstream&gt;     // std::ifstream
+#include &lt;algorithm&gt;   // std::sort
+#include "MyClass.h"   // 自己的類別宣告
+
+int main() {
+    MyClass item;
+    std::cout &lt;&lt; item.value() &lt;&lt; '\n';
+}</pre></div>
+  <div class="cmp-table-wrap"><table class="cmp-table">
+    <thead><tr><th>看到的專案模式</th><th>程式內怎麼寫</th><th>編譯命令怎麼列</th></tr></thead>
+    <tbody>
+      <tr><td>一般 <code>.h + .cpp</code></td><td><code>#include "MyClass.h"</code></td><td>明列 <code>main.cpp MyClass.cpp</code></td></tr>
+      <tr><td>教師提供的入口檔已 include 支援 <code>.cpp</code></td><td>先保留模板，不要自行重複 include</td><td>不要再次列出已被 include 的同一支 <code>.cpp</code></td></tr>
+      <tr><td>標頭在子資料夾</td><td><code>#include "dscpp/stack.hpp"</code></td><td>加入正確的 <code>-I</code> 搜尋路徑</td></tr>
+    </tbody>
+  </table></div>
+  <div class="warn-box"><div class="info-label">⚠️ 不要用 bits/stdc++.h，也不要盲目編譯 *.cpp</div><p style="margin-bottom:0;"><code>bits/stdc++.h</code> 不是標準 C++，會掩蓋漏 include；而 MSYS2 現行工具鏈不保證替 <code>*.cpp</code> 展開檔名。請明列本次需要的來源檔。若出現 <code>multiple definition</code>，先檢查某支 <code>.cpp</code> 是否既被 include、又被列進編譯命令。</p></div>
+</section>
+
+<section id="compile">
+  <div class="section-number">PART 04 · 編譯與執行</div>
+  <h2>先在終端機成功，再把同一條命令搬進 tasks.json</h2>
+  <h3>情境 A：只有一支主程式</h3>
+  <div class="pseudo-code" style="font-size:.82rem;"><span class="line">g++ -std=c++17 -Wall -Wextra -g -I. main.cpp -o main.exe</span>
+<span class="line">.\main.exe</span></div>
+  <h3>情境 B：主程式 + 自己的實作檔</h3>
+  <div class="pseudo-code" style="font-size:.82rem;"><span class="line">g++ -std=c++17 -Wall -Wextra -g -I. main.cpp MyClass.cpp -o main.exe</span>
+<span class="line">.\main.exe</span></div>
+  <h3>情境 C：程式要讀命令列參數與資料檔</h3>
+  <div class="pseudo-code" style="font-size:.82rem;"><span class="line">.\main.exe input.txt --nogui</span></div>
+  <h3>情境 D：課程曾用過 Windows 圖形 linker</h3>
+  <div class="pseudo-code" style="font-size:.82rem;"><span class="line">g++ -std=c++17 -O2 -g main.cpp -o main.exe -lgdi32</span></div>
+  <div class="info-box green"><div class="info-label">✅ 編譯和執行是兩件事</div><p style="margin-bottom:0;"><code>g++ ... -o main.exe</code> 只負責產生程式；<code>.\main.exe ...</code> 才是真正執行。改完程式後要重新編譯，舊的 <code>.exe</code> 不會自動更新。</p></div>
+</section>
+
+<section id="json">
+  <div class="section-number">PART 05 · VS CODE 設定</div>
+  <h2>三份 JSON 各做一件事：路徑要一起換</h2>
+  <p>在專案根目錄建立 <code>.vscode</code> 資料夾與下面三個檔案。範例使用 MSYS2 預設路徑；若你用 WinLibs，就把三處 <span class="path-chip">C:/msys64/ucrt64/bin</span> 一起換成實際含 <code>g++.exe</code>／<code>gdb.exe</code> 的資料夾，例如 <span class="path-chip">C:/mingw64/bin</span>。JSON 建議使用正斜線 <code>/</code>，可避免反斜線跳脫。</p>
+
+  <h3>1. tasks.json：真正送給 g++ 的編譯命令</h3>
+  <pre class="json-code" id="tasks-json">{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "C/C++: build course program",
+      "command": "C:/msys64/ucrt64/bin/g++.exe",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-g",
+        "-I.",
+        "${workspaceFolder}/main.cpp",
+        "${workspaceFolder}/MyClass.cpp",
+        "-o",
+        "${workspaceFolder}/main.exe"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}</pre>
+  <p>把 <code>main.cpp</code>、<code>MyClass.cpp</code> 換成本次真的要編譯的檔案；不需要的就刪掉。要加 <code>-O2</code>、<code>-lgdi32</code> 也加在 <code>args</code>，每個參數各占一個字串。</p>
+
+  <h3>2. launch.json：F5 要執行哪支程式、帶什麼參數</h3>
+  <pre class="json-code" id="launch-json">{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug course program",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/main.exe",
+      "args": ["input.txt", "--nogui"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "C/C++: build course program"
+    }
+  ]
+}</pre>
+  <p>沒有命令列參數就把 <code>args</code> 改成空陣列 <code>[]</code>。<code>cwd</code> 是程式尋找 <code>input.txt</code> 等相對路徑資料檔的起點；<code>preLaunchTask</code> 必須和 tasks.json 的 <code>label</code> 完全相同。</p>
+
+  <h3>3. c_cpp_properties.json：IntelliSense 的 compiler 與標頭路徑</h3>
+  <pre class="json-code" id="properties-json">{
+  "configurations": [
+    {
+      "name": "Windows GCC",
+      "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
+      "includePath": ["${workspaceFolder}/**"],
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-gcc-x64"
+    }
+  ],
+  "version": 4
+}</pre>
+  <div class="info-box"><div class="info-label">💡 紅色波浪線與真正編譯錯誤不是同一件事</div><p style="margin-bottom:0;"><code>c_cpp_properties.json</code> 只影響 IntelliSense；真正能不能生出 <code>.exe</code> 由 <code>tasks.json</code> 的 g++ 命令決定。若 Ctrl+Shift+B 成功但編輯器仍畫紅線，才回來檢查 <code>compilerPath</code> 與 <code>includePath</code>。</p></div>
+  <figure class="shot"><img src="assets/00c/msys2-toolchain.jpg" alt="MSYS2 終端機安裝 MinGW-w64 GCC 與 GDB 工具鏈" loading="lazy" decoding="async"><figcaption>MSYS2 會列出整組 MinGW-w64 toolchain；按 Enter 接受預設項目，再輸入 Y 安裝。圖片：<a href="https://code.visualstudio.com/docs/cpp/config-mingw" target="_blank" rel="noopener">Microsoft VS Code 官方 MinGW 教學</a>（本地保存供教學使用）。</figcaption></figure>
+</section>
+
+<section id="debug">
+  <div class="section-number">PART 06 · 基本除錯</div>
+  <h2>先停在一行，再看變數怎麼變</h2>
+  <ol style="padding-left:1.4rem;">
+    <li>按 <code>Ctrl + Shift + B</code>，確認先能成功產生 <code>main.exe</code>。</li>
+    <li>在想暫停的行號左邊點一下，出現紅點；快捷鍵是 F9。</li>
+    <li>按 F5。VS Code 先執行 <code>preLaunchTask</code> 重新編譯，再交給 GDB。</li>
+    <li>停住後看左側 <strong>Variables</strong>；想持續追蹤的運算式加到 <strong>Watch</strong>。</li>
+    <li>用 F10 跑過目前這行、F11 進入函式；<strong>Call Stack</strong> 顯示函式是從哪裡呼叫進來的。</li>
+  </ol>
+  <div class="key-grid">
+    <div class="key"><kbd>F9</kbd> 設定／取消中斷點</div><div class="key"><kbd>F5</kbd> 開始／繼續</div>
+    <div class="key"><kbd>F10</kbd> Step Over</div><div class="key"><kbd>F11</kbd> Step Into</div>
+    <div class="key"><kbd>Shift+F11</kbd> Step Out</div><div class="key"><kbd>Shift+F5</kbd> 停止</div>
+  </div>
+  <figure class="shot"><img src="assets/00c/debug-breakpoint.png" alt="VS Code C++ 程式停在除錯狀態並顯示 Variables" loading="lazy" decoding="async"><figcaption>最小除錯循環：中斷點 → F5 → 看 Variables → F10/F11。圖片：<a href="https://code.visualstudio.com/docs/cpp/config-mingw#_explore-the-debugger" target="_blank" rel="noopener">Microsoft VS Code 官方 C++ 除錯教學</a>（本地保存供教學使用）。</figcaption></figure>
+  <div class="warn-box"><div class="info-label">⚠️ 看不到變數或每一步亂跳？</div><p style="margin-bottom:0;">除錯版必須用 <code>-g</code>。學習與除錯時先不要加高等級最佳化；<code>-O2</code> 可能重排或消除變數。若作業執行本身要求 <code>-O2</code>，可另外保留一個 release build task。</p></div>
+</section>
+
+<section id="trouble">
+  <div class="section-number">PART 07 · 疑難排解</div>
+  <h2>看到哪一句，就先查哪一層</h2>
+  <div class="cmp-table-wrap"><table class="cmp-table">
+    <thead><tr><th>症狀</th><th>最可能原因</th><th>先做什麼</th></tr></thead>
+    <tbody>
+      <tr><td><code>g++ is not recognized</code></td><td>Path 未加入或 VS Code 沒重開</td><td>回 00B，重跑 <code>where.exe g++</code></td></tr>
+      <tr><td><code>miDebuggerPath is invalid</code></td><td>沒裝 gdb，或 launch.json 指錯工具鏈</td><td><code>where.exe gdb</code> 後貼入完整路徑</td></tr>
+      <tr><td><code>No such file or directory</code> 指向 header</td><td>include 名稱、資料夾或 <code>-I</code> 錯</td><td>先確認檔案真的存在，再查大小寫與搜尋路徑</td></tr>
+      <tr><td><code>undefined reference</code></td><td>宣告看得到，但實作的 <code>.cpp</code> 沒被編譯</td><td>把正確實作檔加入 tasks.json 的 <code>args</code></td></tr>
+      <tr><td><code>multiple definition</code></td><td>同一支 <code>.cpp</code> 既被 include 又被另外編譯</td><td>保留一次；先照教師提供的模板判斷入口檔</td></tr>
+      <tr><td>程式說找不到 <code>input.txt</code></td><td><code>cwd</code> 不是資料檔所在資料夾</td><td>把 launch.json 的 <code>cwd</code> 設為 workspace</td></tr>
+      <tr><td>編得過但畫面仍有紅線</td><td>IntelliSense 用了不同 compiler／includePath</td><td>檢查 c_cpp_properties.json，不要亂抄系統 include</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="check">
+  <div class="section-number">PART 08 · 完成檢核</div>
+  <h2>七項都做到，才算環境完成</h2>
+  <div class="checklist">
+    <div class="checkitem"><code>g++ --version</code> 與 <code>gdb --version</code> 都成功。</div>
+    <div class="checkitem">已安裝 Microsoft C/C++ extension，而不是只裝 Code Runner。</div>
+    <div class="checkitem">用「開啟資料夾」進入專案，Explorer 看得到全部來源與資料檔。</div>
+    <div class="checkitem"><code>Ctrl + Shift + B</code> 能編譯多檔並產生預期的 <code>.exe</code>。</div>
+    <div class="checkitem">整合終端機用 <code>.\main.exe</code> 能得到正確輸出。</div>
+    <div class="checkitem">F5 能停在中斷點，Variables 看得到區域變數。</div>
+    <div class="checkitem">有參數或資料檔的程式，從 F5 啟動時也能找到同一份輸入。</div>
+  </div>
+  <div class="info-box green"><div class="info-label">✅ 通過之後怎麼開始一份新作業</div><p style="margin-bottom:0;">每次先讀清楚資料夾裡有哪些入口檔、實作檔與既有 include，再從本頁 JSON 複製一份到該作業的 <code>.vscode/</code>；只替換工具鏈路徑、來源檔、輸出檔、執行參數與 linker flags。</p></div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 官方參考資源</div>
+  <h2>需要查細節時，回到官方文件</h2>
+  <table class="cmp-table"><thead><tr><th>資源</th><th>用途</th></tr></thead><tbody>
+    <tr><td><a href="https://code.visualstudio.com/docs/languages/cpp" target="_blank" rel="noopener">C/C++ for Visual Studio Code</a></td><td>確認 extension、compiler 與 debugger 的分工。</td></tr>
+    <tr><td><a href="https://code.visualstudio.com/docs/cpp/config-mingw" target="_blank" rel="noopener">Using GCC with MinGW</a></td><td>MSYS2、Path、tasks.json、launch.json 與官方操作圖。</td></tr>
+    <tr><td><a href="https://code.visualstudio.com/docs/cpp/customize-cpp-settings" target="_blank" rel="noopener">C++ extension settings</a></td><td>compilerPath、includePath 與 IntelliSense 設定。</td></tr>
+    <tr><td><a href="https://code.visualstudio.com/docs/cpp/cpp-debug" target="_blank" rel="noopener">Debug C++ in VS Code</a></td><td>GDB、miDebuggerPath 與除錯面板。</td></tr>
+  </tbody></table>
+</section>
+
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>這八個詞能講清楚，就不會再把「編輯器紅線」「compiler 錯誤」與「linker 錯誤」混成一件事。</p>
+  <div class="fc-controls"><button id="fcShuffle">🔀 洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部翻回</button></div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="00b_setup.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">課前準備與環境安裝</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="introduction.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">C++ 導論</div></a></div>
+</div>
+<footer>課前準備 00C · 資料結構 × C++ 互動自學網站<br><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Windows VS Code workflow · build, run, debug</span></footer>
+<script>
+const $ = id => document.getElementById(id);
+(function setupNav(){
+  const nav=$('floatNav'); const links=nav.querySelectorAll('a[data-target]');
+  const sections=Array.from(links).map(a=>$(a.dataset.target)).filter(Boolean);
+  function update(){const y=window.scrollY+window.innerHeight*.3;let active=sections[0]?.id;for(const s of sections)if(s.offsetTop<=y)active=s.id;links.forEach(a=>a.classList.toggle('active',a.dataset.target===active));}
+  window.addEventListener('scroll',update,{passive:true});update();
+})();
+</script>
+<script>
+const FLASHCARDS = [{"front": "工具鏈（Toolchain）", "back": "把 compiler、linker、debugger 等工具合在一起的一套環境。本頁使用 MinGW-w64 的 g++ 與 gdb；三份 VS Code JSON 必須指向同一套工具鏈。"}, {"front": "環境變數 Path（PATH）", "back": "Windows 尋找執行檔的資料夾清單。把含 g++.exe 與 gdb.exe 的 bin 加進使用者 Path 後，必須重開終端機與 VS Code 才會生效。"}, {"front": "工作區（Workspace）", "back": "VS Code 目前開啟的整個資料夾。${workspaceFolder} 就指向這一層；來源檔、資料檔與 .vscode 設定應以它為共同基準。"}, {"front": "翻譯單元（Translation Unit）", "back": "一支 .cpp 經過展開 #include 後交給 compiler 的完整內容。一般程式 include .h/.hpp，並把需要的各支 .cpp 明列給 g++。"}, {"front": "建置任務（Build Task）", "back": "tasks.json 裡可由 Ctrl+Shift+B 執行的編譯命令，包含 compiler 路徑、來源檔、警告旗標、輸出檔與 linker flags。"}, {"front": "連結器（Linker）", "back": "把各翻譯單元與函式庫接成一支 .exe 的工具。undefined reference 通常代表少編譯實作檔；multiple definition 通常代表同一份定義被放進來兩次。"}, {"front": "除錯器（Debugger）", "back": "本頁用 gdb 控制中斷點、單步執行與變數檢視。launch.json 的 miDebuggerPath 必須指向與 g++ 同一套工具鏈裡的 gdb.exe。"}, {"front": "工作目錄（Working Directory）", "back": "程式解析 input.txt 等相對路徑時的起點，由 launch.json 的 cwd 決定。它和程式檔案所在位置不一定相同。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const escAttr=s=>esc(s).replace(/"/g,'&quot;');
+  const grid=document.getElementById('fcGrid');if(!grid)return;
+  const render=cards=>{grid.innerHTML=cards.map(c=>`<div class="fc-card" role="button" tabindex="0" aria-pressed="false" aria-label="${escAttr(c.front)}；按 Enter 或空白鍵翻面"><div class="fc-inner"><div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK / ENTER TO FLIP</div></div><div class="fc-face fc-back">${esc(c.back)}</div></div></div>`).join('');};
+  render(FLASHCARDS);
+  const toggle=card=>{card.classList.toggle('flipped');card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));};
+  grid.addEventListener('click',e=>{const card=e.target.closest('.fc-card');if(card)toggle(card);});
+  grid.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const card=e.target.closest('.fc-card');if(card){e.preventDefault();toggle(card);}});
+  document.getElementById('fcShuffle').addEventListener('click',()=>render([...FLASHCARDS].sort(()=>Math.random()-.5)));
+  document.getElementById('fcUnflip').addEventListener('click',()=>grid.querySelectorAll('.fc-card').forEach(c=>{c.classList.remove('flipped');c.setAttribute('aria-pressed','false');}));
+  document.getElementById('fcFlipAll').addEventListener('click',()=>grid.querySelectorAll('.fc-card').forEach(c=>{c.classList.add('flipped');c.setAttribute('aria-pressed','true');}));
+})();
+</script>
+</body>
+</html>

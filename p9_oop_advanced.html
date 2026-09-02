@@ -987,10 +987,23 @@ pq 頂 -&gt; 備份（預設是最大優先）</pre></div>
   </div>
 
   <div class="warn-box">
-    <div class="info-label">⚠️ 課程沒教、但你遲早會撞到：Rule of Three</div>
+    <div id="rule3" class="info-label">⚠️ 課程沒教、但你遲早會撞到：Rule of Three</div>
     <p style="margin-bottom:0;">類別裡有 <code>new</code> 出來的成員時，光有建構式是不夠的：還需要<strong>解構式</strong>釋放它、以及<strong>拷貝建構式</strong>與 <code>operator=</code>，否則複製物件時兩份會共用同一塊記憶體，一個 <code>delete</code> 掉另一個就變成懸空指標。這三個合稱 Rule of Three。<br>
     本課的 <code>pythonds3/cppds/</code> 一律沒做（全課只有一個解構式）—— 教材程式跑完就結束，不會出事。但你要知道這是取捨。真的要寫產品程式時，回頭查 Rule of Three／Five 與 <code>std::unique_ptr</code>。</p>
   </div>
+  <details id="simplified" style="margin-top:1rem;"><summary><strong>本課標頭檔省掉的常用寫法一覽</strong></summary>
+    <p style="margin-top:.7rem;">都是「平常會這樣寫、課程標頭為了短而省掉」的東西。教材程式跑完就結束所以沒事；自己寫作業或專案時把它們補回來。</p>
+    <ul style="font-size:.92rem;padding-left:1.4rem;margin-bottom:0;">
+      <li>標頭裡寫 <code>using namespace std;</code> → 標頭一律用 <code>std::</code>，只在 .cpp 裡 using（<a href="p1_cpp_basics.html#skeleton">P1</a>）</li>
+      <li><code>new</code> 出來的成員沒有解構式、拷貝建構式、<code>operator=</code> → Rule of Three（上面那一框）（<a href="#rule3">本頁</a>）</li>
+      <li><code>pop()</code>／<code>peek()</code> 對空容器不檢查 → 先問 <code>isEmpty()</code>，或丟例外（<a href="p7_files_exceptions.html#custom">P7</a>）</li>
+      <li>讀取用的成員函式沒加 <code>const</code> → 不改成員就加 <code>const</code>（<a href="p8_oop_basics.html#constfn">P8</a>）</li>
+      <li><code>string</code> 參數傳值 → <code>const string&amp;</code>（<a href="p3_functions.html#constref">P3</a>）</li>
+      <li><code>size()</code> 回 <code>int</code> → <code>size_t</code>，或至少不要跟 unsigned 混算（<a href="p5_vector_string.html#capacity">P5</a>）</li>
+      <li><code>NULL</code> → <code>nullptr</code>（<a href="p4_pointers_memory.html#null">P4</a>）</li>
+      <li><code>BinaryTree</code>、<code>Graph</code> 的資料成員直接 public → private ＋ getter／setter（<a href="p8_oop_basics.html#encap">P8</a>）</li>
+    </ul>
+  </details>
 </section>
 
 <section id="tmpl">

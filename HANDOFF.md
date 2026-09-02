@@ -46,6 +46,9 @@
   `https://raw.githubusercontent.com/phonchi/nsysu-math208/refs/heads/main/extra/{questions/chN,flashcards}/`，與上學期 Python 版相同。
   **標頭有兩份**：canonical 在 github.com/phonchi/pythonds3 的 `cppds/`（終端機／VS Code 用），kernel 內是複本，改標頭要兩邊都推。
   曾短暫放過 `quiz_data.zip`，已移除。
+- **教學取捨提醒用 `<details>`**（2026-09-02）：p1（標頭裡的 `using namespace std;`）、p8 PART 05（課程標頭幾乎沒 `const`）、
+  p9 `#simplified`（省掉的常用寫法總表，8 項，各連回教學頁錨點；Rule of Three 框加了 `id="rule3"`）、00a 取捨框一行連結。
+  內容頁其他取捨仍沿用 `info-box green`「✅ 現代 C++ 對照」慣例；`<details>` 只用在「備註」層級。
 - **quiz JSON 去破折號**：`questions/`、`flashcards/` 的 13 個「—」換成 ASCII，因為 jupyterquiz 讀檔不指定 encoding，繁中 Windows
   以 cp950 解會炸。之後題目若要加中文：在 C++ kernel 下跑靠 kernel.json 的 `PYTHONUTF8=1`（見下）；用 Python kernel（例如 `rise` 環境放投影片）則要 `conda env config vars set PYTHONUTF8=1 -n rise`。
 

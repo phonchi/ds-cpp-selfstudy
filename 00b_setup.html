@@ -542,8 +542,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <h2>本機 Jupyter + C++ kernel <span class="sec-badge">課程講義用</span></h2>
   <p>需要三樣東西：<code>g++</code>、Python 與 <code>pip</code>、以及 JupyterLab。Linux 與 WSL 通常已經有 <code>g++</code>；macOS 裝 Xcode Command Line Tools；Windows 請先看 <a href="#windows">PART 04</a>。</p>
 
-<div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 1. 先裝 JupyterLab（C++ kernel 本身沒有宣告相依，這步不能省）</span>
-<span class="line">pip install jupyterlab</span>
+<div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 1. 先裝 JupyterLab 與講義用的測驗套件（C++ kernel 本身沒有宣告相依，這步不能省）</span>
+<span class="line">pip install jupyterlab jupyterquiz jupytercards</span>
 <span class="line"> </span>
 <span class="line"># 2. 再裝打過 patch 的 C++ kernel</span>
 <span class="line">pip install git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
@@ -553,7 +553,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="info-box green">
     <div class="info-label">✅ 為什麼裝的是這個 fork，而不是 PyPI 上的原版</div>
-    <p style="margin-bottom:0;">上游版本的編譯指令少了 <code>-I.</code>。kernel 會把每個 cell 寫進一個暫存檔再編譯，而 <code>#include "dscpp/stack.hpp"</code> 這種<strong>帶引號的相對 include</strong>，g++ 是相對「原始檔所在目錄」去找 —— 也就是暫存目錄，當然找不到。課程從第 06 章起大量使用這種寫法，所以要用補過這一行的版本。<br>
+    <p style="margin-bottom:0;">上游版本的編譯指令少了 <code>-I.</code>。kernel 會把每個 cell 寫進一個暫存檔再編譯，而 <code>#include "pythonds3/cppds/stack.hpp"</code> 這種<strong>帶引號的相對 include</strong>，g++ 是相對「原始檔所在目錄」去找 —— 也就是暫存目錄，當然找不到。課程從第 06 章起大量使用這種寫法，所以要用補過這一行的版本。<br>
     差異只有一行，原始碼在 <a href="https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208" target="_blank" rel="noopener">phonchi/jupyter-cpp-kernel（nsysu-math208 分支）</a>，fork 自 shiroinekotfs 的原專案，MIT 授權。</p>
   </div>
 
@@ -564,10 +564,24 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="info-card">
     <div class="ic-title">開始上課 <span class="ic-badge">3 步</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">① 把課程 notebook 與 <code>dscpp/</code> 資料夾放在<strong>同一層</strong>（<code>-I.</code> 是相對於你啟動 Jupyter 的目錄）。<br>
+    <p style="font-size:.9rem;margin-bottom:0;">① 在你打算啟動 Jupyter 的資料夾執行 <code>git clone https://github.com/phonchi/pythonds3</code>，課程 notebook 放在跟 <code>pythonds3/</code> <strong>同一層</strong>（<code>-I.</code> 是相對於你啟動 Jupyter 的目錄；標頭在 <code>pythonds3/cppds/*.hpp</code>，就是課程網站 Resources 指的那個 repo）。<br>
     ② 在那個目錄執行 <code>jupyter lab</code>。<br>
     ③ 開啟 <code>.ipynb</code>，右上角 kernel 選 <strong>C++ 17</strong>，按 <code>Shift + Enter</code> 執行第一格。</p>
   </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 有裝 Anaconda 的同學：別直接從 Anaconda Prompt 啟動 Jupyter</div>
+    <p>症狀：cell 一執行就跳出 Windows 對話框「<strong>無法找到程序輸入點 …seekpos… 在動態連結程式庫 …\Temp\tmp_xxxx.out</strong>」。原因是 conda 在 activate 時會把 <code>anaconda3\Library\mingw-w64\bin</code> 插到 Path <strong>最前面</strong>，裡面有一份舊的 <code>libstdc++-6.dll</code>，蓋掉你在 <a href="#windows">PART 04</a> 裝的那套。編譯用的是新 g++，執行時卻載到舊 DLL，所以對不上。這是執行期插隊，<strong>在「環境變數」設定裡把 bin 排到最前面也沒用</strong>。</p>
+    <p>診斷：在啟動 Jupyter 的那個視窗執行 <code>where.exe libstdc++-6.dll</code>。第一筆必須是你在 PART 04 確認過的那個 <code>bin</code>；如果第一筆在 <code>anaconda3</code> 底下，就是這個問題。</p>
+    <p style="margin-bottom:0;">解法擇一（下面的 <code>C:\mingw64\bin</code> 請換成你自己的 bin）：<br>
+    ① 臨時：啟動前先 <code>set PATH=C:\mingw64\bin;%PATH%</code>，再執行 <code>jupyter lab</code>。<br>
+    ② 永久：在 <code>&lt;conda 根目錄&gt;\etc\conda\activate.d\</code> 新增 <code>mingw64.bat</code>，內容一行 <code>@set PATH=C:\mingw64\bin;%PATH%</code>。根目錄用 <code>conda info --base</code> 查；若是用具名環境啟動 Jupyter，路徑改為 <code>envs\&lt;環境名&gt;\etc\conda\activate.d\</code>。重開 Anaconda Prompt 後再跑一次 <code>where.exe</code> 確認順序。<br>
+    不要為了這件事移除 conda 的 mingw-w64 套件，它們是其他 conda 套件的相依。</p>
+  </div>
+
+  <details style="margin-top:1rem;"><summary><strong>備註：想把講義當投影片放（RISE）的話</strong></summary>
+    <p style="margin-top:.7rem;">一般同學不需要這一段，直接在 notebook 裡讀跟執行就好。若你想像上課那樣切成投影片模式，注意舊版 RISE（<code>pip install rise</code>）只支援 classic Notebook 6 以下，在 Notebook 7 與 JupyterLab 4 裡不會出現 <em>View → Cell Toolbar → Slideshow</em>，也沒有投影片按鈕 —— 不是你漏設定，是擴充套件架構換掉了。改裝新版：<code>pip uninstall rise</code> 再 <code>pip install jupyterlab_rise</code>（需 JupyterLab ≥ 4.1.2），然後重新啟動 Jupyter。新版的設定方式也不同：選取 cell 後在右側 <strong>Property Inspector</strong>（齒輪圖示）指定 slide / subslide / fragment，再按 <code>Ctrl+R</code>（Mac 是 <code>Option+R</code>）進入投影片模式。</p>
+  </details>
 </section>
 
 <section id="vscode">
@@ -597,7 +611,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="online">
   <div class="section-number">PART 03 · 方法三 · 免安裝</div>
   <h2>線上編譯器 <span class="sec-badge">跑不了課程 notebook</span></h2>
-  <p>想臨時試一小段語法、或手邊電腦不能安裝東西時很好用。但它<strong>只能跑單一檔案</strong>：課程的 <code>dscpp/*.hpp</code> 沒辦法 include，notebook 更不用說。</p>
+  <p>想臨時試一小段語法、或手邊電腦不能安裝東西時很好用。但它<strong>只能跑單一檔案</strong>：課程的 <code>pythonds3/cppds/*.hpp</code> 沒辦法 include，notebook 更不用說。</p>
 
   <div class="cmp-table-wrap">
   <table class="cmp-table">
@@ -665,8 +679,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
 <span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"dscpp/stack.hpp"</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"dscpp/linked_list.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/stack.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/linked_list.hpp"</span><span class="kw"></span>
 <span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line"> </span>
 <span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
@@ -692,12 +706,12 @@ g++ 版本  : 13.3
 Stack     : pop=7 peek=42 size=1
 LinkedList: size=2 search(31)=1
 環境檢查通過，可以開始第 01 章。</pre></div>
-  <p class="dx-note">版本號跟你的不一樣沒關係，C++17 以上都可以。重點是<strong>兩個 dscpp 標頭都 include 成功</strong>——那代表 <code>-I.</code> 有生效、而且 <code>dscpp/</code> 放對位置了。在終端機編譯的話記得加 <code>-I.</code>：<code>g++ -std=c++17 -I. check.cpp -o check</code>。</p>
+  <p class="dx-note">版本號跟你的不一樣沒關係，C++17 以上都可以。重點是<strong>兩個課程標頭都 include 成功</strong>——那代表 <code>-I.</code> 有生效、而且 <code>pythonds3/</code> clone 在對的位置。在終端機編譯的話記得加 <code>-I.</code>：<code>g++ -std=c++17 -I. check.cpp -o check</code>。</p>
 </div>
 
   <div class="stats-grid">
     <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">g++ 與 gdb 都找得到</div></div>
-    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">dscpp 標頭 include 成功</div></div>
+    <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">pythonds3/cppds 標頭 include 成功</div></div>
     <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">Stack 與串列都能用</div></div>
     <div class="stat-tile"><div class="stat-value">✓</div><div class="stat-label">notebook 能選到 C++ 17</div></div>
   </div>
@@ -708,7 +722,7 @@ LinkedList: size=2 search(31)=1
 
 <section id="faq">
   <div class="section-number">PART 06 · 疑難排解</div>
-  <h2>C++ kernel 踩坑 FAQ：六個一定會遇到的</h2>
+  <h2>踩坑 FAQ：六個 kernel 的、兩個 Windows 環境的</h2>
   <p>這個 kernel 把<strong>每一個 cell 當成一支獨立的完整程式</strong>去編譯執行。理解這一句，下面六個坑就都說得通了。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">① 上一格定義的東西，下一格說找不到</h3>
@@ -753,8 +767,16 @@ cell.cpp:4:5: error: ‘map’ was not declared in this scope
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑤ 字串裡不能出現 <code>//</code></h3>
   <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:" "//example.com"</code> 兩段接起來。</p>
 
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "dscpp/…"</code> 找不到檔案</h3>
-  <p>兩個原因：一是你裝的是 PyPI 原版而不是 <a href="#kernel">PART 01</a> 那個 fork（缺 <code>-I.</code>）；二是你啟動 <code>jupyter lab</code> 的目錄跟 <code>dscpp/</code> 不在同一層。<code>-I.</code> 的「<code>.</code>」指的是<strong>啟動 Jupyter 的工作目錄</strong>，不是 notebook 所在的目錄。</p>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "pythonds3/cppds/…"</code> 找不到檔案</h3>
+  <p>兩個原因：一是你裝的是 PyPI 原版而不是 <a href="#kernel">PART 01</a> 那個 fork（缺 <code>-I.</code>）；二是你啟動 <code>jupyter lab</code> 的目錄跟 clone 下來的 <code>pythonds3/</code> 不在同一層（或根本還沒 clone，見 <a href="#kernel">PART 01</a> 的①）。<code>-I.</code> 的「<code>.</code>」指的是<strong>啟動 Jupyter 的工作目錄</strong>，不是 notebook 所在的目錄。</p>
+
+  <p style="margin-top:2rem;"><strong>下面兩個跟 kernel 無關</strong>，是 Windows 環境本身的問題，但回報頻率一樣高。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑦ 跳出對話框「無法找到程序輸入點 …seekpos…」</h3>
+  <p>執行任何 cell 都跳出 Windows 錯誤對話框，訊息裡有一長串 <code>_ZNSt15basic_streambuf…seekpos…</code> 和 <code>Temp\tmp_xxxx.out</code>。這是<strong>執行時載到另一套較舊的 <code>libstdc++-6.dll</code></strong>，幾乎都是 Anaconda 造成的：從 Anaconda Prompt 啟動 Jupyter 時，conda 會把自己的 <code>Library\mingw-w64\bin</code> 插到 Path 最前面。用 <code>where.exe libstdc++-6.dll</code> 看第一筆是誰；處理方式見 <a href="#kernel">PART 01</a> 的警告框。MATLAB、Strawberry Perl、Octave 等軟體也會自帶一份，診斷方法相同。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑧ 瀏覽器說「無法存取你的檔案」ERR_FILE_NOT_FOUND</h3>
+  <p>執行 <code>jupyter lab</code> 後瀏覽器自動開啟，卻顯示「無法存取你的檔案，檔案可能已遭到移動、編輯或刪除 ERR_FILE_NOT_FOUND」。先看網址列：正常應該是 <code>http://localhost:8888/lab</code>（Notebook 7 則是 <code>/tree</code>），如果是 <code>file:///C:/Users/…</code> 開頭就是這個問題 —— Jupyter 用來自動開頁的暫存 HTML 沒被瀏覽器正確接手，使用者名稱含中文、或從 Google Drive／OneDrive 同步資料夾啟動時特別常見。Jupyter 本身其實已經在跑：回到終端機，把它印出來的 <code>http://localhost:8888/lab?token=…</code> <strong>整行複製</strong>貼進瀏覽器網址列即可。</p>
 </section>
 
 <section id="ai">

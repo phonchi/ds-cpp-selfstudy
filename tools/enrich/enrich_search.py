@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""searching_sorting.html 完整自學充實：真 C++ 實作（取自 dscpp/sorting.hpp 等）＋模擬計算的真實輸出。冪等。"""
+"""searching_sorting.html 完整自學充實：真 C++ 實作（取自 pythonds3/cppds/sorting.hpp 等）＋模擬計算的真實輸出。冪等。"""
 import sys, re, io
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from enrich_lib import card, ensure_style, insert_end_of_section
 
 PAGE = Path.home() / "ds-cpp-selfstudy/searching_sorting.html"
-HPP = Path.home() / "ds_cpp/Slides/dscpp/sorting.hpp"
+HPP = Path.home() / "ds_cpp/Slides/pythonds3/cppds/sorting.hpp"
 hpp = HPP.read_text()
 
 def func_src(name):
@@ -118,7 +118,7 @@ def sort_block(sec, marker, fname, init, output, note, extra_src="", comment="")
     src = (extra_src + "\n\n" if extra_src else "") + func_src(fname)
     usage = USAGE % (init, fname, "   // " + comment if comment else "")
     html = (f'<h3 id="{marker}">講義完整實作與逐 pass 輸出</h3>\n'
-            + card(f"講義 07 · {fname} 的 C++ 全文（dscpp/sorting.hpp）", src, None)
+            + card(f"講義 07 · {fname} 的 C++ 全文（pythonds3/cppds/sorting.hpp）", src, None)
             + "\n" + card("使用畫面", usage, output, out_label="輸出（每個 pass 一行）", note=note))
     return insert_end_of_section(s, sec, html, marker)
 

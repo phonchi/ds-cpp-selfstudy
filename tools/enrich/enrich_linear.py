@@ -52,7 +52,7 @@ note="兩個函式的骨架一模一樣：餘數進 stack、商繼續除、最�
 s, c1 = insert_end_of_section(s, "base", base, 'id="dx-base"')
 
 infix = f'''<h3 id="dx-infix">講義完整實作：轉換器與求值器的 C++ 全文</h3>
-{card("講義 05 · infixToPostfix 完整程式（dscpp/expression.hpp）", """string infixToPostfix(string infixExpr) {
+{card("講義 05 · infixToPostfix 完整程式（pythonds3/cppds/expression.hpp）", """string infixToPostfix(string infixExpr) {
     map<string, int> prec = {{"*", 3}, {"/", 3}, {"+", 2}, {"-", 2}, {"(", 1}};
     stack<string> opStack;
     vector<string> postfixList;

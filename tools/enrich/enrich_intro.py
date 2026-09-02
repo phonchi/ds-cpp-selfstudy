@@ -292,7 +292,7 @@ s, ch7 = insert_end_of_section(s, "functions", fn_html, 'id="dx-fn"')
 
 # ---------- P08 classes ----------
 cls_html = f'''<h3 id="dx-cls">收工驗收：完整 Fraction 的使用畫面</h3>
-{card("講義 01 · 五步蓋完之後（dscpp/fraction.hpp）", """#include <iostream>
+{card("講義 01 · 五步蓋完之後（pythonds3/cppds/fraction.hpp）", """#include <iostream>
 #include "fraction.hpp"   // 本節蓋好的完整類別
 using namespace std;
 
@@ -328,7 +328,7 @@ s, ch8 = insert_end_of_section(s, "classes", cls_html, 'id="dx-cls"')
 
 # ---------- P09 inherit ----------
 inh_html = f'''<h3 id="dx-inh">講義完整範例：整座電路的程式版</h3>
-{card("講義 01 · 用類別把電路接起來（dscpp/gates.hpp）", """#include <iostream>
+{card("講義 01 · 用類別把電路接起來（pythonds3/cppds/gates.hpp）", """#include <iostream>
 #include "gates.hpp"   // 本節的完整閘類別階層
 using namespace std;
 

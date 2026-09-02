@@ -49,6 +49,7 @@
 - **教學取捨提醒用 `<details>`**（2026-09-02）：p1（標頭裡的 `using namespace std;`）、p8 PART 05（課程標頭幾乎沒 `const`）、
   p9 `#simplified`（省掉的常用寫法總表，8 項，各連回教學頁錨點；Rule of Three 框加了 `id="rule3"`）、00a 取捨框一行連結。
   內容頁其他取捨仍沿用 `info-box green`「✅ 現代 C++ 對照」慣例；`<details>` 只用在「備註」層級。
+- **00B 路線 0／教室流程**（2026-09-02）：PART 01 安裝指令改 `pip install --user` + `python -m jcppkernel.setup_cli`，加「電腦教室每堂課重跑第 2、3 步」卡；PART 04 在 MSYS2／WinLibs 前面新增「路線 0 · 讓 kernel 自己裝」，A／B 原文完整保留（學生筆電作業仍走 00C）；00C 只補受管路徑 `${env:LOCALAPPDATA}/jupyter-cpp-kernel/mingw64/bin`。
 - **quiz JSON 去破折號**：`questions/`、`flashcards/` 的 13 個「—」換成 ASCII，因為 jupyterquiz 讀檔不指定 encoding，繁中 Windows
   以 cp950 解會炸。之後題目若要加中文：在 C++ kernel 下跑靠 kernel.json 的 `PYTHONUTF8=1`（見下）；用 Python kernel（例如 `rise` 環境放投影片）則要 `conda env config vars set PYTHONUTF8=1 -n rise`。
 
@@ -66,6 +67,12 @@
    已知：重開已存檔的 notebook 時 output 為 untrusted，要重跑該 cell 才會互動（與一般 ipykernel 行為相同）。
    需另裝 `pip install jupyterquiz jupytercards`（00B 安裝指令已加）。
 6. stdout 改為 `stream` 純文字（commit `64df1ba`）：上游把換行加倍後以 `text/markdown` 送出，每行變一個段落、`* _ <` 會被吃掉；現在換行一比一、`\r\n` 統一成 `\n`。
+7. **Windows 自帶工具鏈**（`jcppkernel/toolchain.py`、`setup_cli.py`，commit `0ce2ce4`，zip sha256 `6b957b84…3aaa`）：找 g++ 的順序 `JCPP_GXX` → PATH 上現成的 → 受管
+   `%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64\bin\g++.exe`；都沒有就在第一個 cell 執行時下載 winlibs GCC 12.1 UCRT r3 zip
+   （198 MB，sha256 寫死，原子解壓，約 1 GB），並用 winreg 把 bin 前置到使用者 PATH。所有 g++／master 子行程都帶
+   `PATH=bin;...` 的 env，Anaconda DLL 順序問題在 notebook 內不再發生。`python -m jcppkernel.setup_cli` 以 `sys.executable`
+   把 7 個 kernelspec 裝到使用者層（`pip install --user` 時 data_files 的 spec Jupyter 搜不到，這步必要）並提前下載。
+   `JCPP_TOOLCHAIN_URL` 可改指校內鏡像。教室流程：每堂課 `pip install --user git+…` → `python -m jcppkernel.setup_cli`。
 
 學生端重裝（`kernel.json` 走 `data_files`，一般 upgrade 不會覆寫）：
 ```

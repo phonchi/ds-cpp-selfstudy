@@ -545,11 +545,19 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 1. 先裝 JupyterLab 與講義用的測驗套件（C++ kernel 本身沒有宣告相依，這步不能省）</span>
 <span class="line">pip install jupyterlab jupyterquiz jupytercards</span>
 <span class="line"> </span>
-<span class="line"># 2. 再裝打過 patch 的 C++ kernel</span>
-<span class="line">pip install git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
+<span class="line"># 2. 再裝打過 patch 的 C++ kernel（--user：裝進你自己的資料夾，不需要管理員）</span>
+<span class="line">pip install --user git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
 <span class="line"> </span>
-<span class="line"># 3. 確認 cpp17 有出現在清單裡</span>
+<span class="line"># 3. 註冊 kernel；Windows 沒有 g++ 的話這一步會自動下載（約 200 MB，2–5 分鐘）</span>
+<span class="line">python -m jcppkernel.setup_cli</span>
+<span class="line"> </span>
+<span class="line"># 4. 確認 cpp17 有出現在清單裡</span>
 <span class="line">jupyter kernelspec list</span></div>
+
+  <div class="info-card">
+    <div class="ic-title">電腦教室：每堂課重跑第 2、3 步就好 <span class="ic-badge">約 5 分鐘</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">教室電腦關機會整台重置，但 Anaconda 會留著。所以每次上課只要在 Anaconda Prompt 重跑上面的<strong>第 2、3 步</strong>：kernel 會自己把 GCC 12.1 抓到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>、註冊到 Jupyter、並寫進你的使用者 Path。不用碰 <a href="#windows">PART 04</a>。就算跳過第 3 步直接開 notebook，第一個 cell 執行時也會自動下載，只是進度會印在 cell 下面。</p>
+  </div>
 
   <div class="info-box green">
     <div class="info-label">✅ 為什麼裝的是這個 fork，而不是 PyPI 上的原版</div>
@@ -581,6 +589,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="warn-box">
     <div class="info-label">⚠️ 有裝 Anaconda 的同學：別直接從 Anaconda Prompt 啟動 Jupyter</div>
+    <p><em>2026-09 之後的課程 kernel 已自行把 g++ 的 bin 排到子行程 Path 最前面，notebook 不再受這個問題影響；下面的說明只在你要用<strong>終端機</strong>編譯時才需要。</em></p>
     <p>症狀：cell 一執行就跳出 Windows 對話框「<strong>無法找到程序輸入點 …seekpos… 在動態連結程式庫 …\Temp\tmp_xxxx.out</strong>」。原因是 conda 在 activate 時會把 <code>anaconda3\Library\mingw-w64\bin</code> 插到 Path <strong>最前面</strong>，裡面有一份舊的 <code>libstdc++-6.dll</code>，蓋掉你在 <a href="#windows">PART 04</a> 裝的那套。編譯用的是新 g++，執行時卻載到舊 DLL，所以對不上。這是執行期插隊，<strong>在「環境變數」設定裡把 bin 排到最前面也沒用</strong>。</p>
     <p>診斷：在啟動 Jupyter 的那個視窗執行 <code>where.exe libstdc++-6.dll</code>。第一筆必須是你在 PART 04 確認過的那個 <code>bin</code>；如果第一筆在 <code>anaconda3</code> 底下，就是這個問題。</p>
     <p style="margin-bottom:0;">解法擇一（下面的 <code>C:\mingw64\bin</code> 請換成你自己的 bin）：<br>
@@ -638,7 +647,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="windows">
   <div class="section-number">PART 04 · Windows</div>
   <h2>Windows 怎麼裝 g++ 與 gdb</h2>
-  <p>Windows 沒有內建 GNU C++ 工具鏈。下面兩條原生 Windows 路線選一條即可；<strong>不要兩套都裝</strong>，以免 Path 先後順序互相打架。</p>
+  <p>Windows 沒有內建 GNU C++ 工具鏈。<strong>只跑 notebook 的人走路線 0，什麼都不用手動裝</strong>；筆電要寫作業、或想自選版本的人，從路線 A／B 選一條即可，<strong>不要兩套都裝</strong>，以免 Path 先後順序互相打架。</p>
+
+  <div class="info-card">
+    <div class="ic-title">路線 0 · 讓 kernel 自己裝 <span class="ic-badge">notebook／電腦教室</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">照 <a href="#kernel">PART 01</a> 執行 <code>python -m jcppkernel.setup_cli</code>（或直接開 notebook 跑第一格）。kernel 找不到 <code>g++</code> 時，會自動下載 winlibs <strong>GCC 12.1（UCRT）</strong>到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>——在你的使用者資料夾裡，不需要管理員權限——約 200 MB 下載、解開後佔 1 GB。之後 kernel 一律用完整路徑呼叫這套 g++，並把它的 <code>bin</code> 排在子行程 Path 最前面，所以 Anaconda 那份舊 DLL 也蓋不到它。同時會把這個 <code>bin</code> 寫進<strong>使用者層</strong>的 Path，新開的終端機與 VS Code 就能直接用 <code>g++</code>、<code>gdb</code>。<br>
+    電腦上<strong>已經有 g++</strong>（路線 A／B 或別的來源）的話，kernel 會直接用現成的，不會重複下載。想強制指定某一套：設環境變數 <code>JCPP_GXX</code> 指到 <code>g++.exe</code> 的完整路徑。</p>
+  </div>
 
   <div class="info-card">
     <div class="ic-title">路線 A · MSYS2 MinGW-w64 <span class="ic-badge">官方 VS Code 教學</span></div>
@@ -784,7 +799,7 @@ cell.cpp:4:5: error: ‘map’ was not declared in this scope
   <p style="margin-top:2rem;"><strong>下面兩個跟 kernel 無關</strong>，是 Windows 環境本身的問題，但回報頻率一樣高。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑦ 跳出對話框「無法找到程序輸入點 …seekpos…」</h3>
-  <p>執行任何 cell 都跳出 Windows 錯誤對話框，訊息裡有一長串 <code>_ZNSt15basic_streambuf…seekpos…</code> 和 <code>Temp\tmp_xxxx.out</code>。這是<strong>執行時載到另一套較舊的 <code>libstdc++-6.dll</code></strong>，幾乎都是 Anaconda 造成的：從 Anaconda Prompt 啟動 Jupyter 時，conda 會把自己的 <code>Library\mingw-w64\bin</code> 插到 Path 最前面。用 <code>where.exe libstdc++-6.dll</code> 看第一筆是誰；處理方式見 <a href="#kernel">PART 01</a> 的警告框。MATLAB、Strawberry Perl、Octave 等軟體也會自帶一份，診斷方法相同。</p>
+  <p>執行任何 cell 都跳出 Windows 錯誤對話框，訊息裡有一長串 <code>_ZNSt15basic_streambuf…seekpos…</code> 和 <code>Temp\tmp_xxxx.out</code>。這是<strong>執行時載到另一套較舊的 <code>libstdc++-6.dll</code></strong>，幾乎都是 Anaconda 造成的：從 Anaconda Prompt 啟動 Jupyter 時，conda 會把自己的 <code>Library\mingw-w64\bin</code> 插到 Path 最前面。用 <code>where.exe libstdc++-6.dll</code> 看第一筆是誰；處理方式見 <a href="#kernel">PART 01</a> 的警告框。MATLAB、Strawberry Perl、Octave 等軟體也會自帶一份，診斷方法相同。 若你的 kernel 是 2026-09 之後裝的，notebook 裡不會再發生這件事（kernel 已自行處理 Path）；還看到就先重裝 kernel。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑧ 瀏覽器說「無法存取你的檔案」ERR_FILE_NOT_FOUND</h3>
   <p>執行 <code>jupyter lab</code> 後瀏覽器自動開啟，卻顯示「無法存取你的檔案，檔案可能已遭到移動、編輯或刪除 ERR_FILE_NOT_FOUND」。先看網址列：正常應該是 <code>http://localhost:8888/lab</code>（Notebook 7 則是 <code>/tree</code>），如果是 <code>file:///C:/Users/…</code> 開頭就是這個問題 —— Jupyter 用來自動開頁的暫存 HTML 沒被瀏覽器正確接手，使用者名稱含中文、或從 Google Drive／OneDrive 同步資料夾啟動時特別常見。Jupyter 本身其實已經在跑：回到終端機，把它印出來的 <code>http://localhost:8888/lab?token=…</code> <strong>整行複製</strong>貼進瀏覽器網址列即可。</p>

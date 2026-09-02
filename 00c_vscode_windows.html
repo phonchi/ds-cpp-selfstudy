@@ -546,7 +546,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line">where.exe gdb</span>
 <span class="line">g++ --version</span>
 <span class="line">gdb --version</span></div>
-  <p>若 <code>where.exe</code> 列出多筆，先記下你要使用的第一筆。後面的三份 JSON 必須指向<strong>同一個 bin 資料夾</strong>，不能讓 IntelliSense 用 A、編譯用 B、除錯又用 C。</p>
+  <p>若 <code>where.exe</code> 列出多筆，先記下你要使用的第一筆。若你是照 00B 路線 0 讓 kernel 自動安裝的，g++ 與 gdb 會在 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64\bin</code>，新開的終端機用 <code>where.exe g++</code> 就會看到它。後面的三份 JSON 必須指向<strong>同一個 bin 資料夾</strong>，不能讓 IntelliSense 用 A、編譯用 B、除錯又用 C。</p>
   <figure class="shot"><img src="assets/00c/cpp-extension.png" alt="VS Code Extensions 畫面中的 Microsoft C/C++ 擴充套件" loading="lazy" decoding="async"><figcaption>確認名稱是「C/C++」、發行者是 Microsoft。圖片：<a href="https://code.visualstudio.com/docs/cpp/config-mingw" target="_blank" rel="noopener">Microsoft VS Code 官方 C++ 文件</a>（本地保存供教學使用）。</figcaption></figure>
   <div class="warn-box"><div class="info-label">⚠️ 本課不靠 Code Runner 編譯作業</div><p style="margin-bottom:0;">Code Runner 常只編譯目前這一檔，容易漏掉其他 <code>.cpp</code>、執行參數與 linker flags。它可以留著，但本頁統一使用終端機、<code>Ctrl + Shift + B</code> 與 F5。</p></div>
 </section>
@@ -610,7 +610,7 @@ int main() {
 <section id="json">
   <div class="section-number">PART 05 · VS CODE 設定</div>
   <h2>三份 JSON 各做一件事：路徑要一起換</h2>
-  <p>在專案根目錄建立 <code>.vscode</code> 資料夾與下面三個檔案。範例使用 MSYS2 預設路徑；若你用 WinLibs，就把三處 <span class="path-chip">C:/msys64/ucrt64/bin</span> 一起換成實際含 <code>g++.exe</code>／<code>gdb.exe</code> 的資料夾，例如 <span class="path-chip">C:/mingw64/bin</span>。JSON 建議使用正斜線 <code>/</code>，可避免反斜線跳脫。</p>
+  <p>在專案根目錄建立 <code>.vscode</code> 資料夾與下面三個檔案。範例使用 MSYS2 預設路徑；若你用 WinLibs，就把三處 <span class="path-chip">C:/msys64/ucrt64/bin</span> 一起換成實際含 <code>g++.exe</code>／<code>gdb.exe</code> 的資料夾，例如 <span class="path-chip">C:/mingw64/bin</span>。JSON 建議使用正斜線 <code>/</code>，可避免反斜線跳脫。 走 00B 路線 0 的電腦，三處路徑改成 <code>${env:LOCALAPPDATA}/jupyter-cpp-kernel/mingw64/bin/g++.exe</code>（gdb 同一個資料夾），VS Code 會自動展開 <code>${env:…}</code>。</p>
 
   <h3>1. tasks.json：真正送給 g++ 的編譯命令</h3>
   <pre class="json-code" id="tasks-json">{

@@ -67,7 +67,7 @@
    已知：重開已存檔的 notebook 時 output 為 untrusted，要重跑該 cell 才會互動（與一般 ipykernel 行為相同）。
    需另裝 `pip install jupyterquiz jupytercards`（00B 安裝指令已加）。
 6. stdout 改為 `stream` 純文字（commit `64df1ba`）：上游把換行加倍後以 `text/markdown` 送出，每行變一個段落、`* _ <` 會被吃掉；現在換行一比一、`\r\n` 統一成 `\n`。
-7. **Windows 自帶工具鏈**（`jcppkernel/toolchain.py`、`setup_cli.py`，commit `0ce2ce4`，zip sha256 `6b957b84…3aaa`）：找 g++ 的順序 `JCPP_GXX` → PATH 上現成的 → 受管
+7. **Windows 自帶工具鏈**（`jcppkernel/toolchain.py`、`setup_cli.py`，commit `0ce2ce4` + 檔案鎖 `94feb5e`（兩個 kernel 同時首次啟動只下載一次；stale lock 30 分鐘自動清），zip sha256 `6b957b84…3aaa`）：找 g++ 的順序 `JCPP_GXX` → PATH 上現成的 → 受管
    `%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64\bin\g++.exe`；都沒有就在第一個 cell 執行時下載 winlibs GCC 12.1 UCRT r3 zip
    （198 MB，sha256 寫死，原子解壓，約 1 GB），並用 winreg 把 bin 前置到使用者 PATH。所有 g++／master 子行程都帶
    `PATH=bin;...` 的 env，Anaconda DLL 順序問題在 notebook 內不再發生。`python -m jcppkernel.setup_cli` 以 `sys.executable`

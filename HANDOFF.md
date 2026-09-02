@@ -41,6 +41,9 @@
   `tools/selfstudy_builders/`）、課程站 `static_files/presentations/`（含小寫自學頁鏡像，**那些頁不是本站的逐位元組鏡像**，
   只能就地替換不能覆蓋）。敘述中「dscpp 的 X」一律改「課程標頭的 X」；站內 `cppds` 一詞另指 Runestone 教科書（`cppds §8.x`），
   指標頭時寫「課程標頭」或完整路徑。**Slides 的 10 個 .pdf 未重做，仍印舊路徑。** include guard 仍叫 `DSCPP_*`，未改。
+- **教材取得**：00B PART 01 新增「先下載教材」卡片（教材資料夾 = `pythonds3/` clone + `quiz_data.zip` 解出的 `questions/`、`flashcards/` + 每週 .ipynb）。
+  `quiz_data.zip` 放在課程站 `static_files/presentations/`，內容是 `extra/questions` 與 `extra/flashcards`；**題庫改了要重新打包**
+  （`cd extra && zip -r ../static_files/presentations/quiz_data.zip questions flashcards -x "*desktop.ini"`）。
 - **quiz JSON 去破折號**：`questions/`、`flashcards/` 的 13 個「—」換成 ASCII，因為 jupyterquiz 讀檔不指定 encoding，繁中 Windows
   以 cp950 解會炸。之後題目若要加中文：在 C++ kernel 下跑靠 kernel.json 的 `PYTHONUTF8=1`（見下）；用 Python kernel（例如 `rise` 環境放投影片）則要 `conda env config vars set PYTHONUTF8=1 -n rise`。
 

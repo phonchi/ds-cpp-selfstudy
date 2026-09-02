@@ -540,7 +540,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="kernel">
   <div class="section-number">PART 01 · NOTEBOOK 路線</div>
   <h2>本機 Jupyter + C++ kernel <span class="sec-badge">課程講義用</span></h2>
-  <p>需要三樣東西：<code>g++</code>、Python 與 <code>pip</code>、以及 JupyterLab。Linux 與 WSL 通常已經有 <code>g++</code>；macOS 裝 Xcode Command Line Tools；Windows 請先看 <a href="#windows">PART 04</a>。</p>
+  <p>需要三樣東西：<code>g++</code>、Python 與 <code>pip</code>、以及 JupyterLab。Linux 與 WSL 通常已經有 <code>g++</code>；macOS 裝 Xcode Command Line Tools；Windows 請先看 <a href="#windows">PART 04</a>。裝完之後<strong>還要把教材抓下來</strong>：講義 notebook 不是單一檔案，它會去讀旁邊的標頭與測驗題庫，缺一個資料夾就跑不動（見下面「先下載教材」）。</p>
 
 <div class="pseudo-code" style="font-size:.82rem;"><span class="line"># 1. 先裝 JupyterLab 與講義用的測驗套件（C++ kernel 本身沒有宣告相依，這步不能省）</span>
 <span class="line">pip install jupyterlab jupyterquiz jupytercards</span>
@@ -563,9 +563,23 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
   <div class="info-card">
-    <div class="ic-title">開始上課 <span class="ic-badge">3 步</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">① 在你打算啟動 Jupyter 的資料夾執行 <code>git clone https://github.com/phonchi/pythonds3</code>，課程 notebook 放在跟 <code>pythonds3/</code> <strong>同一層</strong>（<code>-I.</code> 是相對於你啟動 Jupyter 的目錄；標頭在 <code>pythonds3/cppds/*.hpp</code>，就是課程網站 Resources 指的那個 repo）。<br>
-    ② 在那個目錄執行 <code>jupyter lab</code>。<br>
+    <div class="ic-title">先下載教材：一個資料夾、三樣東西 <span class="ic-badge">只做一次</span></div>
+    <p style="font-size:.9rem;">先建一個<strong>沒有中文與空白</strong>的資料夾當教材目錄（例如 <code>C:\ds208</code>），之後 <code>jupyter lab</code> 一律從這裡啟動。把下面三樣東西放進去：</p>
+    <p style="font-size:.9rem;">① <strong>課程標頭</strong>：在這個資料夾執行 <code>git clone https://github.com/phonchi/pythonds3</code>。沒有 git 的話到 <a href="https://github.com/phonchi/pythonds3" target="_blank" rel="noopener">該 GitHub 頁面</a> 按 <em>Code → Download ZIP</em>，解壓後把 <code>pythonds3-master</code> <strong>改名成 <code>pythonds3</code></strong>。標頭在 <code>pythonds3/cppds/*.hpp</code>，就是課程網站 Resources 指的那個 repo。<br>
+    ② <strong>測驗題庫</strong>：下載 <a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/quiz_data.zip">quiz_data.zip</a>，解壓到同一層，會多出 <code>questions/</code> 與 <code>flashcards/</code> 兩個資料夾。notebook 裡的選擇題與詞彙卡就是讀這裡。<br>
+    ③ <strong>講義 notebook</strong>：每週從課程網站 <a href="https://phonchi.github.io/nsysu-math208/lectures/" target="_blank" rel="noopener">Lectures</a> 頁下載當週的 <code>.ipynb</code>（GitHub 頁面右上角 <em>Download raw file</em>），直接放在這個資料夾裡，<strong>不要另開子資料夾</strong>。</p>
+    <div class="pseudo-code" style="font-size:.8rem;"><span class="line">C:\ds208\</span>
+<span class="line">├── pythonds3\cppds\stack.hpp …   ← ① git clone</span>
+<span class="line">├── questions\ch1\type.json …     ← ② quiz_data.zip</span>
+<span class="line">├── flashcards\ch1.json …         ← ② quiz_data.zip</span>
+<span class="line">└── 01_Introduction.ipynb          ← ③ 每週下載</span></div>
+    <p class="dx-note" style="margin-bottom:0;">為什麼一定要同一層：kernel 編譯時的 <code>-I.</code> 與 notebook 裡的 <code>questions/ch1/</code> 都是相對於<strong>你啟動 Jupyter 的目錄</strong>解析的。少了 ① 會 <code>#include</code> 失敗（FAQ ⑥）；少了 ② 會 <code>FileNotFoundError: questions/…</code>。</p>
+  </div>
+
+  <div class="info-card">
+    <div class="ic-title">開始上課 <span class="ic-badge">每次 3 步</span></div>
+    <p style="font-size:.9rem;margin-bottom:0;">① 開終端機，<code>cd</code> 到教材資料夾（有裝 Anaconda 的同學先看下面的警告框）。<br>
+    ② 執行 <code>jupyter lab</code>。<br>
     ③ 開啟 <code>.ipynb</code>，右上角 kernel 選 <strong>C++ 17</strong>，按 <code>Shift + Enter</code> 執行第一格。</p>
   </div>
 
@@ -767,8 +781,8 @@ cell.cpp:4:5: error: ‘map’ was not declared in this scope
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑤ 字串裡不能出現 <code>//</code></h3>
   <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:" "//example.com"</code> 兩段接起來。</p>
 
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "pythonds3/cppds/…"</code> 找不到檔案</h3>
-  <p>兩個原因：一是你裝的是 PyPI 原版而不是 <a href="#kernel">PART 01</a> 那個 fork（缺 <code>-I.</code>）；二是你啟動 <code>jupyter lab</code> 的目錄跟 clone 下來的 <code>pythonds3/</code> 不在同一層（或根本還沒 clone，見 <a href="#kernel">PART 01</a> 的①）。<code>-I.</code> 的「<code>.</code>」指的是<strong>啟動 Jupyter 的工作目錄</strong>，不是 notebook 所在的目錄。</p>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "pythonds3/cppds/…"</code> 找不到檔案（或 <code>display_quiz</code> 說 <code>questions/…</code> 不存在）</h3>
+  <p>兩個原因：一是你裝的是 PyPI 原版而不是 <a href="#kernel">PART 01</a> 那個 fork（缺 <code>-I.</code>）；二是你啟動 <code>jupyter lab</code> 的目錄跟 clone 下來的 <code>pythonds3/</code> 不在同一層（或根本還沒 clone，見 <a href="#kernel">PART 01</a>「先下載教材」）。測驗 cell 噴 <code>FileNotFoundError: questions/…</code> 是同一件事：<code>quiz_data.zip</code> 沒解壓到同一層。<code>-I.</code> 的「<code>.</code>」指的是<strong>啟動 Jupyter 的工作目錄</strong>，不是 notebook 所在的目錄。</p>
 
   <p style="margin-top:2rem;"><strong>下面兩個跟 kernel 無關</strong>，是 Windows 環境本身的問題，但回報頻率一樣高。</p>
 

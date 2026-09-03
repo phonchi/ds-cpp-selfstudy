@@ -548,7 +548,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line"># 2. 再裝打過 patch 的 C++ kernel（--user：裝進你自己的資料夾，不需要管理員）</span>
 <span class="line">pip install --user git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
 <span class="line"> </span>
-<span class="line"># 3. 註冊 kernel；Windows 沒有 g++ 的話這一步會自動下載（約 200 MB，2–5 分鐘）</span>
+<span class="line"># 3. 註冊 kernel；Windows 沒有 g++ 的話這一步會自動下載（約 100 MB，多連線分段，有進度條）</span>
 <span class="line">python -m jcppkernel.setup_cli</span>
 <span class="line"> </span>
 <span class="line"># 4. 確認 cpp17 有出現在清單裡</span>
@@ -651,7 +651,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="info-card">
     <div class="ic-title">路線 0 · 讓 kernel 自己裝 <span class="ic-badge">notebook／電腦教室</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">照 <a href="#kernel">PART 01</a> 執行 <code>python -m jcppkernel.setup_cli</code>（或直接開 notebook 跑第一格）。kernel 找不到 <code>g++</code> 時，會自動下載 winlibs <strong>GCC 12.1（UCRT）</strong>到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>——在你的使用者資料夾裡，不需要管理員權限——約 200 MB 下載、解開後佔 1 GB。之後 kernel 一律用完整路徑呼叫這套 g++，並把它的 <code>bin</code> 排在子行程 Path 最前面，所以 Anaconda 那份舊 DLL 也蓋不到它。同時會把這個 <code>bin</code> 寫進<strong>使用者層</strong>的 Path，新開的終端機與 VS Code 就能直接用 <code>g++</code>、<code>gdb</code>。<br>
+    <p style="font-size:.9rem;margin-bottom:0;">照 <a href="#kernel">PART 01</a> 執行 <code>python -m jcppkernel.setup_cli</code>（或直接開 notebook 跑第一格）。kernel 找不到 <code>g++</code> 時，會自動下載課程精簡版的 winlibs <strong>GCC 12.1（UCRT）</strong>到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>——在你的使用者資料夾裡，不需要管理員權限——約 100 MB 下載（8 條連線分段抓，有進度條）、解開後約 450 MB。精簡版只拿掉 Fortran、Objective-C 與文件，C/C++ 編譯與 gdb 完整；抓不到時會自動退回 winlibs 官方的 198 MB 原版。之後 kernel 一律用完整路徑呼叫這套 g++，並把它的 <code>bin</code> 排在子行程 Path 最前面，所以 Anaconda 那份舊 DLL 也蓋不到它。同時會把這個 <code>bin</code> 寫進<strong>使用者層</strong>的 Path，新開的終端機與 VS Code 就能直接用 <code>g++</code>、<code>gdb</code>。<br>
     電腦上<strong>已經有 g++</strong>（路線 A／B 或別的來源）的話，kernel 會直接用現成的，不會重複下載。想強制指定某一套：設環境變數 <code>JCPP_GXX</code> 指到 <code>g++.exe</code> 的完整路徑。</p>
   </div>
 

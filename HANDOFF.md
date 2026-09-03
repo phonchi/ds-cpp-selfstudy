@@ -72,6 +72,10 @@
    （198 MB，sha256 寫死，原子解壓，約 1 GB），並用 winreg 把 bin 前置到使用者 PATH。所有 g++／master 子行程都帶
    `PATH=bin;...` 的 env，Anaconda DLL 順序問題在 notebook 內不再發生。`python -m jcppkernel.setup_cli` 以 `sys.executable`
    把 7 個 kernelspec 裝到使用者層（`pip install --user` 時 data_files 的 spec Jupyter 搜不到，這步必要）並提前下載。
+   下載來源清單（依序）：① kernel repo Release `toolchain-12.1.0-ucrt-r3-nsysu1` 的課程精簡版 100 MB（`tools/build_trimmed_toolchain.py`
+   由 winlibs 原版瘦身：去 Fortran／ObjC／libgccjit／lto-dump／doxygen／plugin／文件，保留全部 DLL 與 gdb，解開約 434 MB，
+   sha256 `aeec29c2…3d7a6`）；② winlibs 官方 198 MB 原版。8 條 Range 連線分段下載，終端機與 notebook 都有進度條。
+   R2 鏡站因需綁信用卡作罷。換版本時：重跑 build 腳本 → 開新 Release tag → 改 `TOOLCHAIN_URLS` 的 url/size/sha。
    `JCPP_TOOLCHAIN_URL` 可改指校內鏡像。教室流程：每堂課 `pip install --user git+…` → `python -m jcppkernel.setup_cli`。
 
 學生端重裝（`kernel.json` 走 `data_files`，一般 upgrade 不會覆寫）：

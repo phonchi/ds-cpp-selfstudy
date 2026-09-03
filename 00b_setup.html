@@ -653,6 +653,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="ic-title">路線 0 · 讓 kernel 自己裝 <span class="ic-badge">notebook／電腦教室</span></div>
     <p style="font-size:.9rem;margin-bottom:0;">照 <a href="#kernel">PART 01</a> 執行 <code>python -m jcppkernel.setup_cli</code>（或直接開 notebook 跑第一格）。kernel 找不到 <code>g++</code> 時，會自動下載課程精簡版的 winlibs <strong>GCC 12.1（UCRT）</strong>到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>——在你的使用者資料夾裡，不需要管理員權限——約 100 MB 下載（8 條連線分段抓，有進度條）、解開後約 450 MB。精簡版只拿掉 Fortran、Objective-C 與文件，C/C++ 編譯與 gdb 完整；抓不到時會自動退回 winlibs 官方的 198 MB 原版。之後 kernel 一律用完整路徑呼叫這套 g++，並把它的 <code>bin</code> 排在子行程 Path 最前面，所以 Anaconda 那份舊 DLL 也蓋不到它。同時會把這個 <code>bin</code> 寫進<strong>使用者層</strong>的 Path，新開的終端機與 VS Code 就能直接用 <code>g++</code>、<code>gdb</code>。<br>
     電腦上<strong>已經有 g++</strong>（路線 A／B 或別的來源）的話，kernel 會直接用現成的，不會重複下載。想強制指定某一套：設環境變數 <code>JCPP_GXX</code> 指到 <code>g++.exe</code> 的完整路徑。</p>
+    <details style="margin-top:.8rem;"><summary><strong>下載太慢？自己抓檔案放進使用者資料夾</strong></summary>
+      <p style="margin-top:.7rem;font-size:.9rem;">整班同時下載時校內對外頻寬可能塞住。可以先用別的網路（或請同學分享）抓好檔案，再自己放進去，kernel 會自動偵測，<strong>完全不用碰系統槽（C:\）</strong>：<br>
+      ① 下載 zip：<a href="https://github.com/phonchi/jupyter-cpp-kernel/releases/tag/toolchain-12.1.0-ucrt-r3-nsysu1" target="_blank" rel="noopener">課程精簡版（100 MB）</a>，或 <a href="https://github.com/brechtsanders/winlibs_mingw/releases/tag/12.1.0-14.0.6-10.0.0-ucrt-r3" target="_blank" rel="noopener">winlibs 官方 12.1.0 UCRT r3</a> 的 <code>winlibs-x86_64-posix-seh-gcc-12.1.0-mingw-w64ucrt-10.0.0-r3.zip</code>（198 MB）。<br>
+      ② 解壓後會得到一個 <code>mingw64</code> 資料夾，把它放到 <code>C:\Users\你的帳號\mingw64</code>（也就是 <code>%USERPROFILE%\mingw64</code>），確認裡面有 <code>bin\g++.exe</code>。<br>
+      ③ 重新執行 <code>python -m jcppkernel.setup_cli</code>，或直接開 notebook。它會印出「使用現有 g++：…\mingw64\bin」，不會再下載。<br>
+      這種放法 kernel 找得到，但<strong>不會</strong>幫你寫進 Path；要在終端機或 VS Code 用的話，照路線 B 的步驟把那個 <code>bin</code> 加進使用者 Path。</p>
+    </details>
   </div>
 
   <div class="info-card">

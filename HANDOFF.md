@@ -76,6 +76,8 @@
    由 winlibs 原版瘦身：去 Fortran／ObjC／libgccjit／lto-dump／doxygen／plugin／文件，保留全部 DLL 與 gdb，解開約 434 MB，
    sha256 `aeec29c2…3d7a6`）；② winlibs 官方 198 MB 原版。8 條 Range 連線分段下載，終端機與 notebook 都有進度條。
    R2 鏡站因需綁信用卡作罷。換版本時：重跑 build 腳本 → 開新 Release tag → 改 `TOOLCHAIN_URLS` 的 url/size/sha。
+   下載太慢的替代：學生自己抓 zip 解壓到 `%USERPROFILE%\mingw64`（在常見位置探測清單內；教室不允許寫系統槽），00B 路線 0 有 `<details>` 說明。
+   離線 zip 預放功能討論後**不做**。
    `JCPP_TOOLCHAIN_URL` 可改指校內鏡像。教室流程：每堂課 `pip install --user git+…` → `python -m jcppkernel.setup_cli`。
 
 學生端重裝（`kernel.json` 走 `data_files`，一般 upgrade 不會覆寫）：

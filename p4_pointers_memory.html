@@ -728,6 +728,46 @@ p  = 0x7ffeec7bfa4c   &lt;- p 存的就是 x 的位址
     <div class="info-label">💡 為什麼要有指標</div>
     <p style="margin-bottom:0;">兩個理由，這門課兩個都會用到：① <strong>不想複製</strong> —— 傳一個 8 bytes 的位址，比複製一整個物件便宜（見 <a href="p3_functions.html">P3</a>）。② <strong>結構要能長大</strong> —— 鏈結串列、樹、圖的節點數量在編譯時還不知道，只能執行時 <code>new</code> 出來，而 <code>new</code> 回傳的就是指標。</p>
   </div>
+
+  <h3 style="margin-top:1.6rem;">參考：另一個名字，不是另一個變數 —— 跟指標分清楚</h3>
+  <p>C++ 還有一個長得像親戚的東西：<strong>參考</strong>（reference，有些書譯作「參照」）。
+  <code>int &amp;r = x;</code> 讀作「r 是 x 的參考」—— 它不配置新的記憶體、也不存位址，
+  它就是 <strong>x 的另一個名字</strong>。P3 實測過：<code>&amp;r == &amp;x</code>，連 <code>sizeof</code> 都一樣，
+  因為 r 根本沒有自己的身體。兩者常被混為一談，但個性完全不同：</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>參考 <span class="mono">int &amp;r = x;</span></th><th>指標 <span class="mono">int *p = &amp;x;</span></th></tr></thead>
+    <tbody>
+      <tr><td>它是什麼</td><td>x 的<strong>別名</strong>，編譯器層級的化名</td><td>一個<strong>存位址的變數</strong>，有自己的記憶體</td></tr>
+      <tr><td>宣告時可以不初始化嗎</td><td><strong>不行</strong>，宣告當下就得綁定對象</td><td>可以（但未初始化就是野指標，見下）</td></tr>
+      <tr><td>可以「不指向任何東西」嗎</td><td><strong>不行</strong>，沒有「空參考」這種東西</td><td>可以，<code>p = &#78;ULL;</code></td></tr>
+      <tr><td>可以中途換對象嗎</td><td><strong>不行</strong>，終身只認第一個</td><td>可以，<code>p = &amp;y;</code> 隨時改指</td></tr>
+      <tr><td>自己佔記憶體嗎</td><td>不佔（<code>sizeof(r)</code> 量到的是 x）</td><td>佔 8 bytes（64 位元系統）</td></tr>
+      <tr><td>取用時要加符號嗎</td><td>不用，寫 <code>r</code> 就是 x 本人</td><td>要，<code>*p</code> 才走得進去</td></tr>
+      <tr><td>這門課的典型用途</td><td>函式參數與回傳（<a href="p3_functions.html">P3</a>：<code>T&amp;</code>、<code>const T&amp;</code>）</td><td>鏈結結構的 <code>next</code>、走訪的 <code>current</code>、<code>new</code> 的回傳值</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 怎麼選：用語意決定，不是用喜好</div>
+    <p style="margin-bottom:0;">只是想<strong>讓函式碰到本人、或省下複製</strong>：用參考，呼叫端乾淨、也不必防
+    <code>&#78;ULL</code>。需要<strong>「可能沒有對象」或「會換對象」</strong>的語意 —— 串列的
+    <code>next</code> 要能是 <code>&#78;ULL</code> 當終點、走訪的 <code>current</code> 要一路往下換人 ——
+    就非指標不可。這正是第 04 章起節點清一色用指標的原因。</p>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 · 參考 vs 指標</div>
+    <p>下列哪件事是<strong>指標做得到、參考做不到</strong>的？</p>
+    <div class="quiz-options" id="qRefOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="兩個都做得到：傳參考與傳指標都能改到呼叫端的變數（P3 的 byRef 與 byPtr）。" onclick="quizCheck('qRef', this)"><span class="opt-letter">(A)</span> 讓函式改到呼叫端的變數</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。參考宣告當下綁定、終身不換；指標隨時可以 p = &amp;y; 改指別人，也可以設成 NULL。走訪串列的 current 一路換對象，所以只能是指標。" onclick="quizCheck('qRef', this)"><span class="opt-letter">(B)</span> 中途改成指向另一個變數</div>
+      <div class="quiz-opt" data-correct="false" data-fb="兩個都做得到：const T&amp; 與 T* 傳的都只是 8 bytes 以內的東西，都不複製物件本體。" onclick="quizCheck('qRef', this)"><span class="opt-letter">(C)</span> 避免複製整個物件</div>
+    </div>
+    <div class="quiz-feedback" id="qRefFeedback"></div>
+  </div>
 </section>
 
 <section id="null">
@@ -1659,7 +1699,7 @@ function nodeReset() {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體裡的門牌號碼，用 &x 取得。每次執行程式時作業系統配的位置都不一樣，所以印出來的數字每次都不同。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間，在 64 位元系統上一律 8 bytes，不管它指向的是一個 int 還是一整棵樹。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（NULL Pointer）", "back": "不指向任何東西的指標。這門課用 NULL（照 cppds 教科書），現代 C++ 用 nullptr。它在鏈結結構裡固定當作終點標記：走訪的迴圈條件就是 while (current != NULL)。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "對指標加減整數會自動乘上型別大小，所以 a + 1 是「往後一個元素」而不是「位址加 1」。這就是 a[i] 等同 *(a + i) 的原因，也解釋了索引為什麼從 0 開始。"}, {"front": "陣列退化（Array Decay）", "back": "陣列作為引數傳進函式時會退化成指向首元素的指標，因此函式裡的 sizeof 量到的是指標大小而非陣列大小。所以傳陣列一定要另外傳長度。"}, {"front": "堆疊（Stack）", "back": "存放區域變數與函式呼叫框的記憶體區域，離開範圍就自動釋放。空間小（通常幾 MB），遞迴太深會爆掉。"}, {"front": "堆積（Heap）", "back": "用 new 動態配置的記憶體區域，不會自動釋放，一定要自己 delete。空間大，而且大小可以在執行時才決定——鏈結串列、樹、圖的節點都住在這裡。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時向系統要一塊記憶體並回傳它的位址。new T(v) 配一個、new T[n] 配一整排。資料結構的節點數量在編譯時未知，只能靠它。"}, {"front": "釋放（Deallocation, delete）", "back": "把 new 來的記憶體還回去。delete 還一個、delete[] 還一整排，形式配錯是未定義行為。課程講義有 218 個 new、只有 32 個 delete，那是刻意的教學取捨。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "new 出來的記憶體沒有對應的 delete，那塊空間在程式結束前拿不回來。短程式看不出來，長時間執行的程式會越吃越多記憶體直到被系統砍掉。"}, {"front": "懸空指標（Dangling Pointer）", "back": "指向已經被 delete 或已經離開範圍的記憶體的指標。最難 debug 的一種錯誤，因為有時候「剛好」還讀得到正確的值。delete 之後立刻把指標設成 NULL 可以擋掉。"}, {"front": "二次釋放（Double Free）", "back": "同一塊記憶體被 delete 兩次，通常當場當掉。delete 之後把指標設成 NULL 就能避免，因為 delete 一個 NULL 在 C++ 是合法的空操作。"}, {"front": "所有權（Ownership）", "back": "「這塊記憶體該由誰負責 delete」的約定。C++ 沒有語法強制它，只能靠設計與註解講清楚。第 04 章的節點由串列 new 出來，也由串列負責 delete。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 NULL、讀取已釋放的記憶體、new[] 配 delete。它可能正常跑、可能當掉、也可能安靜地給出錯誤答案。"}, {"front": "智慧指標（Smart Pointer）", "back": "現代 C++ 用來自動管理記憶體的類別，例如 std::unique_ptr 會在離開範圍時自動 delete。本課照 cppds 用手動 new／delete，先看懂記憶體怎麼運作再談自動化。"}];
+const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體裡的門牌號碼，用 &x 取得。每次執行程式時作業系統配的位置都不一樣，所以印出來的數字每次都不同。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間，在 64 位元系統上一律 8 bytes，不管它指向的是一個 int 還是一整棵樹。"}, {"front": "參考（Reference）", "back": "變數的別名，宣告成 int &r = x;。不佔自己的記憶體、宣告當下必須綁定、終身不能換對象、也沒有「空參考」。函式參數與回傳常用它；需要「可能沒有」或「會換對象」的語意（如串列的 next）就得用指標。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（NULL Pointer）", "back": "不指向任何東西的指標。這門課用 NULL（照 cppds 教科書），現代 C++ 用 nullptr。它在鏈結結構裡固定當作終點標記：走訪的迴圈條件就是 while (current != NULL)。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "對指標加減整數會自動乘上型別大小，所以 a + 1 是「往後一個元素」而不是「位址加 1」。這就是 a[i] 等同 *(a + i) 的原因，也解釋了索引為什麼從 0 開始。"}, {"front": "陣列退化（Array Decay）", "back": "陣列作為引數傳進函式時會退化成指向首元素的指標，因此函式裡的 sizeof 量到的是指標大小而非陣列大小。所以傳陣列一定要另外傳長度。"}, {"front": "堆疊（Stack）", "back": "存放區域變數與函式呼叫框的記憶體區域，離開範圍就自動釋放。空間小（通常幾 MB），遞迴太深會爆掉。"}, {"front": "堆積（Heap）", "back": "用 new 動態配置的記憶體區域，不會自動釋放，一定要自己 delete。空間大，而且大小可以在執行時才決定——鏈結串列、樹、圖的節點都住在這裡。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時向系統要一塊記憶體並回傳它的位址。new T(v) 配一個、new T[n] 配一整排。資料結構的節點數量在編譯時未知，只能靠它。"}, {"front": "釋放（Deallocation, delete）", "back": "把 new 來的記憶體還回去。delete 還一個、delete[] 還一整排，形式配錯是未定義行為。課程講義有 218 個 new、只有 32 個 delete，那是刻意的教學取捨。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "new 出來的記憶體沒有對應的 delete，那塊空間在程式結束前拿不回來。短程式看不出來，長時間執行的程式會越吃越多記憶體直到被系統砍掉。"}, {"front": "懸空指標（Dangling Pointer）", "back": "指向已經被 delete 或已經離開範圍的記憶體的指標。最難 debug 的一種錯誤，因為有時候「剛好」還讀得到正確的值。delete 之後立刻把指標設成 NULL 可以擋掉。"}, {"front": "二次釋放（Double Free）", "back": "同一塊記憶體被 delete 兩次，通常當場當掉。delete 之後把指標設成 NULL 就能避免，因為 delete 一個 NULL 在 C++ 是合法的空操作。"}, {"front": "所有權（Ownership）", "back": "「這塊記憶體該由誰負責 delete」的約定。C++ 沒有語法強制它，只能靠設計與註解講清楚。第 04 章的節點由串列 new 出來，也由串列負責 delete。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 NULL、讀取已釋放的記憶體、new[] 配 delete。它可能正常跑、可能當掉、也可能安靜地給出錯誤答案。"}, {"front": "智慧指標（Smart Pointer）", "back": "現代 C++ 用來自動管理記憶體的類別，例如 std::unique_ptr 會在離開範圍時自動 delete。本課照 cppds 用手動 new／delete，先看懂記憶體怎麼運作再談自動化。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

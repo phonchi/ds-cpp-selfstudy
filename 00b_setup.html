@@ -582,6 +582,24 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
   <div class="info-card">
+    <div class="ic-title">kernel 已經幫你 include 的標頭 <span class="ic-badge">gcpph.hpp</span></div>
+    <p style="font-size:.9rem;">這個 kernel 在編譯<strong>每一個 cell</strong> 之前，都會自動先加上一份共用標頭
+    <code>gcpph.hpp</code>。所以有些標準函式庫不寫 <code>#include</code> 也能用 —— 但不是全部，
+    分清楚哪些有帶、哪些要自己寫：</p>
+    <div class="cmp-table-wrap">
+    <table class="cmp-table">
+      <thead><tr><th>狀態</th><th>標頭</th><th>影響</th></tr></thead>
+      <tbody>
+        <tr><td>✅ 自動帶入</td><td class="mono">&lt;iostream&gt; &lt;string&gt; &lt;vector&gt; &lt;algorithm&gt; &lt;cmath&gt; &lt;sstream&gt; &lt;fstream&gt; &lt;iomanip&gt; &lt;stdexcept&gt;</td><td><code>cout</code>、<code>string</code>、<code>vector</code>、<code>sort</code>、<code>sqrt</code>、<code>setw</code>、例外型別…不寫 include 就能用；<code>ctype.h</code>／<code>stdlib.h</code> 等 C 標頭也在內，所以 <code>isdigit</code>、<code>rand</code> 也直接可用</td></tr>
+        <tr><td>❌ 要自己寫</td><td class="mono">&lt;map&gt; &lt;set&gt; &lt;unordered_map&gt; &lt;unordered_set&gt; &lt;stack&gt; &lt;queue&gt; &lt;deque&gt; &lt;chrono&gt; &lt;climits&gt;</td><td>忘了寫會得到 <code>'map' was not declared</code> 這類編譯錯誤 —— 講義從第 06 章起常用，cell 裡都有示範寫法</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="dx-note" style="margin-bottom:0;">講義的 cell 大多仍把 <code>#include</code> 寫好寫滿 —— 那是刻意的：同一段程式碼貼到 VS Code 或線上編譯器也要能動。<strong>自己寫作業時請比照辦理，不要依賴 kernel 的自動帶入。</strong>完整清單見
+    <a href="https://github.com/phonchi/jupyter-cpp-kernel/blob/nsysu-math208/jcppkernel/resources/gcpph.hpp" target="_blank" rel="noopener">gcpph.hpp 原始碼</a>。</p>
+  </div>
+
+  <div class="info-card">
     <div class="ic-title">開始上課 <span class="ic-badge">每次 3 步</span></div>
     <p style="font-size:.9rem;margin-bottom:0;">① 開終端機，<code>cd</code> 到放 .ipynb 的教材資料夾（有裝 Anaconda 的同學先看下面的警告框）。<br>
     ② 執行 <code>jupyter lab</code>。<br>

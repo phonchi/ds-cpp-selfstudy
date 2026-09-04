@@ -1003,6 +1003,88 @@ unordered_map ： fig lychee mango durian pear apple guava kiwi
   </table>
   </div>
 
+  <h3 style="margin-top:1.6rem;"><code>[begin, end)</code>：左閉右開，<code>end()</code> 站在門外</h3>
+  <p><code>end()</code> 不是最後一個元素，是<strong>最後一個元素的再下一格</strong>。整個範圍是「含頭、不含尾」，
+  這種區間叫<strong>左閉右開</strong> —— C++ 所有吃一對迭代器的東西（走訪、<a href="p5_vector_string.html">P5</a> 的範圍建構式、<code>sort</code>）都是這個慣例：</p>
+
+  <div class="viz-panel" style="margin-top:.8rem;">
+    <svg viewBox="0 0 460 150" style="max-width:100%;height:auto" role="img" aria-label="begin 指向第一個元素，end 指向最後一個元素的下一格">
+      <text x="105" y="18" text-anchor="middle" class="mono" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700">begin()</text>
+      <line x1="105" y1="24" x2="105" y2="46" style="stroke:var(--accent3);stroke-width:2"/>
+      <path d="M 100 40 L 105 48 L 110 40 Z" style="fill:var(--accent3)"/>
+      <rect x="70"  y="50" width="70" height="44" rx="8" style="fill:var(--card);stroke:var(--accent2);stroke-width:2"/>
+      <rect x="150" y="50" width="70" height="44" rx="8" style="fill:var(--card);stroke:var(--accent2);stroke-width:2"/>
+      <rect x="230" y="50" width="70" height="44" rx="8" style="fill:var(--card);stroke:var(--accent2);stroke-width:2"/>
+      <rect x="310" y="50" width="70" height="44" rx="8" style="fill:none;stroke:var(--muted);stroke-width:2;stroke-dasharray:5 4"/>
+      <text x="105" y="78" text-anchor="middle" class="mono" style="fill:var(--ink);font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700">10</text>
+      <text x="185" y="78" text-anchor="middle" class="mono" style="fill:var(--ink);font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700">20</text>
+      <text x="265" y="78" text-anchor="middle" class="mono" style="fill:var(--ink);font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700">30</text>
+      <text x="345" y="77" text-anchor="middle" style="fill:var(--muted);font-family:'Noto Sans TC',sans-serif;font-size:11px">沒有元素</text>
+      <text x="105" y="112" text-anchor="middle" class="mono" style="fill:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px">0</text>
+      <text x="185" y="112" text-anchor="middle" class="mono" style="fill:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px">1</text>
+      <text x="265" y="112" text-anchor="middle" class="mono" style="fill:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px">2</text>
+      <line x1="345" y1="120" x2="345" y2="98" style="stroke:var(--accent);stroke-width:2"/>
+      <path d="M 340 106 L 345 98 L 350 106 Z" style="fill:var(--accent)"/>
+      <text x="345" y="138" text-anchor="middle" class="mono" style="fill:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700">end()</text>
+      <text x="425" y="78" text-anchor="middle" class="mono" style="fill:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px">哨兵，</text>
+      <text x="425" y="94" text-anchor="middle" class="mono" style="fill:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px">不可 *</text>
+    </svg>
+    <p class="mono" style="font-size:.82rem;color:var(--muted);margin:.5rem 0 0;">▲ <code>v = {10, 20, 30}</code>：<code>begin()</code> 指第一格，<code>end()</code> 指「索引 3」那個不存在的位置。所以 <code>vector&lt;int&gt; sub(v.begin()+1, v.begin()+3)</code> 抄到的是索引 1、2 —— <code>20 30</code>，尾端那格不含。</p>
+  </div>
+
+  <h3 style="margin-top:1.6rem;">它像指標，但不是指標</h3>
+  <p>對 <code>vector</code> 來說，迭代器的行為<strong>特別</strong>像指標：連 <code>begin() + i</code> 這種「往後跳 i 格」都支援
+  （<a href="p4_pointers_memory.html">P4</a> 的指標算術），所以 <code>*(v.begin() + 2)</code> 拿到第三個元素。
+  但別的容器就不行了 —— 差別整理成一句：</p>
+  <div class="info-box green">
+    <div class="info-label">✅ 一句話心法</div>
+    <p style="margin-bottom:0;"><strong>指標是記憶體位址；迭代器是「用來走訪容器的位置物件」。</strong>元素連續排列的
+    <code>vector</code>／<code>string</code>，迭代器可以 <code>+ i</code> 隨機跳；<code>list</code>、<code>map</code>、<code>set</code>
+    的元素散在各處，迭代器只能 <code>++it</code> 一步一步走，寫 <code>L.begin() + 1</code> 直接編譯錯誤
+    （<code>no match for 'operator+'</code>）。這也是上表說迴圈條件用 <code>!=</code> 不用 <code>&lt;</code> 的原因。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">解參考、往後跳、範圍建構，一次驗證</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;list&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>};</span>
+<span class="line" data-l="8">    <span class="kw">auto</span> it = v.begin();</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">*it          = </span><span class="str">"</span> &lt;&lt; *it &lt;&lt; endl;              <span class="com">// 解參考：跟指標同一個符號</span></span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">*(begin()+2) = </span><span class="str">"</span> &lt;&lt; *(v.begin() + <span class="num">2</span>) &lt;&lt; endl; <span class="com">// vector 可以隨機跳</span></span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    vector&lt;<span class="kw">int</span>&gt; sub(v.begin() + <span class="num">1</span>, v.begin() + <span class="num">3</span>);       <span class="com">// [1, 3)：含頭不含尾</span></span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">sub          = </span><span class="str">"</span> &lt;&lt; sub[<span class="num">0</span>] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; sub[<span class="num">1</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">    list&lt;<span class="kw">int</span>&gt; L = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>};</span>
+<span class="line" data-l="16">    <span class="kw">auto</span> lit = L.begin();</span>
+<span class="line" data-l="17">    ++lit;                                <span class="com">// list 只能一步一步走；L.begin() + 1 編譯不過</span></span>
+<span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">list ++lit   = </span><span class="str">"</span> &lt;&lt; *lit &lt;&lt; endl;</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>*it          = 10
+*(begin()+2) = 30
+sub          = 20 30
+list ++lit   = 20</pre></div>
+  <p class="dx-note">第 12 行對照上面的圖：<code>[begin()+1, begin()+3)</code> 抄索引 1、2，尾端不含。把第 17 行改成 <code>auto x = L.begin() + 1;</code> 會得到 <code>no match for 'operator+'</code> —— 迭代器像指標到什麼程度，是<strong>各容器自己決定的</strong>。</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-label">隨堂 · 迭代器與指標的分界</div>
+  <p><code>list&lt;int&gt; L = {10, 20, 30};</code> 之後寫 <code>cout &lt;&lt; *(L.begin() + 1);</code> 會發生什麼事？</p>
+  <div class="quiz-options" id="qItOptions">
+    <div class="quiz-opt" data-correct="false" data-fb="那是 vector 的行為。vector 元素連續，迭代器才支援 + i 隨機跳。" onclick="quizCheck('qIt', this)"><span class="opt-letter">(A)</span> 印出 <code>20</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="正確。list 的節點散在記憶體各處，它的迭代器沒有 operator+，只能 ++ 一步一步走。想拿第二個元素：auto it = L.begin(); ++it;" onclick="quizCheck('qIt', this)"><span class="opt-letter">(B)</span> 編譯錯誤：<code>no match for 'operator+'</code></div>
+    <div class="quiz-opt" data-correct="false" data-fb="不會當掉——根本編譯不過。錯誤在編譯期就被抓住，這是 C++ 型別系統友善的一面。" onclick="quizCheck('qIt', this)"><span class="opt-letter">(C)</span> 執行期當掉（segfault）</div>
+  </div>
+  <div class="quiz-feedback" id="qItFeedback"></div>
+</div>
+
 <div class="deck-extra">
   <div class="dx-label">三種容器，同一套走訪語法</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
@@ -1617,7 +1699,7 @@ function renderBoxQueue(containerId, items, opts={}) {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "映射（map）", "back": "C++ 標準函式庫的鍵對值容器，底層是紅黑樹，查詢、插入、刪除都是 O(log n)。走訪時照鍵由小到大排好，需要有序輸出時選它。第 09 章的二元搜尋樹就是自己動手寫的簡化版。"}, {"front": "無序映射（unordered_map）", "back": "用雜湊表實作的鍵對值容器，平均 O(1) 查詢，最壞情況會退化成 O(n)。走訪順序是桶序，不保證也不該依賴。第 07 章整章都在解釋它的內部怎麼運作。"}, {"front": "集合（set）", "back": "只有鍵沒有值的容器，自動去重、自動排序。拿來回答「這個我見過沒有」最直接，第 08 章圖走訪的 visited 就是一個 set。"}, {"front": "無序集合（unordered_set）", "back": "set 的雜湊版本，平均 O(1) 查詢，走訪順序不保證。資料量大又只需要查「在不在」時選它，本頁開場那個快幾千倍的實測用的就是這個。"}, {"front": "成對資料（pair）", "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"}, {"front": "中括號運算子（operator[]）", "back": "map 的 m[k] 寫法。鍵存在就回傳它的值，鍵不存在會當場插入一筆並做預設初始化，然後回傳新建那筆的參考。這跟 Python dict 查不到就丟 KeyError 完全相反，是本頁最容易踩的坑。"}, {"front": "預設初始化（default initialization）", "back": "operator[] 建新鍵時給值的初始狀態：int 是 0、double 是 0.0、string 是空字串、vector 是空容器。因為 int 會是 0，m[x]++ 這種計數寫法才不必先判斷鍵在不在。"}, {"front": "計數查詢（count）", "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀的，不會像 operator[] 那樣偷偷建鍵，只想判斷在不在就用它。"}, {"front": "尋找（find）", "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"}, {"front": "尾後迭代器（end()）", "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"}, {"front": "迭代器（iterator）", "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"}, {"front": "結構化繫結（structured binding）", "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"}, {"front": "紅黑樹（red-black tree）", "back": "map 與 set 的底層結構，一種會自我平衡的二元搜尋樹，保證樹高是 O(log n) 不會退化成一條鏈。它的中序走訪就是排序結果，這是 map 走訪有序的原因。"}, {"front": "桶（bucket）", "back": "雜湊表裡存放元素的格子。unordered_map 把鍵算成桶編號直接跳過去，所以平均只要常數時間；走訪則是把桶從頭掃到尾，這就是為什麼順序看起來像亂的。"}, {"front": "下界查詢（lower_bound）", "back": "m.lower_bound(x) 回傳第一個不小於 x 的鍵的迭代器，是有序容器才有的操作。搭配 begin() 拿最小、rbegin() 拿最大，這三個在 unordered 版本上完全不存在。"}, {"front": "相鄰串列（adjacency list）", "back": "用 map<頂點, vector<鄰居>> 表示一張圖，每個頂點對應一串它連到的頂點。第 08 章的 pythonds3/cppds/graph.hpp 就是這個結構，建圖那一行 adj[v].push_back(w) 靠的正是 operator[] 會自動建出空 vector 的特性。"}];
+const FLASHCARDS = [{"front": "映射（map）", "back": "C++ 標準函式庫的鍵對值容器，底層是紅黑樹，查詢、插入、刪除都是 O(log n)。走訪時照鍵由小到大排好，需要有序輸出時選它。第 09 章的二元搜尋樹就是自己動手寫的簡化版。"}, {"front": "無序映射（unordered_map）", "back": "用雜湊表實作的鍵對值容器，平均 O(1) 查詢，最壞情況會退化成 O(n)。走訪順序是桶序，不保證也不該依賴。第 07 章整章都在解釋它的內部怎麼運作。"}, {"front": "集合（set）", "back": "只有鍵沒有值的容器，自動去重、自動排序。拿來回答「這個我見過沒有」最直接，第 08 章圖走訪的 visited 就是一個 set。"}, {"front": "無序集合（unordered_set）", "back": "set 的雜湊版本，平均 O(1) 查詢，走訪順序不保證。資料量大又只需要查「在不在」時選它，本頁開場那個快幾千倍的實測用的就是這個。"}, {"front": "成對資料（pair）", "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"}, {"front": "中括號運算子（operator[]）", "back": "map 的 m[k] 寫法。鍵存在就回傳它的值，鍵不存在會當場插入一筆並做預設初始化，然後回傳新建那筆的參考。這跟 Python dict 查不到就丟 KeyError 完全相反，是本頁最容易踩的坑。"}, {"front": "預設初始化（default initialization）", "back": "operator[] 建新鍵時給值的初始狀態：int 是 0、double 是 0.0、string 是空字串、vector 是空容器。因為 int 會是 0，m[x]++ 這種計數寫法才不必先判斷鍵在不在。"}, {"front": "計數查詢（count）", "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀的，不會像 operator[] 那樣偷偷建鍵，只想判斷在不在就用它。"}, {"front": "尋找（find）", "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"}, {"front": "尾後迭代器（end()）", "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"}, {"front": "左閉右開區間（Half-open Range）", "back": "[begin, end) 含頭不含尾的範圍慣例：end() 指向最後一個元素的「再下一格」，是不能解參考的哨兵。C++ 所有吃一對迭代器的介面（走訪、範圍建構、sort）都用它，好處是 end-begin 恰為元素個數、空容器 begin()==end() 天然成立。"}, {"front": "迭代器（iterator）", "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"}, {"front": "結構化繫結（structured binding）", "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"}, {"front": "紅黑樹（red-black tree）", "back": "map 與 set 的底層結構，一種會自我平衡的二元搜尋樹，保證樹高是 O(log n) 不會退化成一條鏈。它的中序走訪就是排序結果，這是 map 走訪有序的原因。"}, {"front": "桶（bucket）", "back": "雜湊表裡存放元素的格子。unordered_map 把鍵算成桶編號直接跳過去，所以平均只要常數時間；走訪則是把桶從頭掃到尾，這就是為什麼順序看起來像亂的。"}, {"front": "下界查詢（lower_bound）", "back": "m.lower_bound(x) 回傳第一個不小於 x 的鍵的迭代器，是有序容器才有的操作。搭配 begin() 拿最小、rbegin() 拿最大，這三個在 unordered 版本上完全不存在。"}, {"front": "相鄰串列（adjacency list）", "back": "用 map<頂點, vector<鄰居>> 表示一張圖，每個頂點對應一串它連到的頂點。第 08 章的 pythonds3/cppds/graph.hpp 就是這個結構，建圖那一行 adj[v].push_back(w) 靠的正是 operator[] 會自動建出空 vector 的特性。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

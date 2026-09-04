@@ -41,6 +41,7 @@
   `tools/selfstudy_builders/`）、課程站 `static_files/presentations/`（含小寫自學頁鏡像，**那些頁不是本站的逐位元組鏡像**，
   只能就地替換不能覆蓋）。敘述中「dscpp 的 X」一律改「課程標頭的 X」；站內 `cppds` 一詞另指 Runestone 教科書（`cppds §8.x`），
   指標頭時寫「課程標頭」或完整路徑。**Slides 的 10 個 .pdf 未重做，仍印舊路徑。** include guard 仍叫 `DSCPP_*`，未改。
+  **2026-09-04 補**：當時 `data/{flashcards_zh,questions_zh}/` 的 JSON 沒跟著遷移，潛伏到下一次 `apply_zh.py` 重生時把舊的 `dscpp/` 措辭蓋回 6 頁才發現（已修，data 與頁面現已同步）。教訓：**改頁面措辭時，data/ 必須同批改**——apply_zh 視 data 為唯一真相。姊妹站同步遷移時記得檢查它的 data/。
 - **教材取得（學生零額外下載）**：學生只下載每週 .ipynb。課程標頭 `pythonds3/cppds/*.hpp` **內建在 kernel 套件**
   （`jcppkernel/resources/pythonds3/cppds/`，編譯自動加 `-I<resources>`，`-I.` 仍優先）；測驗與詞彙卡的 `path` 直接指向
   `https://raw.githubusercontent.com/phonchi/nsysu-math208/refs/heads/main/extra/{questions/chN,flashcards}/`，與上學期 Python 版相同。

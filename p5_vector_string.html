@@ -694,6 +694,101 @@ terminate called after throwing an instance of &#x27;std::out_of_range&#x27;
     <div class="info-label">💡 該用哪一個</div>
     <p style="margin-bottom:0;">寫演算法、索引明顯在範圍內時用 <code>v[i]</code>（課程的排序、搜尋全部用這個）。索引來自使用者輸入或計算結果、你不確定的時候用 <code>at(i)</code>。課程第 03 章自己寫的 <code>ArrayList</code> 就選了後者的做法：<code>operator[]</code> 裡先檢查範圍，超出就 <code>throw out_of_range</code>。</p>
   </div>
+
+  <h3 style="margin-top:1.6rem;"><code>Type 變數(引數);</code>：宣告變數與呼叫建構式，同一行發生</h3>
+  <p>講義裡會一直看到這種行 —— 第 07 章合併排序切左半就是它：
+  <code>vector&lt;int&gt; left(aList.begin(), aList.begin() + midpoint);</code>。
+  初看很難判斷：<strong>這到底是在宣告變數，還是在呼叫函式？</strong>答案是兩件事同時發生。
+  這個語法叫<strong>直接初始化</strong>（direct initialization），可以拆成三段：</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>片段</th><th>身分</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">vector&lt;int&gt;</td><td>型別</td></tr>
+      <tr><td class="mono">left</td><td>變數名稱</td></tr>
+      <tr><td class="mono">(aList.begin(), aList.begin() + midpoint)</td><td>傳給<strong>建構式</strong>的引數</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 一句話心法</div>
+    <p style="margin-bottom:0;"><code>Type variable(arguments);</code> 讀成「<strong>建立 variable，並呼叫 Type 的建構式</strong>」。<code>vector</code> 提供好幾個建構式，編譯器照引數的個數與型別挑一個 —— 挑選的過程正是 <a href="p8_oop_basics.html#overload">P8 講的多載解析</a>。</p>
+  </div>
+
+  <p>同一個語法家族，講義全部用過：</p>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>呼叫到的建構式</th><th>講義出處</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">vector&lt;int&gt; x(2000000);</td><td>計數：200 萬個元素，各是 0</td><td>第 02 章效能實測</td></tr>
+      <tr><td class="mono">vector&lt;int&gt; hashTable(11, -1);</td><td>計數＋初值：11 個 −1</td><td>第 07 章雜湊表</td></tr>
+      <tr><td class="mono">vector&lt;int&gt; left(a.begin(), a.begin()+mid);</td><td><strong>範圍建構式</strong>：把 <code>[first, last)</code> 那一段抄成新的 vector（尾端不含）—— C++ 的「切片」就是這招</td><td>第 06、07 章切子陣列</td></tr>
+      <tr><td class="mono">string s("hello");</td><td><code>string</code> 的建構式 —— 完全同一個概念</td><td>各章</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted);">寫成 <code>auto sub = vector&lt;double&gt;(v.begin()+1, v.begin()+3);</code> 也合法：先把右邊的物件建出來，再用它初始化 <code>sub</code>，結果相同。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同一家族的建構式，一次看完</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">double</span>&gt; v = {<span class="num">8.1</span>, <span class="num">9.2</span>, <span class="num">7.3</span>, <span class="num">6.4</span>};</span>
+<span class="line" data-l="8">    vector&lt;<span class="kw">double</span>&gt; sub(v.begin() + <span class="num">1</span>, v.begin() + <span class="num">3</span>);   <span class="com">// 範圍建構：抄索引 1、2</span></span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">sub.size()=</span><span class="str">"</span> &lt;&lt; sub.size() &lt;&lt; <span class="str">"</span><span class="str">  sub[0]=</span><span class="str">"</span> &lt;&lt; sub[<span class="num">0</span>]</span>
+<span class="line" data-l="10">         &lt;&lt; <span class="str">"</span><span class="str">  sub[1]=</span><span class="str">"</span> &lt;&lt; sub[<span class="num">1</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    vector&lt;<span class="kw">int</span>&gt; a(<span class="num">3</span>);        <span class="com">// 計數建構：3 個元素，各是 0</span></span>
+<span class="line" data-l="13">    vector&lt;<span class="kw">int</span>&gt; b{<span class="num">3</span>};        <span class="com">// 初始化清單：1 個元素，值是 3！</span></span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">a.size()=</span><span class="str">"</span> &lt;&lt; a.size() &lt;&lt; <span class="str">"</span><span class="str">  a[0]=</span><span class="str">"</span> &lt;&lt; a[<span class="num">0</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">b.size()=</span><span class="str">"</span> &lt;&lt; b.size() &lt;&lt; <span class="str">"</span><span class="str">  b[0]=</span><span class="str">"</span> &lt;&lt; b[<span class="num">0</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">    string s(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>);       <span class="com">// string 也是同一個概念</span></span>
+<span class="line" data-l="18">    <span class="kw">auto</span> t = vector&lt;<span class="kw">double</span>&gt;(v.begin() + <span class="num">1</span>, v.begin() + <span class="num">3</span>);</span>
+<span class="line" data-l="19">    cout &lt;&lt; <span class="str">"</span><span class="str">s=</span><span class="str">"</span> &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str">  t.size()=</span><span class="str">"</span> &lt;&lt; t.size() &lt;&lt; endl;</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>sub.size()=2  sub[0]=9.2  sub[1]=7.3
+a.size()=3  a[0]=0
+b.size()=1  b[0]=3
+s=hello  t.size()=2</pre></div>
+  <p class="dx-note">第 8 行就是本頁速查表那招「C++ 切片」：<code>[first, last)</code> 尾端不含，所以抄到的是索引 1、2 兩格。第 12、13 行是下面警告框要講的陷阱。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 小括號與大括號不是同一件事</div>
+    <p style="margin-bottom:0;"><code>vector&lt;int&gt; a(3);</code> 是「<strong>3 個元素</strong>，各是 0」；<code>vector&lt;int&gt; b{3};</code> 卻是「<strong>1 個元素</strong>，值是 3」——大括號優先配對初始化清單。C++ 的難常常不在單一概念，而在<strong>相似語法依 context 有不同意思</strong>。本課照 cppds 的習慣：計數用小括號、列元素用 <code>= {31, 17, 93}</code>，不混用。</p>
+  </div>
+
+  <p>為什麼初學會覺得亂？因為 C 和 Python 都沒有把「宣告」跟「建構」黏在同一行的寫法：</p>
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th></th><th>寫法</th><th>概念</th></tr></thead>
+    <tbody>
+      <tr><td>C</td><td class="mono">int x = 5;</td><td>宣告＋給值就結束了，<strong>沒有建構式這個概念</strong></td></tr>
+      <tr><td>Python</td><td class="mono">v = list(range(5))</td><td>概念上類似 —— 呼叫型別建立物件 —— 但變數不必宣告型別，「建構」只出現在等號右邊</td></tr>
+      <tr><td>C++</td><td class="mono">vector&lt;int&gt; v(5);</td><td>宣告與建構<strong>黏在同一行</strong>，所以長得像函式呼叫 —— 其實兩件事同時發生</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="quiz-box">
+  <div class="quiz-label">隨堂 · 括號的陷阱</div>
+  <p><code>vector&lt;int&gt; v(3);</code> 和 <code>vector&lt;int&gt; w{3};</code> 各裝了什麼？</p>
+  <div class="quiz-options" id="qDiOptions">
+    <div class="quiz-opt" data-correct="false" data-fb="小括號的 (3) 是計數建構式：3 個元素沒錯，但 {3} 是初始化清單，只有一個元素。" onclick="quizCheck('qDi', this)"><span class="opt-letter">(A)</span> 都是 3 個 0</div>
+    <div class="quiz-opt" data-correct="true" data-fb="正確。(3) 走計數建構式得到 0 0 0；{3} 優先配對初始化清單，得到單一元素 3。上面的實跑範例第 12、13 行就是這兩行。" onclick="quizCheck('qDi', this)"><span class="opt-letter">(B)</span> v 是 3 個 0，w 是 1 個 3</div>
+    <div class="quiz-opt" data-correct="false" data-fb="兩行都合法。C++ 的麻煩不是編譯不過，是兩種括號安靜地給你不同的東西。" onclick="quizCheck('qDi', this)"><span class="opt-letter">(C)</span> w 那行編譯錯誤</div>
+  </div>
+  <div class="quiz-feedback" id="qDiFeedback"></div>
+</div>
 </section>
 
 
@@ -1929,7 +2024,7 @@ function subRender() {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "動態陣列（vector）", "back": "C++ 標準函式庫的可變長度陣列，元素放在一整塊連續記憶體裡。它解決原生陣列的三個痛點：長度能變、傳進函式不會退化成指標、自己記得有多長。課程九章的程式碼裡出現 78 次。"}, {"front": "大小（size）", "back": "vector 目前實際裝了幾個元素，v.size() 是 O(1)，因為長度是存起來的欄位而不是每次去數。回傳的是無號整數，跟 int 比大小時編譯器會警告。"}, {"front": "容量（capacity）", "back": "vector 目前配到的位子有幾格，一定大於等於 size。位子坐滿時再 push_back 就會觸發擴容搬家。clear() 只把 size 歸零，capacity 不會跟著變 0。"}, {"front": "尾端加入（push_back）", "back": "把一個元素接在 vector 尾巴。容量夠的時候只是寫進下一格，容量滿時要把所有現有元素複製到新的記憶體，所以是攤還 O(1)：個別一次可能貴，平均下來是常數。"}, {"front": "尾端移除（pop_back）", "back": "把最後一個元素拿掉，是真正的 O(1)，因為沒有任何元素需要移動。它不回傳被拿掉的值，要先用 back() 取出來——課程第 05 章的 Stack::pop() 就是 back() 加 pop_back() 兩步。"}, {"front": "插入（insert）", "back": "v.insert(pos, x) 把元素插在 iterator pos 指的位置前面，插入點之後的每個元素都要往後挪一格，所以是 O(n)。課程 pythonds3/cppds/stack.hpp 的 Stack2 故意用 insert(begin()) 當 push，示範選錯一端的代價。"}, {"front": "刪除（erase）", "back": "v.erase(pos) 刪掉 iterator pos 指的元素，後面每個元素往前補位，是 O(n)。它會回傳下一個有效的 iterator，走訪中邊刪要寫成 it = v.erase(it)，否則舊的 it 已經失效。"}, {"front": "清空（clear）", "back": "把所有元素移除、size 變成 0，但配到的記憶體不還給系統，capacity 維持原樣。這樣清空後重新填不必再配置一次；真的要釋放記憶體得用 shrink_to_fit()。"}, {"front": "預留容量（reserve）", "back": "v.reserve(n) 先把 n 格位子訂下來。已經知道要放幾個元素時先呼叫它，之後的 push_back 一次搬家都不會發生——實測塞 1000 個元素可以把 11 次擴容降成 0 次。"}, {"front": "範圍檢查存取（at）", "back": "v.at(i) 和 v[i] 都取第 i 個元素，差別只在越界時：at 丟出 out_of_range 例外並在訊息裡寫出索引與長度，[] 什麼都不檢查，讀到隔壁的記憶體或直接當掉。"}, {"front": "攤還分析（Amortized Analysis）", "back": "把一連串操作的總成本平均到每次操作上的分析方式。push_back 個別一次可能要搬 n 個元素，但因為容量每次翻倍，n 次 push_back 的總搬移量不超過 2n，平均每次仍是常數，所以說它是攤還 O(1)。"}, {"front": "迭代器（Iterator）", "back": "指向容器中某個位置的物件，用法跟指標很像：*it 取值、++it 往下一個走。v.begin() 是第一個元素，v.end() 是最後一個的再下一個。insert 與 erase 吃的參數就是它。"}, {"front": "迭代器失效（Iterator Invalidation）", "back": "容器改變之後，先前取得的 iterator 或指標可能指向已經釋放的記憶體。vector 擴容時整批元素會搬到新位址，舊的 iterator 全部失效，再使用就是未定義行為。對策是記索引而不是記位址。"}, {"front": "範圍 for 迴圈（Range-based for loop）", "back": "寫成 for (int x : v) 的走訪語法，最好讀但拿不到索引。x 預設是複製品，改它不會影響容器；要修改元素得寫 int& x，要避免複製又不想改到就寫 const string& x。"}, {"front": "二維向量（Vector of Vectors）", "back": "vector<vector<int>> 就是每個元素本身又是一個 vector。宣告 4x4 全 0 的矩陣寫成 adj(4, vector<int>(4, 0))，第 08 章的相鄰矩陣就是這樣存的，每一列還可以不一樣長。"}, {"front": "字串（string）", "back": "本質是 vector<char> 加上一堆為文字準備的方法：length、substr、find、+=、[]。底層同樣是連續記憶體、同樣有 capacity、同樣會擴容搬家，所以成本規則跟 vector 一模一樣。"}, {"front": "取子字串（substr）", "back": "s.substr(pos, len) 從索引 pos 取 len 個字元複製成一個新字串，成本是 O(len)。第二個參數是長度而不是結束位置，這點跟 Python 的切片不同。第 08 章的字梯用它把單字切成桶子。"}, {"front": "找不到的標記（string::npos）", "back": "find 系列函式找不到目標時回傳的特殊值，實際上是一個超大的無號數。判斷要寫 if (s.find(t) == string::npos)，寫成小於 0 永遠不成立——這是從 Python 的 -1 慣例轉過來時最常犯的錯。"}];
+const FLASHCARDS = [{"front": "動態陣列（vector）", "back": "C++ 標準函式庫的可變長度陣列，元素放在一整塊連續記憶體裡。它解決原生陣列的三個痛點：長度能變、傳進函式不會退化成指標、自己記得有多長。課程九章的程式碼裡出現 78 次。"}, {"front": "直接初始化（Direct Initialization）", "back": "Type variable(arguments); 的語法：宣告 variable 並同時呼叫 Type 的建構式，兩件事在同一行發生。vector<int> v(5) 是計數建構、v(a.begin(), a.end()) 是範圍建構。注意 v(3) 是 3 個 0，v{3} 卻是 1 個 3——大括號優先配對初始化清單。"}, {"front": "大小（size）", "back": "vector 目前實際裝了幾個元素，v.size() 是 O(1)，因為長度是存起來的欄位而不是每次去數。回傳的是無號整數，跟 int 比大小時編譯器會警告。"}, {"front": "容量（capacity）", "back": "vector 目前配到的位子有幾格，一定大於等於 size。位子坐滿時再 push_back 就會觸發擴容搬家。clear() 只把 size 歸零，capacity 不會跟著變 0。"}, {"front": "尾端加入（push_back）", "back": "把一個元素接在 vector 尾巴。容量夠的時候只是寫進下一格，容量滿時要把所有現有元素複製到新的記憶體，所以是攤還 O(1)：個別一次可能貴，平均下來是常數。"}, {"front": "尾端移除（pop_back）", "back": "把最後一個元素拿掉，是真正的 O(1)，因為沒有任何元素需要移動。它不回傳被拿掉的值，要先用 back() 取出來——課程第 05 章的 Stack::pop() 就是 back() 加 pop_back() 兩步。"}, {"front": "插入（insert）", "back": "v.insert(pos, x) 把元素插在 iterator pos 指的位置前面，插入點之後的每個元素都要往後挪一格，所以是 O(n)。課程 pythonds3/cppds/stack.hpp 的 Stack2 故意用 insert(begin()) 當 push，示範選錯一端的代價。"}, {"front": "刪除（erase）", "back": "v.erase(pos) 刪掉 iterator pos 指的元素，後面每個元素往前補位，是 O(n)。它會回傳下一個有效的 iterator，走訪中邊刪要寫成 it = v.erase(it)，否則舊的 it 已經失效。"}, {"front": "清空（clear）", "back": "把所有元素移除、size 變成 0，但配到的記憶體不還給系統，capacity 維持原樣。這樣清空後重新填不必再配置一次；真的要釋放記憶體得用 shrink_to_fit()。"}, {"front": "預留容量（reserve）", "back": "v.reserve(n) 先把 n 格位子訂下來。已經知道要放幾個元素時先呼叫它，之後的 push_back 一次搬家都不會發生——實測塞 1000 個元素可以把 11 次擴容降成 0 次。"}, {"front": "範圍檢查存取（at）", "back": "v.at(i) 和 v[i] 都取第 i 個元素，差別只在越界時：at 丟出 out_of_range 例外並在訊息裡寫出索引與長度，[] 什麼都不檢查，讀到隔壁的記憶體或直接當掉。"}, {"front": "攤還分析（Amortized Analysis）", "back": "把一連串操作的總成本平均到每次操作上的分析方式。push_back 個別一次可能要搬 n 個元素，但因為容量每次翻倍，n 次 push_back 的總搬移量不超過 2n，平均每次仍是常數，所以說它是攤還 O(1)。"}, {"front": "迭代器（Iterator）", "back": "指向容器中某個位置的物件，用法跟指標很像：*it 取值、++it 往下一個走。v.begin() 是第一個元素，v.end() 是最後一個的再下一個。insert 與 erase 吃的參數就是它。"}, {"front": "迭代器失效（Iterator Invalidation）", "back": "容器改變之後，先前取得的 iterator 或指標可能指向已經釋放的記憶體。vector 擴容時整批元素會搬到新位址，舊的 iterator 全部失效，再使用就是未定義行為。對策是記索引而不是記位址。"}, {"front": "範圍 for 迴圈（Range-based for loop）", "back": "寫成 for (int x : v) 的走訪語法，最好讀但拿不到索引。x 預設是複製品，改它不會影響容器；要修改元素得寫 int& x，要避免複製又不想改到就寫 const string& x。"}, {"front": "二維向量（Vector of Vectors）", "back": "vector<vector<int>> 就是每個元素本身又是一個 vector。宣告 4x4 全 0 的矩陣寫成 adj(4, vector<int>(4, 0))，第 08 章的相鄰矩陣就是這樣存的，每一列還可以不一樣長。"}, {"front": "字串（string）", "back": "本質是 vector<char> 加上一堆為文字準備的方法：length、substr、find、+=、[]。底層同樣是連續記憶體、同樣有 capacity、同樣會擴容搬家，所以成本規則跟 vector 一模一樣。"}, {"front": "取子字串（substr）", "back": "s.substr(pos, len) 從索引 pos 取 len 個字元複製成一個新字串，成本是 O(len)。第二個參數是長度而不是結束位置，這點跟 Python 的切片不同。第 08 章的字梯用它把單字切成桶子。"}, {"front": "找不到的標記（string::npos）", "back": "find 系列函式找不到目標時回傳的特殊值，實際上是一個超大的無號數。判斷要寫 if (s.find(t) == string::npos)，寫成小於 0 永遠不成立——這是從 Python 的 -1 慣例轉過來時最常犯的錯。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

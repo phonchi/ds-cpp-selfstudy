@@ -544,19 +544,12 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <h2>原子型別與變數：每個變數都是一格固定大小的記憶體 <span class="sec-badge">cppds §1.8</span></h2>
   <p>C++ 要求每個變數<strong>先宣告型別才能用</strong>。數值型別主要是 <code>int</code> 與
   <code>double</code>（後者精度是 <code>float</code> 的兩倍）；算術運算子 <code>+ - * / %</code>
-  都在，次方則要用 <code>&lt;cmath&gt;</code> 的 <code>pow()</code>。先看一段講義的示範：</p>
+  都在，次方則要用 <code>&lt;cmath&gt;</code> 的 <code>pow()</code>。
+  運算子與整數除法的完整示範程式及輸出，見本節下方的講義卡「算術運算子與整數除法」。</p>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line">cout &lt;&lt; 2 + 3 * 4;        <span class="com">// 14，先乘除後加減</span></span>
-<span class="line">cout &lt;&lt; (2 + 3) * 4;      <span class="com">// 20，括號改變順序</span></span>
-<span class="line">cout &lt;&lt; <span class="fn">pow</span>(2, 10);       <span class="com">// 1024</span></span>
-<span class="line">cout &lt;&lt; 7 / 3;            <span class="com">// 2！整數除法直接截斷</span></span>
-<span class="line">cout &lt;&lt; 7.0 / 3;          <span class="com">// 2.33333，有一邊是 double 就是浮點除法</span></span>
-<span class="line">cout &lt;&lt; 7 % 3;            <span class="com">// 1，取餘數</span></span>
-<span class="line">cout &lt;&lt; <span class="fn">pow</span>(2, 100);      <span class="com">// 1.26765e+30：double 近似值，不是精確整數</span></span></div>
-        <div style="font-size:.8rem;color:var(--muted);margin-top:.8rem;">五種常見型別的大小、範圍與地雷，整學期都會回頭查：</div>
+        <div style="font-size:.8rem;color:var(--muted);">五種常見型別的大小、範圍與地雷，整學期都會回頭查：</div>
         <div style="overflow-x:auto;margin-top:.4rem;"><table class="cmp-table" style="width:100%;">
           <thead><tr><th>型別</th><th>大小</th><th>範圍／說明</th><th>地雷提醒</th></tr></thead>
           <tbody>
@@ -596,13 +589,6 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <tr><td>邏輯且／或／非</td><td class="mono">&amp;&amp; 　|| 　!</td><td>短路求值：左邊定案就不看右邊</td></tr>
     </tbody>
   </table></div>
-  <div class="info-box warm" style="margin-top:.8rem;">
-    <span class="info-label">連鎖比較是陷阱</span>
-    <code>10 &lt; 5 &lt; 3</code> 在 C++ 會編譯、會跑，而且結果是 <code>true</code>：
-    先算 <code>10 &lt; 5</code> 得 0，再算 <code>0 &lt; 3</code> 得 true。想表達區間，乖乖寫
-    <code>(5 &gt;= 1) &amp;&amp; (5 &lt;= 10)</code>。另外 cout 預設把 bool 印成 1/0，
-    想看 true/false 要先插入 <code>boolalpha</code>。
-  </div>
 
   <h3 style="margin-top:1.6rem;">變數是一個「有名字的盒子」</h3>
   <p>宣告 <code>int the_sum = 0;</code> 時，編譯器保留一塊剛好放得下 int 的記憶體，
@@ -789,8 +775,9 @@ ptr_n stores:     0x7ffd4c2a5b44
   <div class="section-number">PART 03 · 集合型別</div>
   <h2>集合型別：vector、string、array、set、map <span class="sec-badge">cppds §1.9</span></h2>
   <p>有序集合（sequence）有 <code>array</code>、<code>vector</code>、<code>string</code>；
-  無序集合有 <code>set</code> 和 <code>map</code> 家族。這一節的幾張表整學期都會回頭查，
-  值得現在花時間讀熟。</p>
+  無序集合有 <code>set</code> 和 <code>map</code> 家族。這裡的「無序」指沒有位置索引，不是沒有排序；
+  C++ 的 <code>set</code>／<code>map</code> 內部仍照 key 排序，雜湊版才是 <code>unordered_*</code>。
+  這一節的幾張表整學期都會回頭查，值得現在花時間讀熟。</p>
 
   <h3>vector：會自己長大的序列</h3>
   <p><code>vector</code> 是同型別元素的有序集合，可以動態長大。兩個要點：
@@ -1509,8 +1496,8 @@ fail (Average: 53.7)</pre></div>
 
   <h3 style="margin-top:1.4rem;">第 5 步：operator==，定義「相等」是什麼意思</h3>
   <p>沒定義 <code>operator==</code> 之前，<code>f1 == f2</code> 也不能編譯。
-  用交叉相乘 <code>num * other.den == other.num * den</code>，1/2 和 2/4 就會相等，
-  這叫<strong>深相等</strong>：比的是值，不是「是不是同一個物件」。
+  用交叉相乘 <code>num * other.den == other.num * den</code> 比的是值、不是物件身分，
+  也就是本節開頭圖說的<strong>深相等</strong>。
   另外記住 C++ 的<strong>值語意</strong>：<code>f3 = f1</code> 是把整個物件複製一份，
   不是多一個名字指向同一個物件。</p>
 
@@ -1519,7 +1506,6 @@ fail (Average: 53.7)</pre></div>
       <thead><tr><th>運算式</th><th>結果</th><th>怎麼算出來的</th></tr></thead>
       <tbody>
         <tr><td class="mono">Fraction(1,4) + Fraction(1,2)</td><td class="mono">3/4</td><td>通分得 6/8，gcd(6,8)=2，約分成 3/4</td></tr>
-        <tr><td class="mono">Fraction(1,4) * Fraction(1,2)</td><td class="mono">1/8</td><td>分子乘分子、分母乘分母得 1/8，已是最簡</td></tr>
         <tr><td class="mono">Fraction(1,2) == Fraction(2,4)</td><td class="mono">true</td><td>交叉相乘 1×4 與 2×2 都是 4，深相等不必先通分</td></tr>
       </tbody>
     </table></div>
@@ -1568,7 +1554,6 @@ fail (Average: 53.7)</pre></div>
 7/6
 false
 true</pre></div>
-  <p class="dx-note">最後一行是<strong>深相等</strong>的驗收：x 和 z 是兩個不同的物件，但 operator== 用交叉相乘比「值」，所以 1/2 == 2/4 是 true。如果比的是「是不是同一個物件」（位址），那叫淺相等。</p>
 </div>
 <div class="deck-extra">
   <div class="dx-label">講義 01 · 課後練習：負分母與大小比較</div>
@@ -1754,12 +1739,12 @@ true</pre></div>
 <span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line">}</span>
 <span class="line"> </span></div>
-  <div class="expected-out"><span class="eo-tag">示範執行（A=B=1、C=D=0）</span><pre>Enter input for gate gand1 (0/1): 1
-Enter input for gate gand1 (0/1): 1
-Enter input for gate gand2 (0/1): 0
-Enter input for gate gand2 (0/1): 0
-0</pre></div>
-  <p class="dx-note">呼叫 g4.getOutput() 會沿著 Connector 一路「往上游要值」：NOT 問 OR、OR 問兩個 AND、AND 才向使用者要輸入。所以 NOT((1 AND 1) OR (0 AND 0)) = NOT(1) = 0。拿上面的互動電路對照：同樣輸入應該得到同樣的 0。</p>
+  <div class="expected-out"><span class="eo-tag">示範執行（講義實跑：A=1、B=0、C=1、D=0）</span><pre>Enter pin A input for gate gand1: 1
+Enter pin B input for gate gand1: 0
+Enter pin A input for gate gand2: 1
+Enter pin B input for gate gand2: 0
+1</pre></div>
+  <p class="dx-note">呼叫 g4.getOutput() 會沿著 Connector 一路「往上游要值」：NOT 問 OR、OR 問兩個 AND、AND 才向使用者要輸入。所以 NOT((1 AND 0) OR (1 AND 0)) = NOT(0) = 1。拿上面的互動電路對照：同樣輸入應該得到同樣的 1。</p>
 </div>
 </section>
 
@@ -2070,7 +2055,7 @@ function gateRun() {
 gateRun();
 </script>
 <script>
-const FLASHCARDS = [{"front": "演算法（Algorithm）", "back": "解決問題或完成任務的逐步程序或公式：一組精確定義操作順序的規則，每一步都明確、可執行，且在有限步驟內結束。"}, {"front": "可計算（Computable）", "back": "指一個問題可以由計算過程解決：存在一個演算法，對任何合法輸入都能在有限時間內產生答案。"}, {"front": "抽象化（Abstraction）", "back": "隱藏複雜的實作細節、只露出必要部分的過程。這是電腦科學的核心概念：藉由減少與隱藏細節來管理複雜度。"}, {"front": "介面（Interface）", "back": "兩個以上元件交換資訊的共同邊界。可以指讓兩支程式互相溝通的軟體介面，也可以指使用者與電腦互動的使用者介面。"}, {"front": "程序抽象化（Procedure Abstraction）", "back": "抽象化的一種：把特定任務包成程序（函式）供人呼叫，使用者只需知道「做什麼」，不必知道「怎麼做」的實作細節。"}, {"front": "程式設計（Programming）", "back": "建立一組指令告訴電腦如何完成任務的過程：用程式語言撰寫程式碼，解決特定問題或打造應用程式與軟體。"}, {"front": "控制結構（Control Constructs）", "back": "程式語言中控制執行流程的元素，例如迴圈（for、while）、條件判斷（if、switch）與分支敘述（break、continue）。"}, {"front": "資料型別（Data Types）", "back": "告訴編譯器程式設計者打算如何使用資料的類別。常見的有整數、浮點數、字元與布林值。"}, {"front": "抽象資料型別（ADT, Abstract Data Type）", "back": "從使用者觀點、以「行為」定義的資料型別數學模型：規定可能的值、可用的操作，以及這些操作的行為，但不規定實作方式。"}, {"front": "封裝（Encapsulation）", "back": "物件導向的原則之一：把資料（屬性）和操作資料的方法綁進同一個類別，並限制外界直接存取物件的部分成員。"}, {"front": "資料結構（Data Structure）", "back": "在電腦中組織與儲存資料的特定方式，讓資料能被有效率地存取與修改。例子：陣列、鏈結串列、樹、圖。"}, {"front": "識別字（Identifiers）", "back": "程式碼中用來命名變數、函式、類別、模組等實體的名稱，讓不同實體得以區分。"}, {"front": "變數（Variables）", "back": "用來儲存資料值的符號。在 C++ 裡變數有固定的資料型別，程式執行過程中可以存放不同的值。"}, {"front": "指定敘述（Assignment Statement）", "back": "把值指定給變數的敘述，通常用指定運算子（=）：把右邊運算式的結果存進左邊的變數。"}, {"front": "序列（Sequence）", "back": "元素有次序的集合。指陣列、串列這類元素按特定順序儲存的資料結構。"}, {"front": "無序集合（Unordered Collections）", "back": "元素不按特定順序儲存與存取的資料結構，例如 set 與某些語言的字典（雜湊式容器）。"}, {"front": "格式化字串（Formatted String）", "back": "把變數值插進文字並控制排版的輸出。C++ 用 << 把值串進輸出串流，並用操縱子（manipulator）控制版面。"}, {"front": "可變（Mutable）", "back": "指物件建立後狀態或值仍可改變：方法或運算可以就地修改物件持有的資料，不必另建新物件。"}, {"front": "串流操縱子（Stream Manipulator）", "back": "像 fixed、setprecision、setw、endl 這類用 << 插進 C++ 串流的小工具，控制後續值的格式（小數位數、欄寬、換行）。多數宣告在 <iomanip> 標頭裡。"}, {"front": "格式修飾（Format Modifier）", "back": "格式化輸出時控制插入值外觀的指示，例如指定浮點數的小數位數，或為對齊而補空白。"}, {"front": "選擇敘述（Selection Statements）", "back": "讓程式依條件執行不同程式碼區塊的敘述，最常見的是 if 敘述。"}, {"front": "語法錯誤（Syntax Error）", "back": "程式碼文法上的錯誤，編譯器在程式執行前就會抓到。C++ 中語法錯誤會讓編譯失敗，修好之前不會產生執行檔。"}, {"front": "邏輯錯誤（Logic Error）", "back": "程式能跑但行為不正確的 bug：不會阻止程式執行，卻會產生非預期或錯誤的輸出與行為。"}, {"front": "例外（Exceptions）", "back": "程式執行期間打斷正常指令流程的事件，通常用例外處理機制（如 try/catch）接住並處理。"}, {"front": "標頭檔（Header File）", "back": "含宣告的檔案（如 <iostream> 或 \"myclass.h\"），C++ 程式用 #include 引入。標頭檔讓程式碼能跨多個原始檔組織與重用，扮演其他語言中模組的角色。"}, {"front": "函式（Functions）", "back": "執行特定任務、可被呼叫的程式碼區塊。函式可以接收輸入（引數）並回傳輸出（回傳值）。"}, {"front": "引數（Argument）", "back": "呼叫函式時實際傳入的值。函式定義裡接收這些值的變數則叫參數（parameter）。"}, {"front": "關鍵字（Keyword）", "back": "被語言保留、具有特殊意義的字（如 int、return、class），不能拿來當識別字使用。"}, {"front": "物件導向程式設計（OOP）", "back": "以「物件」（類別的實體）為中心的程式設計典範：物件封裝資料與函式，強調封裝、繼承與多型三大原則。"}, {"front": "類別（Class）", "back": "物件導向中建立物件的藍圖：定義一組屬性（資料成員）與方法，凡由這個類別實體化出的物件都具備這些特徵。"}, {"front": "物件（Object）", "back": "類別的實體（instance）：程式中代表某個具體事物的實體，由方法（行為）與屬性（狀態）刻劃。"}, {"front": "屬性（Attribute）", "back": "類別中具名的性質，有型別、通常用來存資料。物件的狀態就由它所有屬性的值決定。"}, {"front": "方法（Methods）", "back": "隸屬於物件或類別的函式，可以操作物件內部的資料（屬性）。C++ 裡也叫成員函式（member function）。"}, {"front": "建構子（Constructor）", "back": "類別中的特殊方法，主要工作是初始化新物件：與類別同名、沒有回傳型別，物件實體化時自動被呼叫。"}, {"front": "多型（Polymorphism）", "back": "「同一個介面、不同的底層形式」：一個介面可以代表多種不同型別的實作，呼叫端不必知道實際是哪一種。"}, {"front": "覆寫（Overrides）", "back": "子類別對父類別已提供的方法給出自己的實作版本，物件實際執行時用的是子類別的版本。"}, {"front": "多載（Overloading）", "back": "在同一個範疇裡定義多個同名但參數列不同（signature 不同）的函式或方法，編譯器依引數自動挑選正確版本。"}, {"front": "淺複製（Shallow Copies）", "back": "複製物件時只複製「參考」：副本和原本指向同一批內部物件，改副本的內容會影響原本，反之亦然。"}, {"front": "深複製（Deep Copies）", "back": "複製物件時遞迴複製它包含的所有物件：副本與原本完全獨立，改副本的內容不會影響原本。"}, {"front": "繼承（Inheritance）", "back": "物件導向原則之一：從既有類別衍生新類別，衍生類別繼承既有類別的屬性與方法，達到程式碼重用。"}, {"front": "編譯器（Compiler）", "back": "在執行前把整份原始碼翻譯成機器碼的程式。C++ 是編譯式語言：g++ 把 .cpp 檔變成執行檔，型別與語法錯誤在編譯期就被抓出來。"}, {"front": "指標（Pointer）", "back": "儲存另一個變數記憶體位址的變數，宣告時用 *，例如 int *p = &x;。指標讓動態記憶體管理與鏈結資料結構成為可能，是 C++ 的核心。"}, {"front": "參考與取址運算子（&）", "back": "在宣告中，& 建立參考（既有變數的別名）；在運算式中，& 取得變數的位址，例如 p = &x;。"}, {"front": "解參考運算子（*）", "back": "在運算式中套在指標上，存取指標所存位址上的值，例如 cout << *p; 會印出 p 指向的值。"}, {"front": "命名空間（Namespace）", "back": "把識別字分組以避免名稱衝突的具名範疇。C++ 標準函式庫都住在 std 裡，所以要寫 std::cout，或加上 using namespace std;。"}];
+const FLASHCARDS = [{"front": "演算法（Algorithm）", "back": "解決問題或完成任務的逐步程序或公式：一組精確定義操作順序的規則，每一步都明確、可執行，且在有限步驟內結束。"}, {"front": "可計算（Computable）", "back": "指一個問題可以由計算過程解決：存在一個演算法，對任何合法輸入都能在有限時間內產生答案。"}, {"front": "抽象化（Abstraction）", "back": "隱藏複雜的實作細節、只露出必要部分的過程。這是電腦科學的核心概念：藉由減少與隱藏細節來管理複雜度。"}, {"front": "介面（Interface）", "back": "兩個以上元件交換資訊的共同邊界。可以指讓兩支程式互相溝通的軟體介面，也可以指使用者與電腦互動的使用者介面。"}, {"front": "程序抽象化（Procedure Abstraction）", "back": "抽象化的一種：把特定任務包成程序（函式）供人呼叫，使用者只需知道「做什麼」，不必知道「怎麼做」的實作細節。"}, {"front": "程式設計（Programming）", "back": "建立一組指令告訴電腦如何完成任務的過程：用程式語言撰寫程式碼，解決特定問題或打造應用程式與軟體。"}, {"front": "控制結構（Control Constructs）", "back": "程式語言中控制執行流程的元素，例如迴圈（for、while）、條件判斷（if、switch）與分支敘述（break、continue）。"}, {"front": "資料型別（Data Types）", "back": "告訴編譯器程式設計者打算如何使用資料的類別。常見的有整數、浮點數、字元與布林值。"}, {"front": "抽象資料型別（ADT, Abstract Data Type）", "back": "從使用者觀點、以「行為」定義的資料型別數學模型：規定可能的值、可用的操作，以及這些操作的行為，但不規定實作方式。"}, {"front": "封裝（Encapsulation）", "back": "物件導向的原則之一：把資料（屬性）和操作資料的方法綁進同一個類別，並限制外界直接存取物件的部分成員。"}, {"front": "資料結構（Data Structure）", "back": "在電腦中組織與儲存資料的特定方式，讓資料能被有效率地存取與修改。例子：陣列、鏈結串列、樹、圖。"}, {"front": "識別字（Identifiers）", "back": "程式碼中用來命名變數、函式、類別、模組等實體的名稱，讓不同實體得以區分。"}, {"front": "變數（Variables）", "back": "用來儲存資料值的符號。在 C++ 裡變數有固定的資料型別，程式執行過程中可以存放不同的值。"}, {"front": "指定敘述（Assignment Statement）", "back": "把值指定給變數的敘述，通常用指定運算子（=）：把右邊運算式的結果存進左邊的變數。"}, {"front": "序列（Sequence）", "back": "元素有次序的集合。指陣列、串列這類元素按特定順序儲存的資料結構。"}, {"front": "無序集合（Unordered Collections）", "back": "元素不按特定順序儲存與存取的資料結構，例如 set 與某些語言的字典（雜湊式容器）。這裡的「無序」指沒有位置索引，不是沒有排序；C++ 的 set／map 內部仍照 key 排序，雜湊版才是 unordered_*。"}, {"front": "格式化字串（Formatted String）", "back": "把變數值插進文字並控制排版的輸出。C++ 用 << 把值串進輸出串流，並用操縱子（manipulator）控制版面。"}, {"front": "可變（Mutable）", "back": "指物件建立後狀態或值仍可改變：方法或運算可以就地修改物件持有的資料，不必另建新物件。"}, {"front": "串流操縱子（Stream Manipulator）", "back": "像 fixed、setprecision、setw、endl 這類用 << 插進 C++ 串流的小工具，控制後續值的格式（小數位數、欄寬、換行）。多數宣告在 <iomanip> 標頭裡。"}, {"front": "格式修飾（Format Modifier）", "back": "格式化輸出時控制插入值外觀的指示，例如指定浮點數的小數位數，或為對齊而補空白。"}, {"front": "選擇敘述（Selection Statements）", "back": "讓程式依條件執行不同程式碼區塊的敘述，最常見的是 if 敘述。"}, {"front": "語法錯誤（Syntax Error）", "back": "程式碼文法上的錯誤，編譯器在程式執行前就會抓到。C++ 中語法錯誤會讓編譯失敗，修好之前不會產生執行檔。"}, {"front": "邏輯錯誤（Logic Error）", "back": "程式能跑但行為不正確的 bug：不會阻止程式執行，卻會產生非預期或錯誤的輸出與行為。"}, {"front": "例外（Exceptions）", "back": "程式執行期間打斷正常指令流程的事件，通常用例外處理機制（如 try/catch）接住並處理。"}, {"front": "標頭檔（Header File）", "back": "含宣告的檔案（如 <iostream> 或 \"myclass.h\"），C++ 程式用 #include 引入。標頭檔讓程式碼能跨多個原始檔組織與重用，扮演其他語言中模組的角色。"}, {"front": "函式（Functions）", "back": "執行特定任務、可被呼叫的程式碼區塊。函式可以接收輸入（引數）並回傳輸出（回傳值）。"}, {"front": "引數（Argument）", "back": "呼叫函式時實際傳入的值。函式定義裡接收這些值的變數則叫參數（parameter）。"}, {"front": "關鍵字（Keyword）", "back": "被語言保留、具有特殊意義的字（如 int、return、class），不能拿來當識別字使用。"}, {"front": "物件導向程式設計（OOP）", "back": "以「物件」（類別的實體）為中心的程式設計典範：物件封裝資料與函式，強調封裝、繼承與多型三大原則。"}, {"front": "類別（Class）", "back": "物件導向中建立物件的藍圖：定義一組屬性（資料成員）與方法，凡由這個類別實體化出的物件都具備這些特徵。"}, {"front": "物件（Object）", "back": "類別的實體（instance）：程式中代表某個具體事物的實體，由方法（行為）與屬性（狀態）刻劃。"}, {"front": "屬性（Attribute）", "back": "類別中具名的性質，有型別、通常用來存資料。物件的狀態就由它所有屬性的值決定。"}, {"front": "方法（Methods）", "back": "隸屬於物件或類別的函式，可以操作物件內部的資料（屬性）。C++ 裡也叫成員函式（member function）。"}, {"front": "建構子（Constructor）", "back": "類別中的特殊方法，主要工作是初始化新物件：與類別同名、沒有回傳型別，物件實體化時自動被呼叫。"}, {"front": "多型（Polymorphism）", "back": "「同一個介面、不同的底層形式」：一個介面可以代表多種不同型別的實作，呼叫端不必知道實際是哪一種。"}, {"front": "覆寫（Overrides）", "back": "子類別對父類別已提供的方法給出自己的實作版本，物件實際執行時用的是子類別的版本。"}, {"front": "多載（Overloading）", "back": "在同一個範疇裡定義多個同名但參數列不同（signature 不同）的函式或方法，編譯器依引數自動挑選正確版本。"}, {"front": "淺複製（Shallow Copies）", "back": "複製物件時只複製「參考」：副本和原本指向同一批內部物件，改副本的內容會影響原本，反之亦然。"}, {"front": "深複製（Deep Copies）", "back": "複製物件時遞迴複製它包含的所有物件：副本與原本完全獨立，改副本的內容不會影響原本。"}, {"front": "繼承（Inheritance）", "back": "物件導向原則之一：從既有類別衍生新類別，衍生類別繼承既有類別的屬性與方法，達到程式碼重用。"}, {"front": "編譯器（Compiler）", "back": "在執行前把整份原始碼翻譯成機器碼的程式。C++ 是編譯式語言：g++ 把 .cpp 檔變成執行檔，型別與語法錯誤在編譯期就被抓出來。"}, {"front": "指標（Pointer）", "back": "儲存另一個變數記憶體位址的變數，宣告時用 *，例如 int *p = &x;。指標讓動態記憶體管理與鏈結資料結構成為可能，是 C++ 的核心。"}, {"front": "參考與取址運算子（&）", "back": "在宣告中，& 建立參考（既有變數的別名）；在運算式中，& 取得變數的位址，例如 p = &x;。"}, {"front": "解參考運算子（*）", "back": "在運算式中套在指標上，存取指標所存位址上的值，例如 cout << *p; 會印出 p 指向的值。"}, {"front": "命名空間（Namespace）", "back": "把識別字分組以避免名稱衝突的具名範疇。C++ 標準函式庫都住在 std 裡，所以要寫 std::cout，或加上 using namespace std;。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

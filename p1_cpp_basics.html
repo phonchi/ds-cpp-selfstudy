@@ -763,7 +763,7 @@ char   c = A     sizeof = 1 bytes
 bool   b = 1     sizeof = 1 bytes
 string s = David sizeof = 32 bytes (不含字元本身)
 boolalpha 之後 b = true</pre></div>
-  <p class="dx-note">最後兩行是重點：<code>sizeof(s)</code> 印出 32，那是 <code>string</code> 這個<strong>物件本身</strong>的大小（裡面存指標、長度、容量），不是字元佔的空間 —— 字元另外放在別的地方。另外 <code>bool</code> 預設印成 <code>1</code> 與 <code>0</code>，要印 <code>true</code> <code>false</code> 得先丟一個 <code>boolalpha</code> 進 <code>cout</code>。</p>
+  <p class="dx-note"><code>sizeof(s)</code> 那行是重點：印出 32，那是 <code>string</code> 這個<strong>物件本身</strong>的大小（裡面存指標、長度、容量），不是字元佔的空間 —— 字元另外放在別的地方。</p>
 </div>
 
   <div class="viz-layout">
@@ -858,7 +858,7 @@ z = 0</pre></div>
 兩行
 123
 1 + 2 = 3</pre></div>
-  <p class="dx-note">第三行印出 <code>123</code> 而不是 <code>1 2 3</code> —— <code>&lt;&lt;</code> 不會自動加空格，要空格自己寫。第四行的 <code>1 + 2</code> 先算完才丟給 <code>&lt;&lt;</code>，但這是因為 <code>+</code> 的優先順序比 <code>&lt;&lt;</code> 高；碰到比較運算就得自己加括號，例如 <code>cout &lt;&lt; (a &lt; b);</code>。</p>
+  <p class="dx-note">第三行印出 <code>123</code> 而不是 <code>1 2 3</code> —— <code>&lt;&lt;</code> 不會自動加空格，要空格自己寫。第四行的 <code>1 + 2</code> 先算完才丟給 <code>&lt;&lt;</code>，因為 <code>+</code> 的優先順序比 <code>&lt;&lt;</code> 高。</p>
 </div>
 
   <div class="cmp-table-wrap">
@@ -1049,18 +1049,20 @@ found（加了 boolalpha）= true</pre></div>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="5">    <span class="kw">int</span> i = <span class="num">5</span>;</span>
-<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">i++ 印出 </span><span class="str">"</span> &lt;&lt; i++ &lt;&lt; <span class="str">"</span><span class="str">，之後 i = </span><span class="str">"</span> &lt;&lt; i &lt;&lt; endl;   <span class="com">// 先用後加</span>
-<span class="line" data-l="7"></span>    <span class="kw">int</span> j = <span class="num">5</span>;</span>
-<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">++j 印出 </span><span class="str">"</span> &lt;&lt; ++j &lt;&lt; <span class="str">"</span><span class="str">，之後 j = </span><span class="str">"</span> &lt;&lt; j &lt;&lt; endl;   <span class="com">// 先加後用</span>
-<span class="line" data-l="9"></span></span>
-<span class="line" data-l="10">    <span class="kw">int</span> total = <span class="num">10</span>;</span>
-<span class="line" data-l="11">    total += <span class="num">5</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total += 5  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
-<span class="line" data-l="12">    total -= <span class="num">3</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total -= 3  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
-<span class="line" data-l="13">    total *= <span class="num">2</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total *= 2  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
-<span class="line" data-l="14">    total /= <span class="num">4</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total /= 4  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 整數除法還是會截</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="15">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="16">}</span>
-<span class="line" data-l="17"> </span></div>
+<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">i++ 印出 </span><span class="str">"</span> &lt;&lt; i++;   <span class="com">// 先用後加</span></span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">，之後 i = </span><span class="str">"</span> &lt;&lt; i &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">int</span> j = <span class="num">5</span>;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">++j 印出 </span><span class="str">"</span> &lt;&lt; ++j;   <span class="com">// 先加後用</span></span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">，之後 j = </span><span class="str">"</span> &lt;&lt; j &lt;&lt; endl;</span>
+<span class="line" data-l="11"></span>
+<span class="line" data-l="12">    <span class="kw">int</span> total = <span class="num">10</span>;</span>
+<span class="line" data-l="13">    total += <span class="num">5</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total += 5  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
+<span class="line" data-l="14">    total -= <span class="num">3</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total -= 3  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
+<span class="line" data-l="15">    total *= <span class="num">2</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total *= 2  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; endl;</span>
+<span class="line" data-l="16">    total /= <span class="num">4</span>;  cout &lt;&lt; <span class="str">"</span><span class="str">total /= 4  -&gt; </span><span class="str">"</span> &lt;&lt; total &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 整數除法還是會截</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="18">}</span>
+<span class="line" data-l="19"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>i++ 印出 5，之後 i = 6
 ++j 印出 6，之後 j = 6
 total += 5  -&gt; 15
@@ -1115,11 +1117,11 @@ total /= 4  -&gt; 6  &lt;- 整數除法還是會截</pre></div>
 
   <div class="quiz-box">
     <div class="quiz-label">隨堂 1 · 平均分數</div>
-    <p>三個人的分數是 90、85、78，總分 253。<code class="mono">int avg = 253 / 3;</code> 之後 <code class="mono">avg</code> 是多少？</p>
+    <p>三個人的分數是 90、85、79，總分 254。<code class="mono">int avg = 254 / 3;</code> 之後 <code class="mono">avg</code> 是多少？</p>
     <div class="quiz-options" id="qaOptions">
-      <div class="quiz-opt" data-correct="false" data-fb="84.33 是浮點除法的答案。但 253 和 3 都是 int，C++ 做的是整數除法，而且 avg 本身也是 int，裝不下小數。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 84.33</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。253 / 3 是 84.33…，整數除法把小數截掉得到 84。要拿到 84.33 得寫 static_cast&lt;double&gt;(253) / 3，而且接的變數要是 double。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 84</div>
-      <div class="quiz-opt" data-correct="false" data-fb="C++ 的整數除法是往零截斷，不是四捨五入。84.33 四捨五入才是 84，但 84.67 截斷後仍是 84 而不是 85 —— 兩者遇到 .5 以上就會分岔。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 85</div>
+      <div class="quiz-opt" data-correct="false" data-fb="84.67 是浮點除法的答案。但 254 和 3 都是 int，C++ 做的是整數除法，而且 avg 本身也是 int，裝不下小數。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 84.67</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。254 / 3 是 84.67…，整數除法把小數截掉得到 84。要拿到 84.67 得寫 static_cast&lt;double&gt;(254) / 3，而且接的變數要是 double。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 84</div>
+      <div class="quiz-opt" data-correct="false" data-fb="C++ 的整數除法是往零截斷，不是四捨五入。84.67 四捨五入才是 85，但截斷後是 84 —— 兩者遇到 .5 以上就會分岔。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 85</div>
       <div class="quiz-opt" data-correct="false" data-fb="不會編譯錯誤。把 double 指派給 int 只是警告等級的窄化，整數除以整數更是完全合法。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> 編譯錯誤</div>
     </div>
     <div class="quiz-feedback" id="qaFeedback"></div>
@@ -1253,7 +1255,7 @@ unsigned 0 - 1   = 4294967295  &lt;- 無號數會繞回最大值
 
   <div class="warn-box">
     <div class="info-label">⚠️ 這在第 02 章會咬到你</div>
-    <p style="margin-bottom:0;">分析演算法時常常要算「n 個元素兩兩配對有幾組」，也就是 <code class="mono">n * (n - 1) / 2</code>。<code>n</code> 到六萬五千左右，<code class="mono">n * n</code> 就爆掉 <code>int</code> 了。寫成 <code class="mono">long long total = static_cast&lt;long long&gt;(n) * (n - 1) / 2;</code> 才安全 —— 轉型要放在乘法<strong>之前</strong>，跟上面除法那個坑是同一個道理。</p>
+    <p style="margin-bottom:0;">分析演算法時常常要算「n 個元素兩兩配對有幾組」，也就是 <code class="mono">n * (n - 1) / 2</code>。<code>n</code> 到四萬六千左右（n &gt; 46,340），<code class="mono">n * n</code> 就爆掉 <code>int</code> 了。寫成 <code class="mono">long long total = static_cast&lt;long long&gt;(n) * (n - 1) / 2;</code> 才安全 —— 轉型要放在乘法<strong>之前</strong>，跟上面除法那個坑是同一個道理。</p>
   </div>
 
   <div class="info-box green">
@@ -1510,12 +1512,6 @@ main: main.cpp:6: int half(int): Assertion `n % 2 == 0' failed.</pre></div>
       <tr><td>常數</td><td class="mono">PI = 3.14</td><td class="mono">const double PI = 3.14;</td><td>C++ 的 <code>const</code> 是編譯器強制的</td></tr>
       <tr><td>印出並換行</td><td class="mono">pri<span></span>nt(x)</td><td class="mono">cout &lt;&lt; x &lt;&lt; endl;</td><td>不會自動加空格</td></tr>
       <tr><td>讀一行輸入</td><td class="mono">s = input()</td><td class="mono">getline(cin, s);</td><td><code class="mono">cin &gt;&gt; s</code> 只讀到第一個空白</td></tr>
-      <tr><td>條件</td><td class="mono">if a &gt; b:　el<span></span>if:　else:</td><td class="mono">if (a &gt; b) { } else if ( ) { } else { }</td><td>條件要括號，區塊用大括號不靠縮排</td></tr>
-      <tr><td>邏輯運算</td><td class="mono">and　or　not</td><td class="mono">&amp;&amp;　||　!</td><td>兩邊都有短路求值</td></tr>
-      <tr><td>連續比較</td><td class="mono">1 &lt; x &lt; 10</td><td class="mono">(1 &lt; x) &amp;&amp; (x &lt; 10)</td><td><strong>C++ 沒有這種語法糖，寫了會得到錯的答案</strong></td></tr>
-      <tr><td>計次迴圈</td><td class="mono">for i in range(10):</td><td class="mono">for (int i = 0; i &lt; 10; i++) { }</td><td>三段：起始、條件、每輪做的事</td></tr>
-      <tr><td>走訪容器</td><td class="mono">for x in items:</td><td class="mono">for (double x : items) { }</td><td>要寫元素型別</td></tr>
-      <tr><td>條件迴圈</td><td class="mono">while x &gt; 0:</td><td class="mono">while (x &gt; 0) { }</td><td>一樣</td></tr>
       <tr><td>定義函式</td><td class="mono">de<span></span>f f(a, b):</td><td class="mono">int f(int a, int b) { }</td><td>回傳型別與參數型別都要寫</td></tr>
       <tr><td>整數除法</td><td class="mono">7 // 2</td><td class="mono">7 / 2</td><td><strong>C++ 的 <code>/</code> 兩邊都是 int 就是整數除法</strong></td></tr>
       <tr><td>浮點除法</td><td class="mono">7 / 2</td><td class="mono">static_cast&lt;double&gt;(7) / 2</td><td>轉型要放在除法之前</td></tr>
@@ -1531,6 +1527,7 @@ main: main.cpp:6: int half(int): Assertion `n % 2 == 0' failed.</pre></div>
     </tbody>
   </table>
   </div>
+  <p>流程控制（條件、邏輯運算、迴圈）的對照見 <a href="p2_flow_control.html#reference">P2 的速查表</a>。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
   <table class="cmp-table">
@@ -1864,7 +1861,7 @@ const TYPES = [
    over: '把 42 指派給 bool 會得到 true——所有非零都是 true。'},
   {n: 'char',   b: 1, lo: -128, hi: 127, range: '-128 ~ 127',
    note: '本質是一個小整數，存的是字元的 ASCII 碼。單引號寫法 \'A\' 就是 65。',
-   over: "char c = 127; c + 1 溢出成 -128。這也是為什麼比較字元大小要小心。"},
+   over: "char c = 127; c = c + 1;（或 c++）會繞回 -128。這也是為什麼比較字元大小要小心。"},
   {n: 'short',  b: 2, lo: -32768, hi: 32767, range: '-32,768 ~ 32,767',
    note: '省記憶體用的，這門課幾乎用不到。省下的 2 bytes 通常不值得多想一次。',
    over: '32,767 + 1 繞回 -32,768。'},
@@ -1879,7 +1876,7 @@ const TYPES = [
    over: '要爆掉得算到 9 百京，實務上碰不到。'},
   {n: 'float',  b: 4, lo: null, hi: null, range: '約 6 位有效數字',
    note: '精度太低，累加幾千次就明顯失真。這門課不要用。',
-   over: '0.1f + 0.2f 不等於 0.3f——浮點數本來就存不下精確的十進位小數。'},
+   over: '16777216.0f + 1.0f == 16777216.0f 是 true——float 只有約 7 位有效數字，大整數加 1 會被吃掉。'},
   {n: 'double', b: 8, lo: null, hi: null, range: '約 15 位有效數字',
    note: '小數的預設選擇。cout 預設只印 6 位有效數字，要更多要設 setprecision。',
    over: '0.1 + 0.2 也不等於 0.3，只是誤差落在第 17 位，平常看不到。'},

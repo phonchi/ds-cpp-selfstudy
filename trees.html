@@ -429,7 +429,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#bst-analysis" data-target="bst-analysis"><span class="fn-num">P08</span><span class="fn-name">BST 分析</span></a>
   <a href="#avl" data-target="avl"><span class="fn-num">P09</span><span class="fn-name">AVL 樹</span></a>
   <a href="#summary" data-target="summary"><span class="fn-num">REF</span><span class="fn-name">總覽比較</span></a>
-    <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測（5 題）</span></a>
+    <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測（8 題）</span></a>
   <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
   <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
 </nav>
@@ -450,7 +450,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>① <strong>照節次讀</strong>：每一節先讀說明、動手玩互動元件，預測結果再按按鈕驗證。
   ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；細節與完整程式請回講義 09 與 cppds 原文。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
-  ④ 最後翻 <a href="#cards">關鍵詞彙卡（35 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標 Optional／Python 參考的內容第一輪可略過。</p>
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡（33 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標 Optional／Python 參考的內容第一輪可略過。</p>
   <div class="sg-links"><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/09_Trees%20and%20Tree%20Algorithms.pdf" target="_blank" rel="noopener">📑 講義 09 PDF</a><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/09_Trees%20and%20Tree%20Algorithms.html" target="_blank" rel="noopener">🖥 講義 09 HTML</a><a href="https://github.com/pearcej/cppds/tree/master/_sources/Trees" target="_blank" rel="noopener">📖 cppds 原文（Trees）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
@@ -470,8 +470,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#bst-analysis"><span class="toc-num">P08</span>BST 分析</a>
     <a href="#avl"><span class="toc-num">P09</span>AVL 樹與旋轉</a>
     <a href="#summary"><span class="toc-num">REF</span>Map ADT 總覽比較</a>
-    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測（5 題）</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（35 張）</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測（8 題）</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（33 張）</a>
   </div>
 </div>
 
@@ -809,7 +809,7 @@ hello</pre></div>
         <div class="preset-row">
           <button class="preset-btn active" data-tree="parse">解析樹 (3+(4*5))</button>
           <button class="preset-btn" data-tree="bst">BST 範例</button>
-          <button class="preset-btn" data-tree="balanced">完整二元樹</button>
+          <button class="preset-btn" data-tree="balanced">cppds 走訪範例樹</button>
         </div>
         <div class="controls-bar">
           <button class="btn btn-play" id="travPlay">▶ 開始</button>
@@ -1466,18 +1466,32 @@ brown dog fox jumps lazy over quick the </pre></div>
 
   <h3>實作內幕：updateBalance、rotateLeft、rebalance <span class="sec-badge">cppds §8.16–8.17 · 講義補充</span></h3>
   <p style="font-size:.88rem;color:var(--muted);">課堂投影片跳過 §8.16（AVL 效能）與 §8.17（AVL 實作）這兩節（RISE skip，講義標 Optional）：屬自學補充。</p>
-  <p>AVL 的 <code>_put</code> 跟 BST 幾乎一樣，唯一差別是掛上新節點後多呼叫一次
+  <p>AVL 的 <code>insertOrAssign()</code> 跟 BST 幾乎一樣，唯一差別是掛上新節點後多呼叫一次
   <code>updateBalance()</code>：它沿著 parent 指標往上修正平衡因子，
   一發現 |bf| &gt; 1 就地 <code>rebalance()</code>。旋轉最多兩次、每次 O(1)，
   往上修正最多走 log n 層，所以 <strong>put 整體仍是 O(log n)</strong>。
   上面的動畫可以對照著看：四個按鈕（LL/RR/LR/RL）正是 rebalance 的四個分支。刪除後的重平衡，講義留作練習。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.8rem;">
-    <div class="info-card"><div class="ic-title">_put 的差異 ＋ updateBalance <span class="ic-badge">CODE</span></div>
+    <div class="info-card"><div class="ic-title">insertOrAssign() 的差異 ＋ updateBalance <span class="ic-badge">CODE</span></div>
       <div class="pseudo-code" style="font-size:.72rem;">
-<span class="line"><span class="com">// _put 掛上新葉之後，多做一件事：</span></span>
-<span class="line">currentNode-&gt;leftChild =</span>
-<span class="line">    <span class="kw">new</span> <span class="fn">AVLTreeNode</span>(key, value, <span class="num">0</span>, currentNode);</span>
-<span class="line"><span class="fn">updateBalance</span>(currentNode-&gt;leftChild);</span>
+<span class="line"><span class="com">// insertOrAssign() 的差異：新葉掛上後多呼叫一次 updateBalance</span>
+<span class="line"></span><span class="kw">bool</span> <span class="fn">insertOrAssign</span>(string key, string value,</span>
+<span class="line">                    TreeNode*&amp; slot, TreeNode* parent) <span class="kw">override</span> {</span>
+<span class="line">    <span class="kw">if</span> (slot == <span class="fn">NULL</span>) {</span>
+<span class="line">        <span class="kw">auto</span>* node = <span class="kw">new</span> AVLTreeNode(key, value, <span class="num">0</span>, parent);</span>
+<span class="line">        slot = node;</span>
+<span class="line">        updateBalance(node);</span>
+<span class="line">        <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line">    }</span>
+<span class="line">    <span class="kw">auto</span>* current = <span class="kw">static_cast</span>&lt;AVLTreeNode*&gt;(slot);</span>
+<span class="line">    <span class="kw">if</span> (key == current-&gt;key) {</span>
+<span class="line">        current-&gt;value = value;</span>
+<span class="line">        <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line">    }</span>
+<span class="line">    TreeNode*&amp; child = (key &lt; current-&gt;key)</span>
+<span class="line">                     ? current-&gt;leftChild : current-&gt;rightChild;</span>
+<span class="line">    <span class="kw">return</span> insertOrAssign(key, value, child, current);</span>
+<span class="line">}</span>
 <span class="line"> </span>
 <span class="line"><span class="kw">void</span> <span class="fn">updateBalance</span>(AVLTreeNode* node) {</span>
 <span class="line">    <span class="kw">if</span> (node-&gt;balanceFactor &gt; <span class="num">1</span> ||</span>
@@ -1705,7 +1719,7 @@ brown dog fox jumps lazy over quick the </pre></div>
 </section>
 <section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch9.json · 35 張</span></h2>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch9.json · 33 張</span></h2>
   <p>詞彙卡取自本章課程題庫，已譯為繁體中文，正面附英文原名。先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>
@@ -3628,7 +3642,7 @@ window.addEventListener('resize', debounce(() => {
 }, 200));
 </script>
 <script>
-const FLASHCARDS = [{"front": "樹（Trees）", "back": "由節點組成的階層式資料結構：每個節點存放資料並持有指向子節點的參考，讓資料的組織與檢索都很有效率。"}, {"front": "節點（Node）", "back": "樹的基本組成：存放資料，並持有指向其他節點（子節點）的參考。每個節點代表一筆資料或結構中的一個位置。"}, {"front": "邊（Edge）", "back": "樹中兩節點之間的連接，代表父節點到子節點的關係或連結。"}, {"front": "根（Root）", "back": "樹最頂端的節點：所有其他節點都由它往下衍生，它自己沒有父節點。"}, {"front": "路徑（Path）", "back": "連接某節點與其子孫的一串節點與邊，描述在樹中從一個節點走到另一個節點的路線。"}, {"front": "子節點（Children）", "back": "在樹中直接連在某節點（父節點）底下、由它衍生的節點。"}, {"front": "父節點（Parent）", "back": "在階層中直接帶有一個以上子節點的節點。"}, {"front": "兄弟節點（Sibling）", "back": "擁有同一個父節點、位於樹中同一層的節點。"}, {"front": "子樹（Subtree）", "back": "由某節點與其全部子孫構成的樹的一部分，本身也是一棵樹。"}, {"front": "葉節點（Leaf node）", "back": "沒有任何子節點的節點，是樹的端點。"}, {"front": "層（Level）", "back": "節點的深度層次：根是第 0 層，往下每走一步加一。"}, {"front": "高度（Height）", "back": "根到最遠葉節點路徑上的最大邊數；只有根的一節點樹高度為 0。"}, {"front": "二元樹（Binary Tree）", "back": "每個節點最多兩個子節點的樹，兩個子節點通常稱為左子與右子。"}, {"front": "串列的串列（List of Lists）", "back": "Python 原書的巢狀串列表示；C++ 課程主線使用節點與 child pointers。"}, {"front": "節點與參考（Nodes and References）", "back": "樹的實作方法之一：每個節點物件存放自己的資料，以及指向子節點的明確連結。"}, {"front": "解析樹（Parse Tree）", "back": "依形式文法表示一個字串語法結構的樹，編譯器裡的核心資料結構。"}, {"front": "運算式樹（Expression Tree）", "back": "表示運算式的二元樹：內部節點是運算子，葉節點是運算元。"}, {"front": "前序走訪（Preorder）", "back": "「先處理節點本身、再處理子節點」的樹走訪：順序是根、左、右。"}, {"front": "後序走訪（Postorder）", "back": "「先處理子節點、最後處理節點本身」的樹走訪：順序是左、右、根。"}, {"front": "中序走訪（Inorder）", "back": "二元樹的走訪方式：順序是左子、根、右子。用在 BST 上會得到由小到大的序列。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的抽象資料型別：出隊順序由優先權決定，而非先來後到。"}, {"front": "二元堆積（Binary Heap）", "back": "儲存在 zero-based vector 的完全二元樹；min-heap 中每個 parent 都不大於 children。"}, {"front": "完全二元樹（Complete Binary Tree）", "back": "除了最後一層外每層都填滿、且最後一層節點盡量靠左的二元樹。"}, {"front": "堆積結構性質（Heap Structure Property）", "back": "堆積必須是完全二元樹的要求，用來保證樹的平衡。"}, {"front": "堆積順序性質（Heap Order Property）", "back": "節點與子節點之間必須維持的特定大小關係（max-heap 或 min-heap）。"}, {"front": "最大堆積（Max-Heap）", "back": "每個節點的值都大於等於其子節點的堆積：最大值永遠在根。"}, {"front": "最小堆積（Min-Heap）", "back": "每個節點的值都小於等於其子節點的堆積：最小值永遠在根。"}, {"front": "二元搜尋樹（BST, Binary Search Tree）", "back": "每個節點的鍵都大於左子樹所有鍵、小於右子樹所有鍵的二元樹。"}, {"front": "BST 性質（BST Property）", "back": "BST 的定義規則：左子樹的元素都比節點小，右子樹的元素都比節點大。"}, {"front": "後繼者（Successor）", "back": "在 BST 的中序走訪中，緊接在某節點之後的那個節點；刪除有兩個子節點的節點時用它來替補。"}, {"front": "遞迴中序走訪（Recursive Inorder Traversal）", "back": "依序走左子樹、節點、右子樹；用在 BST 會輸出排序後的 keys。"}, {"front": "平衡二元搜尋樹（Balanced Binary Search Tree）", "back": "會自動調整以維持低高度的 BST，確保各路徑長度都維持在最短量級。"}, {"front": "平衡因子（Balance Factor）", "back": "AVL 樹中，一個節點左子樹高度減右子樹高度的差值。"}, {"front": "AVL 樹（AVL Tree）", "back": "自我平衡的 BST：任一節點兩側子樹高度差最多為 1，樹高為 O(log n)；旋轉實作列為選讀。"}, {"front": "Bottom-up buildHeap", "back": "從最後一個非葉節點往 root 做 percDown，可在 O(n) 建 heap；逐一 insert 則為 O(n log n)。"}];
+const FLASHCARDS = [{"front": "樹（Trees）", "back": "由節點組成的階層式資料結構：每個節點存放資料並持有指向子節點的參考，讓資料的組織與檢索都很有效率。"}, {"front": "節點（Node）", "back": "樹的基本組成：存放資料，並持有指向其他節點（子節點）的參考。每個節點代表一筆資料或結構中的一個位置。"}, {"front": "邊（Edge）", "back": "樹中兩節點之間的連接，代表父節點到子節點的關係或連結。"}, {"front": "根（Root）", "back": "樹最頂端的節點：所有其他節點都由它往下衍生，它自己沒有父節點。"}, {"front": "路徑（Path）", "back": "連接某節點與其子孫的一串節點與邊，描述在樹中從一個節點走到另一個節點的路線。"}, {"front": "子節點（Children）", "back": "在樹中直接連在某節點（父節點）底下、由它衍生的節點。"}, {"front": "父節點（Parent）", "back": "在階層中直接帶有一個以上子節點的節點。"}, {"front": "兄弟節點（Sibling）", "back": "擁有同一個父節點、位於樹中同一層的節點。"}, {"front": "子樹（Subtree）", "back": "由某節點與其全部子孫構成的樹的一部分，本身也是一棵樹。"}, {"front": "葉節點（Leaf node）", "back": "沒有任何子節點的節點，是樹的端點。"}, {"front": "層（Level）", "back": "節點的深度層次：根是第 0 層，往下每走一步加一。"}, {"front": "高度（Height）", "back": "根到最遠葉節點路徑上的最大邊數；只有根的一節點樹高度為 0。"}, {"front": "二元樹（Binary Tree）", "back": "每個節點最多兩個子節點的樹，兩個子節點通常稱為左子與右子。"}, {"front": "串列的串列（List of Lists）", "back": "Python 原書的巢狀串列表示；C++ 課程主線使用節點與 child pointers。"}, {"front": "節點與參考（Nodes and References）", "back": "樹的實作方法之一：每個節點物件存放自己的資料，以及指向子節點的明確連結。"}, {"front": "解析樹（Parse Tree）", "back": "依形式文法表示一個字串語法結構的樹，編譯器裡的核心資料結構。"}, {"front": "運算式樹（Expression Tree）", "back": "表示運算式的二元樹：內部節點是運算子，葉節點是運算元。"}, {"front": "前序走訪（Preorder）", "back": "「先處理節點本身、再處理子節點」的樹走訪：順序是根、左、右。"}, {"front": "後序走訪（Postorder）", "back": "「先處理子節點、最後處理節點本身」的樹走訪：順序是左、右、根。"}, {"front": "中序走訪（Inorder）", "back": "二元樹的走訪方式：順序是左子、根、右子。用在 BST 上會得到由小到大的序列。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的抽象資料型別：出隊順序由優先權決定，而非先來後到。"}, {"front": "二元堆積（Binary Heap）", "back": "儲存在 zero-based vector 的完全二元樹；min-heap 中每個 parent 都不大於 children。"}, {"front": "完全二元樹（Complete Binary Tree）", "back": "除了最後一層外每層都填滿、且最後一層節點盡量靠左的二元樹。"}, {"front": "堆積結構性質（Heap Structure Property）", "back": "堆積必須是完全二元樹的要求，用來保證樹的平衡。"}, {"front": "堆積順序性質（Heap Order Property）", "back": "節點與子節點之間必須維持的特定大小關係（max-heap 或 min-heap）。"}, {"front": "最大堆積（Max-Heap）", "back": "每個節點的值都大於等於其子節點的堆積：最大值永遠在根。"}, {"front": "最小堆積（Min-Heap）", "back": "每個節點的值都小於等於其子節點的堆積：最小值永遠在根。"}, {"front": "二元搜尋樹（BST, Binary Search Tree）", "back": "每個節點的鍵都大於左子樹所有鍵、小於右子樹所有鍵的二元樹。"}, {"front": "後繼者（Successor）", "back": "在 BST 的中序走訪中，緊接在某節點之後的那個節點；刪除有兩個子節點的節點時用它來替補。"}, {"front": "平衡二元搜尋樹（Balanced Binary Search Tree）", "back": "會自動調整以維持低高度的 BST，確保各路徑長度都維持在最短量級。"}, {"front": "平衡因子（Balance Factor）", "back": "AVL 樹中，一個節點左子樹高度減右子樹高度的差值。"}, {"front": "AVL 樹（AVL Tree）", "back": "自我平衡的 BST：任一節點兩側子樹高度差最多為 1，樹高為 O(log n)；旋轉實作列為選讀。"}, {"front": "Bottom-up buildHeap", "back": "從最後一個非葉節點往 root 做 percDown，可在 O(n) 建 heap；逐一 insert 則為 O(n log n)。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

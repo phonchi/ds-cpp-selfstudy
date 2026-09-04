@@ -764,18 +764,6 @@ count 查 durian：0
   </table>
   </div>
 
-  <div class="viz-layout">
-    <div>
-      <div class="cmp-table-wrap">
-      <table class="cmp-table">
-        <thead><tr><th>對 <code>map&lt;string,int&gt; m</code>（已有 pear:30）</th><th class="mono">m[k]</th><th class="mono">m.count(k)</th></tr></thead>
-        <tbody>
-          <tr><td>查一個<strong>存在</strong>的鍵（<code>"pear"</code>）</td><td>回傳 <strong>30</strong>，不動容器，size 仍是 1</td><td>回傳 <strong>1</strong>，不動容器，size 仍是 1</td></tr>
-          <tr><td>查一個<strong>不存在</strong>的鍵（<code>"mango"</code>）</td><td><strong>當場插入</strong> ("mango", 0)，回傳 0，size 從 1 變 <strong>2</strong></td><td>回傳 <strong>0</strong>，容器<strong>一動也不動</strong>，size 仍是 1</td></tr>
-        </tbody>
-      </table>
-      </div>
-    </div>
     <div class="side-panel">
       <div class="info-card">
         <div class="ic-title">兩種查法 <span class="ic-badge">CODE</span></div>
@@ -789,7 +777,6 @@ count 查 durian：0
         <strong>只是要讀或判斷</strong>就用 <code>count</code> 或 <code>find</code>。</p>
       </div>
     </div>
-  </div>
 
   <div class="quiz-box">
     <div class="quiz-label">隨堂 1 · 這段程式跑完 size 是多少</div>
@@ -1127,7 +1114,7 @@ map   ： apple=45 pear=30 </pre></div>
 
   <div class="warn-box">
     <div class="info-label">⚠️ 走訪途中不要亂刪</div>
-    <p style="margin-bottom:0;"><code>erase</code> 掉一個元素之後，指著它的迭代器就<strong>失效</strong>了，跟 <a href="p4_pointers_memory.html">P4</a> 的懸空指標是同一種病。正確寫法是 <code>it = m.erase(it);</code>（<code>erase</code> 會回傳下一格），而且回圈裡就不要再寫 <code>++it</code>。</p>
+    <p style="margin-bottom:0;"><code>erase</code> 掉一個元素之後，指著它的迭代器就<strong>失效</strong>了，跟 <a href="p4_pointers_memory.html">P4</a> 的懸空指標是同一種病。正確寫法是 <code>it = m.erase(it);</code>（<code>erase</code> 會回傳下一格）：刪的時候用 <code>erase</code> 的回傳值前進，沒刪才 <code>++it</code>。標準句型：<code>for (auto it = m.begin(); it != m.end(); ) { if (cond) it = m.erase(it); else ++it; }</code></p>
   </div>
 
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05、09 章</div><p style='margin-bottom:0;'>迭代器不只是拿來用的，第 05、09 章你會<strong>自己提供</strong>一個。<code>pythonds3/cppds/</code> 底下的 <code>UnorderedList</code>、<code>BinaryTree</code> 都是自訂型別，要讓它們能被 <code>for (auto x : list)</code> 走訪，就得替類別寫出 <code>begin()</code>、<code>end()</code>，並且讓回傳的那個東西支援 <code>*</code>、<code>++</code>、<code>!=</code> —— 這三個運算子怎麼多載，看 <a href='p9_oop_advanced.html'>P9</a>。range-for 迴圈其實只是編譯器幫你展開成 <code>begin()</code>／<code>end()</code> 的語法糖，弄懂這件事，你就知道為什麼「加了三個函式，一個迴圈就自己會動了」。</p></div>
@@ -1233,7 +1220,7 @@ min/max : 3 / 8</pre></div>
 <span class="line" data-l="7">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
 <span class="line" data-l="8">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>; price[<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>] = <span class="num">60</span>;</span>
 <span class="line" data-l="9"> </span>
-<span class="line" data-l="10">    <span class="com">// 寫法一：range-for ＋ pair</span>
+<span class="line" data-l="10">    <span class="com">// 寫法一：迭代器</span>
 <span class="line" data-l="11"></span>    <span class="kw">for</span> (map&lt;string, <span class="kw">int</span>&gt;::iterator it = price.begin(); it != price.end(); ++it)</span>
 <span class="line" data-l="12">        cout &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span>;</span>
 <span class="line" data-l="13">    cout &lt;&lt; endl;</span>
@@ -1377,7 +1364,7 @@ C → A （分支度 1）
   <p class="dx-note">這就是第 08 章的 <code>Graph</code>。<code>adj["A"].push_back("B")</code> 一行做了三件事：沒有 A 這個頂點就建一個、給它一個空的鄰居串列、把 B 加進去。<code>adj.size()</code> 是頂點數、<code>nbrs.size()</code> 是那個頂點的分支度。</p>
 </div>
 
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 08 章</div><p style='margin-bottom:0;'>分組這個組合在第 08 章是主角。<code>pythonds3/cppds/graph.hpp</code> 的 <code>Graph</code> 用 <code>map&lt;鍵, Vertex*&gt;</code> 存所有頂點，每個 <code>Vertex</code> 裡再用一個 map 存「連到誰、權重多少」—— 這就是<strong>相鄰串列</strong>。字梯（word ladder）問題更直接：先建 <code>map&lt;string, vector&lt;string&gt;&gt;</code>，把 <span class='mono'>"_OPE"</span>、<span class='mono'>"R_PE"</span> 這種挖掉一個字母的樣板當鍵，同一個桶裡的單字彼此只差一個字母，連起來就是一張圖。整個建圖過程就是本節的 <code>group[key].push_back(v)</code> 跑一遍。</p></div>
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 08 章</div><p style='margin-bottom:0;'>分組這個組合在第 08 章是主角。<code>pythonds3/cppds/graph.hpp</code> 的 <code>Graph</code> 用 <code>map&lt;string, Vertex&gt;</code> 存所有頂點，每個 <code>Vertex</code> 裡再用一個 map 存「連到誰、權重多少」—— 這就是<strong>相鄰串列</strong>。字梯（word ladder）問題更直接：先建 <code>map&lt;string, vector&lt;string&gt;&gt;</code>，把 <span class='mono'>"_OPE"</span>、<span class='mono'>"R_PE"</span> 這種挖掉一個字母的樣板當鍵，同一個桶裡的單字彼此只差一個字母，連起來就是一張圖。整個建圖過程就是本節的 <code>group[key].push_back(v)</code> 跑一遍。</p></div>
 </section>
 <section id="exercises">
   <div class="section-number">EX · 隨堂練習</div>

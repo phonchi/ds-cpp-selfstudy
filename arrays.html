@@ -682,7 +682,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <h2>多維陣列：row-major 的攤平公式 <span class="sec-badge">課程補充 A.3</span></h2>
   <p>記憶體是一維的，二維陣列只是「攤平」。C++ 標準<strong>保證</strong> row-major：
   <code>M[0][0], M[0][1], M[1][0]</code> 在記憶體裡連續排列，印位址就能親眼看到。定位公式：</p>
-  <p style="text-align:center;" class="mono"><strong>y = x + Cols × i + j</strong>（x 是起始位址、Cols 是每列的欄數）</p>
+  <p style="text-align:center;" class="mono"><strong>y = x + (Cols × i + j) × sizeof(元素)</strong>（x 是起始位址、Cols 是每列的欄數；括號內是攤平後的索引，再乘元素大小才是位址）</p>
   <p>Fortran 和 MATLAB 用 column-major（整欄放完才放下一欄）；C++ 沒有內建這種佈局，
   需要的話自己開一維陣列、把公式的 i、j 對調。記住一個原則就夠了：<strong>走訪順序跟佈局一致才快</strong>。</p>
   <div class="viz-layout">
@@ -754,11 +754,12 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line">cout &lt;&lt; endl;</span>
 <span class="line"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1 2 1 2 </pre></div>
-  <p class="dx-note">row-major 的攤平公式是 i*Cols + j；column-major 換成 j*Rows + i，一行一行直著放。輸出 1 2 1 2 就是「第 0 行、第 1 行」依序排開。</p>
+  <p class="dx-note">column-major 的攤平公式是 j*Rows + i，一行一行直著放。輸出 1 2 1 2 就是「第 0 行、第 1 行」依序排開。</p>
 </div>
 <div class="deck-extra">
   <div class="dx-label">講義 03 · 練習：用平面索引找 student[5][3]</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line"> </span>
 <span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
@@ -797,7 +798,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     </div>
     <div class="side-panel">
       <div class="info-card"><div class="ic-title">DOK 實作 <span class="ic-badge">CODE</span></div><div class="pseudo-code" style="font-size:.76rem;">
-<span class="line" data-l="1"><span class="kw">class</span> <span class="fn">SparseMatrix</span> {     <span class="com">// pythonds3/cppds/sparsematrix.hpp（DOK）</span></span>
+<span class="line" data-l="1"><span class="kw">class</span> <span class="fn">SparseMatrix</span> {     <span class="com">// 講義說明版（課程 sparsematrix.hpp 沒有 nnz()／sparsity()，自己補很容易）</span></span>
 <span class="line" data-l="2">    map&lt;pair&lt;size_t,size_t&gt;, <span class="kw">double</span>&gt; data;  <span class="com">// (r,c) → 值</span></span>
 <span class="line" data-l="3">  <span class="kw">public</span>:  <span class="com">// 讀：const 版，查不到回 0</span></span>
 <span class="line" data-l="4">    <span class="kw">double</span> <span class="kw">operator</span>()(size_t i, size_t j) <span class="kw">const</span> {</span>
@@ -812,14 +813,15 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="13">    }   <span class="com">// 維度用參數傳入，類別本身不存 rows/cols</span></span>
 <span class="line" data-l="14">};</span></div></div>
       <div class="info-card">
-        <div class="ic-title">密度（sparsity）</div>
+        <div class="ic-title">稀疏度（sparsity）</div>
         <div class="mono" id="spDensity" style="font-size:.9rem;"></div>
       </div>
     </div>
   </div>
   <h3 style="margin-top:1.4rem;">完整的 SparseMatrix 類別（pythonds3/cppds/sparsematrix.hpp）</h3>
   <p>講義把 DOK 寫成一個可運算的類別：讀寫共用 <code>operator()</code>（const 版查不到回 0、
-  非 const 版會插入）、<code>nnz()</code> 數非零項、<code>sparsity()</code> 算密度，
+  非 const 版會插入）、<code>nnz()</code> 數非零項、<code>sparsity()</code> 算稀疏度
+  （這兩個是講義說明版的方法，課程 sparsematrix.hpp 沒有，自己補很容易），
   連加法和乘法都直接在稀疏表示上做，完全不用把矩陣展開。
   一個容易誤會的細節：<code>m(i,j) = 0</code> 寫進去的 0 也會佔一個項目，
   類別不會自動把它刪掉（上面的互動格子「點一下歸零」是示範用的簡化）：</p>
@@ -926,10 +928,10 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   
 <div class="quiz-box">
   <div class="quiz-label">EXERCISE 4 · 講義練習：students 陣列</div>
-  <p>100×4 的陣列，students[0][0] 的位址是 0、每個元素佔 1 格、row-major。students[5][3] 的位址是？</p>
+  <p>100×4 的陣列，students[0][0] 的位址是 0、每個元素佔 1 格、row-major。students[7][2] 的位址是？</p>
   
   <div class="quiz-options" id="ex4Options">
-    <div class="quiz-opt" data-correct="true" data-fb="y = x + Cols×i + j = 0 + 4×5 + 3 = 23。跟上一題同一條公式，只是把 sizeof 換成 1。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(A)</span> <code>23</code></div><div class="quiz-opt" data-correct="false" data-fb="把 100 當成 Cols 了。公式吃的是「每列幾欄」（4），不是列數。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(B)</span> <code>53</code></div><div class="quiz-opt" data-correct="false" data-fb="算到 row 開頭就停了，還要 +j = 3。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(C)</span> <code>20</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="y = x + (Cols×i + j)×sizeof = 0 + (4×7 + 2)×1 = 30。跟上一題同一條公式，只是 sizeof 是 1。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(A)</span> <code>30</code></div><div class="quiz-opt" data-correct="false" data-fb="把 100 當成 Cols 了（100×7 + 2）。公式吃的是「每列幾欄」（4），不是列數。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(B)</span> <code>702</code></div><div class="quiz-opt" data-correct="false" data-fb="算到 row 開頭（4×7 = 28）就停了，還要 +j = 2。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(C)</span> <code>28</code></div>
   </div>
   <div class="quiz-feedback" id="ex4Feedback"></div>
 </div>
@@ -1269,7 +1271,7 @@ function spClear() { spData = {}; spRender(); }
 spRender();
 </script>
 <script>
-const FLASHCARDS = [{"front": "陣列（Array）", "back": "由一群元素組成、每個元素以索引（或鍵）識別的資料結構。陣列儲存同型別的元素，並配置在連續的記憶體區塊上。"}, {"front": "記憶體區段錯誤（Segmentation Fault）", "back": "程式存取到不被允許的記憶體時發生的錯誤，常導致程式當掉。常見原因之一是陣列索引越界。"}, {"front": "參考式陣列（Referential Array）", "back": "格子裡放的是物件的參考（指標）而不是物件本身的陣列。這讓陣列也能組出鏈結串列、樹這類更彈性的結構。"}, {"front": "緊湊陣列（Compact Array）", "back": "記憶體額外負擔最小的陣列：資料緊密存放、不經過指標間接層，大小恰好足以容納內容。"}, {"front": "多維陣列（Multidimensional Array）", "back": "元素本身也是陣列的陣列：資料以格狀（矩陣）組織，用多個索引存取，例如二維陣列的列與行。"}, {"front": "行優先（Column Major）", "back": "多維陣列在記憶體中「一行接一行」存放的方式，與列優先相反；會影響走訪與運算的效率最佳化方向。"}, {"front": "列優先（Row Major）", "back": "多維陣列在記憶體中「一列接一列」存放的方式。C++ 原生二維陣列採用此法，影響各種操作（尤其快取友善度）的效率。"}, {"front": "稀疏矩陣（Sparse Matrix）", "back": "絕大多數元素是零的矩陣。只儲存非零元素的資料結構能大幅節省空間與計算資源。"}, {"front": "座標格式（Coordinate Format, COO）", "back": "用三條清單（列、行、值）儲存稀疏矩陣的方式：每一組 (row, col, value) 描述一個非零元素及其位置。"}, {"front": "鍵值字典矩陣（Dictionary of Keys, DOK）", "back": "用雜湊表（如 std::map 或 std::unordered_map）表示稀疏矩陣：以 (row, col) 配對當鍵、元素值當值。"}, {"front": "線性串列稀疏矩陣（Sparse Matrix as Linear List）", "back": "把非零元素串成一條線性串列（可依列、行索引排序）的稀疏矩陣表示法：對某些操作有利，但隨機存取比其他表示法慢。"}];
+const FLASHCARDS = [{"front": "陣列（Array）", "back": "由一群元素組成、每個元素以索引（或鍵）識別的資料結構。陣列儲存同型別的元素，並配置在連續的記憶體區塊上。"}, {"front": "記憶體區段錯誤（Segmentation Fault）", "back": "程式存取到不被允許的記憶體時發生的錯誤，常導致程式當掉。常見原因之一是陣列索引越界。"}, {"front": "參考式陣列（Referential Array）", "back": "格子裡放的是物件的參考（指標）而不是物件本身的陣列。這讓陣列也能組出鏈結串列、樹這類更彈性的結構。"}, {"front": "緊湊陣列（Compact Array）", "back": "記憶體額外負擔最小的陣列：資料緊密存放、不經過指標間接層，大小恰好足以容納內容。"}, {"front": "多維陣列（Multidimensional Array）", "back": "元素本身也是陣列的陣列：資料以格狀（矩陣）組織，用多個索引存取，例如二維陣列的列與行。"}, {"front": "行優先（Column Major）", "back": "多維陣列在記憶體中「一行接一行」存放的方式，與列優先相反；會影響走訪與運算的效率最佳化方向。"}, {"front": "列優先（Row Major）", "back": "多維陣列在記憶體中「一列接一列」存放的方式。C++ 原生二維陣列採用此法，影響各種操作（尤其快取友善度）的效率。"}, {"front": "稀疏矩陣（Sparse Matrix）", "back": "絕大多數元素是零的矩陣。只儲存非零元素的資料結構能大幅節省空間與計算資源。"}, {"front": "座標格式（Coordinate Format, COO）", "back": "用三條清單（列、行、值）儲存稀疏矩陣的方式：每一組 (row, col, value) 描述一個非零元素及其位置。"}, {"front": "鍵值字典矩陣（Dictionary of Keys, DOK）", "back": "用鍵值對映容器（std::map 為平衡二元搜尋樹、std::unordered_map 為雜湊表）表示稀疏矩陣：以 (row, col) 配對當鍵、元素值當值。"}, {"front": "線性串列稀疏矩陣（Sparse Matrix as Linear List）", "back": "把非零元素串成一條線性串列（可依列、行索引排序）的稀疏矩陣表示法：對某些操作有利，但隨機存取比其他表示法慢。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

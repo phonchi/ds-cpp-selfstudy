@@ -15,7 +15,7 @@
 | 先備知識 | `p1_cpp_basics` … `p9_oop_advanced` |
 
 先備頁合計 61 題題庫、195 張詞彙卡、16 個互動元件。**所有程式碼範例都以
-`g++ -std=c++17` 實際編譯執行過**，並直接 `#include "pythonds3/cppds/…"` 引用課程的標頭檔（自 2026-09-02 起由 [phonchi/pythonds3](https://github.com/phonchi/pythonds3) 的 `cppds/*.hpp` 發布，學生 `git clone` 到啟動 Jupyter 的目錄；舊的 `dscpp/` 已全數移除）。
+`g++ -std=c++17` 實際編譯執行過**，並直接 `#include "pythonds3/cppds/…"` 引用課程的標頭檔（自 2026-09-02 起由 [phonchi/pythonds3](https://github.com/phonchi/pythonds3) 的 `cppds/*.hpp` 發布；notebook 用的複本內建在 kernel、學生不必 clone，終端機／VS Code 才要 clone；舊的 `dscpp/` 已全數移除）。
 
 課程 notebook 需要打過 `-I.` patch 的 C++ kernel：
 [phonchi/jupyter-cpp-kernel @ nsysu-math208](https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208)
@@ -101,7 +101,9 @@ jupyter kernelspec list   # cpp17 應在 sys.prefix\share\jupyter\kernels；%APP
 | `tools/check_links_cpp.py` | 錨點、站內連結、注入前置條件、Python 殘留 | — |
 | `tools/check_00c.py` | 00C JSON／圖片／未發布內容守門，並以 g++ 編譯三種匿名專案模式 | — |
 | `tools/enrich/enrich_lib.py` | `hl()` C++ 上色、`card()` 範例卡、`run_cpp()` 編譯實跑 | — |
-| `tools/enrich/enrich_*.py` | 九章正課頁的一次性充實，已全部注入完畢 | `dx-*` 標記 |
+| `tools/enrich/enrich_*.py` | 九章正課頁的一次性充實，已全部注入完畢。**不要重跑**：2026-09-05 審閱時刪掉了部分 dx 卡內容、只留 `dx-*` 標記，重跑會把冗餘塞回來 | `dx-*` 標記 |
+| `tools/fix_bare_include.py` | 講義範例卡裸檔名 `#include "X.hpp"` → `"pythonds3/cppds/X.hpp"`（只改課程標頭目錄裡存在的檔名） | 改過就不再命中 |
+| `tools/shuffle_quiz.py` | 頁內自測題選項固定種子洗牌 JS（`quiz-shuffle v1`），`inject_prereq_cpp.py` 會呼叫 `ensure()` | 成對 JS 註解標記 |
 | `~/ds_cpp/Slides/tools/check_selfstudy.py` | 外部 gate：掃 Python 殘留、quiz 單一正解、錨點 | — |
 
 `inject_prereq_cpp.py` 的 `SITE_CSS`／`QUIZ_CSS`／`SITE_JS`／`QUIZ_JS` 四個常數是用**標記字串**
@@ -265,3 +267,35 @@ make_pair（講義都用 `{a,b}` 建 pair）、structured binding 以外的 C++1
 main」規則卡（kernel 以 cell 內有無 `main(` 決定是否整格包 main）；
 題庫 9 檔角括號跳脫（jupyterquiz innerHTML 吞 `<string,...>`，nsysu-math208/extra
 已推上線、~/ds_cpp/Slides 同步 commit——該 repo 無 remote）。
+
+---
+
+## 全站審閱：冗餘與嚴重錯誤（2026-09-05）
+
+方法：8 個 Explore agent 分批讀「去掉 style/script 的可見文字」＋ data/ 母檔，逐項用 g++ 13、現行課程標頭、
+講義 notebook 實測；主控做機械檢查（check_links、check_contrast、題庫單一正解、詞彙卡張數、全站含 main 的
+程式區塊 `g++ -fsyntax-only`）。修正由 4 個 general-purpose agent 分檔並行，data 為真相、apply_zh 最後統一跑。
+完整清單在當次 commit 訊息與 `~/.claude/plans/bright-scribbling-wave.md`。
+
+### 兩個系統性根因（下次改標頭或擴充頁面時先想到）
+1. **課程標頭 2026-09-04 `4c54d6f` 更新後，頁面描述沒跟上**：Rule of Three（linked_list.hpp 已是 Rule of Five）、
+   const 成員（bst/binaryheap 也有）、`map<string, Vertex>`（不是 `Vertex*`）、AVL 改走 `insertOrAssign()` hook、
+   binaryheap/arraylist/hashtable 已丟例外。**改標頭 ⇒ grep 站內提到該標頭的句子**。
+2. **講義範例卡 30 處裸 `#include "X.hpp"`**（kernel 與 notebook 只認 `pythonds3/cppds/`），與**頁內自測題正解
+   幾乎全在 (A)**（六章 100%）。兩者都已用腳本修掉（見上表）。
+
+### 這輪改到的行為（非改錯）
+- `quiz-shuffle v1`：載入時以「頁面檔名＋容器序號」為種子做固定排列，重排 `.quiz-options`／`.sq-opts` 子節點並重寫
+  `.opt-letter`。不用 Math.random 是為了每次載入同順序（學生可以說「選 B」）。`quizCheck`／sq handler 都走 data 屬性，位置無關。
+
+### 刻意沒做
+- 講義 `05_Linear_Structure_2.ipynb` cell 211「A six-minute wait」與站上表格（108 秒）矛盾，站上已改「快兩分鐘」，notebook 未改（repo 外）。
+- p3 與 p4 重疊的三張詞彙卡、p5 攤還論證講三輪、00c 全頁：屬教學複述，不動。
+- `trees.html` nrCode 的 `#include` 與 `int main()` 兩個 `.line` span 之間沒有換行（`.line` 是 display:block 所以渲染正常），沒動。
+
+### 姊妹站 ds-python-selfstudy 可直接套用
+- `tools/shuffle_quiz.py`（先驗它的頁內 quiz 正解位置分佈，本站六章 100% 在 A）。
+- 冗餘型態相同：正課頁 `dx-*` 卡結語常逐字複製正文／info-box（analysis、graphs 最多）；同一頁兩張表互稱「核心」；
+  REF 表與節內決策表重疊。
+- 事實類錯誤多半是 C++ 專屬（整數提升、float 精度、delete[]），Python 站只需對照演算法類的：燙手山芋出局順序、
+  37 分找零枚數、迷宮輸出圖、word ladder 實際路徑、merge 動畫奇數長度切法、Dijkstra 行號、graphs 頁尾章號與題數。

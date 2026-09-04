@@ -782,16 +782,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <div style="font-size:.85rem;line-height:1.9;">列出 s1 全部排列、看 s2 在不在裡面。
       20 個字元的排列數是 20! ≈ 2.4×10¹⁸：就算一微秒生一個，也要七萬多年。
       正確、可寫、完全不可用，這種選項的存在是為了提醒你先估量級再動手。</div></div>
-    <div class="info-card"><div class="ic-title">解法 4：Count and Compare，O(n) <span class="ic-badge">CODE</span></div>
-      <div class="pseudo-code" style="font-size:.71rem;">
-<span class="line"><span class="kw">bool</span> <span class="fn">anagramSolution4</span>(string s1, string s2) {</span>
-<span class="line">    <span class="kw">int</span> c1[<span class="num">26</span>] = {<span class="num">0</span>};  <span class="kw">int</span> c2[<span class="num">26</span>] = {<span class="num">0</span>};</span>
-<span class="line">    <span class="kw">for</span> (i : s1) c1[i - <span class="str">&#39;a&#39;</span>]++;</span>
-<span class="line">    <span class="kw">for</span> (i : s2) c2[i - <span class="str">&#39;a&#39;</span>]++;</span>
-<span class="line">    <span class="kw">for</span> (i = <span class="num">0</span>; i &lt; <span class="num">26</span>; i++)</span>
-<span class="line">        <span class="kw">if</span> (c1[i] != c2[i]) <span class="kw">return</span> <span class="num">false</span>;</span>
-<span class="line">    <span class="kw">return</span> <span class="num">true</span>;   <span class="com">// T(n) = 2n + 26 → O(n)</span></span>
-<span class="line">}</span></div></div>
+    <div class="info-card"><div class="ic-title">解法 4：Count and Compare，O(n)</div>
+      <div style="font-size:.85rem;line-height:1.9;">完整程式見上方「四解法總覽」（動畫逐行對照的就是它）。
+      兩個 26 格計數陣列各掃一遍，最後比對 26 格：T(n) = 2n + 26 → O(n)。</div></div>
   </div>
   
 <div class="quiz-box">
@@ -809,8 +802,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="section-number">PART 04 · C++ 容器</div>
   <h2>vector 的操作成本：為什麼 push_back 是攤銷 O(1) <span class="sec-badge">cppds §2.5–2.6</span></h2>
   <p><code>vector</code> 底層是連續陣列。<strong>索引 O(1)</strong>；
-  <code>push_back</code> 平常 O(1)，偶爾裝滿要搬到較大的緩衝區。課堂動畫用<strong>容量加倍</strong>說明幾何成長；
-  C++ 標準不規定實際倍率，只保證 <code>push_back</code> 的攤還 O(1)。
+  <code>push_back</code> 平常 O(1)，偶爾裝滿要搬到較大的緩衝區。課堂動畫用<strong>容量加倍</strong>說明幾何成長。
   但 <code>insert(begin(), x)</code> 每次都要整體右移 → O(n)。</p>
   <div class="viz-layout">
     <div>
@@ -943,7 +935,7 @@ direct index         2.10 ms</pre></div>
 <span class="line" data-l="10">}}</span>
 <span class="line" data-l="11"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>C++ data! | size=9</pre></div>
-  <p class="dx-note"><span id="dx-string"></span>C++11 起字元連續儲存：索引與 size 是 O(1)，push_back 是攤還 O(1)；在前端 insert 需要搬移後方字元，最差 O(n)。一般子字串搜尋不能直接宣稱 O(log n)。</p>
+  <p class="dx-note"><span id="dx-string"></span></p>
 </div>
 </section>
 
@@ -952,8 +944,6 @@ direct index         2.10 ms</pre></div>
   <h2>unordered_map / set：平均 O(1) 的代價與條件 <span class="sec-badge">cppds §2.8</span></h2>
   <p><code>unordered_map</code>（雜湊表）讓「查 key」平均 O(1)：不用排序、不用走訪。
   細節（hash 函數、碰撞、載入因子）第 6 章展開；本章先記住成本表與<strong>「平均」兩個字的份量</strong>。</p>
-  <p>平均 O(1) 假設 hash 結果分布良好；最差可能退化成 O(n)。rehash 的單次成本也可能是 O(n)，
-  但那是把成本攤過一串插入的 amortized analysis，和「平均輸入」是不同概念。</p>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
@@ -996,6 +986,10 @@ direct index         2.10 ms</pre></div>
 <div class="deck-extra">
   <div class="dx-label">講義 02 · vector 線性掃描 vs unordered_map 雜湊</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdlib&gt;</span><span class="kw"></span>
 <span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/dstimer.hpp"</span><span class="kw"></span>
 <span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line"> </span>
@@ -1020,7 +1014,7 @@ direct index         2.10 ms</pre></div>
 250000         8.512       0.011
 500000        17.204       0.012
 1000000       35.917       0.012</pre></div>
-  <p class="dx-note">vector 的 find 是線性掃描：n 翻倍、時間翻倍。雜湊表的 count 平均 O(1)，最壞仍可能 O(n)。平均情況依賴 hash 分布；rehash 的偶發成本則用攤還分析描述，兩者不要混為一談。</p>
+  <p class="dx-note">vector 的 find 是線性掃描：n 翻倍、時間翻倍；雜湊表的 count 幾乎不隨 n 變。「平均 O(1)」的條件見本章速查表下方的「讀表前先看條件」。</p>
 </div>
 </section>
 

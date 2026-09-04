@@ -486,7 +486,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <div class="container">
 <div class="study-guide">
   <div class="sg-title">📌 本頁使用方式（先裝 compiler，再準備 notebook）</div>
-  <p>① <strong>Windows 同學先完成 PART 04</strong>：VS Code 與 C/C++ 擴充套件都不會附送 compiler。
+  <p>① <strong>Windows 同學分流</strong>：只跑課程 notebook → 走 PART 04 的路線 0（kernel 自動裝 g++）；要在 VS Code 寫作業 → 走路線 A／B，直到 <code>g++ --version</code> 與 <code>gdb --version</code> 都有輸出。
   ② <strong>照用途選工具</strong>：課程 notebook 走 PART 01；作業程式接著讀 <a href="00c_vscode_windows.html">00C</a>。
   ③ <strong>完成 PART 05 環境驗收</strong>：指令或 include 失敗就回到對應步驟。
   ④ 最後翻 <a href="#cards">關鍵詞彙卡</a>，能不看答案講出定義才算過關。</p>
@@ -516,7 +516,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>Python 的直譯器讀一行執行一行；C++ 要先<strong>編譯</strong>成執行檔才能跑。所以你至少需要一個編譯器（<code>g++</code>）；想下中斷點除錯，還需要 <code>gdb</code>。</p>
   <div class="warn-box">
     <div class="info-label">⚠️ 安裝 VS Code ≠ 安裝 C++</div>
-    <p style="margin-bottom:0;">VS Code 是編輯器，微軟的 <strong>C/C++</strong> 擴充套件提供語法上色、IntelliSense 與除錯介面，<strong>兩者都不包含 compiler 或 debugger</strong>。Windows 同學必須另外完成 <a href="#windows">PART 04</a>，直到 <code>g++ --version</code> 與 <code>gdb --version</code> 都有輸出。</p>
+    <p style="margin-bottom:0;">VS Code 是編輯器，微軟的 <strong>C/C++</strong> 擴充套件提供語法上色、IntelliSense 與除錯介面，<strong>兩者都不包含 compiler 或 debugger</strong>。Windows 同學分流：只跑課程 notebook → 走 <a href="#windows">PART 04</a> 的路線 0（kernel 自動裝 g++）；要在 VS Code 寫作業 → 走路線 A／B，直到 <code>g++ --version</code> 與 <code>gdb --version</code> 都有輸出。</p>
   </div>
   <p>這門課有兩種工作：講義是 Jupyter notebook；作業則是一般的 <code>.cpp</code> 專案。它們共用同一套 compiler，但操作介面不同：</p>
 
@@ -557,7 +557,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="info-card">
     <div class="ic-title">電腦教室：每堂課重跑這三行 <span class="ic-badge">約 5 分鐘</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">教室電腦關機會整台重置，但 Anaconda 會留著——所以 <strong>JupyterLab 不用再裝</strong>，可是用 pip 裝的其他東西每次都會消失。每次上課在 Anaconda Prompt 跑三行：第 1 步改成精簡版 <code>pip install jupyterquiz jupytercards</code>（測驗與詞彙卡要用，這兩個不能省），再重跑上面的<strong>第 2、3 步</strong>。kernel 會自己把 GCC 12.1 抓到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>、註冊到 Jupyter、並寫進你的使用者 Path。不用碰 <a href="#windows">PART 04</a>。就算跳過第 3 步直接開 notebook，第一個 cell 執行時也會自動下載，只是進度會印在 cell 下面。</p>
+    <p style="font-size:.9rem;margin-bottom:0;">教室電腦關機會整台重置，但 Anaconda 會留著——所以 <strong>JupyterLab 不用再裝</strong>，可是用 pip 裝的其他東西每次都會消失。每次上課在 Anaconda Prompt 跑三行：第 1 步改成精簡版 <code>pip install jupyterquiz jupytercards</code>（測驗與詞彙卡要用，這兩個不能省），再重跑上面的<strong>第 2、3 步</strong>。kernel 會自己把 GCC 12.1 抓到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>、註冊到 Jupyter、並寫進你的使用者 Path。不用碰 <a href="#windows">PART 04</a>。第 3 步負責把 kernel 註冊進 Jupyter（<code>pip install --user</code> 裝的 kernelspec，Jupyter 自己找不到），<strong>不可省</strong>——省掉它，kernel 選單裡根本不會有 C++；它只是順便先把 g++ 抓下來，g++ 的下載才可以延後到第一個 cell 執行時（進度會印在 cell 下面）。</p>
   </div>
 
   <div class="info-box green">
@@ -619,13 +619,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="info-card">
     <div class="ic-title">開始上課 <span class="ic-badge">每次 3 步</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">① 開終端機，<code>cd</code> 到放 .ipynb 的教材資料夾（有裝 Anaconda 的同學先看下面的警告框）。<br>
+    <p style="font-size:.9rem;margin-bottom:0;">① 開終端機，<code>cd</code> 到放 .ipynb 的教材資料夾（之後要在終端機自己編譯的同學，先看下面的警告框）。<br>
     ② 執行 <code>jupyter lab</code>。<br>
     ③ 開啟 <code>.ipynb</code>，右上角 kernel 選 <strong>C++ 17</strong>，按 <code>Shift + Enter</code> 執行第一格。</p>
   </div>
 
   <div class="warn-box">
-    <div class="info-label">⚠️ 有裝 Anaconda 的同學：別直接從 Anaconda Prompt 啟動 Jupyter</div>
+    <div class="info-label">⚠️ 要用終端機／VS Code 自己編譯的同學：注意 Anaconda 的舊 libstdc++</div>
     <p><em>2026-09 之後的課程 kernel 已自行把 g++ 的 bin 排到子行程 Path 最前面，notebook 不再受這個問題影響；下面的說明只在你要用<strong>終端機</strong>編譯時才需要。</em></p>
     <p>症狀：cell 一執行就跳出 Windows 對話框「<strong>無法找到程序輸入點 …seekpos… 在動態連結程式庫 …\Temp\tmp_xxxx.out</strong>」。原因是 conda 在 activate 時會把 <code>anaconda3\Library\mingw-w64\bin</code> 插到 Path <strong>最前面</strong>，裡面有一份舊的 <code>libstdc++-6.dll</code>，蓋掉你在 <a href="#windows">PART 04</a> 裝的那套。編譯用的是新 g++，執行時卻載到舊 DLL，所以對不上。這是執行期插隊，<strong>在「環境變數」設定裡把 bin 排到最前面也沒用</strong>。</p>
     <p>診斷：在啟動 Jupyter 的那個視窗執行 <code>where.exe libstdc++-6.dll</code>。第一筆必須是你在 PART 04 確認過的那個 <code>bin</code>；如果第一筆在 <code>anaconda3</code> 底下，就是這個問題。</p>
@@ -688,7 +688,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="info-card">
     <div class="ic-title">路線 0 · 讓 kernel 自己裝 <span class="ic-badge">notebook／電腦教室</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">照 <a href="#kernel">PART 01</a> 執行 <code>python -m jcppkernel.setup_cli</code>（或直接開 notebook 跑第一格）。kernel 找不到 <code>g++</code> 時，會自動下載課程精簡版的 winlibs <strong>GCC 12.1（UCRT）</strong>到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>——在你的使用者資料夾裡，不需要管理員權限——約 100 MB 下載（8 條連線分段抓，有進度條）、解開後約 450 MB。精簡版只拿掉 Fortran、Objective-C 與文件，C/C++ 編譯與 gdb 完整；抓不到時會自動退回 winlibs 官方的 198 MB 原版。之後 kernel 一律用完整路徑呼叫這套 g++，並把它的 <code>bin</code> 排在子行程 Path 最前面，所以 Anaconda 那份舊 DLL 也蓋不到它。同時會把這個 <code>bin</code> 寫進<strong>使用者層</strong>的 Path，新開的終端機與 VS Code 就能直接用 <code>g++</code>、<code>gdb</code>。<br>
+    <p style="font-size:.9rem;margin-bottom:0;">照 <a href="#kernel">PART 01</a> 執行 <code>python -m jcppkernel.setup_cli</code>（這一步負責註冊 kernel、不可省；g++ 的下載才可以延後到第一個 cell）。kernel 找不到 <code>g++</code> 時，會自動下載課程精簡版的 winlibs <strong>GCC 12.1（UCRT）</strong>到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>——在你的使用者資料夾裡，不需要管理員權限——約 100 MB 下載（8 條連線分段抓，有進度條）、解開後約 450 MB。精簡版只拿掉 Fortran、Objective-C 與文件，C/C++ 編譯與 gdb 完整；抓不到時會自動退回 winlibs 官方的 198 MB 原版。之後 kernel 一律用完整路徑呼叫這套 g++，並把它的 <code>bin</code> 排在子行程 Path 最前面，所以 Anaconda 那份舊 DLL 也蓋不到它。同時會把這個 <code>bin</code> 寫進<strong>使用者層</strong>的 Path，新開的終端機與 VS Code 就能直接用 <code>g++</code>、<code>gdb</code>。<br>
     電腦上<strong>已經有 g++</strong>（路線 A／B 或別的來源）的話，kernel 會直接用現成的，不會重複下載。想強制指定某一套：設環境變數 <code>JCPP_GXX</code> 指到 <code>g++.exe</code> 的完整路徑。</p>
     <details style="margin-top:.8rem;"><summary><strong>下載太慢？自己抓檔案放進使用者資料夾</strong></summary>
       <p style="margin-top:.7rem;font-size:.9rem;">整班同時下載時校內對外頻寬可能塞住。可以先用別的網路（或請同學分享）抓好檔案，再自己放進去，kernel 會自動偵測，<strong>完全不用碰系統槽（C:\）</strong>：<br>
@@ -813,28 +813,13 @@ cell.cpp:2:5: error: ‘cout’ was not declared in this scope
 </div>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">③ <code>map</code>、<code>set</code> 說沒宣告</h3>
-<div class="deck-extra">
-  <div class="dx-label">自動附加的標頭檔清單裡沒有這些</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line">    map&lt;string, <span class="kw">int</span>&gt; m;</span>
-<span class="line">    m[<span class="str">"</span><span class="str">a</span><span class="str">"</span>] = <span class="num">1</span>;</span>
-<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line">}</span>
-<span class="line"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
-cell.cpp: In function ‘int main()’:
-cell.cpp:4:5: error: ‘map’ was not declared in this scope
-    4 |     map&lt;string, int&gt; m;</pre></div>
-  <p class="dx-note">kernel 會自動幫你 include 二十幾個常用標頭（<code>iostream</code>、<code>vector</code>、<code>string</code>、<code>algorithm</code>…），但<strong>不含</strong> <code>&lt;map&gt;</code>、<code>&lt;set&gt;</code>、<code>&lt;unordered_map&gt;</code>、<code>&lt;iterator&gt;</code>、<code>&lt;chrono&gt;</code>。用到就自己寫 <code>#include</code>；而 <code>#include</code> 不能被包進 <code>main()</code>，所以這種 cell 一律寫成完整程式（include + main）。</p>
-</div>
+  <p>錯誤訊息長這樣：<code>error: ‘map’ was not declared in this scope</code>——kernel 自動帶入的標頭裡沒有這一個，要自己寫 <code>#include</code>。哪些有帶、哪些要自己寫的清單，見 <a href="#kernel">PART 01</a> 的「kernel 已經幫你 include 的標頭」卡。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">④ 只寫一個函式定義，編不過</h3>
-  <p>沒有 <code>main(</code> 的 cell 會被整段包進 <code>main()</code> —— 於是你的函式定義變成「函式裡面的函式」，C++ 不允許。想單獨展示一個函式，用 markdown 的程式碼區塊；要能執行就寫完整程式。<strong>template 類別也一樣</strong>：被包進 <code>main()</code> 之後會變成區域類別，而區域類別不能是 template，所以一定要自帶 <code>main()</code>。</p>
+  <p>沒有 <code>main(</code> 的 cell 會被整段包進 <code>main()</code>，函式定義變成「函式裡面的函式」、template 類別變成區域類別（區域類別不能是 template），錯誤訊息像 <code>error: a function-definition is not allowed here</code>。規則與寫法見 <a href="#kernel">PART 01</a> 的「cell 裡寫了 <code>#include</code>，就要自己寫 <code>main()</code>」框。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑤ 字串裡不能出現 <code>//</code></h3>
-  <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:" "//example.com"</code> 兩段接起來。</p>
+  <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:/" "/example.com"</code> 兩段接起來——重點是讓兩個斜線不相鄰。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "pythonds3/cppds/…"</code> 找不到檔案</h3>
   <p>在 notebook 裡：課程標頭內建在 kernel 套件裡，會找不到幾乎只有一個原因——你裝的是 PyPI 原版、或 2026-09-02 之前的舊版 fork。照 <a href="#kernel">PART 01</a> 的指令加 <code>--force-reinstall</code> 重裝一次即可（<code>pip install --force-reinstall --no-deps "git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208"</code>），重啟 JupyterLab。<br>
@@ -843,7 +828,7 @@ cell.cpp:4:5: error: ‘map’ was not declared in this scope
   <p style="margin-top:2rem;"><strong>下面兩個跟 kernel 無關</strong>，是 Windows 環境本身的問題，但回報頻率一樣高。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑦ 跳出對話框「無法找到程序輸入點 …seekpos…」</h3>
-  <p>執行任何 cell 都跳出 Windows 錯誤對話框，訊息裡有一長串 <code>_ZNSt15basic_streambuf…seekpos…</code> 和 <code>Temp\tmp_xxxx.out</code>。這是<strong>執行時載到另一套較舊的 <code>libstdc++-6.dll</code></strong>，幾乎都是 Anaconda 造成的：從 Anaconda Prompt 啟動 Jupyter 時，conda 會把自己的 <code>Library\mingw-w64\bin</code> 插到 Path 最前面。用 <code>where.exe libstdc++-6.dll</code> 看第一筆是誰；處理方式見 <a href="#kernel">PART 01</a> 的警告框。MATLAB、Strawberry Perl、Octave 等軟體也會自帶一份，診斷方法相同。 若你的 kernel 是 2026-09 之後裝的，notebook 裡不會再發生這件事（kernel 已自行處理 Path）；還看到就先重裝 kernel。</p>
+  <p>執行任何 cell 都跳出 Windows 錯誤對話框，訊息裡有一長串 <code>_ZNSt15basic_streambuf…seekpos…</code> 和 <code>Temp\tmp_xxxx.out</code>——這是執行時載到另一套較舊的 <code>libstdc++-6.dll</code>。診斷與處理方式見 <a href="#kernel">PART 01</a> 的「注意 Anaconda 的舊 libstdc++」警告框；若你的 kernel 是 2026-09 之後裝的，notebook 裡不會再發生這件事，還看到就先重裝 kernel。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑧ 瀏覽器說「無法存取你的檔案」ERR_FILE_NOT_FOUND</h3>
   <p>執行 <code>jupyter lab</code> 後瀏覽器自動開啟，卻顯示「無法存取你的檔案，檔案可能已遭到移動、編輯或刪除 ERR_FILE_NOT_FOUND」。先看網址列：正常應該是 <code>http://localhost:8888/lab</code>（Notebook 7 則是 <code>/tree</code>），如果是 <code>file:///C:/Users/…</code> 開頭就是這個問題 —— Jupyter 用來自動開頁的暫存 HTML 沒被瀏覽器正確接手，使用者名稱含中文、或從 Google Drive／OneDrive 同步資料夾啟動時特別常見。Jupyter 本身其實已經在跑：回到終端機，把它印出來的 <code>http://localhost:8888/lab?token=…</code> <strong>整行複製</strong>貼進瀏覽器網址列即可。</p>

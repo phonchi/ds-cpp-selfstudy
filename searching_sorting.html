@@ -581,7 +581,7 @@ false</pre></div>
 <span class="line" data-l="37"> </span></div>
   <div class="expected-out"><span class="eo-tag">對 {17,20,26,31,44,54,55,65,77,93} 查 44、50 的輸出</span><pre>true
 false</pre></div>
-  <p class="dx-note">索引邊界版不建立子 vector：保留 O(log n) 比較與 O(log n) call stack。若每層建立子 vector，單一路徑共複製 O(n) 個元素。</p>
+  <p class="dx-note">索引邊界版不建立子 vector；為什麼這會影響複雜度，見下方二分搜尋的「小細節」。</p>
 </div>
 </section>
 
@@ -1413,39 +1413,6 @@ duck
     Shell sort 不像 merge / quick sort 那麼快，但<strong>程式碼短、不需要遞迴、空間 $O(1)$</strong>，是嵌入式系統與小型應用常見的選擇。
   </div>
 
-  <h3 style="margin-top:1.5rem;">講義原始實作（§7.6 Shell Sort）</h3>
-  <p>外層 <code>shellSort</code> 維護當前 <code>sublistCount</code>（折半），對每個 <code>posStart</code> 呼叫 <code>gapInsertionSort</code>，把該子陣列做插入排序。</p>
-<pre style="background:#2d2d3f;color:#e8e6df;font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.85rem 1rem;border-radius:10px;line-height:1.6;overflow-x:auto;"><span style="color:#c678dd;">void</span> <span style="color:#61afef;">gapInsertionSort</span>(vector&lt;<span style="color:#c678dd;">int</span>&gt;&amp; aList, <span style="color:#c678dd;">int</span> start, <span style="color:#c678dd;">int</span> gap) {
-    <span style="color:#c678dd;">for</span> (<span style="color:#c678dd;">unsigned</span> i = start + gap; i &lt; aList.size(); i += gap) {
-        <span style="color:#c678dd;">int</span> curVal = aList[i];
-        <span style="color:#c678dd;">int</span> curPos = i;
-        <span style="color:#c678dd;">while</span> (curPos &gt;= gap &amp;&amp; aList[curPos - gap] &gt; curVal) {
-            aList[curPos] = aList[curPos - gap];
-            curPos = curPos - gap;
-        }
-        aList[curPos] = curVal;
-    }
-}
-
-<span style="color:#c678dd;">void</span> <span style="color:#61afef;">shellSort</span>(vector&lt;<span style="color:#c678dd;">int</span>&gt;&amp; aList) {
-    <span style="color:#c678dd;">int</span> sublistCount = aList.size() / <span style="color:#d19a66;">2</span>;
-    <span style="color:#c678dd;">while</span> (sublistCount &gt; <span style="color:#d19a66;">0</span>) {
-        <span style="color:#c678dd;">for</span> (<span style="color:#c678dd;">int</span> posStart = <span style="color:#d19a66;">0</span>; posStart &lt; sublistCount; posStart++) {
-            gapInsertionSort(aList, posStart, sublistCount);
-        }
-        cout &lt;&lt; <span style="color:#98c379;">"</span><span style="color:#98c379;">After increments of size </span><span style="color:#98c379;">"</span> &lt;&lt; sublistCount
-             &lt;&lt; <span style="color:#98c379;">"</span><span style="color:#98c379;"> the list is </span><span style="color:#98c379;">"</span>;
-        printl(aList);
-        sublistCount = sublistCount / <span style="color:#d19a66;">2</span>;
-    }
-}
-
-<span style="color:#c678dd;">int</span> <span style="color:#61afef;">main</span>() {
-    vector&lt;<span style="color:#c678dd;">int</span>&gt; aList = {<span style="color:#d19a66;">5</span>, <span style="color:#d19a66;">16</span>, <span style="color:#d19a66;">20</span>, <span style="color:#d19a66;">12</span>, <span style="color:#d19a66;">3</span>, <span style="color:#d19a66;">8</span>, <span style="color:#d19a66;">9</span>, <span style="color:#d19a66;">17</span>, <span style="color:#d19a66;">19</span>, <span style="color:#d19a66;">7</span>, <span style="color:#d19a66;">11</span>};
-    shellSort(aList);
-    printl(aList);
-}</pre>
-
 <h3 id="dx-shl">講義完整實作與逐 pass 輸出</h3>
 <div class="deck-extra">
   <div class="dx-label">講義 07 · shellSort 的 C++ 全文（pythonds3/cppds/sorting.hpp）</div>
@@ -1979,13 +1946,7 @@ Merging 17 26 54 93 </pre></div>
       &nbsp;&nbsp;→ <span class="pill pill-orange">Linked List</span>，必要時排序選 merge sort（$O(1)$ 額外空間版本）<br>
       <br>
       <strong>④ 資料天然有序、僅追加（如 log）？</strong><br>
-      &nbsp;&nbsp;→ 順序儲存（Array 或 file stream），搜尋用循序或二分皆可<br>
-      <br>
-      <strong>⑤ 記憶體吃緊、不能用額外 $O(n)$ 暫存？</strong><br>
-      &nbsp;&nbsp;→ 排序選 <strong>quick sort</strong>（in-place）；搜尋選 <strong>binary search</strong>（也 in-place）<br>
-      <br>
-      <strong>⑥ 必須穩定且效能保證 $O(n\log n)$？</strong><br>
-      &nbsp;&nbsp;→ <strong>merge sort</strong>，犧牲 $O(n)$ 空間換取保證
+      &nbsp;&nbsp;→ 順序儲存（Array 或 file stream），搜尋用循序或二分皆可
     </div>
   </div>
 
@@ -2218,14 +2179,8 @@ step 4 (④ h[44]="lamb"):   ← 不是 collision，沿著 rehash 路徑找到�
   <p style="font-size:.86rem;color:var(--muted);">注意 <code>slots</code> 在第 4 步<strong>完全沒動</strong>，只動 <code>data</code>：這正是「同一個 key 永遠只占一格」的保證。</p>
 
   <div class="info-box green">
-    <span class="info-label">最容易誤會的兩件事</span>
-    <strong>誤會 1：「分支 ② 是 collision」</strong> ❌<br>
-    分支 ② 發生時 <code>slots[hash] == key</code>，這是<strong>同一個 key 第二次 <code>put</code></strong>，直接更新即可；只有碰到不同 key 才要沿 rehash 路徑探查。
-    <br><br>
-    <strong>誤會 2：「分支 ④ 是 collision」</strong> ❌<br>
-    分支 ④ 表示「我這個 key 之前因為 hash 撞到別人（步驟 3：44 跟 77 hash 值都是 0）被擠到 slot 1；現在我又要 <code>put</code> 同一個 key，沿著當年的 rehash 路徑走回去把舊值覆寫」。這次 put 的還是同一個 key，<strong>不是新的不同 item 撞到</strong>，所以也不是新的 collision 事件，跟字典 <code>d[k] = v2</code> 改寫舊值是完全一樣的語意。新的 collision 只在分支 ③（不同 item hash 到已被別人佔的格、需要找新位置安置）才發生。
-    <br><br>
-    <strong>結論</strong>：①、③ 是插入；②、④ 是同 key 更新。③ 會為新碰撞的 key 找空槽，④ 則沿既有碰撞鏈找回舊 key。判 collision 看的是「<u>不同 item、相同 hash 值</u>」，不是「同一個 key 第二次來」。
+    <span class="info-label">結論</span>
+    ①、③ 是插入；②、④ 是同 key 更新。③ 會為新碰撞的 key 找空槽，④ 則沿既有碰撞鏈找回舊 key。判 collision 看的是「<u>不同 item、相同 hash 值</u>」，不是「同一個 key 第二次來」。
   </div>
 
   <div class="info-box">
@@ -2866,7 +2821,7 @@ function genMergeSort(initial) {
       treeNodes.push({level, from:lo, to:hi, status:'done'});
       return;
     }
-    const mid = Math.floor((lo + hi) / 2);
+    const mid = lo + Math.floor((hi - lo + 1) / 2) - 1;  // 左半取 ⌊n/2⌋ 個，與 sorting.hpp 的 mid = size()/2 一致
     treeNodes.push({level, from:lo, to:hi, status:'splitting'});
     frames.push({arr:[...a], origIdx:[...oi], highlights:{}, message:`split [${lo}..${hi}] → [${lo}..${mid}] | [${mid+1}..${hi}]`, stats:{cmp,wr,phase:`split level ${level}`}, brackets:[{from:lo,to:mid,row:Math.min(level,4),label:'L',cls:'left'},{from:mid+1,to:hi,row:Math.min(level,4),label:'R',cls:'right'}], tree:[...treeNodes], pcLine:3});
 

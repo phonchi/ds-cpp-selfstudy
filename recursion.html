@@ -794,7 +794,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div>
       <div class="viz-panel">
         <canvas id="sierCv" width="560" height="360" style="background:#fff;border-radius:8px;max-width:100%;"></canvas>
-        <div class="status-banner" id="sierStatus"><span class="status-icon">›</span><span class="status-text">拉 degree 滑桿。三角形個數是 3 的 degree 次方，長得快得很。</span></div>
+        <div class="status-banner" id="sierStatus"><span class="status-icon">›</span><span class="status-text">拉 degree 滑桿。最小的三角形有 3^degree 個，總共畫 3⁰+…+3^degree 個，長得快得很。</span></div>
         <div class="controls-bar">
           <label class="mono" style="font-size:.8rem;">degree <input id="sierDeg" type="range" min="0" max="6" value="3" style="vertical-align:middle;"> <span id="sierDegLbl">3</span></label>
         </div>
@@ -835,7 +835,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </section>
 
 <section id="hanoi">
-  <div class="section-number">PART 04 · 河內塔</div>
+  <div class="section-number">PART 06 · 河內塔</div>
   <h2>河內塔：三行遞迴解千年謎題 <span class="sec-badge">cppds §5.10</span></h2>
   <p>把 n 個盤子從 A 搬到 C（大盤不能壓小盤）：<strong>相信</strong> n−1 盤的搬法已存在，
   那 n 盤 = 先把 n−1 盤挪到中繼柱、搬最大盤、再把 n−1 盤疊回來。移動次數 $2^n - 1$。</p>
@@ -904,7 +904,7 @@ moving disk from A to B</pre></div>
 </section>
 
 <section id="maze">
-  <div class="section-number">PART 05 · 走迷宮</div>
+  <div class="section-number">PART 07 · 走迷宮</div>
   <h2>迷宮探索：遞迴回溯（backtracking） <span class="sec-badge">cppds §5.11</span></h2>
   <p>希臘神話裡忒修斯進迷宮殺牛頭人，靠一團線找到回頭路。我們的演算法用的是另一個道具：
   <strong>麵包屑</strong>。從起點問「往北一步之後，能走出去嗎」，這又是一個一模一樣的迷宮問題，
@@ -929,7 +929,7 @@ moving disk from A to B</pre></div>
       <div class="info-card"><div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="mazeCode">
 <span class="line" data-l="1"><span class="kw">bool</span> <span class="fn">searchFrom</span>(Maze&amp; maze, <span class="kw">int</span> row, <span class="kw">int</span> col) {</span>
 <span class="line" data-l="2">    <span class="kw">if</span> (maze.<span class="fn">get</span>(row,col) == OBSTACLE) <span class="kw">return</span> <span class="num">false</span>;</span>
-<span class="line" data-l="3">    <span class="kw">if</span> (maze.<span class="fn">get</span>(row,col) == TRIED) <span class="kw">return</span> <span class="num">false</span>;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (maze.<span class="fn">get</span>(row,col) == TRIED || maze.<span class="fn">get</span>(row,col) == DEAD_END) <span class="kw">return</span> <span class="num">false</span>;</span>
 <span class="line" data-l="4">    <span class="kw">if</span> (maze.<span class="fn">isExit</span>(row,col)) <span class="kw">return</span> <span class="num">true</span>;</span>
 <span class="line" data-l="5">    maze.<span class="fn">updatePosition</span>(row,col,TRIED);</span>
 <span class="line" data-l="6">    <span class="kw">bool</span> found = <span class="fn">searchFrom</span>(maze,row-<span class="num">1</span>,col)</span>
@@ -960,14 +960,7 @@ moving disk from A to B</pre></div>
 <span class="line">};</span></div>
       </div>
       <div class="info-card">
-        <div class="ic-title">searchFrom 的短路技巧 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" style="font-size:.74rem;">
-<span class="line"><span class="kw">bool</span> found = <span class="fn">searchFrom</span>(maze, row-<span class="num">1</span>, col)   <span class="com">// 北</span></span>
-<span class="line">          || <span class="fn">searchFrom</span>(maze, row+<span class="num">1</span>, col)   <span class="com">// 南</span></span>
-<span class="line">          || <span class="fn">searchFrom</span>(maze, row, col-<span class="num">1</span>)   <span class="com">// 西</span></span>
-<span class="line">          || <span class="fn">searchFrom</span>(maze, row, col+<span class="num">1</span>);  <span class="com">// 東</span></span>
-<span class="line">maze.<span class="fn">updatePosition</span>(row, col, found ? PART_OF_PATH : DEAD_END);</span>
-<span class="line"><span class="kw">return</span> found;</span></div>
+        <div class="ic-title">searchFrom 的短路技巧</div>
         <div style="font-size:.82rem;line-height:1.8;color:var(--muted);margin-top:.4rem;">四個呼叫用 || 串起來：
         北邊一旦回報 true，剩下三個方向連試都不試（短路求值）。找到路的格子標 O、全敗的標 −，
         印出來就是完整的探索地圖。課堂版把這個 Maze 跑在 maze2.txt 上（pythonds3/cppds/maze.hpp）。</div>
@@ -984,30 +977,30 @@ moving disk from A to B</pre></div>
 <span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line">    Maze myMaze(<span class="str">"</span><span class="str">maze2.txt</span><span class="str">"</span>);</span>
 <span class="line">    searchFrom(myMaze, myMaze.startRow, myMaze.startCol);</span>
-<span class="line">    myMaze.pri<span></span>nt();   <span class="com">// O = 成功路徑，. = 試過，- = 死路</span>
+<span class="line">    myMaze.pri<span></span>nt();   <span class="com">// O = 成功路徑，- = 死路</span>
 <span class="line"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line">}</span>
 <span class="line"> </span></div>
-  <div class="expected-out"><span class="eo-tag">示範輸出（節錄；依 maze2.txt 而異）</span><pre>++++++++++++++++++++++
-+   +   ++ ++     +   
-+ O +   ++ ++  +++ + ++
-+ O +   ++ ++  +++   + 
-+ OOOOOOOO ++ OOO  + + 
-+++++ O +++++ O +++  + 
-+     O  ++  OO      + 
-+ +++++  ++ O ++++++ + 
-+ +   +  + OO ++  + + +
-+++ +  +++ O +++    + +
-++++++++++ O +++++++++</pre></div>
-  <p class="dx-note"><span id="dx-mz"></span>O 是最後成功的那條路，點點是「試過但退回」的格子：遞迴回溯的痕跡全印在圖上。四個方向的 || 短路串接讓「找到一條就收工」，找不到才會把整片區域踩成點點。</p>
+  <div class="expected-out"><span class="eo-tag">實際輸出（依 maze2.txt）</span><pre>++++++++++++++++++++++
++-OO+OOO++ ++        +
+OOOOOO+OOO  ++++++++++
++-+-OO ++O ++++ +++ ++
++-+-OO+ +O++ OO +++  +
++---OO   OO++OO++  + +
++++++-+ +-OOOOO++  + +
++++++-+++--+-+OO++   +
++----------+-+ O+ +  +
++++++-+--+-+-+     + +
+++++++++++++++++++++++</pre></div>
+  <p class="dx-note"><span id="dx-mz"></span>O 是最後成功的那條路，− 是「試過但退回」的死路格子：遞迴回溯的痕跡全印在圖上。四個方向的 || 短路串接讓「找到一條就收工」，找不到才會把整片區域踩成 −。</p>
 </div>
 </section>
 
 <section id="dp">
-  <div class="section-number">PART 06 · 動態規劃</div>
+  <div class="section-number">PART 08 · 動態規劃</div>
   <h2>找零錢：從貪婪、天真遞迴，一路走到 DP <span class="sec-badge">cppds §5.12 · 講義補充</span></h2>
   <p style="font-size:.88rem;color:var(--muted);">課堂投影片跳過本節（RISE skip，講義也標 Optional）：屬自學補充，但 DP 是後續演算法課的重要橋段。</p>
-  <p>自動販賣機要用最少的硬幣找零。37 分怎麼找？兩個 25 太多，一個 25、一個 10、三個 1，共六枚。
+  <p>自動販賣機要用最少的硬幣找零。37 分怎麼找？兩個 25 太多，一個 25、一個 10、兩個 1，共四枚。
   這種「先拿最大的」叫<strong>貪婪法</strong>，美國硬幣（1、5、10、25）下它剛好都對。
   但假設某國多了一種 21 分硬幣：63 分的最佳解是三枚 21，貪婪法卻還是給你六枚（25+25+10+1+1+1）。
   貪婪法死在「當下最好」不等於「整體最好」。</p>

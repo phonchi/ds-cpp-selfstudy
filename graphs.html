@@ -451,7 +451,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#scc" data-target="scc"><span class="fn-num">P09</span><span class="fn-name">強連通元件（官方選讀）</span></a>
   <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">練習題</span></a>
   <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">總覽比較</span></a>
-    <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測（5 題）</span></a>
+    <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測（6 題）</span></a>
   <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
   <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
 </nav>
@@ -511,7 +511,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#scc"><span class="toc-num">P09</span>強連通元件（官方選讀）</a>
     <a href="#exercises"><span class="toc-num">EX</span>練習題</a>
     <a href="#reference"><span class="toc-num">REF</span>總覽比較表</a>
-    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測（5 題）</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測（6 題）</a>
     <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（29 張）</a>
   </div>
 </div>
@@ -699,7 +699,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line">}</span>
 <span class="line"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>(0,1,5) (0,5,2) (1,2,4) (2,3,9) (3,4,7) (3,5,3) (4,0,1) (5,2,1) (5,4,8) </pre></div>
-  <p class="dx-note">每組 (from, to, weight) 對應一條有向邊。addEdge 會補上不存在的頂點；setVertex 對既有 key 是 no-op，不會清掉 edges/state。ordered map 查頂點為 O(log |V|)、查特定鄰邊為 O(log deg(v))。</p>
+  <p class="dx-note">每組 (from, to, weight) 對應一條有向邊，addEdge 會補上不存在的頂點。ordered map 查頂點為 O(log |V|)、查特定鄰邊為 O(log deg(v))。</p>
 </div>
 </section>
 
@@ -817,9 +817,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line">}</span>
 <span class="line"> </span></div>
-  <div class="expected-out"><span class="eo-tag">示範執行（回溯路徑可能因探索順序略異，長度必為 6 步）</span><pre>sage-&gt;sale-&gt;pale-&gt;pall-&gt;poll-&gt;pool-&gt;fool
+  <div class="expected-out"><span class="eo-tag">實際執行</span><pre>sage-&gt;page-&gt;pale-&gt;pall-&gt;poll-&gt;pool-&gt;fool
 cool(1) fail(2) fall(3) foil(1) fool(0) foul(1) page(5) pale(4) pall(3) pole(3) poll(2) pool(1) pope(4) sage(6) sale(5)</pre></div>
-  <p class="dx-note">每次 bfs 前會先重設全部 color、previous，並把 distance 設為 INT_MAX；起點在 enqueue 前標 gray。traverse 印 previous 鏈，任何可達單字回溯到 fool 都是最短路。</p>
+  <p class="dx-note">traverse 印 previous 鏈，任何可達單字回溯到 fool 都是最短路。</p>
 </div>
 </section>
 
@@ -1042,8 +1042,7 @@ cool(1) fail(2) fall(3) foil(1) fool(0) foul(1) page(5) pale(4) pall(3) pole(3) 
 
   <div class="info-box purple">
     <span class="info-label">Warnsdorff 啟發式</span>
-    <strong>下一步永遠選「可走鄰居最少」的格子</strong>。直覺：先去角落、邊緣那些「難救援」的格子，避免它們被孤立；中間格子鄰居多，留到最後當跳板。<br>
-    這個簡單規則讓 8x8 從「跑不完」變成<strong>不到一秒就完成</strong>：經典的 heuristic 範例。
+    <strong>下一步永遠選「可走鄰居最少」的格子</strong>。
   </div>
 
   <div class="viz-layout">
@@ -1188,7 +1187,7 @@ cool(1) fail(2) fall(3) foil(1) fool(0) foul(1) page(5) pale(4) pall(3) pole(3) 
 
   <div class="info-box green">
     <span class="info-label">關鍵概念：邊鬆弛 (relaxation)</span>
-    第 11–14 行稱為<strong>邊鬆弛</strong>：對 $u$ 的每個鄰居 $v$，檢查是否可以透過 $u$ 走到 $v$ 比目前已知更近：
+    第 9–13 行稱為<strong>邊鬆弛</strong>：對 $u$ 的每個鄰居 $v$，檢查是否可以透過 $u$ 走到 $v$ 比目前已知更近：
     $$\text{new\_d} = d(u) + w(u,v),\quad \text{若 new\_d} < d(v)\text{，更新 } d(v) \text{ 並把 }u\text{ 設為 previous}.$$
     本課程採 lazy priority queue：改善距離時直接 push 新 pair；舊 pair 出列時若距離較大就略過。最多 $O(|E|)$ 次 push/pop；簡單圖上 $\log|E|=O(\log|V|)$，總時間 $O((|V|+|E|)\log|V|)$。
   </div>
@@ -1352,7 +1351,7 @@ u x y z </pre></div>
 <span class="line">}</span>
 <span class="line"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>MST edges: (A,B) (B,C) (B,D) (D,E) (E,F) (F,G) </pre></div>
-  <p class="dx-note"><span id="dx-prm"></span>六條邊總權重 7。每次選的是跨越「目前樹／樹外頂點」之 cut 的最小權重 safe edge。若圖不連通，課程 void prim() 會丟出 invalid_argument，不會靜默回傳 forest。</p>
+  <p class="dx-note"><span id="dx-prm"></span>六條邊總權重 7。每次選的是跨越「目前樹／樹外頂點」之 cut 的最小權重 safe edge。</p>
 </div>
 </section>
 
@@ -1718,7 +1717,7 @@ u x y z </pre></div>
 </div>
 
 <footer>
-  <p>圖與圖演算法 · Interactive Visualization · Chapter 7</p>
+  <p>圖與圖演算法 · Interactive Visualization · Chapter 9</p>
   <p style="margin-top:.4rem;font-size:.78rem;">Based on <em>Problem Solving with Algorithms and Data Structures using C++ (cppds)</em> · 互動視覺化版本</p>
 </footer>
 
@@ -2919,15 +2918,15 @@ class DijkstraController {
       }
       visited[u] = true;
       const treeEdges = verts.filter(vv => prev[vv]).map(vv => [prev[vv], vv]);
-      steps.push({ kind:'pop', codeLine:7, current:u, pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`從 PQ 取出最小：${u} (distance = ${d})，標記為 visited`, treeEdges });
+      steps.push({ kind:'pop', codeLine:6, current:u, pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`從 PQ 取出最小：${u} (distance = ${d})，標記為 visited`, treeEdges });
       for (const { to: vv, w: weight } of adj[u]) {
         const newD = dist[u] + weight;
-        steps.push({ kind:'relax-check', codeLine:11, current:u, neighbor:vv, edge:[u,vv], pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`鬆弛邊 ${u}—${vv}：newD = ${d} + ${weight} = ${newD}，目前 d(${vv}) = ${isFinite(dist[vv])?dist[vv]:'∞'}`, treeEdges });
+        steps.push({ kind:'relax-check', codeLine:10, current:u, neighbor:vv, edge:[u,vv], pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`鬆弛邊 ${u}—${vv}：newD = ${d} + ${weight} = ${newD}，目前 d(${vv}) = ${isFinite(dist[vv])?dist[vv]:'∞'}`, treeEdges });
         if (newD < dist[vv]) {
           dist[vv] = newD; prev[vv] = u;
           pq.push([newD, vv]);
           sortPq();
-          steps.push({ kind:'relax-update', codeLine:13, current:u, neighbor:vv, pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`更新！d(${vv}) = ${newD}，previous(${vv}) = ${u}`, treeEdges: [...treeEdges.filter(e => e[1] !== vv), [u, vv]] });
+          steps.push({ kind:'relax-update', codeLine:11, current:u, neighbor:vv, pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`更新！d(${vv}) = ${newD}，previous(${vv}) = ${u}`, treeEdges: [...treeEdges.filter(e => e[1] !== vv), [u, vv]] });
         }
       }
     }

@@ -42,7 +42,7 @@
  {
   "question": "int *a = new int[10]; 用完之後寫 delete a; 有什麼問題？",
   "answers": [
-   {"answer": "new[] 必須配 delete[]，寫成 delete 是未定義行為", "correct": true, "feedback": "正確。中括號要成對。用 delete 還一整排的記憶體，標準沒有規定會發生什麼事，實務上通常只還了第一個元素、其餘九個洩漏。編譯器不會抱怨。"},
+   {"answer": "new[] 必須配 delete[]，寫成 delete 是未定義行為", "correct": true, "feedback": "正確。中括號要成對。new[] 配 delete 是未定義行為：可能整塊還掉、可能只還一部分、對有解構式的型別還會漏掉解構；g++ 加 -Wall 通常會警告，但別依賴它。"},
    {"answer": "沒問題，delete 和 delete[] 是一樣的", "correct": false, "feedback": "不對。兩者的行為不同：delete[] 會對每個元素呼叫解構式，delete 只處理一個。"},
    {"answer": "應該寫 delete *a;", "correct": false, "feedback": "不對。delete 接的是指標本身，不是解參考的結果。"},
    {"answer": "new int[10] 的配置語法就錯了", "correct": false, "feedback": "不對。配置本身完全合法。"}

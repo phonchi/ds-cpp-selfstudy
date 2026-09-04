@@ -898,13 +898,11 @@ i=2  a[i]=30  *(a+i)=30  位址=0x7ffef812b1b8  距離首位 8 bytes</pre></div>
 <span class="line" data-l="9">    <span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>};</span>
 <span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">在 main 裡 sizeof(a) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(a) &lt;&lt; <span class="str">"</span><span class="str"> bytes（5 個 int）</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="11">    f(a);</span>
-<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">所以陣列傳進函式一定要另外傳長度。</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="14">}</span>
-<span class="line" data-l="15"> </span></div>
+<span class="line" data-l="12">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>在 main 裡 sizeof(a) = 20 bytes（5 個 int）
-在函式裡 sizeof(arr) = 8 bytes（這是指標的大小）
-所以陣列傳進函式一定要另外傳長度。</pre></div>
+在函式裡 sizeof(arr) = 8 bytes（這是指標的大小）</pre></div>
   <p class="dx-note"><code>void f(int arr[])</code> 看起來收的是陣列，其實編譯器把它當成 <code>int*</code>。所以函式裡量到的是<strong>指標的大小</strong>（8 bytes），不是陣列的大小（20 bytes）。這叫<strong>陣列退化</strong>，是 C++ 初學最常踩的坑之一。</p>
 </div>
 
@@ -977,7 +975,7 @@ i=2  a[i]=30  *(a+i)=30  位址=0x7ffef812b1b8  距離首位 8 bytes</pre></div>
 兩者的值都是 42 / 42
 arr = 0 1 4 9 16 
 都還回去了。</pre></div>
-  <p class="dx-note">注意兩個位址差很多：堆疊那個是 <code>0x7fff…</code>，堆積那個是 <code>0x6146…</code>——它們住在記憶體的兩端。另外 <strong><code>new[]</code> 一定要配 <code>delete[]</code></strong>，配錯是未定義行為，編譯器不會提醒你。</p>
+  <p class="dx-note">注意兩個位址差很多：堆疊那個是 <code>0x7fff…</code>，堆積那個是 <code>0x6146…</code>——它們住在記憶體的兩端。另外 <strong><code>new[]</code> 一定要配 <code>delete[]</code></strong>，配錯是未定義行為（g++ 加 -Wall 通常會警告，但別依賴它）。</p>
 </div>
 
   <div class="viz-layout">
@@ -1066,8 +1064,7 @@ arr = 0 1 4 9 16
       <text x="694" y="95" font-size="12" text-anchor="middle" style="fill:var(--muted)">已還給</text>
       <text x="694" y="109" font-size="12" text-anchor="middle" style="fill:var(--muted)">系統</text>
       <text x="634" y="144" font-size="12.5" font-weight="700" text-anchor="middle" style="fill:var(--accent3)">安全的收尾</text>
-      <text x="634" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">箭頭消失，不會誤用</text>
-      <text x="634" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">再 delete 一次也合法</text>
+      <text x="634" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">箭頭斷乾淨</text>
     </svg>
     <p class="mono" style="font-size:.8rem;color:var(--muted);margin:.7rem 0 0;text-align:center;line-height:1.7;">圖 2：<code>delete</code> 還的是<strong>堆積上那塊記憶體</strong>，不是指標 <code>p</code> —— p 還留著舊門牌，就成了懸空指標。多寫一行 <code>p = &#78;ULL;</code>，箭頭才真的斷乾淨。</p>
   </div>
@@ -1191,7 +1188,7 @@ arr = 0 1 4 9 16
     <p><code>int *a = new int[10];</code> 用完之後寫 <code>delete a;</code>。問題在哪？</p>
     <div class="quiz-options" id="qcOptions">
       <div class="quiz-opt" data-correct="false" data-fb="沒有漏寫。問題出在 delete 的形式不對。" onclick="quizCheck('qc', this)"><span class="opt-letter">(A)</span> 沒問題</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。new[] 配的是一整排，必須用 delete[] 還。用 delete 只還了第一個元素，其餘九個洩漏——而且這在標準裡是未定義行為，編譯器不會提醒你。口訣：中括號要成對。" onclick="quizCheck('qc', this)"><span class="opt-letter">(B)</span> <code>new[]</code> 要配 <code>delete[]</code>，寫成 <code>delete</code> 是未定義行為</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。new[] 配的是一整排，必須用 delete[] 還。用 delete 是未定義行為：可能整塊還掉、可能只還一部分、對有解構式的型別還會漏掉解構；g++ 加 -Wall 通常會警告，但別依賴它。口訣：中括號要成對。" onclick="quizCheck('qc', this)"><span class="opt-letter">(B)</span> <code>new[]</code> 要配 <code>delete[]</code>，寫成 <code>delete</code> 是未定義行為</div>
       <div class="quiz-opt" data-correct="false" data-fb="配置本身沒問題，new int[10] 是合法的。" onclick="quizCheck('qc', this)"><span class="opt-letter">(C)</span> 配置的語法就錯了</div>
     </div>
     <div class="quiz-feedback" id="qcFeedback"></div>
@@ -1307,7 +1304,7 @@ int main() {
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>int *a = new int[10]; 用完之後寫 delete a; 有什麼問題？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。中括號要成對。用 delete 還一整排的記憶體，標準沒有規定會發生什麼事，實務上通常只還了第一個元素、其餘九個洩漏。編譯器不會抱怨。">new[] 必須配 delete[]，寫成 delete 是未定義行為</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。中括號要成對。new[] 配 delete 是未定義行為：可能整塊還掉、可能只還一部分、對有解構式的型別還會漏掉解構；g++ 加 -Wall 通常會警告，但別依賴它。">new[] 必須配 delete[]，寫成 delete 是未定義行為</button>
       <button class="sq-opt" data-c="0" data-fb="不對。兩者的行為不同：delete[] 會對每個元素呼叫解構式，delete 只處理一個。">沒問題，delete 和 delete[] 是一樣的</button>
       <button class="sq-opt" data-c="0" data-fb="不對。delete 接的是指標本身，不是解參考的結果。">應該寫 delete *a;</button>
       <button class="sq-opt" data-c="0" data-fb="不對。配置本身完全合法。">new int[10] 的配置語法就錯了</button>

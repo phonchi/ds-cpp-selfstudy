@@ -599,6 +599,24 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="https://github.com/phonchi/jupyter-cpp-kernel/blob/nsysu-math208/jcppkernel/resources/gcpph.hpp" target="_blank" rel="noopener">gcpph.hpp 原始碼</a>。</p>
   </div>
 
+  <div class="warn-box">
+    <div class="info-label">⚠️ cell 裡寫了 <code>#include</code>，就要自己寫 <code>main()</code></div>
+    <p>kernel 的規則是看 cell 裡<strong>有沒有 <code>main(</code></strong>：沒有的話，它會把<strong>整格內容</strong>自動包進
+    <code>int main() { … return 0; }</code> 再編譯 —— 所以講義很多格只寫兩三行敘述就能跑。
+    但這也表示：如果你的 cell 有 <code>#include</code> 卻沒寫 main，那行 include 會被<strong>包進 main 的身體裡</strong>，
+    整個標頭檔的內容被塞進函式中，編譯直接噴出一長串看不懂的錯誤。</p>
+    <div class="cmp-table-wrap">
+    <table class="cmp-table">
+      <thead><tr><th>你的 cell 長怎樣</th><th>怎麼寫</th></tr></thead>
+      <tbody>
+        <tr><td>幾行小片段，只用到自動帶入的東西（<code>cout</code>、<code>vector</code>…）</td><td>不用 main，直接寫敘述（kernel 幫你包）</td></tr>
+        <tr><td>有任何 <code>#include</code>（如 <code>&lt;map&gt;</code>、課程標頭）</td><td><strong>寫完整程式</strong>：include 放最上面＋自己的 <code>int main()</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-bottom:0;">講義 cell 兩種形態都有，照抄不會錯；自己開新 cell 實驗時記得這條規則。</p>
+  </div>
+
   <div class="info-card">
     <div class="ic-title">開始上課 <span class="ic-badge">每次 3 步</span></div>
     <p style="font-size:.9rem;margin-bottom:0;">① 開終端機，<code>cd</code> 到放 .ipynb 的教材資料夾（有裝 Anaconda 的同學先看下面的警告框）。<br>

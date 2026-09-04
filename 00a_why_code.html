@@ -570,7 +570,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <div class="deck-extra">
   <div class="dx-label">兩個都對，成本差兩個數量級（n = 50000，實際編譯執行）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"stack.hpp"</span><span class="kw"></span>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/stack.hpp"</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
 <span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
@@ -1083,5 +1083,39 @@ const FLASHCARDS = [{"front": "漸近複雜度（Asymptotic Complexity）", "bac
   document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
 })();
 </script>
+<script>/* quiz-shuffle v1 */
+(function () {
+  function hash(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return h || 1;
+  }
+  function run() {
+    var page = (location.pathname.split('/').pop() || 'index');
+    var groups = document.querySelectorAll('.quiz-options, .sq-opts');
+    Array.prototype.forEach.call(groups, function (g, gi) {
+      var kids = Array.prototype.filter.call(g.children, function (c) {
+        return c.classList.contains('quiz-opt') || c.classList.contains('sq-opt');
+      });
+      if (kids.length < 2) return;
+      var seed = hash(page + '#' + gi);
+      function rnd() {  // xorshift32，固定種子 → 固定排列
+        seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0;
+        return seed / 4294967296;
+      }
+      for (var i = kids.length - 1; i > 0; i--) {
+        var j = Math.floor(rnd() * (i + 1));
+        var t = kids[i]; kids[i] = kids[j]; kids[j] = t;
+      }
+      kids.forEach(function (k, i) {
+        g.appendChild(k);
+        var L = k.querySelector('.opt-letter');
+        if (L) L.textContent = '(' + String.fromCharCode(65 + i) + ')';
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+/* /quiz-shuffle v1 */</script>
 </body>
 </html>

@@ -570,7 +570,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <div class="deck-extra">
   <div class="dx-label">講義 09 · BinaryTree 基本操作</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"binarytree.hpp"</span><span class="com">   // 本節的完整類別</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // 本節的完整類別</span><span class="kw"></span>
 <span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line"> </span>
 <span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
@@ -596,7 +596,7 @@ hello</pre></div>
 <div class="deck-extra">
   <div class="dx-label">講義 09 · 解析樹：建樹、求值、還原</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"binarytree.hpp"</span><span class="com">   // buildParseTree + evaluate + printExp</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // buildParseTree + evaluate + printExp</span><span class="kw"></span>
 <span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line"> </span>
 <span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
@@ -1020,7 +1020,7 @@ hello</pre></div>
   <div class="dx-label">講義 09 · buildHeap 的使用畫面＋heapSort 練習</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"binaryheap.hpp"</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binaryheap.hpp"</span><span class="kw"></span>
 <span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line"> </span>
 <span class="line">vector&lt;<span class="kw">int</span>&gt; heapSort(vector&lt;<span class="kw">int</span>&gt; unsortedList) {</span>
@@ -1149,7 +1149,7 @@ hello</pre></div>
   <div class="dx-label">講義 09 · BinarySearchTree 當 Map 用＋treeSort 練習</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"bst.hpp"</span><span class="com">   // TreeNode + BinarySearchTree</span><span class="kw"></span>
+<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/bst.hpp"</span><span class="com">   // TreeNode + BinarySearchTree</span><span class="kw"></span>
 <span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line"> </span>
 <span class="line">vector&lt;string&gt; treeSort(vector&lt;string&gt; values) {</span>
@@ -3668,5 +3668,39 @@ const FLASHCARDS = [{"front": "樹（Trees）", "back": "由節點組成的階�
   });
 })();
 </script>
+<script>/* quiz-shuffle v1 */
+(function () {
+  function hash(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return h || 1;
+  }
+  function run() {
+    var page = (location.pathname.split('/').pop() || 'index');
+    var groups = document.querySelectorAll('.quiz-options, .sq-opts');
+    Array.prototype.forEach.call(groups, function (g, gi) {
+      var kids = Array.prototype.filter.call(g.children, function (c) {
+        return c.classList.contains('quiz-opt') || c.classList.contains('sq-opt');
+      });
+      if (kids.length < 2) return;
+      var seed = hash(page + '#' + gi);
+      function rnd() {  // xorshift32，固定種子 → 固定排列
+        seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0;
+        return seed / 4294967296;
+      }
+      for (var i = kids.length - 1; i > 0; i--) {
+        var j = Math.floor(rnd() * (i + 1));
+        var t = kids[i]; kids[i] = kids[j]; kids[j] = t;
+      }
+      kids.forEach(function (k, i) {
+        g.appendChild(k);
+        var L = k.querySelector('.opt-letter');
+        if (L) L.textContent = '(' + String.fromCharCode(65 + i) + ')';
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+/* /quiz-shuffle v1 */</script>
 </body>
 </html>

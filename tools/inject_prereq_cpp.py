@@ -15,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import contrast_fix  # noqa: E402
+import shuffle_quiz  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKER = "<!-- prereq-injected -->"
@@ -123,6 +124,10 @@ def inject(entry):
     # 它自己有成對標記、自己判斷要不要更新，這裡不必管冪等。
     if contrast_fix.ensure(path):
         print(f"  {fname}.html 補上 contrast-fix")
+        s = path.read_text()
+    # 自測題選項洗牌（quiz-shuffle）：同樣自帶成對標記，放在 MARKER 之前。
+    if shuffle_quiz.ensure(path):
+        print(f"  {fname}.html 補上 quiz-shuffle")
         s = path.read_text()
 
     # MathJax：本 repo 的頁面都有，但移植進來的頁面若缺就補上（冪等，放在 MARKER 之前）

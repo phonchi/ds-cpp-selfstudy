@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from enrich_lib import card, ensure_style, insert_end_of_section
 
-PAGE = Path.home() / "ds-cpp-selfstudy/linked_lists.html"
+PAGE = Path(__file__).resolve().parents[2] / "linked_lists.html"
 s = PAGE.read_text()
 s = ensure_style(s)
 
@@ -60,6 +60,15 @@ note="第一行輸出印證了 add 是<strong>頭插</strong>：最後加入的 
 </div>'''
 s, c2 = insert_end_of_section(s, "unordered", uno, 'id="dx-uno"')
 
+ownership = f'''{card("講義 04 · 所有權與 deep copy", """UnorderedList<int> a;
+a.add(1); a.add(2);
+UnorderedList<int> b = a;  // 必須複製整條鏈
+b.remove(2);               // 不可改到 a
+""",
+None,
+note='<span id="dx-own"></span>教學類別擁有 new 出來的節點：destructor 要逐一 delete；copy constructor 與 copy assignment 要 deep copy。若只複製 head，兩個物件會共用節點，最後可能 double free。remove 採 erase-if-found，找不到時保持不變。')}'''
+s, c5 = insert_end_of_section(s, "unordered", ownership, 'id="dx-own"')
+
 odr = f'''{card("講義 04 · OrderedList：一樣的介面、排好的內容", """#include <iostream>
 #include "linked_list.hpp"
 using namespace std;
@@ -87,7 +96,7 @@ exx = f'''<div class="deck-extra" id="dx-exx">
   <div class="dx-label">cppds Ch.4 課後題精選（自我挑戰）</div>
   <ol style="font-size:.92rem;line-height:1.9;padding-left:1.4rem;">
     <li><strong>size 的 O(1) 版</strong>：現在的 size() 要走訪整條串列。把「節點數」存成成員變數，改寫 add / remove / size，讓 size() 變 O(1)。</li>
-    <li><strong>防呆 remove</strong>：目標不在串列裡時，現在的 remove 會怎樣？改成安全版本（提示：cur 走到 NULL 就該停）。</li>
+    <li><strong>驗證 remove 契約</strong>：目標不在串列裡時應保持不變。替空串列、缺少目標、刪 head、刪尾端各寫一個測試。</li>
     <li><strong>補完 ADT</strong>：實作 append、index、pop、insert 四個缺席的方法，並分析各自的 Big-O。</li>
     <li><strong>slice(start, stop)</strong>：回傳從 start 到 stop（不含）的新串列。</li>
     <li><strong>用繼承減少重複</strong>：OrderedList 與 UnorderedList 大量方法相同。設計繼承階層，讓共同的部分只寫一次。</li>
@@ -98,4 +107,4 @@ exx = f'''<div class="deck-extra" id="dx-exx">
 s, c4 = insert_end_of_section(s, "exercises", exx, 'id="dx-exx"')
 
 PAGE.write_text(s)
-print("inserted:", [n for n, ok in zip("node uno odr exx".split(), [c1, c2, c3, c4]) if ok])
+print("inserted:", [n for n, ok in zip("node uno ownership odr exx".split(), [c1, c2, c5, c3, c4]) if ok])

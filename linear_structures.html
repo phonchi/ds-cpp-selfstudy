@@ -486,7 +486,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>① <strong>照節次讀</strong>：每一節先讀說明、動手玩互動元件，預測結果再按按鈕驗證。
   ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；細節與完整程式請回講義 05 與 cppds 原文。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
-  ④ 最後翻 <a href="#cards">關鍵詞彙卡（14 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標「講義補充」的節是課堂沒細講的延伸，第一輪可略過。</p>
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡（16 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標「講義補充」的節是課堂沒細講的延伸，第一輪可略過。</p>
   <div class="sg-links"><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/05_Linear_Structure.pdf" target="_blank" rel="noopener">📑 講義 05 PDF</a><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/05_Linear_Structure.html" target="_blank" rel="noopener">🖥 講義 05 HTML</a><a href="https://github.com/pearcej/cppds/tree/master/_sources/LinearBasic" target="_blank" rel="noopener">📖 cppds 原文（LinearBasic）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
@@ -504,7 +504,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#deque"><span class="toc-num">P08</span>雙端佇列與迴文</a>
     <a href="#exercises"><span class="toc-num">EX</span>練習題</a>
     <a href="#reference"><span class="toc-num">REF</span>總覽比較</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（14 張）</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（16 張）</a>
   </div>
 </div>
 
@@ -516,7 +516,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="info-box">
     <span class="info-label">本章你會學到的技術</span>
     <strong>1. 三種 ADT：</strong>stack（LIFO）、queue（FIFO）、deque（兩端皆可）。<br>
-    <strong>2. C++ 實作：</strong>用 <code>vector</code> 自己刻，並理解每個操作的成本。<br>
+    <strong>2. C++ 實作：</strong>正文使用 STL <code>stack/queue/deque</code>；課程自製 API 明標為作業補充。<br>
     <strong>3. 經典應用：</strong>括號配對、進位轉換、中序轉後序、約瑟夫問題、模擬、迴文。
   </div>
   <div class="viz-layout">
@@ -604,26 +604,25 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
   <h3>先把 ADT 說清楚</h3>
-  <p>Stack ADT 有六個操作：<code>push(item)</code>、<code>pop()</code>（移除並回傳 top）、
-  <code>peek()</code>（只看不拿）、<code>isEmpty()</code>、<code>size()</code>，加上建構子。
-  講義用一張操作序列表把行為完全定死（top 在最右邊）：</p>
+  <p>cppds 的 C++ 正文以 <code>std::stack</code> 為主線：<code>push(item)</code>、
+  <code>top()</code>、<code>pop()</code>、<code>empty()</code>、<code>size()</code>。
+  STL 的 <code>pop()</code> 只移除、不回傳；需要值時要先讀 <code>top()</code>。</p>
   <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.85rem;">
     <thead><tr><th>操作</th><th>Stack 內容（top 在右）</th><th>回傳</th></tr></thead>
     <tbody>
-      <tr><td class="mono">s.isEmpty()</td><td class="mono">[]</td><td class="mono">true</td></tr>
+      <tr><td class="mono">s.empty()</td><td class="mono">[]</td><td class="mono">true</td></tr>
       <tr><td class="mono">s.push(4)</td><td class="mono">[4]</td><td></td></tr>
-      <tr><td class="mono">s.push("dog")</td><td class="mono">[4, dog]</td><td></td></tr>
-      <tr><td class="mono">s.peek()</td><td class="mono">[4, dog]</td><td class="mono">dog</td></tr>
-      <tr><td class="mono">s.push(true)</td><td class="mono">[4, dog, true]</td><td></td></tr>
-      <tr><td class="mono">s.size()</td><td class="mono">[4, dog, true]</td><td class="mono">3</td></tr>
-      <tr><td class="mono">s.push(8.4)</td><td class="mono">[4, dog, true, 8.4]</td><td></td></tr>
-      <tr><td class="mono">s.pop()</td><td class="mono">[4, dog, true]</td><td class="mono">8.4</td></tr>
-      <tr><td class="mono">s.pop()</td><td class="mono">[4, dog]</td><td class="mono">true</td></tr>
+      <tr><td class="mono">s.push(7)</td><td class="mono">[4, 7]</td><td>void</td></tr>
+      <tr><td class="mono">s.top()</td><td class="mono">[4, 7]</td><td class="mono">7</td></tr>
+      <tr><td class="mono">s.push(2)</td><td class="mono">[4, 7, 2]</td><td>void</td></tr>
+      <tr><td class="mono">s.size()</td><td class="mono">[4, 7, 2]</td><td class="mono">3</td></tr>
+      <tr><td class="mono">s.pop()</td><td class="mono">[4, 7]</td><td>void</td></tr>
     </tbody>
   </table></div>
-  <p style="font-size:.88rem;color:var(--muted);">表裡混放了數字、字串、布林，這是 ADT 層次的示意。
-  實作成 C++ template 之後，一個 Stack 物件只裝一種型別：<code>Stack&lt;double&gt;</code> 裝 double、
-  <code>Stack&lt;string&gt;</code> 裝字串。</p>
+  <p style="font-size:.88rem;color:var(--muted);">一個 C++ stack 物件只裝一種型別。
+  pythonds3 的 <code>Stack&lt;T&gt;</code> 保留 <code>peek()/isEmpty()</code> 與會回傳值的 <code>pop()</code>。
+  HW3 的定容量 <code>Stack&lt;T&gt;(capacity)</code> 則用 <code>stackTop()</code> 看頂端、<code>peek(index)</code>
+  看指定深度，另有 <code>isFull()</code>。這三套 API 不可混用。</p>
 
   <div class="viz-layout" style="margin-top:1rem;">
     <div>
@@ -634,7 +633,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           <input id="stackInput" class="mono" style="width:90px;padding:.35rem .5rem;border:1px solid var(--card-border);border-radius:6px;" value="8.4">
           <button class="btn" onclick="stackPush()">push</button>
           <button class="btn" onclick="stackPop()">pop</button>
-          <button class="btn" onclick="stackPeek()">peek</button>
+          <button class="btn" onclick="stackPeek()">top</button>
           <button class="btn" onclick="stackReset()">重置</button>
         </div>
       </div>
@@ -643,25 +642,23 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <div class="info-card">
         <div class="ic-title">C++ 實作 <span class="ic-badge">CODE</span></div>
         <div class="pseudo-code" style="font-size:.78rem;">
-<span class="line" data-l="1"><span class="kw">class</span> <span class="fn">Stack</span> {           <span class="com">// pythonds3/cppds/stack.hpp（vector 尾端 = top）</span></span>
-<span class="line" data-l="2">    vector&lt;T&gt; items;</span>
-<span class="line" data-l="3">    <span class="kw">bool</span> <span class="fn">isEmpty</span>() { <span class="kw">return</span> items.<span class="fn">empty</span>(); }</span>
-<span class="line" data-l="4">    <span class="kw">void</span> <span class="fn">push</span>(T item) { items.<span class="fn">push_back</span>(item); }</span>
-<span class="line" data-l="5">    T <span class="fn">pop</span>()  { T top = items.<span class="fn">back</span>(); items.<span class="fn">pop_back</span>(); <span class="kw">return</span> top; }</span>
-<span class="line" data-l="6">    T <span class="fn">peek</span>() { <span class="kw">return</span> items.<span class="fn">back</span>(); }</span>
-<span class="line" data-l="7">    <span class="kw">int</span> <span class="fn">size</span>() { <span class="kw">return</span> items.<span class="fn">size</span>(); }</span>
-<span class="line" data-l="8">};</span></div>
+<span class="line"><span class="com">// cppds 正文：C++ Standard Library container adapter</span></span>
+<span class="line">std::stack&lt;std::string&gt; s;</span>
+<span class="line">s.<span class="fn">push</span>(<span class="str">"first"</span>);</span>
+<span class="line">s.<span class="fn">push</span>(<span class="str">"second"</span>);</span>
+<span class="line">std::cout &lt;&lt; s.<span class="fn">top</span>(); <span class="com">// 先讀值</span></span>
+<span class="line">s.<span class="fn">pop</span>(); <span class="com">// pop 回傳 void</span></span>
+<span class="line"><span class="kw">bool</span> done = s.<span class="fn">empty</span>();</span></div>
       </div>
       <div class="info-card">
-        <div class="ic-title">操作成本（vector 尾端當 top）</div>
-        <div class="ic-row"><span class="ic-label">push / pop / peek</span><span class="ic-value">O(1)*</span></div>
-        <div class="ic-row"><span class="ic-label">size / isEmpty</span><span class="ic-value">O(1)</span></div>
-        <div style="font-size:.76rem;color:var(--muted);margin-top:.3rem;">* push 是攤銷 O(1)。</div>
+        <div class="ic-title">std::stack 操作成本</div>
+        <div class="ic-row"><span class="ic-label">push / pop / top</span><span class="ic-value">O(1)</span></div>
+        <div class="ic-row"><span class="ic-label">size / empty</span><span class="ic-value">O(1)</span></div>
       </div>
     </div>
   </div>
 
-  <h3 style="margin-top:1.6rem;">同一個 ADT、另一種實作：Stack2 的代價</h3>
+  <h3 style="margin-top:1.6rem;">課程實作補充：Stack2 的代價</h3>
   <p>把 top 改放在 vector 的<strong>前端</strong>也做得出一個功能完全正確的 stack：
   push 用 <code>insert(begin())</code>、pop 用 <code>erase(begin())</code>。
   介面一模一樣，使用者根本分不出來。這就是抽象化的威力，也是它的陷阱：
@@ -699,10 +696,10 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · Stack 行為</div>
-  <p>依序執行 <code>s.push(4); s.push(7); s.pop(); s.push(2); s.peek();</code> 之後，<code>peek()</code> 回傳什麼？stack 內容（由底至頂）是什麼？</p>
+  <p>依序執行 <code>s.push(4); s.push(7); s.pop(); s.push(2); s.top();</code> 之後，<code>top()</code> 回傳什麼？stack 內容（由底至頂）是什麼？</p>
   
   <div class="quiz-options" id="qStackOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="pop 移除 7，之後 push 2 → 由底至頂為 4, 2，top（peek）= 2。" onclick="quizCheck('qStack', this)"><span class="opt-letter">(A)</span> 回傳 <code>2</code>；內容 <code>[4, 2]</code></div><div class="quiz-opt" data-correct="false" data-fb="7 已經被 pop 掉了；peek 只「看」不移除。" onclick="quizCheck('qStack', this)"><span class="opt-letter">(B)</span> 回傳 <code>7</code>；內容 <code>[4, 7, 2]</code></div><div class="quiz-opt" data-correct="false" data-fb="4 是最早 push 的，在最底層；top 是最後 push 的 2。" onclick="quizCheck('qStack', this)"><span class="opt-letter">(C)</span> 回傳 <code>4</code>；內容 <code>[2, 4]</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="pop 移除 7，之後 push 2 → 由底至頂為 4, 2，top() = 2。" onclick="quizCheck('qStack', this)"><span class="opt-letter">(A)</span> 回傳 <code>2</code>；內容 <code>[4, 2]</code></div><div class="quiz-opt" data-correct="false" data-fb="7 已經被 pop 掉了；top() 只看不移除。" onclick="quizCheck('qStack', this)"><span class="opt-letter">(B)</span> 回傳 <code>7</code>；內容 <code>[4, 7, 2]</code></div><div class="quiz-opt" data-correct="false" data-fb="4 是最早 push 的，在最底層；top 是最後 push 的 2。" onclick="quizCheck('qStack', this)"><span class="opt-letter">(C)</span> 回傳 <code>4</code>；內容 <code>[2, 4]</code></div>
   </div>
   <div class="quiz-feedback" id="qStackFeedback"></div>
 </div>
@@ -732,6 +729,21 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="quiz-opt" data-correct="true" data-fb="push 的順序是 N,S,Y,S,U；pop 出來就是 U,S,Y,S,N。任何「先進後出」的容器都自帶反轉效果，之後的十進位轉二進位（§3.8）用的是同一招。" onclick="quizCheck('qRev', this)"><span class="opt-letter">(A)</span> LIFO：最後進去的最先出來，順序自然顛倒</div><div class="quiz-opt" data-correct="false" data-fb="stack 不排序：它只管進出順序。" onclick="quizCheck('qRev', this)"><span class="opt-letter">(B)</span> stack 內部把字串排序了</div><div class="quiz-opt" data-correct="false" data-fb="top 永遠只看頂端；兩端進出的是 deque（§3.15）。" onclick="quizCheck('qRev', this)"><span class="opt-letter">(C)</span> top() 會從兩端輪流取</div>
   </div>
   <div class="quiz-feedback" id="qRevFeedback"></div>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">cppds 正文 · STL 與課程 API 對照</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1">std::stack&lt;<span class="kw">int</span>&gt; s;</span>
+<span class="line" data-l="2">s.push(<span class="num">4</span>);</span>
+<span class="line" data-l="3"><span class="kw">int</span> x = s.top();</span>
+<span class="line" data-l="4">s.pop();              <span class="com">// 回傳 void</span>
+<span class="line" data-l="5"></span></span>
+<span class="line" data-l="6">std::queue&lt;<span class="kw">int</span>&gt; q;</span>
+<span class="line" data-l="7">q.push(<span class="num">4</span>);</span>
+<span class="line" data-l="8"><span class="kw">int</span> y = q.front();</span>
+<span class="line" data-l="9">q.pop();              <span class="com">// 回傳 void</span>
+<span class="line" data-l="10"></span></span></div>
+  <p class="dx-note"><span id="dx-stl-api"></span>正文以 std::stack／std::queue／std::deque 為主。pythonds3 的 Stack&lt;T&gt; 使用 peek()/isEmpty()；HW3 定容量 Stack&lt;T&gt;(capacity) 使用 stackTop() 或 peek(index)，另有 isFull()。三套 API 不可混用。</p>
 </div>
 </section>
 
@@ -766,15 +778,15 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div>
         <div class="pseudo-code" id="parCode">
-<span class="line" data-l="1"><span class="fn">parChecker</span>(symbolString):</span>
-<span class="line" data-l="2">    Stack&lt;<span class="kw">char</span>&gt; s</span>
-<span class="line" data-l="3">    <span class="kw">for</span> (char symbol : symbolString):</span>
-<span class="line" data-l="4">        <span class="kw">if</span> symbol 是開符號 '(' '[' '{':</span>
-<span class="line" data-l="5">            s.<span class="fn">push</span>(symbol)</span>
-<span class="line" data-l="6">        <span class="kw">else</span>:                    <span class="com">// 閉符號</span></span>
-<span class="line" data-l="7">            <span class="kw">if</span> s.<span class="fn">isEmpty</span>(): <span class="kw">return</span> <span class="num">false</span></span>
-<span class="line" data-l="8">            <span class="kw">if</span> !<span class="fn">matches</span>(s.<span class="fn">pop</span>(), symbol): <span class="kw">return</span> <span class="num">false</span></span>
-<span class="line" data-l="9">    <span class="kw">return</span> s.<span class="fn">isEmpty</span>()   <span class="com">// 有剩 = 沒配完</span></span></div>
+<span class="line" data-l="1"><span class="kw">bool</span> <span class="fn">parChecker</span>(<span class="kw">const</span> string&amp; symbols) {</span>
+<span class="line" data-l="2">    stack&lt;<span class="kw">char</span>&gt; s;</span>
+<span class="line" data-l="3">    <span class="kw">for</span> (<span class="kw">char</span> symbol : symbols) {</span>
+<span class="line" data-l="4">        <span class="kw">if</span> (<span class="fn">isOpen</span>(symbol)) s.<span class="fn">push</span>(symbol);</span>
+<span class="line" data-l="5">        <span class="kw">else</span> { <span class="com">// 閉符號</span></span>
+<span class="line" data-l="6">            <span class="kw">if</span> (s.<span class="fn">empty</span>()) <span class="kw">return</span> <span class="num">false</span>;</span>
+<span class="line" data-l="7">            <span class="kw">char</span> open = s.<span class="fn">top</span>(); s.<span class="fn">pop</span>();</span>
+<span class="line" data-l="8">            <span class="kw">if</span> (!<span class="fn">matches</span>(open, symbol)) <span class="kw">return</span> <span class="num">false</span>; }</span>
+<span class="line" data-l="9">    } <span class="kw">return</span> s.<span class="fn">empty</span>(); }</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">三種失敗方式</div>
@@ -831,16 +843,16 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div>
         <div class="pseudo-code" id="baseCode">
-<span class="line" data-l="1"><span class="fn">baseConverter</span>(decNumber, base):</span>
-<span class="line" data-l="2">    digits = <span class="str">&quot;0123456789ABCDEF&quot;</span></span>
-<span class="line" data-l="3">    Stack&lt;<span class="kw">int</span>&gt; remStack</span>
-<span class="line" data-l="4">    <span class="kw">while</span> decNumber &gt; <span class="num">0</span>:</span>
-<span class="line" data-l="5">        remStack.<span class="fn">push</span>(decNumber % base)</span>
-<span class="line" data-l="6">        decNumber = decNumber / base   <span class="com">// 整數除法</span></span>
-<span class="line" data-l="7">    newString = <span class="str">&quot;&quot;</span></span>
-<span class="line" data-l="8">    <span class="kw">while</span> !remStack.<span class="fn">isEmpty</span>():</span>
-<span class="line" data-l="9">        newString += digits[remStack.<span class="fn">pop</span>()]</span>
-<span class="line" data-l="10">    <span class="kw">return</span> newString</span></div>
+<span class="line" data-l="1">string <span class="fn">baseConverter</span>(<span class="kw">int</span> value, <span class="kw">int</span> base) {</span>
+<span class="line" data-l="2">    string digits = <span class="str">&quot;0123456789ABCDEF&quot;</span>;</span>
+<span class="line" data-l="3">    stack&lt;<span class="kw">int</span>&gt; remainders;</span>
+<span class="line" data-l="4">    <span class="kw">while</span> (value &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="5">        remainders.<span class="fn">push</span>(value % base); value /= base; }</span>
+<span class="line" data-l="6">    string result;</span>
+<span class="line" data-l="7">    <span class="kw">while</span> (!remainders.<span class="fn">empty</span>()) {</span>
+<span class="line" data-l="8">        result += digits[remainders.<span class="fn">top</span>()];</span>
+<span class="line" data-l="9">        remainders.<span class="fn">pop</span>(); }</span>
+<span class="line" data-l="10">    <span class="kw">return</span> result; }</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">為什麼是 stack？</div>
@@ -1037,28 +1049,28 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     </div>
     <div class="side-panel">
       <div class="info-card"><div class="ic-title">infix → postfix <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="i2pCode">
-<span class="line" data-l="1"><span class="fn">infixToPostfix</span>(infixExpr):</span>
-<span class="line" data-l="2">    Stack&lt;string&gt; opStack;  postfixList = []</span>
-<span class="line" data-l="3">    <span class="kw">for</span> (token : infixExpr):</span>
-<span class="line" data-l="4">        <span class="kw">if</span> token 是運算元:</span>
-<span class="line" data-l="5">            postfixList.<span class="fn">push_back</span>(token)</span>
-<span class="line" data-l="6">        <span class="kw">else if</span> token == <span class="str">&quot;(&quot;</span>:</span>
-<span class="line" data-l="7">            opStack.<span class="fn">push</span>(token)</span>
-<span class="line" data-l="8">        <span class="kw">else if</span> token == <span class="str">&quot;)&quot;</span>:</span>
-<span class="line" data-l="9">            pop 並輸出，直到遇見 <span class="str">&quot;(&quot;</span></span>
-<span class="line" data-l="10">        <span class="kw">else</span>:   <span class="com">// 運算子</span></span>
-<span class="line" data-l="11">            <span class="kw">while</span> !opStack.<span class="fn">isEmpty</span>() &amp;&amp; prec[opStack.<span class="fn">peek</span>()] &gt;= prec[token]: 輸出 pop</span>
-<span class="line" data-l="12">            opStack.<span class="fn">push</span>(token)</span></div></div>
+<span class="line" data-l="1">vector&lt;string&gt; <span class="fn">infixToPostfix</span>(<span class="kw">const</span> vector&lt;string&gt;&amp; tokens) {</span>
+<span class="line" data-l="2">    stack&lt;string&gt; ops; vector&lt;string&gt; output;</span>
+<span class="line" data-l="3">    <span class="kw">for</span> (<span class="kw">const</span> string&amp; token : tokens) {</span>
+<span class="line" data-l="4">        <span class="kw">if</span> (<span class="fn">isOperand</span>(token)) output.<span class="fn">push_back</span>(token);</span>
+<span class="line" data-l="5">        <span class="kw">else if</span> (token == <span class="str">&quot;(&quot;</span>) ops.<span class="fn">push</span>(token);</span>
+<span class="line" data-l="6">        <span class="kw">else if</span> (token == <span class="str">&quot;)&quot;</span>) <span class="fn">popUntilLeftParen</span>(ops, output);</span>
+<span class="line" data-l="7">        <span class="kw">else</span> {</span>
+<span class="line" data-l="8">            <span class="kw">while</span> (<span class="fn">shouldPop</span>(ops, token)) { output.<span class="fn">push_back</span>(ops.<span class="fn">top</span>()); ops.<span class="fn">pop</span>(); }</span>
+<span class="line" data-l="9">            ops.<span class="fn">push</span>(token);</span>
+<span class="line" data-l="10">        }</span>
+<span class="line" data-l="11">    } <span class="fn">drain</span>(ops, output);</span>
+<span class="line" data-l="12">    <span class="kw">return</span> output; }</span></div></div>
       <div class="info-card"><div class="ic-title">postfix 求值 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="pevalCode">
-<span class="line" data-l="1"><span class="fn">postfixEval</span>(postfixExpr):</span>
-<span class="line" data-l="2">    Stack&lt;<span class="kw">int</span>&gt; operandStack</span>
-<span class="line" data-l="3">    <span class="kw">for</span> (token : postfixExpr):</span>
-<span class="line" data-l="4">        <span class="kw">if</span> token 是數字:</span>
-<span class="line" data-l="5">            operandStack.<span class="fn">push</span>(<span class="fn">toInt</span>(token))</span>
-<span class="line" data-l="6">        <span class="kw">else</span>:</span>
-<span class="line" data-l="7">            right = operandStack.<span class="fn">pop</span>();  left = operandStack.<span class="fn">pop</span>()</span>
-<span class="line" data-l="8">            operandStack.<span class="fn">push</span>(<span class="fn">doMath</span>(token, left, right))</span>
-<span class="line" data-l="9">    <span class="kw">return</span> operandStack.<span class="fn">pop</span>()</span></div></div>
+<span class="line" data-l="1"><span class="kw">int</span> <span class="fn">postfixEval</span>(<span class="kw">const</span> vector&lt;string&gt;&amp; tokens) {</span>
+<span class="line" data-l="2">    stack&lt;<span class="kw">int</span>&gt; operands;</span>
+<span class="line" data-l="3">    <span class="kw">for</span> (<span class="kw">const</span> string&amp; token : tokens) {</span>
+<span class="line" data-l="4">        <span class="kw">if</span> (<span class="fn">isNumber</span>(token)) operands.<span class="fn">push</span>(<span class="fn">stoi</span>(token));</span>
+<span class="line" data-l="5">        <span class="kw">else</span> {</span>
+<span class="line" data-l="6">            <span class="kw">int</span> right = operands.<span class="fn">top</span>(); operands.<span class="fn">pop</span>();</span>
+<span class="line" data-l="7">            <span class="kw">int</span> left = operands.<span class="fn">top</span>(); operands.<span class="fn">pop</span>();</span>
+<span class="line" data-l="8">            operands.<span class="fn">push</span>(<span class="fn">doMath</span>(token, left, right)); }</span>
+<span class="line" data-l="9">    } <span class="kw">return</span> operands.<span class="fn">top</span>(); }</span></div></div>
       <div class="info-card">
         <div class="ic-title">優先權（prec）</div>
         <div class="ic-row"><span class="ic-label">^</span><span class="ic-value">4（右結合）</span></div>
@@ -1225,48 +1237,46 @@ A B + C * D E - F G + * -</pre></div>
   <div class="section-number">PART 05 · 佇列</div>
   <h2>Queue：先進先出的公平隊伍 <span class="sec-badge">cppds §3.10–3.12</span></h2>
   <p>佇列在 <strong>rear 加入、front 移除</strong>，先來的先被服務（FIFO）。
-  作業系統的工作排程、印表機隊伍、BFS 的「下一層名單」全是 queue。ADT 操作只有五個：
-  <code>enqueue(item)</code>、<code>dequeue()</code>、<code>isEmpty()</code>、<code>size()</code> 加建構子。
-  講義的操作序列表（<strong>front 在右</strong>，注意方向）：</p>
+  作業系統的工作排程、印表機隊伍、BFS 的「下一層名單」全是 queue。cppds C++ 正文使用
+  <code>std::queue</code>：<code>push</code> 從 rear 加入，<code>front</code> 讀取最前端，
+  <code>pop</code> 移除但不回傳。作業的 <code>enqueue/dequeue/isEmpty</code> 是課程實作補充。</p>
   <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.85rem;">
-    <thead><tr><th>操作</th><th>Queue 內容（front 在右）</th><th>回傳</th></tr></thead>
+    <thead><tr><th>操作</th><th>Queue 內容（front 在左）</th><th>回傳</th></tr></thead>
     <tbody>
-      <tr><td class="mono">q.enqueue(4)</td><td class="mono">[4]</td><td></td></tr>
-      <tr><td class="mono">q.enqueue("dog")</td><td class="mono">[dog, 4]</td><td></td></tr>
-      <tr><td class="mono">q.enqueue(true)</td><td class="mono">[true, dog, 4]</td><td></td></tr>
-      <tr><td class="mono">q.size()</td><td class="mono">[true, dog, 4]</td><td class="mono">3</td></tr>
-      <tr><td class="mono">q.enqueue(8.4)</td><td class="mono">[8.4, true, dog, 4]</td><td></td></tr>
-      <tr><td class="mono">q.dequeue()</td><td class="mono">[8.4, true, dog]</td><td class="mono">4</td></tr>
-      <tr><td class="mono">q.dequeue()</td><td class="mono">[8.4, true]</td><td class="mono">dog</td></tr>
+      <tr><td class="mono">q.push(4)</td><td class="mono">[4]</td><td>void</td></tr>
+      <tr><td class="mono">q.push(7)</td><td class="mono">[4, 7]</td><td>void</td></tr>
+      <tr><td class="mono">q.push(2)</td><td class="mono">[4, 7, 2]</td><td>void</td></tr>
+      <tr><td class="mono">q.front()</td><td class="mono">[4, 7, 2]</td><td class="mono">4</td></tr>
+      <tr><td class="mono">q.back()</td><td class="mono">[4, 7, 2]</td><td class="mono">2</td></tr>
+      <tr><td class="mono">q.pop()</td><td class="mono">[7, 2]</td><td>void</td></tr>
     </tbody>
   </table></div>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
         <div class="bq-row" id="queueVis" style="min-height:70px;"></div>
-        <div class="status-banner" id="queueStatus"><span class="status-icon">›</span><span class="status-text">enqueue 加到 rear（右）、dequeue 從 front（左）取出。</span></div>
+        <div class="status-banner" id="queueStatus"><span class="status-icon">›</span><span class="status-text">push 加到 rear（右）、front 讀值後由 pop 從左端移除。</span></div>
         <div class="controls-bar">
           <input id="queueInput" class="mono" style="width:90px;padding:.35rem .5rem;border:1px solid var(--card-border);border-radius:6px;" value="dog">
-          <button class="btn" onclick="queueEnq()">enqueue</button>
-          <button class="btn" onclick="queueDeq()">dequeue</button>
+          <button class="btn" onclick="queueEnq()">push</button>
+          <button class="btn" onclick="queueDeq()">pop</button>
           <button class="btn" onclick="queueReset()">重置</button>
         </div>
       </div>
     </div>
     <div class="side-panel">
       <div class="info-card"><div class="ic-title">C++ 實作 <span class="ic-badge">CODE</span></div><div class="pseudo-code" style="font-size:.78rem;">
-<span class="line" data-l="1"><span class="kw">class</span> <span class="fn">Queue</span> {           <span class="com">// pythonds3/cppds/queue.hpp（vector 前端 = rear）</span></span>
-<span class="line" data-l="2">    vector&lt;T&gt; items;</span>
-<span class="line" data-l="3">    <span class="kw">bool</span> <span class="fn">isEmpty</span>() { <span class="kw">return</span> items.<span class="fn">empty</span>(); }</span>
-<span class="line" data-l="4">    <span class="kw">void</span> <span class="fn">enqueue</span>(T item) { items.<span class="fn">insert</span>(items.<span class="fn">begin</span>(), item); }</span>
-<span class="line" data-l="5">    T <span class="fn">dequeue</span>() { T front = items.<span class="fn">back</span>(); items.<span class="fn">pop_back</span>(); <span class="kw">return</span> front; }</span>
-<span class="line" data-l="6">    <span class="kw">int</span> <span class="fn">size</span>() { <span class="kw">return</span> items.<span class="fn">size</span>(); }</span>
-<span class="line" data-l="7">};</span></div></div>
+<span class="line"><span class="com">// cppds 正文：std::queue，預設以 std::deque 儲存</span></span>
+<span class="line">std::queue&lt;std::string&gt; q;</span>
+<span class="line">q.<span class="fn">push</span>(<span class="str">"first"</span>);</span>
+<span class="line">q.<span class="fn">push</span>(<span class="str">"second"</span>);</span>
+<span class="line">std::cout &lt;&lt; q.<span class="fn">front</span>();</span>
+<span class="line">q.<span class="fn">pop</span>(); <span class="com">// pop 回傳 void</span></span>
+<span class="line">std::cout &lt;&lt; q.<span class="fn">back</span>();</span></div></div>
       <div class="info-card">
-        <div class="ic-title">成本注意！</div>
-        <div class="ic-row"><span class="ic-label">enqueue（insert 前端）</span><span class="ic-value highlight">O(n)</span></div>
-        <div class="ic-row"><span class="ic-label">dequeue（pop_back）</span><span class="ic-value">O(1)</span></div>
-        <div style="font-size:.76rem;color:var(--muted);margin-top:.3rem;">教學版把 rear 放在 vector 前端，enqueue 要整體搬移。工業級請用環形緩衝或 <code>std::deque</code>。</div>
+        <div class="ic-title">成本與介面</div>
+        <div class="ic-row"><span class="ic-label">std::queue push / pop / front</span><span class="ic-value">O(1)</span></div>
+        <div style="font-size:.76rem;color:var(--muted);margin-top:.3rem;">課程 vector 版的 enqueue 是 O(n)，只用來研究表示法；一般 C++ 程式優先用 STL。</div>
       </div>
     </div>
   </div>
@@ -1275,7 +1285,7 @@ A B + C * D E - F G + * -</pre></div>
 <section id="hotpotato">
   <div class="section-number">PART 06 · 模擬</div>
   <h2>燙手山芋（約瑟夫問題）：用 queue 模擬傳遞 <span class="sec-badge">cppds §3.13</span></h2>
-  <p>一群人圍圈傳山芋，數到第 <em>num</em> 下的人出局。queue 的「dequeue 再 enqueue」剛好模擬
+  <p>一群人圍圈傳山芋，數到第 <em>num</em> 下的人出局。queue 的「讀 front、push 到 rear、再 pop」剛好模擬
   <strong>把手上的東西傳給下一個人</strong>：front 的人傳完就排到隊伍最尾。</p>
   <div class="viz-layout">
     <div>
@@ -1293,14 +1303,15 @@ A B + C * D E - F G + * -</pre></div>
     </div>
     <div class="side-panel">
       <div class="info-card"><div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="hpCode">
-<span class="line" data-l="1"><span class="fn">hotPotato</span>(nameList, num):</span>
-<span class="line" data-l="2">    Queue&lt;string&gt; simQueue</span>
-<span class="line" data-l="3">    <span class="kw">for</span> (name : nameList): simQueue.<span class="fn">enqueue</span>(name)</span>
-<span class="line" data-l="4">    <span class="kw">while</span> simQueue.<span class="fn">size</span>() &gt; <span class="num">1</span>:</span>
-<span class="line" data-l="5">        <span class="kw">for</span> i = <span class="num">0</span>; i &lt; num; i++:</span>
-<span class="line" data-l="6">            simQueue.<span class="fn">enqueue</span>(simQueue.<span class="fn">dequeue</span>())  <span class="com">// 傳一次</span></span>
-<span class="line" data-l="7">        simQueue.<span class="fn">dequeue</span>()               <span class="com">// 淘汰 front</span></span>
-<span class="line" data-l="8">    <span class="kw">return</span> simQueue.<span class="fn">dequeue</span>()</span></div></div>
+<span class="line" data-l="1">string <span class="fn">hotPotato</span>(vector&lt;string&gt; names, <span class="kw">int</span> num) {</span>
+<span class="line" data-l="2">    queue&lt;string&gt; q;</span>
+<span class="line" data-l="3">    <span class="kw">for</span> (string name : names) q.<span class="fn">push</span>(name);</span>
+<span class="line" data-l="4">    <span class="kw">while</span> (q.<span class="fn">size</span>() &gt; <span class="num">1</span>) {</span>
+<span class="line" data-l="5">        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; num; ++i) {</span>
+<span class="line" data-l="6">            q.<span class="fn">push</span>(q.<span class="fn">front</span>()); q.<span class="fn">pop</span>(); <span class="com">// 傳一次</span></span>
+<span class="line" data-l="7">        } q.<span class="fn">pop</span>(); <span class="com">// 淘汰 front</span></span>
+<span class="line" data-l="8">    } <span class="kw">return</span> q.<span class="fn">front</span>();</span>
+<span class="line" data-l="9">}</span></div></div>
       <div class="info-card">
         <div class="ic-title">複雜度</div>
         <div class="ic-row"><span class="ic-label">每輪傳遞</span><span class="ic-value">num 次</span></div>
@@ -1336,10 +1347,11 @@ A B + C * D E - F G + * -</pre></div>
   可能連續好幾秒都有工作、也可能好幾分鐘沒動靜，這正是模擬的本性。</p>
   <h3>三個類別、一個主迴圈</h3>
   <p>照真實世界的物件切：<code>Task</code>（記創建時間戳與頁數）、<code>Printer</code>（記頁速與剩餘工作量）、
-  print queue（就用我們的 Queue ADT）。主迴圈每秒一個 tick：</p>
+  print queue（<code>std::queue&lt;Task&gt;</code>）。主迴圈每秒一個 tick；工作使用 value semantics，
+  不需要手動 <code>new/delete</code>：</p>
   <ol style="line-height:2;margin:.3rem 0 .6rem 1.6rem;font-size:.92rem;">
-    <li>擲骰子決定要不要生新工作，生了就 enqueue（帶上目前秒數當時間戳）。</li>
-    <li>印表機空閒且 queue 非空：dequeue 下一個工作，<strong>目前秒數減時間戳就是它等了多久</strong>，記進等待清單。</li>
+    <li>擲骰子決定要不要生新工作，生了就用 <code>emplace</code> 放入 queue（帶上目前秒數當時間戳）。</li>
+    <li>印表機空閒且 queue 非空：複製 <code>front()</code> 後 <code>pop()</code>，<strong>目前秒數減時間戳就是它等了多久</strong>。</li>
     <li>印表機 tick 一秒：剩餘時間減一，歸零就變空閒。</li>
   </ol>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.8rem;">
@@ -1348,40 +1360,38 @@ A B + C * D E - F G + * -</pre></div>
 <span class="line"><span class="kw">class</span> <span class="fn">Task</span> {</span>
 <span class="line">    <span class="kw">int</span> timestamp, pages;</span>
 <span class="line">  <span class="kw">public</span>:</span>
-<span class="line">    <span class="fn">Task</span>(<span class="kw">int</span> time) {</span>
-<span class="line">        timestamp = time;</span>
-<span class="line">        pages = <span class="fn">rand</span>() % <span class="num">20</span> + <span class="num">1</span>;</span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">int</span> <span class="fn">getPages</span>() { <span class="kw">return</span> pages; }</span>
-<span class="line">    <span class="kw">int</span> <span class="fn">waitTime</span>(<span class="kw">int</span> now) {</span>
+<span class="line">    <span class="fn">Task</span>(<span class="kw">int</span> time, <span class="kw">int</span> pageCount)</span>
+<span class="line">        : timestamp(time), pages(pageCount) {}</span>
+<span class="line">    <span class="kw">int</span> <span class="fn">getPages</span>() <span class="kw">const</span> { <span class="kw">return</span> pages; }</span>
+<span class="line">    <span class="kw">int</span> <span class="fn">waitTime</span>(<span class="kw">int</span> now) <span class="kw">const</span> {</span>
 <span class="line">        <span class="kw">return</span> now - timestamp;</span>
 <span class="line">    }</span>
 <span class="line">};</span></div></div>
     <div class="info-card"><div class="ic-title">Printer <span class="ic-badge">CODE</span></div>
       <div class="pseudo-code" style="font-size:.74rem;">
 <span class="line"><span class="kw">class</span> <span class="fn">Printer</span> {</span>
-<span class="line">    <span class="kw">int</span> pageRate;  Task *currentTask;</span>
+<span class="line">    <span class="kw">int</span> pageRate;  optional&lt;Task&gt; currentTask;</span>
 <span class="line">    <span class="kw">double</span> timeRemaining;</span>
 <span class="line">  <span class="kw">public</span>:</span>
 <span class="line">    <span class="kw">void</span> <span class="fn">tick</span>() {</span>
-<span class="line">        <span class="kw">if</span> (currentTask != <span class="num">NULL</span>) {</span>
+<span class="line">        <span class="kw">if</span> (currentTask) {</span>
 <span class="line">            timeRemaining -= <span class="num">1</span>;</span>
-<span class="line">            <span class="kw">if</span> (timeRemaining &lt;= <span class="num">0</span>) currentTask = <span class="num">NULL</span>;</span>
+<span class="line">            <span class="kw">if</span> (timeRemaining &lt;= <span class="num">0</span>) currentTask.<span class="fn">reset</span>();</span>
 <span class="line">        }</span>
 <span class="line">    }</span>
-<span class="line">    <span class="kw">void</span> <span class="fn">startNext</span>(Task *t) {</span>
+<span class="line">    <span class="kw">void</span> <span class="fn">startNext</span>(<span class="kw">const</span> Task&amp; t) {</span>
 <span class="line">        currentTask = t;</span>
-<span class="line">        timeRemaining = t-&gt;<span class="fn">getPages</span>() * <span class="num">60.0</span> / pageRate;</span>
+<span class="line">        timeRemaining = t.<span class="fn">getPages</span>() * <span class="num">60.0</span> / pageRate;</span>
 <span class="line">    }</span>
 <span class="line">};</span></div></div>
     <div class="info-card"><div class="ic-title">主迴圈 <span class="ic-badge">CODE</span></div>
       <div class="pseudo-code" style="font-size:.74rem;">
 <span class="line"><span class="kw">for</span> (sec = <span class="num">0</span>; sec &lt; <span class="num">3600</span>; sec++) {</span>
-<span class="line">    <span class="kw">if</span> (<span class="fn">newPrintTask</span>())      <span class="com">// rand()%180 == 0</span></span>
-<span class="line">        printQueue.<span class="fn">push</span>(<span class="kw">new</span> <span class="fn">Task</span>(sec));</span>
+<span class="line">    <span class="kw">if</span> (arrival(rng) == <span class="num">180</span>)</span>
+<span class="line">        printQueue.<span class="fn">emplace</span>(sec, pages(rng));</span>
 <span class="line">    <span class="kw">if</span> (!labPrinter.<span class="fn">busy</span>() &amp;&amp; !printQueue.<span class="fn">empty</span>()) {</span>
-<span class="line">        Task *next = printQueue.<span class="fn">front</span>();  printQueue.<span class="fn">pop</span>();</span>
-<span class="line">        waitingTimes.<span class="fn">push_back</span>(next-&gt;<span class="fn">waitTime</span>(sec));</span>
+<span class="line">        Task next = printQueue.<span class="fn">front</span>();  printQueue.<span class="fn">pop</span>();</span>
+<span class="line">        waitingTimes.<span class="fn">push_back</span>(next.<span class="fn">waitTime</span>(sec));</span>
 <span class="line">        labPrinter.<span class="fn">startNext</span>(next);</span>
 <span class="line">    }</span>
 <span class="line">    labPrinter.<span class="fn">tick</span>();</span>
@@ -1428,22 +1438,21 @@ A B + C * D E - F G + * -</pre></div>
   <div class="section-number">PART 08 · 雙端佇列</div>
   <h2>Deque 與迴文檢查：兩端都能進出 <span class="sec-badge">cppds §3.15–3.18</span></h2>
   <p>雙端佇列（deque，唸作 deck）兩端都能加入與移除，一個人就能扮演 stack 或 queue。
-  代價是使用者要自己維持紀律，結構不再幫你防呆。六個操作：<code>addFront</code>、<code>addRear</code>、
-  <code>removeFront</code>、<code>removeRear</code>、<code>isEmpty</code>、<code>size</code>。
-  講義的操作表（<strong>front 在右</strong>，方向跟 queue 的表一致）：</p>
+  代價是使用者要自己維持紀律，結構不再幫你防呆。cppds C++ 正文使用 <code>std::deque</code>：
+  <code>push_front/push_back</code> 與 <code>pop_front/pop_back</code> 都是常數時間。
+  課程的 <code>addFront/removeFront</code> API 是作業用補充。</p>
   <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.85rem;">
-    <thead><tr><th>操作</th><th>Deque 內容（front 在右）</th><th>回傳</th></tr></thead>
+    <thead><tr><th>操作</th><th>Deque 內容（front 在左）</th><th>回傳</th></tr></thead>
     <tbody>
-      <tr><td class="mono">d.add_rear(4)</td><td class="mono">[4]</td><td></td></tr>
-      <tr><td class="mono">d.add_rear("dog")</td><td class="mono">[dog, 4]</td><td></td></tr>
-      <tr><td class="mono">d.add_front("cat")</td><td class="mono">[dog, 4, cat]</td><td></td></tr>
-      <tr><td class="mono">d.add_front(true)</td><td class="mono">[dog, 4, cat, true]</td><td></td></tr>
-      <tr><td class="mono">d.add_rear(8.4)</td><td class="mono">[8.4, dog, 4, cat, true]</td><td></td></tr>
-      <tr><td class="mono">d.remove_rear()</td><td class="mono">[dog, 4, cat, true]</td><td class="mono">8.4</td></tr>
-      <tr><td class="mono">d.remove_front()</td><td class="mono">[dog, 4, cat]</td><td class="mono">true</td></tr>
+      <tr><td class="mono">d.push_back(4)</td><td class="mono">[4]</td><td>void</td></tr>
+      <tr><td class="mono">d.push_back(7)</td><td class="mono">[4, 7]</td><td>void</td></tr>
+      <tr><td class="mono">d.push_front(2)</td><td class="mono">[2, 4, 7]</td><td>void</td></tr>
+      <tr><td class="mono">d.front()</td><td class="mono">[2, 4, 7]</td><td>2</td></tr>
+      <tr><td class="mono">d.back()</td><td class="mono">[2, 4, 7]</td><td>7</td></tr>
+      <tr><td class="mono">d.pop_front()</td><td class="mono">[4, 7]</td><td>void</td></tr>
     </tbody>
   </table></div>
-  <p style="font-size:.9rem;color:var(--muted);">教學版把 front 放在 vector 尾端，所以
+  <p style="font-size:.9rem;color:var(--muted);"><strong>課程實作補充：</strong>教學版把 front 放在 vector 尾端，所以
   addFront／removeFront 是 O(1)，addRear／removeRear 是 O(n)：兩端的成本並不對稱。
   STL 的 <code>std::deque</code> 用分段連續的儲存做到兩端都 O(1)，實戰直接用它。</p>
   <div class="viz-layout">
@@ -1464,23 +1473,20 @@ A B + C * D E - F G + * -</pre></div>
     </div>
     <div class="side-panel">
       <div class="info-card"><div class="ic-title">C++ 實作 <span class="ic-badge">CODE</span></div><div class="pseudo-code" style="font-size:.76rem;">
-<span class="line" data-l="1"><span class="kw">class</span> <span class="fn">Deque</span> {           <span class="com">// pythonds3/cppds/deque.hpp（vector 尾端 = front）</span></span>
-<span class="line" data-l="2">    vector&lt;T&gt; items;</span>
-<span class="line" data-l="3">    <span class="kw">void</span> <span class="fn">addFront</span>(T item) { items.<span class="fn">push_back</span>(item); }</span>
-<span class="line" data-l="4">    <span class="kw">void</span> <span class="fn">addRear</span>(T item)  { items.<span class="fn">insert</span>(items.<span class="fn">begin</span>(), item); }</span>
-<span class="line" data-l="5">    T <span class="fn">removeFront</span>() { T f = items.<span class="fn">back</span>(); items.<span class="fn">pop_back</span>(); <span class="kw">return</span> f; }</span>
-<span class="line" data-l="6">    T <span class="fn">removeRear</span>()  { T r = items.<span class="fn">front</span>(); items.<span class="fn">erase</span>(items.<span class="fn">begin</span>()); <span class="kw">return</span> r; }</span>
-<span class="line" data-l="7">};</span></div></div>
+<span class="line"><span class="com">// cppds 正文：std::deque 的兩端操作都是 O(1)</span></span>
+<span class="line">std::deque&lt;<span class="kw">int</span>&gt; d;</span>
+<span class="line">d.<span class="fn">push_front</span>(<span class="num">2</span>);</span>
+<span class="line">d.<span class="fn">push_back</span>(<span class="num">7</span>);</span>
+<span class="line"><span class="kw">int</span> first = d.<span class="fn">front</span>(); d.<span class="fn">pop_front</span>();</span>
+<span class="line"><span class="kw">int</span> last = d.<span class="fn">back</span>(); d.<span class="fn">pop_back</span>();</span></div></div>
       <div class="info-card"><div class="ic-title">迴文檢查 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="palCode">
-<span class="line" data-l="1"><span class="fn">palChecker</span>(aString):</span>
-<span class="line" data-l="2">    Deque&lt;<span class="kw">char</span>&gt; charDeque</span>
-<span class="line" data-l="3">    <span class="kw">for</span> (ch : aString): charDeque.<span class="fn">addRear</span>(ch)</span>
-<span class="line" data-l="4">    <span class="kw">while</span> charDeque.<span class="fn">size</span>() &gt; <span class="num">1</span>:</span>
-<span class="line" data-l="5">        first = charDeque.<span class="fn">removeFront</span>()</span>
-<span class="line" data-l="6">        last  = charDeque.<span class="fn">removeRear</span>()</span>
-<span class="line" data-l="7">        <span class="kw">if</span> first != last:</span>
-<span class="line" data-l="8">            <span class="kw">return</span> <span class="num">false</span></span>
-<span class="line" data-l="9">    <span class="kw">return</span> <span class="num">true</span></span></div></div>
+<span class="line" data-l="1"><span class="kw">bool</span> <span class="fn">palChecker</span>(<span class="kw">const</span> string&amp; text) {</span>
+<span class="line" data-l="2">    deque&lt;<span class="kw">char</span>&gt; chars(text.<span class="fn">begin</span>(), text.<span class="fn">end</span>());</span>
+<span class="line" data-l="3">    <span class="kw">while</span> (chars.<span class="fn">size</span>() &gt; <span class="num">1</span>) {</span>
+<span class="line" data-l="4">        <span class="kw">char</span> first = chars.<span class="fn">front</span>(); chars.<span class="fn">pop_front</span>();</span>
+<span class="line" data-l="5">        <span class="kw">char</span> last = chars.<span class="fn">back</span>(); chars.<span class="fn">pop_back</span>();</span>
+<span class="line" data-l="6">        <span class="kw">if</span> (first != last) <span class="kw">return</span> <span class="num">false</span>;</span>
+<span class="line" data-l="7">    } <span class="kw">return</span> <span class="num">true</span>; }</span></div></div>
     </div>
   </div>
 
@@ -1581,7 +1587,7 @@ true</pre></div>
   </div>
 </section><section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch5.json · 14 張</span></h2>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch5.json · 16 張</span></h2>
   <p>詞彙卡取自本章課程題庫，已譯為繁體中文，正面附英文原名。先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>
@@ -1777,12 +1783,14 @@ function stackPush() {
   stackItems.push(v); stackRender(`push(${v}) → 新 top = ${v}`, 0);
 }
 function stackPop() {
-  if (!stackItems.length) { stackRender('stack 是空的：真實程式這裡要先檢查 isEmpty()！'); return; }
-  const v = stackItems.pop(); stackRender(`pop() 回傳 ${v}`);
+  if (!stackItems.length) { stackRender('stack 是空的：呼叫 top()/pop() 前要先檢查 empty()！'); return; }
+  const v = stackItems[stackItems.length-1];
+  stackItems.pop();
+  stackRender(`先讀 top() = ${v}；再由 pop() 移除（pop 回傳 void）`);
 }
 function stackPeek() {
   if (!stackItems.length) { stackRender('空 stack 沒有 top。'); return; }
-  stackRender(`peek() = ${stackItems[stackItems.length-1]}（只看不拿）`, 0);
+  stackRender(`top() = ${stackItems[stackItems.length-1]}（只看不拿）`, 0);
 }
 function stackReset() { stackItems = [4, 'dog', true]; stackRender('已重置為 [4, dog, true]。'); }
 stackRender();
@@ -1968,11 +1976,11 @@ let queueItems = ['4', 'dog', 'true'];
 function queueRender(msg, hl=-1) { renderBoxQueue('queueVis', queueItems, {highlight:hl}); if (msg) setStatus('queueStatus', msg); }
 function queueEnq() {
   const v = $('queueInput').value.trim() || '?';
-  queueItems.push(v); queueRender(`enqueue(${v}) → 排到 rear`, queueItems.length-1);
+  queueItems.push(v); queueRender(`push(${v}) → 排到 rear`, queueItems.length-1);
 }
 function queueDeq() {
   if (!queueItems.length) { queueRender('queue 是空的。'); return; }
-  const v = queueItems.shift(); queueRender(`dequeue() 回傳 ${v}（front 先出）`);
+  const v = queueItems.shift(); queueRender(`front() 是 ${v}；pop() 移除它但回傳 void`);
 }
 function queueReset() { queueItems = ['4','dog','true']; queueRender('已重置。'); }
 queueRender();
@@ -2044,7 +2052,7 @@ function palStart() {
 }
 </script>
 <script>
-const FLASHCARDS = [{"front": "線性抽象資料型別（Linear ADT）", "back": "資料元素按序排列、每個元素在單一層次上只跟前後元素相連的抽象資料型別，例子有堆疊與佇列。"}, {"front": "堆疊（Stack）", "back": "遵循「後進先出」順序操作的線性資料結構：最後加入的元素最先被移除（LIFO）。"}, {"front": "前端（Front）", "back": "佇列的起點：最早進來的元素所在位置，dequeue 操作從這一端移除元素。"}, {"front": "後端（Rear）", "back": "佇列的終點：enqueue 操作把新元素加在這一端。"}, {"front": "頂端（Top）", "back": "堆疊最後加入的元素、也是結構目前的端點。因為後進先出，它會最先被移除。"}, {"front": "底部（Base）", "back": "堆疊的最底層：最早放進來的元素所在的位置。"}, {"front": "後進先出（LIFO, Last In First Out）", "back": "堆疊採用的原則：最後放進結構的元素最先被取出。"}, {"front": "中序記法（Infix）", "back": "運算子寫在運算元中間的記法，例如 A + B。"}, {"front": "前序記法（Prefix）", "back": "運算子寫在運算元前面的記法，中序的 A + B 寫成 +AB。"}, {"front": "後序記法（Postfix）", "back": "運算子寫在運算元後面的記法，中序的 A + B 寫成 AB+。"}, {"front": "完全括號運算式（Fully Parenthesized Expression）", "back": "每一個二元或一元運算都用括號明確包住的運算式，運算順序完全沒有歧義。"}, {"front": "佇列（Queue）", "back": "遵循「先進先出」原則的線性資料結構：最先加入的元素最先被移除（FIFO）。"}, {"front": "先進先出（FIFO, First In First Out）", "back": "佇列採用的原則：最先放進結構的元素最先被取出。"}, {"front": "雙端佇列（Deque）", "back": "double-ended queue 的簡稱：前後兩端都能插入與移除元素的資料結構，比標準的佇列或堆疊更有彈性。"}];
+const FLASHCARDS = [{"front": "線性抽象資料型別（Linear ADT）", "back": "資料元素按序排列、每個元素在單一層次上只跟前後元素相連的抽象資料型別，例子有堆疊與佇列。"}, {"front": "堆疊（Stack）", "back": "遵循「後進先出」順序操作的線性資料結構：最後加入的元素最先被移除（LIFO）。"}, {"front": "前端（Front）", "back": "佇列的起點：最早進來的元素所在位置。STL 用 front() 讀值、pop() 移除；課程 API 稱 dequeue。"}, {"front": "後端（Rear）", "back": "佇列的終點：STL 用 push() 加入新元素；課程 API 稱 enqueue。"}, {"front": "頂端（Top）", "back": "堆疊最後加入的元素、也是結構目前的端點。因為後進先出，它會最先被移除。"}, {"front": "底部（Base）", "back": "堆疊的最底層：最早放進來的元素所在的位置。"}, {"front": "後進先出（LIFO, Last In First Out）", "back": "堆疊採用的原則：最後放進結構的元素最先被取出。"}, {"front": "中序記法（Infix）", "back": "運算子寫在運算元中間的記法，例如 A + B。"}, {"front": "前序記法（Prefix）", "back": "運算子寫在運算元前面的記法，中序的 A + B 寫成 +AB。"}, {"front": "後序記法（Postfix）", "back": "運算子寫在運算元後面的記法，中序的 A + B 寫成 AB+。"}, {"front": "完全括號運算式（Fully Parenthesized Expression）", "back": "每一個二元或一元運算都用括號明確包住的運算式，運算順序完全沒有歧義。"}, {"front": "佇列（Queue）", "back": "遵循「先進先出」原則的線性資料結構：最先加入的元素最先被移除（FIFO）。"}, {"front": "先進先出（FIFO, First In First Out）", "back": "佇列採用的原則：最先放進結構的元素最先被取出。"}, {"front": "雙端佇列（Deque）", "back": "double-ended queue 的簡稱：前後兩端都能插入與移除元素的資料結構，比標準的佇列或堆疊更有彈性。"}, {"front": "STL 容器轉接器（Container Adapter）", "back": "std::stack 與 std::queue 把底層容器限制成 LIFO 或 FIFO 介面。pop() 只移除並回傳 void，要先用 top()／front() 讀值。"}, {"front": "三套 Stack API", "back": "STL std::stack 用 top()/empty() 與 void pop()；pythonds3 Stack<T> 用 peek()/isEmpty() 與回傳值的 pop()；HW3 Stack<T>(capacity) 用 stackTop() 或 peek(index)，另有 isFull()。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

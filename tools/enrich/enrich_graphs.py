@@ -27,7 +27,7 @@ int main() {{
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
 "(0,1,5) (0,5,2) (1,2,4) (2,3,9) (3,4,7) (3,5,3) (4,0,1) (5,2,1) (5,4,8) ",
-note="每組 (from, to, weight) 對應一條有向邊。addEdge 會自動把不存在的頂點補進 vertices，這就是相鄰串列版的「用多少存多少」。")}'''
+note="每組 (from, to, weight) 對應一條有向邊。addEdge 會補上不存在的頂點；setVertex 對既有 key 是 no-op，不會清掉 edges/state。ordered map 查頂點為 O(log |V|)、查特定鄰邊為 O(log deg(v))。")}'''
 s, c1 = insert_end_of_section(s, "representation", rep, 'id="dx-rep"')
 
 bfs = f'''<h3 id="dx-bfs">講義完整範例：Word Ladder 的實際執行</h3>
@@ -47,7 +47,7 @@ int main() {{
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
 "sage->sale->pale->pall->poll->pool->fool\\ncool(1) fail(2) fall(3) foil(1) fool(0) foul(1) page(5) pale(4) pall(3) pole(3) poll(2) pool(1) pope(4) sage(6) sale(5)", out_label="示範執行（回溯路徑可能因探索順序略異，長度必為 6 步）",
-note="traverse 印的是 previous 鏈：BFS 建好的其實是一棵「最短路徑樹」，任何字回溯到 fool 都是最短路。距離表驗證了逐層擴散：距離 1 的四個字全是 fool 換一個字母的鄰居。")}'''
+note="每次 bfs 前會先重設全部 color、previous，並把 distance 設為 INT_MAX；起點在 enqueue 前標 gray。traverse 印 previous 鏈，任何可達單字回溯到 fool 都是最短路。")}'''
 s, c2 = insert_end_of_section(s, "bfs", bfs, 'id="dx-bfs"')
 
 dfs = f'''{card("講義 08 · DFSGraph：discovery / closing time 全表", """#include <iostream>
@@ -92,7 +92,7 @@ int main() {{
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
 "u: 0 ()\\nv: 2 (u)\\nw: 3 (y)\\nx: 1 (u)\\ny: 2 (x)\\nz: 3 (y)\\nu x y z ",
-note='<span id="dx-dij"></span>最生動的一格是 w：直達邊 u→w 權重 5，但演算法最後給它 3（u→x→y→w）。「先到的不一定是最短的」，所以 Dijkstra 允許在頂點還在優先佇列裡時<strong>下修</strong>它的距離（decrease-key）。u 到 z 的最短路是 u x y z，總長 3。')}'''
+note='<span id="dx-dij"></span>w 的直達候選是 5，最後下修為 3（u→x→y→w）。lazy PQ 會 push 新的 (3,w)，舊的 (5,w) 出列時因 stale 被略過；不需要在 heap 中搜尋並 decrease-key。u 到 z 的最短路是 u x y z，總長 3。')}'''
 s, c4 = insert_end_of_section(s, "dijkstra", dij, 'id="dx-dij"')
 
 prm = f'''{card("講義 08 · prim 的使用畫面：長出 MST", """#include <iostream>
@@ -116,7 +116,7 @@ int main() {{
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
 "MST edges: (A,B) (B,C) (B,D) (D,E) (E,F) (F,G) ",
-note='<span id="dx-prm"></span>六條邊、總權重 2+1+1+1+1+1 = 7，就是廣播訊息要走的樹。注意 C 進樹的方式：一開始 A→C 權重 3 是候選，但 B 進樹後 B→C 權重 1 更便宜，C 的 previous 被改成 B。「樹外頂點的入場券隨時可以換更便宜的」正是 Prim 的核心。')}'''
+note='<span id="dx-prm"></span>六條邊總權重 7。每次選的是跨越「目前樹／樹外頂點」之 cut 的最小權重 safe edge。若圖不連通，課程 void prim() 會丟出 invalid_argument，不會靜默回傳 forest。')}'''
 s, c5 = insert_end_of_section(s, "prim", prm, 'id="dx-prm"')
 
 PAGE.write_text(s)

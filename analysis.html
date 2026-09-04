@@ -445,7 +445,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#growth" data-target="growth"><span class="fn-num">P02</span><span class="fn-name">成長曲線實驗室</span></a>
   <a href="#anagram" data-target="anagram"><span class="fn-num">P03</span><span class="fn-name">Anagram 四解法</span></a>
   <a href="#vectors" data-target="vectors"><span class="fn-num">P04</span><span class="fn-name">vector 操作成本</span></a>
-  <a href="#hash" data-target="hash"><span class="fn-num">P05</span><span class="fn-name">unordered_map 成本</span></a>
+  <a href="#strings" data-target="strings"><span class="fn-num">P05</span><span class="fn-name">string 操作成本</span></a>
+  <a href="#hash" data-target="hash"><span class="fn-num">P06</span><span class="fn-name">unordered_map 成本</span></a>
   <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">練習題</span></a>
   <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">總覽比較</span></a>
     <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
@@ -466,7 +467,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="hero-content">
     <h1><span class="blue">演算法分析</span>與 <span class="orange">Big-O</span></h1>
     <div class="subtitle">cppds Chapter 2 — Analysis（對應講義 02）</div>
-    <div class="big-formula">T(n)｜主導項｜anagram 四解法｜vector 攤銷｜unordered_map</div>
+    <div class="big-formula">T(n)｜主導項｜anagram 四解法｜vector／string｜unordered_map</div>
     <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
   </div>
 </div>
@@ -477,7 +478,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>① <strong>照節次讀</strong>：每一節先讀說明、動手玩互動元件，預測結果再按按鈕驗證。
   ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；細節與完整程式請回講義 02 與 cppds 原文。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
-  ④ 最後翻 <a href="#cards">關鍵詞彙卡（12 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標「講義補充」的節是課堂沒細講的延伸，第一輪可略過。</p>
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡（14 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標「講義補充」的節是課堂沒細講的延伸，第一輪可略過。</p>
   <div class="sg-links"><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/02_Analysis.pdf" target="_blank" rel="noopener">📑 講義 02 PDF</a><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/02_Analysis.html" target="_blank" rel="noopener">🖥 講義 02 HTML</a><a href="https://github.com/pearcej/cppds/tree/master/_sources/AlgorithmAnalysis" target="_blank" rel="noopener">📖 cppds 原文（AlgorithmAnalysis）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
@@ -489,10 +490,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#growth"><span class="toc-num">P02</span>成長曲線實驗室</a>
     <a href="#anagram"><span class="toc-num">P03</span>Anagram 四解法</a>
     <a href="#vectors"><span class="toc-num">P04</span>vector 操作成本</a>
-    <a href="#hash"><span class="toc-num">P05</span>unordered_map 成本</a>
+    <a href="#strings"><span class="toc-num">P05</span>string 操作成本</a>
+    <a href="#hash"><span class="toc-num">P06</span>unordered_map 成本</a>
     <a href="#exercises"><span class="toc-num">EX</span>練習題</a>
     <a href="#reference"><span class="toc-num">REF</span>總覽比較</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（12 張）</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（14 張）</a>
   </div>
 </div>
 
@@ -639,11 +641,14 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <span class="mono">T(n) = 3 + 3n² + 2n + 1 = 3n² + 2n + 4</span>。
   n 一大，3n² 說了算，其他項連同係數 3 全部丟掉：O(n²)。
   數的時候不用精確到每一行，抓住「哪一段被執行最多次」就夠了。</p>
-  <h3 style="margin-top:1.3rem;">最好、最差、平均</h3>
+  <p>常用計數公式：$\sum_{i=1}^n 1=n$，而 $\sum_{i=1}^n i=n(n+1)/2\in\Theta(n^2)$。
+  前者對應單層固定工作，後者常出現在逐輪縮短的巢狀迴圈。</p>
+  <h3 style="margin-top:1.3rem;">Big-O 與最好、最差、平均</h3>
   <p>有些演算法的表現不只看 n，還看<strong>資料內容</strong>。在陣列裡找一個值：
   運氣好第一格就中（best case，O(1)）、運氣差找到最後一格或根本不在（worst case，O(n)）、
-  平均攤下來要看一半（average case）。講 Big-O 時預設講 worst case，因為它是保證；
-  第 6 章的雜湊表會是「平均 O(1)、最差 O(n)」這種分開報的典型例子。</p>
+  若假設目標位置均勻分布，期望看一半（average case）。Big-O 是「上界」記號，不等於 worst case；
+  應先說明分析哪一種輸入情況，再為那個成本函數寫界。average case 也不等於 amortized：
+  後者不假設隨機輸入，而是把一串操作中偶發的昂貴成本攤回每次操作。</p>
   
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · 讀程式數操作</div>
@@ -736,11 +741,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="2"><span class="com">// 解法 2 Sort and Compare：兩字串排序後逐字比 → O(n log n)</span></span>
 <span class="line" data-l="3"><span class="com">// 解法 3 Brute Force：列出 s1 全部排列 → O(n!)，免談</span></span>
 <span class="line" data-l="4"><span class="com">// 解法 4 Count and Compare：數 26 個字母出現次數 → O(n)</span></span>
-<span class="line" data-l="5"><span class="kw">bool</span> <span class="fn">anagramSolution4</span>(string s1, string s2):</span>
-<span class="line" data-l="6">    <span class="kw">int</span> c1[<span class="num">26</span>] = {<span class="num">0</span>};  <span class="kw">int</span> c2[<span class="num">26</span>] = {<span class="num">0</span>}</span>
-<span class="line" data-l="7">    <span class="kw">for</span> (ch : s1): c1[ch - <span class="str">&#39;a&#39;</span>]++</span>
-<span class="line" data-l="8">    <span class="kw">for</span> (ch : s2): c2[ch - <span class="str">&#39;a&#39;</span>]++</span>
-<span class="line" data-l="9">    <span class="kw">return</span> c1 全等 c2</span></div></div>
+<span class="line" data-l="5"><span class="kw">bool</span> <span class="fn">anagramSolution4</span>(string s1, string s2) {</span>
+<span class="line" data-l="6">    <span class="kw">int</span> c1[<span class="num">26</span>] = {<span class="num">0</span>};  <span class="kw">int</span> c2[<span class="num">26</span>] = {<span class="num">0</span>};</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">char</span> ch : s1) c1[ch - <span class="str">&#39;a&#39;</span>]++;</span>
+<span class="line" data-l="8">    <span class="kw">for</span> (<span class="kw">char</span> ch : s2) c2[ch - <span class="str">&#39;a&#39;</span>]++;</span>
+<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">26</span>; ++i) <span class="kw">if</span> (c1[i] != c2[i]) <span class="kw">return</span> <span class="num">false</span>;</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">true</span>;</span>
+<span class="line" data-l="11">}</span></div></div>
       <div class="info-card">
         <div class="ic-title">空間換時間</div>
         <div style="font-size:.86rem;line-height:1.9;">解法 4 用兩個 26 格計數陣列換到 O(n)。
@@ -802,7 +809,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="section-number">PART 04 · C++ 容器</div>
   <h2>vector 的操作成本：為什麼 push_back 是攤銷 O(1) <span class="sec-badge">cppds §2.5–2.6</span></h2>
   <p><code>vector</code> 底層是連續陣列。<strong>索引 O(1)</strong>；
-  <code>push_back</code> 平常 O(1)，偶爾裝滿要<strong>翻倍搬家</strong>：把搬家成本平均到每次操作，仍是 O(1)（攤銷）。
+  <code>push_back</code> 平常 O(1)，偶爾裝滿要搬到較大的緩衝區。課堂動畫用<strong>容量加倍</strong>說明幾何成長；
+  C++ 標準不規定實際倍率，只保證 <code>push_back</code> 的攤還 O(1)。
   但 <code>insert(begin(), x)</code> 每次都要整體右移 → O(n)。</p>
   <div class="viz-layout">
     <div>
@@ -873,7 +881,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 push_back            6.42 ms
 with reserve         3.85 ms
 direct index         2.10 ms</pre></div>
-  <p class="dx-note">前端插入每次都要搬動整段資料，所以慢兩個量級。push_back 偶爾要搬家（容量翻倍），先 reserve 就不搬了；直接索引又省掉容量檢查。</p>
+  <p class="dx-note">前端插入每次都要搬動整段資料，所以慢兩個量級。push_back 偶爾要搬家；容量加倍是課堂模型，C++ 標準不規定倍率，只保證攤還 O(1)。先 reserve 可避免這次建表過程中的重新配置。</p>
 </div>
 <div class="deck-extra">
   <div class="dx-label">講義 02 · erase(begin) vs pop_back：n 變大會怎樣</div>
@@ -905,11 +913,47 @@ direct index         2.10 ms</pre></div>
 </div>
 </section>
 
+<section id="strings">
+  <div class="section-number">PART 05 · C++ 字串</div>
+  <h2>std::string：連續儲存帶來的成本模型 <span class="sec-badge">cppds §2.7</span></h2>
+  <p>C++11 起，<code>std::string</code> 的字元連續儲存。索引與 <code>size()</code> 是 O(1)，
+  尾端加入是攤還 O(1)；中間插入或刪除最差 O(n)，因為後續字元需要搬移。</p>
+  <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.88rem;">
+    <thead><tr><th>操作</th><th>複雜度</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">s[i] / s.size()</td><td>O(1)</td><td>連續儲存與直接位址計算</td></tr>
+      <tr><td class="mono">s.push_back(ch)</td><td>攤還 O(1)</td><td>偶爾重新配置並搬移整串</td></tr>
+      <tr><td class="mono">s.insert / s.erase</td><td>最差 O(n)</td><td>搬移操作位置後方的字元</td></tr>
+    </tbody>
+  </table></div>
+  <div class="info-box warm" style="margin-top:.9rem;"><span class="info-label">不要過度推論</span>
+  一般子字串搜尋不會因為連續儲存就自動變成 O(log n)；成本取決於搜尋演算法與兩個字串的長度。</div>
+
+<div class="deck-extra">
+  <div class="dx-label">講義 02 · std::string 的成本實驗</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {{</span>
+<span class="line" data-l="6">    string s = <span class="str">"</span><span class="str">data</span><span class="str">"</span>;</span>
+<span class="line" data-l="7">    s.push_back(<span class="str">'</span><span class="str">!</span><span class="str">'</span>);</span>
+<span class="line" data-l="8">    s.insert(<span class="num">0</span>, <span class="str">"</span><span class="str">C++ </span><span class="str">"</span>);</span>
+<span class="line" data-l="9">    cout &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str"> | size=</span><span class="str">"</span> &lt;&lt; s.size() &lt;&lt; endl;</span>
+<span class="line" data-l="10">}}</span>
+<span class="line" data-l="11"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>C++ data! | size=9</pre></div>
+  <p class="dx-note"><span id="dx-string"></span>C++11 起字元連續儲存：索引與 size 是 O(1)，push_back 是攤還 O(1)；在前端 insert 需要搬移後方字元，最差 O(n)。一般子字串搜尋不能直接宣稱 O(log n)。</p>
+</div>
+</section>
+
 <section id="hash">
-  <div class="section-number">PART 05 · 雜湊容器</div>
+  <div class="section-number">PART 06 · 雜湊容器</div>
   <h2>unordered_map / set：平均 O(1) 的代價與條件 <span class="sec-badge">cppds §2.8</span></h2>
   <p><code>unordered_map</code>（雜湊表）讓「查 key」平均 O(1)：不用排序、不用走訪。
   細節（hash 函數、碰撞、載入因子）第 6 章展開；本章先記住成本表與<strong>「平均」兩個字的份量</strong>。</p>
+  <p>平均 O(1) 假設 hash 結果分布良好；最差可能退化成 O(n)。rehash 的單次成本也可能是 O(n)，
+  但那是把成本攤過一串插入的 amortized analysis，和「平均輸入」是不同概念。</p>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
@@ -976,7 +1020,7 @@ direct index         2.10 ms</pre></div>
 250000         8.512       0.011
 500000        17.204       0.012
 1000000       35.917       0.012</pre></div>
-  <p class="dx-note">vector 的 find 是線性掃描：n 翻倍、時間翻倍。雜湊表的 count 平均 O(1)：n 翻四倍也不動。代價在第 5 章雜湊一節會算清楚：空間、雜湊函數品質、碰撞。</p>
+  <p class="dx-note">vector 的 find 是線性掃描：n 翻倍、時間翻倍。雜湊表的 count 平均 O(1)，最壞仍可能 O(n)。平均情況依賴 hash 分布；rehash 的偶發成本則用攤還分析描述，兩者不要混為一談。</p>
 </div>
 </section>
 
@@ -1053,14 +1097,15 @@ direct index         2.10 ms</pre></div>
       <tr><td>什麼是演算法分析</td><td>§2.1–2.2</td><td>P00</td></tr>
       <tr><td>Big-O</td><td>§2.3</td><td>P01–P02</td></tr>
       <tr><td>Anagram</td><td>§2.4</td><td>P03</td></tr>
-      <tr><td>C++ 集合效能（vector/string）</td><td>§2.5–2.7</td><td>P04</td></tr>
-      <tr><td>Hash Tables</td><td>§2.8</td><td>P05</td></tr>
+      <tr><td>C++ vector</td><td>§2.5–2.6</td><td>P04</td></tr>
+      <tr><td>C++ string</td><td>§2.7</td><td>P05</td></tr>
+      <tr><td>Hash Tables</td><td>§2.8</td><td>P06</td></tr>
     </tbody>
   </table>
   </div>
 </section><section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch2.json · 12 張</span></h2>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch2.json · 14 張</span></h2>
   <p>詞彙卡取自本章課程題庫，已譯為繁體中文，正面附英文原名。先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>
@@ -1336,7 +1381,7 @@ vecReset();
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "可讀性（Readability）", "back": "人類讀者理解原始碼的目的、控制流程與運作方式的容易程度，衡量程式碼好不好懂、好不好維護。"}, {"front": "演算法分析（Algorithm Analysis）", "back": "判定演算法計算複雜度的過程：衡量一個演算法用掉多少計算資源（時間與空間）。"}, {"front": "基準測試（Benchmark Analysis）", "back": "用一系列標準測試實際執行程式來評估效能，比較不同實作之間的相對表現。"}, {"front": "空間複雜度（Space Complexity）", "back": "演算法執行所需的記憶體空間量，表示成輸入長度的函數。"}, {"front": "時間複雜度（Time Complexity）", "back": "描述演算法執行所需時間的計算複雜度，通常表示成輸入大小的函數。"}, {"front": "Big-O 記號（Big-O）", "back": "表達演算法時間或空間複雜度上界的記號，描述輸入變大時演算法的成長趨勢，只保留主導項、忽略常數。"}, {"front": "平均情況效能（Average-Case Performance）", "back": "把所有可能輸入納入考量後，演算法的期望時間或空間複雜度，反映典型情況下的效率。"}, {"front": "最壞情況效能（Worst-Case Performance）", "back": "演算法在所有可能輸入中最大的時間或空間複雜度，代表最不利條件下的效率保證。"}, {"front": "暴力法（Brute-Force）", "back": "把所有可能的解全部試過一遍來找答案的演算法策略：實作簡單，但通常效率不佳。"}, {"front": "時間與空間取捨（Time and Space Trade-offs）", "back": "「用空間換時間」或「用時間換空間」的概念：多用一些記憶體可能讓演算法更快，省記憶體則可能付出變慢的代價。"}, {"front": "索引（Indexing）", "back": "建立索引以加速資料檢索的過程，讓資料結構中的資料能被有效率地定位與存取。"}, {"front": "包含檢查（Contains Operator）", "back": "檢查某個元素是否存在於資料結構中的操作，例如在 vector 裡線性搜尋是 O(n)，在 set／unordered_map 裡則快得多。"}];
+const FLASHCARDS = [{"front": "可讀性（Readability）", "back": "人類讀者理解原始碼的目的、控制流程與運作方式的容易程度，衡量程式碼好不好懂、好不好維護。"}, {"front": "演算法分析（Algorithm Analysis）", "back": "判定演算法計算複雜度的過程：衡量一個演算法用掉多少計算資源（時間與空間）。"}, {"front": "基準測試（Benchmark Analysis）", "back": "用一系列標準測試實際執行程式來評估效能，比較不同實作之間的相對表現。"}, {"front": "空間複雜度（Space Complexity）", "back": "演算法執行所需的記憶體空間量，表示成輸入長度的函數。"}, {"front": "時間複雜度（Time Complexity）", "back": "描述演算法執行所需時間的計算複雜度，通常表示成輸入大小的函數。"}, {"front": "Big-O 記號（Big-O）", "back": "成本函數的漸近上界記號。Big-O 本身不等於最壞情況；應先說明分析的是哪種情況或操作序列，再寫它的界。"}, {"front": "平均情況效能（Average-Case Performance）", "back": "在明確指定的輸入機率分布下，對大小為 n 的輸入取期望成本；沒有分布假設，平均情況的主張就不完整。"}, {"front": "最壞情況效能（Worst-Case Performance）", "back": "演算法在所有可能輸入中最大的時間或空間複雜度，代表最不利條件下的效率保證。"}, {"front": "暴力法（Brute-Force）", "back": "把所有可能的解全部試過一遍來找答案的演算法策略：實作簡單，但通常效率不佳。"}, {"front": "時間與空間取捨（Time and Space Trade-offs）", "back": "「用空間換時間」或「用時間換空間」的概念：多用一些記憶體可能讓演算法更快，省記憶體則可能付出變慢的代價。"}, {"front": "索引存取（Indexing）", "back": "用數字位置存取元素。std::vector 與 std::string 採連續儲存，因此 operator[] 是 O(1)。"}, {"front": "包含檢查（Contains Operator）", "back": "檢查元素是否存在：無序 vector 的線性搜尋是 O(n)，unordered_map 平均 O(1)、最壞 O(n)。"}, {"front": "攤還分析（Amortized Analysis）", "back": "不假設輸入隨機，把一串操作的總成本攤到每次操作。vector::push_back 雖有單次 O(n) 的重新配置，攤還仍是 O(1)。"}, {"front": "std::string 成本模型", "back": "C++11 起字元連續儲存：索引與 size 是 O(1)，push_back 是攤還 O(1)，靠近前端的插入或刪除可能是 O(n)。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

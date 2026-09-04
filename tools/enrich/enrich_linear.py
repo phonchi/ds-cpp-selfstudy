@@ -5,9 +5,23 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from enrich_lib import card, ensure_style, insert_end_of_section
 
-PAGE = Path.home() / "ds-cpp-selfstudy/linear_structures.html"
+PAGE = Path(__file__).resolve().parents[2] / "linear_structures.html"
 s = PAGE.read_text()
 s = ensure_style(s)
+
+stl = f'''{card("cppds 正文 · STL 與課程 API 對照", """std::stack<int> s;
+s.push(4);
+int x = s.top();
+s.pop();              // 回傳 void
+
+std::queue<int> q;
+q.push(4);
+int y = q.front();
+q.pop();              // 回傳 void
+""",
+None,
+note='<span id="dx-stl-api"></span>正文以 std::stack／std::queue／std::deque 為主。pythonds3 的 Stack&lt;T&gt; 使用 peek()/isEmpty()；HW3 定容量 Stack&lt;T&gt;(capacity) 使用 stackTop() 或 peek(index)，另有 isFull()。三套 API 不可混用。')}'''
+s, c4 = insert_end_of_section(s, "stack", stl, 'id="dx-stl-api"')
 
 base = f'''<h3 id="dx-base">講義完整實作：從虛擬碼到 C++</h3>
 {card("講義 05 · divideBy2 與萬用 baseConverter", """#include <iostream>
@@ -187,4 +201,4 @@ note='<span id="dx-dq"></span>while 條件是 size() &gt; 1 而不是 !empty()�
 s, c3 = insert_end_of_section(s, "deque", dq, 'id="dx-dq"')
 
 PAGE.write_text(s)
-print("inserted:", [n for n, ok in zip("base infix deque".split(), [c1, c2, c3]) if ok])
+print("inserted:", [n for n, ok in zip("stl base infix deque".split(), [c4, c1, c2, c3]) if ok])

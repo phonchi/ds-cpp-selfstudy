@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from enrich_lib import card, ensure_style, insert_end_of_section
 
-PAGE = Path.home() / "ds-cpp-selfstudy/analysis.html"
+PAGE = Path(__file__).resolve().parents[2] / "analysis.html"
 s = PAGE.read_text()
 s = ensure_style(s)
 
@@ -101,7 +101,7 @@ int main() {
     }
 }""",
 "insert at front   285.31 ms\\npush_back            6.42 ms\\nwith reserve         3.85 ms\\ndirect index         2.10 ms", out_label="示範執行（數字依機器而異，看量級）",
-note="前端插入每次都要搬動整段資料，所以慢兩個量級。push_back 偶爾要搬家（容量翻倍），先 reserve 就不搬了；直接索引又省掉容量檢查。")}
+note="前端插入每次都要搬動整段資料，所以慢兩個量級。push_back 偶爾要搬家；容量加倍是課堂模型，C++ 標準不規定倍率，只保證攤還 O(1)。先 reserve 可避免這次建表過程中的重新配置。")}
 {card("講義 02 · erase(begin) vs pop_back：n 變大會怎樣", """#include <iostream>
 #include <vector>
 #include "dstimer.hpp"
@@ -123,6 +123,20 @@ int main() {
 "n           erase(begin)    pop_back\\n2500000        155.20031     0.00022\\n5000000        311.87542     0.00021\\n7500000        468.11289     0.00023\\n10000000       625.40067     0.00022", out_label="示範執行（數字依機器而異，看走勢）",
 note="重點在<strong>走勢</strong>：n 翻倍，erase(begin()) 的時間跟著翻倍（O(n)）；pop_back 文風不動（O(1)）。這就是「量測驗證 Big-O」的標準做法。")}'''
 s, c3 = insert_end_of_section(s, "vectors", vec, 'id="dx-vec"')
+
+strings = f'''{card("講義 02 · std::string 的成本實驗", """#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {{
+    string s = "data";
+    s.push_back('!');
+    s.insert(0, "C++ ");
+    cout << s << " | size=" << s.size() << endl;
+}}""",
+"C++ data! | size=9",
+note='<span id="dx-string"></span>C++11 起字元連續儲存：索引與 size 是 O(1)，push_back 是攤還 O(1)；在前端 insert 需要搬移後方字元，最差 O(n)。一般子字串搜尋不能直接宣稱 O(log n)。')}'''
+s, c5 = insert_end_of_section(s, "strings", strings, 'id="dx-string"')
 
 hsh = f'''<h3 id="dx-hash">講義完整範例：contains 的兩個世界</h3>
 {card("講義 02 · vector 線性掃描 vs unordered_map 雜湊", """#include <unordered_map>
@@ -146,8 +160,8 @@ int main() {
     }
 }""",
 "n             vector  hash table\\n250000         8.512       0.011\\n500000        17.204       0.012\\n1000000       35.917       0.012", out_label="示範執行（數字依機器而異，看走勢）",
-note="vector 的 find 是線性掃描：n 翻倍、時間翻倍。雜湊表的 count 平均 O(1)：n 翻四倍也不動。代價在第 5 章雜湊一節會算清楚：空間、雜湊函數品質、碰撞。")}'''
+note="vector 的 find 是線性掃描：n 翻倍、時間翻倍。雜湊表的 count 平均 O(1)，最壞仍可能 O(n)。平均情況依賴 hash 分布；rehash 的偶發成本則用攤還分析描述，兩者不要混為一談。")}'''
 s, c4 = insert_end_of_section(s, "hash", hsh, 'id="dx-hash"')
 
 PAGE.write_text(s)
-print("inserted:", [n for n, ok in zip("pro bigo vec hash".split(), [c1, c2, c3, c4]) if ok])
+print("inserted:", [n for n, ok in zip("pro bigo vec string hash".split(), [c1, c2, c3, c5, c4]) if ok])

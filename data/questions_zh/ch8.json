@@ -15,8 +15,8 @@
  ]},
 {"question": "下列哪一項是 Dijkstra 演算法的已知限制或特性？",
  "answers": [
-  {"answer": "它能正確處理含負權重邊的圖。", "correct": false, "feedback": "不對。講義指出 Dijkstra 只有在所有邊權重為正時才保證正確。"},
-  {"answer": "它是疊代式演算法，能給出單一起點到所有可達頂點的最短路徑。", "correct": true, "feedback": "正確！它反覆從「距離估計最小」的頂點擴張已知集合，一路算出起點到每個頂點的最短距離。"},
+  {"answer": "它能正確處理含負權重邊的圖。", "correct": false, "feedback": "不對。Dijkstra 要求所有邊權重非負；零權重邊可以，但負邊會破壞貪婪證明。"},
+  {"answer": "它是疊代式演算法，能給出單一起點到所有可達頂點的最短路徑。", "correct": true, "feedback": "正確！lazy C++ 版本反覆 pop 最小候選距離，並略過被後續改善取代的 stale entries。"},
   {"answer": "它的時間複雜度與圖的邊數無關。", "correct": false, "feedback": "不對。複雜度是 O((V + E) log V)，跟頂點數與邊數都有關。"},
   {"answer": "用在路由環境時，它不需要完整的網路地圖。", "correct": false, "feedback": "不對。要讓 Dijkstra 在路由上運作，每台路由器都得有完整的網路地圖。"}
  ]},
@@ -29,9 +29,16 @@
  ]},
 {"question": "Prim 演算法建最小生成樹（MST）時，什麼是「安全邊」（safe edge）？",
  "answers": [
-  {"answer": "任何加入目前的樹之後不會形成循環的邊。", "correct": false, "feedback": "不對。樹邊確實不能成環，但 Prim 找的是「連接樹內與樹外頂點的最小權重邊」。"},
-  {"answer": "連接樹內頂點與樹外頂點、且權重最小的那條邊。", "correct": true, "feedback": "正確！這個貪婪選擇讓樹一邊長大、一邊維持總權重最低，也不會產生循環。"},
+  {"answer": "任何加入目前的樹之後不會形成循環的邊。", "correct": false, "feedback": "不對。Prim 的 safe edge 必須是跨越目前 tree cut 的最小權重邊。"},
+  {"answer": "跨越樹內與樹外頂點之 cut 的最小權重邊。", "correct": true, "feedback": "正確！這正是 Prim 使用 cut property 做出的安全貪婪選擇。"},
   {"answer": "權重低於全圖平均邊權重的邊。", "correct": false, "feedback": "不對。演算法看的是目前邊界上絕對最小權重的連接，不是平均值。"},
   {"answer": "對圖做深度優先搜尋時最先遇到的邊。", "correct": false, "feedback": "不對。Prim 跟 DFS 是不同的演算法，它靠權重決定下一條邊。"}
+ ]},
+{"question": "課程的 prim(g, start) 遇到不連通圖時會怎麼做？",
+ "answers": [
+  {"answer": "安靜地回傳 minimum spanning forest。", "correct": false, "feedback": "不對。這是另一種契約；本函式要求一棵涵蓋所有頂點的 spanning tree。"},
+  {"answer": "自行加入不存在的邊來連接 components。", "correct": false, "feedback": "不對。Prim 只能選圖中既有的邊。"},
+  {"answer": "發現並非所有頂點都進樹後，丟出 invalid_argument。", "correct": true, "feedback": "正確！不連通圖沒有 spanning tree，void API 以例外回報前提不成立。"},
+  {"answer": "永遠等待下一個 priority-queue entry。", "correct": false, "feedback": "不對。Lazy queue 會清空，之後程式明確檢查 connectivity。"}
  ]}
 ]

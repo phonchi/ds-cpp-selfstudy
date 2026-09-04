@@ -52,8 +52,8 @@ using namespace std;
 vector<int> heapSort(vector<int> unsortedList) {{
     BinaryHeap heap;
     vector<int> sortedList;
-    ____;                  // 1. O(n) 建堆
-    while (____) {{         // 2. 反覆刪最小值，每次 O(log n)
+    ____;                  // 1. heap.buildHeap(unsortedList)，O(n)
+    while (____) {{         // 2. !heap.isEmpty()
         ____;
     }}
     return sortedList;
@@ -61,15 +61,15 @@ vector<int> heapSort(vector<int> unsortedList) {{
 
 int main() {{
     BinaryHeap aHeap;
-    aHeap.heapify({{10, 4, 9, 8, 12, 15, 3, 5, 14, 18}});
+    aHeap.buildHeap({{10, 4, 9, 8, 12, 15, 3, 5, 14, 18}});
     aHeap.print();
 
     for (int x : heapSort({{10, 3, 5, 1, 15, 7, 9, 2, 8}})) cout << x << " ";
     cout << endl;
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
-"3 4 9 5 12 15 10 8 14 18 \\n1 2 3 5 7 8 9 10 15 ", out_label="heapify 快照＋heapSort 完成後的輸出",
-note='<span id="dx-hp"></span>第一行是 heapify 後的陣列：不是排序！只保證每個節點 ≤ 兩個小孩（3 在根、4 和 9 是它的小孩…）。把空格填完的 heapSort 才給出第二行：build 一次 O(n)，刪最小值 n 次各 O(log n)，總共 O(n log n)。')}'''
+"3 4 9 5 12 15 10 8 14 18\\n1 2 3 5 7 8 9 10 15", out_label="buildHeap 快照＋heapSort 完成後的輸出",
+note='<span id="dx-hp"></span>第一行是 buildHeap 後的陣列：不是排序！只保證每個節點 ≤ 兩個小孩。buildHeap 為 O(n)，逐一 insert 則是 O(n log n)；delMin 每次 O(log n)。舊名稱 heapify/delet 仍相容。')}'''
 s, c2 = insert_end_of_section(s, "heap", hp, 'id="dx-hp"')
 
 bst = f'''{card("講義 09 · BinarySearchTree 當 Map 用＋treeSort 練習", """#include <iostream>
@@ -102,7 +102,7 @@ int main() {{
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
 "quick lazy\\nThere are 9 items in this tree\\nThere are 8 items in this tree\\nbrown dog fox jumps lazy over quick the ",
-note='<span id="dx-bst"></span>最後一行是「treeSort 現象」：中序走訪 BST，值自然按鍵排序（b、d、f、j、l、o、q、t）。把上面 treeSort 的兩個空格填完，對 {{"t","a","o",…}} 的輸出就是 a b d f j l o q t。這也是為什麼 std::map（紅黑樹）走訪永遠有序。'.replace("{{","{").replace("}}","}"))}'''
+note='<span id="dx-bst"></span>中序走訪 BST 會依鍵排序。put 遇到重複 key 時更新 value、size 不變；protected virtual insertOrAssign hook 讓 AVL 延伸插入而不繞過 size 契約。remove 釋放節點，整棵樹使用 deep-copy/move ownership。'.replace("{{","{").replace("}}","}"))}'''
 s, c3 = insert_end_of_section(s, "bst", bst, 'id="dx-bst"')
 
 PAGE.write_text(s)

@@ -25,12 +25,12 @@ def bubble(a):
 
 def selection(a):
     n = len(a)
-    for i in range(n-1):
+    for fill in range(n-1, 0, -1):
         printl(a)
-        mi = i
-        for j in range(i+1, n):
-            if a[j] < a[mi]: mi = j
-        if mi != i: a[i], a[mi] = a[mi], a[i]
+        mx = 0
+        for j in range(1, fill + 1):
+            if a[j] > a[mx]: mx = j
+        if mx != fill: a[fill], a[mx] = a[mx], a[fill]
 
 def insertion(a):
     for i in range(1, len(a)):
@@ -94,7 +94,8 @@ def run(fn, a, final_printl=True):
     return "\n".join(out)
 
 o_bub = run(bubble, [4, 14, 5, 21, 29, 12, 16])
-o_sel = run(selection, [11, 7, 12, 14, 19, 1, 6, 18, 8, 20])
+o_sel = "\n".join(line.rstrip() for line in
+                  run(selection, [11, 7, 12, 14, 19, 1, 6, 18, 8, 20]).splitlines())
 o_ins = run(insertion, [9, 2, 5, 5, 7, 9, 1])
 o_shl = run(shell, [54, 26, 93, 17, 77, 31, 44, 55, 20])
 o_mrg = run(merge, [54, 26, 93, 17], final_printl=False)
@@ -126,7 +127,7 @@ s, c1 = sort_block("bubble", "dx-bub", "bubbleSort", "{4, 14, 5, 21, 29, 12, 16}
     "每一行是「該 pass 開始前」的內容：最大的值一輪一輪往右浮。最後一行是排序完成的結果。另有 bubbleSortShort：某一輪完全沒交換就提前收工。",
     comment="每個 pass 開頭印出目前狀態")
 s, c2 = sort_block("selection", "dx-sel", "selectionSort", "{11, 7, 12, 14, 19, 1, 6, 18, 8, 20}", o_sel,
-    "跟氣泡排序同樣 O(n²) 次比較，但每輪只交換一次：觀察每行開頭，已排序的前綴一格一格長大。")
+    "跟氣泡排序同樣 O(n²) 次比較，但每輪至多交換一次：觀察每行開頭，已排序的後綴從右側一格一格長大。")
 s, c3 = sort_block("insertion", "dx-ins", "insertionSort", "{9, 2, 5, 5, 7, 9, 1}", o_ins,
     "curVal 抽出來、比它大的往右挪、找到洞再放回去：注意這裡是「挪動」不是「交換」，一次挪動只要一個指定，比一次交換便宜三倍。重複值 5、9 的相對順序不變：插入排序是穩定排序。")
 s, c4 = sort_block("shell", "dx-shl", "shellSort", "{54, 26, 93, 17, 77, 31, 44, 55, 20}", o_shl,
@@ -207,7 +208,7 @@ int main() {{
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
 "77 44 55 20 26 93 17 -1 -1 31 54 \\nbird goat pig chicken dog lion tiger - - cow cat \\nchicken tiger\\nduck\\n[]",
-note="slots 的排列跟上一張卡完全一致：類別只是把「鍵探查」和「值跟著住進同一格」包起來。put 遇到同鍵是<strong>更新</strong>不是再探查，get 沿著同一條探查鏈找、繞回起點就放棄。")}'''
+note="slots 的排列跟上一張卡完全一致：類別只是把「鍵探查」和「值跟著住進同一格」包起來。put 遇到同鍵會更新；get 沿同一條探查鏈找。課程強化版在完整繞回起點後停止，put 對滿表丟出 overflow_error，避免無限迴圈。")}'''
 s, c7 = insert_end_of_section(s, "hashing", hash_html, 'id="dx-hash"')
 
 # prologue（搜尋）：sequential/binary 完整程式
@@ -216,7 +217,7 @@ srch_html = f'''<h3 id="dx-srch">講義完整實作：三種搜尋的 C++ 全文
 #include <vector>
 using namespace std;
 
-bool sequentialSearch(vector<int> aList, int item) {{
+bool sequentialSearch(const vector<int>& aList, int item) {{
     unsigned pos = 0;
     while (pos < aList.size()) {{
         if (aList[pos] == item) {{
@@ -235,9 +236,13 @@ int main() {{
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
 "true\\nfalse")}
-{card("講義 07 · binarySearch：迴圈版與遞迴版", """bool binarySearch(vector<int> aList, int item) {{
+{card("講義 07 · binarySearch：迴圈版與遞迴版", """#include <iostream>
+#include <vector>
+using namespace std;
+
+bool binarySearch(const vector<int>& aList, int item) {{
     int first = 0;
-    int last = aList.size() - 1;
+    int last = static_cast<int>(aList.size()) - 1;
     while (first <= last) {{
         int midpoint = (first + last) / 2;
         if (aList[midpoint] == item) return true;
@@ -247,19 +252,29 @@ int main() {{
     return false;
 }}
 
-bool binarySearchRec(vector<int> aList, int item) {{
-    if (aList.size() == 0) return false;
-    int midpoint = (aList.size() - 1) / 2;
+bool binarySearchRecRange(const vector<int>& aList, int item,
+                          int first, int last) {{
+    if (first > last) return false;
+    int midpoint = first + (last - first) / 2;
     if (aList[midpoint] == item) return true;
     if (item < aList[midpoint]) {{
-        vector<int> left(aList.begin(), aList.begin() + midpoint);
-        return binarySearchRec(left, item);
+        return binarySearchRecRange(aList, item, first, midpoint - 1);
     }}
-    vector<int> right(aList.begin() + midpoint + 1, aList.end());
-    return binarySearchRec(right, item);
+    return binarySearchRecRange(aList, item, midpoint + 1, last);
+}}
+
+bool binarySearchRec(const vector<int>& aList, int item) {{
+    return binarySearchRecRange(
+        aList, item, 0, static_cast<int>(aList.size()) - 1);
+}}
+
+int main() {{
+    vector<int> a = {{17, 20, 26, 31, 44, 54, 55, 65, 77, 93}};
+    cout << boolalpha << binarySearchRec(a, 44) << endl;
+    cout << binarySearchRec(a, 50) << endl;
 }}""".replace("{{","{").replace("}}","}"),
 "true\\nfalse", out_label="對 {17,20,26,31,44,54,55,65,77,93} 查 44、50 的輸出",
-note="遞迴版每層都<strong>複製</strong>半條 vector 進 left/right：好懂，但複製本身是 O(n)，反而毀了 O(log n)。實務上用迴圈版，或改傳索引範圍（first, last）而不是切片。自我檢測區 Q1 的「中點取 (長度-1)/2」講的就是遞迴版。")}'''
+note="若每層建構新的子 vector，單一路徑會複製 n/2+n/4+…=O(n) 個元素，因此退化成 O(n) 時間與 O(n) 峰值元素儲存。這版改傳同一個 const vector&amp; 與索引邊界，保留 O(log n) 比較與 O(log n) call stack。")}'''
 s, c8 = insert_end_of_section(s, "prologue", srch_html, 'id="dx-srch"')
 
 PAGE.write_text(s)

@@ -9,13 +9,13 @@
 {"question": "用二元堆積（Binary Heap）實作優先佇列，最主要的理由是什麼？",
  "answers": [
   {"answer": "它能在 O(n) 時間找到最大或最小元素。", "correct": false, "feedback": "不對。堆積的好處是根（最小值或最大值）O(1) 就拿得到。"},
-  {"answer": "它讓樹保持完全平衡，enqueue 與 dequeue 都只要 O(log n)。", "correct": true, "feedback": "正確！因為它是完全二元樹，高度永遠是 log n，操作效率有保證。"},
+  {"answer": "完全二元樹使高度為 O(log n)，所以 insert 與 delete-min 都是 O(log n)。", "correct": true, "feedback": "正確！完全二元樹不必是完美平衡，也不會把 vector 完整排序。"},
   {"answer": "它把元素在底層串列中完全排序好。", "correct": false, "feedback": "不對。堆積只維持「部分順序」（堆積順序性質），不是完全排序。"},
   {"answer": "它讓插入完全不需要比較操作。", "correct": false, "feedback": "不對。插入需要比較才能執行 percolate up（往上浮）的過程。"}
  ]},
 {"question": "二元搜尋樹（BST）中，每個節點必須滿足什麼性質，搜尋才會有效率？",
  "answers": [
-  {"answer": "節點的鍵必須大於左子樹的所有鍵、小於右子樹的所有鍵。", "correct": true, "feedback": "正確！有了這個性質，搜尋每一步都能把剩下的樹砍掉一半。"},
+  {"answer": "節點的鍵必須大於左子樹的所有鍵、小於右子樹的所有鍵。", "correct": true, "feedback": "正確！每次比較會排除一棵不可能的子樹。成本是 O(h)，取決於樹高；基本 BST 不保證每步砍掉一半節點。"},
   {"answer": "每個節點都必須恰好有兩個子節點以維持平衡。", "correct": false, "feedback": "不對。節點可以有 0、1 或 2 個子節點，BST 不要求一定要有兩個。"},
   {"answer": "鍵必須按排序好的順序插入，才能建出最有效率的樹。", "correct": false, "feedback": "不對。按排序順序插入反而會建出「歪斜」成串列狀的樹，效率極差。"},
   {"answer": "所有葉節點必須在同一層深度。", "correct": false, "feedback": "不對。那是完美平衡樹的描述，基本 BST 並不保證。"}
@@ -33,5 +33,26 @@
   {"answer": "除了根以外，每個節點都恰好有一條來自其他節點的入邊。", "correct": true, "feedback": "正確！這是教材對樹結構定義的基本性質。"},
   {"answer": "葉節點的定義是恰好有一條出邊的節點。", "correct": false, "feedback": "不對。葉節點是沒有子節點的節點，也就是出邊數為零。"},
   {"answer": "樹的高度等於它包含的邊的總數。", "correct": false, "feedback": "不對。高度是樹中節點的最大層數，不是邊的總數。"}
+ ]},
+{"question": "從 n 個 keys 建立 heap 時，逐一 insert 與 bottom-up buildHeap 的複雜度如何？",
+ "answers": [
+  {"answer": "兩者永遠都是 O(n)。", "correct": false, "feedback": "不對。逐一 insert 時，每個 key 最壞可能往上移 O(log n) 層。"},
+  {"answer": "逐一 insert 是 O(n log n)，bottom-up buildHeap 是 O(n)。", "correct": true, "feedback": "正確！bottom-up 的大多數節點靠近 leaves，percDown 總工作量是線性的。"},
+  {"answer": "逐一 insert 是 O(n²)，buildHeap 是 O(log n)。", "correct": false, "feedback": "不對。Heap insert 是 append 再 percolate，不是在排序 vector 中搬移全部元素。"},
+  {"answer": "buildHeap 必須先完整排序 vector。", "correct": false, "feedback": "不對。Heap 只維持 parent-child 的部分順序。"}
+ ]},
+{"question": "課程 BST map 的 put(key, value) 遇到既有 key 時應怎麼做？",
+ "answers": [
+  {"answer": "把 duplicate node 插到右子樹並增加 size。", "correct": false, "feedback": "不對。這會破壞 Map 語意，還可能讓 duplicate 無法由一般搜尋取得。"},
+  {"answer": "更新既有 value，size 維持不變。", "correct": true, "feedback": "正確！這是 insert-or-assign 語意。"},
+  {"answer": "刪除該 key 以下的整棵 subtree。", "correct": false, "feedback": "不對。更新 value 不應改變樹結構。"},
+  {"answer": "丟出 underflow_error。", "correct": false, "feedback": "不對。underflow_error 用於空 heap 存取，不是 BST assignment。"}
+ ]},
+{"question": "以邊數定義 height 時，最瘦的 AVL tree 應滿足哪個敘述？",
+ "answers": [
+  {"answer": "每棵 AVL 的精確高度都等於 1.44 log2(n)。", "correct": false, "feedback": "不對。Fibonacci 推導給的是上界（差一個 additive constant），不是每棵樹的精確等式。"},
+  {"answer": "N_h = F_(h+3) - 1，因此 height 是 O(log n)。", "correct": true, "feedback": "正確！N_0=1、N_1=2 對應 Fibonacci index h+3。"},
+  {"answer": "N_h = h²，因此 height 是 O(sqrt(n))。", "correct": false, "feedback": "不對。最少節點數遵循 Fibonacci 型遞迴，不是平方。"},
+  {"answer": "AVL 平衡會讓 height 維持常數。", "correct": false, "feedback": "不對。AVL height 隨節點數呈對數成長。"}
  ]}
 ]

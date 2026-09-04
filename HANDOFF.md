@@ -240,3 +240,28 @@ trees.html（Player B 變體，自帶 setDelay）與 searching_sorting.html（An
 
 `ds-python-selfstudy` 的 Player v1 應該也是同一份（先驗 md5）。`upgrade_player.py`
 可直接搬過去；其餘（滑桿補齊、改靜態、SVG）是逐頁語意編輯，要照本節清單重做一輪。
+
+---
+
+## 主文語法 gap 掃描（2026-09-04）
+
+方法：一個 agent 掃九章講義 ipynb（含 markdown 程式清單與 pythonds3/cppds/*.hpp）
+抽語法構件×章×頻率×代表原句；另一個盤點先備頁覆蓋（區分「有講解」vs「僅速查」）；
+交叉得 16 個 gap，三層全補。每塊都引講義原句當錨、範例 g++ 實跑。
+
+補上的（落點）：`<algorithm>` 講解段（p6 迭代器節尾）；STL stack/queue/deque 速覽
+**新 section `#seqcont`**（p5，PART 連號因此 string/stringcost 改為 P08/P09）；
+chrono 計時樣板＋auto 正面講解（p2）；三元運算子（p2）；printf 混用＋boolalpha（p1）；
+舊式轉型（p1）；rand/srand（p1）；INT_MAX（p1）；逗號宣告（p1）；assert（p1 details）；
+priority_queue 三參數版（p9）；stringstream 切詞（p7）；函式指標陣列（p4 details）；
+`{…}` 當實參＋string(1,ch)（p5 家族表）；字元算術（p5）；unsigned/size_t（p5）。
+詞彙卡 +8 張（p1×2 p2×2 p5×2 p6 p7 p9，data 先改再 apply_zh）。
+
+**講義完全沒用到、刻意不補**（姊妹站同步時直接沿用這份判斷）：lambda、enum、
+static、typedef/using 別名、nullptr（全書 NULL）、tuple、std::list、min_element、
+make_pair（講義都用 `{a,b}` 建 pair）、structured binding 以外的 C++17 特性。
+
+同日相關修正：00B 新增 gcpph.hpp 自動 include 清單卡＋「有 include 就要自己寫
+main」規則卡（kernel 以 cell 內有無 `main(` 決定是否整格包 main）；
+題庫 9 檔角括號跳脫（jupyterquiz innerHTML 吞 `<string,...>`，nsysu-math208/extra
+已推上線、~/ds_cpp/Slides 同步 commit——該 repo 無 remote）。

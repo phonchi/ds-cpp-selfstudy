@@ -471,8 +471,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#iterate" data-target="iterate"><span class="fn-num">P04</span><span class="fn-name">三種走訪</span></a>
   <a href="#invalidate" data-target="invalidate"><span class="fn-num">P05</span><span class="fn-name">iterator 失效</span></a>
   <a href="#twod" data-target="twod"><span class="fn-num">P06</span><span class="fn-name">二維 vector</span></a>
-  <a href="#string" data-target="string"><span class="fn-num">P07</span><span class="fn-name">string</span></a>
-  <a href="#stringcost" data-target="stringcost"><span class="fn-num">P08</span><span class="fn-name">字串的成本</span></a>
+  <a href="#seqcont" data-target="seqcont"><span class="fn-num">P07</span><span class="fn-name">stack／queue／deque</span></a>
+  <a href="#string" data-target="string"><span class="fn-num">P08</span><span class="fn-name">string</span></a>
+  <a href="#stringcost" data-target="stringcost"><span class="fn-num">P09</span><span class="fn-name">字串的成本</span></a>
   <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
   <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
   <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
@@ -532,8 +533,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#iterate"><span class="toc-num">P04</span>三種走訪寫法</a>
     <a href="#invalidate"><span class="toc-num">P05</span>iterator 與指標失效</a>
     <a href="#twod"><span class="toc-num">P06</span>二維 vector 與相鄰矩陣</a>
-    <a href="#string"><span class="toc-num">P07</span>string 就是加了方法的 vector<char></a>
-    <a href="#stringcost"><span class="toc-num">P08</span>字串操作的成本</a>
+    <a href="#seqcont"><span class="toc-num">P07</span>STL 的 stack／queue／deque 速覽</a>
+    <a href="#string"><span class="toc-num">P08</span>string 就是加了方法的 vector<char></a>
+    <a href="#stringcost"><span class="toc-num">P09</span>字串操作的成本</a>
     <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
     <a href="#reference"><span class="toc-num">REF</span>速查表</a>
     <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
@@ -726,6 +728,8 @@ terminate called after throwing an instance of &#x27;std::out_of_range&#x27;
       <tr><td class="mono">vector&lt;int&gt; hashTable(11, -1);</td><td>計數＋初值：11 個 −1</td><td>第 07 章雜湊表</td></tr>
       <tr><td class="mono">vector&lt;int&gt; left(a.begin(), a.begin()+mid);</td><td><strong>範圍建構式</strong>：把 <code>[first, last)</code> 那一段抄成新的 vector（尾端不含）—— C++ 的「切片」就是這招</td><td>第 06、07 章切子陣列</td></tr>
       <tr><td class="mono">string s("hello");</td><td><code>string</code> 的建構式 —— 完全同一個概念</td><td>各章</td></tr>
+      <tr><td class="mono">listSum({1, 3, 5, 7, 9});</td><td><strong>初始化清單直接當引數</strong>：函式收的是 <code>vector&lt;int&gt;</code>，編譯器就照這個型別把 <code>{…}</code> 現場建成一個 vector 傳進去 —— <code>{…}</code> 不是只能寫在等號右邊</td><td>第 06 章遞迴加總</td></tr>
+      <tr><td class="mono">string(1, convertString[n]);</td><td>「<strong>n 個字元 c</strong>」建構式：<code>string(1, 'D')</code> 就是長度 1 的 <code>"D"</code>。用來把單一 <code>char</code> 變成 <code>string</code>，才能跟別的字串用 <code>+</code> 接起來</td><td>第 06 章進位轉換</td></tr>
     </tbody>
   </table>
   </div>
@@ -1202,6 +1206,12 @@ for (int&amp; x : v) x*=10 之後： 310 170 930 260 </pre></div>
     <p style="margin-bottom:0;">兩個時機：<strong>① 你要改元素</strong>；<strong>② 元素很大、複製很貴</strong>（例如 <code>vector&lt;string&gt;</code> 或第 08 章的 <code>vector&lt;Vertex&gt;</code>）。只讀又不想改到的話，寫 <code>for (const string&amp; s : words)</code> 最保險——不複製，也不會手滑改到。課程第 08 章的字梯程式就是這樣寫的。</p>
   </div>
 
+  <div class="info-box">
+    <div class="info-label">💡 為什麼講義的迴圈計數常寫 <code>unsigned</code> 而不是 <code>int</code></div>
+    <p><code>v.size()</code> 和 <code>s.length()</code> 回傳的不是 <code>int</code>，而是一個<strong>無號整數</strong>（<code>size_t</code>）——長度本來就不可能是負的。拿 <code>int i</code> 去跟它比大小，兩邊型別不同，編譯器會丟出 <code>comparison of integer expressions of different signedness</code> 這類警告。所以講義乾脆把計數變數宣告成無號的，第 02、07 章都是這樣寫：<code>unsigned pos = 0; while (pos &lt; aList.size())</code>。</p>
+    <p style="margin-bottom:0;">代價是要記住一件事：<strong>無號數相減永遠不會是負的</strong>，減過頭會從最大值繞回來。<code>v.size() - 1</code> 在空 vector 上不是 −1，而是 <code>18446744073709551615</code>（64 位元的最大值）。所以 <code>for (unsigned i = 0; i &lt; v.size() - 1; i++)</code> 這種寫法碰到空 vector 就會跑天文數字圈然後越界當掉——想比較相鄰兩格時，改寫成 <code>i + 1 &lt; v.size()</code> 才安全。</p>
+  </div>
+
   <div class="info-box green">
     <div class="info-label">✅ 現代 C++ 對照</div>
     <p style="margin-bottom:0;">iterator 那一行常常寫成 <code>for (auto it = v.begin(); it != v.end(); ++it)</code>，讓編譯器自己推型別，比手寫 <code>vector&lt;int&gt;::iterator</code> 短很多。<strong>本課照 cppds 教科書，兩種寫法都會出現，考試以課程風格為準。</strong></p>
@@ -1325,8 +1335,131 @@ adj.size() = 4（幾列），adj[0].size() = 4（幾欄）</pre></div>
 </section>
 
 
+<section id="seqcont">
+  <div class="section-number">PART 07 · STL 容器速覽</div>
+  <h2>STL 的 <code>stack</code>／<code>queue</code>／<code>deque</code>：課本要你「自己蓋」，講義也直接用現成的</h2>
+  <p>第 05 章的主軸是<strong>自己蓋一個</strong> <code>Stack</code>、<code>Queue</code>、<code>Deque</code>——用 <code>vector</code> 當底層，把 <code>push</code>／<code>pop</code> 寫出來，好搞懂它們到底是什麼。但同一章的應用題（括號配對、燙手山芋、迴文、印表機模擬）為了省事，很多地方<strong>直接用 STL 現成的容器</strong>。所以你會在同一章看到兩套介面並存。</p>
+
+  <div class="info-box">
+    <div class="info-label">💡 記得補標頭檔</div>
+    <p style="margin-bottom:0;">這三個容器各有各的標頭：<code>#include &lt;stack&gt;</code>、<code>#include &lt;queue&gt;</code>、<code>#include &lt;deque&gt;</code>。課程 notebook 的 <code>gcpph</code> kernel <strong>沒有自動幫你帶進來</strong>（<code>vector</code>、<code>string</code> 有），所以自己開新 cell 寫 <code>stack&lt;char&gt; s;</code> 卻編不過，八成就是漏了這一行。</p>
+  </div>
+
+  <p>三個容器的成員協定不一樣，而且<strong>不是誰包含誰</strong>——記錯就會呼叫到不存在的方法：</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>容器</th><th>放進去</th><th>看一眼</th><th>拿掉</th><th>其他</th><th>講義出處</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="mono">stack&lt;T&gt;</td>
+        <td class="mono">push(x)</td>
+        <td class="mono">top()</td>
+        <td class="mono">pop()</td>
+        <td class="mono">empty() size()</td>
+        <td>第 05 章括號配對：<code>stack&lt;char&gt; s;</code></td>
+      </tr>
+      <tr>
+        <td class="mono">queue&lt;T&gt;</td>
+        <td class="mono">push(x)</td>
+        <td class="mono">front() back()</td>
+        <td class="mono">pop()</td>
+        <td class="mono">empty() size()</td>
+        <td>第 05 章燙手山芋：<code>queue&lt;string&gt; simQueue;</code></td>
+      </tr>
+      <tr>
+        <td class="mono">deque&lt;T&gt;</td>
+        <td class="mono">push_front(x) push_back(x)</td>
+        <td class="mono">front() back()</td>
+        <td class="mono">pop_front() pop_back()</td>
+        <td class="mono">empty() size() d[i]</td>
+        <td>第 05 章迴文：<code>deque&lt;char&gt; charDeque;</code></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>三個要點：① <code>stack</code> 只認得 <code>top()</code>，<strong>沒有</strong> <code>front()</code>；<code>queue</code> 只認得 <code>front()</code>／<code>back()</code>，<strong>沒有</strong> <code>top()</code>。② <code>deque</code> 兩頭都能進出，所以方法名一律帶方向。③ 三個都只裝<strong>值</strong>，要裝物件而不想複製就裝指標——第 05 章印表機模擬的 <code>queue&lt;Task*&gt; printQueue;</code> 就是這樣，隊伍裡排的是 <code>Task</code> 的位址。</p>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 最容易寫錯的一點：STL 的 <code>pop()</code> 不回傳東西</div>
+    <p>課本自己蓋的 <code>Stack&lt;T&gt;</code> 照 Python 的慣例，<code>pop()</code> <strong>會把彈出來的值回傳給你</strong>，所以可以寫 <code>T item = s.pop();</code> 一行搞定。</p>
+    <p>STL 的 <code>stack</code> 不是這樣：它的 <code>pop()</code> 回傳型別是 <code>void</code>。要值就得<strong>分成兩步</strong>——先 <code>top()</code> 抄下來，再 <code>pop()</code> 丟掉：</p>
+    <div class="cmp-table-wrap">
+    <table class="cmp-table">
+      <thead><tr><th>你想做的事</th><th>自製 <code>Stack&lt;T&gt;</code>（第 05 章）</th><th>STL <code>stack&lt;T&gt;</code></th></tr></thead>
+      <tbody>
+        <tr><td>取出並移除頂端</td><td class="mono">T x = s.pop();</td><td class="mono">T x = s.top();<br>s.pop();</td></tr>
+        <tr><td>只移除、不要值</td><td class="mono">s.pop();</td><td class="mono">s.pop();</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="margin-bottom:0;">寫成 <code>char c = s.pop();</code> 的下場是編譯錯誤 <code>void value not ignored as it ought to be</code>——這句錯誤訊息的意思就是「<code>pop()</code> 什麼都沒給你，你卻想拿一個值」。<code>queue</code> 和 <code>deque</code> 的 <code>pop</code> 系列全部一樣是 <code>void</code>。第 05 章兩套並用，混著記一定會踩到。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">三個容器，一次跑完</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#include</span> <span class="kw">&lt;stack&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#include</span> <span class="kw">&lt;queue&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">#include</span> <span class="kw">&lt;deque&gt;</span></span>
+<span class="line" data-l="6"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    stack&lt;<span class="kw">char</span>&gt; s;                       <span class="com">// 第 05 章括號配對用的就是這個</span></span>
+<span class="line" data-l="10">    s.push(<span class="str">'('</span>);  s.push(<span class="str">'['</span>);  s.push(<span class="str">'{'</span>);</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"s.size() = "</span> &lt;&lt; s.size() &lt;&lt; <span class="str">"  s.top() = "</span> &lt;&lt; s.top() &lt;&lt; endl;</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    <span class="kw">char</span> top = s.top();                  <span class="com">// 第一步：看一眼頂端</span></span>
+<span class="line" data-l="14">    s.pop();                             <span class="com">// 第二步：拿掉它，pop 不回傳東西</span></span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"取出 "</span> &lt;&lt; top &lt;&lt; <span class="str">" 之後 top = "</span> &lt;&lt; s.top()</span>
+<span class="line" data-l="16">         &lt;&lt; <span class="str">"  size = "</span> &lt;&lt; s.size() &lt;&lt; endl;</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    queue&lt;string&gt; simQueue;              <span class="com">// 第 05 章燙手山芋</span></span>
+<span class="line" data-l="19">    simQueue.push(<span class="str">"Bill"</span>);  simQueue.push(<span class="str">"David"</span>);  simQueue.push(<span class="str">"Susan"</span>);</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"queue front = "</span> &lt;&lt; simQueue.front()</span>
+<span class="line" data-l="21">         &lt;&lt; <span class="str">"  back = "</span> &lt;&lt; simQueue.back() &lt;&lt; endl;</span>
+<span class="line" data-l="22">    simQueue.push(simQueue.front());     <span class="com">// 把排頭再排到隊尾</span></span>
+<span class="line" data-l="23">    simQueue.pop();                      <span class="com">// 排頭離開</span></span>
+<span class="line" data-l="24">    cout &lt;&lt; <span class="str">"傳一次之後 front = "</span> &lt;&lt; simQueue.front()</span>
+<span class="line" data-l="25">         &lt;&lt; <span class="str">"  back = "</span> &lt;&lt; simQueue.back() &lt;&lt; endl;</span>
+<span class="line" data-l="26"> </span>
+<span class="line" data-l="27">    deque&lt;<span class="kw">char</span>&gt; charDeque;               <span class="com">// 第 05 章迴文檢查</span></span>
+<span class="line" data-l="28">    charDeque.push_back(<span class="str">'r'</span>);</span>
+<span class="line" data-l="29">    charDeque.push_back(<span class="str">'a'</span>);</span>
+<span class="line" data-l="30">    charDeque.push_front(<span class="str">'x'</span>);           <span class="com">// 兩頭都能進</span></span>
+<span class="line" data-l="31">    cout &lt;&lt; <span class="str">"deque front = "</span> &lt;&lt; charDeque.front()</span>
+<span class="line" data-l="32">         &lt;&lt; <span class="str">"  back = "</span> &lt;&lt; charDeque.back()</span>
+<span class="line" data-l="33">         &lt;&lt; <span class="str">"  size = "</span> &lt;&lt; charDeque.size() &lt;&lt; endl;</span>
+<span class="line" data-l="34">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="35">}</span>
+<span class="line" data-l="36"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>s.size() = 3  s.top() = {
+取出 { 之後 top = [  size = 2
+queue front = Bill  back = Susan
+傳一次之後 front = David  back = Bill
+deque front = x  back = a  size = 3</pre></div>
+  <p class="dx-note">第 13、14 行就是那個兩步——少了第 13 行，<code>{</code> 就永遠拿不回來了。第 22、23 行是燙手山芋的一整輪：排頭先被 <code>push</code> 到隊尾，再 <code>pop</code> 掉原本的排頭，所以 Bill 從最前面跑到最後面。第 30 行的 <code>push_front</code> 是 <code>deque</code> 才有的東西，<code>x</code> 插到最前面，<code>stack</code> 和 <code>queue</code> 都做不到。</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-label">隨堂 · pop 到底給不給你值</div>
+  <p>手上是 STL 的 <code>stack&lt;char&gt; s;</code>，你想<strong>取出頂端元素並把它移除</strong>。哪一種寫法對？</p>
+  <div class="quiz-options" id="qSeqOptions">
+    <div class="quiz-opt" data-correct="false" data-fb="編譯不過。STL stack 的 pop() 回傳型別是 void，寫成這樣會得到 void value not ignored as it ought to be。會回傳值的是第 05 章自己蓋的那個 Stack&lt;T&gt;。" onclick="quizCheck('qSeq', this)"><span class="opt-letter">(A)</span> <code class="mono">char c = s.pop();</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="正確。分兩步：top() 先把值抄下來，pop() 再把它從堆疊上拿掉。STL 把「看」和「拿掉」拆成兩個方法，所以要值一定得寫兩行。" onclick="quizCheck('qSeq', this)"><span class="opt-letter">(B)</span> <code class="mono">char c = s.top(); s.pop();</code></div>
+    <div class="quiz-opt" data-correct="false" data-fb="stack 沒有 front()。front()／back() 是 queue 和 deque 的方法，stack 只認得 top()。" onclick="quizCheck('qSeq', this)"><span class="opt-letter">(C)</span> <code class="mono">char c = s.front(); s.pop();</code></div>
+  </div>
+  <div class="quiz-feedback" id="qSeqFeedback"></div>
+</div>
+
+<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05 章</div><p>第 05 章前半自己蓋 <code>Stack</code>／<code>Queue</code>／<code>Deque</code>，重點是<strong>介面與底層的分離</strong>：同樣一組 <code>push</code>／<code>pop</code>，底層換成 <code>vector</code> 的哪一頭，成本就完全不同（尾端 $O(1)$、開頭 $O(n)$）。</p><p style='margin-bottom:0;'>後半的應用題則直接用 STL：括號配對用 <code>stack&lt;char&gt;</code>、燙手山芋用 <code>queue&lt;string&gt;</code>、迴文用 <code>deque&lt;char&gt;</code>、印表機模擬用 <code>queue&lt;Task*&gt;</code>。看程式碼時先看大小寫——<code>Stack</code> 是自製的、<code>stack</code> 是 STL 的，<code>pop()</code> 的行為就差在這裡。</p></div>
+</section>
+
+
 <section id="string">
-  <div class="section-number">PART 07 · string</div>
+  <div class="section-number">PART 08 · string</div>
   <h2><code>string</code> 就是 <code>vector&lt;char&gt;</code> 加一堆便利方法</h2>
   <p>底層一模一樣：連續記憶體、有 <code>size()</code> 也有 <code>capacity()</code>、<code>s[i]</code> 是 $O(1)$、尾端接字元是攤還 $O(1)$、擴容一樣會搬家。多出來的是專門為文字準備的方法。</p>
 
@@ -1406,12 +1539,18 @@ s += 之後 = fools!</pre></div>
   </table>
   </div>
 
+  <div class="info-box">
+    <div class="info-label">💡 <code>char</code> 可以做算術：<code>s[i] - 'a'</code> 是什麼意思</div>
+    <p><code>char</code> 說穿了就是一個<strong>小整數</strong>（一個 byte），存的是字元的編碼值。ASCII 把 <code>'a'</code> 到 <code>'z'</code> 排成<strong>連續</strong>的 97 到 122，所以兩個字元相減，得到的是它們在字母表上差幾格：<code>'c' - 'a'</code> 是 2、<code>'t' - 'a'</code> 是 19、<code>'a' - 'a'</code> 是 0。</p>
+    <p style="margin-bottom:0;">這正好把 26 個小寫字母映射成 <strong>0–25</strong>，剛好可以當陣列索引用。第 07 章字謎判斷的計數解法整段就靠這一招：<code>for (unsigned i = 0; i &lt; s1.length(); i++) c1[s1[i] - 'a']++;</code> —— <code>c1</code> 是 26 格的計數表，讀到 <code>'c'</code> 就讓第 2 格加一。兩個字串的計數表一模一樣，就是 anagram。注意這招<strong>只對小寫字母成立</strong>，混到大寫或空白就會算到別格去。</p>
+  </div>
+
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 02、06、08 章</div><p>第 02 章的 anagram 有四種解法，全部在操作 <code>string</code>：解法一把 <code>s2</code> 拆成 <code>vector&lt;char&gt;</code> 再一個一個 <code>erase</code>（所以是 $O(n^2)$）；解法二先 <code>sort(s1.begin(), s1.end())</code> 再逐字比；解法四開兩個 26 格的計數陣列，用 <code>s[i] - 'a'</code> 當索引。</p><p>第 06 章的 <code>toStr(n, base)</code> 靠 <code>convertString[n % base]</code> 取字元、再用 <code>+</code> 把遞迴回來的字串接起來，1453 轉 16 進位就是這樣印出 5AD 的。</p><p style='margin-bottom:0;'>第 08 章的字梯問題整章都在切四字母單字：<code>word.substr(0, i) + &quot;_&quot; + word.substr(i + 1)</code> 把 fool 變成 <code>_ool</code>、<code>f_ol</code>、<code>fo_l</code>、<code>foo_</code> 四個桶子，同一個桶子裡的單字彼此只差一個字母，就連一條邊。</p></div>
 </section>
 
 
 <section id="stringcost">
-  <div class="section-number">PART 08 · 字串的成本</div>
+  <div class="section-number">PART 09 · 字串的成本</div>
   <h2>在迴圈裡串接字串：<code>+=</code> 便宜，<code>s = s + x</code> 很貴</h2>
   <p>兩行看起來只差一個等號，成本差了兩個數量級。原因回到 PART 03：<code>s += 'x'</code> 是<strong>就地</strong>加在尾端，容量夠就什麼都不用搬；<code>s = s + 'x'</code> 則要先算出 <code>s + 'x'</code> 這個<strong>全新的字串</strong>（複製整個 s），再賦值回去。</p>
 
@@ -1980,7 +2119,7 @@ function endRender() {
     '把滑桿往右拉，看差距怎麼張開。');
 }
 
-/* ---------- PART 07 substr 切片尺 ---------- */
+/* ---------- PART 08 substr 切片尺 ---------- */
 const SUBWORD = 'anagram';
 
 function subRender() {
@@ -2024,7 +2163,7 @@ function subRender() {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "動態陣列（vector）", "back": "C++ 標準函式庫的可變長度陣列，元素放在一整塊連續記憶體裡。它解決原生陣列的三個痛點：長度能變、傳進函式不會退化成指標、自己記得有多長。課程九章的程式碼裡出現 78 次。"}, {"front": "直接初始化（Direct Initialization）", "back": "Type variable(arguments); 的語法：宣告 variable 並同時呼叫 Type 的建構式，兩件事在同一行發生。vector<int> v(5) 是計數建構、v(a.begin(), a.end()) 是範圍建構。注意 v(3) 是 3 個 0，v{3} 卻是 1 個 3——大括號優先配對初始化清單。"}, {"front": "大小（size）", "back": "vector 目前實際裝了幾個元素，v.size() 是 O(1)，因為長度是存起來的欄位而不是每次去數。回傳的是無號整數，跟 int 比大小時編譯器會警告。"}, {"front": "容量（capacity）", "back": "vector 目前配到的位子有幾格，一定大於等於 size。位子坐滿時再 push_back 就會觸發擴容搬家。clear() 只把 size 歸零，capacity 不會跟著變 0。"}, {"front": "尾端加入（push_back）", "back": "把一個元素接在 vector 尾巴。容量夠的時候只是寫進下一格，容量滿時要把所有現有元素複製到新的記憶體，所以是攤還 O(1)：個別一次可能貴，平均下來是常數。"}, {"front": "尾端移除（pop_back）", "back": "把最後一個元素拿掉，是真正的 O(1)，因為沒有任何元素需要移動。它不回傳被拿掉的值，要先用 back() 取出來——課程第 05 章的 Stack::pop() 就是 back() 加 pop_back() 兩步。"}, {"front": "插入（insert）", "back": "v.insert(pos, x) 把元素插在 iterator pos 指的位置前面，插入點之後的每個元素都要往後挪一格，所以是 O(n)。課程 pythonds3/cppds/stack.hpp 的 Stack2 故意用 insert(begin()) 當 push，示範選錯一端的代價。"}, {"front": "刪除（erase）", "back": "v.erase(pos) 刪掉 iterator pos 指的元素，後面每個元素往前補位，是 O(n)。它會回傳下一個有效的 iterator，走訪中邊刪要寫成 it = v.erase(it)，否則舊的 it 已經失效。"}, {"front": "清空（clear）", "back": "把所有元素移除、size 變成 0，但配到的記憶體不還給系統，capacity 維持原樣。這樣清空後重新填不必再配置一次；真的要釋放記憶體得用 shrink_to_fit()。"}, {"front": "預留容量（reserve）", "back": "v.reserve(n) 先把 n 格位子訂下來。已經知道要放幾個元素時先呼叫它，之後的 push_back 一次搬家都不會發生——實測塞 1000 個元素可以把 11 次擴容降成 0 次。"}, {"front": "範圍檢查存取（at）", "back": "v.at(i) 和 v[i] 都取第 i 個元素，差別只在越界時：at 丟出 out_of_range 例外並在訊息裡寫出索引與長度，[] 什麼都不檢查，讀到隔壁的記憶體或直接當掉。"}, {"front": "攤還分析（Amortized Analysis）", "back": "把一連串操作的總成本平均到每次操作上的分析方式。push_back 個別一次可能要搬 n 個元素，但因為容量每次翻倍，n 次 push_back 的總搬移量不超過 2n，平均每次仍是常數，所以說它是攤還 O(1)。"}, {"front": "迭代器（Iterator）", "back": "指向容器中某個位置的物件，用法跟指標很像：*it 取值、++it 往下一個走。v.begin() 是第一個元素，v.end() 是最後一個的再下一個。insert 與 erase 吃的參數就是它。"}, {"front": "迭代器失效（Iterator Invalidation）", "back": "容器改變之後，先前取得的 iterator 或指標可能指向已經釋放的記憶體。vector 擴容時整批元素會搬到新位址，舊的 iterator 全部失效，再使用就是未定義行為。對策是記索引而不是記位址。"}, {"front": "範圍 for 迴圈（Range-based for loop）", "back": "寫成 for (int x : v) 的走訪語法，最好讀但拿不到索引。x 預設是複製品，改它不會影響容器；要修改元素得寫 int& x，要避免複製又不想改到就寫 const string& x。"}, {"front": "二維向量（Vector of Vectors）", "back": "vector<vector<int>> 就是每個元素本身又是一個 vector。宣告 4x4 全 0 的矩陣寫成 adj(4, vector<int>(4, 0))，第 08 章的相鄰矩陣就是這樣存的，每一列還可以不一樣長。"}, {"front": "字串（string）", "back": "本質是 vector<char> 加上一堆為文字準備的方法：length、substr、find、+=、[]。底層同樣是連續記憶體、同樣有 capacity、同樣會擴容搬家，所以成本規則跟 vector 一模一樣。"}, {"front": "取子字串（substr）", "back": "s.substr(pos, len) 從索引 pos 取 len 個字元複製成一個新字串，成本是 O(len)。第二個參數是長度而不是結束位置，這點跟 Python 的切片不同。第 08 章的字梯用它把單字切成桶子。"}, {"front": "找不到的標記（string::npos）", "back": "find 系列函式找不到目標時回傳的特殊值，實際上是一個超大的無號數。判斷要寫 if (s.find(t) == string::npos)，寫成小於 0 永遠不成立——這是從 Python 的 -1 慣例轉過來時最常犯的錯。"}];
+const FLASHCARDS = [{"front": "動態陣列（vector）", "back": "C++ 標準函式庫的可變長度陣列，元素放在一整塊連續記憶體裡。它解決原生陣列的三個痛點：長度能變、傳進函式不會退化成指標、自己記得有多長。課程九章的程式碼裡出現 78 次。"}, {"front": "直接初始化（Direct Initialization）", "back": "Type variable(arguments); 的語法：宣告 variable 並同時呼叫 Type 的建構式，兩件事在同一行發生。vector<int> v(5) 是計數建構、v(a.begin(), a.end()) 是範圍建構。注意 v(3) 是 3 個 0，v{3} 卻是 1 個 3——大括號優先配對初始化清單。"}, {"front": "大小（size）", "back": "vector 目前實際裝了幾個元素，v.size() 是 O(1)，因為長度是存起來的欄位而不是每次去數。回傳的是無號整數，跟 int 比大小時編譯器會警告。"}, {"front": "容量（capacity）", "back": "vector 目前配到的位子有幾格，一定大於等於 size。位子坐滿時再 push_back 就會觸發擴容搬家。clear() 只把 size 歸零，capacity 不會跟著變 0。"}, {"front": "尾端加入（push_back）", "back": "把一個元素接在 vector 尾巴。容量夠的時候只是寫進下一格，容量滿時要把所有現有元素複製到新的記憶體，所以是攤還 O(1)：個別一次可能貴，平均下來是常數。"}, {"front": "尾端移除（pop_back）", "back": "把最後一個元素拿掉，是真正的 O(1)，因為沒有任何元素需要移動。它不回傳被拿掉的值，要先用 back() 取出來——課程第 05 章的 Stack::pop() 就是 back() 加 pop_back() 兩步。"}, {"front": "插入（insert）", "back": "v.insert(pos, x) 把元素插在 iterator pos 指的位置前面，插入點之後的每個元素都要往後挪一格，所以是 O(n)。課程 pythonds3/cppds/stack.hpp 的 Stack2 故意用 insert(begin()) 當 push，示範選錯一端的代價。"}, {"front": "刪除（erase）", "back": "v.erase(pos) 刪掉 iterator pos 指的元素，後面每個元素往前補位，是 O(n)。它會回傳下一個有效的 iterator，走訪中邊刪要寫成 it = v.erase(it)，否則舊的 it 已經失效。"}, {"front": "清空（clear）", "back": "把所有元素移除、size 變成 0，但配到的記憶體不還給系統，capacity 維持原樣。這樣清空後重新填不必再配置一次；真的要釋放記憶體得用 shrink_to_fit()。"}, {"front": "預留容量（reserve）", "back": "v.reserve(n) 先把 n 格位子訂下來。已經知道要放幾個元素時先呼叫它，之後的 push_back 一次搬家都不會發生——實測塞 1000 個元素可以把 11 次擴容降成 0 次。"}, {"front": "範圍檢查存取（at）", "back": "v.at(i) 和 v[i] 都取第 i 個元素，差別只在越界時：at 丟出 out_of_range 例外並在訊息裡寫出索引與長度，[] 什麼都不檢查，讀到隔壁的記憶體或直接當掉。"}, {"front": "攤還分析（Amortized Analysis）", "back": "把一連串操作的總成本平均到每次操作上的分析方式。push_back 個別一次可能要搬 n 個元素，但因為容量每次翻倍，n 次 push_back 的總搬移量不超過 2n，平均每次仍是常數，所以說它是攤還 O(1)。"}, {"front": "迭代器（Iterator）", "back": "指向容器中某個位置的物件，用法跟指標很像：*it 取值、++it 往下一個走。v.begin() 是第一個元素，v.end() 是最後一個的再下一個。insert 與 erase 吃的參數就是它。"}, {"front": "迭代器失效（Iterator Invalidation）", "back": "容器改變之後，先前取得的 iterator 或指標可能指向已經釋放的記憶體。vector 擴容時整批元素會搬到新位址，舊的 iterator 全部失效，再使用就是未定義行為。對策是記索引而不是記位址。"}, {"front": "範圍 for 迴圈（Range-based for loop）", "back": "寫成 for (int x : v) 的走訪語法，最好讀但拿不到索引。x 預設是複製品，改它不會影響容器；要修改元素得寫 int& x，要避免複製又不想改到就寫 const string& x。"}, {"front": "二維向量（Vector of Vectors）", "back": "vector<vector<int>> 就是每個元素本身又是一個 vector。宣告 4x4 全 0 的矩陣寫成 adj(4, vector<int>(4, 0))，第 08 章的相鄰矩陣就是這樣存的，每一列還可以不一樣長。"}, {"front": "字串（string）", "back": "本質是 vector<char> 加上一堆為文字準備的方法：length、substr、find、+=、[]。底層同樣是連續記憶體、同樣有 capacity、同樣會擴容搬家，所以成本規則跟 vector 一模一樣。"}, {"front": "取子字串（substr）", "back": "s.substr(pos, len) 從索引 pos 取 len 個字元複製成一個新字串，成本是 O(len)。第二個參數是長度而不是結束位置，這點跟 Python 的切片不同。第 08 章的字梯用它把單字切成桶子。"}, {"front": "找不到的標記（string::npos）", "back": "find 系列函式找不到目標時回傳的特殊值，實際上是一個超大的無號數。判斷要寫 if (s.find(t) == string::npos)，寫成小於 0 永遠不成立——這是從 Python 的 -1 慣例轉過來時最常犯的錯。"}, {"front": "容器轉接器（stack / queue / deque）", "back": "STL 的現成三兄弟：stack 是 push/top/pop、queue 是 push/front/pop、deque 兩端都能進出。注意 STL 的 pop() 回傳 void，要值必須先 top() 再 pop() 兩步；課程自製的 Stack<T>::pop() 則照 Python 慣例回傳值，兩套別混用。"}, {"front": "無號大小（size_t）", "back": "v.size() 回傳的無號整數型別，跟 int 比較會有 signedness 警告，所以講義迴圈寫 unsigned pos = 0。無號數相減不會是負的：空 vector 上 size() - 1 是天文數字，相鄰比較要寫 i + 1 < v.size()。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

@@ -1131,6 +1131,91 @@ map   ： apple=45 pear=30 </pre></div>
   </div>
 
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05、09 章</div><p style='margin-bottom:0;'>迭代器不只是拿來用的，第 05、09 章你會<strong>自己提供</strong>一個。<code>pythonds3/cppds/</code> 底下的 <code>UnorderedList</code>、<code>BinaryTree</code> 都是自訂型別，要讓它們能被 <code>for (auto x : list)</code> 走訪，就得替類別寫出 <code>begin()</code>、<code>end()</code>，並且讓回傳的那個東西支援 <code>*</code>、<code>++</code>、<code>!=</code> —— 這三個運算子怎麼多載，看 <a href='p9_oop_advanced.html'>P9</a>。range-for 迴圈其實只是編譯器幫你展開成 <code>begin()</code>／<code>end()</code> 的語法糖，弄懂這件事，你就知道為什麼「加了三個函式，一個迴圈就自己會動了」。</p></div>
+
+  <h3 style="margin-top:1.6rem;"><code>&lt;algorithm&gt;</code>：把一對迭代器交給現成的演算法</h3>
+  <p><code>sort</code>、<code>find</code> 這些<strong>不是容器的成員函式</strong>，你不會寫 <code>v.sort()</code>。它們是 <code>&lt;algorithm&gt;</code> 這個標頭裡的<strong>自由函式</strong>，
+  你要做的是把「從哪到哪」用<strong>一對迭代器</strong>告訴它：<code>sort(v.begin(), v.end())</code> 的意思是「把 <code>[begin, end)</code> 這一段排好」。
+  這正是左閉右開慣例的回報 —— 演算法只認得迭代器，不認得容器，所以同一套 <code>find</code>、<code>count</code> 通吃 <code>vector</code>、<code>string</code>、陣列，
+  一個都不用重寫。</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>寫法</th><th>做什麼</th><th>講義哪裡用過</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">sort(b, e)</td><td>把這一段由小到大排好</td><td>第 07 章拿來對照自己寫的排序：<code>sort(aList.begin(), aList.end()); // the STL built-in sort</code></td></tr>
+      <tr><td class="mono">find(b, e, x)</td><td>找 <code>x</code>，<strong>回傳迭代器</strong></td><td>找不到就回傳 <code>e</code>（也就是 <code>v.end()</code>）——不是 <code>-1</code></td></tr>
+      <tr><td class="mono">reverse(b, e)</td><td>把這一段前後反轉</td><td>第 06 章進位轉換：餘數是從低位算出來的，最後要反過來印</td></tr>
+      <tr><td class="mono">count(b, e, x)</td><td>數 <code>x</code> 出現幾次</td><td>第 01 章統計字元／元素出現次數</td></tr>
+      <tr><td class="mono">min(a, b)／max(a, b)<br>swap(a, b)</td><td>兩個<strong>值</strong>取小、取大、交換</td><td>第 06 章動態規劃 <code>minCoins = min(numCoins, minCoins);</code>、第 09 章 heap <code>swap(heap[i], heap[parentIdx]);</code><br><strong>這三個吃的是值，不是迭代器</strong>（<code>swap</code> 正式的家在 <code>&lt;utility&gt;</code>，但常跟這群一起用）</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">🔑 慣用法：判斷「在不在」要跟 end() 比</div>
+    <p><code>find</code> 沒有辦法回傳「找不到」這種特別的數字，因為容器裡什麼值都可能是合法元素。它的答案是位置，所以找不到時它回傳<strong>門外那一格</strong> ——
+    就是上面圖裡那個哨兵 <code>end()</code>。於是判斷成員的標準寫法長這樣：</p>
+    <p class="mono" style="font-size:.85rem;">if (find(v.begin(), v.end(), 15) != v.end()) { <span style="color:var(--muted)">/* 有 15 */</span> }</p>
+    <p style="margin-bottom:0;">講義第 06 章找零就是這個句型：<code>if (find(coinDenoms.begin(), coinDenoms.end(), change) != coinDenoms.end())</code>。
+    <strong>但 <code>map</code> 與 <code>set</code> 不要用這招</strong> —— <code>&lt;algorithm&gt;</code> 的 <code>find</code> 是從頭掃到尾的線性搜尋 O(n)，
+    而 <code>map</code>／<code>set</code> 自己有同名的<strong>成員版</strong> <code>m.find(k)</code> 與 <code>m.count(k)</code>，走的是紅黑樹只要 O(log n)。
+    看到 <code>s.find(x)</code> 跟 <code>find(s.begin(), s.end(), x)</code> 別搞混：前者才是你要的那個。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">sort → find → reverse → count，一段 vector 全跑一遍</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>, <span class="num">17</span>, <span class="num">55</span>};</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9">    sort(v.begin(), v.end());              <span class="com">// 一對迭代器 ＝ 排這一段</span></span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">sorted  : </span><span class="str">"</span>;</span>
+<span class="line" data-l="11">    <span class="kw">for</span> (vector&lt;<span class="kw">int</span>&gt;::iterator it = v.begin(); it != v.end(); ++it) cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="12">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="13"> </span>
+<span class="line" data-l="14">    vector&lt;<span class="kw">int</span>&gt;::iterator hit = find(v.begin(), v.end(), <span class="num">55</span>);</span>
+<span class="line" data-l="15">    <span class="kw">if</span> (hit != v.end())                     <span class="com">// 找得到：hit 指著那一格</span></span>
+<span class="line" data-l="16">        cout &lt;&lt; <span class="str">"</span><span class="str">find 55 : *it = </span><span class="str">"</span> &lt;&lt; *hit &lt;&lt; <span class="str">"</span><span class="str">，索引 </span><span class="str">"</span> &lt;&lt; (hit - v.begin()) &lt;&lt; endl;</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    vector&lt;<span class="kw">int</span>&gt;::iterator miss = find(v.begin(), v.end(), <span class="num">99</span>);</span>
+<span class="line" data-l="19">    <span class="kw">if</span> (miss == v.end())                    <span class="com">// 找不到：回傳的就是門外那一格</span></span>
+<span class="line" data-l="20">        cout &lt;&lt; <span class="str">"</span><span class="str">find 99 : 找不到，回傳的就是 end()</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="21"> </span>
+<span class="line" data-l="22">    reverse(v.begin(), v.end());</span>
+<span class="line" data-l="23">    cout &lt;&lt; <span class="str">"</span><span class="str">reversed: </span><span class="str">"</span>;</span>
+<span class="line" data-l="24">    <span class="kw">for</span> (vector&lt;<span class="kw">int</span>&gt;::iterator it = v.begin(); it != v.end(); ++it) cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="25">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="26"> </span>
+<span class="line" data-l="27">    cout &lt;&lt; <span class="str">"</span><span class="str">count 17: </span><span class="str">"</span> &lt;&lt; count(v.begin(), v.end(), <span class="num">17</span>) &lt;&lt; <span class="str">"</span><span class="str"> 次</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="28">    cout &lt;&lt; <span class="str">"</span><span class="str">min/max : </span><span class="str">"</span> &lt;&lt; min(<span class="num">3</span>, <span class="num">8</span>) &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span> &lt;&lt; max(<span class="num">3</span>, <span class="num">8</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="29">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="30">}</span>
+<span class="line" data-l="31"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>sorted  : 17 17 31 55 93
+find 55 : *it = 55，索引 3
+find 99 : 找不到，回傳的就是 end()
+reversed: 93 55 31 17 17
+count 17: 2 次
+min/max : 3 / 8</pre></div>
+  <p class="dx-note">第 16 行的 <code>hit - v.begin()</code> 就是「這是第幾格」：兩個迭代器相減得到距離，這也是 <code>vector</code> 迭代器像指標才有的特權。
+  最後補一句限制：<code>sort</code> 需要迭代器能隨機跳，所以 <code>sort(L.begin(), L.end())</code> 對 <code>list</code> 編譯不過（<code>list</code> 有自己的 <code>L.sort()</code>），
+  而 <code>set</code>／<code>map</code> 本來就排好了，根本不需要排。</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-label">隨堂 · find 找不到的時候</div>
+  <p><code>vector&lt;int&gt; v = {10, 20, 30};</code> 執行 <code>find(v.begin(), v.end(), 99);</code>，這個 99 不在裡面。它回傳什麼？</p>
+  <div class="quiz-options" id="qAlgoOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="正確。find 回傳的是位置，而「找不到」就用門外那一格 end() 表示。所以判斷式一律寫成 find(...) != v.end()，而不是跟某個數字比。" onclick="quizCheck('qAlgo', this)"><span class="opt-letter">(A)</span> <code>v.end()</code></div>
+    <div class="quiz-opt" data-correct="false" data-fb="那是 Python 的慣例（str.find 找不到回 -1）。C++ 的 find 回傳的是迭代器不是索引，沒有 -1 這種東西可回。" onclick="quizCheck('qAlgo', this)"><span class="opt-letter">(B)</span> <code>-1</code></div>
+    <div class="quiz-opt" data-correct="false" data-fb="不會。C++ 標準演算法幾乎都不靠例外報告「沒找到」——這是很常見的情況，不是錯誤。" onclick="quizCheck('qAlgo', this)"><span class="opt-letter">(C)</span> 丟出例外</div>
+  </div>
+  <div class="quiz-feedback" id="qAlgoFeedback"></div>
+</div>
 </section>
 <section id="traverse">
   <div class="section-number">PART 06 · 走訪 map</div>
@@ -1699,7 +1784,7 @@ function renderBoxQueue(containerId, items, opts={}) {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "映射（map）", "back": "C++ 標準函式庫的鍵對值容器，底層是紅黑樹，查詢、插入、刪除都是 O(log n)。走訪時照鍵由小到大排好，需要有序輸出時選它。第 09 章的二元搜尋樹就是自己動手寫的簡化版。"}, {"front": "無序映射（unordered_map）", "back": "用雜湊表實作的鍵對值容器，平均 O(1) 查詢，最壞情況會退化成 O(n)。走訪順序是桶序，不保證也不該依賴。第 07 章整章都在解釋它的內部怎麼運作。"}, {"front": "集合（set）", "back": "只有鍵沒有值的容器，自動去重、自動排序。拿來回答「這個我見過沒有」最直接，第 08 章圖走訪的 visited 就是一個 set。"}, {"front": "無序集合（unordered_set）", "back": "set 的雜湊版本，平均 O(1) 查詢，走訪順序不保證。資料量大又只需要查「在不在」時選它，本頁開場那個快幾千倍的實測用的就是這個。"}, {"front": "成對資料（pair）", "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"}, {"front": "中括號運算子（operator[]）", "back": "map 的 m[k] 寫法。鍵存在就回傳它的值，鍵不存在會當場插入一筆並做預設初始化，然後回傳新建那筆的參考。這跟 Python dict 查不到就丟 KeyError 完全相反，是本頁最容易踩的坑。"}, {"front": "預設初始化（default initialization）", "back": "operator[] 建新鍵時給值的初始狀態：int 是 0、double 是 0.0、string 是空字串、vector 是空容器。因為 int 會是 0，m[x]++ 這種計數寫法才不必先判斷鍵在不在。"}, {"front": "計數查詢（count）", "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀的，不會像 operator[] 那樣偷偷建鍵，只想判斷在不在就用它。"}, {"front": "尋找（find）", "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"}, {"front": "尾後迭代器（end()）", "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"}, {"front": "左閉右開區間（Half-open Range）", "back": "[begin, end) 含頭不含尾的範圍慣例：end() 指向最後一個元素的「再下一格」，是不能解參考的哨兵。C++ 所有吃一對迭代器的介面（走訪、範圍建構、sort）都用它，好處是 end-begin 恰為元素個數、空容器 begin()==end() 天然成立。"}, {"front": "迭代器（iterator）", "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"}, {"front": "結構化繫結（structured binding）", "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"}, {"front": "紅黑樹（red-black tree）", "back": "map 與 set 的底層結構，一種會自我平衡的二元搜尋樹，保證樹高是 O(log n) 不會退化成一條鏈。它的中序走訪就是排序結果，這是 map 走訪有序的原因。"}, {"front": "桶（bucket）", "back": "雜湊表裡存放元素的格子。unordered_map 把鍵算成桶編號直接跳過去，所以平均只要常數時間；走訪則是把桶從頭掃到尾，這就是為什麼順序看起來像亂的。"}, {"front": "下界查詢（lower_bound）", "back": "m.lower_bound(x) 回傳第一個不小於 x 的鍵的迭代器，是有序容器才有的操作。搭配 begin() 拿最小、rbegin() 拿最大，這三個在 unordered 版本上完全不存在。"}, {"front": "相鄰串列（adjacency list）", "back": "用 map<頂點, vector<鄰居>> 表示一張圖，每個頂點對應一串它連到的頂點。第 08 章的 pythonds3/cppds/graph.hpp 就是這個結構，建圖那一行 adj[v].push_back(w) 靠的正是 operator[] 會自動建出空 vector 的特性。"}];
+const FLASHCARDS = [{"front": "映射（map）", "back": "C++ 標準函式庫的鍵對值容器，底層是紅黑樹，查詢、插入、刪除都是 O(log n)。走訪時照鍵由小到大排好，需要有序輸出時選它。第 09 章的二元搜尋樹就是自己動手寫的簡化版。"}, {"front": "無序映射（unordered_map）", "back": "用雜湊表實作的鍵對值容器，平均 O(1) 查詢，最壞情況會退化成 O(n)。走訪順序是桶序，不保證也不該依賴。第 07 章整章都在解釋它的內部怎麼運作。"}, {"front": "集合（set）", "back": "只有鍵沒有值的容器，自動去重、自動排序。拿來回答「這個我見過沒有」最直接，第 08 章圖走訪的 visited 就是一個 set。"}, {"front": "無序集合（unordered_set）", "back": "set 的雜湊版本，平均 O(1) 查詢，走訪順序不保證。資料量大又只需要查「在不在」時選它，本頁開場那個快幾千倍的實測用的就是這個。"}, {"front": "成對資料（pair）", "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"}, {"front": "中括號運算子（operator[]）", "back": "map 的 m[k] 寫法。鍵存在就回傳它的值，鍵不存在會當場插入一筆並做預設初始化，然後回傳新建那筆的參考。這跟 Python dict 查不到就丟 KeyError 完全相反，是本頁最容易踩的坑。"}, {"front": "預設初始化（default initialization）", "back": "operator[] 建新鍵時給值的初始狀態：int 是 0、double 是 0.0、string 是空字串、vector 是空容器。因為 int 會是 0，m[x]++ 這種計數寫法才不必先判斷鍵在不在。"}, {"front": "計數查詢（count）", "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀的，不會像 operator[] 那樣偷偷建鍵，只想判斷在不在就用它。"}, {"front": "尋找（find）", "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"}, {"front": "尾後迭代器（end()）", "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"}, {"front": "左閉右開區間（Half-open Range）", "back": "[begin, end) 含頭不含尾的範圍慣例：end() 指向最後一個元素的「再下一格」，是不能解參考的哨兵。C++ 所有吃一對迭代器的介面（走訪、範圍建構、sort）都用它，好處是 end-begin 恰為元素個數、空容器 begin()==end() 天然成立。"}, {"front": "迭代器（iterator）", "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"}, {"front": "結構化繫結（structured binding）", "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"}, {"front": "紅黑樹（red-black tree）", "back": "map 與 set 的底層結構，一種會自我平衡的二元搜尋樹，保證樹高是 O(log n) 不會退化成一條鏈。它的中序走訪就是排序結果，這是 map 走訪有序的原因。"}, {"front": "桶（bucket）", "back": "雜湊表裡存放元素的格子。unordered_map 把鍵算成桶編號直接跳過去，所以平均只要常數時間；走訪則是把桶從頭掃到尾，這就是為什麼順序看起來像亂的。"}, {"front": "下界查詢（lower_bound）", "back": "m.lower_bound(x) 回傳第一個不小於 x 的鍵的迭代器，是有序容器才有的操作。搭配 begin() 拿最小、rbegin() 拿最大，這三個在 unordered 版本上完全不存在。"}, {"front": "相鄰串列（adjacency list）", "back": "用 map<頂點, vector<鄰居>> 表示一張圖，每個頂點對應一串它連到的頂點。第 08 章的 pythonds3/cppds/graph.hpp 就是這個結構，建圖那一行 adj[v].push_back(w) 靠的正是 operator[] 會自動建出空 vector 的特性。"}, {"front": "標準演算法（algorithm）", "back": "sort、find、reverse、count 不是容器成員，是 <algorithm> 裡吃「一對迭代器」的自由函式，用 [begin, end) 指定範圍。find 回傳迭代器、找不到＝end()（不是 -1）；但 map/set 要用自己的成員版 find/count（O(log n)），別用線性掃的這組。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

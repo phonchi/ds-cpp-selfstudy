@@ -1,22 +1,86 @@
 [
-{"front":"繼承（Inheritance）","back":"讓子類別自動取得父類別全部成員的機制，用來表達「是一種」的關係。子類別只需要寫不一樣的那部分。"},
-{"front":"父類別／子類別（Base Class / Derived Class）","back":"被繼承的一方稱為父類別（基底類別），繼承別人的一方稱為子類別（衍生類別）。寫成 class Dog : public Animal。"},
-{"front":"保護存取（protected）","back":"介於 public 與 private 之間的存取層級：自己與子類別看得到，外人看不到。專門用來放要給子類別用的成員。"},
-{"front":"成員初始化列表（Member Initializer List）","back":"寫在建構式參數列與大括號之間、以冒號開頭的部分，用來呼叫父類別的建構式或初始化成員。子類別一定要用它把父類別的部分蓋好。"},
-{"front":"方法覆寫（Overriding）","back":"子類別定義一個與父類別同名同簽章的函式，取代父類別的版本。建議加上 override 關鍵字，名字或簽章打錯時編譯器會直接抓出來。"},
-{"front":"虛擬函式（virtual）","back":"標了 virtual 的成員函式會在執行期查表決定要呼叫哪一個版本。沒有它，透過基底指標呼叫時編譯器在編譯期就照指標型別決定，多型不會發生。"},
-{"front":"動態繫結（Dynamic Binding）","back":"執行期才決定要呼叫哪一個函式版本的機制，靠虛擬函式表實作。C++ 的多型需要兩個條件：方法有 virtual，而且透過基底指標或參考呼叫。"},
-{"front":"純虛擬函式（Pure Virtual Function）","back":"宣告時以 = 0 結尾、沒有實作的虛擬函式。它規定所有子類別都必須實作，課程標頭的 LogicGate 就用了兩個。"},
-{"front":"抽象類別（Abstract Class）","back":"含有純虛擬函式的類別，不能被實例化，只能當基底。用途是定義一份所有子類別都得遵守的契約。"},
-{"front":"物件切片（Object Slicing）","back":"把子類別物件以「傳值」方式指派給父類別型別時，子類別多出來的部分會被直接切掉。這是多型場合一律要傳指標或參考的原因。"},
-{"front":"多型（Polymorphism）","back":"同一段呼叫端程式碼可以接受不同子類別的物件。在 C++ 需要 virtual 加上基底指標或參考才成立，不像 Python 是免費的。"},
-{"front":"運算子多載（Operator Overloading）","back":"透過定義特殊名稱的函式，讓內建運算子對自訂型別也有意義。定義 operator+ 之後就能寫 a + b，定義 operator< 之後就能排序。"},
-{"front":"相等運算子（operator==）","back":"定義「什麼叫一樣」的函式。預設情況下自訂型別根本不能用 == 比較。課程標頭的 Fraction 用交叉相乘實作，所以 1/2 與 2/4 會相等。"},
-{"front":"小於運算子（operator<）","back":"定義「誰比較小」的函式，是 sort、min_element、set、priority_queue 以及課程六種排序法唯一依賴的比較方式。沒有它連編譯都過不了。"},
-{"front":"雜湊特化（std::hash 特化）","back":"要把自訂型別當 unordered_map 或 unordered_set 的鍵時，必須為它特化 std::hash。鐵則是 a == b 為真時 hash(a) 必須等於 hash(b)。"},
-{"front":"有序與無序容器（Ordered / Unordered Container）","back":"set 與 map 用紅黑樹，需要 operator<，查詢 O(log n) 且走訪有序；unordered_set 與 unordered_map 用雜湊表，需要 operator== 加 std::hash，平均 O(1) 但走訪是桶序。"},
-{"front":"下標運算子（operator[]）","back":"讓自訂類別支援 x[i] 的函式。通常要寫兩個版本：一個回傳參考讓人修改，一個是 const 版本給唯讀情境用。"},
-{"front":"組合優於繼承（Composition over Inheritance）","back":"設計原則：不確定該用哪個時選組合。判斷法則是問「父類別的每一個方法用在子類別身上都說得通嗎」，只要有一個說不通就別繼承。"},
-{"front":"樣板（Template）","back":"以型別為參數的類別或函式，編譯器在編譯期替每個用到的型別各產生一份程式碼。課程標頭的容器全是 template，所以它們的實作必須整份寫在標頭檔裡。"},
-{"front":"三法則（Rule of Three）","back":"類別裡有 new 出來的成員時，除了建構式還需要解構式、拷貝建構式與 operator=，否則複製物件會共用同一塊記憶體。本課的課程標頭一律沒做，那是教學取捨。"}
+  {
+    "front": "繼承（Inheritance）",
+    "back": "讓子類別自動取得父類別全部成員的機制，用來表達「是一種」的關係。子類別只需要寫不一樣的那部分。"
+  },
+  {
+    "front": "父類別／子類別（Base Class / Derived Class）",
+    "back": "被繼承的一方稱為父類別（基底類別），繼承別人的一方稱為子類別（衍生類別）。寫成 class Dog : public Animal。"
+  },
+  {
+    "front": "保護存取（protected）",
+    "back": "介於 public 與 private 之間的存取層級：自己與子類別看得到，外人看不到。專門用來放要給子類別用的成員。"
+  },
+  {
+    "front": "成員初始化列表（Member Initializer List）",
+    "back": "寫在建構式參數列與大括號之間、以冒號開頭的部分，用來呼叫父類別的建構式或初始化成員。子類別一定要用它把父類別的部分蓋好。"
+  },
+  {
+    "front": "方法覆寫（Overriding）",
+    "back": "子類別定義一個與父類別同名同簽章的函式，取代父類別的版本。建議加上 override 關鍵字，名字或簽章打錯時編譯器會直接抓出來。"
+  },
+  {
+    "front": "虛擬函式（virtual）",
+    "back": "標了 virtual 的成員函式會在執行期查表決定要呼叫哪一個版本。沒有它，透過基底指標呼叫時編譯器在編譯期就照指標型別決定，多型不會發生。"
+  },
+  {
+    "front": "動態繫結（Dynamic Binding）",
+    "back": "執行期才決定要呼叫哪一個函式版本的機制，靠虛擬函式表實作。C++ 的多型需要兩個條件：方法有 virtual，而且透過基底指標或參考呼叫。"
+  },
+  {
+    "front": "純虛擬函式（Pure Virtual Function）",
+    "back": "宣告時以 = 0 結尾、沒有實作的虛擬函式。它規定所有子類別都必須實作，課程標頭的 LogicGate 就用了兩個。"
+  },
+  {
+    "front": "抽象類別（Abstract Class）",
+    "back": "含有純虛擬函式的類別，不能被實例化，只能當基底。用途是定義一份所有子類別都得遵守的契約。"
+  },
+  {
+    "front": "物件切片（Object Slicing）",
+    "back": "把子類別物件以「傳值」方式指派給父類別型別時，子類別多出來的部分會被直接切掉。這是多型場合一律要傳指標或參考的原因。"
+  },
+  {
+    "front": "多型（Polymorphism）",
+    "back": "同一段呼叫端程式碼可以接受不同子類別的物件。在 C++ 需要 virtual 加上基底指標或參考才成立，不像 Python 是免費的。"
+  },
+  {
+    "front": "運算子多載（Operator Overloading）",
+    "back": "透過定義特殊名稱的函式，讓內建運算子對自訂型別也有意義。定義 operator+ 之後就能寫 a + b，定義 operator< 之後就能排序。"
+  },
+  {
+    "front": "相等運算子（operator==）",
+    "back": "定義「什麼叫一樣」的函式。預設情況下自訂型別根本不能用 == 比較。課程標頭的 Fraction 用交叉相乘實作，所以 1/2 與 2/4 會相等。"
+  },
+  {
+    "front": "小於運算子（operator<）",
+    "back": "定義「誰比較小」的函式，是 sort、min_element、set、priority_queue 以及課程六種排序法唯一依賴的比較方式。沒有它連編譯都過不了。"
+  },
+  {
+    "front": "雜湊特化（std::hash 特化）",
+    "back": "要把自訂型別當 unordered_map 或 unordered_set 的鍵時，必須為它特化 std::hash。鐵則是 a == b 為真時 hash(a) 必須等於 hash(b)。"
+  },
+  {
+    "front": "有序與無序容器（Ordered / Unordered Container）",
+    "back": "set 與 map 用紅黑樹，需要 operator<，查詢 O(log n) 且走訪有序；unordered_set 與 unordered_map 用雜湊表，需要 operator== 加 std::hash，平均 O(1) 但走訪是桶序。"
+  },
+  {
+    "front": "下標運算子（operator[]）",
+    "back": "讓自訂類別支援 x[i] 的函式。通常要寫兩個版本：一個回傳參考讓人修改，一個是 const 版本給唯讀情境用。"
+  },
+  {
+    "front": "組合優於繼承（Composition over Inheritance）",
+    "back": "設計原則：不確定該用哪個時選組合。判斷法則是問「父類別的每一個方法用在子類別身上都說得通嗎」，只要有一個說不通就別繼承。"
+  },
+  {
+    "front": "樣板（Template）",
+    "back": "以型別為參數的類別或函式，編譯器在編譯期替每個用到的型別各產生一份程式碼。課程標頭的容器全是 template，所以它們的實作必須整份寫在標頭檔裡。"
+  },
+  {
+    "front": "三法則（Rule of Three）",
+    "back": "類別裡有 new 出來的成員時，除了建構式還需要解構式、拷貝建構式與 operator=，否則複製物件會共用同一塊記憶體。本課的課程標頭一律沒做，那是教學取捨。"
+  },
+  {
+    "front": "優先佇列（priority_queue）",
+    "back": "每次 top() 都是「最優先」元素的容器。三個樣板參數：元素型別、底層容器（通常 vector）、比較器——預設 less<> 是最大堆，要最小值優先（如 Dijkstra 挑最短距離）得寫 greater<>。能運作靠的是元素已定義 operator<。"
+  }
 ]

@@ -822,6 +822,11 @@ z = 0</pre></div>
     <p style="margin-bottom:0;">寫累加器時 <code class="mono">int sum;</code> 就直接進迴圈 <code class="mono">sum += a[i];</code>。這不是加到 0 上面，是加到一個垃圾值上面。<strong>永遠寫 <code class="mono">int sum = 0;</code></strong>。同理，計數器要 <code class="mono">int count = 0;</code>，指標要 <code class="mono">&#78;ode *p = &#78;ULL;</code>。</p>
   </div>
 
+  <div class="info-box">
+    <div class="info-label">💡 一行宣告多個變數</div>
+    <p style="margin-bottom:0;"><code class="mono">int num, den;</code> 是一行宣告兩個同型別的變數，逗號隔開，類別成員宣告時很常見。<strong>初始值要各自寫</strong>：<code class="mono">int a, b = 5;</code> 只有 <code>b</code> 拿到初值 5，<code>a</code> 還是沒初始化的垃圾值，跟上面那條規則是同一個坑。</p>
+  </div>
+
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 03 章</div><p style='margin-bottom:0;'>〈陣列與稀疏矩陣〉要你自己算元素位址：第 <code>i</code> 格在 <code>起始位址 + i × sizeof(元素)</code>，二維的 row-major 則是 <code>起始位址 + (i × 欄數 + j) × sizeof(元素)</code>。那個 <code>sizeof(元素)</code> 就是這一節量到的 4 或 8，寫錯就整排位址都偏掉。</p></div>
 </section>
 
@@ -944,6 +949,48 @@ z = 0</pre></div>
     <div class="info-label">⚠️ <code>&gt;&gt;</code> 以空白分隔，讀不到有空格的名字</div>
     <p style="margin-bottom:0;"><code class="mono">cin &gt;&gt; name;</code> 碰到 <code class="mono">David Malan</code> 只會拿到 <code class="mono">David</code>，<code class="mono">Malan</code> 留在串流裡等下一次讀。要整行就用 <code class="mono">getline(cin, name);</code>。</p>
   </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);"><code>printf</code> 跟 <code>cout</code> 混著用：講義自己就這樣寫</h3>
+  <p>C 語言留下來的 <code>printf</code> 跟 C++ 的 <code>cout</code> 是兩套完全不同的輸出機制，但講義兩者混用了十八次——原因很單純：<strong>要對齊成表格時，<code>printf</code> 的欄寬語法比 <code>cout</code> 好用太多</strong>。認得下面四個轉換字元就夠應付講義：</p>
+
+  <div class="cmp-table-wrap">
+  <table class="cmp-table">
+    <thead><tr><th>轉換字元</th><th>對應型別</th><th>講義例句</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">%d</td><td class="mono">int</td><td class="mono">printf("%d 頁", pages);</td></tr>
+      <tr><td class="mono">%s</td><td>字串，<strong>要先 <code class="mono">.c_str()</code></strong></td><td class="mono">printf("%s costs %d cents\n", item.c_str(), price);</td></tr>
+      <tr><td class="mono">%f　%10.7f</td><td class="mono">double</td><td>10 是欄寬、7 是小數位數，數字自動靠右對齊</td></tr>
+      <tr><td class="mono">%lld</td><td class="mono">long long</td><td class="mono">printf("Sum is %lld required %10.7f seconds\n", s, secs);</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    string item = <span class="str">"</span><span class="str">eraser</span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    <span class="kw">int</span> price = <span class="num">35</span>;</span>
+<span class="line" data-l="9">    printf(<span class="str">"</span><span class="str">The %s costs %d cents</span><span class="str">\n</span><span class="str">"</span>, item.c_str(), price);   <span class="com">// string 要先 .c_str()</span></span>
+<span class="line" data-l="10"></span> </span>
+<span class="line" data-l="11">    <span class="kw">long</span> <span class="kw">long</span> s = <span class="num">500000500000</span>LL;</span>
+<span class="line" data-l="12">    <span class="kw">double</span> secs = <span class="num">0.0012345</span>;</span>
+<span class="line" data-l="13">    printf(<span class="str">"</span><span class="str">Sum is %lld required %10.7f seconds</span><span class="str">\n</span><span class="str">"</span>, s, secs);</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">    <span class="kw">bool</span> found = <span class="fn">true</span>;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">found（沒加 boolalpha）= </span><span class="str">"</span> &lt;&lt; found &lt;&lt; endl;</span>
+<span class="line" data-l="17">    cout &lt;&lt; boolalpha;</span>
+<span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">found（加了 boolalpha）= </span><span class="str">"</span> &lt;&lt; found &lt;&lt; endl;</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>The eraser costs 35 cents
+Sum is 500000500000 required  0.0012345 seconds
+found（沒加 boolalpha）= 1
+found（加了 boolalpha）= true</pre></div>
+  <p class="dx-note">第一行印字串用的是 <code>%s</code>，但 <code>item</code> 是 <code>std::string</code> 不是 C 的字元陣列，<strong>一定要先呼叫 <code>.c_str()</code></strong> 轉成 <code>printf</code> 認得的型別，直接丟 <code>string</code> 進去是未定義行為。最後兩行是另一件講義做了 23 次的事：<code>cout</code> 印 <code>bool</code> 預設是 <code>1</code> / <code>0</code>，要看到 <code>true</code> / <code>false</code> 得先丟一個 <code>boolalpha</code> 進 <code>cout</code>，而且之後<strong>整條串流都變了</strong>，不是只有這一次輸出。</p>
 </section>
 
 <section id="operators">
@@ -1077,6 +1124,28 @@ total /= 4  -&gt; 6  &lt;- 整數除法還是會截</pre></div>
     </div>
     <div class="quiz-feedback" id="qaFeedback"></div>
   </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 <code>rand()</code>／<code>srand()</code>：靠 <code>%</code> 把亂數壓進範圍</div>
+    <p><code>rand()</code> 回傳一個很大的亂數（範圍看平台，通常到二十億出頭），單獨看沒什麼用；配上這一節的 <code>%</code> 就能壓進你要的範圍。講義第 05 章印表機任務要「隨機印 1 到 20 頁」，寫的就是 <code class="mono">pages = rand() % 20 + 1;</code>：<code>% 20</code> 先壓成 0 到 19，<code>+ 1</code> 再平移成 1 到 20。</p>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdlib&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    srand(<span class="num">42</span>);                        <span class="com">// 固定種子，這裡才能給出固定的預期輸出</span></span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {</span>
+<span class="line" data-l="8">        <span class="kw">int</span> pages = rand() % <span class="num">20</span> + <span class="num">1</span>;   <span class="com">// 壓進 1..20</span></span>
+<span class="line" data-l="9">        cout &lt;&lt; <span class="str">"</span><span class="str">第 </span><span class="str">"</span> &lt;&lt; i + <span class="num">1</span> &lt;&lt; <span class="str">"</span><span class="str"> 份文件要印 </span><span class="str">"</span> &lt;&lt; pages &lt;&lt; <span class="str">"</span><span class="str"> 頁</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10"></span>    }</span>
+<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"> </span></div>
+    <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>第 1 份文件要印 7 頁
+第 2 份文件要印 1 頁
+第 3 份文件要印 2 頁</pre></div>
+    <p style="margin-bottom:0;">不設種子的話，<code>rand()</code> 每次程式重新執行都是<strong>同一個起始種子</strong>，於是每次跑出來的序列一模一樣——這在偵錯時很方便，但不是你要的「隨機」。要讓序列每次執行都不同，得先呼叫 <code class="mono">srand(time(0));</code>（<code>&lt;ctime&gt;</code>），用當下的時間當種子。</p>
+  </div>
 </section>
 
 
@@ -1140,6 +1209,11 @@ static_cast&lt;int&gt;(3.99)      = 3   &lt;- 轉 int 是截斷，不是四捨�
     <p style="margin-bottom:0;">要浮點的答案，<strong>轉型要放在除號的左邊、括號的裡面</strong>：<code class="mono">static_cast&lt;double&gt;(a) / b</code>。放錯位置的 <code class="mono">static_cast&lt;double&gt;(a / b)</code> 編得過、跑得動、答案錯，而且錯得很安靜。</p>
   </div>
 
+  <div class="info-box">
+    <div class="info-label">💡 舊式轉型：講義還有兩種寫法</div>
+    <p style="margin-bottom:0;"><code class="mono">static_cast&lt;double&gt;(x)</code>、<code class="mono">(double)x</code>（C 式，第 05、09 章）、<code class="mono">double(x)</code>（函式式，第 01、07 章）——三種寫法效果完全一樣，都是把 <code>x</code> 轉成 <code>double</code>。講義圖省事常用後兩種較短的寫法，<strong>看得懂就好，作業建議一律用 <code class="mono">static_cast</code></strong>（理由見下方「現代 C++ 對照」）。</p>
+  </div>
+
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">整數溢位：裝不下的時候會繞回去</h3>
   <p><code>int</code> 是 4 個 byte，能表示的最大值是 2,147,483,647。加到超過這個數，位元進到最高位，整個值就翻成負的。</p>
 
@@ -1171,6 +1245,11 @@ unsigned 0 - 1   = 4294967295  &lt;- 無號數會繞回最大值
 先轉 long long   = 2147483648  &lt;- 這才是想要的答案</pre></div>
   <p class="dx-note">第三行 <code>big + 1</code> 印出最小的負數。<strong>要注意的是：有號整數溢位在 C++ 標準裡是未定義行為</strong>，這裡看到的繞回只是這台機器、這個最佳化等級下剛好如此，不保證。無號數就不一樣了 —— <code>unsigned</code> 的繞回是標準明文規定的，所以 <code>0u - 1</code> 一定得到最大值。最後一行給出正確作法：<strong>在溢位發生之前就把型別放大</strong>，而不是事後補救。</p>
 </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 <code>INT_MAX</code> 也拿來當「無限大」哨兵</div>
+    <p style="margin-bottom:0;"><code>&lt;climits&gt;</code> 的 <code class="mono">INT_MAX</code> 除了標範圍，還有另一個常見用法：當「還沒找到答案」的哨兵值。講義第 06 章找零問題就這樣寫 <code class="mono">int minCoins = INT_MAX;</code>——先假裝目前的最佳解是無限大，只要找到任何一個真正可行的組合，數字一定比它小，就能把 <code>minCoins</code> 換掉；如果從頭到尾都沒更新，代表根本湊不出零錢。</p>
+  </div>
 
   <div class="warn-box">
     <div class="info-label">⚠️ 這在第 02 章會咬到你</div>
@@ -1309,6 +1388,29 @@ collect2: error: ld returned 1 exit status</pre></div>
   </div>
 
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 整學期</div><p style='margin-bottom:0;'>這一節沒有對應到某一章，因為它<strong>每一章都會用到</strong>。第 04 章漏掉 <code class='mono'>template &lt;typename T&gt;</code> 會噴一整頁；第 09 章的 <code class='mono'>BST&lt;int&gt;</code> 型別參數寫錯，訊息會長到滾三個螢幕。能在三十秒內定位到第一個 <code>error:</code> 並看懂它，是這門課投報率最高的技能。</p></div>
+
+  <details style="margin-top:1rem;"><summary><strong>備註：<code>assert</code>，另一種比編譯錯誤更晚一步的檢查</strong></summary>
+    <p style="margin-top:.7rem;">上面講的都是<strong>編譯期</strong>的錯誤；<code>assert(條件)</code> 抓的是<strong>執行期</strong>的錯誤——條件不成立，程式立刻中止，並印出出事的那一行，比讓程式帶著錯誤值繼續跑、幾百行之後才爆掉好抓多了。</p>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">half</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="6">    assert(n % <span class="num">2</span> == <span class="num">0</span>);   <span class="com">// 條件不成立就中止，並印出這一行</span></span>
+<span class="line" data-l="7">    <span class="kw">return</span> n / <span class="num">2</span>;</span>
+<span class="line" data-l="8">}</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="11">    cout &lt;&lt; half(<span class="num">10</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="12">    cout &lt;&lt; half(<span class="num">7</span>) &lt;&lt; endl;   <span class="com">// 這裡會觸發 assert</span></span>
+<span class="line" data-l="13"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+    <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5
+[執行結束碼 -6]
+main: main.cpp:6: int half(int): Assertion `n % 2 == 0' failed.</pre></div>
+    <p style="margin-bottom:0;">第一次呼叫 <code>half(10)</code> 通過檢查，正常印出 <code>5</code>；第二次 <code>half(7)</code> 讓 <code>n % 2 == 0</code> 不成立，<code>assert</code> 直接中止程式（結束碼 -6，也就是 <code>SIGABRT</code>），訊息裡連檔名、行號、失敗的條件式都印出來了。講義第 03、06 章常拿它做自我檢查，例如確認陣列索引沒有越界、確認遞迴的參數符合預期。</p>
+  </details>
 </section>
 
 <section id="exercises">
@@ -1830,7 +1932,7 @@ function typePick(k) { typeIdx = k; typeRender(); }
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "把整份原始碼一次翻譯成機器碼的程式，這門課用的是 g++。翻譯完才開始執行，所以打錯字、型別不合這類問題在程式跑起來之前就被抓出來。"}, {"front": "直譯器（Interpreter）", "back": "讀一行執行一行的程式，Python 用的就是這種。好處是改完立刻能跑，代價是第 40 行的錯字要執行到第 40 行才會發現，而且速度通常比編譯式語言慢一到兩個數量級。"}, {"front": "前處理（Preprocessing）", "back": "編譯的第一階段，做的是純文字替換：把 #include 的檔案整份貼進來、展開巨集、刪掉註解。本頁那支 9 行的 hello world 前處理完會變成四萬多行。"}, {"front": "標頭檔（Header File）", "back": "放宣告用的檔案，副檔名通常是 .h 或 .hpp。用 #include 引進來之後編譯器才認得裡面的名字。課程的資料結構都放在 pythonds3/cppds/ 底下，例如 pythonds3/cppds/stack.hpp。"}, {"front": "目的檔（Object File）", "back": "組譯階段的產物，副檔名 .o，內容是機器碼但還不能執行。此時 cout 這類外部函式只是一個待補的名字，要等連結階段才接上真正的實作。"}, {"front": "連結器（Linker）", "back": "編譯四階段的最後一棒，把你的 .o 檔跟標準函式庫接起來，補上每個外部名字的真正位址，產出可執行檔。它報的錯不指行號，開頭是 /usr/bin/ld。"}, {"front": "命名空間（Namespace）", "back": "把一堆名字裝在一個袋子裡避免撞名的機制。標準函式庫全部住在 std 裡，所以完整寫法是 std::cout。寫了 using namespace std; 就可以省掉前綴，本課照教科書這樣寫。"}, {"front": "進入點（Entry Point）", "back": "程式開始執行的地方。C++ 規定叫 int main()，作業系統只找這個名字，一支程式只能有一個。Python 對應的習慣寫法是 if __name__ 那一段，但那是慣例不是規定。"}, {"front": "結束碼（Exit Status）", "back": "main 的 return 值，回報給作業系統看程式跑得順不順。0 代表正常結束，非 0 代表出錯。shell 腳本會用這個值決定要不要繼續往下做。"}, {"front": "靜態型別（Static Typing）", "back": "變數的型別在編譯時就決定、之後不能換，這是 C++ 跟 Python 最根本的差別。好處是型別錯誤在編譯階段就被抓到，代價是每個變數都要自己寫型別。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "宣告了卻沒給初值的區域變數，裡面是上一個用過那塊記憶體的人留下的殘值。讀它是未定義行為，症狀是程式時對時錯。習慣一律寫 int sum = 0; 而不是 int sum;。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準明講「這種寫法的結果我不管」的情況，例如讀未初始化的變數、有號整數溢位、解參考空指標。編譯器可以做任何事，包括看起來剛好正確，所以這種 bug 最難抓。"}, {"front": "大小運算子（sizeof）", "back": "問一個型別或變數佔幾個 byte，在編譯期就算好。實測 int 是 4、double 與指標是 8、char 是 1。第 03 章算陣列元素位址時，公式裡的那個乘數就是它。"}, {"front": "整數除法（Integer Division）", "back": "C++ 的 / 只要兩邊都是整數就截掉小數，7 / 2 得到 3。截斷方向是往零，所以 -7 / 2 是 -3 而不是 Python 的 -4。要浮點結果得先把一邊轉成 double。"}, {"front": "取餘數運算子（Modulo, %）", "back": "取整數除法的餘數，只能用在整數上。第 07 章的雜湊函數 key % size 靠它把鍵映射到表格範圍內，第 06 章的進位制轉換靠它取出每一位的數字。"}, {"front": "後置遞增（Post-increment）", "back": "i++ 先把舊值交出去、之後才加一；++i 則是先加再交出新值。單獨當一行敘述時兩者沒差別，差別只出現在把它塞進別的式子裡的時候。"}, {"front": "隱式型別轉換（Implicit Conversion）", "back": "編譯器自動把窄的型別轉成寬的再運算，例如 7 / 2.0 會先把 7 轉成 7.0。問題在於 int 除 int 時它沒有理由轉，於是 double avg = sum / n; 這種寫法會先截斷才轉。"}, {"front": "靜態轉型（static_cast）", "back": "明確要求編譯器做型別轉換的寫法，例如 static_cast<double>(a) / b。位置很重要：要放在除法之前、只轉一邊就夠。包住整個除法的 static_cast<double>(a / b) 是無效的。"}, {"front": "整數溢位（Integer Overflow）", "back": "算出來的值超過型別能表示的範圍。int 的上限是二十一億出頭，加過頭會翻成負數；有號數溢位是未定義行為，無號數則是標準規定會繞回。解法是在溢位之前就轉成 long long。"}, {"front": "輸出串流（Output Stream, cout）", "back": "標準輸出的物件，用 << 把資料推進去，可以一直串下去。它不會自動加空格，要空格自己寫。endl 除了換行還會清空緩衝區，輸出量大時改用 '\\n' 會快很多。"}];
+const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "把整份原始碼一次翻譯成機器碼的程式，這門課用的是 g++。翻譯完才開始執行，所以打錯字、型別不合這類問題在程式跑起來之前就被抓出來。"}, {"front": "直譯器（Interpreter）", "back": "讀一行執行一行的程式，Python 用的就是這種。好處是改完立刻能跑，代價是第 40 行的錯字要執行到第 40 行才會發現，而且速度通常比編譯式語言慢一到兩個數量級。"}, {"front": "前處理（Preprocessing）", "back": "編譯的第一階段，做的是純文字替換：把 #include 的檔案整份貼進來、展開巨集、刪掉註解。本頁那支 9 行的 hello world 前處理完會變成四萬多行。"}, {"front": "標頭檔（Header File）", "back": "放宣告用的檔案，副檔名通常是 .h 或 .hpp。用 #include 引進來之後編譯器才認得裡面的名字。課程的資料結構都放在 pythonds3/cppds/ 底下，例如 pythonds3/cppds/stack.hpp。"}, {"front": "目的檔（Object File）", "back": "組譯階段的產物，副檔名 .o，內容是機器碼但還不能執行。此時 cout 這類外部函式只是一個待補的名字，要等連結階段才接上真正的實作。"}, {"front": "連結器（Linker）", "back": "編譯四階段的最後一棒，把你的 .o 檔跟標準函式庫接起來，補上每個外部名字的真正位址，產出可執行檔。它報的錯不指行號，開頭是 /usr/bin/ld。"}, {"front": "命名空間（Namespace）", "back": "把一堆名字裝在一個袋子裡避免撞名的機制。標準函式庫全部住在 std 裡，所以完整寫法是 std::cout。寫了 using namespace std; 就可以省掉前綴，本課照教科書這樣寫。"}, {"front": "進入點（Entry Point）", "back": "程式開始執行的地方。C++ 規定叫 int main()，作業系統只找這個名字，一支程式只能有一個。Python 對應的習慣寫法是 if __name__ 那一段，但那是慣例不是規定。"}, {"front": "結束碼（Exit Status）", "back": "main 的 return 值，回報給作業系統看程式跑得順不順。0 代表正常結束，非 0 代表出錯。shell 腳本會用這個值決定要不要繼續往下做。"}, {"front": "靜態型別（Static Typing）", "back": "變數的型別在編譯時就決定、之後不能換，這是 C++ 跟 Python 最根本的差別。好處是型別錯誤在編譯階段就被抓到，代價是每個變數都要自己寫型別。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "宣告了卻沒給初值的區域變數，裡面是上一個用過那塊記憶體的人留下的殘值。讀它是未定義行為，症狀是程式時對時錯。習慣一律寫 int sum = 0; 而不是 int sum;。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準明講「這種寫法的結果我不管」的情況，例如讀未初始化的變數、有號整數溢位、解參考空指標。編譯器可以做任何事，包括看起來剛好正確，所以這種 bug 最難抓。"}, {"front": "大小運算子（sizeof）", "back": "問一個型別或變數佔幾個 byte，在編譯期就算好。實測 int 是 4、double 與指標是 8、char 是 1。第 03 章算陣列元素位址時，公式裡的那個乘數就是它。"}, {"front": "整數除法（Integer Division）", "back": "C++ 的 / 只要兩邊都是整數就截掉小數，7 / 2 得到 3。截斷方向是往零，所以 -7 / 2 是 -3 而不是 Python 的 -4。要浮點結果得先把一邊轉成 double。"}, {"front": "取餘數運算子（Modulo, %）", "back": "取整數除法的餘數，只能用在整數上。第 07 章的雜湊函數 key % size 靠它把鍵映射到表格範圍內，第 06 章的進位制轉換靠它取出每一位的數字。"}, {"front": "後置遞增（Post-increment）", "back": "i++ 先把舊值交出去、之後才加一；++i 則是先加再交出新值。單獨當一行敘述時兩者沒差別，差別只出現在把它塞進別的式子裡的時候。"}, {"front": "隱式型別轉換（Implicit Conversion）", "back": "編譯器自動把窄的型別轉成寬的再運算，例如 7 / 2.0 會先把 7 轉成 7.0。問題在於 int 除 int 時它沒有理由轉，於是 double avg = sum / n; 這種寫法會先截斷才轉。"}, {"front": "靜態轉型（static_cast）", "back": "明確要求編譯器做型別轉換的寫法，例如 static_cast<double>(a) / b。位置很重要：要放在除法之前、只轉一邊就夠。包住整個除法的 static_cast<double>(a / b) 是無效的。"}, {"front": "整數溢位（Integer Overflow）", "back": "算出來的值超過型別能表示的範圍。int 的上限是二十一億出頭，加過頭會翻成負數；有號數溢位是未定義行為，無號數則是標準規定會繞回。解法是在溢位之前就轉成 long long。"}, {"front": "輸出串流（Output Stream, cout）", "back": "標準輸出的物件，用 << 把資料推進去，可以一直串下去。它不會自動加空格，要空格自己寫。endl 除了換行還會清空緩衝區，輸出量大時改用 '\\n' 會快很多。"}, {"front": "C 風格輸出（printf）", "back": "格式字串輸出：%d 整數、%s 字串（string 要先 .c_str()）、%f 浮點、%10.7f 寬度加精度、%lld long long。講義表格輸出常與 cout 混用，因為 printf 對齊欄位比較省事。"}, {"front": "亂數（rand / srand）", "back": "rand() 回傳一個大亂數，% n 把它壓到 0..n-1，講義印表機模擬的 rand() % 20 + 1 就是 1 到 20 頁。不設種子時每次執行序列相同；srand(time(0)) 以現在時刻當種子才會變。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

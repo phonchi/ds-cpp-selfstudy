@@ -591,6 +591,30 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 08 章</div><p style='margin-bottom:0;'>字梯問題需要一份四千多個五字母單字的清單。課程實際上是把單字寫死在 <code>vector</code> 裡（所以 <code>ifstream</code> 全課只出現一次），但如果你想自己換一份字典來玩，就是這一節的內容。</p></div>
+
+  <h3 style="margin-top:1.4rem;">順便：字串也能當「檔案」讀 —— <code>stringstream</code></h3>
+  <p><code>stringstream</code> 是這一家族的第三個成員：把<strong>字串</strong>當成 <code>cin</code> 來讀，<code>&gt;&gt;</code> 一樣自動以空白切詞、照變數型別轉換。跟 <a href="p1_cpp_basics.html#io">P1</a> 用 <code>istringstream</code> 模擬鍵盤輸入是同一家，只是 <code>stringstream</code> 讀寫都能做。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">把運算式字串逐 token 讀出來</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;sstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    stringstream ss(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line" data-l="8">    string tok;</span>
+<span class="line" data-l="9">    <span class="kw">while</span> (ss &gt;&gt; tok) {              <span class="com">// &gt;&gt; 讀到檔尾一樣回傳 false，可以直接當條件</span>
+<span class="line" data-l="10"></span>        cout &lt;&lt; <span class="str">"</span><span class="str">[</span><span class="str">"</span> &lt;&lt; tok &lt;&lt; <span class="str">"</span><span class="str">] </span><span class="str">"</span>;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[(] [3] [+] [(] [4] [*] [5] [)] [)] </pre></div>
+  <p class="dx-note">一句話對照：這就是 Python 的 <code>s.split()</code>，只是切出來的每個 token 還能用 <code>&gt;&gt;</code> 直接轉型別（例如 <code>ss &gt;&gt; num</code> 會轉成 <code>int</code>）。<code>&lt;sstream&gt;</code> 在 <a href="00b_setup.html">00B</a> 的自動帶入清單內，kernel 上不用寫也能用；但獨立編譯 <code>.cpp</code> 檔要自己 <code>#include &lt;sstream&gt;</code>。第 09 章剖析樹解析運算式就是這樣逐 token 拆開的：<code>stringstream ss(fpExpr); while (ss &gt;&gt; token) …</code>。</p>
+</div>
 </section>
 
 <section id="check">
@@ -1215,7 +1239,7 @@ excRender([]);
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "輸入檔案串流（ifstream）", "back": "開檔讀取用的型別，用法跟 cin 一樣。要 #include <fstream>。檔案不存在時它不丟例外，只是進入失敗狀態，所以開完一定要檢查 is_open()。"}, {"front": "輸出檔案串流（ofstream）", "back": "開檔寫入用的型別，用法跟 cout 一樣。預設會清空原檔案內容；要附加到結尾得傳 ios::app。"}, {"front": "逐行讀取（getline）", "back": "讀一整行（含空白）進 string 的函式，讀到檔尾會回傳 false，所以可以直接當 while 的條件。用 >> 則是以空白切開讀一個詞。"}, {"front": "自動收尾（RAII）", "back": "C++ 用「物件離開範圍時解構式一定會執行」來自動釋放資源。檔案串流不必手動 close，這是 C++ 版的 Python with 陳述式。"}, {"front": "例外（Exception）", "back": "程式執行中發生無法繼續的狀況時被拋出的物件。它不代表壞掉，而是「這條路走不通，交給呼叫我的人決定怎麼辦」。"}, {"front": "例外處理（try / catch）", "back": "把可能失敗的程式放進 try，失敗時跳到對應的 catch 處理。try 區塊應該只包含真正可能失敗的那幾行，範圍越小越好找錯。"}, {"front": "主動拋出（throw）", "back": "當函式無法完成它承諾的事時主動丟出例外，例如對空堆疊做 pop。比回傳一個特殊值好，因為沒有哪個回傳值是安全的，而且呼叫端容易忘記檢查。"}, {"front": "例外訊息（what()）", "back": "標準例外提供的成員函式，回傳描述錯誤的字串。對應 Python 的 str(e)。自訂例外通常把訊息透過建構式傳給父類別。"}, {"front": "越界例外（out_of_range）", "back": "vector 或 string 的 at() 存取越界時丟出的標準例外，訊息會告訴你索引是多少、容器多大。這是 debug 索引錯誤最快的工具。"}, {"front": "檢查與不檢查的下標（at() vs operator[]）", "back": "at() 會檢查範圍、越界丟例外；operator[] 不檢查，越界是未定義行為，通常讀到垃圾值而且毫無警告。開發時用 at()，確定安全的熱迴圈才用 []。"}, {"front": "自訂例外（Custom Exception）", "back": "繼承 runtime_error 或 exception 而來的錯誤類別，通常連內容都不必寫。好處是呼叫端可以精準地只接住這一種，而不是用一個 catch 把所有問題一起吞掉。"}, {"front": "未接住的例外（Uncaught Exception）", "back": "沒有任何 catch 接住的例外會讓程式直接終止，印出 terminate called after throwing 加上 what() 的內容，結束碼是 SIGABRT。帶著清楚訊息的當機遠好過默默算出錯誤答案。"}, {"front": "貪心捕捉（catch 全包）", "back": "寫成 catch (...) 把所有例外一起接住的反模式。它會連你自己寫錯造成的問題一起吞掉，讓程式默默給出錯誤答案。只接住你預期的那一種。"}, {"front": "工作目錄（Working Directory）", "back": "程式執行時所在的目錄，相對路徑是相對於它而不是程式檔的位置。在 Jupyter 裡就是你啟動 jupyter lab 的那個目錄，也是 -I. 所指的目錄。"}];
+const FLASHCARDS = [{"front": "輸入檔案串流（ifstream）", "back": "開檔讀取用的型別，用法跟 cin 一樣。要 #include <fstream>。檔案不存在時它不丟例外，只是進入失敗狀態，所以開完一定要檢查 is_open()。"}, {"front": "輸出檔案串流（ofstream）", "back": "開檔寫入用的型別，用法跟 cout 一樣。預設會清空原檔案內容；要附加到結尾得傳 ios::app。"}, {"front": "逐行讀取（getline）", "back": "讀一整行（含空白）進 string 的函式，讀到檔尾會回傳 false，所以可以直接當 while 的條件。用 >> 則是以空白切開讀一個詞。"}, {"front": "自動收尾（RAII）", "back": "C++ 用「物件離開範圍時解構式一定會執行」來自動釋放資源。檔案串流不必手動 close，這是 C++ 版的 Python with 陳述式。"}, {"front": "例外（Exception）", "back": "程式執行中發生無法繼續的狀況時被拋出的物件。它不代表壞掉，而是「這條路走不通，交給呼叫我的人決定怎麼辦」。"}, {"front": "例外處理（try / catch）", "back": "把可能失敗的程式放進 try，失敗時跳到對應的 catch 處理。try 區塊應該只包含真正可能失敗的那幾行，範圍越小越好找錯。"}, {"front": "主動拋出（throw）", "back": "當函式無法完成它承諾的事時主動丟出例外，例如對空堆疊做 pop。比回傳一個特殊值好，因為沒有哪個回傳值是安全的，而且呼叫端容易忘記檢查。"}, {"front": "例外訊息（what()）", "back": "標準例外提供的成員函式，回傳描述錯誤的字串。對應 Python 的 str(e)。自訂例外通常把訊息透過建構式傳給父類別。"}, {"front": "越界例外（out_of_range）", "back": "vector 或 string 的 at() 存取越界時丟出的標準例外，訊息會告訴你索引是多少、容器多大。這是 debug 索引錯誤最快的工具。"}, {"front": "檢查與不檢查的下標（at() vs operator[]）", "back": "at() 會檢查範圍、越界丟例外；operator[] 不檢查，越界是未定義行為，通常讀到垃圾值而且毫無警告。開發時用 at()，確定安全的熱迴圈才用 []。"}, {"front": "自訂例外（Custom Exception）", "back": "繼承 runtime_error 或 exception 而來的錯誤類別，通常連內容都不必寫。好處是呼叫端可以精準地只接住這一種，而不是用一個 catch 把所有問題一起吞掉。"}, {"front": "未接住的例外（Uncaught Exception）", "back": "沒有任何 catch 接住的例外會讓程式直接終止，印出 terminate called after throwing 加上 what() 的內容，結束碼是 SIGABRT。帶著清楚訊息的當機遠好過默默算出錯誤答案。"}, {"front": "貪心捕捉（catch 全包）", "back": "寫成 catch (...) 把所有例外一起接住的反模式。它會連你自己寫錯造成的問題一起吞掉，讓程式默默給出錯誤答案。只接住你預期的那一種。"}, {"front": "工作目錄（Working Directory）", "back": "程式執行時所在的目錄，相對路徑是相對於它而不是程式檔的位置。在 Jupyter 裡就是你啟動 jupyter lab 的那個目錄，也是 -I. 所指的目錄。"}, {"front": "字串串流（stringstream）", "back": "把字串當成 cin 來讀：stringstream ss(s) 之後用 >> 逐個取出、自動以空白切詞並照型別轉換，等於 Python 的 s.split() 加轉型。講義第 09 章剖析樹就用它把運算式字串切成 token。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

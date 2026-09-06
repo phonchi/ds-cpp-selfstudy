@@ -27,4 +27,14 @@ class FidelityTests(unittest.TestCase):
  def test_label_change_preserves_geometry(self):
   original=SOURCE.replace('</svg>','<text x="1" y="2">course</text></svg>')
   self.assertEqual(self.check(original.replace('>course<','>independent example<'),original),[])
+ def test_reviewed_reorder_still_requires_all_sections(self):
+  first='<section id="first"></section>';last='<section id="last"></section>'
+  cfg={'section_order':['last','lesson','first']}
+  self.assertEqual(validate(last+SOURCE+first,first+SOURCE+last,cfg),[])
+  self.assertTrue(validate(SOURCE+first,first+SOURCE+last,cfg))
+ def test_header_rename_does_not_allow_row_removal(self):
+  cfg={'table_header_renames':{'Copies':'Copy behavior'}}
+  changed=SOURCE.replace('>Copies<','>Copy behavior<')
+  self.assertEqual(validate(changed,SOURCE,cfg),[])
+  self.assertTrue(validate(changed.replace('<tr><td>reference</td><td>no</td></tr>',''),SOURCE,cfg))
 if __name__=='__main__':unittest.main()

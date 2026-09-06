@@ -30,11 +30,12 @@ def table_contract(t):
 def sig(s):return hashlib.sha256(json.dumps(s,ensure_ascii=False).encode()).hexdigest()
 def validate(newsrc, oldsrc, cfg):
  old=Shape(oldsrc);new=Shape(newsrc);errors=[]
- required_sections=[x for x in old.sections if x not in cfg.get('allow_removed_sections',[])]
+ required_sections=cfg.get('section_order', [x for x in old.sections if x not in cfg.get('allow_removed_sections',[])])
  actual_sections=[x for x in new.sections if x in required_sections]
  if actual_sections!=required_sections:errors.append('missing or reordered baseline sections')
  pats=[re.compile(x) for x in cfg.get('allow_removed_table_patterns',[])]
- required=[table_contract(t) for t in old.tables if not any(p.search(' '.join(sum(t,[]))) for p in pats)]
+ renames=cfg.get('table_header_renames',{})
+ required=[(shape,tuple(renames.get(h,h) for h in headers)) for shape,headers in [table_contract(t) for t in old.tables if not any(p.search(' '.join(sum(t,[]))) for p in pats)]]
  actual=[(dims(t),tuple(t[0]) if t else ()) for t in new.tables];j=0
  for need in required:
   while j<len(actual) and not (actual[j][0]==need[0] and all(x in actual[j][1] for x in need[1])):j+=1

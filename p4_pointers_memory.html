@@ -479,7 +479,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#decay" data-target="decay"><span class="fn-num">P05</span><span class="fn-name">陣列退化</span></a>
   <a href="#heap" data-target="heap"><span class="fn-num">P06</span><span class="fn-name">堆疊 vs 堆積</span></a>
   <a href="#newdel" data-target="newdel"><span class="fn-num">P07</span><span class="fn-name">new 與 delete</span></a>
-  <a href="#disaster" data-target="disaster"><span class="fn-num">P08</span><span class="fn-name">三種災難</span></a>
+  <a href="#disaster" data-target="disaster"><span class="fn-num">P08</span><span class="fn-name">三類錯誤</span></a>
   <a href="#step" data-target="step"><span class="fn-num">P09</span><span class="fn-name">指向物件的指標</span></a>
   <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
   <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
@@ -505,7 +505,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="hero-content">
     <div class="chapter-tag">PREREQ P4</div>
     <h1><span class="blue">陣列、指標</span>與<span class="orange">動態記憶體</span></h1>
-    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="subtitle">先備知識 · 指標與生命週期</div>
     <div class="big-formula">&amp;x｜*p｜&#78;ULL｜a[i] == *(a+i)｜new / delete｜堆疊 vs 堆積</div>
     <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
   </div>
@@ -513,11 +513,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <div class="container">
 <div class="study-guide">
-  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <div class="sg-title">📌 本頁使用方式（先備知識 · 指標與生命週期）</div>
   <p>① 這頁從語法開始建立陣列、位址、指標與動態記憶體的完整觀念。已經熟的可以直接跳過。
   ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
   ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
-  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <br><strong>先確認能分辨指標與所指物件，再練習配置與釋放。</strong></p>
   <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
 </div>
 
@@ -533,7 +533,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#decay"><span class="toc-num">P05</span>陣列傳進函式會退化</a>
     <a href="#heap"><span class="toc-num">P06</span>堆疊 vs 堆積</a>
     <a href="#newdel"><span class="toc-num">P07</span>new 與 delete</a>
-    <a href="#disaster"><span class="toc-num">P08</span>三種災難</a>
+    <a href="#disaster"><span class="toc-num">P08</span>三類錯誤</a>
     <a href="#step"><span class="toc-num">P09</span>指向物件的指標</a>
     <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
     <a href="#reference"><span class="toc-num">REF</span>速查表</a>
@@ -789,38 +789,29 @@ p  = 0x7ffeec7bfa4c   &lt;- p 存的就是 x 的位址
   <p><code>nullptr</code> 代表「這個指標目前沒有指向任何物件」。它可表示一項可選關聯目前尚未設定。</p>
 
 <div class="deck-extra">
-  <div class="dx-label">逐一檢查可選的設定物件</div>
-  <p>這裡先用一個固定陣列保存四個指標：<code>Settings* choices[4]</code> 中，<code>Settings*</code> 是每格的型別，<code>choices</code> 是名稱，<code>[4]</code> 是格數，大括號依序給初值。範圍 for 每次取一格的指標，再檢查是否為 nullptr；下一節再完整拆解陣列與索引。<code>Settings</code> 是只含 level 的簡單資料型別。</p><div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+  <div class="dx-label">逐一檢查可選的整數</div>
+  <p>這裡先用一個固定陣列保存四個指標：<code>int* choices[4]</code> 中，<code>int*</code> 是每格的型別，<code>choices</code> 是名稱，<code>[4]</code> 是格數，大括號依序給初值。範圍 for 每次取出一格的指標，再檢查是否為 <code>nullptr</code>；下一節會完整拆解陣列與索引。</p><div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">class</span> Settings {</span>
-<span class="line" data-l="5">    <span class="kw">public</span>:</span>
-<span class="line" data-l="6">        <span class="kw">int</span> level;</span>
-<span class="line" data-l="7">        Settings(<span class="kw">int</span> value) { level = value; }</span>
-<span class="line" data-l="9">};</span>
-<span class="line" data-l="10"> </span>
-<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="12">    Settings *choices[<span class="num">4</span>] = {</span>
-<span class="line" data-l="13">        <span class="kw">new</span> Settings(<span class="num">31</span>), <span class="fn">nullptr</span>, <span class="kw">new</span> Settings(<span class="num">17</span>), <span class="kw">new</span> Settings(<span class="num">93</span>)</span>
-<span class="line" data-l="14">    };</span>
-<span class="line" data-l="15"></span></span>
-<span class="line" data-l="16">    <span class="kw">for</span> (Settings *current : choices) {</span>
-<span class="line" data-l="17">        <span class="kw">if</span> (current != <span class="fn">nullptr</span>)</span>
-<span class="line" data-l="18">            cout &lt;&lt; current-&gt;level &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
-<span class="line" data-l="21">    }</span>
-<span class="line" data-l="22">    cout &lt;&lt; endl;</span>
-<span class="line" data-l="23"> </span>
-<span class="line" data-l="24">    <span class="kw">for</span> (Settings *current : choices) <span class="kw">delete</span> current;</span>
-<span class="line" data-l="27">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="28">}</span>
-<span class="line" data-l="29"> </span></div>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> first = <span class="num">31</span>, third = <span class="num">17</span>, fourth = <span class="num">93</span>;</span>
+<span class="line" data-l="6">    <span class="kw">int</span> *choices[<span class="num">4</span>] = { &amp;first, <span class="fn">nullptr</span>, &amp;third, &amp;fourth };</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8">    <span class="kw">for</span> (<span class="kw">int</span> *current : choices) {</span>
+<span class="line" data-l="9">        <span class="kw">if</span> (current != <span class="fn">nullptr</span>)</span>
+<span class="line" data-l="10">            cout &lt;&lt; *current &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>31 17 93</pre></div>
-  <p class="dx-note">第二個元素是 <code>nullptr</code>，表示該位置沒有設定物件。程式先檢查再使用 <code>current-&gt;level</code>，因此會安全跳過空項目。</p>
+  <p class="dx-note">第二個元素是 <code>nullptr</code>，表示該位置沒有整數可讀。程式先檢查再解參考 <code>*current</code>，因此會安全跳過空項目。</p>
 </div>
 
   <div class="warn-box">
     <div class="info-label">⚠️ 不可解參考 <code>nullptr</code></div>
-    <p style="margin-bottom:0;"><code>current-&gt;level</code> 在 <code>current</code> 是 <code>nullptr</code> 時是<strong>未定義行為</strong>；可能崩潰，也可能呈現其他結果。必須先檢查指標再透過箭號存取成員。</p>
+    <p style="margin-bottom:0;"><code>*current</code> 在 <code>current</code> 是 <code>nullptr</code> 時是<strong>未定義行為</strong>；可能崩潰，也可能呈現其他結果。必須先檢查指標再解參考。</p>
   </div>
 
   <div class="info-box green">
@@ -939,8 +930,8 @@ i=2  a[i]=30  *(a+i)=30  位址=0x7ffef812b1b8  距離首位 8 bytes</pre></div>
     <tbody>
       <tr><td>怎麼配置</td><td>宣告區域變數就有</td><td>要自己寫 <code>new</code></td></tr>
       <tr><td>怎麼釋放</td><td><strong>離開範圍自動消失</strong></td><td><strong>要自己寫 <code>delete</code></strong></td></tr>
-      <tr><td>大小</td><td>小（通常幾 MB），會爆</td><td>大，受限於實體記憶體</td></tr>
-      <tr><td>編譯時要知道大小嗎</td><td>要</td><td>不用，執行時決定</td></tr>
+      <tr><td>可用空間</td><td>通常較小，由執行環境決定</td><td>通常較大，同樣受系統資源限制</td></tr>
+      <tr><td>元素數量何時決定</td><td>區域物件的型別與大小固定；進入作用域時建立</td><td><code>new T[n]</code> 的 <code>n</code> 可在執行時決定</td></tr>
       <tr><td>本套頁面用在哪</td><td>迴圈變數、暫存值</td><td>執行期配置的設定、緩衝區與其他物件</td></tr>
     </tbody>
   </table></div>
@@ -1006,16 +997,16 @@ arr = 0 1 4 9 16
       <div class="info-card">
         <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
         <div class="pseudo-code" id="heapCode" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">build</span>() {</span>
-<span class="line" data-l="2">    Device *device = <span class="kw">new</span> Device(<span class="num">31</span>);</span>
-<span class="line" data-l="3">    device-&gt;settings = <span class="kw">new</span> Settings(<span class="num">17</span>);</span>
-<span class="line" data-l="4">    <span class="kw">delete</span> device-&gt;settings;</span>
-<span class="line" data-l="5">    <span class="kw">delete</span> device;</span>
+<span class="line" data-l="2">    <span class="kw">int</span> *first = <span class="kw">new</span> <span class="kw">int</span>(<span class="num">31</span>);</span>
+<span class="line" data-l="3">    <span class="kw">int</span> *second = <span class="kw">new</span> <span class="kw">int</span>(<span class="num">17</span>);</span>
+<span class="line" data-l="4">    <span class="kw">delete</span> second;</span>
+<span class="line" data-l="5">    <span class="kw">delete</span> first;</span>
 <span class="line" data-l="6">}</span>
 <span class="line" data-l="7"> </span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">重點 <span class="ic-badge">WHY</span></div>
-        <p style="font-size:.86rem;margin-bottom:0;">函式結束時，<strong>指標 <code>device</code> 本身</strong>會自動消失，但它指向的動態物件不會。owner 必須先釋放設定物件，再釋放裝置。</p>
+        <p style="font-size:.86rem;margin-bottom:0;">函式結束時，<strong>指標 <code>first</code> 與 <code>second</code> 本身</strong>會自動消失，但它們指向的動態整數不會。每個動態物件都需要由 owner 釋放。</p>
       </div>
     </div>
   </div>
@@ -1079,15 +1070,15 @@ arr = 0 1 4 9 16
 </section>
 
 <section id="disaster">
-  <div class="section-number">PART 08 · 三種災難</div>
-  <h2>指標出錯的三種典型死法</h2>
-  <p>共同點：<strong>編譯器都不會抱怨</strong>。這三個名字值得記起來，因為 debug 時你要先猜是哪一種。</p>
+  <div class="section-number">PART 08 · 三類錯誤</div>
+  <h2>指標常見的三類錯誤</h2>
+  <p>共同點：<strong>它們都可能通過編譯</strong>。這三個名字值得記起來，因為除錯時可以依症狀逐項檢查。</p>
 
   <div class="cmp-table-wrap">
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
-    <thead><tr><th>災難</th><th>長什麼樣</th><th>症狀</th></tr></thead>
+    <thead><tr><th>錯誤</th><th>常見寫法</th><th>症狀</th></tr></thead>
     <tbody>
-      <tr><td><strong>記憶體洩漏</strong><br>memory leak</td><td class="mono" style="font-size:.8rem;">new 了沒 delete</td><td>程式跑越久吃越多記憶體，最後被系統砍掉。短程式看不出來</td></tr>
+      <tr><td><strong>記憶體洩漏</strong><br>memory leak</td><td class="mono" style="font-size:.8rem;">new 了沒 delete</td><td>程式跑越久占用越多記憶體，最後可能因資源不足而終止。短程式通常看不出來</td></tr>
       <tr><td><strong>懸空指標</strong><br>dangling pointer</td><td class="mono" style="font-size:.8rem;">delete 之後還在用</td><td>讀到垃圾值，或當掉。<strong>最難 debug</strong>，因為有時候「剛好」還是對的</td></tr>
       <tr><td><strong>二次釋放</strong><br>double free</td><td class="mono" style="font-size:.8rem;">同一塊 delete 兩次</td><td>屬於未定義行為；可能崩潰，也可能出現難以追蹤的錯誤</td></tr>
     </tbody>
@@ -1120,9 +1111,10 @@ arr = 0 1 4 9 16
 <section id="step">
   <div class="section-number">PART 09 · 收尾</div>
   <h2>從指標到 <code>Device</code>：以可選設定物件整合本頁語法</h2>
-  <p><code>Device</code> 擁有一個可能尚未建立的 <code>Settings</code>；這個具名關聯同時用到指標成員、<code>nullptr</code>、箭號與所有權：</p>
+  <p><code>Device</code> 保存一個可能尚未建立的 <code>Settings</code> 位址；這個具名關聯同時用到指標成員、<code>nullptr</code>、箭號與所有權約定。以下用最小的 <code>struct</code>／<code>class</code> 語法表示兩種物件：<code>struct</code> 的成員預設公開；<code>class</code> 以 <code>public:</code> 公開建構與存取操作、以 <code>private:</code> 隱藏內部狀態。建構式與類別同名，建立物件時會執行；P8 再完整介紹類別語法。</p>
+  <p><code>getSettings() const</code> 括號後的 <code>const</code> 是最小的唯讀承諾：呼叫這個查詢操作時，不會經由它改動 <code>Device</code> 的一般成員；P8 會完整解釋成員函式的 <code>const</code>。</p>
 
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Settings { <span class="kw">public</span>: <span class="kw">int</span> level; };</span>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">struct</span> Settings { <span class="kw">int</span> level; };</span>
 <span class="line" data-l="2"><span class="kw">class</span> Device {</span>
 <span class="line" data-l="3">    <span class="kw">private</span>:</span>
 <span class="line" data-l="4">        <span class="kw">int</span> id;</span>
@@ -1141,7 +1133,7 @@ arr = 0 1 4 9 16
     <div class="info-label">💡 三個「為什麼」，現在都答得出來了</div>
     <p style="margin-bottom:0;"><strong>為什麼 <code>settings</code> 是指標？</strong>因為設定物件可能尚不存在，也可能在執行期間替換。<br>
     <strong>為什麼建構式設成 <code>nullptr</code>？</strong>這建立了明確且可檢查的「尚未設定」狀態。<br>
-    <strong>誰負責 <code>delete</code>？</strong>若 <code>Device</code> 擁有設定，介面就必須保證替換與銷毀時恰好釋放一次。</p>
+    <strong>誰負責 <code>delete</code>？</strong>這個簡化的 <code>Device</code> 沒有自動釋放設定物件；範例約定呼叫端管理生命週期，替換時先釋放舊設定，最後也要釋放仍保存的設定。P8、P9 再介紹如何把所有權責任封裝進類別。</p>
   </div>
 
   <div class="viz-layout">
@@ -1185,7 +1177,7 @@ arr = 0 1 4 9 16
     <div class="quiz-feedback" id="qbFeedback"></div>
   </div>
 
-<div class="ds-hook"><div class="dh-title">🔗 指標成員表達具名關聯</div><p style='margin-bottom:0;'><code>Device::settings</code> 表示裝置與設定物件之間的可選關聯；<code>device-&gt;settings-&gt;level</code> 則示範多層箭號如何沿不同型別的具名關係取值。</p></div>
+<div class="ds-hook"><div class="dh-title">🔗 指標成員表達具名關聯</div><p style='margin-bottom:0;'><code>Device::settings</code> 表示裝置與設定物件之間的可選關聯。因為 <code>settings</code> 是 private，外部應先確認 <code>device != nullptr</code>，再呼叫 <code>device-&gt;getSettings()</code>；回傳值也不是 <code>nullptr</code> 時，才可用 <code>device-&gt;getSettings()-&gt;level</code> 取得設定值。</p></div>
 </section>
 
 <section id="exercises">
@@ -1539,7 +1531,7 @@ function memFrames() {
   F.push({line: 4, html: memRow(memCell('x', '99', AX, {tone: 'hot', note: '被 *p 改掉了'}) + memCell('p', AX, PX, {tone: 'ptr'})),
           msg: '<code>*p = 99;</code> — 同一條路走進去，把裡面的值換掉。'});
   F.push({line: 5, html: memRow(memCell('x', '99', AX, {tone: 'ok'}) + memCell('p', AX, PX, {tone: 'ptr'})),
-          msg: '所以 <code>x</code> 印出來是 <strong>99</strong>。<strong>p 和 x 從頭到尾都是同一塊記憶體的兩個名字。</strong>'});
+          msg: '所以 <code>x</code> 印出來是 <strong>99</strong>。<code>p</code> 與 <code>x</code> 是兩個不同變數；<code>p</code> 保存 <code>x</code> 的位址，因此 <code>*p</code> 存取的是 <code>x</code> 本人。'});
   return F;
 }
 function memStart() {
@@ -1596,30 +1588,30 @@ function heapFrames(mode) {
   const F = [];
   F.push({line: 1, leak: 0, html: heapPanel([], []), msg: '進入 <code>build()</code>，兩塊記憶體都還是空的。'});
   F.push({line: 2, leak: 1,
-    html: heapPanel([cell('device', '0x61a0', '堆疊', 'ptr')], [cell('Device', 'id=31', '0x61a0', 'hot')]),
-    msg: '<code>new Device(31)</code> — 在<strong>堆積</strong>配置一個裝置，把位址存進<strong>堆疊</strong>上的指標 device。'});
+    html: heapPanel([cell('first', '0x61a0', '堆疊', 'ptr')], [cell('int', '31', '0x61a0', 'hot')]),
+    msg: '<code>new int(31)</code> — 在<strong>堆積</strong>配置一個整數，把位址存進<strong>堆疊</strong>上的指標 first。'});
   F.push({line: 3, leak: 2,
-    html: heapPanel([cell('device', '0x61a0', '堆疊', 'ptr')],
-                    [cell('Device', 'id=31', '0x61a0'), cell('Settings', 'level=17', '0x61c8', 'hot')]),
-    msg: '再 <code>new</code> 一個設定物件，並把位址保存於 <code>device-&gt;settings</code>。'});
+    html: heapPanel([cell('first', '0x61a0', '堆疊', 'ptr'), cell('second', '0x61c8', '堆疊', 'ptr')],
+                    [cell('int', '31', '0x61a0'), cell('int', '17', '0x61c8', 'hot')]),
+    msg: '再 <code>new int(17)</code>，並把第二個位址保存於指標 <code>second</code>。'});
   if (leak) {
     F.push({line: null, leak: 2,
-      html: heapPanel([cell('device', '（已消失）', '堆疊', 'gone')],
-                      [cell('Device', 'id=31', '0x61a0', 'gone'), cell('Settings', 'level=17', '0x61c8', 'gone')]),
+      html: heapPanel([cell('first / second', '（已消失）', '堆疊', 'gone')],
+                      [cell('int', '31', '0x61a0', 'gone'), cell('int', '17', '0x61c8', 'gone')]),
       msg: '函式結束。<strong>區域指標消失，但兩個動態物件仍未釋放</strong>，而且位址已經遺失。'});
     F.push({line: null, leak: 2,
-      html: heapPanel([], [cell('Device', 'id=31', '0x61a0', 'gone'), cell('Settings', 'level=17', '0x61c8', 'gone')]),
+      html: heapPanel([], [cell('int', '31', '0x61a0', 'gone'), cell('int', '17', '0x61c8', 'gone')]),
       msg: '這就是<strong>記憶體洩漏</strong>：借了沒還，而且連還的門路都弄丟了。每呼叫一次漏兩個。'});
   } else {
     F.push({line: 4, leak: 1,
-      html: heapPanel([cell('device', '0x61a0', '堆疊', 'ptr')], [cell('Device', 'id=31', '0x61a0')]),
-      msg: '<code>delete device-&gt;settings;</code> — 先釋放由裝置擁有的設定物件。'});
+      html: heapPanel([cell('first', '0x61a0', '堆疊', 'ptr'), cell('second', '0x61c8', '堆疊', 'ptr')], [cell('int', '31', '0x61a0')]),
+      msg: '<code>delete second;</code> — 先釋放第二個動態整數。'});
     F.push({line: 5, leak: 0,
-      html: heapPanel([cell('device', '0x61a0', '堆疊', 'ptr')], []),
-      msg: '<code>delete a;</code> — 再還第一個。堆積清空。'});
+      html: heapPanel([cell('first', '0x61a0', '堆疊', 'ptr'), cell('second', '0x61c8', '堆疊', 'ptr')], []),
+      msg: '<code>delete first;</code> — 再釋放第一個。堆積清空。'});
     F.push({line: null, leak: 0,
       html: heapPanel([], []),
-      msg: '函式結束，堆疊上的 a 也自動消失。<strong>借兩個、還兩個，收支平衡。</strong>'});
+      msg: '函式結束，堆疊上的兩個指標也自動消失。<strong>配置兩個、釋放兩個。</strong>'});
   }
   return F;
 }
@@ -1718,7 +1710,7 @@ function stepReset() {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體裡的門牌號碼，用 &x 取得。每次執行程式時作業系統配的位置都不一樣，所以印出來的數字每次都不同。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間；大小由平台決定，可用 sizeof(p) 查詢。"}, {"front": "參考（Reference）", "back": "變數的別名，宣告成 int &r = x;。宣告當下必須綁定，之後不能改綁另一個物件，也沒有一般語法可建立空參考；實作是否占用儲存空間由編譯器決定。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（Null Pointer）", "back": "不指向任何物件的指標。新程式優先使用 nullptr；可用來表示某項可選關聯或目前結果不存在，解參考前必須先檢查。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "對指標加減整數會自動乘上型別大小，所以 a + 1 是「往後一個元素」而不是「位址加 1」。這就是 a[i] 等同 *(a + i) 的原因，也解釋了索引為什麼從 0 開始。"}, {"front": "陣列退化（Array Decay）", "back": "陣列作為引數傳進函式時會退化成指向首元素的指標，因此函式裡的 sizeof 量到的是指標大小而非陣列大小。所以傳陣列一定要另外傳長度。"}, {"front": "堆疊（Stack）", "back": "存放區域物件與函式呼叫狀態的記憶體區域；區域物件離開範圍時會自動結束生命週期。可用空間由執行環境決定。"}, {"front": "堆積（Heap）", "back": "用 new 建立的物件具有動態儲存期，必須由明確的 owner 以相符 delete 結束生命週期。數量可在執行時決定。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時配置物件並回傳它的位址。new T(v) 建立一個物件，new T[n] 建立陣列；兩者必須分別用 delete 與 delete[] 配對。"}, {"front": "釋放（Deallocation, delete）", "back": "結束 new 建立之物件的生命週期並釋放配置。delete 對應單一物件，delete[] 對應陣列；形式不配屬未定義行為。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "new 出來的記憶體沒有對應的 delete，那塊空間在程式結束前拿不回來。短程式看不出來，長時間執行的程式會越吃越多記憶體直到被系統砍掉。"}, {"front": "懸空指標（Dangling Pointer）", "back": "仍保存位址，但所指物件已被 delete 或離開範圍。把某一個指標設為 nullptr 可避免再次誤用該變數，卻不會同步修正其他別名。"}, {"front": "二次釋放（Double Free）", "back": "同一配置被釋放兩次，屬未定義行為。將唯一 owner 在 delete 後設為 nullptr 可降低重複釋放風險，但其他別名仍須停止使用。"}, {"front": "所有權（Ownership）", "back": "負責讓動態資源恰好釋放一次的責任。介面應說清楚誰建立、是否轉移所有權，以及誰負責釋放。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 nullptr、讀取已失效物件或讓 new[] 與 delete 配錯。它可能看似正常、崩潰或產生錯誤結果。"}, {"front": "智慧指標（Smart Pointer）", "back": "自動管理動態物件生命週期的類別，例如 std::unique_ptr 表達獨佔所有權，離開範圍時會清理仍由它管理的資源。"}];
+const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體裡的門牌號碼，用 &x 取得。每次執行程式時作業系統配的位置都不一樣，所以印出來的數字每次都不同。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間；大小由平台決定，可用 sizeof(p) 查詢。"}, {"front": "參考（Reference）", "back": "變數的別名，宣告成 int &r = x;。宣告當下必須綁定，之後不能改綁另一個物件，也沒有一般語法可建立空參考；實作是否占用儲存空間由編譯器決定。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（Null Pointer）", "back": "不指向任何物件的指標。新程式優先使用 nullptr；可用來表示某項可選關聯或目前結果不存在，解參考前必須先檢查。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "對指標加減整數會自動乘上型別大小，所以 a + 1 是「往後一個元素」而不是「位址加 1」。這就是 a[i] 等同 *(a + i) 的原因，也解釋了索引為什麼從 0 開始。"}, {"front": "陣列退化（Array Decay）", "back": "陣列作為引數傳進函式時會退化成指向首元素的指標，因此函式裡的 sizeof 量到的是指標大小而非陣列大小。所以傳陣列一定要另外傳長度。"}, {"front": "堆疊（Stack）", "back": "存放區域物件與函式呼叫狀態的記憶體區域；區域物件離開範圍時會自動結束生命週期。可用空間由執行環境決定。"}, {"front": "堆積（Heap）", "back": "用 new 建立的物件具有動態儲存期，必須由明確的 owner 以相符 delete 結束生命週期。數量可在執行時決定。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時配置物件並回傳它的位址。new T(v) 建立一個物件，new T[n] 建立陣列；兩者必須分別用 delete 與 delete[] 配對。"}, {"front": "釋放（Deallocation, delete）", "back": "結束 new 建立之物件的生命週期並釋放配置。delete 對應單一物件，delete[] 對應陣列；形式不配屬未定義行為。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "new 出來的記憶體沒有對應的 delete，那塊空間在程式結束前拿不回來。短程式通常看不出來，長時間執行的程式會占用越來越多記憶體，最後可能因資源不足而終止。"}, {"front": "懸空指標（Dangling Pointer）", "back": "仍保存位址，但所指物件已被 delete 或離開範圍。把某一個指標設為 nullptr 可避免再次誤用該變數，卻不會同步修正其他別名。"}, {"front": "二次釋放（Double Free）", "back": "同一配置被釋放兩次，屬未定義行為。將唯一 owner 在 delete 後設為 nullptr 可降低重複釋放風險，但其他別名仍須停止使用。"}, {"front": "所有權（Ownership）", "back": "負責讓動態資源恰好釋放一次的責任。介面應說清楚誰建立、是否轉移所有權，以及誰負責釋放。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 nullptr、讀取已失效物件或讓 new[] 與 delete 配錯。它可能看似正常、崩潰或產生錯誤結果。"}, {"front": "智慧指標（Smart Pointer）", "back": "自動管理動態物件生命週期的類別，例如 std::unique_ptr 表達獨佔所有權，離開範圍時會清理仍由它管理的資源。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

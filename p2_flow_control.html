@@ -557,7 +557,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <p>先辨認你要的是「選擇」還是「重複」，再看條件在什麼時候檢查。條件與更新要一起讀：同一個 while 外觀，搭配不同的更新動作，就可能執行不同次數。下面逐節示範，最後再用巢狀迴圈比較次數。</p>
 
-  <p>C++ 的流程控制長得跟 Python 很像，但有四個地方會咬人：大括號、<code>switch</code> 的掉落、三段式 <code>for</code> 的執行時機、範圍 <code>for</code> 那個決定「改得動還是改不動」的 <code>&amp;</code>。這四個各有一節。</p>
+  <p>C++ 的流程控制長得跟 Python 很像，但有四個地方需要特別留意：大括號、<code>switch</code> 的掉落、三段式 <code>for</code> 的執行時機，以及範圍 <code>for</code> 中決定「改得動還是改不動」的 <code>&amp;</code>。這四個各有一節。</p>
 
   <div class="viz-panel">
     <div class="diagram-scroll" style="overflow-x:auto;max-width:100%;" tabindex="0" aria-label="圖解，可左右捲動"><svg viewBox="0 0 900 350" width="900" height="350" style="max-width:100%;height:auto;display:block;margin:0 auto;;width:900px;max-width:none;height:auto;" role="img" aria-label="循序、選擇、迴圈三種流程控制結構的流程圖對照">
@@ -637,13 +637,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="warn-box">
     <div class="info-label">📌 本頁定位</div>
-    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。像 <code>divisor != 0 &amp;&amp; numerator / divisor &gt; 3</code> 這類保護條件為什麼不能顛倒，答案就在 PART 01。</p>
+    <p style="margin-bottom:0;">本頁整理後續程式常用的流程控制。像 <code>divisor != 0 &amp;&amp; numerator / divisor &gt; 3</code> 這類保護條件為什麼不能顛倒，答案就在 PART 01。</p>
   </div>
 </section>
 
 <section id="bool">
   <div class="section-number">PART 01 · 布林與比較</div>
-  <h2><code>bool</code>、六個比較運算子，以及會救你一命的短路求值</h2>
+  <h2><code>bool</code>、六個比較運算子，以及避免無效運算的短路求值</h2>
   <p>C++ 的 <code>bool</code> 只有兩個值：<code>true</code> 與 <code>false</code>。轉成整數時分別得到 1 與 0；整數轉成 <code>bool</code> 時，0 為假、非零為真。這是型別轉換規則，不能據此推定 <code>bool</code> 的底層表示方式。</p>
 
 <div class="deck-extra">
@@ -803,7 +803,7 @@ false || 右邊：
 <section id="ifelse">
   <div class="section-number">PART 02 · 條件</div>
   <h2><code>if</code> / <code>else if</code> / <code>else</code>：大括號不是可有可無</h2>
-  <p>語法本身沒什麼好講的：條件要用小括號包起來，<code>else if</code> 中間有空格，主體用大括號。真正會出事的是<strong>你決定不寫大括號的那一次</strong>。</p>
+  <p>先記住三個語法位置：條件要用小括號包起來，<code>else if</code> 中間有空格，主體用大括號。省略大括號時，後來新增的敘述可能不在條件控制之內。</p>
 
 <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">if</span> (score &gt;= <span class="num">90</span>) {</span>
 <span class="line" data-l="2">    grade = <span class="str">'</span><span class="str">A</span><span class="str">'</span>;</span>
@@ -890,33 +890,30 @@ y 不等於 5，y 還是 3</pre></div>
   <p><code>cond ? a : b</code> 是「有值的 if/else」：<code>cond</code> 成立整個式子就變成 <code>a</code>，不成立就變成 <code>b</code>。它做的事跟上面的 if/else 一模一樣，差別是<strong>它本身就是一個值</strong>，可以直接拿去指派、印出、或當函式的參數，不用像 if/else 那樣先宣告一個變數，兩邊分支再各指派一次。</p>
 
 <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="5"> </span>
-<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; waitingTimes = {<span class="num">12</span>, <span class="num">30</span>, <span class="num">5</span>};</span>
-<span class="line" data-l="8">    <span class="kw">double</span> sum = <span class="num">0</span>;</span>
-<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">int</span> w : waitingTimes) sum += w;</span>
-<span class="line" data-l="10"></span>    <span class="kw">double</span> avgWait = waitingTimes.empty() ? <span class="num">0</span> : sum / waitingTimes.size();   <span class="com">// 先判空，避免除以零</span></span>
-<span class="line" data-l="11"></span>    printf(<span class="str">"</span><span class="str">Average Wait %6.2f secs</span><span class="str">\n</span><span class="str">"</span>, avgWait);</span>
-<span class="line" data-l="12"> </span>
-<span class="line" data-l="13">    vector&lt;<span class="kw">int</span>&gt; noTasks;                       <span class="com">// 空的，沒有任何工作</span></span>
-<span class="line" data-l="14"></span>    <span class="kw">double</span> avgWait2 = noTasks.empty() ? <span class="num">0</span> : sum / noTasks.size();</span>
-<span class="line" data-l="15">    printf(<span class="str">"</span><span class="str">Average Wait %6.2f secs</span><span class="str">\n</span><span class="str">"</span>, avgWait2);</span>
-<span class="line" data-l="16">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="17">}</span>
-<span class="line" data-l="18"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Average Wait  15.67 secs
-Average Wait   0.00 secs</pre></div>
-  <p class="dx-note">三元運算子只求值被選中的分支。例如 count == 0 ? 0.0 : total / count，在 count 為 0 時選左側的 0.0，避免進入除法。若 total 與 count 都是 int，非零分支仍會先做整數除法；需要小數時應先轉型。</p>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> total = <span class="num">47</span>;</span>
+<span class="line" data-l="6">    <span class="kw">int</span> count = <span class="num">3</span>;</span>
+<span class="line" data-l="7">    <span class="kw">double</span> average = count == <span class="num">0</span> ? <span class="num">0.0</span> : <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(total) / count;</span>
+<span class="line" data-l="8">    cout &lt;&lt; average &lt;&lt; endl;</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10">    <span class="kw">int</span> count0 = <span class="num">0</span>;</span>
+<span class="line" data-l="11">    <span class="kw">double</span> emptyAverage = count0 == <span class="num">0</span> ? <span class="num">0.0</span> : <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(total) / count0;</span>
+<span class="line" data-l="12">    cout &lt;&lt; emptyAverage &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>15.6667
+0</pre></div>
+  <p class="dx-note">三元運算子只求值被選中的分支。<code>count0</code> 為 0 時會選左側的 0.0，右側除法不會執行；<code>count</code> 為 3 時則選右側。因為 <code>total</code> 與 <code>count</code> 都是 int，範例先將 <code>total</code> 轉成 double，保留除法的小數部分。</p>
 
   <div class="cmp-table-wrap">
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>寫法</th><th>C++ 程式碼</th></tr></thead>
     <tbody>
-      <tr><td>完整 if/else</td><td class="mono">if (waitingTimes.empty()) avgWait = 0;<br>else avgWait = sum / waitingTimes.size();</td></tr>
-      <tr><td>三元寫法</td><td class="mono">avgWait = waitingTimes.empty() ? 0 : sum / waitingTimes.size();</td></tr>
+      <tr><td>完整 if/else</td><td class="mono">if (count == 0) average = 0.0;<br>else average = static_cast&lt;double&gt;(total) / count;</td></tr>
+      <tr><td>三元寫法</td><td class="mono">average = count == 0 ? 0.0 : static_cast&lt;double&gt;(total) / count;</td></tr>
     </tbody>
   </table></div>
   </div>
@@ -938,7 +935,7 @@ Average Wait   0.00 secs</pre></div>
 
 <section id="switch">
   <div class="section-number">PART 03 · switch</div>
-  <h2><code>switch</code> 與掉落：Python 沒有的那個坑</h2>
+  <h2><code>switch</code> 與掉落：Python 沒有的控制流程</h2>
   <p>當你要拿<strong>同一個整數或字元</strong>去比對一長串固定值時，<code>switch</code> 比一串 <code>else if</code> 好讀。Python 到 3.10 才有 <code>match</code>，而且語意完全不同，所以這一節對你是全新的。</p>
 
 <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">switch</span> (運算式) {            <span class="com">// 運算式必須是整數型別：int、char、enum</span>
@@ -1352,7 +1349,7 @@ for (int &amp;x) ： 10 20 30 </pre></div>
 
   <div class="info-box">
     <div class="info-label">💡 一個好記的判斷順序</div>
-    <p style="margin-bottom:0;">要改元素 → <code>T&amp;</code>。只是讀，而且元素是 <code>int</code> 這種小東西 → <code>T</code>。只是讀，但元素是 <code>string</code>、<code>vector</code> 或自訂物件 → <code>const T&amp;</code>。<strong>猶豫的時候寫 <code>const T&amp;</code></strong>，它在任何情況下都不會比另外兩種差。</p>
+    <p style="margin-bottom:0;">要修改元素時用 <code>T&amp;</code>。只讀取 <code>int</code> 這類小型別時，直接用 <code>T</code> 清楚且成本低；只讀取 <code>string</code>、<code>vector</code> 或自訂大型物件時，用 <code>const T&amp;</code> 避免複製。</p>
   </div>
 
   <div class="warn-box">
@@ -1510,7 +1507,7 @@ break 只跳出「最內層」那一圈：
 
 <section id="exercises">
   <div class="section-number">EX · 隨堂練習</div>
-  <h2>把三個坑合在一題裡</h2>
+  <h2>把三個常見錯誤合在一題裡</h2>
 
   <div class="quiz-box">
     <div class="quiz-label">EXERCISE · 這段迴圈跑完之後，v 是什麼</div>
@@ -1524,7 +1521,7 @@ break 只跳出「最內層」那一圈：
 <span class="line" data-l="7"> </span></div>
     <div class="quiz-options" id="qbOptions">
       <div class="quiz-opt" data-correct="false" data-fb="這是「x 是元素本身」的直覺。但迴圈變數宣告成 int x 而不是 int &amp;x，改的是複本。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> <span class="mono">6 12 18</span></div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。兩個坑同時發生：x = 0 是賦值，值為 0 也就是假，所以 continue 從來不會執行；而 x 是複本，x *= 3 改完就丟掉。v 從頭到尾沒被動過。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> <span class="mono">2 4 6</span></div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。兩個問題同時發生：x = 0 是賦值，值為 0 也就是假，所以 continue 從來不會執行；而 x 是複本，x *= 3 改完就丟掉。v 從頭到尾沒被改動。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> <span class="mono">2 4 6</span></div>
       <div class="quiz-opt" data-correct="false" data-fb="if (x = 0) 的值是 0，也就是 false，所以 continue 一次都不會跑到。它不是判斷 x 是否等於 0。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> <span class="mono">0 0 0</span></div>
       <div class="quiz-opt" data-correct="false" data-fb="這段完全合法，g++ 預設連警告都不給。真正的問題是它安靜地什麼都沒做。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 編譯錯誤</div>
     </div>
@@ -1612,8 +1609,8 @@ break 只跳出「最內層」那一圈：
       <tr><td><a href="https://en.cppreference.com/w/cpp/language/range-for" target="_blank" rel="noopener">cppreference · range-for</a></td><td>範圍 <code>for</code> 展開之後的真正樣子，以及為什麼 <code>&amp;</code> 會改變行為。</td></tr>
       <tr><td><a href="https://en.cppreference.com/w/cpp/language/switch" target="_blank" rel="noopener">cppreference · switch</a></td><td>掉落的完整規則，以及 C++17 的 <code>[[fallthrough]]</code>。</td></tr>
       <tr><td><a href="https://en.cppreference.com/w/cpp/language/for" target="_blank" rel="noopener">cppreference · for statement</a></td><td>三段式與範圍 for 的正式語法參考。</td></tr>
-      <tr><td>本站· 演算法分析</td><td>本頁 PART 07 的正式版本。</td></tr>
-      <tr><td><a href="https://en.cppreference.com/w/cpp/language/for" target="_blank" rel="noopener">cppreference · for statement</a></td><td>三段式與範圍 for 的正式語法參考。</td></tr>
+      <tr><td><a href="analysis.html">本站 · 演算法分析</a></td><td>延伸本頁 PART 07，正式介紹漸近複雜度與成長率。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/break" target="_blank" rel="noopener">cppreference · break statement</a></td><td><code>break</code> 在迴圈與 <code>switch</code> 中的正式語法與作用範圍。</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -1686,7 +1683,7 @@ int main() {
       <button class="sq-opt" data-c="1" data-fb="正確。第一個迴圈的 x 是每個元素的複本，x += 10 改完就被丟掉，v 沒有變。第二個迴圈的 y 宣告成 int&amp;，是元素本身的別名，所以 y += 100 真的改到了 v。少那個 &amp; 的版本 g++ 連警告都不會給。"><span class="opt-letter">(A)</span> 101 102 103</button>
       <button class="sq-opt" data-c="0" data-fb="這假設兩個迴圈都改到了 v。第一個迴圈的 x 沒有 &amp;，拿到的是複本，那 10 加在複本上。"><span class="opt-letter">(B)</span> 111 112 113</button>
       <button class="sq-opt" data-c="0" data-fb="剛好相反：有效的是第二個迴圈（宣告成 int&amp;），無效的是第一個。"><span class="opt-letter">(C)</span> 11 12 13</button>
-      <button class="sq-opt" data-c="0" data-fb="第二個迴圈的 y 是參考，確實改到了容器。只有第一個迴圈是白做工。"><span class="opt-letter">(D)</span> 1 2 3</button>
+      <button class="sq-opt" data-c="0" data-fb="第二個迴圈的 y 是參考，確實改到了容器。第一個迴圈只改到複本，沒有影響容器。"><span class="opt-letter">(D)</span> 1 2 3</button>
     </div>
     <div class="sq-fb"></div>
   </div>
@@ -1941,7 +1938,7 @@ function forStage(f) {
     p2Box('i', f.i === null ? '（還沒有）' : f.i, f.line === 4 ? 'hot' : 'idle') +
     p2Box('i < 3 ?', f.cond, f.cond === '不成立' ? 'off' : (f.cond === '成立' ? 'ok' : 'idle')) +
     p2Box('螢幕上的輸出', f.out || '（空的）', f.line === 3 ? 'hot' : 'idle')
-  ) + `<div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">紅框代表這一步剛動到的東西。右邊那段 while 就是這個 for 攤開的樣子。</div>`;
+  ) + `<div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">彩色框標出這一步相關的值；不同顏色分別表示目前動作與條件結果。右邊那段 while 就是這個 for 攤開的樣子。</div>`;
 }
 
 function forFrames() {

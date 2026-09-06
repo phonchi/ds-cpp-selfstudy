@@ -4,6 +4,13 @@
 `recursion.html` 的整個 `<head>`（1–332 行）除了 `<title>` 之外逐位元組一致。改動任一站之前，
 先看另一站有沒有已經解過同一個問題。
 
+## 最新修訂：語氣與完整讀者複查
+
+以 `f5d7772` 為起點，完成 P1–P9 的 speak-human-tw 修文與作者以外的順讀複查。
+請以 [prereq-language-reader-review.md](docs/prereq-language-reader-review.md) 查看本輪內容與驗收。
+保留原圖表與深度；P9 模板前置，驗證分類以 data-audit-index 維持穩定。
+瀏覽器檢查現在展開所有 details 並檢查每次型別卡、播放器與回饋的實際文字。
+
 ## 本次有效版本：從 b97fe81 重新恢復（2026-09-06）
 
 使用者否定先前改寫的結構與刪減，要求直接恢復原版再替換課本例子。這次已從

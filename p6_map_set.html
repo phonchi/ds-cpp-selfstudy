@@ -603,7 +603,7 @@ unordered_set：命中 0，耗時 [依環境而異] us
   </div>
 
 <div class="deck-extra">
-  <div class="dx-label">忘記 #include &lt;map&gt; 的下場（編譯錯誤前三行）</div>
+  <div class="dx-label">忘記 #include &lt;map&gt; 時的編譯訊息（前三行）</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
@@ -618,7 +618,7 @@ unordered_set：命中 0，耗時 [依環境而異] us
 cell.cpp: In function ‘int main()’:
 cell.cpp:5:5: error: ‘map’ was not declared in this scope
     5 |     map&lt;string, int&gt; price;      // 忘了 #include &lt;map&gt;</pre></div>
-  <p class="dx-note"><code>&lt;iostream&gt;</code> 不會順便把 <code>map</code> 帶進來。看到 <code>‘map’ was not declared in this scope</code>，九成是漏了 include，不是你的語法寫錯。</p>
+  <p class="dx-note"><code>&lt;iostream&gt;</code> 不會順便把 <code>map</code> 帶進來。看到 <code>‘map’ was not declared in this scope</code>，漏寫 <code>#include &lt;map&gt;</code> 是常見原因之一；補上標頭後若仍失敗，再依診斷位置檢查語法。</p>
 </div>
 
   <div class="warn-box">
@@ -630,13 +630,15 @@ cell.cpp:5:5: error: ‘map’ was not declared in this scope
   <div class="section-number">PART 01 · map 基礎</div>
   <h2><code>map&lt;K, V&gt;</code>：一張鍵對值的表</h2>
   <p>宣告的時候要講清楚兩件事：鍵長什麼樣、值長什麼樣。<code>map&lt;string, int&gt;</code> 就是「用字串查整數」。Python 的 <code>dict</code> 不必先講，因為它同一個容器裡可以塞各種型別；C++ 的容器是同質的，型別在編譯期就釘死。</p>
+  <p><code>pair&lt;K, V&gt;</code> 把一個鍵與一個值包成一組，成員名稱是 <code>first</code> 與 <code>second</code>。<code>make_pair(k, v)</code> 會依引數建立這一組資料；獨立使用時應明確引入 <code>&lt;utility&gt;</code>。下面先用它把 <code>"kiwi"</code> 與 <code>60</code> 一起交給 <code>insert</code>。</p>
 
 <div class="deck-extra">
   <div class="dx-label">map 的六個基本動作</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;utility&gt;</span><span class="kw"></span>
+<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
@@ -671,7 +673,7 @@ apple 賣 45
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>你想做的事</th><th>寫法</th><th>回傳什麼</th></tr></thead>
     <tbody>
-      <tr><td>放進去／改掉</td><td class="mono">m[k] = v;</td><td>沒有回傳值，鍵不存在就新增</td></tr>
+      <tr><td>放進去／改掉</td><td class="mono">m[k] = v;</td><td>將值指定給 <code>m[k]</code>；整個指定運算式也可產生所指定的值，通常直接當一行敘述使用</td></tr>
       <tr><td>放進去（已存在就不動）</td><td class="mono">m.insert(make_pair(k, v));</td><td>一組 pair：迭代器 ＋ 有沒有成功放進去</td></tr>
       <tr><td>問「在不在」</td><td class="mono">m.count(k)</td><td>0 或 1</td></tr>
       <tr><td>找到並拿出來</td><td class="mono">m.find(k)</td><td>迭代器，找不到時等於 <code>m.end()</code></td></tr>
@@ -684,6 +686,7 @@ apple 賣 45
 
 <div class="deck-extra">
   <div class="dx-label">count 與 find 的分工</div>
+  <p><code>find</code> 回傳的不是值，而是一個表示容器位置的<strong>迭代器</strong>。找到時它指向一組 <code>pair</code>，其中 <code>first</code> 是鍵、<code>second</code> 是值；找不到時則等於尾後哨兵 <code>end()</code>，不可解參考。PART 05 會再系統整理迭代器的走訪語法。</p>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
@@ -715,13 +718,13 @@ find 找不到 mango，回傳的是 end()</pre></div>
 
   <div class="info-box">
     <div class="info-label">💡 鍵的型別有一個條件</div>
-    <p style="margin-bottom:0;"><code>map</code> 內部靠「比大小」把鍵排好，所以鍵的型別必須支援 <code>&lt;</code>。<code>int</code>、<code>double</code>、<code>string</code> 都內建有，直接可以用。等你到 <a href="p9_oop_advanced.html">P9</a> 想把自己寫的類別當鍵，就得自己多載 <code>operator&lt;</code>，否則編譯器會噴一大串看不懂的樣板錯誤。</p>
+    <p style="margin-bottom:0;"><code>map</code> 內部靠「比大小」把鍵排好，所以鍵的型別必須支援 <code>&lt;</code>。<code>int</code>、<code>double</code>、<code>string</code> 都內建有，直接可以用。等你到 <a href="p9_oop_advanced.html">P9</a> 想把自己寫的類別當鍵，就得自己多載 <code>operator&lt;</code>，否則編譯器會產生冗長的樣板診斷訊息。</p>
   </div>
 </section>
 <section id="bracket">
   <div class="section-number">PART 02 · operator[] 的陷阱</div>
   <h2><code>m[k]</code> 查不到，會自己建一個 <span class="sec-badge">與 Python 差最多的一點</span></h2>
-  <p>Python 的 <code>d["mango"]</code> 查不到會丟 <code>KeyError</code>，很吵，但也很誠實 —— 你馬上知道出事了。C++ 的 <code>m["mango"]</code> 不吵，它安靜地替你插一筆進去，然後回傳那筆的值。程式照跑，錯誤要等到很後面才會浮出來。</p>
+  <p>Python 的 <code>d["mango"]</code> 查不到會立即丟出 <code>KeyError</code>。C++ 的 <code>m["mango"]</code> 則會靜默插入一筆，再回傳那筆的值；若原意只是查詢，這項改動可能到較後面的結果才被發現。</p>
 
 <div class="deck-extra">
   <div class="dx-label">只是查一下，size 卻自己長大了</div>
@@ -789,7 +792,7 @@ count 查 durian：0
     <p>一個空的 <code>map&lt;string, int&gt; m;</code>，接著執行：<code>m["a"] = 1;</code>、<code>if (m["b"] &gt; 0) cout &lt;&lt; "yes";</code>、<code>m.count("c");</code>。最後 <code>m.size()</code> 是？</p>
     <div class="quiz-options" id="qaOptions">
       <div class="quiz-opt" data-correct="false" data-fb="只算了指派的那一筆。中間那個 if 裡的 m[&quot;b&quot;] 也是一次 operator[]，一樣會建鍵。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 1</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。m[&quot;a&quot;] 建了一筆、m[&quot;b&quot;] 在 if 的條件裡也建了一筆（值預設是 0，所以條件不成立，但鍵已經進去了）、m.count(&quot;c&quot;) 不會建鍵。所以是 2。這種在 if 條件裡誤建鍵的寫法最難抓，因為程式行為看起來完全正常。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 2</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。m[&quot;a&quot;] 建了一筆、m[&quot;b&quot;] 在 if 的條件裡也建了一筆（值預設是 0，所以條件不成立，但鍵已經進去了）、m.count(&quot;c&quot;) 不會建鍵。所以是 2。條件雖不成立，容器仍已改變，因此這類錯誤不容易從當下輸出發現。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 2</div>
       <div class="quiz-opt" data-correct="false" data-fb="count 只是「數有幾筆符合」，它是唯讀操作，不會動到容器。三個鍵全建的話才會是 3。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 3</div>
       <div class="quiz-opt" data-correct="false" data-fb="C++ 的 map 不會因為查不到而丟例外，那是 Python dict 的行為。C++ 想要「查不到就丟例外」得改用 m.at(k)。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> 程式會丟出例外</div>
     </div>
@@ -1387,7 +1390,7 @@ departments = 3</pre></div>
   </div>
 
   <div class="quiz-box">
-    <div class="quiz-label">EXERCISE 2 · 這行為什麼不會爆</div>
+    <div class="quiz-label">EXERCISE 2 · 這行為什麼能執行</div>
     <p>一個空的 <code>map&lt;string, int&gt; freq;</code>，第一次執行 <code>freq["pear"]++;</code>。<code>freq["pear"]</code> 明明還不存在，為什麼可以直接 <code>++</code>？</p>
     <div class="quiz-options" id="qcOptions">
       <div class="quiz-opt" data-correct="false" data-fb="C++ 的 map 沒有這種特殊規則。++ 作用的對象是一個實際存在的 int，不是什麼預設值機制。" onclick="quizCheck('qc', this)"><span class="opt-letter">(A)</span> 因為 <code>map</code> 對不存在的鍵會回傳 0</div>
@@ -1775,7 +1778,7 @@ function renderBoxQueue(containerId, items, opts={}) {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "映射（map）", "back": "map 保存鍵值對，鍵依比較器排序且不重複。一般查詢、插入與按鍵刪除為 O(log n)；使用標準介面即可，不需要先了解內部結構。"}, {"front": "無序映射（unordered_map）", "back": "unordered_map 以雜湊組織鍵值對，查詢平均 O(1)、最壞 O(n)。走訪沒有排序保證，重新雜湊也可能改變順序。"}, {"front": "集合（set）", "back": "set 只保存鍵，依比較器排序與判定等價，不保留重複鍵。適合查詢成員資格、去重及有序走訪。"}, {"front": "無序集合（unordered_set）", "back": "unordered_set 以雜湊組織不重複的鍵。成員查詢平均 O(1)、最壞 O(n)，走訪順序未指定，應依需求選擇而不是假定永遠較快。"}, {"front": "成對資料（pair）", "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"}, {"front": "中括號運算子（operator[]）", "back": "map 的 m[k] 在鍵存在時回傳其值的參考；不存在時插入新鍵並對值作值初始化，例如 int 得到 0。查詢若不應修改容器，使用 find、count 或 at。"}, {"front": "值初始化（Value Initialization）", "back": "值初始化（value initialization）是 map 的 operator[] 建立新鍵之值時採用的初始化方式。int 會成為 0，string 為空字串；這不表示一般區域 int x; 或類別的所有基礎成員也會自動歸零。"}, {"front": "計數查詢（count）", "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀的，不會像 operator[] 那樣偷偷建鍵，只想判斷在不在就用它。"}, {"front": "尋找（find）", "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"}, {"front": "尾後迭代器（end()）", "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"}, {"front": "左閉右開區間（Half-open Range）", "back": "[first, last) 包含 first，不包含 last。空範圍可用 first == last 表示。只有支援隨機存取的迭代器才能直接以 last - first 計算距離；set/map 的迭代器不能相減。"}, {"front": "迭代器（iterator）", "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"}, {"front": "結構化繫結（structured binding）", "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"}, {"front": "鍵的等價性（Key Equivalence）", "back": "map/set 依比較器判定鍵是否等價：a 不排在 b 前面，b 也不排在 a 前面。預設比較下可寫成 !(a < b) && !(b < a)，不必與自訂 operator== 相同。"}, {"front": "桶（bucket）", "back": "雜湊容器將鍵映射到桶，同桶可能含多個元素，因此碰撞仍須比較鍵。桶數、負載因子與重新雜湊影響成本；不可將整體走訪視為某個固定桶順序。"}, {"front": "下界查詢（lower_bound）", "back": "有序容器的 lower_bound(x) 找第一個依比較器不排在 x 前面的鍵，預設比較器下就是不小於 x。unordered 容器沒有此成員；它雖有 begin()，卻不保證指向最小鍵。"}, {"front": "分組容器（Map of Vectors）", "back": "map<string, vector<string>> 可讓一個分類對應多個項目，例如部門對應名單。外層 size 是分類數，內層 size 是該組項目數；以 [] 查不存在的鍵會建立空 vector。"}, {"front": "標準演算法（algorithm）", "back": "sort、find、reverse、count 不是容器成員，是 <algorithm> 裡吃「一對迭代器」的自由函式，用 [begin, end) 指定範圍。find 回傳迭代器、找不到＝end()（不是 -1）；但 map/set 要用自己的成員版 find/count（O(log n)），別用線性掃的這組。"}];
+const FLASHCARDS = [{"front": "映射（map）", "back": "map 保存鍵值對，鍵依比較器排序且不重複。一般查詢、插入與按鍵刪除為 O(log n)；使用標準介面即可，不需要先了解內部結構。"}, {"front": "無序映射（unordered_map）", "back": "unordered_map 以雜湊組織鍵值對，查詢平均 O(1)、最壞 O(n)。走訪沒有排序保證，重新雜湊也可能改變順序。"}, {"front": "集合（set）", "back": "set 只保存鍵，依比較器排序與判定等價，不保留重複鍵。適合查詢成員資格、去重及有序走訪。"}, {"front": "無序集合（unordered_set）", "back": "unordered_set 以雜湊組織不重複的鍵。成員查詢平均 O(1)、最壞 O(n)，走訪順序未指定，應依需求選擇而不是假定永遠較快。"}, {"front": "成對資料（pair）", "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"}, {"front": "中括號運算子（operator[]）", "back": "map 的 m[k] 在鍵存在時回傳其值的參考；不存在時插入新鍵並對值作值初始化，例如 int 得到 0。查詢若不應修改容器，使用 find、count 或 at。"}, {"front": "值初始化（Value Initialization）", "back": "值初始化（value initialization）是 map 的 operator[] 建立新鍵之值時採用的初始化方式。int 會成為 0，string 為空字串；這不表示一般區域 int x; 或類別的所有基礎成員也會自動歸零。"}, {"front": "計數查詢（count）", "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀操作，不會像 operator[] 那樣靜默建立新鍵；只想判斷在不在就用它。"}, {"front": "尋找（find）", "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"}, {"front": "尾後迭代器（end()）", "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"}, {"front": "左閉右開區間（Half-open Range）", "back": "[first, last) 包含 first，不包含 last。空範圍可用 first == last 表示。只有支援隨機存取的迭代器才能直接以 last - first 計算距離；set/map 的迭代器不能相減。"}, {"front": "迭代器（iterator）", "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"}, {"front": "結構化繫結（structured binding）", "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"}, {"front": "鍵的等價性（Key Equivalence）", "back": "map/set 依比較器判定鍵是否等價：a 不排在 b 前面，b 也不排在 a 前面。預設比較下可寫成 !(a < b) && !(b < a)，不必與自訂 operator== 相同。"}, {"front": "桶（bucket）", "back": "雜湊容器將鍵映射到桶，同桶可能含多個元素，因此碰撞仍須比較鍵。桶數、負載因子與重新雜湊影響成本；不可將整體走訪視為某個固定桶順序。"}, {"front": "下界查詢（lower_bound）", "back": "有序容器的 lower_bound(x) 找第一個依比較器不排在 x 前面的鍵，預設比較器下就是不小於 x。unordered 容器沒有此成員；它雖有 begin()，卻不保證指向最小鍵。"}, {"front": "分組容器（Map of Vectors）", "back": "map<string, vector<string>> 可讓一個分類對應多個項目，例如部門對應名單。外層 size 是分類數，內層 size 是該組項目數；以 [] 查不存在的鍵會建立空 vector。"}, {"front": "標準演算法（algorithm）", "back": "sort、find、reverse、count 不是容器成員，是 <algorithm> 裡吃「一對迭代器」的自由函式，用 [begin, end) 指定範圍。find 回傳迭代器、找不到＝end()（不是 -1）；但 map/set 要用自己的成員版 find/count（O(log n)），別用線性掃的這組。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

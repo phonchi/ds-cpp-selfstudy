@@ -28,7 +28,7 @@ EXPECTED_LINK_FAILURE = {"p1#21"}
 # capacities/diagnostics, or pseudo-random values.  Their stable facts are
 # checked below instead of comparing a machine-specific transcript.
 DYNAMIC_KEYS = {
-    "p1#5", "p1#14", "p1#16", "p1#22", "p2#22", "p3#4",
+    "p5#4", "p5#16", "p9#12", "p1#5", "p1#14", "p1#16", "p1#22", "p2#22", "p3#4",
     "p4#1", "p4#3", "p4#5", "p4#6", "p4#7", "p5#0", "p5#2", "p5#6", "p5#7", "p5#8",
     "p5#10", "p5#14", "p6#0", "p6#7", "p7#5", "p7#7",
 }
@@ -62,6 +62,22 @@ def own_expected(block):
 
 def dynamic_output_ok(key, stdout, stderr):
     text = stdout + "\n" + stderr
+    if key == "p5#4":
+        rows = stdout.splitlines()
+        expected_rows = [
+            "起始 size=3 [ 31 17 93 ]",
+            "push_back(26) size=4 [ 31 17 93 26 ]",
+            "pop_back() size=3 [ 31 17 93 ]",
+            "insert(begin) size=4 [ 54 31 17 93 ]",
+            "erase(begin+1) size=3 [ 54 17 93 ]",
+        ]
+        capacity = re.search(r"clear\(\) 之後\s+size=0\s+capacity=(\d+)", stdout)
+        return ([normalize(row) for row in rows[:5]] == expected_rows
+                and capacity is not None and int(capacity.group(1)) >= 4)
+    if key == "p5#16":
+        return 'stoi("1453") + 1 = 1454' in stdout and 'string(1, c) + "X" = 1X' in stdout
+    if key == "p9#12":
+        return "42 / hello" in stdout and "sizeof(Box<int>)" in stdout and "sizeof(Box<string>)" in stdout
     if key == "p1#14":
         faces = [int(x) for x in re.findall(r"點數\s+([1-6])", stdout)]
         return len(faces) == 3
@@ -108,6 +124,7 @@ def collect(selected):
             for name, index in contract.get("legacy_cpp_support", {}).get(path.name, {}).items()
         }
         for index, block in enumerate(blocks):
+            index = int(block.get("data-audit-index", index))
             key = f"{chapter}#{index}"
             code = block.get_text()
             mode = contract.get("legacy_cpp_exceptions", {}).get(f"{path.name}#{index}", "")

@@ -6,6 +6,10 @@ import argparse,json,re,hashlib,traceback
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parent.parent
+TONE_PATTERN=r'課本|本課|講義|這門課|燙手山芋|字梯|邏輯閘|pythonds|arraylist\.hpp|linked_list\.hpp|罵人|罵你|讓它炸|炸給|典型死法|翻車|陰險|救你一命'
+def check_tone(page):
+ match=re.search(TONE_PATTERN,page.locator('body').inner_text())
+ assert not match, 'reader-facing wording remains: '+(match.group(0) if match else '')
 STYLE_JS="""() => {
  const spec={'body':['backgroundColor','color','fontFamily','fontSize','lineHeight'],'.hero':['backgroundImage','minHeight','paddingTop','paddingRight','paddingBottom','paddingLeft'],'.container':['maxWidth','paddingTop','paddingRight','paddingBottom','paddingLeft'],'h1':['fontFamily','fontSize','fontWeight','color'],'h2':['fontFamily','fontSize','fontWeight','color'],'.toc':['backgroundColor','borderRadius','boxShadow'],'.pseudo-code':['backgroundColor','color','fontFamily']};
  const out={}; for(const [sel,keys] of Object.entries(spec)){const el=document.querySelector(sel);if(!el)throw Error('missing style target '+sel);const cs=getComputedStyle(el);out[sel]=Object.fromEntries(keys.map(k=>[k,cs[k]]));}return out;
@@ -34,6 +38,9 @@ def main():
    page.add_init_script("const nativeInterval=window.setInterval.bind(window);window.setInterval=(fn,ms,...args)=>nativeInterval(fn,Math.min(ms,80),...args);")
    try:
     page.goto(path.as_uri(),wait_until='load')
+    page.locator("details").evaluate_all("els=>els.forEach(el=>el.open=true)")
+    check_tone(page)
+    page.evaluate("pattern=>{window.__checkLessonTone=()=>{const m=document.body.innerText.match(new RegExp(pattern));if(m)throw Error('reader-facing wording: '+m[0]);};}",TONE_PATTERN)
     hero=page.locator('.hero svg.hero-graph')
     assert hero.count()==1 and hero.is_visible(), 'missing visible chapter-specific hero SVG'
     assert hero.locator('path,rect,circle,line,polygon,polyline').count()>0, 'empty hero SVG'
@@ -50,17 +57,17 @@ def main():
      feedback=page.locator('#'+gid[:-7]+'Feedback');assert feedback.count()==1,f'inline quiz {i+1}: paired Feedback id missing'
      for j in range(4):
       opt=opts.nth(j);assert opt.get_attribute('onclick') and 'quizCheck(' in opt.get_attribute('onclick')
-      expected_fb=opt.get_attribute('data-fb');assert expected_fb;opt.click();assert feedback.is_visible();expected_text=page.evaluate("s=>{const d=document.createElement('div');d.innerHTML=s;return d.textContent;}",expected_fb);assert feedback.inner_text().strip().endswith(expected_text.strip()), f'inline quiz {gid}: wrong feedback';inline_checked+=1
+      expected_fb=opt.get_attribute('data-fb');assert expected_fb;opt.click();assert feedback.is_visible();expected_text=page.evaluate("s=>{const d=document.createElement('div');d.innerHTML=s;return d.textContent;}",expected_fb);assert feedback.inner_text().strip().endswith(expected_text.strip()), f'inline quiz {gid}: wrong feedback';check_tone(page);inline_checked+=1
     controls=page.locator('section:not(#cards):not(#bankquiz) button[onclick]')
     player_names=sorted(set(re.findall(r'(\w+Player)\s*=\s*new Player',path.read_text())))
     frames_checked=0
     for i in range(controls.count()):
-     controls.nth(i).click()
+     controls.nth(i).click();check_tone(page)
      for name in player_names:
       result=page.evaluate("""name=>{
        const p=eval(name);if(!p)return 0;
        p.pause();const limit=p.frames.length+2;let checked=0;
-       for(let n=0;n<limit && !p._done;n++){p.step();checked++;}
+       for(let n=0;n<limit && !p._done;n++){p.step();window.__checkLessonTone();checked++;}
        if(!p._done || p.playing)throw Error(name+' did not finish');
        const last=p.i;p.step();if(p.i!==last)throw Error(name+' advanced after completion');
        return checked;
@@ -82,7 +89,7 @@ def main():
      for j in range(opts.count()):
       b=opts.nth(j);good=b.get_attribute('data-c')=='1';b.click();assert ('correct' if good else 'wrong') in b.get_attribute('class')
       assert q.locator('.sq-fb').is_visible();assert q.locator('.sq-fb').inner_text()==b.get_attribute('data-fb')
-      options_checked+=1
+      check_tone(page);options_checked+=1
       if good:positions.append(j+1)
     report.update(questions=qs.count(),options=options_checked,correct_positions=positions)
     expected=json.loads((ROOT/f'data/flashcards_zh/{chapter}.json').read_text())

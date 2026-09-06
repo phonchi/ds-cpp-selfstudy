@@ -218,7 +218,7 @@ def main():
                     if "sq-code" in attrs.get("class", "").split():
                         continue
                     if block.get("pseudo_index") is not None and re.search(r"\bint\s+main\s*\(", code):
-                        key = f"{path.name}#{block['pseudo_index']}"
+                        key = f"{path.name}#{attrs.get('data-audit-index', block['pseudo_index'])}"
                         mode = legacy_exceptions.get(key, "run")
                         if mode in ("diagnostic-text", "unsafe"):
                             counts["legacy-" + mode] += 1

@@ -551,7 +551,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <tr><td>什麼時候發現打錯字</td><td>語法錯誤可能先被發現；名稱或型別使用錯誤常在執行相關運算時發現</td><td><strong>編譯時就發現</strong>，程式根本跑不起來</td></tr>
       <tr><td>型別</td><td>執行時才決定，同一個變數可以換型別</td><td><strong>宣告時就定死</strong>，之後不能換</td></tr>
       <tr><td>要不要自己管記憶體</td><td>不用，有垃圾回收</td><td>區域物件及標準容器會管理自身生命週期；直接使用 new 時需安排對應釋放（P4）</td></tr>
-      <tr><td>速度</td><td>慢，但寫得快</td><td>效能取決於程式、編譯選項與所呼叫的函式庫</td></tr>
+      <tr><td>執行效能</td><td>取決於實作、工作內容與所用函式庫</td><td>取決於程式、編譯選項與所用函式庫</td></tr>
       <tr><td>執行需要什麼</td><td>目標機器上要有直譯器</td><td>執行檔本身，但換平台要重編</td></tr>
     </tbody>
   </table></div>
@@ -699,9 +699,9 @@ inline std::string greeting() { return &quot;Hello from a local header!&quot;; }
 <span class="line" data-l="4"> </span>
 <span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="6">    cout &lt;&lt; greeting() &lt;&lt; endl;</span>
-<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="12">}</span>
-<span class="line" data-l="13"> </span></div>
+<span class="line" data-l="7">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="8">}</span>
+<span class="line" data-l="9"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Hello from a local header!</pre></div>
   <p class="dx-note"><code class='mono'>greeting.hpp</code> 與 <code class='mono'>main.cpp</code> 放在同一資料夾時，可直接用 <code class='mono'>g++ -std=c++17 main.cpp -o main</code> 編譯；若放在 <code class='mono'>include/</code>，則使用 <code class='mono'>-I include</code> 加入搜尋路徑。找不到時會看到 <code class='mono'>fatal error: greeting.hpp: No such file or directory</code>。</p>
 </div>
@@ -818,7 +818,7 @@ boolalpha 之後 b = true</pre></div>
 </div>
 
   <div class="warn-box">
-    <div class="info-label">⚠️ 最常見的翻車寫法</div>
+    <div class="info-label">⚠️ 最常見的錯誤寫法</div>
     <p style="margin-bottom:0;">例如 int sum; 後直接 sum += 3; 會先讀到未初始化的 sum。應先寫 int sum = 0;，計數器同理寫 int count = 0;。這個問題與數字看起來是否合理無關，關鍵是使用前有沒有確定的值。</p>
   </div>
 
@@ -1166,7 +1166,7 @@ total /= 4  -&gt; 6  &lt;- 整數除法還是會截</pre></div>
   </table></div>
   </div>
 
-  <p>第三列是最陰險的一個。<code class="mono">double avg = sum / n;</code> 看起來完全合理，但等號右邊是兩個 <code>int</code>，除法在轉成 <code>double</code> <strong>之前</strong>就做完了。</p>
+  <p>第三列最不容易察覺。<code class="mono">double avg = sum / n;</code> 看起來完全合理，但等號右邊是兩個 <code>int</code>，除法在轉成 <code>double</code> <strong>之前</strong>就做完了。</p>
 
 <div class="deck-extra">
   <div class="dx-label">同一組數字，轉型位置不同，答案不同</div>
@@ -1209,7 +1209,7 @@ static_cast&lt;int&gt;(3.99)      = 3   &lt;- 轉 int 是截斷，不是四捨�
 
   <div class="info-box">
     <div class="info-label">💡 其他常見轉型寫法</div>
-    <p style="margin-bottom:0;">對本節的算術型別 x，static_cast&lt;double&gt;(x)、(double)x 與 double(x) 都能轉成 double。這不表示各種轉型語法在所有型別上等價；先使用用途清楚、方便搜尋的 static_cast，閱讀旧程式時再辨認其他形式。</p>
+    <p style="margin-bottom:0;">對本節的算術型別 x，static_cast&lt;double&gt;(x)、(double)x 與 double(x) 都能轉成 double。這不表示各種轉型語法在所有型別上等價；先使用用途清楚、方便搜尋的 static_cast，閱讀舊程式時再辨認其他形式。</p>
   </div>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">整數溢位：分清有號與無號規則</h3>
@@ -1256,8 +1256,8 @@ unsigned 0 - 1 = 4294967295
 
 <section id="errors">
   <div class="section-number">PART 07 · 讀懂編譯錯誤</div>
-  <h2>g++ 罵人的話有固定格式，看懂前三行就夠了</h2>
-  <p>初學者看到滿螢幕紅字的反應通常是全選複製去問人。其實 g++ 的訊息有結構，而且<strong>只有第一個 <code>error:</code> 值得看</strong> —— 後面那幾十行多半是被第一個錯連累的。</p>
+  <h2>g++ 的診斷訊息有常見格式，先看懂開頭幾行</h2>
+  <p>g++ 的訊息通常會列出檔名、行號、欄號與診斷內容。先修正第一個 <code>error:</code>，接著重新編譯，再檢查其餘訊息；後面的診斷有些會隨第一個錯誤一起消失，也可能仍有需要處理的獨立問題。</p>
 
 <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1">main.cpp: In function '<span class="kw">int</span> main()':</span>
 <span class="line" data-l="2">main.cpp:<span class="num">6</span>:<span class="num">5</span>: error: expected <span class="str">'</span><span class="str">,</span><span class="str">'</span> <span class="kw">or</span> <span class="str">'</span><span class="str">;</span><span class="str">'</span> before 'cout'</span>
@@ -1382,7 +1382,7 @@ collect2: error: ld returned 1 exit status</pre></div>
 
 
   <details style="margin-top:1rem;"><summary><strong>備註：<code>assert</code>，另一種比編譯錯誤更晚一步的檢查</strong></summary>
-    <p style="margin-top:.7rem;">上面講的都是<strong>編譯期</strong>的錯誤；<code>assert(條件)</code> 抓的是<strong>執行期</strong>的錯誤——條件不成立，程式立刻中止，並印出出事的那一行，比讓程式帶著錯誤值繼續跑、幾百行之後才爆掉好抓多了。</p>
+    <p style="margin-top:.7rem;">上面講的都是<strong>編譯期</strong>的錯誤；<code>assert(條件)</code> 抓的是<strong>執行期</strong>的錯誤。條件不成立時，程式立刻中止並印出發生問題的那一行，比讓錯誤值繼續傳遞、到後面才失敗容易追查。</p>
 <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
@@ -1558,7 +1558,7 @@ cout &lt;&lt; y &lt;&lt; endl;</pre>
       <button class="sq-opt" data-c="1" data-fb="正確。y 雖然是 double，但等號右邊的 x / 4 兩邊都是 int，除法先做完得到 2，才被轉成 2.0 存進 y。轉型必須發生在除法之前才有用。"><span class="opt-letter">(A)</span> 2</button>
       <button class="sq-opt" data-c="0" data-fb="不對。這是很多人以為的答案，但編譯器不會因為左邊是 double 就回頭改變右邊的算法。要拿到 2.5 得寫 static_cast&lt;double&gt;(x) / 4。"><span class="opt-letter">(B)</span> 2.5</button>
       <button class="sq-opt" data-c="0" data-fb="值確實是 2.0，但 cout 預設不印多餘的 0，所以螢幕上會看到 2。要固定印小數位得用 setprecision 搭配 fixed。"><span class="opt-letter">(C)</span> 2.0</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。把 int 指派給 double 是合法的隱式轉換，完全編得過。這正是這個坑危險的地方：沒有任何錯誤訊息。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。把 int 指派給 double 是合法的隱式轉換，完全編得過。這個錯誤不容易察覺，因為沒有任何錯誤訊息。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
@@ -1569,7 +1569,7 @@ cout &lt;&lt; y &lt;&lt; endl;</pre>
       <button class="sq-opt" data-c="1" data-fb="正確。C++ 從左邊算起：10 &lt; 5 得到 false，也就是 0；接著算 0 &lt; 3，成立，所以是 true。要表達範圍檢查一定要寫成 (5 &lt; x) &amp;&amp; (x &lt; 10)。"><span class="opt-letter">(A)</span> true</button>
       <button class="sq-opt" data-c="0" data-fb="不對。C++ 不會把連續比較自動展開成兩個條件，只會從左到右兩兩比較。"><span class="opt-letter">(B)</span> false</button>
       <button class="sq-opt" data-c="0" data-fb="值確實是真，但這行先丟了 boolalpha 進 cout，之後的 bool 就會印成 true 或 false 而不是 1 或 0。"><span class="opt-letter">(C)</span> 1</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這行完全合法，這正是它危險的地方。編譯器只看到兩個合法的比較運算，不會知道你想寫的是範圍檢查。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這行完全合法，因此編譯器不會提醒你。它只看到兩個合法的比較運算，不會知道你想寫的是範圍檢查。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
@@ -1774,7 +1774,7 @@ const PIPE_STAGES = [
 ];
 
 /* 這些數字是在同一台機器上對本頁那支 hello world 實際量到的 */
-const PIPE_FACTS = {srcLines: 9, iLines: 46577, sLines: 103, oBytes: 2936, exeBytes: 16696};
+const PIPE_FACTS = {srcLines: 9};
 
 function pipeBoxes(active) {
   return '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.4rem 0 .8rem;">' +
@@ -1805,21 +1805,21 @@ function pipeFlow(items, hi) {
 function pipeFrames() {
   const F = PIPE_FACTS;
   const A = [{f: 'main.cpp', d: F.srcLines + ' 行'}];
-  const B = A.concat([{f: 'main.i', d: F.iLines.toLocaleString() + ' 行'}]);
-  const C2 = B.concat([{f: 'main.s', d: F.sLines + ' 行組語'}]);
-  const D2 = C2.concat([{f: 'main.o', d: F.oBytes + ' bytes'}]);
-  const E2 = D2.concat([{f: 'main', d: (F.exeBytes / 1024).toFixed(1) + ' KB 可執行'}]);
+  const B = A.concat([{f: 'main.i', d: '前處理後文字，大小依環境'}]);
+  const C2 = B.concat([{f: 'main.s', d: '組合語言，大小依選項'}]);
+  const D2 = C2.concat([{f: 'main.o', d: '目的檔，大小依平台'}]);
+  const E2 = D2.concat([{f: 'main', d: '可執行檔，大小依平台'}]);
   return [
     {stage: -1, line: null, items: A, hi: 0,
      msg: '起點：一個文字檔。<strong>作業系統看不懂它</strong>，要先翻譯四次。'},
     {stage: 0, line: 1, items: B, hi: 1,
-     msg: `<strong>前處理</strong>：把 <code>#include</code> 的檔案整份貼進來、展開巨集、刪掉註解。輸入 ${F.srcLines} 行，產出 <code>main.i</code> 有 <strong>${F.iLines.toLocaleString()} 行</strong>——多出來的都是標準函式庫的宣告。這一階段還只是文字。`},
+     msg: `<strong>前處理</strong>：處理 <code>#include</code>、展開巨集並移除註解，產出文字形式的 <code>main.i</code>。它通常比原始碼大很多，實際行數取決於編譯器與標準函式庫。`},
     {stage: 1, line: 2, items: C2, hi: 2,
-     msg: `<strong>編譯</strong>：這裡才真正檢查語法與型別，<strong>你看到的 error 幾乎都是這一階段噴的</strong>。產出 <code>main.s</code>，${F.sLines} 行組合語言——人還讀得懂，但已經是給 CPU 的指令了。`},
+     msg: `<strong>編譯</strong>：這裡會檢查語法與型別，許多 <code>error</code> 都在這一階段產生。輸出的 <code>main.s</code> 是組合語言；內容與行數會隨編譯器和選項改變。`},
     {stage: 2, line: 3, items: D2, hi: 3,
-     msg: `<strong>組譯</strong>：把組合語言翻成機器碼，產出目的檔 <code>main.o</code>（${F.oBytes} bytes 的二進位）。此時 <code>cout</code> 還只是一個「待補的名字」，實作不在這個檔裡。`},
+     msg: `<strong>組譯</strong>：把組合語言翻成機器碼，產出二進位目的檔 <code>main.o</code>。檔案大小依平台與編譯選項而異；此時仍可能有待連結的外部符號。`},
     {stage: 3, line: 4, items: E2, hi: 4,
-     msg: `<strong>連結</strong>：把 <code>main.o</code> 跟標準函式庫接起來，補上 <code>cout</code>、<code>sqrt</code> 的真正位址，產出可執行檔（${(F.exeBytes / 1024).toFixed(1)} KB）。<strong>undefined reference 就是在這裡噴的</strong>。`},
+     msg: `<strong>連結</strong>：把 <code>main.o</code> 與需要的函式庫組合，解析 <code>cout</code>、<code>sqrt</code> 等外部符號，產出大小依平台而異的可執行檔。<strong><code>undefined reference</code> 是這一階段的診斷</strong>。`},
     {stage: 4, line: null, items: E2, hi: 4,
      msg: `四階段結束。<code>./main</code> 執行的是最後那個檔，跟 <code>main.cpp</code> 已經沒有關係了——所以<strong>改完程式碼一定要重新編譯</strong>，不然跑的還是舊版本。`},
   ];
@@ -1849,23 +1849,23 @@ const TYPES = [
   {n: 'bool',   b: 1, lo: null, hi: null, range: 'true / false',
    note: '只有兩個值，但仍然佔一整個 byte（記憶體最小的定址單位就是 byte）。',
    over: '把 42 指派給 bool 會得到 true——所有非零都是 true。'},
-  {n: 'char',   b: 1, lo: -128, hi: 127, range: '-128 ~ 127',
-   note: '本質是一個小整數，存的是字元的 ASCII 碼。單引號寫法 \'A\' 就是 65。',
-   over: "char c = 127; c = c + 1;（或 c++）會繞回 -128。這也是為什麼比較字元大小要小心。"},
+  {n: 'char',   b: 1, lo: -128, hi: 127, range: '本頁環境：-128 ~ 127',
+   note: '可保存字元編碼單位；本頁環境的 ASCII 字元 \'A\' 對應 65。char 是否帶正負號依實作而定。',
+   over: '超出 char 可表示範圍後的轉換結果依實作而定，不能把繞回某個固定值當成通則。'},
   {n: 'short',  b: 2, lo: -32768, hi: 32767, range: '-32,768 ~ 32,767',
-   note: '省記憶體用的，這門課幾乎用不到。省下的 2 bytes 通常不值得多想一次。',
-   over: '32,767 + 1 繞回 -32,768。'},
+   note: '可表示的整數範圍通常比 int 小；是否適合使用，要看資料範圍與儲存需求。',
+   over: 'short 參與算術時通常先提升為 int；轉回 short 若超出範圍，結果依實作而定。'},
   {n: 'int',    b: 4, lo: -2147483648, hi: 2147483647, range: '-2,147,483,648 ~ 2,147,483,647',
-   note: '整數的預設選擇。二十一億出頭，日常夠用，但乘法很容易爆。',
+   note: '一般整數運算常用的型別；計算前仍須確認中間結果與最後結果是否在範圍內。',
    over: 'INT_MAX + 1 得到 -2,147,483,648。標準說這是未定義行為，只是這台機器剛好這樣繞。'},
   {n: 'unsigned int', b: 4, lo: 0, hi: 4294967295, range: '0 ~ 4,294,967,295',
    note: '不存負數，換到多一倍的正數範圍。vector 的 size() 回傳的就是這一類。',
    over: '0u - 1 得到 4,294,967,295。這個繞回是標準規定的，所以 for (unsigned i = n - 1; i >= 0; i--) 會變成無窮迴圈。'},
   {n: 'long long', b: 8, lo: null, hi: null, range: '約 ±9.22 × 10^18',
    note: '整數計算可能超過 int 範圍時，可先選擇範圍更大的整數型別；實際範圍仍以平台為準。',
-   over: '要爆掉得算到 9 百京，實務上碰不到。'},
+   over: '範圍比常見的 32 位元 int 大，但運算前仍須確認結果不會超出上限。'},
   {n: 'float',  b: 4, lo: null, hi: null, range: '約 6 位有效數字',
-   note: '精度太低，累加幾千次就明顯失真。這門課不要用。',
+   note: '通常提供約 6 至 7 位十進位有效數字；是否足夠取決於資料尺度與誤差需求。',
    over: '16777216.0f + 1.0f == 16777216.0f 是 true——float 只有約 7 位有效數字，大整數加 1 會被吃掉。'},
   {n: 'double', b: 8, lo: null, hi: null, range: '約 15 位有效數字',
    note: '小數的預設選擇。cout 預設只印 6 位有效數字，要更多要設 setprecision。',
@@ -1919,7 +1919,7 @@ function typePick(k) { typeIdx = k; typeRender(); }
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "將 C++ 原始碼翻譯成目的碼的工具，例如 g++。語法與許多型別錯誤會在程式執行前被檢查出來；執行期仍可能發生輸入錯誤或未定義行為。"}, {"front": "直譯器（Interpreter）", "back": "在執行時處理程式的實作方式。常見 Python 實作先編譯成位元碼再執行，不能簡化成純粹逐行翻譯；錯誤何時被發現與效能取決於實作和程式內容。"}, {"front": "前處理（Preprocessing）", "back": "在編譯前處理 #include、巨集與條件編譯。引入標準標頭可能展開大量內容，實際行數取決於編譯器與標準函式庫版本。"}, {"front": "標頭檔（Header File）", "back": "放宣告用的檔案，副檔名通常是 .h 或 .hpp。用 #include 引進來之後編譯器才認得裡面的名字；專案自己的標頭通常用雙引號引用。"}, {"front": "目的檔（Object File）", "back": "通常由組譯階段產生，常見副檔名 .o。包含機器碼與符號等資訊，通常須連結其他目的檔和函式庫，才能成為可執行程式。"}, {"front": "連結器（Linker）", "back": "把目的檔與需要的函式庫組合，解析外部符號並產生執行檔。找不到定義時可能出現 undefined reference；訊息格式與是否附行號依工具而定。"}, {"front": "命名空間（Namespace）", "back": "用來組織名稱、降低名稱衝突的機制。標準函式庫的 cout 位於 std 命名空間，完整名稱是 std::cout；using namespace std; 會讓其中的名稱參與未限定名稱查找。"}, {"front": "進入點（Entry Point）", "back": "程式開始執行的地方。C++ 規定入口函式叫 int main()，執行環境會從這裡開始，一支程式只能有一個。"}, {"front": "結束碼（Exit Status）", "back": "main 的 return 值，回報給作業系統看程式跑得順不順。0 代表正常結束，非 0 代表出錯。shell 腳本會用這個值決定要不要繼續往下做。"}, {"front": "靜態型別（Static Typing）", "back": "變數的型別在編譯時就決定、之後不能換。型別錯誤能在編譯階段被抓到，宣告時也必須明確指定型別或使用 auto 推導。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "例如未給初值的區域 int x;。在本頁採用的 C++17 中讀取其不確定值會造成未定義行為，不能把結果當成固定的垃圾值；應在使用前初始化或賦值。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準明講「這種寫法的結果我不管」的情況，例如讀未初始化的變數、有號整數溢位、解參考空指標。編譯器可以做任何事，包括看起來剛好正確，所以這種 bug 最難抓。"}, {"front": "大小運算子（sizeof）", "back": "取得型別或物件的大小，單位是 C++ byte。sizeof(char) 保證為 1，int、double 與指標的大小依實作而定；陣列的 sizeof(a) / sizeof(a[0]) 可計算其元素個數。"}, {"front": "整數除法（Integer Division）", "back": "C++ 的 / 只要兩邊都是整數就截掉小數，7 / 2 得到 3。截斷方向是往零，所以 -7 / 2 是 -3。要浮點結果得先把一邊轉成 double。"}, {"front": "取餘數運算子（Modulo, %）", "back": "% 取得整數除法的餘數，例如 17 % 5 得到 2，可用來判斷是否整除或分組後剩下幾個。除數不能是 0；負數的餘數可能是負的。"}, {"front": "後置遞增（Post-increment）", "back": "i++ 先把舊值交出去、之後才加一；++i 則是先加再交出新值。單獨當一行敘述時兩者沒差別，差別只出現在把它塞進別的式子裡的時候。"}, {"front": "隱式型別轉換（Implicit Conversion）", "back": "在特定語境自動進行的型別轉換，並不只限於由窄轉寬。例如 7 / 2.0 先把 7 轉成 double；double avg = 7 / 2; 則先做整數除法，再把 3 轉成 3.0。"}, {"front": "靜態轉型（static_cast）", "back": "明確指定轉型，例如 static_cast<double>(a) / b 可先將 a 轉成浮點數。若寫 static_cast<double>(a / b)，整數除法已經完成，失去的小數無法恢復。"}, {"front": "整數溢位（Integer Overflow）", "back": "運算結果超出型別的表示範圍。有號整數溢位是未定義行為，不能保證翻成負數；無號整數則依其位數作模數運算。使用較寬型別前仍須確認結果能容納，並在運算前轉型。"}, {"front": "輸出串流（Output Stream, cout）", "back": "標準輸出的物件，用 << 把資料推進去，可以一直串下去。它不會自動加空格，要空格自己寫。endl 除了換行還會清空緩衝區，輸出量大時改用 '\\n' 會快很多。"}, {"front": "C 風格輸出（printf）", "back": "格式字串輸出：%d 對應 int、%s 對應 C 字串、%f 對應 double、%lld 對應 long long；std::string 要用 .c_str()。格式與引數型別必須一致，並引入 <cstdio>。"}, {"front": "亂數（rand / srand）", "back": "rand() 產生 0 到 RAND_MAX 的偽亂數，srand(seed) 設定種子。同一實作使用相同種子會重現相同序列；rand() % 6 + 1 落在 1 到 6，但通常有取餘數偏差，不保證均勻。time(0) 在同一秒可能給相同種子。"}];
+const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "將 C++ 原始碼翻譯成目的碼的工具，例如 g++。語法與許多型別錯誤會在程式執行前被檢查出來；執行期仍可能發生輸入錯誤或未定義行為。"}, {"front": "直譯器（Interpreter）", "back": "在執行時處理程式的實作方式。常見 Python 實作先編譯成位元碼再執行，不能簡化成純粹逐行翻譯；錯誤何時被發現與效能取決於實作和程式內容。"}, {"front": "前處理（Preprocessing）", "back": "在編譯前處理 #include、巨集與條件編譯。引入標準標頭可能展開大量內容，實際行數取決於編譯器與標準函式庫版本。"}, {"front": "標頭檔（Header File）", "back": "放宣告用的檔案，副檔名通常是 .h 或 .hpp。用 #include 引進來之後編譯器才認得裡面的名字；專案自己的標頭通常用雙引號引用。"}, {"front": "目的檔（Object File）", "back": "通常由組譯階段產生，常見副檔名 .o。包含機器碼與符號等資訊，通常須連結其他目的檔和函式庫，才能成為可執行程式。"}, {"front": "連結器（Linker）", "back": "把目的檔與需要的函式庫組合，解析外部符號並產生執行檔。找不到定義時可能出現 undefined reference；訊息格式與是否附行號依工具而定。"}, {"front": "命名空間（Namespace）", "back": "用來組織名稱、降低名稱衝突的機制。標準函式庫的 cout 位於 std 命名空間，完整名稱是 std::cout；using namespace std; 會讓其中的名稱參與未限定名稱查找。"}, {"front": "進入點（Entry Point）", "back": "程式開始執行的地方。C++ 規定入口函式叫 int main()，執行環境會從這裡開始，一支程式只能有一個。"}, {"front": "結束碼（Exit Status）", "back": "main 的 return 值，回報給作業系統看程式跑得順不順。0 代表正常結束，非 0 代表出錯。shell 腳本會用這個值決定要不要繼續往下做。"}, {"front": "靜態型別（Static Typing）", "back": "變數的型別在編譯時就決定、之後不能換。型別錯誤能在編譯階段被抓到，宣告時也必須明確指定型別或使用 auto 推導。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "例如未給初值的區域 int x;。在本頁採用的 C++17 中讀取其不確定值會造成未定義行為，不能把結果當成固定的殘值；應在使用前初始化或賦值。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準不規定結果的操作，例如讀未初始化的變數、有號整數溢位、解參考空指標。程式可能看起來剛好正確，也可能出現其他結果，因此不能用一次試跑判定程式正確。"}, {"front": "大小運算子（sizeof）", "back": "取得型別或物件的大小，單位是 C++ byte。sizeof(char) 保證為 1，int、double 與指標的大小依實作而定；陣列的 sizeof(a) / sizeof(a[0]) 可計算其元素個數。"}, {"front": "整數除法（Integer Division）", "back": "C++ 的 / 只要兩邊都是整數就截掉小數，7 / 2 得到 3。截斷方向是往零，所以 -7 / 2 是 -3。要浮點結果得先把一邊轉成 double。"}, {"front": "取餘數運算子（Modulo, %）", "back": "% 取得整數除法的餘數，例如 17 % 5 得到 2，可用來判斷是否整除或分組後剩下幾個。除數不能是 0；負數的餘數可能是負的。"}, {"front": "後置遞增（Post-increment）", "back": "i++ 先把舊值交出去、之後才加一；++i 則是先加再交出新值。單獨當一行敘述時兩者沒差別，差別只出現在把它塞進別的式子裡的時候。"}, {"front": "隱式型別轉換（Implicit Conversion）", "back": "在特定語境自動進行的型別轉換，並不只限於由窄轉寬。例如 7 / 2.0 先把 7 轉成 double；double avg = 7 / 2; 則先做整數除法，再把 3 轉成 3.0。"}, {"front": "靜態轉型（static_cast）", "back": "明確指定轉型，例如 static_cast<double>(a) / b 可先將 a 轉成浮點數。若寫 static_cast<double>(a / b)，整數除法已經完成，失去的小數無法恢復。"}, {"front": "整數溢位（Integer Overflow）", "back": "運算結果超出型別的表示範圍。有號整數溢位是未定義行為，不能保證翻成負數；無號整數則依其位數作模數運算。使用較寬型別前仍須確認結果能容納，並在運算前轉型。"}, {"front": "輸出串流（Output Stream, cout）", "back": "標準輸出的物件，用 << 把資料推進去，可以一直串下去。它不會自動加空格，要空格自己寫。endl 除了換行還會清空緩衝區，輸出量大時改用 '\\n' 會快很多。"}, {"front": "C 風格輸出（printf）", "back": "格式字串輸出：%d 對應 int、%s 對應 C 字串、%f 對應 double、%lld 對應 long long；std::string 要用 .c_str()。格式與引數型別必須一致，並引入 <cstdio>。"}, {"front": "亂數（rand / srand）", "back": "rand() 產生 0 到 RAND_MAX 的偽亂數，srand(seed) 設定種子。同一實作使用相同種子會重現相同序列；rand() % 6 + 1 落在 1 到 6，但通常有取餘數偏差，不保證均勻。time(0) 在同一秒可能給相同種子。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

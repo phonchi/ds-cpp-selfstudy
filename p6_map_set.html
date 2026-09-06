@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>map 與 set — 先備 P6（C++）</title>
+<title>map、set 與迭代器 — 先備 P6（C++）</title>
 <script>
   MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
 </script>
@@ -462,173 +462,352 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <style>
 @media (max-width: 760px) { .float-nav { display: none; } }
 </style>
+
+<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body>
-<nav class="float-nav" id="floatNav"><div class="fn-title">章節導覽</div><a href="#map" data-target="map">map</a><a href="#missing" data-target="missing">缺少的鍵</a><a href="#pair" data-target="pair">pair 與走訪</a><a href="#edit" data-target="edit">insert / erase</a><a href="#set" data-target="set">set</a><a href="#practice" data-target="practice">互動</a><a href="#reference" data-target="reference">速查表</a><a href="#bankquiz" data-target="bankquiz">自我檢測</a><a href="#cards" data-target="cards">詞彙卡</a><a href="#top">↑ TOP</a></nav>
-<div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P6</div><h1><span class="blue">map</span> 與 <span class="green">set</span></h1><div class="subtitle">用商品名稱查價格，用報名名單自動排除重複</div><div class="big-formula">鍵 → 值 ｜ 不重複的集合</div><div class="scroll-hint">向下捲動開始學習<span>↓</span></div></div></div>
-<div class="container"><div class="study-guide"><div class="sg-title">📌 本頁使用方式</div><p>先讀語法說明，再預測範例結果；操作互動後完成自我檢測。</p><p><strong>學習目標：</strong>你會用 <code>map</code> 依鍵讀寫資料、走訪鍵值配對，並用 <code>set</code> 保存不重複的值。</p><div class="sg-links"><a href="p5_vector_string.html">← P5 vector 與 string</a><a href="index.html">🏠 章節總覽</a><a href="p7_files_exceptions.html">P7 檔案與例外 →</a></div></div>
-<div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#map" data-target="map">map 宣告與讀寫</a><a href="#missing" data-target="missing">缺少的鍵</a><a href="#pair" data-target="pair">pair 與走訪</a><a href="#edit" data-target="edit">insert 與 erase</a><a href="#set" data-target="set">set 去重</a><a href="#practice">互動練習</a><a href="#reference">速查表</a><a href="#bankquiz">自我檢測</a><a href="#cards">詞彙卡</a></div></div>
-
-<section id="map"><div class="section-number">PART 01 · map</div><h2>用有意義的鍵查到對應值</h2><p>陣列與 <code>vector</code> 用數字索引；商品價格更適合用商品名稱查詢。<code>map&lt;string, int&gt;</code> 的第一個型別是鍵，第二個型別是值。使用前引入 <code>&lt;map&gt;</code>。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="咖啡 55 元&#10;茶 40 元">#include &lt;iostream&gt;
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#model" data-target="model"><span class="fn-num">01</span><span class="fn-name">鍵值與唯一集合的資料模型</span></a><a href="#iterator" data-target="iterator"><span class="fn-num">02</span><span class="fn-name">map iterator、pair 與箭頭</span></a><a href="#lookup" data-target="lookup"><span class="fn-num">03</span><span class="fn-name">[] 的副作用與 count、find、at</span></a><a href="#bindings" data-target="bindings"><span class="fn-num">04</span><span class="fn-name">從 auto [k,v] 到 structured bindings</span></a><a href="#choice" data-target="choice"><span class="fn-num">05</span><span class="fn-name">ordered 與 unordered：需求、順序、成本</span></a><a href="#erase" data-target="erase"><span class="fn-num">06</span><span class="fn-name">find、半開區間與安全 erase</span></a><a href="#counting" data-target="counting"><span class="fn-num">07</span><span class="fn-name">完整應用一：頻率計數</span></a><a href="#dedupe" data-target="dedupe"><span class="fn-num">08</span><span class="fn-name">完整應用二：去重與順序</span></a><a href="#grouping" data-target="grouping"><span class="fn-num">09</span><span class="fn-name">完整應用三：一對多分組</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">語法速查與選擇檢核</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P6</div><h1>map、set 與迭代器</h1><div class="subtitle">用鍵查值、去重、計數與分組</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#model"><span class="toc-num">01</span>鍵值與唯一集合的資料模型</a><a href="#iterator"><span class="toc-num">02</span>map iterator、pair 與箭頭</a><a href="#lookup"><span class="toc-num">03</span>[] 的副作用與 count、find、at</a><a href="#bindings"><span class="toc-num">04</span>從 auto [k,v] 到 structured bindings</a><a href="#choice"><span class="toc-num">05</span>ordered 與 unordered：需求、順序、成本</a><a href="#erase"><span class="toc-num">06</span>find、半開區間與安全 erase</a><a href="#counting"><span class="toc-num">07</span>完整應用一：頻率計數</a><a href="#dedupe"><span class="toc-num">08</span>完整應用二：去重與順序</a><a href="#grouping"><span class="toc-num">09</span>完整應用三：一對多分組</a><a href="#reference"><span class="toc-num">10</span>語法速查與選擇檢核</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a></div></div><section id="model"><div class="section-number">PART 01</div><h2>鍵值與唯一集合的資料模型</h2>
+<p>當資料的核心問題是「用鍵找值」或「某個值是否出現過」，map/set 比在 vector 中逐項掃描更直接。<code>map&lt;K,V&gt;</code> 把唯一鍵 K 對應到值 V；<code>set&lt;K&gt;</code> 只保存唯一鍵。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>容器</th><th>保存內容</th><th>例子</th></tr></thead><tbody><tr><td><code>map&lt;string,int&gt;</code></td><td>鍵與值</td><td>品名 → 庫存</td></tr><tr><td><code>set&lt;string&gt;</code></td><td>唯一鍵</td><td>已使用的帳號</td></tr><tr><td><code>unordered_map&lt;K,V&gt;</code></td><td>鍵值、無排序保證</td><td>大量快速查表</td></tr><tr><td><code>unordered_set&lt;K&gt;</code></td><td>唯一鍵、無排序保證</td><td>大量 membership 檢查</td></tr></tbody></table></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="3&#10;2&#10;">#include &lt;iostream&gt;
 #include &lt;map&gt;
-#include &lt;string&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-int main() {
-    map&lt;string, int&gt; price;
-    price["咖啡"] = 55;
-    price["茶"] = 40;
-    cout &lt;&lt; "咖啡 " &lt;&lt; price["咖啡"] &lt;&lt; " 元\n";
-    cout &lt;&lt; "茶 " &lt;&lt; price["茶"] &lt;&lt; " 元";
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>咖啡 55 元
-茶 40 元</pre></div><p class="dx-note"><code>price[key]</code> 可放在等號左邊寫入，也可放在運算式中讀取。</p></section>
-
-<section id="missing"><div class="section-number">PART 02 · 查詢</div><h2><code>m[key]</code> 遇到不存在的鍵，會新增一筆</h2><p>對不存在的鍵使用 <code>[]</code> 時，<code>map</code> 會建立該鍵；若值型別是 <code>int</code>，新值是 <code>0</code>。因此只想問「有沒有」時，應使用 <code>count(key)</code>。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="查詢前 1 筆&#10;牛奶不存在&#10;查詢後 1 筆">#include &lt;iostream&gt;
-#include &lt;map&gt;
-#include &lt;string&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-int main() {
-    map&lt;string, int&gt; price = {{"茶", 40}};
-    cout &lt;&lt; "查詢前 " &lt;&lt; price.size() &lt;&lt; " 筆\n";
-    if (price.count("牛奶") == 0) cout &lt;&lt; "牛奶不存在\n";
-    cout &lt;&lt; "查詢後 " &lt;&lt; price.size() &lt;&lt; " 筆";
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>查詢前 1 筆
-牛奶不存在
-查詢後 1 筆</pre></div>
-<div class="info-box"><div class="info-label">兩種意圖要分清楚</div><p><code>m[key]</code> 表示「我要取得或建立這筆資料」；<code>m.count(key)</code> 表示「我只想確認是否存在」。後者不改變容器。</p></div></section>
-
-<section id="pair"><div class="section-number">PART 03 · pair 與走訪</div><h2>先認識一對資料，再走訪整張表</h2><p><code>pair&lt;string, int&gt;</code> 把兩個值放在一起。<code>first</code> 與 <code>second</code> 是資料成員，不是函式，所以後面沒有 <code>()</code>。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="茶:40">#include &lt;iostream&gt;
-#include &lt;string&gt;
-#include &lt;utility&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-int main() {
-    pair&lt;string, int&gt; item = {"茶", 40};
-    cout &lt;&lt; item.first &lt;&lt; ":" &lt;&lt; item.second;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>茶:40</pre></div>
-<p>走訪 <code>map</code> 時，每次取得一個鍵值配對。P5 已介紹 <code>const auto&amp;</code>：由編譯器推得配對型別、直接讀取原資料，並禁止修改。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="咖啡:55&#10;茶:40&#10;">#include &lt;iostream&gt;
-#include &lt;map&gt;
-#include &lt;string&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-int main() {
-    map&lt;string, int&gt; price = {{"咖啡", 55}, {"茶", 40}};
-    for (const auto&amp; entry : price) {
-        cout &lt;&lt; entry.first &lt;&lt; ":" &lt;&lt; entry.second &lt;&lt; "\n";
-    }
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>咖啡:55
-茶:40
-</pre></div>
-<p class="dx-note"><code>map</code> 走訪時依鍵的順序輸出，不保證保留加入順序；<code>set</code> 走訪也依值的順序輸出。</p></section>
-
-<section id="edit"><div class="section-number">PART 04 · 新增與刪除</div><h2><code>insert</code> 加入配對，<code>erase</code> 依鍵移除</h2><p><code>insert({"果汁", 45})</code> 加入一組鍵值；若鍵已存在，<code>insert</code> 不會覆寫原值。要更新既有值可用 <code>price["果汁"] = 50;</code>。<code>erase("茶")</code> 移除指定鍵；刪除不存在的鍵不會新增資料。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="咖啡存在&#10;剩下 2 筆">#include &lt;iostream&gt;
-#include &lt;map&gt;
-#include &lt;string&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-int main() {
-    map&lt;string, int&gt; price = {{"咖啡", 55}, {"茶", 40}};
-    price.insert({"果汁", 45});
-    if (price.count("咖啡") == 1) cout &lt;&lt; "咖啡存在\n";
-    price.erase("茶");
-    cout &lt;&lt; "剩下 " &lt;&lt; price.size() &lt;&lt; " 筆";
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>咖啡存在
-剩下 2 筆</pre></div></section>
-
-<section id="set"><div class="section-number">PART 05 · set</div><h2>只在乎「有哪些」，並且每個值只留一份</h2><p><code>set&lt;string&gt;</code> 保存不重複的字串。以 <code>insert(value)</code> 加入、<code>count(value)</code> 查詢、<code>erase(value)</code> 刪除；重複加入同一值不會增加項目數。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="有效報名 2 人&#10;小安已報名">#include &lt;iostream&gt;
 #include &lt;set&gt;
 #include &lt;string&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
+using namespace std;
 int main() {
-    set&lt;string&gt; names;
-    names.insert("小安");
-    names.insert("小美");
-    names.insert("小安");
-    cout &lt;&lt; "有效報名 " &lt;&lt; names.size() &lt;&lt; " 人\n";
-    if (names.count("小安") == 1) cout &lt;&lt; "小安已報名";
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>有效報名 2 人
-小安已報名</pre></div></section>
+    map&lt;string,int&gt; stock{{&quot;tea&quot;,3},{&quot;rice&quot;,8}};
+    set&lt;string&gt; tags{&quot;sale&quot;,&quot;new&quot;,&quot;sale&quot;};
+    cout &lt;&lt; stock[&quot;tea&quot;] &lt;&lt; &#x27;\n&#x27;;
+    cout &lt;&lt; tags.size() &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3&#10;2&#10;</pre></div>
+<p>map 的每個鍵只出現一次；set 也只保留唯一鍵，因此重複的 sale 被去除。尖括號依序指定鍵與值的型別。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>要保存「學號 → 姓名」與「已報到學號」，各用什麼型別？</p><details><summary>看解答與理由</summary><p>前者用 <code>map&lt;string,string&gt;</code>，後者用 <code>set&lt;string&gt;</code>。</p></details></div>
 
-<section id="practice"><div class="section-number">PART 06 · 互動練習</div><h2>同時觀察 map 缺鍵與 set 重複加入</h2><p id="mapNote">從一筆價格和一位報名者開始。</p><div id="mapStage" class="info-box"></div><div class="player-controls"><button id="mapPrev">◀ 上一步</button><button id="mapPlay">▶ 播放</button><button id="mapNext">下一步 ▶</button><button id="mapReset">↺ 重設</button></div><div id="mapStatus" class="player-status"></div></section>
-<section id="reference"><div class="section-number">REF · 速查表</div><h2>P6 語法速查</h2><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>語法</th></tr></thead><tbody><tr><td>依鍵讀寫</td><td><code>m[key]</code></td></tr><tr><td>只查存在</td><td><code>count(key)</code></td></tr><tr><td>新增／刪除</td><td><code>insert</code> ／ <code>erase</code></td></tr><tr><td>讀 pair</td><td><code>entry.first</code> ／ <code>entry.second</code></td></tr><tr><td>不重複集合</td><td><code>set&lt;T&gt;</code></td></tr></tbody></table></div></section>
+</section>
+<section id="iterator"><div class="section-number">PART 02</div><h2>map iterator、pair 與箭頭</h2>
+<p>P5 已把 iterator 定義成容器位置。map 的 iterator 指向一筆「鍵和值的配對」。<code>*it</code> 取得整個 pair；pair 有 <code>first</code> 與 <code>second</code> 成員，所以 <code>(*it).first</code> 是鍵、<code>(*it).second</code> 是值。</p>
+<h3>箭頭只是縮寫，不需要先學自己寫 class</h3>
+<p><code>it-&gt;first</code> 完全等價於 <code>(*it).first</code>；箭頭表示「先對 it 解參考，再用點號取成員」。這裡只需知道標準庫 pair 已有 first/second；自己定義 class 到 P8 再學。map 的鍵視為唯讀，不能透過 iterator 改 first，否則會破壞排序／雜湊位置；second 可以改。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="apple:35 bread:50 &#10;">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    map&lt;string,int&gt; price{{&quot;apple&quot;,30},{&quot;bread&quot;,45}};
+    for (auto it=price.begin(); it!=price.end(); ++it) {
+        it-&gt;second += 5;
+        cout &lt;&lt; (*it).first &lt;&lt; &#x27;:&#x27; &lt;&lt; it-&gt;second &lt;&lt; &#x27; &#x27;;
+    }
+    cout &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>apple:35 bread:50 &#10;</pre></div>
+<p>begin 指排序後第一筆，end 是尾後哨兵，區間仍是 [begin,end)。每輪先把值加 5，再印鍵和值。map 依鍵排序，所以 apple 先於 bread。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>把 <code>it-&gt;second</code> 不用箭頭改寫。</p><details><summary>看解答與理由</summary><p><code>(*it).second</code>。括號必要，確保先解參考再取成員。</p></details></div>
+
+</section>
+<section id="lookup"><div class="section-number">PART 03</div><h2>[] 的副作用與 count、find、at</h2>
+<p><code>m[k]</code> 看起來像查詢，其實在鍵不存在時會插入 k，並把值做 value initialization：int 得 0、string 得空字串、vector 得空容器。這使計數很方便，也會讓純查詢意外改動資料。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>寫法</th><th>找不到時</th></tr></thead><tbody><tr><td>要寫入／計數</td><td><code>m[k]</code></td><td>插入預設值</td></tr><tr><td>只問是否存在</td><td><code>m.count(k)</code></td><td>回 0，不插入</td></tr><tr><td>找位置並使用</td><td><code>m.find(k)</code></td><td>回 end，不插入</td></tr><tr><td>必須存在才取值</td><td><code>m.at(k)</code></td><td>丟 out_of_range，不插入</td></tr></tbody></table></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="0 2&#10;0 2&#10;3&#10;">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    map&lt;string,int&gt; stock{{&quot;tea&quot;,3}};
+    cout &lt;&lt; stock[&quot;coffee&quot;] &lt;&lt; &quot; &quot; &lt;&lt; stock.size() &lt;&lt; &#x27;\n&#x27;;
+    cout &lt;&lt; stock.count(&quot;juice&quot;) &lt;&lt; &quot; &quot; &lt;&lt; stock.size() &lt;&lt; &#x27;\n&#x27;;
+    auto it=stock.find(&quot;tea&quot;);
+    if (it != stock.end()) cout &lt;&lt; it-&gt;second &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0 2&#10;0 2&#10;3&#10;</pre></div>
+<p>第一個 [] 建立 coffee→0，所以 size 變 2；count 只回 0，size 不變。find 找到 tea 後才讀值。若只是檢查存在，別寫 <code>if (m[k])</code>：它既插入，又把「存在但值為 0」誤判為不存在。</p>
+<pre class="pseudo-code" data-cpp="fragment">cout &lt;&lt; stock.at(&quot;juice&quot;); // 錯誤示例：丟 out_of_range；完整捕捉方式見 P7</pre>
+<div class="info-box warm"><div class="info-label">界線</div><p>at 的報錯模式與 vector::at 相同概念：以例外回報鍵不存在。P7 才完整教 try/catch，本頁不執行這段錯誤片段。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>庫存可以合法等於 0，如何判斷 tea 這個鍵存在？</p><details><summary>看解答與理由</summary><p>用 <code>stock.count("tea") != 0</code> 或 <code>stock.find("tea") != stock.end()</code>，不要把值當存在性。</p></details></div>
+
+</section>
+<section id="bindings"><div class="section-number">PART 04</div><h2>從 auto [k,v] 到 structured bindings</h2>
+<p>C++17 的 structured binding 可以把 pair 拆成有名字的兩部分。先看單筆：<code>auto [k,v] = *m.begin();</code> 建立 k、v 兩個複製值。放入範圍 for 時，<code>for (const auto&amp; [k,v] : m)</code> 逐筆以唯讀參考綁定，避免複製。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="Amy=2&#10;Amy:3 Bo:2 &#10;">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    map&lt;string,int&gt; cups{{&quot;Amy&quot;,2},{&quot;Bo&quot;,1}};
+    auto [firstName, firstCups] = *cups.begin();
+    cout &lt;&lt; firstName &lt;&lt; &#x27;=&#x27; &lt;&lt; firstCups &lt;&lt; &#x27;\n&#x27;;
+    for (auto&amp; [name,count] : cups) count += 1;
+    for (const auto&amp; [name,count] : cups) cout &lt;&lt; name &lt;&lt; &#x27;:&#x27; &lt;&lt; count &lt;&lt; &#x27; &#x27;;
+    cout &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Amy=2&#10;Amy:3 Bo:2 &#10;</pre></div>
+<p>第一個 auto [..] 是複製，不會連動原 map。第一個範圍 for 使用 auto&，因此 count 代表真實 second，可以修改；第二個使用 const auto&，適合只讀。鍵 name 仍不能修改。</p>
+<div class="info-box warm"><div class="info-label">反例</div><p><code>for (auto [k,v] : m) ++v;</code> 只改每筆複製品，map 不變。要改值用 <code>auto&amp; [k,v]</code>。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>只讀輸出 map，兼顧不複製與不可誤改，迴圈標頭怎麼寫？</p><details><summary>看解答與理由</summary><p><code>for (const auto&amp; [key,value] : m)</code>。</p></details></div>
+
+</section>
+<section id="choice"><div class="section-number">PART 05</div><h2>ordered 與 unordered：需求、順序、成本</h2>
+<p><code>map/set</code> 是 ordered 容器，依比較規則排序，查詢、插入、刪除保證 O(log n)。<code>unordered_map/unordered_set</code> 用雜湊，平均 O(1)，最壞可到 O(n)，且走訪順序沒有保證。選擇取決於需求，不是永遠選平均最快者。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>選擇</th><th>理由</th></tr></thead><tbody><tr><td>需要排序輸出／最小鍵／lower_bound</td><td>map 或 set</td><td>鍵保持順序，操作 O(log n)</td></tr><tr><td>只需快速查存在／鍵找值</td><td>unordered 版本</td><td>平均 O(1)，順序不保證</td></tr><tr><td>需要最壞情況 O(log n) 保證</td><td>map 或 set</td><td>樹的界線穩定</td></tr><tr><td>鍵沒有可用 hash</td><td>map/set 或自訂 hash</td><td>unordered 需要雜湊規則</td></tr></tbody></table></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="Mon:1 Tue:2 Wed:3 &#10;">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+using namespace std;
+int main() {
+    map&lt;string,int&gt; due{{&quot;Wed&quot;,3},{&quot;Mon&quot;,1},{&quot;Tue&quot;,2}};
+    for (const auto&amp; [day,n] : due) cout &lt;&lt; day &lt;&lt; &#x27;:&#x27; &lt;&lt; n &lt;&lt; &#x27; &#x27;;
+    cout &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Mon:1 Tue:2 Wed:3 &#10;</pre></div>
+<p>這個例子刻意需要有序輸出，因此用 map。若換 unordered_map，三筆都會保存，但輸出順序不可寫入測試期待，也不應觀察某次結果後當作規則。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>一百萬個識別碼只做「是否出現」，不需順序，預設選什麼？限制是？</p><details><summary>看解答與理由</summary><p>預設 <code>unordered_set</code>，平均 O(1)；限制是走訪順序不保證、最壞可退化 O(n)，且鍵需可雜湊。</p></details></div>
+
+</section>
+<section id="erase"><div class="section-number">PART 06</div><h2>find、半開區間與安全 erase</h2>
+<p>find 回傳 iterator；找到才能解參考。erase 有三種常見形式：<code>erase(key)</code> 回傳刪除筆數；<code>erase(it)</code> 在 C++11 起回傳下一個 iterator；<code>erase(first,last)</code> 刪左閉右開區間。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="2:75 4:90 &#10;">#include &lt;iostream&gt;
+#include &lt;map&gt;
+using namespace std;
+int main() {
+    map&lt;int,int&gt; score{{1,40},{2,75},{3,50},{4,90}};
+    for (auto it=score.begin(); it!=score.end(); ) {
+        if (it-&gt;second &lt; 60) it=score.erase(it);
+        else ++it;
+    }
+    for (const auto&amp; [id,s] : score) cout &lt;&lt; id &lt;&lt; &#x27;:&#x27; &lt;&lt; s &lt;&lt; &#x27; &#x27;;
+    cout &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2:75 4:90 &#10;</pre></div>
+<p>刪除目前節點只讓指向被刪元素的 iterator 失效；其他 map/set iterator 仍有效。這與 vector erase 使後段位置失效不同，但安全迴圈同樣採用回傳值。不要在 range-for 中直接刪當前元素，因為迴圈內部仍要推進自己的 iterator。</p>
+<div class="deck-extra lesson-trace" id="p6erase"><h3>互動：依值篩掉 map 項目</h3><p>追蹤 iterator 與容器；不會解參考 end。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">for (auto it=m.begin(); it!=m.end(); ) {</span>
+<span class="line">  if (it-&gt;second &lt; 60) it=m.erase(it);</span>
+<span class="line">  else ++it;</span>
+<span class="line">}</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "從鍵 1 開始，值 40 不及格。", "vars": {"m": "{1:40,2:75,3:50,4:90}", "it": "1:40"}, "line": 0, "output": ""}, {"note": "刪鍵 1，erase 回傳指向鍵 2 的 iterator。", "vars": {"m": "{2:75,3:50,4:90}", "it": "2:75"}, "line": 1, "output": ""}, {"note": "75 保留，++it 前進到鍵 3。", "vars": {"m": "{2:75,3:50,4:90}", "it": "3:50"}, "line": 2, "output": ""}, {"note": "刪鍵 3，回傳指向鍵 4。", "vars": {"m": "{2:75,4:90}", "it": "4:90"}, "line": 1, "output": ""}, {"note": "90 保留，前進到 end，結束。", "vars": {"m": "{2:75,4:90}", "it": "end()"}, "line": 2, "output": "2:75 4:90"}]</script></div>
+<div class="info-box warm"><div class="info-label">反例</div><p>find 失敗時 it==end；<code>it-&gt;second</code> 沒有有效物件可讀。比較 end 是合法的，解參考 end 才錯。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>刪除鍵 "draft" 並知道是否真的刪到，怎麼寫？</p><details><summary>看解答與理由</summary><p><code>size_t removed = m.erase("draft");</code>；map 鍵唯一，所以 removed 是 0 或 1。</p></details></div>
+
+</section>
+<section id="counting"><div class="section-number">PART 07</div><h2>完整應用一：頻率計數</h2>
+<p>計數是 map 最短也最實用的模式。因為不存在鍵的 <code>freq[word]</code> 先建立 0，接著 ++ 就得到 1；再次遇到則累加同一筆。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="apple:2 pear:3 tea:1 &#10;">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+int main() {
+    vector&lt;string&gt; words{&quot;pear&quot;,&quot;apple&quot;,&quot;pear&quot;,&quot;tea&quot;,&quot;apple&quot;,&quot;pear&quot;};
+    map&lt;string,int&gt; freq;
+    for (const string&amp; word : words) ++freq[word];
+    for (const auto&amp; [word,n] : freq) cout &lt;&lt; word &lt;&lt; &#x27;:&#x27; &lt;&lt; n &lt;&lt; &#x27; &#x27;;
+    cout &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>apple:2 pear:3 tea:1 &#10;</pre></div>
+<p>第一次 pear 建 0 再加成 1，之後加到 3。選 map 是因為最後希望按單字排序；若只查頻率且不要求順序，可用 unordered_map，計數程式本身不變。</p>
+<div class="deck-extra lesson-trace" id="p6freq"><h3>互動：[] 如何完成計數</h3><p>每一 frame 是處理一個單字後的真實 map 狀態。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">for (const string&amp; word : words) {</span>
+<span class="line">  ++freq[word];</span>
+<span class="line">}</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "尚未讀單字。", "vars": {"word": "—", "freq": "{}"}, "line": 0, "output": ""}, {"note": "pear 不存在，[] 建 0，再 ++ 成 1。", "vars": {"word": "pear", "freq": "{pear:1}"}, "line": 1, "output": ""}, {"note": "apple 不存在，建立並加成 1。", "vars": {"word": "apple", "freq": "{apple:1,pear:1}"}, "line": 1, "output": ""}, {"note": "pear 已存在，直接由 1 加成 2。", "vars": {"word": "pear", "freq": "{apple:1,pear:2}"}, "line": 1, "output": ""}, {"note": "其餘處理完成；map 依鍵排序輸出。", "vars": {"word": "pear", "freq": "{apple:2,pear:3,tea:1}"}, "line": 1, "output": "apple:2 pear:3 tea:1"}]</script></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>若輸出要保持第一次出現順序，只換 unordered_map 就可以嗎？</p><details><summary>看解答與理由</summary><p>不可以，unordered 也不保證插入順序。可另用 vector 記第一次出現的鍵，用 set/map 判斷與計數。</p></details></div>
+
+</section>
+<section id="dedupe"><div class="section-number">PART 08</div><h2>完整應用二：去重與順序</h2>
+<p>set 的 insert 自動忽略重複鍵，適合去重與 membership。若只需要不同項目且要排序結果，直接用 set；若要保留原始第一次出現順序，需要一個 seen set 加一個 output vector。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="red blue green &#10;">#include &lt;iostream&gt;
+#include &lt;set&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+int main() {
+    vector&lt;string&gt; input{&quot;red&quot;,&quot;blue&quot;,&quot;red&quot;,&quot;green&quot;,&quot;blue&quot;};
+    set&lt;string&gt; seen;
+    vector&lt;string&gt; unique;
+    for (const string&amp; x : input)
+        if (seen.insert(x).second) unique.push_back(x);
+    for (const string&amp; x : unique) cout &lt;&lt; x &lt;&lt; &#x27; &#x27;;
+    cout &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>red blue green &#10;</pre></div>
+<p><code>insert</code> 回傳 pair：first 是 iterator，second 是 bool，表示這次是否真的插入。只有第一次看到 x 時 second 為 true，才把它加入 unique，所以輸出保留第一次出現順序。</p>
+<div class="info-box warm"><div class="info-label">界線</div><p>只寫 <code>set&lt;string&gt; s(input.begin(),input.end())</code> 會得到排序後的唯一集合，無法保留第一次出現順序。需求不同，答案不同。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>只需排序後去重，怎麼簡化？</p><details><summary>看解答與理由</summary><p><code>set&lt;string&gt; unique(input.begin(), input.end());</code>，再走訪 set。這使用 [begin,end) 範圍建構。</p></details></div>
+
+</section>
+<section id="grouping"><div class="section-number">PART 09</div><h2>完整應用三：一對多分組</h2>
+<p>分組把同一鍵的多個值聚在一起，型別常是 <code>map&lt;K,vector&lt;V&gt;&gt;</code>。[] 找不到鍵時建立空 vector，接著 push_back；這次副作用正是我們要的。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="drink: tea&#10;fruit: pear apple&#10;">#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+int main() {
+    vector&lt;pair&lt;string,string&gt;&gt; records{{&quot;fruit&quot;,&quot;pear&quot;},{&quot;drink&quot;,&quot;tea&quot;},{&quot;fruit&quot;,&quot;apple&quot;}};
+    map&lt;string,vector&lt;string&gt;&gt; groups;
+    for (const auto&amp; [category,item] : records) groups[category].push_back(item);
+    for (const auto&amp; [category,items] : groups) {
+        cout &lt;&lt; category &lt;&lt; &#x27;:&#x27;;
+        for (const string&amp; item : items) cout &lt;&lt; &#x27; &#x27; &lt;&lt; item;
+        cout &lt;&lt; &#x27;\n&#x27;;
+    }
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>drink: tea&#10;fruit: pear apple&#10;</pre></div>
+<p>第一次遇到 fruit 時，groups[fruit] 建立空 vector，再加入 pear；第二次沿用同一個 vector 加 apple。外層 map 讓分類按鍵排序，內層 vector 保留各分類的輸入順序。</p>
+<div class="info-box warm"><div class="info-label">反例</div><p>若只想查看某分類，<code>groups[missing]</code> 會建立空分類。唯讀查看應先 find，找到才讀 <code>it-&gt;second</code>。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>要保存「課程 → 多位學生」，且課程排序、學生保留加入順序，型別？</p><details><summary>看解答與理由</summary><p><code>map&lt;string, vector&lt;string&gt;&gt;</code>。外層 map 排課程，內層 vector 留加入順序。</p></details></div>
+
+</section>
+<section id="reference"><div class="section-number">PART 10</div><h2>語法速查與選擇檢核</h2>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>首選</th><th>關鍵界線</th></tr></thead><tbody><tr><td>寫入或累加</td><td><code>m[k]</code></td><td>不存在時會插入</td></tr><tr><td>唯讀存在判斷</td><td><code>count</code></td><td>map/set 結果 0 或 1</td></tr><tr><td>找到後取資料</td><td><code>find</code></td><td>先比較 end</td></tr><tr><td>邊走邊刪</td><td><code>it=erase(it)</code></td><td>不使用舊 iterator</td></tr><tr><td>要排序／範圍查詢</td><td>ordered</td><td>O(log n) 保證</td></tr><tr><td>只求平均快速查表</td><td>unordered</td><td>平均 O(1)，無順序保證</td></tr></tbody></table></div>
+<p>延伸查閱：<a href="https://en.cppreference.com/w/cpp/container/map" target="_blank" rel="noopener">std::map</a>、<a href="https://en.cppreference.com/w/cpp/container/set" target="_blank" rel="noopener">std::set</a>、<a href="https://en.cppreference.com/w/cpp/container/unordered_map" target="_blank" rel="noopener">std::unordered_map</a>。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>一句話區分 []、find 與 at。</p><details><summary>看解答與理由</summary><p>[] 可讀寫且缺鍵會插入；find 尋找位置而不插入資料、缺鍵回 end；at 要求鍵存在、缺鍵丟 out_of_range。</p></details></div>
+
+<p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：map 與 set <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <h2>自我檢測：map、set 與迭代器 <span class="sec-badge">隨堂自測 · 11 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>map&lt;string, int&gt; 的兩個型別依序代表什麼？</div>
+    <div class="sq-q"><span class="sq-num">Q1.</span>只想知道鍵是否存在，且不能改 map，應用？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。map&lt;K,V&gt; 先寫鍵型別，再寫值型別。">值、鍵</button>
-      <button class="sq-opt" data-c="1" data-fb="map&lt;K,V&gt; 先寫鍵型別，再寫值型別。">鍵、值</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。map&lt;K,V&gt; 先寫鍵型別，再寫值型別。">索引、長度</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。map&lt;K,V&gt; 先寫鍵型別，再寫值型別。">名稱、容量</button>
+      <button class="sq-opt" data-c="1" data-fb="count/find 不插入；[] 缺鍵會插入。">count 或 find</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。count/find 不插入；[] 缺鍵會插入。">operator[]</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。count/find 不插入；[] 缺鍵會插入。">clear</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。count/find 不插入；[] 缺鍵會插入。">push_back</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>空 map 執行 cout &lt;&lt; price[&quot;茶&quot;]; 後會怎樣？</div>
+    <div class="sq-q"><span class="sq-num">Q2.</span>m[&quot;x&quot;] 在 x 不存在且 mapped type 是 int 時？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。[] 對不存在的鍵會新增預設值；int 預設為 0。">編譯失敗</button>
-      <button class="sq-opt" data-c="1" data-fb="[] 對不存在的鍵會新增預設值；int 預設為 0。">印 0 並新增「茶」</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。[] 對不存在的鍵會新增預設值；int 預設為 0。">只印 0 不修改</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。[] 對不存在的鍵會新增預設值；int 預設為 0。">刪除「茶」</button>
+      <button class="sq-opt" data-c="1" data-fb="operator[] 會 value-initialize int 為 0。">插入 x→0 並回傳該值的參考</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。operator[] 會 value-initialize int 為 0。">丟 KeyError</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。operator[] 會 value-initialize int 為 0。">回 end 且不插入</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。operator[] 會 value-initialize int 為 0。">編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>只確認 price 是否有「茶」且不新增資料，應用？</div>
+    <div class="sq-q"><span class="sq-num">Q3.</span>find 找不到後，哪一步合法？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。count 只查詢，結果是 0 或 1。">price[&quot;茶&quot;]</button>
-      <button class="sq-opt" data-c="1" data-fb="count 只查詢，結果是 0 或 1。">price.count(&quot;茶&quot;)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。count 只查詢，結果是 0 或 1。">price.erase(&quot;茶&quot;)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。count 只查詢，結果是 0 或 1。">price.insert(&quot;茶&quot;)</button>
+      <button class="sq-opt" data-c="1" data-fb="end 可比較但不可解參考。">比較 it == m.end()</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。end 可比較但不可解參考。">讀 it-&gt;second</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。end 可比較但不可解參考。">讀 (*it).first</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。end 可比較但不可解參考。">對 *it 賦值</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>pair&lt;string,int&gt; entry = {&quot;咖啡&quot;,55}; 如何取得 55？</div>
+    <div class="sq-q"><span class="sq-num">Q4.</span>it-&gt;first 與哪個式子等價？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。pair 的第二項叫 second。">entry.first</button>
-      <button class="sq-opt" data-c="1" data-fb="pair 的第二項叫 second。">entry.second</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。pair 的第二項叫 second。">entry[1]</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。pair 的第二項叫 second。">entry.value</button>
+      <button class="sq-opt" data-c="1" data-fb="箭頭是先解參考再用點號取成員。">(*it).first</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。箭頭是先解參考再用點號取成員。">*it.first</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。箭頭是先解參考再用點號取成員。">it.first</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。箭頭是先解參考再用點號取成員。">&amp;(it.first)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>set 依序 insert 小安、小美、小安，size() 是？</div>
+    <div class="sq-q"><span class="sq-num">Q5.</span>for (auto [k,v] : m) ++v; 執行後 map 會？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。set 不保存重複值。">1</button>
-      <button class="sq-opt" data-c="1" data-fb="set 不保存重複值。">2</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。set 不保存重複值。">3</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。set 不保存重複值。">編譯錯誤</button>
+      <button class="sq-opt" data-c="1" data-fb="要修改原值需 auto&amp; [k,v]。">不變，k、v 是每筆的複製</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。要修改原值需 auto&amp; [k,v]。">所有值加一</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。要修改原值需 auto&amp; [k,v]。">所有鍵加一</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。要修改原值需 auto&amp; [k,v]。">清空</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>price.erase(&quot;茶&quot;) 的用途是？</div>
+    <div class="sq-q"><span class="sq-num">Q6.</span>需要依鍵排序輸出及 O(log n) 最壞界線，選？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。erase(key) 移除對應資料。">讀價格</button>
-      <button class="sq-opt" data-c="1" data-fb="erase(key) 移除對應資料。">刪除鍵「茶」</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase(key) 移除對應資料。">設為 0</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase(key) 移除對應資料。">新增「茶」</button>
+      <button class="sq-opt" data-c="1" data-fb="map 保持鍵序，基本操作保證 O(log n)。">map</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。map 保持鍵序，基本操作保證 O(log n)。">unordered_map</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。map 保持鍵序，基本操作保證 O(log n)。">vector 必定 O(1)</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。map 保持鍵序，基本操作保證 O(log n)。">queue</button>
     </div>
     <div class="sq-fb"></div>
   </div>
-</section>
-<section id="cards"><div class="section-number">CARD · 關鍵詞彙</div><h2>點卡片翻面</h2><div class="fc-actions"><button id="fcShuffle">重新排列</button><button id="fcUnflip">全部正面</button><button id="fcFlipAll">全部翻面</button></div><div class="fc-grid" id="fcGrid"></div></section>
-<div class="chapter-nav"><a class="prev" href="p5_vector_string.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">vector 與 string</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p7_files_exceptions.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">檔案與例外</div></a></div></div>
-<footer>先備知識 P6 · map 與 set · 資料結構 × C++ 互動自學網站</footer>
-<script>
-const mf=[{map:'{ 茶: 40 }',set:'{ 小安 }',t:'起始資料。'},{map:'{ 茶: 40 }',set:'{ 小安 }',t:'count("牛奶") 只查詢，map 不變。'},{map:'{ 牛奶: 0, 茶: 40 }',set:'{ 小安 }',t:'price["牛奶"] 讀取缺少的鍵，因此新增 0。'},{map:'{ 牛奶: 0, 茶: 40 }',set:'{ 小安 }',t:'再次 insert("小安")，set 仍只有一份。'},{map:'{ 牛奶: 0, 茶: 40 }',set:'{ 小安, 小美 }',t:'insert("小美")，新增不同的名字。'}];let mi=0,mt=null;const $=id=>document.getElementById(id);
-function md(){let f=mf[mi];$('mapStage').innerHTML='<strong>price</strong> = '+f.map+'<br><strong>names</strong> = '+f.set;$('mapNote').textContent=f.t;$('mapStatus').textContent='步驟 '+(mi+1)+' / '+mf.length;$('mapPlay').textContent=mt?'❚❚ 暫停':(mi===mf.length-1?'↻ 重播':'▶ 播放');}function ms(){clearInterval(mt);mt=null}function mp(){if(mt){ms();md();return}if(mi===mf.length-1)mi=0;mt=setInterval(()=>{if(mi<mf.length-1){mi++;if(mi===mf.length-1)ms();md()}else{ms();md()}},900);md()}
-$('mapPrev').onclick=()=>{ms();mi=Math.max(0,mi-1);md()};$('mapNext').onclick=()=>{ms();mi=Math.min(mf.length-1,mi+1);md()};$('mapReset').onclick=()=>{ms();mi=0;md()};$('mapPlay').onclick=mp;md();
-const FLASHCARDS = [{"front": "map<K,V>", "back": "用鍵查值；K 是鍵型別，V 是值型別。"}, {"front": "map 的 []", "back": "m[key] 可讀寫；若 key 不存在，會先新增預設值。"}, {"front": "count(key)", "back": "查詢鍵或元素是否存在，不會新增資料。"}, {"front": "insert", "back": "加入資料；map 可插入 pair，set 可直接插入值。"}, {"front": "erase", "back": "erase(key) 依鍵或值刪除；不存在時不會新增。"}, {"front": "pair", "back": "把兩個值放一起，以 first 和 second 取得。"}, {"front": "走訪 map", "back": "範圍 for 每次取得 pair，可用 first 讀鍵、second 讀值。"}, {"front": "set<T>", "back": "只保存不重複的 T 值。"}];
-(function(){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),g=$('fcGrid'),render=a=>g.innerHTML=a.map(c=>'<div class="fc-card"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');render(FLASHCARDS);g.onclick=e=>{const c=e.target.closest('.fc-card');if(c)c.classList.toggle('flipped')};$('fcShuffle').onclick=()=>render([...FLASHCARDS].sort(()=>Math.random()-.5));$('fcUnflip').onclick=()=>g.querySelectorAll('.fc-card').forEach(c=>c.classList.remove('flipped'));$('fcFlipAll').onclick=()=>g.querySelectorAll('.fc-card').forEach(c=>c.classList.add('flipped'));})();
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q7.</span>unordered_set 的查詢成本與順序？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="雜湊提供平均常數時間，但碰撞可退化。">平均 O(1)、最壞 O(n)、走訪無順序保證</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。雜湊提供平均常數時間，但碰撞可退化。">永遠 O(1) 且排序</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。雜湊提供平均常數時間，但碰撞可退化。">O(log n) 且插入順序</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。雜湊提供平均常數時間，但碰撞可退化。">永遠 O(n)</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q8.</span>邊走訪 map 邊刪目前項，安全寫法？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="erase 回傳下一個有效 iterator。">it = m.erase(it)</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效 iterator。">m.erase(it); ++it</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效 iterator。">erase(end())</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效 iterator。">for(auto x:m) erase(x)</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q9.</span>set 的 insert 回傳結果中 .second 表示？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="鍵已存在時 second 為 false。">本次是否真的插入</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。鍵已存在時 second 為 false。">元素的值</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。鍵已存在時 second 為 false。">集合大小</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。鍵已存在時 second 為 false。">下一個鍵</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q10.</span>要保留第一次出現順序的去重結果，單獨 set 足夠嗎？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="set 的走訪按鍵排序，不保存第一次出現順序。">不足；用 seen set 搭配 output vector</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。set 的走訪按鍵排序，不保存第一次出現順序。">足夠且保留插入順序</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。set 的走訪按鍵排序，不保存第一次出現順序。">換 map 就保序</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。set 的走訪按鍵排序，不保存第一次出現順序。">呼叫 sort 即可保序</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q11.</span>map&lt;string,vector&lt;string&gt;&gt; groups; groups[k].push_back(v) 為何可用？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="這裡有意利用 [] 的插入副作用。">[] 缺鍵時建立空 vector，再加入 v</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這裡有意利用 [] 的插入副作用。">vector 自動變 map</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這裡有意利用 [] 的插入副作用。">find 會插入</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這裡有意利用 [] 的插入副作用。">所有 k 預先存在</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p5_vector_string.html"><div class="nav-dir">上一頁</div><div class="nav-title">vector 與 string</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p7_files_exceptions.html"><div class="nav-dir">下一頁</div><div class="nav-title">檔案與例外</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
+const FLASHCARDS = [{"front": "map<K,V>", "back": "唯一鍵 K 對應值 V；預設依鍵排序。"}, {"front": "set<K>", "back": "只保存唯一鍵；預設依鍵排序。"}, {"front": "operator[]", "back": "鍵不存在就插入 value-initialized 值；適合寫入與計數，不是唯讀查詢。"}, {"front": "count(k)", "back": "map/set 中回傳 0 或 1，不插入。"}, {"front": "find(k)", "back": "找到回 iterator，否則回 end；先比較再解參考。"}, {"front": "at(k)", "back": "鍵存在便取值；缺鍵丟 out_of_range，且不插入。"}, {"front": "map iterator", "back": "指向 pair；(*it).first 是鍵、second 是值。"}, {"front": "it->second", "back": "等價於 (*it).second：先解參考，再取 pair 成員。"}, {"front": "structured binding", "back": "auto [k,v] 拆 pair 為兩個名字；加 & 才綁定原資料。"}, {"front": "ordered 容器", "back": "map/set 保持鍵序，查詢插入刪除 O(log n)。"}, {"front": "unordered 容器", "back": "平均 O(1)，最壞 O(n)，走訪順序不保證。"}, {"front": "erase(iterator)", "back": "回傳刪除位置後的下一個 iterator，適合安全刪除迴圈。"}, {"front": "insert(x).second", "back": "set 插入結果中的 bool；true 表示本次真的插入。"}, {"front": "頻率計數", "back": "++freq[x] 利用 [] 缺鍵先建 0 的規則。"}, {"front": "保序去重", "back": "set 記 seen，vector 保存第一次出現的順序。"}, {"front": "一對多分組", "back": "map<K,vector<V>>；groups[k].push_back(v)。"}];
 
-(function(){document.querySelectorAll('.sq-item').forEach(item=>{const fb=item.querySelector('.sq-fb');item.querySelectorAll('.sq-opt').forEach(btn=>btn.addEventListener('click',()=>{const good=btn.dataset.c==='1';item.querySelectorAll('.sq-opt').forEach(b=>b.classList.remove('correct','wrong'));btn.classList.add(good?'correct':'wrong');fb.textContent=btn.dataset.fb;fb.classList.add('show');fb.classList.toggle('good',good);fb.classList.toggle('bad',!good);}));});})();
+/* depth-runtime:start */
+(() => {
+ const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ document.querySelectorAll('.lesson-trace').forEach(root => {
+   const frames=JSON.parse(root.querySelector('.trace-data').textContent);
+   let index=0,timer=null;const play=root.querySelector('[data-action="play"]');
+   const stop=()=>{clearInterval(timer);timer=null;};
+   function draw(){
+     const frame=frames[index];
+     root.querySelector('.trace-note').textContent=frame.note;
+     root.querySelector('.trace-vars').innerHTML='<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>名稱／狀態</th><th>目前的值</th></tr></thead><tbody>'+Object.entries(frame.vars||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</tbody></table></div>';
+     root.querySelector('.trace-output').textContent=frame.output ? '目前輸出：\n'+frame.output : '目前尚無輸出';
+     root.querySelectorAll('.line').forEach((el,i)=>el.classList.toggle('active',i===frame.line));
+     play.textContent=timer?'⏸ 暫停':index===frames.length-1?'↻ 重播':'▶ 播放';
+     root.dataset.frame=String(index);root.dataset.frames=String(frames.length);
+   }
+   function next(){index=Math.min(index+1,frames.length-1);if(index===frames.length-1)stop();draw();}
+   play.onclick=()=>{if(timer){stop();draw();return;}if(index===frames.length-1)index=0;timer=setInterval(next,850);draw();};
+   root.querySelector('[data-action="next"]').onclick=()=>{stop();next();};
+   root.querySelector('[data-action="prev"]').onclick=()=>{stop();index=Math.max(0,index-1);draw();};
+   root.querySelector('[data-action="reset"]').onclick=()=>{stop();index=0;draw();};draw();
+ });
+ document.querySelectorAll('.sq-item').forEach(q=>q.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{
+   q.querySelectorAll('.sq-opt').forEach(x=>x.classList.remove('correct','wrong'));
+   const good=b.dataset.c==='1';b.classList.add(good?'correct':'wrong');
+   const f=q.querySelector('.sq-fb');f.textContent=b.dataset.fb;f.className='sq-fb show '+(good?'good':'bad');
+ }));
+ const grid=document.getElementById('fcGrid');
+ function render(cards){grid.innerHTML=cards.map(c=>'<div class="fc-card" tabindex="0" role="button" aria-pressed="false"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');}
+ function flip(card,on){card.classList.toggle('flipped',on);card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));}
+ grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)flip(c,!c.classList.contains('flipped'));};
+ grid.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.fc-card');if(c){e.preventDefault();flip(c,!c.classList.contains('flipped'));}}};
+ document.getElementById('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,true));
+ document.getElementById('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,false));
+ document.getElementById('fcShuffle').onclick=()=>{const a=[...FLASHCARDS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}render(a);};render(FLASHCARDS);
+ const links=[...document.querySelectorAll('.float-nav a[data-target]')];
+ const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}),{rootMargin:'-10% 0px -65% 0px'});
+ document.querySelectorAll('section[id]').forEach(el=>observer.observe(el));
+})();
+/* depth-runtime:end */
 </script><script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {

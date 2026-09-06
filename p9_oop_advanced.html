@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>類別延伸與模板入門 — 先備 P9（C++）</title>
+<title>類別延伸與模板 — 先備 P9（C++）</title>
 <script>
   MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
 </script>
@@ -462,163 +462,504 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <style>
 @media (max-width: 760px) { .float-nav { display: none; } }
 </style>
-</head>
-<body>
 
-<nav class="float-nav" id="floatNav"><a href="#inherit" data-target="inherit"><span class="fn-num">1</span><span class="fn-name">public 繼承與父類別建構式</span></a><a href="#virtual" data-target="virtual"><span class="fn-num">2</span><span class="fn-name">virtual、override 與基底參考</span></a><a href="#function-template" data-target="function-template"><span class="fn-num">3</span><span class="fn-name">函式模板</span></a><a href="#class-template" data-target="class-template"><span class="fn-num">4</span><span class="fn-name">類別模板 Box<T></span></a><a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">詞彙卡</span></a><a href="#top" class="fn-top"><span class="fn-num">↑ TOP</span></a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P9</div><h1>類別延伸與模板入門</h1><div class="subtitle">讓共同介面選到正確行為，再把型別交給模板</div><div class="scroll-hint">向下捲動開始<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">📌 本頁使用方式</div><p>先讀語法說明，再預測範例結果；操作互動後完成自我檢測。</p><div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#inherit"><span class="toc-num">P01</span>public 繼承與父類別建構式</a><a href="#virtual"><span class="toc-num">P02</span>virtual、override 與基底參考</a><a href="#function-template"><span class="toc-num">P03</span>函式模板</a><a href="#class-template"><span class="toc-num">P04</span>類別模板 Box<T></a><a href="#reference"><span class="toc-num">REF</span>速查表</a><a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a><a href="#cards"><span class="toc-num">CARD</span>詞彙卡</a></div></div><section id="inherit"><div class="section-number">PART 01</div><h2>public 繼承與父類別建構式</h2><p><code>class Email : public Notification</code> 表示 Email 公開繼承 Notification。子類別建構式的初始化串列用 <code>Notification(text)</code> 先建立父類別部分。</p><pre class="pseudo-code" data-cpp="run" data-expected="通知：會議開始
-">#include &lt;iostream&gt;
+<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
+<style>@media(max-width:760px){.container p code,.container td code,.sq-opt{overflow-wrap:anywhere;}}</style>
+</head>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#inherit" data-target="inherit"><span class="fn-num">01</span><span class="fn-name">公開繼承、is-a 與存取權限</span></a><a href="#lifetime" data-target="lifetime"><span class="fn-num">02</span><span class="fn-name">基底、成員、衍生的建構與解構順序</span></a><a href="#virtual" data-target="virtual"><span class="fn-num">03</span><span class="fn-name">virtual、override、slicing 與虛擬解構</span></a><a href="#abstract" data-target="abstract"><span class="fn-num">04</span><span class="fn-name">pure virtual 與抽象介面</span></a><a href="#templates" data-target="templates"><span class="fn-num">05</span><span class="fn-name">函式與類別 templates：T、推導與實例化</span></a><a href="#operators" data-target="operators"><span class="fn-num">06</span><span class="fn-name">operator==、嚴格弱序與 const/non-const []</span></a><a href="#hashing" data-target="hashing"><span class="fn-num">07</span><span class="fn-name">ordered/unordered 與 hash/equality 契約</span></a><a href="#priority" data-target="priority"><span class="fn-num">08</span><span class="fn-name">priority_queue 的三個模板參數</span></a><a href="#container" data-target="container"><span class="fn-num">09</span><span class="fn-name">自訂容器的 size、[]、begin/end</span></a><a href="#composition" data-target="composition"><span class="fn-num">10</span><span class="fn-name">composition 與 inheritance 的設計判準</span></a><a href="#copy" data-target="copy"><span class="fn-num">11</span><span class="fn-name">資源、shallow copy、Rule of Three 與安全替代</span></a><a href="#custom_exception" data-target="custom_exception"><span class="fn-num">12</span><span class="fn-name">自訂 exception class：完成 P7 的委託</span></a><a href="#reference" data-target="reference"><span class="fn-num">13</span><span class="fn-name">語法速查與設計檢核</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">14</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">15</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P9</div><h1>類別延伸與模板</h1><div class="subtitle">從可替代的類別家族到泛型容器與安全資源語意</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#inherit"><span class="toc-num">01</span>公開繼承、is-a 與存取權限</a><a href="#lifetime"><span class="toc-num">02</span>基底、成員、衍生的建構與解構順序</a><a href="#virtual"><span class="toc-num">03</span>virtual、override、slicing 與虛擬解構</a><a href="#abstract"><span class="toc-num">04</span>pure virtual 與抽象介面</a><a href="#templates"><span class="toc-num">05</span>函式與類別 templates：T、推導與實例化</a><a href="#operators"><span class="toc-num">06</span>operator==、嚴格弱序與 const/non-const []</a><a href="#hashing"><span class="toc-num">07</span>ordered/unordered 與 hash/equality 契約</a><a href="#priority"><span class="toc-num">08</span>priority_queue 的三個模板參數</a><a href="#container"><span class="toc-num">09</span>自訂容器的 size、[]、begin/end</a><a href="#composition"><span class="toc-num">10</span>composition 與 inheritance 的設計判準</a><a href="#copy"><span class="toc-num">11</span>資源、shallow copy、Rule of Three 與安全替代</a><a href="#custom_exception"><span class="toc-num">12</span>自訂 exception class：完成 P7 的委託</a><a href="#reference"><span class="toc-num">13</span>語法速查與設計檢核</a><a href="#bankquiz"><span class="toc-num">14</span>自我檢測</a><a href="#cards"><span class="toc-num">15</span>關鍵詞彙卡</a></div></div><section id="inherit"><div class="section-number">PART 01</div><h2>公開繼承、is-a 與存取權限</h2>
+<p>P8 的 class 把狀態與操作包在一起。當兩種東西確實具有「是一種」關係，而且呼叫端應能把它們當成同一種基底使用，才考慮公開繼承。<code>class Email : public Notification</code> 讀作「Email 公開地是一種 Notification」。公開繼承會保留基底的 public 介面，讓 Email 可放在要求 Notification 的位置。</p>
+<h3>public、protected、private 是兩層不同問題</h3>
+<p>基底的 public 成員可由任何使用者呼叫；protected 只供基底本身與衍生類別使用；private 只供宣告它的類別使用，衍生類別也不能直接碰。冒號後的 public 則是「繼承方式」：它決定基底介面到衍生類別後的可見程度。初學要表達 is-a，幾乎總是 public inheritance。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="checked Mina&#10;email to Mina&#10;">#include &lt;iostream&gt;
 #include &lt;string&gt;
-class Notification{
-  private:
-  std::string text;
-  public:
-  Notification(std::string t) : text(t) {
-  }
-  std::string getText() const {
-    return text;
-  }
+using namespace std;
+class Notification {
+    string recipient;                 // private：只有 Notification 可直接碰
+protected:
+    const string&amp; recipientName() const { return recipient; }
+public:
+    Notification(string r) : recipient(r) {}
+    void validate() const { cout &lt;&lt; &quot;checked &quot; &lt;&lt; recipient &lt;&lt; &#x27;\n&#x27;; }
 };
-class Email:public Notification{
-  public:
-  Email(std::string t):Notification(t){
-  }
-  void send()const{
-    std::cout&lt;&lt;"通知："&lt;&lt; getText()&lt;&lt;'\n';
-  }
+class Email : public Notification {
+public:
+    Email(string r) : Notification(r) {}
+    void send() const { cout &lt;&lt; &quot;email to &quot; &lt;&lt; recipientName() &lt;&lt; &#x27;\n&#x27;; }
 };
-int main(){
-  Email e("會議開始");
-  e.send();
-}
-</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>通知：會議開始
-</pre></div><p>練習：指出先執行哪一個建構式。</p></section><section id="virtual"><div class="section-number">PART 02</div><h2>virtual、override 與基底參考</h2><p>父類別函式加 <code>virtual</code>，子類別以相同簽章加 <code>override</code>。函式接受父類別參考時，仍會依實際物件呼叫正確版本。</p><pre class="pseudo-code" data-cpp="run" data-expected="Email: 系統更新
-SMS: 系統更新
-">#include &lt;iostream&gt;
+int main() { Email e(&quot;Mina&quot;); e.validate(); e.send(); }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>checked Mina&#10;email to Mina&#10;</pre></div>
+<p>Email 的建構式先把 r 傳給 Notification；send 不能直接讀 private recipient，只能使用基底提供的 protected 查詢。main 能呼叫 public validate 與 send，卻不能呼叫 protected recipientName。這保留封裝，不必把所有資料改成 protected。</p>
+<div class="info-box warm"><div class="info-label">不是重複程式碼就繼承</div><p>若 Parcel 只是「有一個地址」，它不是一種 Address，應把 Address 當資料成員。is-a 還要求基底介面的每項承諾對衍生物都合理；第 10 節會完整比較組合。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>class Sms : private Notification 能否讓外部把 Sms 當 Notification 使用？</p><details><summary>看解答與理由</summary><p>一般外部程式不能做這個轉換。要表達 Sms is-a Notification，寫 <code>: public Notification</code>。</p></details></div>
+
+</section>
+<section id="lifetime"><div class="section-number">PART 02</div><h2>基底、成員、衍生的建構與解構順序</h2>
+<p>一個衍生物件其實包含基底子物件與自己的資料成員。建構必須先把依賴的部分準備好：先基底，再依「成員在類別中的宣告順序」建成員，最後才跑衍生建構式主體。解構完全反向：衍生主體、成員逆序、最後基底。初始化列表的書寫順序不會改變這條規則。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="base Parcel&#10;member first&#10;member second&#10;derived body&#10;~derived body&#10;~member second&#10;~member first&#10;~base Parcel&#10;">#include &lt;iostream&gt;
 #include &lt;string&gt;
-class Notification{
-  private:
-  std::string text;
-  public:
-  Notification(std::string t) : text(t) {
-  }
-  std::string getText() const {
-    return text;
-  }
-  virtual ~Notification() {
-  }
-  virtual void send()const{
-    std::cout&lt;&lt;"通知: "&lt;&lt; getText()&lt;&lt;'\n';
-  }
+using namespace std;
+struct Label { string text; Label(string s):text(s){cout&lt;&lt;&quot;member &quot;&lt;&lt;text&lt;&lt;&#x27;\n&#x27;;} ~Label(){cout&lt;&lt;&quot;~member &quot;&lt;&lt;text&lt;&lt;&#x27;\n&#x27;;} };
+struct Parcel { Parcel(){cout&lt;&lt;&quot;base Parcel\n&quot;;} ~Parcel(){cout&lt;&lt;&quot;~base Parcel\n&quot;;} };
+struct TrackedParcel : Parcel {
+    Label first;
+    Label second;
+    TrackedParcel(): second(&quot;second&quot;), first(&quot;first&quot;) { cout&lt;&lt;&quot;derived body\n&quot;; }
+    ~TrackedParcel(){ cout&lt;&lt;&quot;~derived body\n&quot;; }
 };
-class Email:public Notification{
-  public:
-  Email(std::string text) : Notification(text) {
-  }
-  void send() const override{
-    std::cout&lt;&lt;"Email: "&lt;&lt; getText()&lt;&lt;'\n';
-  }
-};
-class SMS : public Notification {
-  public:
-  SMS(std::string text) : Notification(text) {
-  }
-  void send() const override{
-    std::cout&lt;&lt;"SMS: "&lt;&lt; getText()&lt;&lt;'\n';
-  }
-};
-void deliver(const Notification&amp; n){
-  n.send();
-}
-int main(){
-  Email e("系統更新");
-  SMS s("系統更新");
-  deliver(e);
-  deliver(s);
-}
-</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Email: 系統更新
-SMS: 系統更新
-</pre></div><p><code>virtual ~Notification() {}</code> 是空的虛擬解構式。基底類別可能用於多型時，這樣能確保未來透過基底介面銷毀物件時，子類別也會正確收尾。</p><p>比較練習：若要觀察非 virtual 的行為，必須同時移除父類別 send 前的 <code>virtual</code> 與子類別的 <code>override</code>；只移除 virtual 會因 override 檢查而編譯失敗。</p><div class="player-controls"><button id="p9Play">▶ 播放</button><button id="p9Step">單步</button><button id="p9Reset">重設</button></div><div class="status-banner" id="p9Out"></div></section><section id="function-template"><div class="section-number">PART 03</div><h2>函式模板</h2><p><code>template&lt;typename T&gt;</code> 把型別留成參數；呼叫時編譯器依引數產生合適版本。</p><pre class="pseudo-code" data-cpp="run" data-expected="7
-4
-">#include &lt;iostream&gt;
+int main(){ TrackedParcel p; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>base Parcel&#10;member first&#10;member second&#10;derived body&#10;~derived body&#10;~member second&#10;~member first&#10;~base Parcel&#10;</pre></div>
+<p>雖然初始化列表把 second 寫在 first 前面，真正順序仍按宣告：first 再 second。編譯器通常會警告列表順序誤導，因此最好照宣告順序寫。建構失敗時，已成功建立的子物件也會反向清理。</p>
+<div class="deck-extra lesson-trace" id="p9order"><h3>互動：完整物件如何建成又拆除</h3><p>每一步顯示已存在的子物件；解構時順序反轉。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">TrackedParcel p;</span>
+<span class="line">// base Parcel</span>
+<span class="line">// member first, member second</span>
+<span class="line">// derived body</span>
+<span class="line">// scope ends</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "尚未建立任何子物件。", "vars": {"存活": "無", "階段": "準備建構"}, "line": 0, "output": ""}, {"note": "先建立基底 Parcel。", "vars": {"存活": "Parcel", "階段": "基底建構"}, "line": 1, "output": "base Parcel"}, {"note": "依宣告順序建立 first，再建立 second。", "vars": {"存活": "Parcel, first, second", "階段": "成員建構"}, "line": 2, "output": "base Parcel\nmember first\nmember second"}, {"note": "子物件都完成後才進衍生建構式主體。", "vars": {"存活": "完整 TrackedParcel", "階段": "衍生主體"}, "line": 3, "output": "base Parcel\nmember first\nmember second\nderived body"}, {"note": "離開作用域：衍生主體先結束，再 second、first、Parcel。", "vars": {"存活": "無", "階段": "解構完成"}, "line": 4, "output": "base Parcel\nmember first\nmember second\nderived body\n~derived body\n~member second\n~member first\n~base Parcel"}]</script></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>把初始化列表順序改成 first、second，執行順序會改嗎？</p><details><summary>看解答與理由</summary><p>不會，原本就是依成員宣告順序。這樣改的價值是讓文字順序與真實順序一致，避免誤讀與警告。</p></details></div>
+
+</section>
+<section id="virtual"><div class="section-number">PART 03</div><h2>virtual、override、slicing 與虛擬解構</h2>
+<p>同名函式不等於動態多型。沒有 virtual，透過基底參考或指標呼叫時按「參考／指標的靜態型別」選基底版本。基底宣告 virtual 後，呼叫才按物件的實際型別選 override。<code>override</code> 讓編譯器檢查名稱、參數與 const 是否真的相符。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="Plain base&#10;Push child&#10;">#include &lt;iostream&gt;
+using namespace std;
+struct Plain { void show() const { cout &lt;&lt; &quot;Plain base\n&quot;; } };
+struct PlainChild : Plain { void show() const { cout &lt;&lt; &quot;Plain child\n&quot;; } };
+struct Notice { virtual void show() const { cout &lt;&lt; &quot;Notice base\n&quot;; } virtual ~Notice() = default; };
+struct Push : Notice { void show() const override { cout &lt;&lt; &quot;Push child\n&quot;; } };
+void plainCall(const Plain&amp; x){ x.show(); }
+void virtualCall(const Notice&amp; x){ x.show(); }
+int main(){ PlainChild a; Push b; plainCall(a); virtualCall(b); }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Plain base&#10;Push child&#10;</pre></div>
+<h3>reference、pointer、slicing 與 virtual destructor</h3>
+<p>參考與指標仍指向原衍生物件，所以能保留動態型別。若寫 <code>Notice copy = push;</code>，只複製基底部分，衍生部分被切掉，稱為 object slicing。多型集合通常保存基底指標（實務常用 smart pointer），不保存基底值。若物件可能透過基底指標 delete，基底解構式必須 virtual，才能先執行衍生解構。<code>= default</code> 表示請編譯器產生正常解構內容。</p>
+<div class="deck-extra lesson-trace" id="p9dispatch"><h3>互動：同一個衍生物件，兩種呼叫規則</h3><p>比較 non-virtual 與 virtual；物件沒有被複製。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">PlainChild a; plainCall(a);</span>
+<span class="line">Push b; virtualCall(b);</span>
+<span class="line">Notice sliced = b; sliced.show();</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "PlainChild 綁成 const Plain&，沒有複製。", "vars": {"實際物件": "PlainChild", "介面型別": "const Plain&", "函式": "non-virtual"}, "line": 0, "output": ""}, {"note": "non-virtual 按介面型別選 Plain::show。", "vars": {"選擇": "編譯期 Plain::show"}, "line": 0, "output": "Plain base"}, {"note": "Push 綁成 const Notice&；show 是 virtual。", "vars": {"實際物件": "Push", "介面型別": "const Notice&", "函式": "virtual"}, "line": 1, "output": "Plain base"}, {"note": "執行期選 Push::show。", "vars": {"選擇": "動態 Push::show"}, "line": 1, "output": "Plain base\nPush child"}, {"note": "以值複製成 Notice 造成 slicing，sliced 本身只剩 Notice。", "vars": {"sliced 實際型別": "Notice", "衍生部分": "已切除"}, "line": 2, "output": "Plain base\nPush child\nNotice base"}]</script></div>
+<pre class="pseudo-code" data-cpp="fragment">Notice* p = new Push;
+delete p; // 只有 Notice 解構式為 virtual 時，透過基底指標刪除才安全</pre>
+<div class="info-box"><div class="info-label">動手練習</div><p>把 override 的 <code>show() const</code> 誤寫成 <code>show()</code>，為何 override 有用？</p><details><summary>看解答與理由</summary><p>const 是簽章的一部分；override 會讓編譯器直接指出沒有覆寫，而不是默默建立另一個函式。</p></details></div>
+
+</section>
+<section id="abstract"><div class="section-number">PART 04</div><h2>pure virtual 與抽象介面</h2>
+<p>有時基底只要規定介面，不提供有意義的共同實作。函式尾端的 <code>= 0</code> 把虛擬函式設為 pure virtual。只要仍有純虛擬函式未實作，類別就是 abstract class，不能直接建立物件；衍生類別必須完成契約才能實例化。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="console: ready&#10;">#include &lt;iostream&gt;
 #include &lt;string&gt;
-template&lt;typename T&gt;
-T larger(T a, T b) {
-  if (a &lt; b) {
-    return b;
-  }
-  return a;
-}
-int main(){
-  std::cout &lt;&lt; larger(7, 3) &lt;&lt; '\n';
-  std::cout &lt;&lt; larger(2.5, 4.0) &lt;&lt; '\n';
-}
-</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>7
-4
-</pre></div><p>練習：用兩個 double 呼叫 larger。</p></section><section id="class-template"><div class="section-number">PART 04</div><h2>類別模板 Box<T></h2><p>類別模板讓同一個類別保存不同型別。使用時寫出型別，例如 <code>Box&lt;int&gt;</code>。</p><pre class="pseudo-code" data-cpp="run" data-expected="42
-完成
-">#include &lt;iostream&gt;
-#include &lt;string&gt;
-template&lt;typename T&gt; class Box{
-  T value;
-  public:
-  Box(T v):value(v){
-  }
-  T get()const{
-    return value;
-  }
+using namespace std;
+struct Channel {
+    virtual string deliver(const string&amp; text) const = 0;
+    virtual ~Channel() = default;
 };
-int main(){
-  Box&lt;int&gt; a(42);
-  Box&lt;std::string&gt; b("完成");
-  std::cout&lt;&lt;a.get()&lt;&lt;'\n'&lt;&lt;b.get()&lt;&lt;'\n';
+struct ConsoleChannel : Channel {
+    string deliver(const string&amp; text) const override { return &quot;console: &quot; + text; }
+};
+void announce(const Channel&amp; c){ cout &lt;&lt; c.deliver(&quot;ready&quot;) &lt;&lt; &#x27;\n&#x27;; }
+int main(){ ConsoleChannel c; announce(c); }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>console: ready&#10;</pre></div>
+<p>Channel 是一份契約：任何具體 channel 都要能 deliver。announce 只依賴契約，不知道 ConsoleChannel 的細節。純虛擬函式仍應搭配 virtual destructor，讓介面能安全成為多型基底。</p>
+<div class="info-box warm"><div class="info-label">抽象不等於沒有資料</div><p>抽象基底仍可有建構式、資料成員與已實作函式，只是不能直接建立。介面愈小，衍生類別愈容易遵守而不被迫實作不合理操作。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>若 ConsoleChannel 沒寫 deliver，可以建立 ConsoleChannel c 嗎？</p><details><summary>看解答與理由</summary><p>不行；它仍是抽象類別。編譯器會指出純虛擬函式尚未實作。</p></details></div>
+
+</section>
+<section id="templates"><div class="section-number">PART 05</div><h2>函式與類別 templates：T、推導與實例化</h2>
+<p>template 把「型別」也變成參數。<code>template&lt;typename T&gt;</code> 宣告下一個函式或類別中的 T 是尚待決定的型別名稱；T 不是變數，也不是固定代表 int。編譯器看見實際使用後，為需要的型別產生具體版本，稱為 instantiation（實例化）。</p>
+<h3>函式模板：推導與同一個 T 的限制</h3>
+<p><code>larger(3,7)</code> 可從兩個引數推導 T=int；<code>larger(2.5,1.0)</code> 推導 T=double。若簽章兩個參數都是 T，<code>larger(3,2.5)</code> 會同時推成 int 與 double 而衝突，除非呼叫者明確轉型或設計兩個型別參數。本例按值回傳結果，避免把暫時引數的參考帶出呼叫後使用。模板正文使用 <code>&lt;</code>，所以 T 必須支援相容的小於比較；模板不是「任何型別保證可用」。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="7&#10;tea&#10;">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+template &lt;typename T&gt;
+T larger(const T&amp; a, const T&amp; b) {
+    if (a &lt; b) return b;
+    return a;
 }
-</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>42
-完成
-</pre></div><p>練習：建立 <code>Box&lt;double&gt;</code> 並印出內容。</p></section><section id="reference"><div class="section-number">REF · 速查表</div><h2>語法速查</h2><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>語法</th><th>用途</th></tr></thead><tbody><tr><td><code>class Email : public Notification { ... };</code></td><td>宣告公開繼承。</td></tr><tr><td><code>Email(std::string t) : Notification(t) {}</code></td><td>先初始化基底類別部分，再執行子類別建構式本體。</td></tr><tr><td><code>virtual void send() const { ... }</code></td><td>基底類別允許依實際物件選擇函式版本。</td></tr><tr><td><code>void send() const override { ... }</code></td><td>子類別覆寫；編譯器檢查是否真的對應基底虛擬函式。</td></tr><tr><td><code>void deliver(const Notification&amp; n)</code></td><td>透過基底參考呼叫，保留實際物件的類型。</td></tr><tr><td><code>template&lt;typename T&gt;</code></td><td>宣告型別參數，T 在模板內代表一種型別。</td></tr><tr><td><code>Box&lt;int&gt; box(42);</code></td><td>以 int 套用類別模板並建立物件。</td></tr></tbody></table></div></section><section id="bankquiz">
+template &lt;typename T&gt;
+class Box {
+    T value;
+public:
+    Box(const T&amp; v) : value(v) {}
+    const T&amp; get() const { return value; }
+};
+int main(){ cout &lt;&lt; larger(3,7) &lt;&lt; &#x27;\n&#x27;; Box&lt;string&gt; b(&quot;tea&quot;); cout &lt;&lt; b.get() &lt;&lt; &#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>7&#10;tea&#10;</pre></div>
+<p><code>Box&lt;string&gt;</code> 必須明寫 string，因為這裡採 C++17 前也通用的類別模板語法。編譯器產生 larger&lt;int&gt; 與 Box&lt;string&gt; 所需成員。模板定義通常放在 header，因為使用它的翻譯單元必須看見完整定義才能實例化；只把宣告放 header、一般定義藏 cpp，常造成連結錯誤。</p>
+<div class="deck-extra lesson-trace" id="p9template"><h3>互動：從 T 到具體版本</h3><p>追蹤兩次使用如何形成不同的具體型別。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">cout &lt;&lt; larger(3, 7) &lt;&lt; "\n";</span>
+<span class="line">Box&lt;string&gt; b(&quot;tea&quot;);</span>
+<span class="line">cout &lt;&lt; b.get() &lt;&lt; "\n";</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "模板只是產生版本的規則，T 尚未決定。", "vars": {"T": "未決定", "已需要版本": "無"}, "line": 0, "output": ""}, {"note": "編譯時由兩個 int 推導 T=int；執行這一行時呼叫該版本並印出結果 7。", "vars": {"T": "int", "實例化": "larger\u003cint>"}, "line": 0, "output": "7"}, {"note": "Box\u003cstring> 明確指定 T=string。", "vars": {"T": "string", "實例化": "Box\u003cstring>", "value": "tea"}, "line": 1, "output": "7"}, {"note": "呼叫 get，回傳 const string&。", "vars": {"版本": "Box\u003cstring>::get", "回傳": "tea"}, "line": 2, "output": "7\ntea"}]</script></div>
+<pre class="pseudo-code" data-cpp="fragment">larger(3, 2.5); // 錯誤示例：同一個 T 無法同時推導為 int 與 double</pre>
+<div class="info-box"><div class="info-label">動手練習</div><p><code>Box&lt;int&gt;</code> 與 <code>Box&lt;string&gt;</code> 是同一個型別嗎？</p><details><summary>看解答與理由</summary><p>不是；它們是由同一模板形成的兩個不同具體類別。</p></details></div>
+
+</section>
+<section id="operators"><div class="section-number">PART 06</div><h2>operator==、嚴格弱序與 const/non-const []</h2>
+<p>運算子多載是替自訂型別定義熟悉語法。<code>bool operator==(const Ticket&amp; other) const</code> 讓 <code>a==b</code> 解讀成 <code>a.operator==(b)</code>。尾端 const 保證不改左邊物件，參數 const reference 避免複製右邊。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="1&#10;9&#10;">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+class Ticket {
+    string code;
+public:
+    Ticket(string c):code(c){}
+    bool operator==(const Ticket&amp; other) const { return code==other.code; }
+    bool operator&lt;(const Ticket&amp; other) const { return code&lt;other.code; }
+};
+class Shelf {
+    vector&lt;int&gt; slots;
+public:
+    Shelf(int n):slots(n,0){}
+    int&amp; operator[](size_t i){ return slots.at(i); }
+    const int&amp; operator[](size_t i) const { return slots.at(i); }
+};
+int main(){ Ticket a(&quot;B2&quot;),b(&quot;B2&quot;); cout&lt;&lt;(a==b)&lt;&lt;&#x27;\n&#x27;; Shelf s(2); s[0]=9; const Shelf&amp; view=s; cout&lt;&lt;view[0]&lt;&lt;&#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1&#10;9&#10;</pre></div>
+<h3>operator&lt; 必須形成 strict weak ordering</h3>
+<p>ordered 容器與排序需要一致的「嚴格弱序」：x&lt;x 必須為假；若 a&lt;b 為真，b&lt;a 必須為假；等價關係也要一致傳遞。不要用 <code>&lt;=</code> 實作 operator&lt;。對多欄位可按優先順序比較。若 !(a&lt;b) 且 !(b&lt;a)，ordered set/map 把兩者視為等價鍵，即使 operator== 另有想法。</p>
+<h3>operator[] 為何常有兩個版本</h3>
+<p>非 const 版本回傳 <code>int&amp;</code>，所以 s[0]=9 能修改真正元素。const 版本回傳 <code>const int&amp;</code>，讓唯讀 Shelf 也能索引但不能賦值。<code>size_t</code> 是標準庫表示大小與索引的無號整數型別，這裡與 vector::at 的參數相合。</p>
+<div class="info-box warm"><div class="info-label">界線</div><p>運算子應保留直覺意義。不要讓 == 修改物件、不要讓 < 打印資料，也不要用不穩定狀態排序，否則容器內部假設會被破壞。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>若 operator[] 只回傳 int 而非 int&，<code>s[0]=9</code> 會如何？</p><details><summary>看解答與理由</summary><p>左側得到暫時的值而非可修改元素，不能完成所需賦值。回傳參考才提供元素位置。</p></details></div>
+
+</section>
+<section id="hashing"><div class="section-number">PART 07</div><h2>ordered/unordered 與 hash/equality 契約</h2>
+<p>自訂型別當 ordered 鍵，需要比較規則；預設 set/map 使用 <code>operator&lt;</code>。當 unordered 鍵，需要 hasher 產生雜湊值，再由容器決定桶的位置與 equality 判斷同一鍵。相容鐵則是：若 equality(a,b) 為 true，兩者 hash 必須相同；反向不必成立，碰撞由 equality 再分辨。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="1&#10;">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;unordered_set&gt;
+using namespace std;
+struct Badge { string zone; int number; };
+struct BadgeHash {
+    size_t operator()(const Badge&amp; b) const {
+        return hash&lt;string&gt;{}(b.zone) ^ (hash&lt;int&gt;{}(b.number) &lt;&lt; 1);
+    }
+};
+struct BadgeEqual {
+    bool operator()(const Badge&amp; a,const Badge&amp; b) const { return a.zone==b.zone &amp;&amp; a.number==b.number; }
+};
+int main(){ unordered_set&lt;Badge,BadgeHash,BadgeEqual&gt; seen; seen.insert({&quot;N&quot;,7}); seen.insert({&quot;N&quot;,7}); cout&lt;&lt;seen.size()&lt;&lt;&#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1&#10;</pre></div>
+<p>unordered_set 的三個模板參數依序是元素、hasher、equality。<code>hash&lt;string&gt;{}</code> 先建立標準函式物件再以括號呼叫；<code>^</code> 是逐位元異或，<code>&lt;&lt; 1</code> 將整數的位元向左移一位；這裡左側是整數，因此不是 cout 的輸出操作。兩者只是混合兩個 hash 的簡單示範，不代表密碼學安全。相同 zone/number 必然走相同計算，符合相容需求。</p>
+<h3>std::hash 特化是另一條正式途徑</h3>
+<p>若型別介面由你掌控，也可在全域定義型別後，於 <code>namespace std</code> 內提供 <code>template&lt;&gt; struct hash&lt;Badge&gt;</code> 的完整特化。<code>template&lt;&gt;</code> 表示這不是新的泛型規則，而是既有 std::hash 對 Badge 的特定版本。只能特化標準允許的模板給使用者自訂型別，不能任意把新名稱塞進 std。初學用顯式 BadgeHash 通常較透明。</p>
+<pre class="pseudo-code" data-cpp="fragment">namespace std {
+template &lt;&gt; struct hash&lt;Badge&gt; {
+  size_t operator()(const Badge&amp; b) const { /* 與 Badge 的 equality 相容 */ return 0; }
+};
+} // 有效結構片段；實務不可讓所有 Badge 都固定回 0，否則效能退化</pre>
+<div class="info-box"><div class="info-label">動手練習</div><p>兩個不相等鍵可以有相同 hash 嗎？</p><details><summary>看解答與理由</summary><p>可以，稱為碰撞；容器再用 equality 分辨。禁止的是 equality 判定相等卻產生不同 hash。</p></details></div>
+
+</section>
+<section id="priority"><div class="section-number">PART 08</div><h2>priority_queue 的三個模板參數</h2>
+<p><code>priority_queue&lt;T,Container,Compare&gt;</code> 有三個模板參數：保存的值型別 T、底層序列容器、決定優先關係的比較器。預設是 <code>priority_queue&lt;int,vector&lt;int&gt;,less&lt;int&gt;&gt;</code>，top 為最大值。要最小值優先，使用 <code>greater&lt;int&gt;</code> 並 <code>#include &lt;functional&gt;</code>。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="8 3&#10;5&#10;">#include &lt;functional&gt;
+#include &lt;iostream&gt;
+#include &lt;queue&gt;
+#include &lt;vector&gt;
+using namespace std;
+int main(){
+    priority_queue&lt;int&gt; high;
+    priority_queue&lt;int,vector&lt;int&gt;,greater&lt;int&gt;&gt; low;
+    for(int x:{8,3,5}){ high.push(x); low.push(x); }
+    cout&lt;&lt;high.top()&lt;&lt;&#x27; &#x27;&lt;&lt;low.top()&lt;&lt;&#x27;\n&#x27;;
+    low.pop(); cout&lt;&lt;low.top()&lt;&lt;&#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>8 3&#10;5&#10;</pre></div>
+<p><code>greater&lt;int&gt;</code> 是 function object 型別：其物件可用括號比較兩個 int。priority_queue 會依 Compare 維護 heap，但 Compare 的方向初看容易反直覺；直接記住預設 less 讓最大值 top，greater 讓最小值 top。pop 和 stack/queue 一樣不回傳值，要先 top 再 pop。</p>
+<div class="info-box warm"><div class="info-label">底層容器限制</div><p>Container 必須提供 priority_queue 所需的隨機存取與尾端操作；vector 與 deque 可用，list 不符合。一般使用者不需直接操作底層 heap。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>宣告最小字串優先的 priority_queue，需要哪些型別？</p><details><summary>看解答與理由</summary><p><code>priority_queue&lt;string, vector&lt;string&gt;, greater&lt;string&gt;&gt;</code>，並 include queue、vector、functional、string。</p></details></div>
+
+</section>
+<section id="container"><div class="section-number">PART 09</div><h2>自訂容器的 size、[]、begin/end</h2>
+<p>自訂容器若提供熟悉介面，既有 C++ 語法就能使用它。<code>size()</code> 回報項目數；const/non-const operator[] 提供索引；<code>begin()/end()</code> 提供 [begin,end) iterator，範圍 for 會透過它們走訪。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="2:5 7 &#10;">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+class ReadingList {
+    vector&lt;int&gt; data;
+public:
+    void add(int x){ data.push_back(x); }
+    size_t size() const { return data.size(); }
+    int&amp; operator[](size_t i){ return data.at(i); }
+    const int&amp; operator[](size_t i) const { return data.at(i); }
+    auto begin(){ return data.begin(); }
+    auto end(){ return data.end(); }
+    auto begin() const { return data.begin(); }
+    auto end() const { return data.end(); }
+};
+int main(){ ReadingList r; r.add(4); r.add(7); r[0]=5; cout&lt;&lt;r.size()&lt;&lt;&quot;:&quot;; for(int x:r) cout&lt;&lt;x&lt;&lt;&#x27; &#x27;; cout&lt;&lt;&#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2:5 7 &#10;</pre></div>
+<p>C++14 起，函式回傳型別可寫 auto，編譯器從每條 return 推導同一個型別；這裡 begin 回傳 vector&lt;int&gt;::iterator，const begin 回傳 const_iterator。這不是執行期動態型別，仍在編譯期確定。範圍 for 大致會先取得 begin 與 end，再反覆解參考與 ++。</p>
+<div class="info-box warm"><div class="info-label">介面不是只求能編譯</div><p>若 operator[] 暗中刪元素，或 size 不等於走訪項目數，即使語法可用也違反使用者預期。模仿標準容器介面時，也要維持相同語意。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>為何 const ReadingList 還要另一組 begin/end？</p><details><summary>看解答與理由</summary><p>const 物件只能呼叫 const 成員；這組回傳唯讀 iterator，讓範圍 for 能讀但不能改元素。</p></details></div>
+
+</section>
+<section id="composition"><div class="section-number">PART 10</div><h2>composition 與 inheritance 的設計判準</h2>
+<p>繼承表達 is-a；組合表達 has-a。Mailbox 有多封 Notification，因此把 vector&lt;Notification&gt; 或其他儲存物件當成員。Parcel 有地址與重量，也不是 Address 的子類別。只有當呼叫端能用基底的每項公開操作而不破壞語意時，公開繼承才成立。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="1&#10;Harbor 5 / 2kg&#10;">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+struct Notification { string text; };
+class Mailbox {
+    vector&lt;Notification&gt; messages;             // has-a
+public:
+    void receive(string text){ messages.push_back({text}); }
+    size_t unread() const { return messages.size(); }
+};
+class Parcel {
+    string address; double weight;              // has-an address and weight
+public:
+    Parcel(string a,double w):address(a),weight(w){}
+    string label() const { return address+&quot; / &quot;+to_string((int)weight)+&quot;kg&quot;; }
+};
+int main(){ Mailbox m; m.receive(&quot;arrived&quot;); Parcel p(&quot;Harbor 5&quot;,2); cout&lt;&lt;m.unread()&lt;&lt;&#x27;\n&#x27;&lt;&lt;p.label()&lt;&lt;&#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1&#10;Harbor 5 / 2kg&#10;</pre></div>
+<p>Mailbox 對內部 vector 只公開需要的 receive/unread，未承諾使用者能任意 insert、erase 或取得 capacity。這讓實作未來可換而不影響呼叫端。Parcel 也以資料成員組合狀態。組合常比繼承提供更小、更穩定的介面。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>問題</th><th>是 →</th><th>否 →</th></tr></thead><tbody><tr><td>衍生物是否真能替代基底？</td><td>公開繼承候選</td><td>偏向組合</td></tr><tr><td>基底所有 public 操作都合理？</td><td>再檢查虛擬介面</td><td>組合</td></tr><tr><td>只是想重用一個物件的功能？</td><td>通常組合並轉呼叫</td><td>不要只為省程式碼繼承</td></tr></tbody></table></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>Mailbox 要重用 vector，為何不直接 <code>class Mailbox : public vector&lt;Notification&gt;</code>？</p><details><summary>看解答與理由</summary><p>那會公開 pop_back、clear、operator[] 等未必符合信箱規則的操作，也讓實作細節成為承諾。成員組合能只公開所需介面。</p></details></div>
+
+</section>
+<section id="copy"><div class="section-number">PART 11</div><h2>資源、shallow copy、Rule of Three 與安全替代</h2>
+<p>若類別直接擁有 <code>new[]</code> 配置的記憶體，編譯器產生的預設複製只會複製指標地址，兩個物件便共同指向同一區塊，稱為 shallow copy。兩者解構都 delete[] 同一地址會造成 double free；一方修改也會意外影響另一方。</p>
+<h3>Rule of Three 是一組不可拆開的責任</h3>
+<p>傳統 Rule of Three 的核心規則是：若需要自訂解構式，通常也需要拷貝建構式與 copy assignment。解構式釋放；拷貝建構式替新物件配置並複製；賦值運算子處理自我賦值、先取得安全的新資源再替換舊資源。只寫其中一個通常留下漏洞。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="7 9 9&#10;">#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+using namespace std;
+class Samples {
+    int* data; size_t n;
+public:
+    Samples(size_t count):data(new int[count]{}),n(count){}
+    ~Samples(){ delete[] data; }
+    Samples(const Samples&amp; other):data(new int[other.n]),n(other.n){ copy(other.data,other.data+n,data); }
+    Samples&amp; operator=(const Samples&amp; other){
+        if(this==&amp;other) return *this;
+        int* fresh=new int[other.n]; copy(other.data,other.data+other.n,fresh);
+        delete[] data; data=fresh; n=other.n; return *this;
+    }
+    int&amp; operator[](size_t i){ return data[i]; }
+    const int&amp; operator[](size_t i) const { return data[i]; }
+};
+int main(){ Samples a(2); a[0]=7; Samples b=a; b[0]=9; Samples c(1); c=b; cout&lt;&lt;a[0]&lt;&lt;&#x27; &#x27;&lt;&lt;b[0]&lt;&lt;&#x27; &#x27;&lt;&lt;c[0]&lt;&lt;&#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>7 9 9&#10;</pre></div>
+<p>b=a 呼叫 copy constructor，配置獨立陣列；c=b 呼叫 assignment。assignment 先配置 fresh，若配置失敗，原 c 尚未被破壞；成功後才刪舊資源。<code>this==&other</code> 處理 a=a。回傳 <code>*this</code> 讓連鎖賦值維持慣例。</p>
+<h3>更安全的預設：用 vector 擁有序列</h3>
+<p>若把成員改為 <code>vector&lt;int&gt; data;</code>，vector 已正確管理配置、解構與深層值複製，類別通常不必自訂三個函式，這稱為 Rule of Zero。若另外設計移動建構與移動賦值，還要一起考慮這兩個操作，常合稱 Rule of Five；本節先完整處理複製與解構的責任。若物件語意上不應複製，可寫 <code>Samples(const Samples&amp;)=delete;</code> 與賦值版本；<code>=delete</code> 明確要求編譯器拒絕該操作。</p>
+<pre class="pseudo-code" data-cpp="fragment">Resource(const Resource&amp;) = delete;
+Resource&amp; operator=(const Resource&amp;) = delete; // 任何複製在編譯期被拒絕</pre>
+<div class="info-box warm"><div class="info-label">界線</div><p>教會 Rule of Three 不代表應優先手寫 new。標準容器與 smart pointer 能把資源所有權變清楚，通常更安全；只有理解既有底層類別或特殊資源時才直接管理。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>只寫解構式 delete[]，卻保留預設複製，會有什麼兩個問題？</p><details><summary>看解答與理由</summary><p>兩物件共享同一指標，修改互相影響；解構時同一區塊被釋放兩次，行為未定義。</p></details></div>
+
+</section>
+<section id="custom_exception"><div class="section-number">PART 12</div><h2>自訂 exception class：完成 P7 的委託</h2>
+<p>P7 使用標準例外；現在 class 語法已齊，可以為領域錯誤建立具體型別。自訂例外常公開繼承 <code>runtime_error</code>，表示它是一種標準執行期錯誤，也直接沿用 what()。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="address problem: address is empty&#10;">#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;string&gt;
+using namespace std;
+class AddressError : public runtime_error {
+public:
+    AddressError(const string&amp; message) : runtime_error(message) {}
+};
+void validateAddress(const string&amp; text){ if(text.empty()) throw AddressError(&quot;address is empty&quot;); }
+int main(){
+    try { validateAddress(&quot;&quot;); }
+    catch(const AddressError&amp; e){ cout &lt;&lt; &quot;address problem: &quot; &lt;&lt; e.what() &lt;&lt; &#x27;\n&#x27;; }
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>address problem: address is empty&#10;</pre></div>
+<p>AddressError 的初始化列表呼叫 runtime_error(message)，基底保存訊息並提供 what。呼叫端可精準 catch AddressError；更外層若只知道一般錯誤，也可由 <code>catch(const exception&amp;)</code> 接住。catch 順序要由具體到一般，否則一般基底先接走。</p>
+<div class="info-box warm"><div class="info-label">別為每句訊息造型別</div><p>當呼叫端需要採取不同處理時，獨立例外型別才有價值。若只差文字且處理完全相同，一個 runtime_error 加清楚訊息可能足夠。</p></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>為何 AddressError 採 public 繼承 runtime_error？</p><details><summary>看解答與理由</summary><p>它表達 AddressError is-a runtime_error，使標準 exception/runtime_error 的捕捉邊界與 what 介面都可沿用。</p></details></div>
+
+</section>
+<section id="reference"><div class="section-number">PART 13</div><h2>語法速查與設計檢核</h2>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>核心語法</th><th>關鍵界線</th></tr></thead><tbody><tr><td>is-a</td><td><code>class D : public B</code></td><td>不是單純重用</td></tr><tr><td>動態多型</td><td>virtual + override + 基底 ref/pointer</td><td>避免 slicing</td></tr><tr><td>抽象契約</td><td><code>virtual f()=0</code></td><td>類別不可直接建立</td></tr><tr><td>泛型</td><td><code>template&lt;typename T&gt;</code></td><td>T 仍需支援所用操作</td></tr><tr><td>ordered 鍵</td><td>strict weak ordering</td><td>不可用 <= 假裝 <</td></tr><tr><td>unordered 鍵</td><td>hash + equality</td><td>相等必同 hash</td></tr><tr><td>擁有資源</td><td>Rule of Zero 優先</td><td>手寫則完整處理複製</td></tr></tbody></table></div>
+<p>參考：<a href="https://en.cppreference.com/w/cpp/language/derived_class" target="_blank" rel="noopener">derived classes</a>、<a href="https://en.cppreference.com/w/cpp/language/virtual" target="_blank" rel="noopener">virtual functions</a>、<a href="https://en.cppreference.com/w/cpp/language/templates" target="_blank" rel="noopener">templates</a>、<a href="https://en.cppreference.com/w/cpp/language/rule_of_three" target="_blank" rel="noopener">Rule of Three/Five/Zero</a>。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>看到一個新類別設計，先問哪三件事？</p><details><summary>看解答與理由</summary><p>關係真的是 is-a 還是 has-a；呼叫端需要的最小公開介面是什麼；資源由誰擁有、複製時應得到獨立值還是禁止複製。</p></details></div>
+
+<p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
+<section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：類別延伸與模板入門 <span class="sec-badge">隨堂自測 · 4 題</span></h2>
+  <h2>自我檢測：類別延伸與模板 <span class="sec-badge">隨堂自測 · 15 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>public 繼承的語法是哪個？</div>
+    <div class="sq-q"><span class="sq-num">Q1.</span>public inheritance 最適合表達？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。">class Email : public Notification</button>
-      <button class="sq-opt" data-c="0" data-fb="類別名後需要冒號。">class Email public Notification</button>
+      <button class="sq-opt" data-c="1" data-fb="公開繼承代表可替代的 is-a 關係。">衍生類別是一種基底類別</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。公開繼承代表可替代的 is-a 關係。">衍生類別有一個基底物件</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。公開繼承代表可替代的 is-a 關係。">只是想少寫幾行</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。公開繼承代表可替代的 is-a 關係。">兩類別名字相似</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>override 的用途？</div>
+    <div class="sq-q"><span class="sq-num">Q2.</span>建構衍生物件的固定順序？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。">讓編譯器檢查確實覆寫虛擬函式</button>
-      <button class="sq-opt" data-c="0" data-fb="建立物件由建構式負責。">建立物件</button>
+      <button class="sq-opt" data-c="1" data-fb="初始化列表順序不會改變真正建構順序。">基底、按宣告順序的成員、衍生建構式主體</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。初始化列表順序不會改變真正建構順序。">衍生、成員、基底</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。初始化列表順序不會改變真正建構順序。">初始化列表文字順序</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。初始化列表順序不會改變真正建構順序。">基底最後</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>多型呼叫範例為何用基底參考？</div>
+    <div class="sq-q"><span class="sq-num">Q3.</span>C++ 動態多型需要哪兩個條件？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。">保留實際物件並選到覆寫版本</button>
-      <button class="sq-opt" data-c="0" data-fb="參考不複製物件。">複製成父類別</button>
+      <button class="sq-opt" data-c="1" data-fb="基底值會 slicing；沒有 virtual 則靜態選擇。">virtual 函式且透過基底參考或指標呼叫</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。基底值會 slicing；沒有 virtual 則靜態選擇。">只要同名函式</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。基底值會 slicing；沒有 virtual 則靜態選擇。">只要 public</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。基底值會 slicing；沒有 virtual 則靜態選擇。">以基底值複製</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>Box&lt;int&gt; 的 int 是什麼？</div>
+    <div class="sq-q"><span class="sq-num">Q4.</span>多型基底為何需要 virtual destructor？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。">模板型別參數</button>
-      <button class="sq-opt" data-c="0" data-fb="物件名稱在宣告後方。">物件名稱</button>
+      <button class="sq-opt" data-c="1" data-fb="否則透過基底指標刪除衍生物件不安全。">透過基底指標 delete 時能執行完整衍生解構</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。否則透過基底指標刪除衍生物件不安全。">讓建構更快</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。否則透過基底指標刪除衍生物件不安全。">自動建立 pure virtual</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。否則透過基底指標刪除衍生物件不安全。">避免 operator&lt;</button>
     </div>
     <div class="sq-fb"></div>
   </div>
-</section><section id="cards"><div class="section-number">CARDS · 關鍵詞彙卡</div><h2>關鍵詞彙卡</h2><p>先說出定義，再點卡片核對。</p><div class="fc-controls"><button id="fcShuffle">🔀 洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部翻回</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p8_oop_basics.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">類別與物件入門</div></a><a class="home" href="index.html"><div class="nav-title">章節總覽</div></a><a class="next" href="introduction.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">C++ 導論</div></a></div><footer><p>資料結構 × C++ 互動自學網站</p></footer>
-</div>
-<script>
-const $=id=>document.getElementById(id);
-function lesson(id,frames){let i=-1,t=null,done=false;const out=$(id+'Out'),btn=$(id+'Play');function show(){out.innerHTML=i<0?'準備好了。':frames[i];btn.textContent=done?'▶ 重播':t?'⏸ 暫停':'▶ 播放';}function step(){if(done){i=-1;done=false;}i++;if(i===frames.length-1){done=true;clearInterval(t);t=null;}show();}btn.onclick=()=>{if(done){i=-1;done=false;}if(t){clearInterval(t);t=null;show();return;}if (!done) t = setInterval(step, 900); step();};$(id+'Step').onclick=()=>{clearInterval(t);t=null;step();};$(id+'Reset').onclick=()=>{clearInterval(t);t=null;i=-1;done=false;show();};show();}
-const FLASHCARDS = [{"front": "公開繼承", "back": "class Child : public Base，使子類別保留父類別的公開介面。"}, {"front": "父類別建構式", "back": "由子類別建構式的初始化串列先呼叫。"}, {"front": "virtual", "back": "讓透過基底參考的呼叫依實際物件選擇版本。"}, {"front": "override", "back": "要求編譯器確認子類別函式正確覆寫。"}, {"front": "多型", "back": "同一個基底介面可呼叫不同子類別的實作。"}, {"front": "虛擬解構式", "back": "可能作為多型基底的類別應提供 virtual 解構式。"}, {"front": "函式模板", "back": "以型別參數寫出可套用多種型別的函式。"}, {"front": "類別模板", "back": "以型別參數寫出一族類別，例如 Box<int>。"}, {"front": "typename T", "back": "宣告 T 是稍後由使用者指定或推導的型別。"}];
-(function(){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');const g=$('fcGrid');const render=a=>g.innerHTML=a.map(c=>`<div class="fc-card"><div class="fc-inner"><div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div><div class="fc-face fc-back">${esc(c.back)}</div></div></div>`).join('');render(FLASHCARDS);g.onclick=e=>{const c=e.target.closest('.fc-card');if(c)c.classList.toggle('flipped')};$('fcShuffle').onclick=()=>render([...FLASHCARDS].sort(()=>Math.random()-.5));$('fcUnflip').onclick=()=>g.querySelectorAll('.fc-card').forEach(c=>c.classList.remove('flipped'));$('fcFlipAll').onclick=()=>g.querySelectorAll('.fc-card').forEach(c=>c.classList.add('flipped'));})();
-(function(){document.querySelectorAll('.sq-item').forEach(x=>x.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{const f=x.querySelector('.sq-fb'),ok=b.dataset.c==='1';x.querySelectorAll('.sq-opt').forEach(z=>z.classList.remove('correct','wrong'));b.classList.add(ok?'correct':'wrong');f.textContent=b.dataset.fb;f.className='sq-fb show '+(ok?'good':'bad')}))})();
-lesson('p9',['deliver 收到 Notification 的唯讀參考。','實際物件是 Email，呼叫 Email::send。','下一個實際物件是 SMS，呼叫 SMS::send。','輸出兩種通知格式。','完成。']);
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>pure virtual 的 =0 表示？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="衍生類別須覆寫才能成為具體類別。">規定介面，類別在未完成前不可實例化</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。衍生類別須覆寫才能成為具體類別。">回傳整數 0</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。衍生類別須覆寫才能成為具體類別。">函式一定沒有名稱</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。衍生類別須覆寫才能成為具體類別。">自動 catch</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>larger(3,2.5) 對單一 T 模板為何可能失敗？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="同一個 T 的各推導位置需一致。">T 同時被推導成 int 與 double，結果衝突</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。同一個 T 的各推導位置需一致。">模板只能用 string</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。同一個 T 的各推導位置需一致。">3 不支援 &lt;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。同一個 T 的各推導位置需一致。">模板必須 virtual</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q7.</span>模板定義通常放 header 的原因？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="只有宣告常導致所需版本無法產生或連結。">使用處需看見完整定義才能實例化</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。只有宣告常導致所需版本無法產生或連結。">header 執行較快</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。只有宣告常導致所需版本無法產生或連結。">cpp 不能寫 template</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。只有宣告常導致所需版本無法產生或連結。">為了 public 存取</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q8.</span>operator&lt; 用 &lt;= 實作會破壞哪個要求？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="ordered 容器依賴嚴格弱序。">strict weak ordering 中 x&lt;x 必須為假</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。ordered 容器依賴嚴格弱序。">hash 必為零</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。ordered 容器依賴嚴格弱序。">virtual destructor</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。ordered 容器依賴嚴格弱序。">RAII</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q9.</span>unordered 自訂鍵最核心的相容規則？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="碰撞允許，但相等鍵不能散到不相容位置。">equality 相等必須有相同 hash</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。碰撞允許，但相等鍵不能散到不相容位置。">不同鍵必須不同 hash</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。碰撞允許，但相等鍵不能散到不相容位置。">hash 相同必定相等</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。碰撞允許，但相等鍵不能散到不相容位置。">operator&lt; 必須存在</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q10.</span>最小 int 優先的標準宣告使用？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="三參數依序是值、底層容器、比較器。">priority_queue&lt;int,vector&lt;int&gt;,greater&lt;int&gt;&gt;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。三參數依序是值、底層容器、比較器。">priority_queue&lt;int&gt;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。三參數依序是值、底層容器、比較器。">queue&lt;int,greater&lt;int&gt;&gt;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。三參數依序是值、底層容器、比較器。">priority_queue&lt;greater&lt;int&gt;&gt;</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q11.</span>範圍 for 對自訂容器主要尋找？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="範圍 for 依 [begin,end) iterator 走訪。">begin() 與 end()</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。範圍 for 依 [begin,end) iterator 走訪。">push() 與 pop()</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。範圍 for 依 [begin,end) iterator 走訪。">hash()</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。範圍 for 依 [begin,end) iterator 走訪。">virtual size()</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q12.</span>Mailbox 只想重用 vector 儲存，通常選？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="組合只公開領域需要的介面。">把 vector 當 private 資料成員的 composition</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。組合只公開領域需要的介面。">public 繼承 vector</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。組合只公開領域需要的介面。">virtual 繼承 int</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。組合只公開領域需要的介面。">特化 std::Mailbox</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q13.</span>擁有 new[] 的類別只用預設複製會造成？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。">shallow copy，共享指標並可能 double free</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。">自動深複製</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。">編譯器自動禁止</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。">vector 接管</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q14.</span>=delete 用在 copy constructor 表示？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="它宣告該函式不可使用。">複製操作在編譯期被明確禁止</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。它宣告該函式不可使用。">執行時刪物件</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。它宣告該函式不可使用。">自動深複製</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。它宣告該函式不可使用。">只刪資料成員</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q15.</span>自訂 AddressError public 繼承 runtime_error 的好處？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="is-a 關係讓標準例外介面與捕捉階層成立。">可沿用 what，且能被標準例外邊界捕捉</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。is-a 關係讓標準例外介面與捕捉階層成立。">自動忽略錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。is-a 關係讓標準例外介面與捕捉階層成立。">不必 throw</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。is-a 關係讓標準例外介面與捕捉階層成立。">變成模板</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p8_oop_basics.html"><div class="nav-dir">上一頁</div><div class="nav-title">類別與物件</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="introduction.html"><div class="nav-dir">下一頁</div><div class="nav-title">C++ 導論</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
+const FLASHCARDS = [{"front": "public inheritance", "back": "class D : public B 表達 D is-a B，保留基底 public 介面。"}, {"front": "protected", "back": "類別本身與衍生類別可用，外部不可用；private 連衍生類別也不能直接碰。"}, {"front": "建構／解構順序", "back": "建構：基底、成員宣告順序、衍生主體；解構完全反向。"}, {"front": "virtual / override", "back": "virtual 啟用動態選擇；override 要求編譯器驗證確實覆寫。"}, {"front": "object slicing", "back": "以基底值接收衍生物件會切掉衍生部分；多型使用基底參考或指標。"}, {"front": "virtual destructor", "back": "可能透過基底指標刪除物件時，基底解構式必須 virtual。"}, {"front": "pure virtual", "back": "函式尾端 =0；含未實作純虛擬函式的類別是抽象類別。"}, {"front": "template<typename T>", "back": "宣告 T 是型別參數；實際使用時推導或明確指定。"}, {"front": "template instantiation", "back": "編譯器依實際型別產生需要的具體版本；定義通常放 header。"}, {"front": "operator==", "back": "定義值相等；通常是 const 成員並以 const reference 接右側。"}, {"front": "strict weak ordering", "back": "operator< 必須一致且 x<x 為假；ordered 容器依此判斷鍵等價。"}, {"front": "const/non-const operator[]", "back": "非 const 回傳 T& 可修改；const 回傳 const T& 供唯讀物件。"}, {"front": "hash/equality 契約", "back": "equality 相等的鍵必須產生相同 hash；碰撞可由 equality 分辨。"}, {"front": "priority_queue<T,C,Compare>", "back": "三參數是值型別、底層容器、比較器；greater 形成最小值優先。"}, {"front": "function object", "back": "定義 operator()、可像函式呼叫的物件；std::greater 位於 functional。"}, {"front": "容器介面", "back": "size、[]、begin/end 讓自訂型別支援熟悉查詢與範圍 for。"}, {"front": "composition", "back": "has-a 關係；以成員重用功能並只公開必要介面。"}, {"front": "shallow copy", "back": "只複製擁有資源的指標，導致共享、double free 與意外連動。"}, {"front": "Rule of Three", "back": "直接管理資源時一起考慮解構、拷貝建構與 copy assignment。"}, {"front": "Rule of Zero / =delete", "back": "優先用標準資源型別免手寫；不允許複製則以 =delete 在編譯期拒絕。"}, {"front": "自訂標準例外", "back": "public 繼承 runtime_error，初始化基底訊息並沿用 what。"}];
+
+/* depth-runtime:start */
+(() => {
+ const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ document.querySelectorAll('.lesson-trace').forEach(root => {
+   const frames=JSON.parse(root.querySelector('.trace-data').textContent);
+   let index=0,timer=null;const play=root.querySelector('[data-action="play"]');
+   const stop=()=>{clearInterval(timer);timer=null;};
+   function draw(){
+     const frame=frames[index];
+     root.querySelector('.trace-note').textContent=frame.note;
+     root.querySelector('.trace-vars').innerHTML='<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>名稱／狀態</th><th>目前的值</th></tr></thead><tbody>'+Object.entries(frame.vars||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</tbody></table></div>';
+     root.querySelector('.trace-output').textContent=frame.output ? '目前輸出：\n'+frame.output : '目前尚無輸出';
+     root.querySelectorAll('.line').forEach((el,i)=>el.classList.toggle('active',i===frame.line));
+     play.textContent=timer?'⏸ 暫停':index===frames.length-1?'↻ 重播':'▶ 播放';
+     root.dataset.frame=String(index);root.dataset.frames=String(frames.length);
+   }
+   function next(){index=Math.min(index+1,frames.length-1);if(index===frames.length-1)stop();draw();}
+   play.onclick=()=>{if(timer){stop();draw();return;}if(index===frames.length-1)index=0;timer=setInterval(next,850);draw();};
+   root.querySelector('[data-action="next"]').onclick=()=>{stop();next();};
+   root.querySelector('[data-action="prev"]').onclick=()=>{stop();index=Math.max(0,index-1);draw();};
+   root.querySelector('[data-action="reset"]').onclick=()=>{stop();index=0;draw();};draw();
+ });
+ document.querySelectorAll('.sq-item').forEach(q=>q.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{
+   q.querySelectorAll('.sq-opt').forEach(x=>x.classList.remove('correct','wrong'));
+   const good=b.dataset.c==='1';b.classList.add(good?'correct':'wrong');
+   const f=q.querySelector('.sq-fb');f.textContent=b.dataset.fb;f.className='sq-fb show '+(good?'good':'bad');
+ }));
+ const grid=document.getElementById('fcGrid');
+ function render(cards){grid.innerHTML=cards.map(c=>'<div class="fc-card" tabindex="0" role="button" aria-pressed="false"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');}
+ function flip(card,on){card.classList.toggle('flipped',on);card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));}
+ grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)flip(c,!c.classList.contains('flipped'));};
+ grid.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.fc-card');if(c){e.preventDefault();flip(c,!c.classList.contains('flipped'));}}};
+ document.getElementById('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,true));
+ document.getElementById('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,false));
+ document.getElementById('fcShuffle').onclick=()=>{const a=[...FLASHCARDS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}render(a);};render(FLASHCARDS);
+ const links=[...document.querySelectorAll('.float-nav a[data-target]')];
+ const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}),{rootMargin:'-10% 0px -65% 0px'});
+ document.querySelectorAll('section[id]').forEach(el=>observer.observe(el));
+})();
+/* depth-runtime:end */
 </script><script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {

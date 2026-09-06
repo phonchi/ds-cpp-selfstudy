@@ -1,79 +1,122 @@
 [
   {
-    "question": "7 / 2（兩邊均為 int）結果為何？",
+    "question": "四個建置階段的正確順序？",
     "answers": [
       {
-        "answer": "3",
+        "answer": "前置處理 → 編譯 → 組譯 → 連結",
         "correct": true,
-        "feedback": "正確，整數除法捨去小數。"
+        "feedback": "正確；g++ 通常一次代辦四步。"
       },
       {
-        "answer": "3.5",
+        "answer": "編譯 → 前置處理 → 連結 → 組譯",
         "correct": false,
-        "feedback": "兩邊都是 int。"
+        "feedback": "前置處理必須先展開來源，連結則在目的檔之後。"
       }
     ]
   },
   {
-    "question": "哪一行可讀入 quantity？",
+    "question": "區域變數 int n; 尚未指定就讀取，應如何判斷？",
     "answers": [
       {
-        "answer": "std::cin >> quantity;",
+        "answer": "屬未定義行為",
         "correct": true,
-        "feedback": "正確。"
+        "feedback": "正確；不要依賴碰巧結果。"
       },
       {
-        "answer": "std::cout << quantity;",
+        "answer": "保證是 0",
         "correct": false,
-        "feedback": "cout 用於輸出。"
+        "feedback": "自動儲存期的區域基本型別不保證零初始化。"
       }
     ]
   },
   {
-    "question": "在 main 內執行以下片段，會輸出什麼？",
-    "code": "char grade = 'A';\nstd::cout << grade << \"\\n\";",
+    "question": "哪個是單一字元？",
     "answers": [
       {
-        "answer": "A",
+        "answer": "'Q'",
         "correct": true,
-        "feedback": "正確。單引號包住一個 char 字元，cout 會輸出該字元。"
+        "feedback": "正確，單引號是 char 字面值。"
       },
       {
-        "answer": "'A'",
+        "answer": "\"Q\"",
         "correct": false,
-        "feedback": "單引號是原始碼中的字元界線，不會成為輸出內容。"
+        "feedback": "雙引號形成字串字面值。"
       }
     ]
   },
   {
-    "question": "在 main 內執行以下片段，哪一行會造成編譯錯誤？",
-    "code": "const int unitPrice = 35;\nint quantity = 2;\nquantity = 3;\nunitPrice = 40;",
+    "question": "下列輸出為何？",
     "answers": [
       {
-        "answer": "unitPrice = 40;",
+        "answer": "3 3.5",
         "correct": true,
-        "feedback": "正確。const 變數初始化後不可重新指定。"
+        "feedback": "正確；第一次先做整數除法。"
       },
       {
-        "answer": "quantity = 3;",
+        "answer": "3.5 3.5",
         "correct": false,
-        "feedback": "quantity 沒有 const，可以重新指定。"
+        "feedback": "指定到 double 不會回復已截斷小數。"
+      }
+    ],
+    "code": "double a=7/2; double b=static_cast<double>(7)/2; std::cout<<a<<\" \"<<b;"
+  },
+  {
+    "question": "sizeof(char) 由標準保證為何？",
+    "answers": [
+      {
+        "answer": "1",
+        "correct": true,
+        "feedback": "正確，單位是 byte。"
+      },
+      {
+        "answer": "8",
+        "correct": false,
+        "feedback": "char 的位元數未必是 8，但 sizeof(char) 定義為 1。"
       }
     ]
   },
   {
-    "question": "在 main 內執行以下片段，會輸出什麼？",
-    "code": "int total = 7;\nint people = 2;\ndouble result = static_cast<double>(total) / people;\nstd::cout << result << \"\\n\";",
+    "question": "score=4；執行 cout << score++ 後輸出與 score 各為何？",
     "answers": [
       {
-        "answer": "3.5",
+        "answer": "輸出 4，score 變 5",
         "correct": true,
-        "feedback": "正確。total 在除法前先轉成 double，因此使用浮點除法。"
+        "feedback": "正確，後置遞增先產生舊值。"
       },
       {
-        "answer": "3",
+        "answer": "輸出 5，score 變 5",
         "correct": false,
-        "feedback": "若兩邊都維持 int 才會捨去小數；這裡已先轉型。"
+        "feedback": "那是前置遞增的輸出。"
+      }
+    ]
+  },
+  {
+    "question": "帶號 int 超出可表示範圍時可以依賴它繞回嗎？",
+    "answers": [
+      {
+        "answer": "不可以",
+        "correct": true,
+        "feedback": "正確；帶號溢位是未定義行為。"
+      },
+      {
+        "answer": "可以，必然繞回",
+        "correct": false,
+        "feedback": "模數回繞是 unsigned 的規則。"
+      }
+    ]
+  },
+  {
+    "question": "看到十多則編譯錯誤，第一步？",
+    "answers": [
+      {
+        "answer": "先修第一則真正的 error 再重編",
+        "correct": true,
+        "feedback": "正確；後續常是連鎖診斷。"
+      },
+      {
+        "answer": "從最後一則往回修",
+        "correct": false,
+        "feedback": "最後一則可能只是前方語法錯誤的後果。"
       }
     ]
   }

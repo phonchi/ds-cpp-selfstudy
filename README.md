@@ -34,21 +34,23 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 
 ## 先備知識（選讀，不列入評分）
 
-給學過程式、初學 C++ 的讀者。先看這九頁再讀課本，不要求 Python 背景。
-各節依「用途 → 語法拆解 → 小範例與結果 → 操作或練習」編排，完整範例只用標準 C++17，
-不依賴課程標頭。P3 的函式與參考、P4 的指標、P8 的類別是重要基礎。
+給學過程式、初學 C++ 的讀者，不要求 Python 或課本前提。以改寫前完整先備教材為範圍，
+保留重要 C++ 主題與說明深度，依先備關係重排並換成獨立例子。每節包含用途、語法拆解、
+逐步推理、完整程式、錯誤對照與帶理由的練習；主要說明直接展開。
 
-| # | 頁面 | 內容 |
-|---|------|------|
-| P1 | [C++ 基礎與編譯流程](p1_cpp_basics.html) | 最小程式、變數與初始化、型別、輸入輸出、運算與轉型、編譯錯誤 |
-| P2 | [流程控制](p2_flow_control.html) | 比較與布林、if／switch、短路求值、while／for、break／continue |
-| P3 | [函式與參考](p3_functions.html) | 定義與呼叫、參數與回傳、作用域、傳值、參考、const 參考、多載與預設引數 |
-| P4 | [陣列、指標與動態記憶體](p4_pointers_memory.html) | 陣列、位址、指標、nullptr、指標與陣列參數、生命週期、new／delete |
-| P5 | [vector 與 string](p5_vector_string.html) | 宣告與初始化、索引與增刪、範圍 for、auto、字串輸入與操作 |
-| P6 | [map 與 set](p6_map_set.html) | 鍵值查詢與修改、缺鍵新增、去重、走訪與 pair |
-| P7 | [檔案與例外](p7_files_exceptions.html) | 讀寫檔、getline、狀態檢查、try／catch／throw、at() |
-| P8 | [類別與物件](p8_oop_basics.html) | class、成員、存取權限、建構式、const 成員函式、this、解構式 |
-| P9 | [類別延伸與模板入門](p9_oop_advanced.html) | 基本繼承、virtual／override、基底參考、函式模板與類別模板 |
+| 頁面 | 主題 |
+|---|---|
+| P1 基礎與編譯 | 程式骨架、四階段、型別與初始化、I/O、運算、轉型、溢位與錯誤診斷 |
+| P2 流程控制 | 短路、分支與 switch、while/do-while/for、跳躍、巢狀迴圈與成本 |
+| P3 函式與參考 | 引數/參數、回傳、作用域、宣告、傳值與參考、回傳生命週期、多載、遞迴 |
+| P4 陣列、指標與記憶體 | 指標與目標、算術與退化、三種參數傳遞、stack/heap、配置釋放與所有權 |
+| P5 vector 與 string | 初始化、增刪成本、容量與攤還、三種走訪、失效、二維資料、序列容器與文字 |
+| P6 map、set 與迭代器 | pair、查詢副作用、有序/無序、structured binding、安全 erase、計數去重分組 |
+| P7 檔案與例外 | 路徑與模式、逐行解析、stream state、RAII、例外傳遞、at/[] 與處理邊界 |
+| P8 類別與物件 | ctor、封裝與 const、this/物件連結、複製解構、operator<</friend、組合與多檔 |
+| P9 類別延伸與模板 | 繼承多型、抽象介面、模板、運算子、比較/雜湊、priority_queue、資源複製與自訂例外 |
+
+完整範圍對照、來源與跨組審查見[覆蓋與驗收紀錄](docs/prereq-coverage-20260906.md)。
 
 頁面以單檔 HTML 與原生 JS 為主；00C 另引用三張有來源標註的本地官方介面截圖。
 先備頁的自測題與詞彙卡依新正文編寫，正課頁維持課程題庫來源。
@@ -64,7 +66,8 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 | `tools/inject_prereq_cpp.py` | 課前章與先備頁的尾段注入（導讀框、詞彙卡區、上下頁導覽），冪等 |
 | `tools/check_links_cpp.py` | 全站錨點、頁面連結與注入前置條件檢查 |
 | `tools/check_prereq.py` | 編譯執行先備頁完整範例、核對輸出與 JSON、檢查 inline JS 及指向先備頁的跨頁錨點 |
-| `tools/check_prereq_browser.py` | 用 Chromium 驗證九頁播放控制、題目回饋、詞彙卡、導覽及桌面／手機版面 |
+| `tools/check_prereq_browser.py` | 驗證每個 trace、每題每個選項、詞卡，以及九頁與主文的 computed style 一致性 |
+| `tools/prereq_authoring.py` | 可選的單檔 HTML 編寫輔助，沿用主文樣式與統一 trace 引擎；生成後仍以 HTML 為正文來源 |
 | `tools/check_00c.py` | 解析 00C 三份 JSON、核對圖片與範圍，並編譯三種匿名專案模式 |
 | `tools/enrich/enrich_lib.py` | 頁面同格式 C++ 上色、講義範例卡、插入器，以及 `run_cpp()`（編譯執行取真實輸出） |
 | `tools/enrich/enrich_*.py` | 九章正課頁的一次性充實腳本，靠 `dx-*` 標記冪等（已注入完畢，不要重跑） |
@@ -107,3 +110,7 @@ python3 tools/check_prereq_browser.py --pages p3 p4 --screenshots /tmp/prereq-sc
 它會加快互動計時器以驗證暫停、單步、重設、完成與重播，並檢查 1440px／390px 寬度的溢出。
 
 本次全面改寫的獨立閱讀審查、問題修正與驗證範圍見[審查紀錄](docs/prereq-reader-review-20260906.md)。
+
+多檔程式的每個 `<pre>` 標成 `data-cpp="file"`，用相同 `data-example` 分組，
+`data-filename` 指定實際檔名；其中一檔提供 `data-expected`（及需要時的 `data-stdin`）。
+檢查器建立真實檔案，將同組 `.cpp` 一起編譯，不以合併成單檔代替多檔驗證。

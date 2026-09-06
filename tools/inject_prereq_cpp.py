@@ -77,11 +77,11 @@ PPAGES = [
     ("p2_flow_control",     "流程控制",               "p2",  "p2", PQ,  "p1_cpp_basics",        "p3_functions",        "函式與參考"),
     ("p3_functions",        "函式與參考",                   "p3",  "p3", PQ,  "p2_flow_control",      "p4_pointers_memory",  "陣列、指標與動態記憶體"),
     ("p4_pointers_memory",  "陣列、指標與動態記憶體", "p4",  "p4", PQ,  "p3_functions",         "p5_vector_string",    "vector 與 string"),
-    ("p5_vector_string",    "vector 與 string",       "p5",  "p5", PQ,  "p4_pointers_memory",   "p6_map_set",          "map 與 set"),
-    ("p6_map_set",          "map 與 set",      "p6",  "p6", PQ,  "p5_vector_string",     "p7_files_exceptions", "檔案與例外"),
+    ("p5_vector_string",    "vector 與 string",       "p5",  "p5", PQ,  "p4_pointers_memory",   "p6_map_set",          "map、set 與迭代器"),
+    ("p6_map_set",          "map、set 與迭代器",      "p6",  "p6", PQ,  "p5_vector_string",     "p7_files_exceptions", "檔案與例外"),
     ("p7_files_exceptions", "檔案與例外",             "p7",  "p7", PQ,  "p6_map_set",           "p8_oop_basics",       "類別與物件"),
-    ("p8_oop_basics",       "類別與物件",       "p8",  "p8", PQ,  "p7_files_exceptions",  "p9_oop_advanced",     "類別延伸與模板入門"),
-    ("p9_oop_advanced",     "類別延伸與模板入門",       "p9",  "p9", PQ,  "p8_oop_basics",        "introduction",        "回到主線：C++ 導論"),
+    ("p8_oop_basics",       "類別與物件",       "p8",  "p8", PQ,  "p7_files_exceptions",  "p9_oop_advanced",     "類別延伸與模板"),
+    ("p9_oop_advanced",     "類別延伸與模板",       "p9",  "p9", PQ,  "p8_oop_basics",        "introduction",        "回到主線：C++ 導論"),
 ]
 
 PREV_LABEL = {p[0]: p[1] for p in PPAGES}

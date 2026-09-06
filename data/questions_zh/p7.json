@@ -1,61 +1,326 @@
 [
   {
-    "question": "ofstream 預設如何處理既有同名檔案？",
+    "question": "相對路徑 data/a.txt 以哪裡為起點？",
     "answers": [
       {
-        "answer": "清空後重寫",
+        "answer": "程式執行時的 working directory",
         "correct": true,
-        "feedback": "正確，預設會覆寫。"
+        "feedback": "相對路徑由 working directory 解析。"
       },
       {
-        "answer": "保留並附加",
+        "answer": "原始碼檔所在處",
         "correct": false,
-        "feedback": "附加需要另外指定模式。"
+        "feedback": "不對。相對路徑由 working directory 解析。"
+      },
+      {
+        "answer": "編譯器安裝處",
+        "correct": false,
+        "feedback": "不對。相對路徑由 working directory 解析。"
+      },
+      {
+        "answer": "使用者家目錄固定",
+        "correct": false,
+        "feedback": "不對。相對路徑由 working directory 解析。"
       }
     ]
   },
   {
-    "question": "getline 何時讓 while 停止？",
+    "question": "ofstream 預設重開既有檔案與 ios::app 的差別？",
     "answers": [
       {
-        "answer": "無法再讀到一行時",
+        "answer": "前者通常截斷；app 保留並從尾端追加",
         "correct": true,
-        "feedback": "正確。"
+        "feedback": "寫日誌要明確用 app。"
       },
       {
-        "answer": "遇到空白時",
+        "answer": "兩者完全相同",
         "correct": false,
-        "feedback": "空白行也是一行。"
+        "feedback": "不對。寫日誌要明確用 app。"
+      },
+      {
+        "answer": "app 只允許讀",
+        "correct": false,
+        "feedback": "不對。寫日誌要明確用 app。"
+      },
+      {
+        "answer": "預設一定追加",
+        "correct": false,
+        "feedback": "不對。寫日誌要明確用 app。"
       }
     ]
   },
   {
-    "question": "本頁的 try 丟出 invalid_argument 之後會怎樣？",
+    "question": "可靠讀整數迴圈應寫？",
     "answers": [
       {
-        "answer": "跳往後面的 catch (const std::exception& e)",
+        "answer": "while (in >> x)",
         "correct": true,
-        "feedback": "正確，本例由後面的 catch (const std::exception& e) 接住。"
+        "feedback": "把讀取放在條件，成功才處理。"
       },
       {
-        "answer": "繼續 throw 後的下一行",
+        "answer": "while (!in.eof())",
         "correct": false,
-        "feedback": "本例的 throw 會離開 try 的正常路徑，由後面的 catch 接手。"
+        "feedback": "不對。把讀取放在條件，成功才處理。"
+      },
+      {
+        "answer": "while (in.good()) { in >> x; use(x); }",
+        "correct": false,
+        "feedback": "不對。把讀取放在條件，成功才處理。"
+      },
+      {
+        "answer": "while (x)",
+        "correct": false,
+        "feedback": "不對。把讀取放在條件，成功才處理。"
       }
     ]
   },
   {
-    "question": "哪個存取會檢查 vector 索引？",
+    "question": "格式錯後呼叫 clear() 做了什麼？",
     "answers": [
       {
-        "answer": "at()",
+        "answer": "清狀態旗標，但壞 token 仍需移除",
         "correct": true,
-        "feedback": "正確。"
+        "feedback": "clear 不移動讀取位置。"
       },
       {
-        "answer": "[]",
+        "answer": "刪除整個檔案",
         "correct": false,
-        "feedback": "[] 不做範圍檢查。"
+        "feedback": "不對。clear 不移動讀取位置。"
+      },
+      {
+        "answer": "自動跳過壞 token",
+        "correct": false,
+        "feedback": "不對。clear 不移動讀取位置。"
+      },
+      {
+        "answer": "關閉串流",
+        "correct": false,
+        "feedback": "不對。clear 不移動讀取位置。"
+      }
+    ]
+  },
+  {
+    "question": "eof() 何時可靠變 true？",
+    "answers": [
+      {
+        "answer": "一次讀取嘗試碰到檔尾之後",
+        "correct": true,
+        "feedback": "因此不要用 !eof() 預測下一次讀取。"
+      },
+      {
+        "answer": "讀最後一筆之前",
+        "correct": false,
+        "feedback": "不對。因此不要用 !eof() 預測下一次讀取。"
+      },
+      {
+        "answer": "開檔時",
+        "correct": false,
+        "feedback": "不對。因此不要用 !eof() 預測下一次讀取。"
+      },
+      {
+        "answer": "每次 getline 前",
+        "correct": false,
+        "feedback": "不對。因此不要用 !eof() 預測下一次讀取。"
+      }
+    ]
+  },
+  {
+    "question": "若 eofbit 單獨設定，fail() 一定為 true 嗎？",
+    "answers": [
+      {
+        "answer": "不一定；fail() 檢查 failbit 或 badbit",
+        "correct": true,
+        "feedback": "成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+      },
+      {
+        "answer": "一定",
+        "correct": false,
+        "feedback": "不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+      },
+      {
+        "answer": "只有輸出串流一定",
+        "correct": false,
+        "feedback": "不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+      },
+      {
+        "answer": "good() 一定為 true",
+        "correct": false,
+        "feedback": "不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+      }
+    ]
+  },
+  {
+    "question": "離開區域作用域後 ofstream 通常如何處理？",
+    "answers": [
+      {
+        "answer": "解構並自動關檔",
+        "correct": true,
+        "feedback": "這是 RAII。"
+      },
+      {
+        "answer": "永遠保持開啟",
+        "correct": false,
+        "feedback": "不對。這是 RAII。"
+      },
+      {
+        "answer": "必須 leak",
+        "correct": false,
+        "feedback": "不對。這是 RAII。"
+      },
+      {
+        "answer": "自動刪除檔案",
+        "correct": false,
+        "feedback": "不對。這是 RAII。"
+      }
+    ]
+  },
+  {
+    "question": "對已 close 的 out 再寫，應如何確認失敗？",
+    "answers": [
+      {
+        "answer": "寫入後檢查 fail() 或串流條件",
+        "correct": true,
+        "feedback": "close 成功本身可不 fail；後續無效寫入才設定狀態。"
+      },
+      {
+        "answer": "只查 eof()",
+        "correct": false,
+        "feedback": "不對。close 成功本身可不 fail；後續無效寫入才設定狀態。"
+      },
+      {
+        "answer": "檢查檔名長度",
+        "correct": false,
+        "feedback": "不對。close 成功本身可不 fail；後續無效寫入才設定狀態。"
+      },
+      {
+        "answer": "close 一定先設 fail",
+        "correct": false,
+        "feedback": "不對。close 成功本身可不 fail；後續無效寫入才設定狀態。"
+      }
+    ]
+  },
+  {
+    "question": "throw 發生後，控制流程去哪裡？",
+    "answers": [
+      {
+        "answer": "沿呼叫鏈尋找型別相容的 catch",
+        "correct": true,
+        "feedback": "沿途正常敘述不執行，區域物件會被銷毀。"
+      },
+      {
+        "answer": "總是下一行",
+        "correct": false,
+        "feedback": "不對。沿途正常敘述不執行，區域物件會被銷毀。"
+      },
+      {
+        "answer": "總是 main 第一行",
+        "correct": false,
+        "feedback": "不對。沿途正常敘述不執行，區域物件會被銷毀。"
+      },
+      {
+        "answer": "自動回傳 0",
+        "correct": false,
+        "feedback": "不對。沿途正常敘述不執行，區域物件會被銷毀。"
+      }
+    ]
+  },
+  {
+    "question": "vector::at 越界與 operator[] 越界差別？",
+    "answers": [
+      {
+        "answer": "at 丟 out_of_range；[] 是未定義行為",
+        "correct": true,
+        "feedback": "[] 不做可靠界線檢查。"
+      },
+      {
+        "answer": "兩者都回 0",
+        "correct": false,
+        "feedback": "不對。[] 不做可靠界線檢查。"
+      },
+      {
+        "answer": "[] 丟例外",
+        "correct": false,
+        "feedback": "不對。[] 不做可靠界線檢查。"
+      },
+      {
+        "answer": "at 插入元素",
+        "correct": false,
+        "feedback": "不對。[] 不做可靠界線檢查。"
+      }
+    ]
+  },
+  {
+    "question": "const string s 的 s[s.size()] 與 s.at(s.size()) 差別？",
+    "answers": [
+      {
+        "answer": "前者可讀結尾 \\0；後者丟 out_of_range",
+        "correct": true,
+        "feedback": "string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
+      },
+      {
+        "answer": "兩者都越界未定義",
+        "correct": false,
+        "feedback": "不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
+      },
+      {
+        "answer": "兩者都插入字元",
+        "correct": false,
+        "feedback": "不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
+      },
+      {
+        "answer": "at 回 npos",
+        "correct": false,
+        "feedback": "不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
+      }
+    ]
+  },
+  {
+    "question": "map::at 缺鍵與 map::operator[] 缺鍵差別？",
+    "answers": [
+      {
+        "answer": "at 丟 out_of_range；[] 插入預設值",
+        "correct": true,
+        "feedback": "唯讀且要求存在時用 at 或 find。"
+      },
+      {
+        "answer": "兩者都插入",
+        "correct": false,
+        "feedback": "不對。唯讀且要求存在時用 at 或 find。"
+      },
+      {
+        "answer": "兩者都回 end",
+        "correct": false,
+        "feedback": "不對。唯讀且要求存在時用 at 或 find。"
+      },
+      {
+        "answer": "[] 丟例外",
+        "correct": false,
+        "feedback": "不對。唯讀且要求存在時用 at 或 find。"
+      }
+    ]
+  },
+  {
+    "question": "例外一路沒有 catch 會怎樣？",
+    "answers": [
+      {
+        "answer": "呼叫 terminate，程式不繼續正常流程",
+        "correct": true,
+        "feedback": "應在能採取行動的邊界捕捉。"
+      },
+      {
+        "answer": "自動忽略",
+        "correct": false,
+        "feedback": "不對。應在能採取行動的邊界捕捉。"
+      },
+      {
+        "answer": "自動重試",
+        "correct": false,
+        "feedback": "不對。應在能採取行動的邊界捕捉。"
+      },
+      {
+        "answer": "轉為 failbit",
+        "correct": false,
+        "feedback": "不對。應在能採取行動的邊界捕捉。"
       }
     ]
   }

@@ -123,10 +123,45 @@ def main():
                 if result.returncode:
                     errors.append(f"{path.name}: script {number}: {result.stderr}")
                 counts["scripts"] += 1
+            groups = {}
+            for block in doc.blocks:
+                if block["attrs"].get("data-cpp") == "file":
+                    groups.setdefault(block["attrs"].get("data-example", ""), []).append(block)
+            for group, blocks in groups.items():
+                label = f"{path.name}: multi-file {group}"
+                case = folder / ("group-" + str(len(list(folder.glob('group-*')))))
+                case.mkdir()
+                try:
+                    assert group, "missing data-example"
+                    written = set()
+                    expected = None
+                    stdin = ""
+                    for block in blocks:
+                        attrs = block["attrs"]
+                        name = attrs.get("data-filename", "")
+                        assert name and Path(name).name == name and name not in written, "invalid/duplicate data-filename"
+                        written.add(name)
+                        (case / name).write_text(block["text"], encoding="utf-8")
+                        if "data-expected" in attrs:
+                            assert expected is None, "more than one expected output"
+                            expected, stdin = attrs["data-expected"], attrs.get("data-stdin", "")
+                    assert expected is not None, "missing group expected output"
+                    sources = sorted(str(case / name) for name in written if name.endswith('.cpp'))
+                    assert sources, "missing .cpp source"
+                    exe = case / "example"
+                    compiled = run(["g++", "-std=c++17", "-Wall", "-Wextra", "-pedantic", *sources, "-o", str(exe)], case)
+                    assert compiled.returncode == 0, compiled.stderr
+                    result = run([str(exe)], case, stdin)
+                    assert result.returncode == 0 and result.stdout == expected, f"stdout={result.stdout!r}, expected={expected!r}, stderr={result.stderr!r}"
+                    counts["multi-file"] += 1
+                except (AssertionError, subprocess.TimeoutExpired) as exc:
+                    errors.append(f"{label}: {exc}")
             for number, block in enumerate(doc.blocks, 1):
                 attrs, code = block["attrs"], block["text"]
                 kind = attrs.get("data-cpp")
                 label = f"{path.name}:{block['line']}"
+                if kind == "file":
+                    continue
                 if kind is None:
                     # Quiz programs can intentionally fail; their expected behavior
                     # is explained by the answer, not by a standalone run contract.

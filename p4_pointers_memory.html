@@ -462,227 +462,309 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <style>
 @media (max-width: 760px) { .float-nav { display: none; } }
 </style>
+
+<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body>
-<nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div>
-<a href="#array" data-target="array"><span class="fn-num">01</span><span class="fn-name">固定陣列</span></a><a href="#address" data-target="address"><span class="fn-num">02</span><span class="fn-name">位址與指標</span></a><a href="#null" data-target="null"><span class="fn-num">03</span><span class="fn-name">nullptr</span></a><a href="#params" data-target="params"><span class="fn-num">04</span><span class="fn-name">函式參數</span></a><a href="#lifetime" data-target="lifetime"><span class="fn-num">05</span><span class="fn-name">生命週期</span></a><a href="#dynamic" data-target="dynamic"><span class="fn-num">06</span><span class="fn-name">new / delete</span></a><a href="#mistakes" data-target="mistakes"><span class="fn-num">07</span><span class="fn-name">常見錯誤</span></a><a href="#reference" data-target="reference">速查表</a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">詞彙卡</span></a><a href="#top" class="fn-top"><span class="fn-num">↑ TOP</span></a></nav>
-<div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P4</div><h1><span class="blue">陣列、指標</span>與<span class="orange">動態記憶體</span></h1><div class="subtitle">從一排測量值開始，學會安全地保存與使用位址</div><div class="big-formula">索引 → 位址 → 指標 → 動態配置</div><div class="scroll-hint">向下捲動開始學習<span>↓</span></div></div></div>
-<div class="container">
-<div class="study-guide"><div class="sg-title">📌 本頁使用方式</div><p>先讀語法說明，再預測範例結果；操作互動後完成自我檢測。</p><p><strong>學習目標：</strong>你會使用固定陣列與指標、把陣列和長度傳入函式，並正確配對 <code>new</code>／<code>delete</code>。</p><div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="p3_functions.html">← P3 函式</a><a href="p5_vector_string.html">P5 vector 與 string →</a></div></div>
-<div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#array" data-target="array">固定陣列與索引</a><a href="#address" data-target="address">位址、指標、解參考</a><a href="#null" data-target="null">空指標</a><a href="#params" data-target="params">指標與陣列參數</a><a href="#lifetime" data-target="lifetime">生命週期</a><a href="#dynamic" data-target="dynamic">動態配置</a><a href="#mistakes" data-target="mistakes">錯誤整理</a><a href="#reference">速查表</a><a href="#bankquiz">自我檢測</a><a href="#cards">詞彙卡</a></div></div>
-
-<section id="array"><div class="section-number">PART 01 · 固定陣列</div><h2>把一組測量值排成有編號的一列</h2><p>已知資料筆數時，可以用固定陣列保存同型別資料。宣告中的 <code>5</code> 是元素個數；索引從 <code>0</code> 開始，因此最後一格是 <code>4</code>。</p>
-<div class="deck-extra"><div class="dx-label">語法拆解</div><pre class="pseudo-code" data-cpp="run" data-expected="第三筆 = 21&#10;總和 = 102">#include &lt;iostream&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#array" data-target="array"><span class="fn-num">01</span><span class="fn-name">固定大小陣列：一段連續的同型別元素</span></a><a href="#addr" data-target="addr"><span class="fn-num">02</span><span class="fn-name">地址、取址與解參考：三個符號</span></a><a href="#null" data-target="null"><span class="fn-num">03</span><span class="fn-name">空指標與使用前檢查</span></a><a href="#arithmetic" data-target="arithmetic"><span class="fn-num">04</span><span class="fn-name">指標算術、索引與合法範圍</span></a><a href="#decay" data-target="decay"><span class="fn-num">05</span><span class="fn-name">陣列退化後，長度資訊不跟著走</span></a><a href="#params" data-target="params"><span class="fn-num">06</span><span class="fn-name">值參數、參考參數與指標參數</span></a><a href="#storage" data-target="storage"><span class="fn-num">07</span><span class="fn-name">stack 與 heap：差別在生命週期</span></a><a href="#newdelete" data-target="newdelete"><span class="fn-num">08</span><span class="fn-name">new/delete：單一物件與動態陣列</span></a><a href="#ownership" data-target="ownership"><span class="fn-num">09</span><span class="fn-name">ownership、alias 與四種典型錯誤</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">P4 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P4</div><h1>陣列、指標與動態記憶體</h1><div class="subtitle">從連續陣列走到地址、參數與動態生命週期，建立可檢查的 ownership 模型。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#array"><span class="toc-num">01</span>固定大小陣列：一段連續的同型別元素</a><a href="#addr"><span class="toc-num">02</span>地址、取址與解參考：三個符號</a><a href="#null"><span class="toc-num">03</span>空指標與使用前檢查</a><a href="#arithmetic"><span class="toc-num">04</span>指標算術、索引與合法範圍</a><a href="#decay"><span class="toc-num">05</span>陣列退化後，長度資訊不跟著走</a><a href="#params"><span class="toc-num">06</span>值參數、參考參數與指標參數</a><a href="#storage"><span class="toc-num">07</span>stack 與 heap：差別在生命週期</a><a href="#newdelete"><span class="toc-num">08</span>new/delete：單一物件與動態陣列</a><a href="#ownership"><span class="toc-num">09</span>ownership、alias 與四種典型錯誤</a><a href="#reference"><span class="toc-num">10</span>P4 語法速查</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a></div></div><section id="array"><div class="section-number">PART 01</div><h2>固定大小陣列：一段連續的同型別元素</h2>
+<p>固定大小陣列適合保存數量在編譯時已知、型別相同的一組資料。宣告 <code>int scores[4]</code> 時，中括號內是元素個數，不是最後索引；四格依序編號 0、1、2、3。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="309&#10;">#include &lt;iostream&gt;
 int main() {
-    int temperature[5] = {18, 20, 21, 19, 24};
-    int total = 0;
-    for (int i = 0; i &lt; 5; i++) total += temperature[i];
-    cout &lt;&lt; "第三筆 = " &lt;&lt; temperature[2] &lt;&lt; "\n";
-    cout &lt;&lt; "總和 = " &lt;&lt; total;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>第三筆 = 21
-總和 = 102</pre></div><p class="dx-note"><code>temperature[i]</code> 取得第 <code>i</code> 格。C++ 不會替原生陣列檢查索引，使用者必須確保索引位於有效範圍。</p></div>
-<div class="info-box"><div class="info-label">陣列不是指標</div><p>陣列是包含多個元素的物件；指標則是保存位址的變數。陣列名稱在許多運算式中會轉成首元素位址，但兩者仍不是同一種東西。</p></div></section>
+    int scores[4]{72, 81, 90, 66};
+    int sum{0};
+    for (int i{0}; i &lt; 4; ++i) {
+        sum += scores[i];
+    }
+    std::cout &lt;&lt; sum &lt;&lt; &quot;\n&quot;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>309&#10;</pre></div>
+<p><code>int scores[4]</code> 建立四個連續的 int，合法索引是 0 到 3。大括號逐一初始化；若初值較少，其餘元素會值初始化為 0。<code>scores[i]</code> 先找第 i 個元素，再取得該元素。</p>
+<p>C++ 內建陣列不做執行期邊界檢查。讀寫 <code>scores[4]</code> 已越界，屬未定義行為；沒有可靠的「一定崩潰」結果。迴圈條件應是 <code>i &lt; 4</code>，不是 <code>i &lt;= 4</code>。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>int a[5]{2,4}; 五個元素依序為何？</p><details><summary>看解答與理由</summary><p><code>2, 4, 0, 0, 0</code>。有列表初始化時，未列出的其餘元素會值初始化。</p></details></div>
 
-<section id="address"><div class="section-number">PART 02 · 位址與指標</div><h2>指標保存「某個值放在哪裡」</h2><p><code>&amp;score</code> 取得 <code>score</code> 的位址；<code>int *p</code> 宣告可指向 <code>int</code> 的指標；<code>*p</code> 沿著位址找到原本的整數。位址每次執行可能不同，所以範例只比較位址，不預測實際數字。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="same address&#10;score = 85">#include &lt;iostream&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-
+</section>
+<section id="addr"><div class="section-number">PART 02</div><h2>地址、取址與解參考：三個符號</h2>
+<p>每個活著的物件都位於記憶體某處。<code>&amp;x</code> 取得 x 的地址；<code>int*</code> 是「指向 int 的指標型別」；對有效指標做 <code>*p</code> 則沿地址找到目標物件。宣告中的 <code>*</code> 與運算式中的 <code>*</code> 字形相同，角色要靠位置判斷。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="70 70&#10;95 95&#10;">#include &lt;iostream&gt;
 int main() {
-    int score = 72;
-    int *p = &amp;score;
-    if (p == &amp;score) {
-        cout &lt;&lt; "same address\n";
+    int score{70};
+    int* p{&amp;score};
+    std::cout &lt;&lt; score &lt;&lt; &quot; &quot; &lt;&lt; *p &lt;&lt; &quot;\n&quot;;
+    *p = 95;
+    std::cout &lt;&lt; score &lt;&lt; &quot; &quot; &lt;&lt; *p &lt;&lt; &quot;\n&quot;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>70 70&#10;95 95&#10;</pre></div>
+<p>第 4 行中 p 自己是另一個物件，保存的是 score 的地址；<code>*p</code> 指 p 的目標。指定 <code>*p=95</code> 修改目標，所以從 score 或 *p 觀察都變成 95。若寫 <code>p = ...</code>，修改的是指標保存的地址。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>想把 p 指向的整數加 1，應寫 <code>*p += 1</code> 還是 <code>p += 1</code>？</p><details><summary>看解答與理由</summary><p>前者修改目標值；後者移動指標，使它指向下一個 int 位置，兩者完全不同。</p></details></div>
+<div class="deck-extra lesson-trace" id="p4-two-objects"><h3>指標本身與目標是兩個物件</h3><p>分開追蹤 p 保存的地址與 score 保存的數值。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">int score{70};</span>
+<span class="line">int* p{&amp;score};</span>
+<span class="line">*p = 95;</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "只有 score 物件。", "vars": {"score": "70", "p": "尚未建立"}, "line": 0}, {"note": "建立另一個物件 p，內容是 score 的地址。", "vars": {"score": "70", "p": "&score", "*p": "70"}, "line": 1}, {"note": "經 p 的地址修改目標；p 內容沒有改。", "vars": {"score": "95", "p": "&score", "*p": "95"}, "line": 2}]</script></div>
+
+</section>
+<section id="null"><div class="section-number">PART 03</div><h2>空指標與使用前檢查</h2>
+<pre class="pseudo-code" data-cpp="run" data-expected="no target&#10;">#include &lt;iostream&gt;
+int main() {
+    int* p{nullptr};
+    if (p != nullptr) {
+        std::cout &lt;&lt; *p &lt;&lt; &quot;\n&quot;;
     } else {
-        cout &lt;&lt; "different\n";
+        std::cout &lt;&lt; &quot;no target\n&quot;;
     }
-    *p = 85;
-    cout &lt;&lt; "score = " &lt;&lt; score;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>same address
-score = 85</pre></div>
-<div class="info-box"><div class="info-label">同一個 <code>*</code>，兩個位置</div><p><code>int *p</code> 中的 <code>*</code> 是宣告的一部分；運算式 <code>*p</code> 則是解參考。只有指向仍有效物件的指標才能解參考。非空只表示位址數值不是空；懸空指標也可能非空，仍然無效。</p></div>
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>no target&#10;</pre></div>
+<p><code>nullptr</code> 是 C++11 起的空指標字面值，表示目前不指向任何物件。可以比較、指定，卻不可解參考；<code>*p</code> 在 p 為空時是未定義行為。未初始化指標甚至不保證為空，所以應立即設為有效地址或 nullptr。</p>
+<p>舊程式常見 <code>NULL</code>，它通常由巨集展開成整數常數，可能在多載選擇時造成歧義；新 C++ 使用有專用型別的 <code>nullptr</code>。指標條件 <code>if (p)</code> 可用，但初學時寫 <code>p != nullptr</code> 更直接。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>delete 後把唯一指標設為 nullptr 有何作用？</p><details><summary>看解答與理由</summary><p>它避免該變數繼續保留已失效地址，也讓重複 <code>delete p</code> 對 nullptr 安全；但其他別名若仍保存舊地址，並不會自動變空。</p></details></div>
 
-<div class="deck-extra"><div class="dx-label">互動 · 指標的值與指向狀態</div><p>下面改用一個獨立小例子，不延續上方把 <code>score</code> 改成 <code>85</code> 的例子：</p><pre class="pseudo-code" data-cpp="fragment">int x = 42;
-int *p = &amp;x;
-*p = 75;</pre><p id="ptrNarration">按「播放」或「下一步」，觀察 p 從尚未建立到修改原值。</p><div id="ptrStage" style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0"></div><div class="player-controls"><button id="ptrPrev">◀ 上一步</button><button id="ptrPlay">▶ 播放</button><button id="ptrNext">下一步 ▶</button><button id="ptrReset">↺ 重設</button></div><div id="ptrProgress" class="player-status">步驟 1 / 5</div></div></section>
-
-<section id="null"><div class="section-number">PART 03 · 空指標</div><h2><code>nullptr</code> 明確表示「目前沒有指向任何物件」</h2><p>指標若暫時沒有目標，初始化為 <code>nullptr</code>。它可以拿來比較，但不能解參考。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="尚未指定測量值&#10;讀值 = 31">#include &lt;iostream&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-
+</section>
+<section id="arithmetic"><div class="section-number">PART 04</div><h2>指標算術、索引與合法範圍</h2>
+<pre class="pseudo-code" data-cpp="run" data-expected="10 30 40&#10;">#include &lt;iostream&gt;
 int main() {
-    int *selected = nullptr;
-    if (selected == nullptr) cout &lt;&lt; "尚未指定測量值\n";
-    int reading = 31;
-    selected = &amp;reading;
-    if (selected != nullptr) cout &lt;&lt; "讀值 = " &lt;&lt; *selected;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>尚未指定測量值
-讀值 = 31</pre></div>
-<p class="dx-note">舊程式可能用 <code>NULL</code> 表示空指標；新程式優先使用型別更明確的 <code>nullptr</code>。不要執行 <code>*selected</code>，除非已確認它不是空指標。</p></section>
+    int values[4]{10, 20, 30, 40};
+    int* p{values};
+    std::cout &lt;&lt; *p &lt;&lt; &quot; &quot; &lt;&lt; *(p + 2) &lt;&lt; &quot; &quot; &lt;&lt; p[3] &lt;&lt; &quot;\n&quot;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>10 30 40&#10;</pre></div>
+<p>陣列名稱在多數運算式中轉成指向第一個元素的指標，所以 p 取得 <code>&amp;values[0]</code>。<code>p+2</code> 不是地址數字加 2 byte，而是移動兩個 int 元素；因此 <code>p[i]</code> 定義上等同 <code>*(p+i)</code>。</p>
+<p>指標算術只在同一陣列範圍內有意義。可以形成「尾端後一格」指標供比較，但不可解參考它；再越過則不合法。不要對無關物件的指標做大小比較或相減來推論位置。</p>
+<div class="deck-extra lesson-trace" id="p4-walk"><h3>逐步走訪連續元素</h3><p>p 每次前進一個 int 元素。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">int a[3]{4, 7, 9};</span>
+<span class="line">int* p{a};</span>
+<span class="line">int sum{0};</span>
+<span class="line">sum += *p;</span>
+<span class="line">++p;</span>
+<span class="line">sum += *p;</span>
+<span class="line">++p;</span>
+<span class="line">sum += *p;</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "陣列三個元素連續排列。", "vars": {"a": "[4, 7, 9]"}, "line": 0}, {"note": "p 指向 a[0]。", "vars": {"p 目標索引": "0", "*p": "4"}, "line": 1}, {"note": "sum 從 0 開始。", "vars": {"sum": "0"}, "line": 2}, {"note": "加入 a[0]。", "vars": {"sum": "4"}, "line": 3}, {"note": "p 前進至 a[1]。", "vars": {"p 目標索引": "1", "*p": "7"}, "line": 4}, {"note": "加入 a[1]。", "vars": {"sum": "11"}, "line": 5}, {"note": "p 前進並加入 a[2]。", "vars": {"p 目標索引": "2", "sum": "20"}, "line": 7}]</script></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>若 p 指向 a[1]，<code>p[-1]</code> 在本例是否合法？</p><details><summary>看解答與理由</summary><p>合法，因為它等同 <code>*(p-1)</code>，仍落在同一陣列的 a[0]；負索引本身不保證錯，關鍵是結果是否仍在合法範圍。</p></details></div>
 
-<section id="params"><div class="section-number">PART 04 · 函式參數</div><h2>用指標讓函式修改呼叫端的值</h2><p>參數 <code>int *value</code> 接收整數位址。呼叫時傳入 <code>&amp;reading</code>，函式內以 <code>*value</code> 修改原值。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="校正後 = 27">#include &lt;iostream&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-
-void calibrate(int *value) {
-    if (value != nullptr) *value += 2;
+</section>
+<section id="decay"><div class="section-number">PART 05</div><h2>陣列退化後，長度資訊不跟著走</h2>
+<pre class="pseudo-code" data-cpp="run" data-expected="8 5 2&#10;">#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+void print(const int* data, std::size_t length) {
+    for (std::size_t i{0}; i &lt; length; ++i) {
+        std::cout &lt;&lt; data[i] &lt;&lt; (i + 1 == length ? &#x27;\n&#x27; : &#x27; &#x27;);
+    }
 }
 int main() {
-    int reading = 25;
-    calibrate(&amp;reading);
-    cout &lt;&lt; "校正後 = " &lt;&lt; reading;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>校正後 = 27</pre></div>
-<h3>陣列參數一定要另外帶長度</h3><p>以下 <code>average</code> 的前提是 <code>length &gt; 0</code>；呼叫端不可傳入空資料。<code>int data[]</code> 寫在參數列時，函式接到的是首元素位址，沒有元素個數。這是陣列作為函式引數時的轉換；不能因此說陣列本身就是指標。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="平均 = 18">#include &lt;iostream&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
+    int data[3]{8, 5, 2};
+    std::size_t length = sizeof(data) / sizeof(data[0]);
+    print(data, length);
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>8 5 2&#10;</pre></div>
+<p>在 main 中，<code>sizeof(data)</code> 是整個陣列的 byte 數，除以單一元素大小可得元素數。這只在 data 仍是實際陣列的作用域成立。一傳入函式，參數寫成 <code>const int data[]</code> 仍會調整成 <code>const int*</code>；函式內 <code>sizeof(data)</code> 得到的是指標大小，不是陣列大小。</p>
+<p>所以原始陣列介面要同時傳指標與長度。<code>const int*</code> 表示函式透過此指標只讀元素；它不代表指標變數本身不可移動。長度使用 <code>std::size_t</code>，與 <code>sizeof</code> 的結果型別相容。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>為何不能在 print 內用 sizeof(data)/sizeof(data[0]) 求長度？</p><details><summary>看解答與理由</summary><p>函式參數中的陣列寫法已調整成指標，sizeof(data) 只量指標。長度已遺失，必須由呼叫端另傳或使用能保留大小的介面。</p></details></div>
+<p><code>const int* data</code> 的 const 修飾目標 int：不能經 data 修改元素，但 data 這個區域指標仍可前進。若是 <code>int* const p</code>，則固定的是指標本身；它必須初始化，之後不能改指向。兩個位置不可混讀。</p>
 
-double average(const int data[], int length) {
-    int total = 0;
-    for (int i = 0; i &lt; length; i++) total += data[i];
-    return static_cast&lt;double&gt;(total) / length;
+</section>
+<section id="params"><div class="section-number">PART 06</div><h2>值參數、參考參數與指標參數</h2>
+<pre class="pseudo-code" data-cpp="run" data-expected="5 6 7&#10;">#include &lt;iostream&gt;
+void byValue(int x) { ++x; }
+void byReference(int&amp; x) { ++x; }
+void byPointer(int* x) {
+    if (x != nullptr) ++(*x);
 }
 int main() {
-    int samples[4] = {12, 18, 20, 22};
-    cout &lt;&lt; "平均 = " &lt;&lt; average(samples, 4);
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>平均 = 18</pre></div>
-<div class="warn-box"><div class="info-label"><code>sizeof</code> 不等於元素個數</div><p><code>sizeof expression</code> 量出該物件或型別占用的儲存大小，單位是 byte。在陣列仍是陣列的範圍，可用 <code>sizeof samples / sizeof samples[0]</code> 計算元素數；這個式子不假設 <code>int</code> 一定是 4 bytes。傳進上述函式後，<code>data</code> 已是指標參數，不能再用同一招。</p></div></section>
+    int n{5};
+    byValue(n);
+    std::cout &lt;&lt; n &lt;&lt; &quot; &quot;;
+    byReference(n);
+    std::cout &lt;&lt; n &lt;&lt; &quot; &quot;;
+    byPointer(&amp;n);
+    std::cout &lt;&lt; n &lt;&lt; &quot;\n&quot;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5 6 7&#10;</pre></div>
+<p>三次呼叫用同一個 n 對照：傳值建立副本，所以第一次後仍為 5；參考成為 n 的別名，第二次後是 6；指標參數取得 n 的地址，檢查非空後解參考，第三次後是 7。</p>
+<p>值參數複製資料；<code>int&amp;</code> 參考適合一定存在且需修改的目標；<code>int*</code> 可表示沒有目標或配合陣列走訪，因此使用前要檢查。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>若呼叫 <code>byPointer(nullptr)</code>，函式會做什麼？</p><details><summary>看解答與理由</summary><p>守衛條件使它不解參考，直接返回。這正是指標參數能表達「沒有目標」時，函式必須明確處理的路徑。</p></details></div>
 
-<section id="lifetime"><div class="section-number">PART 05 · 生命週期</div><h2>位址只有在原物件仍活著時才有用</h2><p>區域變數只活到所屬大括號結束。若指標保存了一個已離開範圍的物件位址，它就成為懸空指標。</p>
-<pre class="pseudo-code" data-cpp="fragment">// 錯誤示意：不可執行
-int *badAddress() {
-    int local = 42;
-    return &amp;local;  // local 在函式結束時失效
-}</pre>
-<p class="dx-note">這是用來辨識錯誤的片段，沒有 <code>main()</code>，也不應拿回傳值來解參考。安全做法是回傳數值，或在確實需要較長生命週期時使用動態配置。</p></section>
-
-<section id="dynamic"><div class="section-number">PART 06 · 動態配置</div><h2>用 <code>new[]</code> 練習動態配置</h2><p>P5 的 <code>vector</code> 能自動管理可變數量資料，日常程式優先使用它。本節手動配置是為了看懂配置與釋放的配對。<code>new int[count]{}</code> 配置一排整數並回傳首元素位址；使用完畢必須以 <code>delete[]</code> 配對。單一物件則是 <code>new int(值)</code> 配 <code>delete</code>。</p>
-<div class="expected-out"><span class="eo-tag">範例輸入</span><pre>3
-8 13 21
-</pre></div>
-<pre class="pseudo-code" data-cpp="run" data-stdin="3&#10;8 13 21&#10;" data-expected="總和 = 42">#include &lt;iostream&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
-
+</section>
+<section id="storage"><div class="section-number">PART 07</div><h2>stack 與 heap：差別在生命週期</h2>
+<p>一般區域變數具有自動儲存期：進入區塊時建立，離開時自動銷毀，實作通常放在呼叫堆疊。以 <code>new</code> 建立的物件具有動態儲存期，直到對同一配置做相符的 <code>delete</code> 才結束，實作通常稱為 heap。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>問題</th><th>自動物件</th><th>動態物件</th></tr></thead><tbody><tr><td>何時建立</td><td>執行到宣告</td><td>執行 new / new[]</td></tr><tr><td>何時銷毀</td><td>離開作用域</td><td>delete / delete[]</td></tr><tr><td>名稱離開作用域後</td><td>物件一起結束</td><td>若無其他指標，配置仍存在並洩漏</td></tr><tr><td>適合</td><td>大小與生命週期清楚</td><td>生命週期或大小需在執行期決定</td></tr></tbody></table></div>
+<p>heap 並非「比較大所以比較好」；手動生命週期帶來 ownership 責任。現代 C++ 實務通常以容器與智慧指標管理資源，本節仍學 new/delete，因為必須看懂底層模型與舊程式。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>函式內 int local{3}; 回傳 &local 為何錯？</p><details><summary>看解答與理由</summary><p>函式返回時 local 的生命週期結束，地址立刻成為懸空指標；之後解參考是未定義行為。</p></details></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="13&#10;4&#10;">#include &lt;iostream&gt;
 int main() {
-    int count = 0;
-    if (!(cin &gt;&gt; count) || count &lt;= 0) return 1;
-    int *measurements = new int[count]{};
-    int total = 0;
-    for (int i = 0; i &lt; count; i++) {
-        if (!(cin &gt;&gt; measurements[i])) {
-            delete[] measurements;
-            return 1;
-        }
-        total += measurements[i];
+    int outer{4};
+    {
+        int inner{9};
+        std::cout &lt;&lt; outer + inner &lt;&lt; &quot;\n&quot;;
     }
-    cout &lt;&lt; "總和 = " &lt;&lt; total;
-    delete[] measurements;
-    measurements = nullptr;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>總和 = 42</pre></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="值 = 15">#include &lt;iostream&gt;
-using namespace std;  // 本例因此可省略 std:: 前綴
+    std::cout &lt;&lt; outer &lt;&lt; &quot;\n&quot;;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>13&#10;4&#10;</pre></div>
+<p>inner 在內層右大括號處生命結束，outer 則活到 main 結束。若保存 inner 的地址並在區塊後解參考，地址雖仍是某個數字，目標物件已不存在，因而懸空。判斷安全性要追生命週期，不看地址外觀。</p>
+
+</section>
+<section id="newdelete"><div class="section-number">PART 08</div><h2>new/delete：單一物件與動態陣列</h2>
+<pre class="pseudo-code" data-cpp="run" data-expected="42&#10;">#include &lt;iostream&gt;
 int main() {
-    int *value = new int(15);
-    cout &lt;&lt; "值 = " &lt;&lt; *value;
-    delete value;
-    value = nullptr;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>值 = 15</pre></div></section>
+    int* p = new int{42};
+    std::cout &lt;&lt; *p &lt;&lt; &quot;\n&quot;;
+    delete p;
+    p = nullptr;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>42&#10;</pre></div>
+<p>先看單一物件：<code>new int{42}</code> 在動態儲存區建立並初始化一個 int，回傳地址給 p；解參考讀值後，以完全相配的 <code>delete p</code> 結束其生命，再清空唯一指標。每一個 new 都要能指出唯一負責釋放的 owner。</p>
+<div class="expected-out"><span class="eo-tag">範例輸入</span><pre>5&#10;</pre></div><pre class="pseudo-code" data-cpp="run" data-expected="16&#10;" data-stdin="5&#10;">#include &lt;cstddef&gt;
+#include &lt;iostream&gt;
+#include &lt;new&gt;
+int main() {
+    std::size_t n{0};
+    if (!(std::cin &gt;&gt; n) || n == 0 || n &gt; 1000) {
+        std::cerr &lt;&lt; &quot;length must be 1..1000\n&quot;;
+        return 1;
+    }
+    int* data = new (std::nothrow) int[n]{};
+    if (data == nullptr) {
+        std::cerr &lt;&lt; &quot;allocation failed\n&quot;;
+        return 1;
+    }
+    for (std::size_t i{0}; i &lt; n; ++i) data[i] = static_cast&lt;int&gt;(i * i);
+    std::cout &lt;&lt; data[n - 1] &lt;&lt; &quot;\n&quot;;
+    delete[] data;
+    data = nullptr;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>16&#10;</pre></div>
+<p><code>new int{7}</code> 配置並初始化單一 int，必須以 <code>delete p</code> 釋放。<code>new int[n]{}</code> 配置 n 個元素並零初始化，必須以 <code>delete[] p</code> 成對釋放；混用兩種 delete 是未定義行為。範例先驗證輸入與上限，再配置，避免 n=0 後存取 n-1，也避免不受限的巨量請求。</p>
+<p>一般 new 配置失敗會丟出 <code>std::bad_alloc</code>；此例刻意使用 <code>std::nothrow</code>，失敗時回傳 nullptr，因此需要空值檢查。兩種模式不要混著假設。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>new int[20] 應用哪個釋放式？</p><details><summary>看解答與理由</summary><p><code>delete[] p;</code>。即使元素是 int，也必須與陣列形式的 new[] 配對。</p></details></div>
+<p><code>std::nothrow</code> 是普通 new 的另一種失敗模式：一般 new 失敗會丟出 <code>std::bad_alloc</code>，nothrow 版本改回傳 nullptr，所以範例才明確檢查。先理解配置、使用、配對釋放三步，再選擇如何處理失敗。</p>
 
-<section id="mistakes"><div class="section-number">PART 07 · 常見錯誤</div><h2>三條安全界線</h2>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>錯誤</th><th>原因</th><th>正確習慣</th></tr></thead><tbody><tr><td>解參考空指標</td><td>沒有有效目標</td><td>解參考前確認非空</td></tr><tr><td><code>new[]</code> 配 <code>delete</code></td><td>配置與釋放形式不相配</td><td><code>new[]</code> 一律配 <code>delete[]</code></td></tr><tr><td>釋放後繼續使用別名</td><td>所有指向同處的指標都已懸空</td><td>先釐清誰負責釋放，釋放後不再使用任何別名</td></tr></tbody></table></div>
-<div class="warn-box"><div class="info-label">設成 nullptr 只會改到那一個指標</div><p>若 <code>p</code> 與 <code>alias</code> 指向同處，<code>delete p; p = nullptr;</code> 不會讓 <code>alias</code> 同步變空。<code>alias</code> 仍保存舊位址，但已不可解參考，也不可再次釋放。</p></div></section>
+</section>
+<section id="ownership"><div class="section-number">PART 09</div><h2>ownership、alias 與四種典型錯誤</h2>
+<p><strong>owner</strong> 是負責讓動態配置恰好釋放一次的程式角色；普通裸指標的型別本身不說明它是否擁有資源。兩個指標可保存同一地址，稱為 alias。alias 很實用，但釋放後所有指向該物件的 alias 都一起失效。</p>
+<pre class="pseudo-code" data-cpp="fragment">int* owner = new int{42};
+int* alias = owner;
+delete owner;
+owner = nullptr;
+// *alias;       // 錯：alias 已懸空
+// delete alias; // 錯：同一配置重複釋放</pre>
+<div class="deck-extra lesson-trace" id="p4-life"><h3>配置生命週期播放器</h3><p>分開看兩個指標格與一個目標物件。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">int* owner = new int{42};</span>
+<span class="line">int* alias = owner;</span>
+<span class="line">delete owner;</span>
+<span class="line">owner = nullptr;</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "配置一個存活的 int；owner 保存其地址。", "vars": {"owner": "位址 A", "A 的物件": "存活，值 42"}, "line": 0}, {"note": "複製地址；兩個指標指同一物件。", "vars": {"owner": "位址 A", "alias": "位址 A", "A 的物件": "存活"}, "line": 1}, {"note": "delete 結束 A 處物件生命週期。", "vars": {"owner": "懸空地址 A", "alias": "懸空地址 A", "A 的物件": "已銷毀"}, "line": 2}, {"note": "只清空 owner；alias 不會同步。", "vars": {"owner": "nullptr", "alias": "懸空地址 A", "A 的物件": "已銷毀"}, "line": 3}]</script></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>錯誤</th><th>發生方式</th><th>後果／修正</th></tr></thead><tbody><tr><td>記憶體洩漏</td><td>最後一個地址遺失前未 delete</td><td>配置仍占用；保存 owner 並釋放</td></tr><tr><td>懸空指標</td><td>目標生命週期已結束</td><td>不可解參考；重設所有相關使用路徑</td></tr><tr><td>重複釋放</td><td>同一配置 delete 兩次</td><td>未定義行為；明確單一 owner</td></tr><tr><td>錯配釋放</td><td>new[] 配 delete 或反之</td><td>未定義行為；形式必須成對</td></tr></tbody></table></div>
+<p>把 owner 設 nullptr 只改這一個指標，alias 不會同步。真正的推理核心是物件生命週期，而不是「地址看起來還在」。實務上優先使用 <code>std::vector</code>、<code>std::string</code> 與智慧指標，把 ownership 寫進型別。</p>
+<div class="info-box"><div class="info-label">動手練習</div><p>delete owner; owner=nullptr; 後，alias 是否安全變成 nullptr？</p><details><summary>看解答與理由</summary><p>不會。alias 是另一個指標物件，仍保留舊地址但已懸空。不可解參考或 delete 它。</p></details></div>
 
-<section id="reference"><div class="section-number">REF · 速查表</div><h2>P4 語法速查</h2><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>語法</th></tr></thead><tbody><tr><td>固定陣列</td><td><code>int a[3] = {1, 2, 3};</code></td></tr><tr><td>取得位址／解參考</td><td><code>&amp;x</code> ／ <code>*p</code></td></tr><tr><td>空指標</td><td><code>int *p = nullptr;</code></td></tr><tr><td>陣列參數</td><td><code>void f(int a[], int n)</code></td></tr><tr><td>單一動態物件</td><td><code>new T</code> ／ <code>delete</code></td></tr><tr><td>動態陣列</td><td><code>new T[n]{}</code> ／ <code>delete[]</code></td></tr></tbody></table></div></section>
+</section>
+<section id="reference"><div class="section-number">PART 10</div><h2>P4 語法速查</h2>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>語法</th><th>必要條件</th></tr></thead><tbody><tr><td>取地址</td><td>&x</td><td>x 仍活著</td></tr><tr><td>解參考</td><td>*p</td><td>p 非空且指向有效物件</td></tr><tr><td>陣列索引</td><td>p[i] == *(p+i)</td><td>結果在同一陣列合法範圍</td></tr><tr><td>陣列長度</td><td>sizeof(a)/sizeof(a[0])</td><td>a 必須仍是實際陣列</td></tr><tr><td>可空參數</td><td>void f(int* p)</td><td>使用前檢查 nullptr</td></tr><tr><td>單一配置</td><td>new int{v} / delete p</td><td>恰好釋放一次</td></tr><tr><td>陣列配置</td><td>new int[n]{} / delete[] p</td><td>先驗證 n 與配置結果</td></tr></tbody></table></div>
+<div class="info-box"><div class="info-label">動手練習</div><p>一句話分清 p 與 *p。</p><details><summary>看解答與理由</summary><p>p 是保存地址的指標物件；*p 是該有效地址所指的目標物件。</p></details></div>
+
+<p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：陣列、指標與動態記憶體 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <h2>自我檢測：陣列、指標與動態記憶體 <span class="sec-badge">隨堂自測 · 9 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>int values[4] = {6, 12, 18, 24}; 中，values[2] 是多少？</div>
+    <div class="sq-q"><span class="sq-num">Q1.</span>int a[4] 的最後合法索引？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。索引從 0 開始，所以索引 2 是第三個元素 18。">12</button>
-      <button class="sq-opt" data-c="1" data-fb="索引從 0 開始，所以索引 2 是第三個元素 18。">18</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。索引從 0 開始，所以索引 2 是第三個元素 18。">24</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。索引從 0 開始，所以索引 2 是第三個元素 18。">超出範圍</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，索引從 0 開始。">3</button>
+      <button class="sq-opt" data-c="0" data-fb="a[4] 已越界。">4</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式印出什麼？</div>
-    <pre class="sq-code">int score = 72;
-int *p = &amp;score;
-*p = 80;
-cout &lt;&lt; score;</pre>
+    <div class="sq-q"><span class="sq-num">Q2.</span>int* p=&amp;x；修改目標值的寫法？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。p 指向 score；*p 代表 score 本身，因此 score 變成 80。">72</button>
-      <button class="sq-opt" data-c="1" data-fb="p 指向 score；*p 代表 score 本身，因此 score 變成 80。">80</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。p 指向 score；*p 代表 score 本身，因此 score 變成 80。">score 的位址</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。p 指向 score；*p 代表 score 本身，因此 score 變成 80。">編譯錯誤</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，*p 是目標。">*p = 9;</button>
+      <button class="sq-opt" data-c="0" data-fb="p 要保存地址，且這也不是修改 x。">p = 9;</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>指標 p 等於 nullptr 時，哪個敘述正確？</div>
+    <div class="sq-q"><span class="sq-num">Q3.</span>空指標應優先使用？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。nullptr 表示沒有指向有效物件；不可解參考。">可以讀取 *p</button>
-      <button class="sq-opt" data-c="1" data-fb="nullptr 表示沒有指向有效物件；不可解參考。">p 不指向有效物件，不可解參考</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。nullptr 表示沒有指向有效物件；不可解參考。">p 一定指向數字 0</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。nullptr 表示沒有指向有效物件；不可解參考。">必須立刻 delete p</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，nullptr 有專用型別。">nullptr</button>
+      <button class="sq-opt" data-c="0" data-fb="NULL 是舊式巨集，可能造成多載歧義。">NULL</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>函式 void doubleAll(int data[], int length) 為什麼需要 length？</div>
+    <div class="sq-q"><span class="sq-num">Q4.</span>p[i] 等同？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。陣列參數接到首元素位址，元素個數不會一併傳入。">陣列沒有型別</button>
-      <button class="sq-opt" data-c="1" data-fb="陣列參數接到首元素位址，元素個數不會一併傳入。">函式內不能由 data 得知元素個數</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。陣列參數接到首元素位址，元素個數不會一併傳入。">length 存位址</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。陣列參數接到首元素位址，元素個數不會一併傳入。">索引從 1 開始</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。">*(p+i)</button>
+      <button class="sq-opt" data-c="0" data-fb="*p+i 是把第一個元素值加 i。">*p+i</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>哪一組配置與釋放方式正確？</div>
+    <div class="sq-q"><span class="sq-num">Q5.</span>函式參數 int data[] 內 sizeof(data) 量到？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="new 一個物件配 delete；new[] 配 delete[]。">int *p = new int(5); delete p;</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。new 一個物件配 delete；new[] 配 delete[]。">int *p = new int[5]; delete p;</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。new 一個物件配 delete；new[] 配 delete[]。">int *p = new int(5); delete[] p;</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。new 一個物件配 delete；new[] 配 delete[]。">int a[5]; delete[] a;</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，參數調整成指標。">指標大小</button>
+      <button class="sq-opt" data-c="0" data-fb="長度資訊沒有隨指標傳入。">原陣列總大小</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>p 與 alias 指向同處。delete p; p = nullptr; 後 alias 會怎樣？</div>
+    <div class="sq-q"><span class="sq-num">Q6.</span>一定存在且要修改的單一 int，適合？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。其他別名不會同步更新，alias 不可再解參考或 delete。">自動變 nullptr</button>
-      <button class="sq-opt" data-c="1" data-fb="其他別名不會同步更新，alias 不可再解參考或 delete。">仍保存舊位址，但已懸空</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。其他別名不會同步更新，alias 不可再解參考或 delete。">可安全解參考一次</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。其他別名不會同步更新，alias 不可再解參考或 delete。">指向新整數</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，參考表達非空別名。">int&amp;</button>
+      <button class="sq-opt" data-c="0" data-fb="可空指標若使用就應檢查。">int* 且不檢查</button>
     </div>
     <div class="sq-fb"></div>
   </div>
-</section>
-<section id="cards"><div class="section-number">CARD · 關鍵詞彙</div><h2>點卡片翻面</h2><div class="fc-actions"><button id="fcShuffle">重新排列</button><button id="fcUnflip">全部正面</button><button id="fcFlipAll">全部翻面</button></div><div class="fc-grid" id="fcGrid"></div></section>
-<div class="chapter-nav"><a class="prev" href="p3_functions.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">函式</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p5_vector_string.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">vector 與 string</div></a></div>
-</div>
-<footer>先備知識 P4 · 陣列、指標與動態記憶體 · 資料結構 × C++ 互動自學網站</footer>
-<script>
-const frames=[
- {x:'尚未建立',p:'尚未建立',text:'尚未執行 int x = 42;'},
- {x:'42',p:'尚未建立',text:'x 已建立，值是 42。'},
- {x:'42',p:'指向 x',text:'宣告 int *p = &x；p 保存 x 的位址。'},
- {x:'42',p:'*p 是 42',text:'解參考 *p 會取得 x。'},
- {x:'75',p:'*p 是 75',text:'執行 *p = 75；被修改的是 x。'}
-]; let ptrIndex=0,ptrTimer=null;
-const $=id=>document.getElementById(id);
-function ptrDraw(){const f=frames[ptrIndex];$('ptrStage').innerHTML='<div class="info-box"><strong>x</strong><br>'+f.x+'</div><div class="info-box"><strong>p</strong><br>'+f.p+'</div>';$('ptrNarration').textContent=f.text;$('ptrProgress').textContent='步驟 '+(ptrIndex+1)+' / '+frames.length;$('ptrPlay').textContent=ptrTimer?'❚❚ 暫停':(ptrIndex===frames.length-1?'↻ 重播':'▶ 播放');}
-function ptrStop(){clearInterval(ptrTimer);ptrTimer=null;}
-function ptrPlay(){if(ptrTimer){ptrStop();ptrDraw();return;}if(ptrIndex===frames.length-1)ptrIndex=0;ptrTimer=setInterval(()=>{if(ptrIndex<frames.length-1){ptrIndex++;if(ptrIndex===frames.length-1)ptrStop();ptrDraw();}else{ptrStop();ptrDraw();}},850);ptrDraw();}
-$('ptrPrev').onclick=()=>{ptrStop();ptrIndex=Math.max(0,ptrIndex-1);ptrDraw();};$('ptrNext').onclick=()=>{ptrStop();ptrIndex=Math.min(frames.length-1,ptrIndex+1);ptrDraw();};$('ptrReset').onclick=()=>{ptrStop();ptrIndex=0;ptrDraw();};$('ptrPlay').onclick=ptrPlay;ptrDraw();
-const FLASHCARDS = [{"front": "固定長度陣列", "back": "同型別元素排成一列；例如 int a[3] = {4, 8, 12};，有效索引是 0 到 2。"}, {"front": "位址與 &", "back": "&x 取得 x 的位址。位址每次執行可能不同。"}, {"front": "指標", "back": "保存某種型別物件位址的變數。int *p 表示 p 可以指向 int。"}, {"front": "解參考 *", "back": "*p 代表 p 所指向的物件；指向有效物件時可讀也可改。"}, {"front": "nullptr", "back": "表示沒有指向有效物件。可以比較，絕對不能解參考；舊程式的 NULL 也是空指標寫法。"}, {"front": "陣列參數", "back": "函式接收陣列時也要接收長度，例如 f(int a[], int n)。"}, {"front": "生命週期", "back": "區域變數離開所屬區塊後失效；保存它位址的指標也不能再使用。"}, {"front": "new / delete", "back": "new T 配置一個 T；用完以 delete 釋放，之後不可再解參考。"}, {"front": "new[] / delete[]", "back": "new T[n] 配置 n 個 T；必須用 delete[] 釋放。"}, {"front": "懸空指標", "back": "仍保存已失效位址的指標。清空一個指標不會同步清除其他別名。"}];
-(function(){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),grid=$('fcGrid');const render=cards=>grid.innerHTML=cards.map(c=>'<div class="fc-card"><div class="fc-inner"><div class="fc-face fc-front"><div>'+esc(c.front)+'</div><div class="fc-hint">CLICK TO FLIP</div></div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');render(FLASHCARDS);grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)c.classList.toggle('flipped');};$('fcShuffle').onclick=()=>render([...FLASHCARDS].sort(()=>Math.random()-.5));$('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>c.classList.remove('flipped'));$('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>c.classList.add('flipped'));})();
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q7.</span>new int[8] 如何釋放？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確，new[] 與 delete[] 配對。">delete[] p;</button>
+      <button class="sq-opt" data-c="0" data-fb="形式錯配是未定義行為。">delete p;</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q8.</span>delete owner 後 alias 會自動變 nullptr？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確，它仍保存失效地址。">不會</button>
+      <button class="sq-opt" data-c="0" data-fb="每個指標是獨立物件。">會</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q9.</span>遺失最後一個指向未釋放配置的地址稱為？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確，資源仍占用但無法釋放。">記憶體洩漏</button>
+      <button class="sq-opt" data-c="0" data-fb="空指標不指向配置。">空指標</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p3_functions.html"><div class="nav-dir">上一頁</div><div class="nav-title">函式與參考</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p5_vector_string.html"><div class="nav-dir">下一頁</div><div class="nav-title">vector 與 string</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
+const FLASHCARDS = [{"front": "內建陣列", "back": "固定數量、連續排列的同型別元素；索引不自動檢查。"}, {"front": "取址 &", "back": "取得物件地址。"}, {"front": "指標 T*", "back": "保存 T 物件地址的型別。"}, {"front": "解參考 *p", "back": "經有效地址存取目標物件。"}, {"front": "nullptr", "back": "不指向任何物件的專用空指標字面值。"}, {"front": "指標算術", "back": "以元素大小為步距，且只能在同一陣列範圍推理。"}, {"front": "陣列退化", "back": "陣列在多數運算式及函式參數中轉成首元素指標。"}, {"front": "參考參數", "back": "既有物件的別名，適合一定存在的可修改目標。"}, {"front": "stack / 自動儲存期", "back": "區域自動物件離開作用域時銷毀。"}, {"front": "heap / 動態儲存期", "back": "new 建立，需以相符 delete 明確結束。"}, {"front": "ownership", "back": "負責讓動態資源恰好釋放一次的責任。"}, {"front": "alias", "back": "多個指標或參考指向同一物件。"}, {"front": "memory leak", "back": "動態配置仍存在，但已無法由 owner 釋放。"}, {"front": "dangling pointer", "back": "仍保存地址，但該處物件生命週期已結束。"}, {"front": "double delete", "back": "同一配置被釋放兩次，屬未定義行為。"}];
 
-(function(){document.querySelectorAll('.sq-item').forEach(item=>{const fb=item.querySelector('.sq-fb');item.querySelectorAll('.sq-opt').forEach(btn=>btn.addEventListener('click',()=>{const good=btn.dataset.c==='1';item.querySelectorAll('.sq-opt').forEach(b=>b.classList.remove('correct','wrong'));btn.classList.add(good?'correct':'wrong');fb.textContent=btn.dataset.fb;fb.classList.add('show');fb.classList.toggle('good',good);fb.classList.toggle('bad',!good);}));});})();
+/* depth-runtime:start */
+(() => {
+ const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ document.querySelectorAll('.lesson-trace').forEach(root => {
+   const frames=JSON.parse(root.querySelector('.trace-data').textContent);
+   let index=0,timer=null;const play=root.querySelector('[data-action="play"]');
+   const stop=()=>{clearInterval(timer);timer=null;};
+   function draw(){
+     const frame=frames[index];
+     root.querySelector('.trace-note').textContent=frame.note;
+     root.querySelector('.trace-vars').innerHTML='<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>名稱／狀態</th><th>目前的值</th></tr></thead><tbody>'+Object.entries(frame.vars||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</tbody></table></div>';
+     root.querySelector('.trace-output').textContent=frame.output ? '目前輸出：\n'+frame.output : '目前尚無輸出';
+     root.querySelectorAll('.line').forEach((el,i)=>el.classList.toggle('active',i===frame.line));
+     play.textContent=timer?'⏸ 暫停':index===frames.length-1?'↻ 重播':'▶ 播放';
+     root.dataset.frame=String(index);root.dataset.frames=String(frames.length);
+   }
+   function next(){index=Math.min(index+1,frames.length-1);if(index===frames.length-1)stop();draw();}
+   play.onclick=()=>{if(timer){stop();draw();return;}if(index===frames.length-1)index=0;timer=setInterval(next,850);draw();};
+   root.querySelector('[data-action="next"]').onclick=()=>{stop();next();};
+   root.querySelector('[data-action="prev"]').onclick=()=>{stop();index=Math.max(0,index-1);draw();};
+   root.querySelector('[data-action="reset"]').onclick=()=>{stop();index=0;draw();};draw();
+ });
+ document.querySelectorAll('.sq-item').forEach(q=>q.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{
+   q.querySelectorAll('.sq-opt').forEach(x=>x.classList.remove('correct','wrong'));
+   const good=b.dataset.c==='1';b.classList.add(good?'correct':'wrong');
+   const f=q.querySelector('.sq-fb');f.textContent=b.dataset.fb;f.className='sq-fb show '+(good?'good':'bad');
+ }));
+ const grid=document.getElementById('fcGrid');
+ function render(cards){grid.innerHTML=cards.map(c=>'<div class="fc-card" tabindex="0" role="button" aria-pressed="false"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');}
+ function flip(card,on){card.classList.toggle('flipped',on);card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));}
+ grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)flip(c,!c.classList.contains('flipped'));};
+ grid.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.fc-card');if(c){e.preventDefault();flip(c,!c.classList.contains('flipped'));}}};
+ document.getElementById('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,true));
+ document.getElementById('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,false));
+ document.getElementById('fcShuffle').onclick=()=>{const a=[...FLASHCARDS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}render(a);};render(FLASHCARDS);
+ const links=[...document.querySelectorAll('.float-nav a[data-target]')];
+ const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}),{rootMargin:'-10% 0px -65% 0px'});
+ document.querySelectorAll('section[id]').forEach(el=>observer.observe(el));
+})();
+/* depth-runtime:end */
 </script><script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {

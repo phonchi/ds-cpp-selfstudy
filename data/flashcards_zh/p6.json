@@ -1,114 +1,74 @@
 [
   {
-    "front": "映射容器（map<K,V>）",
-    "back": "唯一鍵 K 對應值 V；預設依鍵排序。"
-  },
-  {
-    "front": "集合容器（set<K>）",
-    "back": "只保存唯一鍵；預設依鍵排序。"
-  },
-  {
-    "front": "下標運算子（operator[]）",
-    "back": "鍵不存在就插入 value-initialized 值；適合寫入與計數，不是唯讀查詢。"
-  },
-  {
-    "front": "存在計數（count(k)）",
-    "back": "map/set 中回傳 0 或 1，不插入。"
-  },
-  {
-    "front": "鍵搜尋（find(k)）",
-    "back": "找到回 iterator，否則回 end；先比較再解參考。"
-  },
-  {
-    "front": "必要鍵存取（at(k)）",
-    "back": "鍵存在便取值；缺鍵丟 out_of_range，且不插入。"
-  },
-  {
-    "front": "映射迭代器（map iterator）",
-    "back": "指向 pair；(*it).first 是鍵、second 是值。"
-  },
-  {
-    "front": "箭頭取值（it->second）",
-    "back": "等價於 (*it).second：先解參考，再取 pair 成員。"
-  },
-  {
-    "front": "結構化繫結（structured binding）",
-    "back": "auto [k,v] 拆 pair 為兩個名字；加 & 才綁定原資料。"
-  },
-  {
-    "front": "有序容器（ordered container）",
-    "back": "map/set 保持鍵序，查詢插入刪除 O(log n)。"
-  },
-  {
-    "front": "無序容器（unordered container）",
-    "back": "平均 O(1)，最壞 O(n)，走訪順序不保證。"
-  },
-  {
-    "front": "依位置刪除（erase(iterator)）",
-    "back": "回傳刪除位置後的下一個 iterator，適合安全刪除迴圈。"
-  },
-  {
-    "front": "插入結果（insert(x).second）",
-    "back": "set 插入結果中的 bool；true 表示本次真的插入。"
-  },
-  {
-    "front": "頻率計數（frequency counting）",
-    "back": "++freq[x] 利用 [] 缺鍵先建 0 的規則。"
-  },
-  {
-    "front": "保序去重（stable deduplication）",
-    "back": "set 記 seen，vector 保存第一次出現的順序。"
-  },
-  {
-    "front": "一對多分組（grouping）",
-    "back": "map<K,vector<V>>；groups[k].push_back(v)。"
-  },
-  {
-    "front": "標準演算法（standard algorithms）",
-    "back": "sort、find、reverse、count、min_element、max_element 接受 [begin,end) iterator 範圍。"
-  },
-  {
-    "front": "下界查詢（lower_bound）",
-    "back": "ordered容器的 lower_bound(x) 回傳第一個不小於x的鍵；沒有則為end。"
-  },
-  {
-    "front": "成員搜尋與通用搜尋（member find vs std::find）",
-    "back": "map/set成員find利用容器結構；std::find逐項線性掃描iterator範圍。"
+    "front": "映射（map）",
+    "back": "map 保存鍵值對，鍵依比較器排序且不重複。一般查詢、插入與按鍵刪除為 O(log n)；使用標準介面即可，不需要先了解內部結構。"
   },
   {
     "front": "無序映射（unordered_map）",
-    "back": "保存鍵和值的雜湊關聯容器；走訪不保證排序或插入順序。"
+    "back": "unordered_map 以雜湊組織鍵值對，查詢平均 O(1)、最壞 O(n)。走訪沒有排序保證，重新雜湊也可能改變順序。"
+  },
+  {
+    "front": "集合（set）",
+    "back": "set 只保存鍵，依比較器排序與判定等價，不保留重複鍵。適合查詢成員資格、去重及有序走訪。"
   },
   {
     "front": "無序集合（unordered_set）",
-    "back": "保存不重複鍵的雜湊集合；沒有map的mapped value。"
+    "back": "unordered_set 以雜湊組織不重複的鍵。成員查詢平均 O(1)、最壞 O(n)，走訪順序未指定，應依需求選擇而不是假定永遠較快。"
   },
   {
     "front": "成對資料（pair）",
-    "back": "保存first與second兩部分；map走訪取得鍵值配對，鍵不能直接改動。"
+    "back": "把兩個值綁成一組的樣板型別，成員叫 first 與 second。map 裡每一筆資料就是一個 pair，所以走訪時要用 it->first 拿鍵、it->second 拿值。"
+  },
+  {
+    "front": "中括號運算子（operator[]）",
+    "back": "map 的 m[k] 在鍵存在時回傳其值的參考；不存在時插入新鍵並對值作值初始化，例如 int 得到 0。查詢若不應修改容器，使用 find、count 或 at。"
   },
   {
     "front": "值初始化（Value Initialization）",
-    "back": "以型別規則產生初值；map用[]新增缺少的int值時會得到0，不要誤稱所有預設初始化都會歸零。"
+    "back": "值初始化（value initialization）是 map 的 operator[] 建立新鍵之值時採用的初始化方式。int 會成為 0，string 為空字串；這不表示一般區域 int x; 或類別的所有基礎成員也會自動歸零。"
   },
   {
-    "front": "尾後迭代器（Past-the-end Iterator, end）",
-    "back": "代表最後元素之後的位置，供區間邊界和比較使用，不可解參考。"
+    "front": "計數查詢（count）",
+    "back": "m.count(k) 回傳符合的筆數，在 map 與 set 上只會是 0 或 1，可以直接當條件用。它是唯讀的，不會像 operator[] 那樣偷偷建鍵，只想判斷在不在就用它。"
+  },
+  {
+    "front": "尋找（find）",
+    "back": "m.find(k) 回傳指向那筆資料的迭代器，找不到就回傳 end()。想判斷之後順便把值拿出來就用它，比先 count 再用 [] 少查一次容器。"
+  },
+  {
+    "front": "尾後迭代器（end()）",
+    "back": "指向「最後一個元素的再下一格」的哨兵位置，本身不能解參考。所有走訪迴圈的條件都寫成 it != c.end()，find 找不到時回傳的也是它。"
   },
   {
     "front": "左閉右開區間（Half-open Range）",
-    "back": "包含first指向的元素、不包含last；[first,last)可用相同規則表示空區間。"
+    "back": "[first, last) 包含 first，不包含 last。空範圍可用 first == last 表示。只有支援隨機存取的迭代器才能直接以 last - first 計算距離；set/map 的迭代器不能相減。"
   },
   {
-    "front": "紅黑樹（Red-black Tree）",
-    "back": "維持高度受控的一種平衡搜尋樹，常用來實作map/set；標準規範介面與複雜度，不強制這個實作。"
+    "front": "迭代器（iterator）",
+    "back": "指著容器裡某個位置的物件，用起來像指標：*it 取值、++it 往後一格、it-> 存取成員。它讓 vector、set、map 用同一套語法走訪，容器內部是陣列還是樹，走訪的人不必知道。"
   },
   {
-    "front": "桶（Bucket）",
-    "back": "雜湊容器依雜湊值把元素分到的群組；碰撞仍需用相等規則辨認鍵。"
+    "front": "結構化繫結（structured binding）",
+    "back": "C++17 的語法，for (auto& [k, v] : m) 會把每一組 pair 當場拆成兩個有名字的變數，比 p.first 與 p.second 好讀。那個 & 不能省，否則改到的是複製品。"
   },
   {
-    "front": "相鄰關係串列（Adjacency List）",
-    "back": "以每個對象為鍵保存它連到哪些對象；可用map<K,vector<V>>表達，寫法沿用一對多分組。"
+    "front": "鍵的等價性（Key Equivalence）",
+    "back": "map/set 依比較器判定鍵是否等價：a 不排在 b 前面，b 也不排在 a 前面。預設比較下可寫成 !(a < b) && !(b < a)，不必與自訂 operator== 相同。"
+  },
+  {
+    "front": "桶（bucket）",
+    "back": "雜湊容器將鍵映射到桶，同桶可能含多個元素，因此碰撞仍須比較鍵。桶數、負載因子與重新雜湊影響成本；不可將整體走訪視為某個固定桶順序。"
+  },
+  {
+    "front": "下界查詢（lower_bound）",
+    "back": "有序容器的 lower_bound(x) 找第一個依比較器不排在 x 前面的鍵，預設比較器下就是不小於 x。unordered 容器沒有此成員；它雖有 begin()，卻不保證指向最小鍵。"
+  },
+  {
+    "front": "分組容器（Map of Vectors）",
+    "back": "map<string, vector<string>> 可讓一個分類對應多個項目，例如部門對應名單。外層 size 是分類數，內層 size 是該組項目數；以 [] 查不存在的鍵會建立空 vector。"
+  },
+  {
+    "front": "標準演算法（algorithm）",
+    "back": "sort、find、reverse、count 不是容器成員，是 <algorithm> 裡吃「一對迭代器」的自由函式，用 [begin, end) 指定範圍。find 回傳迭代器、找不到＝end()（不是 -1）；但 map/set 要用自己的成員版 find/count（O(log n)），別用線性掃的這組。"
   }
 ]

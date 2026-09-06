@@ -1,226 +1,181 @@
 [
   {
-    "question": "int a[4] 的最後合法索引？",
+    "question": "以下程式印出什麼？",
+    "code": "int x = 42;\nint *p = &x;\n*p = 99;\ncout << x << \" \" << *p;",
     "answers": [
       {
-        "answer": "3",
+        "answer": "99 99",
         "correct": true,
-        "feedback": "正確，索引從 0 開始。"
+        "feedback": "正確。p 存的是 x 的位址，所以 *p 和 x 是同一塊記憶體的兩個名字。透過 *p 改值，x 就跟著變。"
       },
       {
-        "answer": "4",
+        "answer": "42 99",
         "correct": false,
-        "feedback": "a[4] 已越界。"
+        "feedback": "不對。p 並沒有複製 x 的值，它存的是 x 的位址；透過 *p 寫入就是直接改 x 本人。"
       },
       {
-        "answer": "5",
+        "answer": "42 42",
         "correct": false,
-        "feedback": "元素個數 4 對應索引 0 到 3。"
+        "feedback": "不對。第三行已經把值改成 99 了。"
       },
       {
-        "answer": "取決於 sizeof(int)",
+        "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "索引範圍由元素個數決定，不由 byte 大小決定。"
+        "feedback": "不對。int *p = &x; 是合法的指標宣告與初始化。"
       }
     ]
   },
   {
-    "question": "int* p=&x；修改目標值的寫法？",
+    "question": "以下程式印出什麼？",
+    "code": "int a[5] = {10, 20, 30, 40, 50};\ncout << a[2] << \" \" << *(a + 2);",
     "answers": [
       {
-        "answer": "*p = 9;",
+        "answer": "30 30",
         "correct": true,
-        "feedback": "正確，*p 是目標。"
+        "feedback": "正確。這裡 a[i] 與 *(a + i) 指向同一個元素。a + 2 前進兩個 int，位元組距離為 2 * sizeof(int)，不是所有環境都固定為 8。"
       },
       {
-        "answer": "p = 9;",
+        "answer": "30 12",
         "correct": false,
-        "feedback": "p 要保存地址，且這也不是修改 x。"
+        "feedback": "不對。*(a + 2) 是解參考，取出的是那一格的值，不是位址。"
       },
       {
-        "answer": "p = &9;",
+        "answer": "20 30",
         "correct": false,
-        "feedback": "不能對整數字面值取可修改 int 地址。"
+        "feedback": "不對。兩個寫法指的是同一格。索引從 0 開始，a[2] 是第三個元素。"
       },
       {
-        "answer": "p++;",
+        "answer": "編譯錯誤，陣列不能做加法",
         "correct": false,
-        "feedback": "這會移動地址，不修改目標值。"
+        "feedback": "不對。陣列名會退化成指向首元素的指標，指標可以做算術。"
       }
     ]
   },
   {
-    "question": "空指標應優先使用？",
+    "question": "假設本題執行環境 sizeof(int) 為 4、sizeof(int*) 為 8，main 與函式內分別印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\nvoid f(int arr[]) {\n    cout << sizeof(arr) << endl;\n}\n\nint main() {\n    int a[5];\n    cout << sizeof(a) << endl;\n    f(a);\n}",
     "answers": [
       {
-        "answer": "nullptr",
+        "answer": "20 然後 8",
         "correct": true,
-        "feedback": "正確，nullptr 有專用型別。"
+        "feedback": "正確。main 的 a 是五個 int 的陣列，共 20 bytes；int arr[] 參數調整成 int*，此處 sizeof(arr) 為題設的 8 bytes。此類指標參數不攜帶陣列長度，需要時另行提供。"
       },
       {
-        "answer": "NULL",
+        "answer": "20 然後 20",
         "correct": false,
-        "feedback": "NULL 是舊式巨集，可能造成多載歧義。"
+        "feedback": "不對。函式的參數 int arr[] 其實是 int*，編譯器不會保留原本的長度資訊。"
       },
       {
-        "answer": "0",
+        "answer": "5 然後 5",
         "correct": false,
-        "feedback": "整數 0 是舊式空指標常數，新程式應用專用 nullptr。"
+        "feedback": "不對。sizeof 回傳的是位元組數，不是元素個數。五個 int 是 20 bytes。"
       },
       {
-        "answer": "未初始化指標",
+        "answer": "8 然後 8",
         "correct": false,
-        "feedback": "它含不確定位元，並不可靠表示空。"
+        "feedback": "不對。在 main 裡 a 還是真正的陣列，sizeof 量得到完整的 20 bytes。"
       }
     ]
   },
   {
-    "question": "p[i] 等同？",
+    "question": "假設以下動態配置均成功，這段函式有什麼問題？",
+    "code": "struct Settings { int level; };\nstruct Device { int id; Settings* settings = nullptr; };\nvoid build() {\n    Device* device = new Device{31};\n    device->settings = new Settings{17};\n}",
     "answers": [
       {
-        "answer": "*(p+i)",
+        "answer": "兩個物件都沒有 delete，每呼叫一次就洩漏兩塊配置",
         "correct": true,
-        "feedback": "正確。"
+        "feedback": "正確。函式結束時，區域指標 device 會自動消失，但兩個動態物件不會自動釋放，而且位址也遺失了。"
       },
       {
-        "answer": "*p+i",
+        "answer": "沒問題，函式結束時系統會自動回收",
         "correct": false,
-        "feedback": "*p+i 是把第一個元素值加 i。"
+        "feedback": "兩個原始指標所指的動態配置沒有交給資源管理物件，也沒有對應 delete；區域指標消失不會自動釋放它們。"
       },
       {
-        "answer": "p+i",
+        "answer": "new Device{31} 的配置語法錯了",
         "correct": false,
-        "feedback": "這是地址，尚未解參考成元素。"
+        "feedback": "不對。這是標準的動態配置寫法。"
       },
       {
-        "answer": "(&p)[i]",
+        "answer": "device->settings 應該寫成 device.settings",
         "correct": false,
-        "feedback": "這是在指標物件周圍做索引，語意不同。"
+        "feedback": "不對。device 是指標，透過指標存取成員就是用箭號。"
       }
     ]
   },
   {
-    "question": "函式參數 int data[] 內 sizeof(data) 量到？",
+    "question": "int *a = new int[10]; 用完之後寫 delete a; 有什麼問題？",
     "answers": [
       {
-        "answer": "指標大小",
+        "answer": "new[] 必須配 delete[]，寫成 delete 是未定義行為",
         "correct": true,
-        "feedback": "正確，參數調整成指標。"
+        "feedback": "正確。中括號要成對。new[] 配 delete 是未定義行為：可能整塊還掉、可能只還一部分、對有解構式的型別還會漏掉解構；g++ 加 -Wall 通常會警告，但別依賴它。"
       },
       {
-        "answer": "原陣列總大小",
+        "answer": "沒問題，delete 和 delete[] 是一樣的",
         "correct": false,
-        "feedback": "長度資訊沒有隨指標傳入。"
+        "feedback": "不對。兩者的行為不同：delete[] 會對每個元素呼叫解構式，delete 只處理一個。"
       },
       {
-        "answer": "元素個數",
+        "answer": "應該寫 delete *a;",
         "correct": false,
-        "feedback": "陣列參數已調整成指標，數量遺失。"
+        "feedback": "不對。delete 接的是指標本身，不是解參考的結果。"
       },
       {
-        "answer": "第一個元素的大小",
+        "answer": "new int[10] 的配置語法就錯了",
         "correct": false,
-        "feedback": "sizeof(data) 量的是指標物件。"
+        "feedback": "不對。配置本身完全合法。"
       }
     ]
   },
   {
-    "question": "一定存在且要修改的單一 int，適合？",
+    "question": "為什麼 delete 之後常把唯一 owner 指標設成 nullptr？",
     "answers": [
       {
-        "answer": "int&",
+        "answer": "讓這個變數不再保存失效位址，並降低用它重複釋放的風險",
         "correct": true,
-        "feedback": "正確，參考表達非空別名。"
+        "feedback": "正確。delete nullptr 是合法的空操作。不過其他指向同一配置的別名不會一起變空，仍然必須停止使用。"
       },
       {
-        "answer": "int* 且不檢查",
+        "answer": "因為 delete 不會真的釋放記憶體，設 nullptr 才會",
         "correct": false,
-        "feedback": "可空指標若使用就應檢查。"
+        "feedback": "不對。delete 會結束物件生命週期並釋放配置；設 nullptr 只改變該指標變數保存的值。"
       },
       {
-        "answer": "int",
+        "answer": "為了讓程式跑得比較快",
         "correct": false,
-        "feedback": "傳值不能修改呼叫端原物件。"
+        "feedback": "不對。這是正確性與可 debug 性的問題，跟效能無關。"
       },
       {
-        "answer": "const int&",
+        "answer": "C++ 語法規定 delete 之後一定要這樣寫",
         "correct": false,
-        "feedback": "const 參考禁止透過參數修改。"
+        "feedback": "不對。這是慣例與良好習慣，不是語法要求。編譯器不會強制。"
       }
     ]
   },
   {
-    "question": "new int[8] 如何釋放？",
+    "question": "假設 active 原先獨佔一個動態 Device，且新配置成功，這段替換函式有什麼問題？",
+    "code": "struct Device { int id; };\nvoid replace(Device*& active, int id) {\n    active = new Device{id};\n}",
     "answers": [
       {
-        "answer": "delete[] p;",
+        "answer": "active 原先獨佔的動態物件會洩漏",
         "correct": true,
-        "feedback": "正確，new[] 與 delete[] 配對。"
+        "feedback": "正確。指定新位址會覆蓋唯一能找到舊物件的位址；舊配置仍存在，卻再也無法 delete。"
       },
       {
-        "answer": "delete p;",
+        "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "形式錯配是未定義行為。"
+        "feedback": "不對。兩行都是合法敘述，C++ 不會幫你檢查邏輯順序。這正是它危險的地方。"
       },
       {
-        "answer": "free(p);",
+        "answer": "舊物件會在指定時自動 delete",
         "correct": false,
-        "feedback": "new[] 必須配 delete[]，不能混用 C 配置 API。"
+        "feedback": "不對。原始指標的重新指定不會自動釋放先前指向的物件。"
       },
       {
-        "answer": "delete &p;",
+        "answer": "active 會同時保存新舊兩個位址",
         "correct": false,
-        "feedback": "&p 是指標物件自己的地址，不是動態陣列配置。"
-      }
-    ]
-  },
-  {
-    "question": "delete owner 後 alias 會自動變 nullptr？",
-    "answers": [
-      {
-        "answer": "不會",
-        "correct": true,
-        "feedback": "正確，它仍保存失效地址。"
-      },
-      {
-        "answer": "會",
-        "correct": false,
-        "feedback": "每個指標是獨立物件。"
-      },
-      {
-        "answer": "會，但只有 debug 模式",
-        "correct": false,
-        "feedback": "語言不會同步清空別名。"
-      },
-      {
-        "answer": "取決於 alias 型別",
-        "correct": false,
-        "feedback": "任何保存已釋放目標地址的 alias 都會懸空。"
-      }
-    ]
-  },
-  {
-    "question": "遺失最後一個指向未釋放配置的地址稱為？",
-    "answers": [
-      {
-        "answer": "記憶體洩漏",
-        "correct": true,
-        "feedback": "正確，資源仍占用但無法釋放。"
-      },
-      {
-        "answer": "空指標",
-        "correct": false,
-        "feedback": "空指標不指向配置。"
-      },
-      {
-        "answer": "懸空指標",
-        "correct": false,
-        "feedback": "懸空是仍有地址但物件已死亡；此題是地址已遺失。"
-      },
-      {
-        "answer": "重複釋放",
-        "correct": false,
-        "feedback": "重複釋放需要同一配置被 delete 兩次。"
+        "feedback": "不對。一個原始指標變數只保存一個位址，新指定會覆蓋舊值。"
       }
     ]
   }

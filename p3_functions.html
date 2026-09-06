@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>函式與參考 — 先備 P3（C++）</title>
+<title>函式：傳值、傳參考與傳指標 — 先備 P3（C++）</title>
 <script>
   MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
 </script>
@@ -289,6 +289,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .tok-op{background:#8e44ad;}
 .tok-new{outline:3px solid #f39c12;}
 .mono{font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:700px){.float-nav{display:none;}}
+/* Preserve original diagrams; contain wide code, tables and controls locally. */
+.viz-layout > *{min-width:0;}
+.viz-panel{min-width:0;max-width:100%;overflow-x:auto;}
+.table-scroll{max-width:100%;overflow-x:auto;}
+@media(max-width:900px){section p code,section li code{white-space:normal;overflow-wrap:anywhere;}.status-text{min-width:0;overflow-wrap:anywhere;}}
 </style>
 <style>
 /* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
@@ -459,13 +466,30 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .vert-table th i{color:inherit;}
 </style>
 <!-- /contrast-fix -->
-<style>
-@media (max-width: 760px) { .float-nav { display: none; } }
-</style>
-
-<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#purpose" data-target="purpose"><span class="fn-num">01</span><span class="fn-name">先看一項工作如何變成函式</span></a><a href="#parameters" data-target="parameters"><span class="fn-num">02</span><span class="fn-name">引數、參數與回傳值：把資料流追清楚</span></a><a href="#return" data-target="return"><span class="fn-num">03</span><span class="fn-name">return 結束呼叫，void 表示沒有回傳值</span></a><a href="#scope" data-target="scope"><span class="fn-num">04</span><span class="fn-name">作用域、生命週期與同名變數</span></a><a href="#declare" data-target="declare"><span class="fn-num">05</span><span class="fn-name">先宣告呼叫方式，再提供定義</span></a><a href="#byvalue" data-target="byvalue"><span class="fn-num">06</span><span class="fn-name">傳值：函式改的是副本</span></a><a href="#byref" data-target="byref"><span class="fn-num">07</span><span class="fn-name">參考先是別名，之後才是參數寫法</span></a><a href="#constref" data-target="constref"><span class="fn-num">08</span><span class="fn-name">唯讀參考：限制透過這個名稱的修改</span></a><a href="#retval" data-target="retval"><span class="fn-num">09</span><span class="fn-name">回傳數值安全，回傳參考要問物件還活著嗎</span></a><a href="#overload" data-target="overload"><span class="fn-num">10</span><span class="fn-name">多載與預設引數：分清楚選版本和補資料</span></a><a href="#recursion" data-target="recursion"><span class="fn-num">11</span><span class="fn-name">從一般呼叫到遞迴：每次呼叫都有自己的狀態</span></a><a href="#reference" data-target="reference"><span class="fn-num">12</span><span class="fn-name">語法速查與下一步</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">13</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">14</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-declaration-table" data-target="restore-declaration-table"><span class="fn-num">15</span><span class="fn-name">把宣告與定義放在一起比較</span></a><a href="#restore-value-decisions" data-target="restore-value-decisions"><span class="fn-num">16</span><span class="fn-name">什麼時候刻意選擇傳值</span></a><a href="#restore-value-reference" data-target="restore-value-reference"><span class="fn-num">17</span><span class="fn-name">同一個呼叫，副本與別名差在哪裡</span></a><a href="#restore-parameter-decisions" data-target="restore-parameter-decisions"><span class="fn-num">18</span><span class="fn-name">用需求挑選介面</span></a><a href="#restore-return-warning" data-target="restore-return-warning"><span class="fn-num">19</span><span class="fn-name">回傳後仍可使用，才算有效的結果</span></a><a href="#restore-default-warning" data-target="restore-default-warning"><span class="fn-num">20</span><span class="fn-name">預設引數與多載一起檢查</span></a><a href="#restore-recursive-return" data-target="restore-recursive-return"><span class="fn-num">21</span><span class="fn-name">遞迴也會逐層回傳計算結果</span></a><a href="#restore-four-parameter-matrix" data-target="restore-four-parameter-matrix"><span class="fn-num">22</span><span class="fn-name">四種傳參形式的完整對照</span></a><a href="#restore-function-task-map" data-target="restore-function-task-map"><span class="fn-num">23</span><span class="fn-name">從需求回查 C++ 語法</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">函式外觀</span></a>
+  <a href="#declare" data-target="declare"><span class="fn-num">P01</span><span class="fn-name">宣告與定義</span></a>
+  <a href="#byvalue" data-target="byvalue"><span class="fn-num">P02</span><span class="fn-name">傳值</span></a>
+  <a href="#byref" data-target="byref"><span class="fn-num">P03</span><span class="fn-name">傳參考</span></a>
+  <a href="#byptr" data-target="byptr"><span class="fn-num">P04</span><span class="fn-name">傳指標</span></a>
+  <a href="#constref" data-target="constref"><span class="fn-num">P05</span><span class="fn-name">const 參考</span></a>
+  <a href="#retval" data-target="retval"><span class="fn-num">P06</span><span class="fn-name">回傳</span></a>
+  <a href="#overload" data-target="overload"><span class="fn-num">P07</span><span class="fn-name">多載與預設引數</span></a>
+  <a href="#recursion" data-target="recursion"><span class="fn-num">P08</span><span class="fn-name">遞迴與呼叫堆疊</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
   <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
     <rect x="26" y="46" width="104" height="52" rx="7"/>
     <rect x="26" y="150" width="104" height="52" rx="7"/>
@@ -480,475 +504,1330 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <text x="44" y="180">caller b</text><text x="196" y="180">別名 b</text>
     <text x="140" y="66">複製</text><text x="132" y="200">同一格</text>
   </g>
-</svg><div class="hero-content"><div class="chapter-tag">PREREQ P3</div><h1>函式與參考</h1><div class="subtitle">從函式的每個符號開始，追蹤呼叫、參考與返回的完整過程</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#purpose"><span class="toc-num">01</span>先看一項工作如何變成函式</a><a href="#parameters"><span class="toc-num">02</span>引數、參數與回傳值：把資料流追清楚</a><a href="#return"><span class="toc-num">03</span>return 結束呼叫，void 表示沒有回傳值</a><a href="#scope"><span class="toc-num">04</span>作用域、生命週期與同名變數</a><a href="#declare"><span class="toc-num">05</span>先宣告呼叫方式，再提供定義</a><a href="#byvalue"><span class="toc-num">06</span>傳值：函式改的是副本</a><a href="#byref"><span class="toc-num">07</span>參考先是別名，之後才是參數寫法</a><a href="#constref"><span class="toc-num">08</span>唯讀參考：限制透過這個名稱的修改</a><a href="#retval"><span class="toc-num">09</span>回傳數值安全，回傳參考要問物件還活著嗎</a><a href="#overload"><span class="toc-num">10</span>多載與預設引數：分清楚選版本和補資料</a><a href="#recursion"><span class="toc-num">11</span>從一般呼叫到遞迴：每次呼叫都有自己的狀態</a><a href="#reference"><span class="toc-num">12</span>語法速查與下一步</a><a href="#bankquiz"><span class="toc-num">13</span>自我檢測</a><a href="#cards"><span class="toc-num">14</span>關鍵詞彙卡</a><a href="#restore-declaration-table"><span class="toc-num">補</span>把宣告與定義放在一起比較</a><a href="#restore-value-decisions"><span class="toc-num">補</span>什麼時候刻意選擇傳值</a><a href="#restore-value-reference"><span class="toc-num">補</span>同一個呼叫，副本與別名差在哪裡</a><a href="#restore-parameter-decisions"><span class="toc-num">補</span>用需求挑選介面</a><a href="#restore-return-warning"><span class="toc-num">補</span>回傳後仍可使用，才算有效的結果</a><a href="#restore-default-warning"><span class="toc-num">補</span>預設引數與多載一起檢查</a><a href="#restore-recursive-return"><span class="toc-num">補</span>遞迴也會逐層回傳計算結果</a><a href="#restore-four-parameter-matrix"><span class="toc-num">補</span>四種傳參形式的完整對照</a><a href="#restore-function-task-map"><span class="toc-num">補</span>從需求回查 C++ 語法</a></div></div><section id="purpose"><div class="section-number">PART 01</div><h2>先看一項工作如何變成函式</h2>
-<p>想像你要在不同地方計算包裹費用：預估畫面要算一次，確認訂單時又要算一次。直接複製算式雖然能工作，但調整規則時容易只改到其中一處。函式把一項工作命名，讓程式透過名稱重複使用同一份規則。這裡先學如何定義、呼叫和取得結果，之後才比較不同的參數傳遞方式。</p>
-<p>先把函式想成有清楚邊界的一段程式：呼叫端交出輸入，函式用自己的參數與區域變數完成工作，再把結果交回。輸入、輸出與螢幕顯示是不同的事；函式可以回傳一個數字而完全不印文字，也可以只顯示提醒而不回傳計算結果。</p>
-<pre class="pseudo-code" data-cpp="fragment">回傳型別 函式名稱(參數列) {
-    函式本體
-}</pre>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>部分</th><th>如何閱讀</th></tr></thead><tbody><tr><td><code>int deliveryFee(int boxes)</code></td><td>回傳一個 int；函式名是 deliveryFee；接收一個名叫 boxes 的 int。</td></tr><tr><td><code>{ return boxes * 12; }</code></td><td>大括號包住函式本體；return 先計算右邊，再結束這一次呼叫。</td></tr><tr><td><code>deliveryFee(3)</code></td><td>這是呼叫，括號內是交給函式的引數；不是再次定義函式。</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="運費 = 36&#10;">#include &lt;iostream&gt;
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P3</div>
+    <h1><span class="blue">函式</span>：傳值、<span class="green">傳參考</span>與<span class="orange">傳指標</span></h1>
+    <div class="subtitle">先備知識 · 語法與互動</div>
+    <div class="big-formula">f(T x)｜f(T&amp; x)｜f(T* p)｜const T&amp;｜多載｜遞迴</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
 
-int deliveryFee(int boxes) {
-    return boxes * 12;
-}
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備知識 · 語法與互動）</div>
+  <p>先讀語法與例子，再操作互動圖解並完成四選一自測。忘記寫法時回看速查表，最後用中英詞彙卡複習。</p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
 
-int main() {
-    int fee = deliveryFee(3);
-    std::cout &lt;&lt; &quot;運費 = &quot; &lt;&lt; fee &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>運費 = 36&#10;</pre></div>
-<p>程式從 main 開始，不會因為 deliveryFee 寫在前面就先執行它。遇到 deliveryFee(3) 才進入函式，此時 boxes 取得 3；return 算出 36，控制流程回到原本的呼叫位置，36 才被用來初始化 fee。下一行 cout 是 main 的工作。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>把呼叫改成 deliveryFee(5)，哪些位置會變？需要修改函式定義嗎？</p><details><summary>看解答與理由</summary><p>只需改引數。這次 boxes 是 5，回傳 60；函式的規則仍是乘以 12，因此定義不變。</p></details></div>
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>函式的定義與呼叫</a>
+    <a href="#declare"><span class="toc-num">P01</span>宣告與定義</a>
+    <a href="#byvalue"><span class="toc-num">P02</span>傳值：函式拿到的是副本</a>
+    <a href="#byref"><span class="toc-num">P03</span>傳參考：同一個東西的另一個名字</a>
+    <a href="#byptr"><span class="toc-num">P04</span>傳指標：明著交出位址</a>
+    <a href="#constref"><span class="toc-num">P05</span>const 參考：不複製也不讓改</a>
+    <a href="#retval"><span class="toc-num">P06</span>回傳值與回傳參考</a>
+    <a href="#overload"><span class="toc-num">P07</span>多載與預設引數</a>
+    <a href="#recursion"><span class="toc-num">P08</span>遞迴與呼叫堆疊</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PART 00 · 函式外觀</div>
+  <h2>先看懂函式的定義與呼叫</h2>
+  <p>函式把一段工作取名字，呼叫時交給它輸入，完成後可把結果交回。先認識每個語法位置，再比較後面的傳值、參考與指標。</p>
+  <p><code>int deliveryFee(int count)</code> 中，第一個 <code>int</code> 是回傳型別，<code>deliveryFee</code> 是名稱，<code>int count</code> 是參數。大括號是本體；<code>return</code> 結束呼叫並回傳值。呼叫 <code>deliveryFee(3)</code> 時，引數 3 交給 count；函式不會因定義寫在 main 前面就先執行。</p>
+  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count) {</span>
+<span class="line" data-l="3">    <span class="kw">return</span> count * <span class="num">12</span>;</span>
+<span class="line" data-l="4">}</span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    <span class="kw">int</span> fee = deliveryFee(<span class="num">3</span>);</span>
+<span class="line" data-l="7">    std::cout &lt;&lt; fee &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
+<span class="line" data-l="8">}</span>
+<span class="line" data-l="9"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>36</pre></div>
+  <p>呼叫回來後，fee 取得 36，main 再顯示它。<code>void</code> 表示不回傳值；<code>cout</code> 顯示文字與 <code>return</code> 交出結果是不同動作。下一節再看宣告與定義如何安排。</p>
+</section>
+
+<section id="declare">
+  <div class="section-number">PART 01 · 宣告與定義</div>
+  <h2>編譯器由上而下讀一遍，讀到才算數</h2>
+  <p>C++ 在編譯一個來源檔時，函式呼叫處必須已看得到相符的宣告。若定義放在 <code>main</code> 後面，就先在前面寫函式原型，讓編譯器能檢查引數與回傳型別。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">定義寫在 main 後面，直接編不過</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    cout &lt;&lt; square(<span class="num">5</span>) &lt;&lt; endl;   <span class="com">// 編譯器讀到這裡時還沒見過 square</span>
+<span class="line" data-l="6"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="10">    <span class="kw">return</span> n * n;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:5:13: error: ‘square’ was not declared in this scope
+    5 |     cout &lt;&lt; square(5) &lt;&lt; endl;   // 編譯器讀到這裡時還沒見過 square</pre></div>
+  <p class="dx-note"><code>error: ‘square’ was not declared in this scope</code>。這是初學最常收到的錯誤訊息之一，意思很單純：<strong>你用了一個編譯器還沒認識的名字</strong>。</p>
+</div>
+
+  <p>解法是先寫一行<strong>函式原型</strong>（function prototype），把回傳型別、名稱、參數型別交代清楚，結尾用分號。這一行就是宣告；有函式本體的那一份才是定義。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">加一行宣告就過了</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);               <span class="com">// 宣告（函式原型）：先告訴編譯器它長什麼樣</span>
+<span class="line" data-l="5"></span></span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">square(5) = </span><span class="str">"</span> &lt;&lt; square(<span class="num">5</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {              <span class="com">// 定義：實際的程式碼可以擺在後面</span>
+<span class="line" data-l="12"></span>    <span class="kw">return</span> n * n;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>square(5) = 25</pre></div>
+  <p class="dx-note">宣告只需要<strong>型別</strong>，參數名可以省略：<code>int square(int);</code> 一樣合法。編譯器需要函式名稱、參數型別與回傳型別來檢查呼叫；參數名稱不影響函式型別。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th></th><th>宣告 declaration</th><th>定義 definition</th></tr></thead>
+    <tbody>
+      <tr><td>長相</td><td class="mono">int square(int n);</td><td class="mono">int square(int n) { ... }</td></tr>
+      <tr><td>作用</td><td>告訴編譯器這個名字的長相</td><td>提供實際的程式碼</td></tr>
+      <tr><td>可以出現幾次</td><td>幾次都行</td><td><strong>本頁的一般函式在整個程式中只有一份定義</strong></td></tr>
+      <tr><td>放哪個檔</td><td class="mono">.hpp</td><td class="mono">.cpp</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼模板定義常放在 .hpp 裡</div>
+    <p>一般的分工是宣告放標頭檔、定義放 .cpp；引入標頭後，其他檔案就能檢查函式呼叫。模板是另一種情況：編譯器通常需要看見完整定義才能依使用型別產生版本，因此模板定義常放在標頭。P8、P9 再分別介紹多檔組織與模板。</p>
+  </div>
+</section>
+
+<section id="byvalue">
+  <div class="section-number">PART 02 · 傳值</div>
+  <h2>傳值：函式拿到的是<strong>副本</strong></h2>
+  <p><code>void f(int n)</code> 這種寫法叫傳值（pass by value）。呼叫的瞬間，編譯器把你給的東西<strong>整個抄一份</strong>放進函式的參數裡。函式接下來怎麼折騰那份副本，外面那個都不會知道。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">addOne</span>(<span class="kw">int</span> v) {     <span class="com">// v 是一份全新的副本</span>
+<span class="line" data-l="2"></span>    v = v + <span class="num">1</span>;           <span class="com">// 改的是副本</span>
+<span class="line" data-l="3"></span>}                        <span class="com">// 函式結束，副本消失</span>
+<span class="line" data-l="4"></span></span>
+<span class="line" data-l="5"><span class="kw">int</span> score = <span class="num">60</span>;</span>
+<span class="line" data-l="6">addOne(score);           <span class="com">// score 還是 60</span>
+<span class="line" data-l="7"></span></span></div>
+
+  <p>這個規則沒有例外，而且對<strong>物件</strong>也一樣。物件被複製時，編譯器會呼叫它的<strong>複製建構式</strong>（copy constructor）。下面這支程式把複製這件事印出來給你看。</p>
+
+<p>傳值複製自訂物件時，會由型別決定複製工作；完整複製建構式示範放在 <a href="p8_oop_basics.html#copy-from-functions">P8 類別與物件</a>，先理解本頁的副本與別名即可。</p>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>傳值的時機</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>參數是 <code>int</code>、<code>double</code>、<code>char</code>、<code>bool</code> 這種小東西</td><td>介面簡單，通常不需為避免小型值複製而改用參考</td></tr>
+      <tr><td>函式<strong>本來就想要一份自己的</strong>，改了不該影響呼叫端</td><td>複製本身就是你要的效果</td></tr>
+      <tr><td class="mono" style="color:var(--accent);">大物件</td><td style="color:var(--accent);">別用傳值。用 <code>const T&amp;</code></td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 Python 沒有這個問題，但也沒有這個選擇</div>
+    <p style="margin-bottom:0;">Python 傳的一律是物件的參考，所以一個 list 傳進函式，函式裡 <code>append</code> 一下外面就跟著變；整數則因為不可變而看起來像傳值。C++ 把這件事交給你在參數列上明講：抄一份、還是給本人。講清楚的代價是多打幾個字，好處是讀程式的人光看簽章就知道這個函式會不會動到你的資料。</p>
+  </div>
+</section>
+
+<section id="byref">
+  <div class="section-number">PART 03 · 傳參考</div>
+  <h2>傳參考：同一個東西的另一個名字 </h2>
+  <p><code>int &amp;r = x;</code> 讀作「r 是 x 的參考」。在語言語意上，<code>r</code> 是既有物件 <code>x</code> 的別名，而不是可改指向的指標；編譯器如何實作參考、是否需要額外儲存空間，不能由這項語意推定。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">參考與本尊住同一個門牌</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">10</span>;</span>
+<span class="line" data-l="6">    <span class="kw">int</span> &amp;r = x;              <span class="com">// r 不是新變數，它就是 x 的另一個名字</span>
+<span class="line" data-l="7"></span></span>
+<span class="line" data-l="8">    r = <span class="num">99</span>;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">改了 r 之後 x = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; endl;</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">x 的位址 = </span><span class="str">"</span> &lt;&lt; &amp;x &lt;&lt; endl;</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">r 的位址 = </span><span class="str">"</span> &lt;&lt; &amp;r &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 完全一樣</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">sizeof(x)=</span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(x) &lt;&lt; <span class="str">"</span><span class="str">  sizeof(r)=</span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(r) &lt;&lt; endl;</span>
+<span class="line" data-l="14">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>改了 r 之後 x = 99
+x 的位址 = 0x7ffe931b930c
+r 的位址 = 0x7ffe931b930c   &lt;- 完全一樣
+sizeof(x)=4  sizeof(r)=4</pre></div>
+  <p class="dx-note">兩個位址一模一樣，<code>sizeof</code> 也一樣是 4——因為 <code>r</code> 根本沒有自己的身體。對照 <a href='p4_pointers_memory.html'>P4</a> 的指標：指標自己佔 8 個 byte，參考佔 0 個。</p>
+</div>
+
+  <p>參數列上寫 <code>T&amp;</code>，函式收到的就是呼叫端那個變數本人：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">一個 &amp; 的差別</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">addOneWrong</span>(<span class="kw">int</span> v)  { v = v + <span class="num">1</span>; }     <span class="com">// 漏了 &amp;</span>
+<span class="line" data-l="5"></span><span class="kw">void</span> <span class="fn">addOneRight</span>(<span class="kw">int</span> &amp;v) { v = v + <span class="num">1</span>; }     <span class="com">// 有 &amp;</span>
+<span class="line" data-l="6"></span></span>
+<span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="8">    <span class="kw">int</span> score = <span class="num">60</span>;</span>
+<span class="line" data-l="9">    addOneWrong(score);</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">呼叫 addOneWrong 之後: </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
+<span class="line" data-l="11">    addOneRight(score);</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">呼叫 addOneRight 之後: </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>呼叫 addOneWrong 之後: 60
+呼叫 addOneRight 之後: 61</pre></div>
+  <p class="dx-note">兩個函式的本體完全相同，只有參數列差一個 <code>&amp;</code>，結果一個做白工、一個真的加到了。編譯這支程式時 g++ 一個字都不會抱怨——<code>addOneWrong</code> 在語法上完全合法，它只是沒有用。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th></th><th>傳值 <code>void f(T x)</code></th><th>傳參考 <code>void f(T&amp; x)</code></th></tr></thead>
+    <tbody>
+      <tr><td>函式拿到什麼</td><td>一份副本</td><td>呼叫端那個變數本人</td></tr>
+      <tr><td>改得動外面嗎</td><td><strong>改不動</strong></td><td><strong>改得動</strong></td></tr>
+      <tr><td>複製成本</td><td>整個物件抄一遍</td><td>零</td></tr>
+      <tr><td>呼叫端寫法</td><td class="mono">f(x);</td><td class="mono">f(x);　← 看不出差別</td></tr>
+      <tr><td>可以傳 3、傳 a+b 嗎</td><td>可以</td><td><strong>不行</strong>，非 const 參考只收得下有名字的變數</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 呼叫端看不出來</div>
+    <p style="margin-bottom:0;"><code>f(x);</code> 這一行，無論 <code>f</code> 收的是值還是參考，寫法完全一樣。所以<strong>你必須去看函式簽章</strong>才知道自己的變數會不會被改掉。指標就沒這個問題：<code>f(&amp;x)</code> 那個 <code>&amp;</code> 明擺在呼叫端。這是下一節要談的取捨。</p>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 少了一個符號</div>
+    <p>如果把調整分數的函式寫成 <code>void adjustScores(vector&lt;int&gt; v)</code>（沒有 &amp;），呼叫 <code>adjustScores(data)</code> 後再印 data，函式內的修改會留在原資料嗎？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="不會編譯錯。傳值版在語法上完全合法，這正是它危險的地方：你要跑起來、印出來才會發現不對。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 編譯錯誤</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。函式確實把那份副本排得整整齊齊，然後在 return 的瞬間把副本丟掉。原本的 data 一根寒毛都沒動。而且整個 vector 還被完整複製了一次，白花的成本是 O(n)。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 原本的順序，完全沒排到</div>
+      <div class="quiz-opt" data-correct="false" data-fb="排序結果留在副本裡了，呼叫端拿不到。函式沒有回傳值，那份排好的資料就這樣消失。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 排好序的結果</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不會當掉。傳值是安全的操作，它只是沒有達到你要的效果，而這種「安靜地做錯」比當掉難抓多了。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> 執行時當掉</div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+
 
 </section>
-<section id="parameters"><div class="section-number">PART 02</div><h2>引數、參數與回傳值：把資料流追清楚</h2>
-<p>引數是呼叫時提供的值，參數是函式用來接收它的名稱。兩者不必同名：呼叫端可以叫 quantity，函式內叫 boxes；連接兩者的是參數的位置與型別，不是名稱相同。引數也可以是運算式，例如 deliveryFee(quantity + 1)，先算出引數的值才進入函式。</p>
-<p>有兩個參數時，依位置配對。deliveryFee(3, 12) 的第一個值交給 boxes，第二個值交給 rate。函式的參數列用逗號分開每個完整宣告，不能把 int boxes, rate 當成兩個合法參數宣告。這和一般變數宣告的簡寫不同。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="3 40&#10;">#include &lt;iostream&gt;
-int deliveryFee(int boxes, int rate) {
-    int fee = boxes * rate;
-    return fee;
-}
-int main() {
-    int quantity = 3;
-    int result = deliveryFee(quantity + 1, 10);
-    std::cout &lt;&lt; quantity &lt;&lt; &quot; &quot; &lt;&lt; result &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3 40&#10;</pre></div>
-<p>quantity + 1 得到 4，但沒有把 quantity 指派成 4，所以呼叫後 quantity 仍是 3。函式內 fee 為 40，return fee 交回的是數值。函式結束後區域變數 fee 不再存在，但已交出的 int 結果仍可存進 result。</p>
-<div class="deck-extra lesson-trace" id="call-flow"><h3>互動：控制流程在哪裡，資料就流到哪裡</h3><p>逐步觀察呼叫端與函式的區域變數。初始畫面尚未執行第一行。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">int quantity = 3;</span>
-<span class="line">int result = deliveryFee(quantity + 1, 10);</span>
-<span class="line">// deliveryFee: fee = boxes * rate;</span>
-<span class="line">// deliveryFee: return fee;</span>
-<span class="line">std::cout &lt;&lt; quantity &lt;&lt; &quot; &quot; &lt;&lt; result;</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "程式尚未建立 quantity。", "vars": {"main": "尚未開始"}}, {"note": "建立呼叫端變數。", "line": 0, "vars": {"quantity": 3}}, {"note": "先算 3 + 1，再依位置建立兩個參數。", "line": 1, "vars": {"quantity": 3, "boxes": 4, "rate": 10, "result": "等待回傳"}}, {"note": "函式使用自己的參數算出費用。", "line": 2, "vars": {"quantity": 3, "boxes": 4, "rate": 10, "fee": 40}}, {"note": "回傳 40，函式的區域名稱離開作用域。", "line": 3, "vars": {"quantity": 3, "result": 40, "boxes/rate/fee": "生命結束"}}, {"note": "回到 main，繼續下一個敘述。", "line": 4, "vars": {"quantity": 3, "result": 40}, "output": "3 40"}]</script></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>把呼叫改為 deliveryFee(10, quantity + 1)，結果會一樣嗎？</p><details><summary>看解答與理由</summary><p>這個乘法例子仍回傳 40，但 boxes 與 rate 的意義已對調。一般函式不保證參數可以交換，因此理解每個位置比只看結果重要。</p></details></div>
+
+<section id="byptr"><p>先辨認這三個位置：<code>int value=3;</code> 建立整數；<code>&amp;value</code> 取得位址；<code>int* p=&amp;value;</code> 建立保存位址的指標，<code>*p</code> 才代表原整數。下面先用這個最小模型讀參數，完整記憶體圖在 P4。</p>
+  <div class="section-number">PART 04 · 傳指標</div>
+  <h2>傳指標：明著把位址交出去</h2>
+  <p>第三種寫法是 <code>void f(T* p)</code>，呼叫時寫 <code>f(&amp;x)</code>。函式收到一個位址，用 <code>*p</code> 存取目標。與參考參數相比，指標還能以 <code>nullptr</code> 表示沒有目標，也能在函式內改為指向別處。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">指標做得到、參考做不到的兩件事</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">tryFill</span>(<span class="kw">int</span> *p) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (p == <span class="fn">nullptr</span>) {              <span class="com">// 指標可以為空，所以要檢查</span>
+<span class="line" data-l="6"></span>        cout &lt;&lt; <span class="str">"</span><span class="str">  收到 nullptr，什麼都不做</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="7">        <span class="kw">return</span>;</span>
+<span class="line" data-l="8">    }</span>
+<span class="line" data-l="9">    *p = <span class="num">42</span>;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">void</span> <span class="fn">mustFill</span>(<span class="kw">int</span> &amp;r) {              <span class="com">// 參考保證後面有東西，不用檢查</span>
+<span class="line" data-l="13"></span>    r = <span class="num">42</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="17">    <span class="kw">int</span> a = <span class="num">0</span>;</span>
+<span class="line" data-l="18">    tryFill(&amp;a);   cout &lt;&lt; <span class="str">"</span><span class="str">tryFill(&amp;a)  之後 a = </span><span class="str">"</span> &lt;&lt; a &lt;&lt; endl;</span>
+<span class="line" data-l="19">    tryFill(<span class="fn">nullptr</span>); cout &lt;&lt; <span class="str">"</span><span class="str">傳 nullptr 進去會安全返回</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">    <span class="kw">int</span> b = <span class="num">0</span>;</span>
+<span class="line" data-l="22">    mustFill(b);   cout &lt;&lt; <span class="str">"</span><span class="str">mustFill(b)  之後 b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; endl;</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24">    <span class="kw">int</span> c = <span class="num">1</span>, d = <span class="num">2</span>;</span>
+<span class="line" data-l="25">    <span class="kw">int</span> *p = &amp;c;</span>
+<span class="line" data-l="26">    p = &amp;d;                          <span class="com">// 指標可以改指向別的東西</span>
+<span class="line" data-l="27"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">p 改指向 d 之後 *p = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="29">}</span>
+<span class="line" data-l="30"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>tryFill(&amp;a)  之後 a = 42
+  收到 nullptr，什麼都不做
+傳 nullptr 進去會安全返回
+mustFill(b)  之後 b = 42
+p 改指向 d 之後 *p = 2</pre></div>
+  <p class="dx-note"><code>tryFill(nullptr)</code> 是合法呼叫，函式檢查後安全返回。參考沒有一般的空值狀態，適合表達參數必須綁定有效物件的介面；物件生命週期仍由呼叫端負責。最後兩行展示指標可以改指向另一個目標。</p>
+</div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 選哪一個</div>
+    <p>目標一定存在且需要修改時，參考常能清楚表達需求；允許「沒有目標」或需要描述位址時可用指標。注意指標參數本身也是副本，改函式內的指向不會自動改呼叫端指標。完整比較見 <a href="p4_pointers_memory.html#ptr">P4</a>。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">三種傳法，一次看清楚</h3>
+  <p>下面這個逐步器跑的就是開場那支程式。左邊是兩個函式框（呼叫端與被呼叫端）在記憶體裡的樣子，右邊的程式碼會同步高亮。三個按鈕換傳法，注意<strong>被呼叫端那兩格是新的還是舊的</strong>。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="swapStage" style="min-height:260px;"></div>
+        <div class="status-banner" id="swapStatus"><span class="status-icon">›</span><span class="status-text">選一種傳法開始。三個版本的函式本體完全一樣。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="swapStart('val')">▶ 傳值</button>
+          <button class="btn btn-play" onclick="swapStart('ref')">▶ 傳參考</button>
+          <button class="btn btn-play" onclick="swapStart('ptr')">▶ 傳指標</button>
+          <button class="btn btn-step" onclick="swapPlayer &amp;&amp; swapPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="swapReset()">⟲ 重設</button>
+          <button class="btn" onclick="swapPlayer &amp;&amp; swapPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="swapSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="swapCodeVal" style="font-size:.74rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">swapByValue</span>(<span class="kw">int</span> a, <span class="kw">int</span> b) {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> t = a;</span>
+<span class="line" data-l="3">    a = b;</span>
+<span class="line" data-l="4">    b = t;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> x = <span class="num">3</span>, y = <span class="num">7</span>;</span>
+<span class="line" data-l="8">swapByValue(x, y);</span>
+<span class="line" data-l="9"> </span></div>
+        <div class="pseudo-code" id="swapCodeRef" style="font-size:.74rem;display:none;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">swapByRef</span>(<span class="kw">int</span> &amp;a, <span class="kw">int</span> &amp;b) {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> t = a;</span>
+<span class="line" data-l="3">    a = b;</span>
+<span class="line" data-l="4">    b = t;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> x = <span class="num">3</span>, y = <span class="num">7</span>;</span>
+<span class="line" data-l="8">swapByRef(x, y);</span>
+<span class="line" data-l="9"> </span></div>
+        <div class="pseudo-code" id="swapCodePtr" style="font-size:.74rem;display:none;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">swapByPtr</span>(<span class="kw">int</span> *a, <span class="kw">int</span> *b) {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> t = *a;</span>
+<span class="line" data-l="3">    *a = *b;</span>
+<span class="line" data-l="4">    *b = t;</span>
+<span class="line" data-l="5">}</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> x = <span class="num">3</span>, y = <span class="num">7</span>;</span>
+<span class="line" data-l="8">swapByPtr(&amp;x, &amp;y);</span>
+<span class="line" data-l="9"> </span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">看哪裡 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><strong>傳值</strong>：callee 那格是新配的，位址不同。<br>
+        <strong>傳參考</strong>：callee 那格根本沒有新配，<code>a</code> 只是 <code>x</code> 的另一個標籤。<br>
+        <strong>傳指標</strong>：callee 多了兩格，裡面裝的是 <code>x</code> 和 <code>y</code> 的門牌。</p>
+      </div>
+    </div>
+  </div>
+
 
 </section>
-<section id="return"><div class="section-number">PART 03</div><h2>return 結束呼叫，void 表示沒有回傳值</h2>
-<p>有回傳型別的函式，應讓每一條正常結束的路徑交出符合型別的值。return 不是單純把答案記在某個位置：執行到它，就立即結束這一次函式呼叫。放在 return 後面的敘述不會繼續執行。多個分支可以各有自己的 return。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="0 24&#10;請確認收件地址&#10;">#include &lt;iostream&gt;
-int deliveryFee(int boxes) {
-    if (boxes &lt;= 0) {
-        return 0;
-    }
-    return boxes * 12;
-}
-void showReminder() {
-    std::cout &lt;&lt; &quot;請確認收件地址\n&quot;;
-}
-int main() {
-    std::cout &lt;&lt; deliveryFee(0) &lt;&lt; &quot; &quot; &lt;&lt; deliveryFee(2) &lt;&lt; &#x27;\n&#x27;;
-    showReminder();
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0 24&#10;請確認收件地址&#10;</pre></div>
-<p>showReminder 的回傳型別是 void，意思是呼叫不產生可用來計算的值。呼叫仍要寫 showReminder() 的小括號，但不能寫 int x = showReminder()。void 函式可以用不帶值的 return; 提早離開，也可以自然走到結尾。</p>
-<p>要特別分清 cout 與 return：cout 把文字送到輸出串流，return 把結果送回程式中的呼叫位置。只印出答案的函式，不能直接拿顯示內容去做後續運算。初學時可以把「計算結果」與「顯示結果」分成兩步，較容易測試與重複使用。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>一個 int 函式只在 if 成立時 return，其他情況直接走到結尾，可以依賴得到 0 嗎？</p><details><summary>看解答與理由</summary><p>不可以。一般需要回傳值的函式若走到結尾卻沒有回傳，不能當作自動回傳 0；main 是特殊情況。應補上所有正常路徑的 return。</p></details></div>
+
+<section id="constref">
+  <div class="section-number">PART 05 · const 參考</div>
+  <h2><code>const T&amp;</code>：不複製，也不讓你改</h2>
+  <p>前面兩節留了一個矛盾：傳值太貴，傳參考又讓函式有能力改動你的資料。<code>const T&amp;</code> 把兩邊的好處都拿走了——參數不複製，而且編譯器保證函式碰不了它。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">print</span>(<span class="kw">const</span> string &amp;s) {   <span class="com">// 不複製、不能改</span>
+<span class="line" data-l="2"></span>    cout &lt;&lt; s &lt;&lt; endl;</span>
+<span class="line" data-l="3">    <span class="com">// s = "x";                    // 這行會編譯錯</span>
+<span class="line" data-l="4"></span>}</span>
+<span class="line" data-l="5"> </span></div>
+
+<div class="deck-extra">
+  <div class="dx-label">試著改一個 const 參考</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">peek</span>(<span class="kw">const</span> <span class="kw">int</span> &amp;v) {</span>
+<span class="line" data-l="5">    v = <span class="num">99</span>;                 <span class="com">// const 參考不准改</span>
+<span class="line" data-l="6"></span>}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    <span class="kw">int</span> x = <span class="num">3</span>;</span>
+<span class="line" data-l="10">    peek(x);</span>
+<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp: In function ‘void peek(const int&amp;)’:
+cell.cpp:5:7: error: assignment of read-only reference ‘v’
+    5 |     v = 99;                 // const 參考不准改</pre></div>
+  <p class="dx-note"><code>error: assignment of read-only reference</code>。這是<strong>編譯期</strong>就擋下來的，不是跑到一半才出事。<code>const</code> 在 C++ 是一個會被檢查的承諾，不是註解。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">三種傳法的決策表（先用這張挑）</h3>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>你想做的事</th><th>寫法</th><th>複製嗎</th><th>改得動嗎</th></tr></thead>
+    <tbody>
+      <tr><td>參數很小，函式想要一份自己的</td><td class="mono">void f(int n)</td><td>會</td><td>只改副本</td></tr>
+      <tr><td><strong>要改動呼叫端的資料</strong></td><td class="mono">void f(T&amp; x)</td><td>不會</td><td>會</td></tr>
+      <tr><td><strong>只是要讀一個大物件</strong></td><td class="mono">void f(const T&amp; x)</td><td>不會</td><td>不會</td></tr>
+      <tr><td>參數可能是「沒有」，或要換目標</td><td class="mono">void f(T* p)</td><td>不會</td><td>會</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <p>第三列是<strong>傳大物件的標準做法</strong>。看到 <code>const vector&lt;int&gt;&amp; v</code> 這種簽章不用緊張，它只是在說「我要看你的資料，我保證不動它，而且我不想抄一份」。</p>
+
+<p>物件成員函式後面的 const 必須先理解類別；原有成功與失敗對照完整放在 <a href="p8_oop_basics.html#getter-from-functions">P8</a>。</p>
+</section>
+
+<section id="retval">
+  <div class="section-number">PART 06 · 回傳</div>
+  <h2>回傳：可以給值，可以給參考，就是不能給死掉的東西</h2>
+  <p>回傳值讓呼叫端取得獨立的結果，所以回傳一般區域變數的值可以是安全的。對類別型別，實際可能複製、移動或省略複製，不能推論每次 return 都有一份額外複製。回傳 T&amp; 則提供原物件的參考，使用時必須確認該物件仍存活。</p>
+  <p>回傳參考 <code>T&amp;</code> 就不一樣了。它交出去的是「那個東西本人」，所以那個東西必須在函式結束後還活著。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">回傳參考的正當用法：目標是仍存活的呼叫端變數</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"><span class="kw">int</span>&amp; <span class="fn">currentValue</span>(<span class="kw">int</span>&amp; value) { <span class="kw">return</span> value; }</span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> count = <span class="num">0</span>;</span>
+<span class="line" data-l="6">    currentValue(count) = <span class="num">5</span>;</span>
+<span class="line" data-l="7">    currentValue(count) += <span class="num">3</span>;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">count = </span><span class="str">"</span> &lt;&lt; count &lt;&lt; endl;</span>
+<span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>count = 8</pre></div>
+  <p>currentValue 回傳 main 中 count 的參考，原物件在呼叫結束後仍存在，所以呼叫結果可作為賦值左側。不能把它改成回傳函式內區域變數的參考。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent);">絕對不能做的事</h3>
+  <p>回傳區域變數的<strong>位址</strong>或<strong>參考</strong>。區域變數住在呼叫堆疊上，函式一 <code>return</code>，那塊空間就還給系統了，你交出去的是一張過期的門牌。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">g++ 有警告，而且是預設就開的</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> *<span class="fn">makeNumber</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> local = <span class="num">1234</span>;        <span class="com">// 住在堆疊上，函式一結束就沒了</span>
+<span class="line" data-l="6"></span>    <span class="kw">return</span> &amp;local;           <span class="com">// 回傳一個馬上要失效的位址</span>
+<span class="line" data-l="7"></span>}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="10">    <span class="kw">int</span> *p = makeNumber();</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">p 拿到的位址 = </span><span class="str">"</span> &lt;&lt; p &lt;&lt; endl;</span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">順著它讀出來 = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">g++ 的警告</span><pre>cell.cpp: In function ‘int* makeNumber()’:
+cell.cpp:6:12: warning: address of local variable ‘local’ returned [-Wreturn-local-addr]
+    6 |     return &amp;local;           // 回傳一個馬上要失效的位址
+      |            ^~~~~~
+cell.cpp:5:9: note: declared here
+    5 |     int local = 1234;        // 住在堆疊上，函式一結束就沒了
+      |         ^~~~~</pre></div>
+  <p class="dx-note"><code>-Wreturn-local-addr</code> 這個警告不需要 <code>-Wall</code> 就會出現。<strong>看到 warning 不要跳過</strong>——C++ 的警告訊息裡，這一類幾乎百分之百是真的錯。</p>
+</div>
+
+  <div class="deck-extra">
+    <div class="dx-label">那它跑起來會怎樣？</div>
+    <div class="expected-out"><span class="eo-tag">實際執行輸出</span><pre>錯誤示範：使用已失效的位址，行為未定義，沒有可依賴的執行輸出。</pre></div>
+    <p class="dx-note">這是不可執行的錯誤示範：local 的生命週期在函式返回時結束，p 無法合法指向可供讀取的 local。不同編譯器可能給出不同診斷及執行結果；不能依一次看到的位址、數值或終止訊號推論 C++ 的保證。</p>
+  </div>
+
+  <p>需要一個活得比函式久的東西，就把它配在堆積上，然後講清楚誰負責 <code>delete</code>：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">要活得久，就 new 在堆積上</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> *<span class="fn">makeNumberOK</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> *p = <span class="kw">new</span> <span class="kw">int</span>(<span class="num">1234</span>);  <span class="com">// 配在堆積上，函式結束也不會消失</span>
+<span class="line" data-l="6"></span>    <span class="kw">return</span> p;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="10">    <span class="kw">int</span> *p = makeNumberOK();</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">讀出來 = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="12">    <span class="kw">delete</span> p;                <span class="com">// 呼叫端負責還</span>
+<span class="line" data-l="13"></span>    p = <span class="fn">nullptr</span>;</span>
+<span class="line" data-l="14">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>讀出來 = 1234</pre></div>
+  <p>動態建立的物件不會只因這次函式呼叫結束就自動消失。代價是必須清楚指定誰負責釋放；不能只回傳位址卻沒有所有權安排。new／delete 與自動管理資源的觀念見 <a href="p4_pointers_memory.html#newdel">P4</a>。</p>
+</div>
+
 
 </section>
-<section id="scope"><div class="section-number">PART 04</div><h2>作用域、生命週期與同名變數</h2>
-<p>作用域回答「這個名稱在哪裡能使用」，生命週期回答「這個物件什麼時候存在」。對本頁的一般區域 int 來說，進入宣告時建立，離開所在區塊時結束；函式參數也只屬於這一次呼叫。之後再次呼叫，會有新的一組參數與區域變數。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="6&#10;7&#10;">#include &lt;iostream&gt;
-int doubleValue(int value) {
-    int answer = value * 2;
-    return answer;
-}
-int main() {
-    int value = 7;
-    {
-        int value = 3;
-        std::cout &lt;&lt; doubleValue(value) &lt;&lt; &#x27;\n&#x27;;
-    }
-    std::cout &lt;&lt; value &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>6&#10;7&#10;</pre></div>
-<p>內層區塊宣告了另一個 value，暫時遮蔽外層名稱；它沒有把外層的 7 改成 3。呼叫時傳入內層的 3，函式又用自己的參數 value 接收副本。三個名稱拼字相同，仍代表不同的物件。離開內層區塊後，再寫 value 指的是外層的 7。</p>
-<p>區域變數不是函式替外界保管的永久儲存空間。若想在 main 使用 answer，應取得回傳值；直接在 main 寫 answer 會因名稱不可見而編譯失敗。另一方面，即使某個名稱還能取得舊位址，物件也可能早已結束生命；這是後面回傳參考與 P4 指標必須注意的界線。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>上述程式在內層區塊結束後加入 cout << answer，為何錯誤？</p><details><summary>看解答與理由</summary><p>answer 的作用域在 doubleValue 的函式本體，main 根本看不到它。應先用變數接住 doubleValue 的回傳值，再印那個呼叫端變數。</p></details></div>
+
+<section id="overload">
+  <div class="section-number">PART 07 · 多載與預設引數</div>
+  <h2>同一個名字，好幾種呼叫法</h2>
+  <p>C++ 允許好幾個函式共用一個名字，只要<strong>參數的個數或型別不同</strong>就行。編譯器會依照你呼叫時給的東西挑一個，這叫<strong>函式多載</strong>（function overloading）。挑選只看參數，<strong>回傳型別不算</strong>——兩個函式只有回傳型別不同的話會直接編譯錯。</p>
+
+  <p class="dx-note">同名 deliveryFee 依參數個數選擇版本；三個呼叫各自選中兩參數、一參數與無參數版本，不需要外部標頭。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">deliveryFee</span>();</span>
+<span class="line" data-l="2"><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count);</span>
+<span class="line" data-l="3"><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count, <span class="kw">int</span> rate);</span>
+<span class="line" data-l="4"> </span></div>
+
+<div class="deck-extra">
+  <div class="dx-label">同名 deliveryFee 依參數個數選擇版本；三個呼叫各自選中兩參數、一參數與無參數版本，不需要外部標頭。</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"><span class="kw">int</span> <span class="fn">deliveryFee</span>() { <span class="kw">return</span> <span class="num">12</span>; }</span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count) { <span class="kw">return</span> count * <span class="num">12</span>; }</span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count, <span class="kw">int</span> rate) { <span class="kw">return</span> count * rate; }</span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    cout &lt;&lt; deliveryFee(<span class="num">3</span>, <span class="num">10</span>) &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; deliveryFee(<span class="num">5</span>) &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; deliveryFee() &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>30  60  12</pre></div>
+  <p class="dx-note">同名 deliveryFee 依參數個數選擇版本；三個呼叫各自選中兩參數、一參數與無參數版本，不需要外部標頭。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">預設引數</h3>
+  <p>另一條路是給參數一個預設值，呼叫時可以省略：</p>
+
+<div class="deck-extra">
+  <div class="dx-label">省略的參數自動吃預設值</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">report</span>(string name, <span class="kw">int</span> score = <span class="num">60</span>, <span class="kw">bool</span> pass = <span class="fn">true</span>) {</span>
+<span class="line" data-l="5">    cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; score &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; (pass ? <span class="str">"</span><span class="str">通過</span><span class="str">"</span> : <span class="str">"</span><span class="str">未通過</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    report(<span class="str">"</span><span class="str">小明</span><span class="str">"</span>, <span class="num">92</span>, <span class="fn">true</span>);</span>
+<span class="line" data-l="10">    report(<span class="str">"</span><span class="str">小華</span><span class="str">"</span>, <span class="num">55</span>);          <span class="com">// pass 用預設值 true</span>
+<span class="line" data-l="11"></span>    report(<span class="str">"</span><span class="str">小美</span><span class="str">"</span>);              <span class="com">// score 與 pass 都用預設值</span>
+<span class="line" data-l="12"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>小明 92 通過
+小華 55 通過
+小美 60 通過</pre></div>
+  <p class="dx-note">三次呼叫分別給了 3、2、1 個引數。省略的部分從左到右對不上就補預設值，所以 <code>report(&quot;小華&quot;, 55)</code> 的 <code>pass</code> 用的是 <code>true</code>。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 預設引數只能靠右邊排</div>
+    <p style="margin-bottom:0;">因為呼叫端是<strong>由左往右</strong>對位的。如果 <code>void f(int a = 1, int b)</code> 合法，那 <code>f(5)</code> 到底是給 <code>a</code> 還是給 <code>b</code>？編譯器不猜，直接拒絕。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">把有預設值的參數放前面，編譯器直接擋下</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">report</span>(<span class="kw">int</span> score = <span class="num">60</span>, string name) {   <span class="com">// 有預設值的參數放前面</span>
+<span class="line" data-l="5"></span>    cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    report(<span class="num">90</span>, <span class="str">"</span><span class="str">小明</span><span class="str">"</span>);</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
+cell.cpp:4:36: error: default argument missing for parameter 2 of ‘void report(int, std::string)’
+    4 | void report(int score = 60, string name) {   // 有預設值的參數放前面
+      |                             ~~~~~~~^~~~</pre></div>
+  <p class="dx-note"><code>default argument missing for parameter 2</code>，訊息說得很白：第 2 個參數也得有預設值。規則記成一句話：<strong>有預設值的參數必須排在最後面，而且一路排到底</strong>。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 多載與預設引數會打架</div>
+    <p style="margin-bottom:0;">同時寫 <code>void f(int a)</code> 與 <code>void f(int a, int b = 0)</code>，那 <code>f(3)</code> 兩邊都符合，編譯器會回報 <code>call of overloaded ... is ambiguous</code>。這兩個工具解決的是同一個問題，挑一個用就好。</p>
+  </div>
+</section>
+
+<section id="recursion">
+  <div class="section-number">PART 08 · 遞迴與呼叫堆疊</div>
+  <h2>函式呼叫自己，堆疊上就多一個框</h2>
+  <p>每次呼叫函式，系統會在<strong>呼叫堆疊</strong>（call stack）上開一個新的<strong>堆疊框</strong>（stack frame），裡面放這一次呼叫的參數、區域變數，以及「回去之後要從哪一行繼續」。函式回傳時這個框就被彈掉。遞迴沒有任何特別之處，它只是讓框疊得比較高。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">把進出的順序印出來</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> depth = <span class="num">0</span>;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; depth; i++) cout &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">進入 sumTo(</span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">)</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9">    depth++;</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11">    <span class="kw">int</span> result;</span>
+<span class="line" data-l="12">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="13">        result = n;                   <span class="com">// 基底情形：不再往下叫</span>
+<span class="line" data-l="14"></span>    } <span class="kw">else</span> {</span>
+<span class="line" data-l="15">        result = n + sumTo(n - <span class="num">1</span>);    <span class="com">// 遞迴情形：問題變小一號</span>
+<span class="line" data-l="16"></span>    }</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    depth--;</span>
+<span class="line" data-l="19">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; depth; i++) cout &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span>;</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">離開 sumTo(</span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">) 回傳 </span><span class="str">"</span> &lt;&lt; result &lt;&lt; endl;</span>
+<span class="line" data-l="21">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="22">}</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="25">    <span class="kw">int</span> answer = sumTo(<span class="num">4</span>);</span>
+<span class="line" data-l="26">    cout &lt;&lt; <span class="str">"</span><span class="str">答案 = </span><span class="str">"</span> &lt;&lt; answer &lt;&lt; endl;</span>
+<span class="line" data-l="27">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="28">}</span>
+<span class="line" data-l="29"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>進入 sumTo(4)
+  進入 sumTo(3)
+    進入 sumTo(2)
+      進入 sumTo(1)
+      離開 sumTo(1) 回傳 1
+    離開 sumTo(2) 回傳 3
+  離開 sumTo(3) 回傳 6
+離開 sumTo(4) 回傳 10
+答案 = 10</pre></div>
+  <p class="dx-note">縮排就是堆疊的高度。注意<strong>四個「進入」全部印完，才開始印「離開」</strong>——因為 <code>n + sumTo(n - 1)</code> 這一行必須等右邊算完才能相加，所以 <code>sumTo(4)</code> 的框會一直卡在堆疊上等。這就是為什麼遞迴的空間複雜度是 <code>O(深度)</code>。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="csStage" style="min-height:250px;"></div>
+        <div class="status-banner" id="csStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，看堆疊框怎麼疊上去、又怎麼收回來。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="csStart()">▶ 開始 sumTo(4)</button>
+          <button class="btn btn-step" onclick="csPlayer &amp;&amp; csPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="csReset()">⟲ 重設</button>
+          <button class="btn" onclick="csPlayer &amp;&amp; csPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="csSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+          <span class="mono" style="font-size:.78rem;color:var(--muted);">堆疊上的框：<b id="csDepth">0</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" id="csCode" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="3">        <span class="kw">return</span> n;</span>
+<span class="line" data-l="4">    }</span>
+<span class="line" data-l="5">    <span class="kw">return</span> n + sumTo(n - <span class="num">1</span>);</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8">cout &lt;&lt; sumTo(<span class="num">4</span>);</span>
+<span class="line" data-l="9"> </span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">兩個必備零件 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><strong>基底情形</strong>：小到不必再遞迴的情況，這裡是 <code>n &lt;= 1</code>。<br>
+        <strong>遞迴情形</strong>：把問題變小一號再交給自己。<br>
+        少了基底情形，或問題沒有真的變小，堆疊就會一直疊上去。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent);">堆疊真的會爆</h3>
+  <p>呼叫堆疊的可用容量依作業系統、執行緒設定與編譯方式而異。即使有基底情形，過深的遞迴仍可能耗盡資源；此外也須檢查計算結果是否超過回傳型別範圍。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">錯誤風險示範：過深遞迴與數值範圍</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) <span class="kw">return</span> n;</span>
+<span class="line" data-l="6">    <span class="kw">return</span> n + sumTo(n - <span class="num">1</span>);</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">sumTo(1000)    = </span><span class="str">"</span> &lt;&lt; sumTo(<span class="num">1000</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">sumTo(1000000) = </span><span class="str">"</span> &lt;&lt; sumTo(<span class="num">1000000</span>) &lt;&lt; endl;   <span class="com">// 堆疊撐不住</span>
+<span class="line" data-l="12"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>風險示範，不提供固定輸出：過深遞迴可能耗盡堆疊，總和也可能使 int 溢位。</pre></div>
+  <p class="dx-note">在可容納結果且堆疊足夠的環境中，sumTo(1000) 得到 500500。sumTo(1000000) 除了可能耗盡堆疊，結果 500000500000 也超出常見 32 位元 int。此例不作為可執行範本；只換較寬型別仍不能解決過深呼叫，應選擇適合的迴圈或其他做法。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 遞迴的框裡有什麼</div>
+    <p style="margin-bottom:0;">每個框裝的是<strong>這一次呼叫專屬的</strong>參數與區域變數。所以 <code>sumTo(4)</code> 的 <code>n</code> 跟 <code>sumTo(3)</code> 的 <code>n</code> 是兩個不同的東西，互不干擾。這也回頭解釋了 PART 06：區域變數活在框裡，框一彈掉它就沒了，回傳它的位址當然拿不到東西。</p>
+  </div>
+
 
 </section>
-<section id="declare"><div class="section-number">PART 05</div><h2>先宣告呼叫方式，再提供定義</h2>
-<p>編譯器遇到函式呼叫時，需要已看過能描述該函式的宣告。最直接的排列是先放完整函式定義，再寫 main；如果希望把實作放在後方，可以先寫一行宣告。宣告的末尾是分號，定義則帶著函式本體。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="30&#10;">#include &lt;iostream&gt;
-int deliveryFee(int boxes, int rate);
-int main() {
-    std::cout &lt;&lt; deliveryFee(3, 10) &lt;&lt; &#x27;\n&#x27;;
-}
-int deliveryFee(int boxes, int rate) {
-    return boxes * rate;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>30&#10;</pre></div>
-<p>宣告承諾函式名稱、參數型別與回傳型別；參數名稱主要幫助閱讀。定義必須符合這個承諾。若宣告說接收 int，定義卻寫成另一種參數型別，可能變成另一個多載版本，並沒有完成原本承諾的函式。</p>
-<p>「沒有宣告就呼叫」通常在編譯時被抓到；「已有宣告，卻找不到相符定義」則可能到連結階段才失敗。P1 的編譯流程在這裡就有實際用途：先辨認失敗階段，才知道該查名稱可見性、型別，還是漏編譯的來源檔。P8 會再把這個做法用到標頭檔與多檔程式。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>上例保留宣告，但刪掉最後的定義，問題會出在哪裡？</p><details><summary>看解答與理由</summary><p>呼叫的語法與型別已有宣告可以檢查，但連結器找不到 deliveryFee(int, int) 的實作，所以不能產生完整可執行程式。</p></details></div>
 
-<div id="restore-declaration-table"><h3>把宣告與定義放在一起比較</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較項目</th><th>函式宣告（Declaration）</th><th>函式定義（Definition）</th></tr></thead><tbody><tr><td>語法外觀</td><td><code>int deliveryFee(int n);</code></td><td><code>int deliveryFee(int n) { return n * 12; }</code></td></tr><tr><td>提供的資訊</td><td>名稱、參數型別與回傳型別；讓呼叫可被型別檢查</td><td>除了介面，也提供完成工作的函式本體</td></tr><tr><td>結尾</td><td>沒有本體，以分號結束</td><td>帶有大括號包住的本體</td></tr><tr><td>可出現的位置／次數</td><td>相容宣告可以在需要的地方重複出現</td><td>本頁的一般函式在整個程式中應只有一份定義</td></tr><tr><td>常見檔案組織</td><td>對外介面常放標頭 .hpp</td><td>一般實作常放 .cpp；其他組織方式在 P8、P9 再說明</td></tr><tr><td>缺少時的症狀</td><td>呼叫前完全沒有可見宣告，通常在編譯階段失敗</td><td>已宣告卻未提供相符定義，通常在連結階段失敗</td></tr></tbody></table></div>
-<p>這張表描述本頁一般函式的基本組織方式，不是規定所有定義都只能寫在 .cpp。P8 會用真正多檔範例說明標頭與來源檔；P9 再介紹模板及它需要的檔案安排。</p>
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>再一題確認觀念</h2>
 
-</div></section>
-<section id="byvalue"><div class="section-number">PART 06</div><h2>傳值：函式改的是副本</h2>
-<p>參數寫成 int points 時，這一次呼叫會建立自己的 points，初值來自引數。它不是呼叫端變數換了名字，也不是把原物件搬進函式。對 int 而言可以直接想成把數字複製到另一格。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="函式內 30&#10;呼叫後 20&#10;">#include &lt;iostream&gt;
-void addBonus(int points) {
-    points = points + 10;
-    std::cout &lt;&lt; &quot;函式內 &quot; &lt;&lt; points &lt;&lt; &#x27;\n&#x27;;
-}
-int main() {
-    int score = 20;
-    addBonus(score);
-    std::cout &lt;&lt; &quot;呼叫後 &quot; &lt;&lt; score &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>函式內 30&#10;呼叫後 20&#10;</pre></div>
-<p>points 的確被改成 30，所以函式內輸出 30；但 score 從未被指定新值，所以仍是 20。傳值很適合只需要一份輸入、希望函式內的暫時計算不影響呼叫端的情況。若希望得到新分數，也可以讓函式回傳結果，再由呼叫端明確寫 score = addBonus(score)。</p>
-<p>這不是「函式裡的修改沒有作用」，而是要先問修改的是哪個物件。等到 P5 學容器，傳值可能涉及複製整份資料，成本就不只是一個整數；這時才更能理解唯讀參考的用途。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>如果函式內把 points 改成 0，score 會變嗎？要如何明確更新 score？</p><details><summary>看解答與理由</summary><p>仍不會變。可改成回傳新值的 int 函式，然後在 main 寫 score = 函式呼叫；下一節則會介紹直接修改原物件的參考參數。</p></details></div>
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE · 這個函式錯在哪</div>
+    <p>有人寫一個函式，裡面宣告 <code>int n=31;</code>，然後回傳 <code>&amp;n</code>。呼叫端經由這個位址讀取整數。問題是什麼？</p>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="語法完全合法，g++ 會給一個 -Wreturn-local-addr 警告，但還是編得出執行檔。這正是最麻煩的地方：能編、能跑、結果隨機。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 語法錯誤，編不過</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。n 是區域變數，住在這個函式的堆疊框裡，函式一 return 框就被彈掉，交出去的位址立刻失效。這叫懸空指標，屬於未定義行為：可能印出 31、可能印出垃圾、可能當掉。正確做法是用 new 把節點配在堆積上再回傳，並由呼叫端負責 delete。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 回傳了區域變數的位址，函式一結束那塊就失效了</div>
+      <div class="quiz-opt" data-correct="false" data-fb="漏 delete 是記憶體洩漏，那是另一種病。這裡根本沒有 new，問題出在物件的壽命太短。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 忘了寫 delete，會記憶體洩漏</div>
+      <div class="quiz-opt" data-correct="false" data-fb="回傳指標本身沒有問題，第 04 章的串列到處都在回傳節點指標。關鍵在於那個節點是配在哪裡：堆積上的活得下來，堆疊上的活不了。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 函式不該回傳指標</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+</section>
 
-<div id="restore-value-decisions"><h3>什麼時候刻意選擇傳值</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>情境</th><th>傳值是否合適</th><th>原因與取捨</th></tr></thead><tbody><tr><td>int、double、char、bool 等小型輸入</td><td>通常合適</td><td>取得自己的值，介面簡單。不要只用固定 byte 數或未量測的速度斷言誰一定比較快。</td></tr><tr><td>函式需要可以自行修改的快照</td><td>合適</td><td>副本正是所需效果；呼叫端物件保持原樣。</td></tr><tr><td>大型資料只需讀取</td><td>先考慮 const 參考</td><td>避免不必要的整份複製，並表達不透過參數修改。</td></tr><tr><td>函式需要保存一份獨立資料</td><td>需依需求評估</td><td>不能只因物件大就一律禁止傳值；若本來就需要自己的資料，複製或後續移動可能合理。</td></tr></tbody></table></div>
-<p>選參數形式先看資料要不要共享、修改與保存，再談成本。對自訂類別而言，複製的工作由型別自己定義；它可能很便宜，也可能涉及多個資源。P8 建立類別後會介紹複製建構，P9 再談資源所有權。</p>
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P3 速查表</h2>
 
-</div></section>
-<section id="byref"><div class="section-number">PART 07</div><h2>參考先是別名，之後才是參數寫法</h2>
-<p>參考替既有物件取另一個名稱。先離開函式，單獨理解 int& alias = value：型別中的 & 表示參考，alias 必須在宣告時綁定到物件。它不是第三份數值，也不是指向不同地方的可改變門牌。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="25 25&#10;7 7&#10;">#include &lt;iostream&gt;
-int main() {
-    int value = 20;
-    int other = 7;
-    int&amp; alias = value;
-    alias = 25;
-    std::cout &lt;&lt; value &lt;&lt; &quot; &quot; &lt;&lt; alias &lt;&lt; &#x27;\n&#x27;;
-    alias = other;
-    std::cout &lt;&lt; value &lt;&lt; &quot; &quot; &lt;&lt; other &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>25 25&#10;7 7&#10;</pre></div>
-<p>第二次 alias = other 是普通賦值：把 other 的 7 指派給 alias 所代表的 value。它不會讓 alias 改綁到 other。之後若 other 再改值，value 不會自動跟著變。讀參考程式時，把 alias 心中替換成它綁定的原名稱，通常就能看出結果。</p>
-<p>把相同寫法放進參數列，就能讓這次呼叫的參數成為呼叫端物件的別名。呼叫端仍寫 addBonus(score)，不需要額外的符號；表示參考關係的是函式定義中的 int&。一般可修改的 int& 必須綁到適合的既有 int 物件，不能直接把整數常量 20 當成可修改的 score。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="30&#10;">#include &lt;iostream&gt;
-void addBonus(int&amp; points) {
-    points = points + 10;
-}
-int main() {
-    int score = 20;
-    addBonus(score);
-    std::cout &lt;&lt; score &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>30&#10;</pre></div>
-<div class="deck-extra lesson-trace" id="reference-flow"><h3>互動：同一格資料，兩個名稱</h3><p>將每一步與上一節傳值對照：這裡沒有建立 points 的獨立整數副本。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">int score = 20;</span>
-<span class="line">addBonus(score);</span>
-<span class="line">// int&amp; points 綁定 score</span>
-<span class="line">// points = points + 10</span>
-<span class="line">// 回到 main</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "尚未宣告 score。", "vars": {"score": "尚未建立"}}, {"note": "建立原物件 score。", "line": 0, "vars": {"score": 20}}, {"note": "進入函式，參數別名綁到原物件。", "line": 2, "vars": {"score": 20, "points": "score 的另一個名稱"}}, {"note": "經由別名修改同一個物件。", "line": 3, "vars": {"score": 30, "points": "同一格，值也是 30"}}, {"note": "函式結束，參數名稱不再可用；原物件仍存在。", "line": 4, "vars": {"score": 30, "points": "名稱離開作用域"}}]</script></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>int a = 4; int b = 9; int& r = a; r = b; b = 2; 最後 a、b、r 為何？</p><details><summary>看解答與理由</summary><p>a 與 r 都是 9，b 是 2。r = b 只複製當時的數值 9 到 a，沒有改變 r 的綁定。</p></details></div>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">三種傳法對照（整頁最該記住的一張表）</h3>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th></th><th>傳值 <code>f(T x)</code></th><th>傳參考 <code>f(T&amp; x)</code></th><th>const 參考 <code>f(const T&amp; x)</code></th><th>傳指標 <code>f(T* p)</code></th></tr></thead>
+    <tbody>
+      <tr><td>函式拿到什麼</td><td>副本</td><td>本人的別名</td><td>本人的唯讀別名</td><td>本人的位址</td></tr>
+      <tr><td>改得動呼叫端嗎</td><td>不行</td><td>可以</td><td>不行（編譯期擋）</td><td>可以</td></tr>
+      <tr><td>複製成本</td><td>整個物件</td><td>零</td><td>零</td><td>一個指標值（大小依實作）</td></tr>
+      <tr><td>可以是「沒有」嗎</td><td>不行</td><td>不行</td><td>不行</td><td><strong>可以</strong>，<code>nullptr</code></td></tr>
+      <tr><td>綁定後能換目標嗎</td><td>—</td><td>不行</td><td>不行</td><td><strong>可以</strong></td></tr>
+      <tr><td>呼叫端寫法</td><td class="mono">f(x);</td><td class="mono">f(x);</td><td class="mono">f(x);</td><td class="mono">f(&amp;x);</td></tr>
+      <tr><td>函式裡取值</td><td class="mono">x</td><td class="mono">x</td><td class="mono">x</td><td class="mono">*p</td></tr>
+      <tr><td>什麼時候用</td><td>小型別</td><td><strong>要就地改</strong></td><td><strong>只讀大物件</strong></td><td>可能沒有、要換目標</td></tr>
 
-<div id="restore-value-reference"><h3>同一個呼叫，副本與別名差在哪裡</h3>
-<p>以下以可修改的 int 變數 score 為例。先比較本頁已介紹的兩種形式；注意呼叫看起來一樣，參數宣告才決定是否使用副本。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較項目</th><th><code>void f(int x)</code></th><th><code>void f(int&amp; x)</code></th></tr></thead><tbody><tr><td>函式內的 x</td><td>這次呼叫建立的獨立值</td><td>score 的另一個名稱</td></tr><tr><td>執行 x = 0</td><td>只改參數副本</td><td>改到呼叫端的 score</td></tr><tr><td>呼叫端外觀</td><td><code>f(score);</code></td><td><code>f(score);</code></td></tr><tr><td>複製什麼</td><td>以引數的值初始化參數</td><td>不複製被參考的 int 物件</td></tr><tr><td>常量或算式能否作引數</td><td><code>f(3); f(score + 1);</code> 可以</td><td>一般可修改的 int& 不能綁到這些暫時值</td></tr><tr><td>需要特別符號讀值嗎</td><td>函式內直接使用 x</td><td>函式內也直接使用 x</td></tr><tr><td>使用情境</td><td>希望函式有自己的輸入值</td><td>需要經由函式修改既有物件</td></tr></tbody></table></div>
-<p>「必須是有名字的變數」只是過度簡化的口訣。真正要問的是引數能否代表合適、仍活著的物件；例如本頁稍後回傳 int& 的函式，也可能提供可綁定的位置。另一方面，參考宣告本身不承諾執行時永遠零儲存成本，sizeof(reference) 量到的則是被參考型別。</p>
+    </tbody>
+  </table></div>
+  </div>
 
-</div></section>
-<section id="constref"><div class="section-number">PART 08</div><h2>唯讀參考：限制透過這個名稱的修改</h2>
-<p>const int& 同樣是參考，但不能透過這個名稱改變原值。這讓函式介面能表達「我只讀取你交給我的物件」。const 約束的是這條存取途徑；若原物件本來不是 const，擁有可修改名稱的其他程式仍可能修改它。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="35&#10;8&#10;">#include &lt;iostream&gt;
-void showScore(const int&amp; value) {
-    std::cout &lt;&lt; value &lt;&lt; &#x27;\n&#x27;;
-}
-int main() {
-    int score = 20;
-    const int&amp; view = score;
-    score = 35;
-    showScore(view);
-    showScore(8);
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>35&#10;8&#10;</pre></div>
-<p>view 不是在綁定時拍下數值的快照，所以 score 改成 35 後，經由 view 看到的也是 35。若在 showScore 內寫 value = 0，編譯器會拒絕。唯讀參考也能接收暫時值，像 showScore(8)；該值可供這次呼叫使用，但不能因此把參考保存成永遠有效的連結。</p>
-<p>對 int 這類小型數值，傳值通常已很清楚，並不是所有輸入都應改成參考。參考更重要的價值，是清楚表達是否修改原物件，或在需要時避免複製較大的資料。P5 會用 string 與 vector 示範這個差別。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>如果希望函式能更新呼叫端的 score，該選 int、int& 還是 const int&？</p><details><summary>看解答與理由</summary><p>選 int&，讓參數代表可修改的原物件。int 是副本；const int& 不能透過參數修改物件。</p></details></div>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
+<div class="pseudo-code" style="font-size:.78rem;"><span class="line" data-l="1"><span class="com">// 宣告（原型）：放 .hpp，結尾分號</span>
+<span class="line" data-l="2"></span><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);</span>
+<span class="line" data-l="3"><span class="kw">void</span> <span class="fn">bubbleSort</span>(vector&lt;<span class="kw">int</span>&gt; &amp;v);</span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> ReadingRange &amp;f);</span>
+<span class="line" data-l="5"><span class="kw">int</span> *makeValue(<span class="kw">int</span> v);</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="com">// 定義：放 .cpp（樣板則跟宣告一起放 .hpp）</span>
+<span class="line" data-l="8"></span><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="9">    <span class="kw">return</span> n * n;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="com">// 多載：參數不同就行，回傳型別不算</span>
+<span class="line" data-l="13"></span><span class="kw">int</span>  <span class="fn">area</span>(<span class="kw">int</span> side);</span>
+<span class="line" data-l="14"><span class="kw">int</span>  <span class="fn">area</span>(<span class="kw">int</span> w, <span class="kw">int</span> h);</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="com">// 預設引數：只能靠右邊排，而且一路排到底</span>
+<span class="line" data-l="17"></span><span class="kw">void</span> <span class="fn">report</span>(string name, <span class="kw">int</span> score = <span class="num">60</span>, <span class="kw">bool</span> pass = <span class="fn">true</span>);</span>
+<span class="line" data-l="18"> </span>
+<span class="line" data-l="19"><span class="com">// 成員函式的 const：承諾不改動任何成員，getter 一律加</span>
+<span class="line" data-l="20"></span><span class="kw">class</span> ReadingRange {</span>
+<span class="line" data-l="21">    <span class="kw">public</span>:</span>
+<span class="line" data-l="22">        <span class="kw">int</span> getNum() <span class="kw">const</span> { <span class="kw">return</span> num; }</span>
+<span class="line" data-l="23">    <span class="kw">private</span>:</span>
+<span class="line" data-l="24">        <span class="kw">int</span> num, den;</span>
+<span class="line" data-l="25">};</span>
+<span class="line" data-l="26"> </span></div>
 
-<div id="restore-parameter-decisions"><h3>用需求挑選介面</h3>
-<p>表中的 T 是表示資料型別的記號，例如 int；不是省略型別就能直接編譯的寫法。指標列供讀完 P4 後回查，本頁先掌握前三列。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>參數形式</th><th>是否取得物件副本</th><th>能否透過參數修改原物件</th></tr></thead><tbody><tr><td>只需要小型輸入，或本來就需要快照</td><td><code>T x</code></td><td>一般由引數初始化自己的值</td><td>不直接修改</td></tr><tr><td>需要修改既有物件</td><td><code>T&amp; x</code></td><td>不複製目標物件</td><td>可以</td></tr><tr><td>只讀既有大型物件</td><td><code>const T&amp; x</code></td><td>不複製該目標物件</td><td>不可以</td></tr><tr><td>要用位址表達目標，也允許沒有目標</td><td><code>T* p</code>（<a href="p4_pointers_memory.html#params">P4</a>）</td><td>複製指標的值，不是複製所指物件</td><td>指向有效可修改物件時可以</td></tr></tbody></table></div>
-<p>const 參考在直接綁定既有相容物件時避免複製，但型別轉換可能先建立暫時物件。不要把簡短表格讀成任何呼叫都不會建立物件。物件的大小、使用方式與生命週期仍要一起判斷。</p>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python ↔ C++ 對照</h3>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>你在 Python 怎麼做</th><th>C++ 的對應</th><th>差在哪</th></tr></thead>
+    <tbody>
+      <tr><td>函式定義寫在檔案任何地方都能用</td><td>要先宣告或先定義</td><td>C++ 由上而下編譯一遍，沒見過的名字就是錯</td></tr>
+      <tr><td>參數一律傳物件參考</td><td class="mono">T x / T&amp; x / T* p</td><td>C++ 要你在簽章上明講抄不抄</td></tr>
+      <tr><td>函式裡對 list 做 append，外面跟著變</td><td class="mono">void f(vector&lt;int&gt;&amp; v)</td><td>少了 <code>&amp;</code> 就完全不會變</td></tr>
+      <tr><td>函式裡對整數重新指派，外面不變</td><td class="mono">void f(int n)</td><td>行為剛好一樣，理由不同</td></tr>
+      <tr><td>參數預設值 <code>score=60</code></td><td class="mono">int score = 60</td><td>C++ 規定有預設值的一律排在最後</td></tr>
+      <tr><td>同名函式只能有一個，後蓋前</td><td>多載，同名可以好幾個</td><td>C++ 靠參數型別挑</td></tr>
+      <tr><td>回傳一個區域 list 完全安全</td><td>回傳區域變數的位址是未定義行為</td><td>Python 有垃圾回收，C++ 的堆疊框說收就收</td></tr>
+      <tr><td>遞迴太深丟 RecursionError</td><td>遞迴太深可能耗盡堆疊，具體失敗方式依實作</td><td>C++ 不幫你檢查深度</td></tr>
+    </tbody>
+  </table></div>
+  </div>
 
-</div></section>
-<section id="retval"><div class="section-number">PART 09</div><h2>回傳數值安全，回傳參考要問物件還活著嗎</h2>
-<p>回傳參考會讓呼叫結果代表既有物件。語法是在回傳型別加 &，但它不會自動延長物件生命。要先指出「參考的是誰」以及「呼叫結束後誰仍負責讓它存在」，才能判斷是否安全。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="4 12&#10;">#include &lt;iostream&gt;
-int&amp; largerSlot(int&amp; left, int&amp; right) {
-    if (left &gt;= right) return left;
-    return right;
-}
-int main() {
-    int a = 4;
-    int b = 9;
-    int&amp; chosen = largerSlot(a, b);
-    chosen = 12;
-    std::cout &lt;&lt; a &lt;&lt; &quot; &quot; &lt;&lt; b &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>4 12&#10;</pre></div>
-<p>a 與 b 都建立在 main 中，函式回傳後仍然存在。largerSlot 回傳 b 的參考，所以 chosen = 12 修改 b。若回傳型別改成 int，取得的會是數值結果；將它存進一般 int 變數後再修改，就不會改到 b。</p>
-<pre class="pseudo-code" data-cpp="fragment">int&amp; badResult() {
-    int local = 10;
-    return local;  // 錯誤示意：local 在函式結束後生命已結束
-}</pre>
-<p>這個片段用來辨識錯誤，不要拿回傳結果來存取。函式結束時 local 消失，回傳的參考懸空；即使某次執行看似讀到 10，也不構成任何保證。回傳 local 的數值則不同：在 local 還活著時取出值，再交給呼叫端。回傳位址也有同樣的生命週期問題，等 P4 建立指標觀念後再對照。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>把 largerSlot 的參數改成傳值 int left, int right，仍回傳 int& 可以嗎？</p><details><summary>看解答與理由</summary><p>不可以這樣使用。left/right 變成函式自己的區域副本，呼叫結束後生命終止，回傳它們的參考會懸空。</p></details></div>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">五條記得住的規則</h3>
+  <div class="info-box green">
+    <p>① 函式要改動呼叫端的資料，參數列一定要有 <code>&amp;</code>。<br>
+    ② 只讀的大物件用 <code>const T&amp;</code>，別用傳值。<br>
+    ③ getter 一律寫 <code>const</code>，否則你的物件沒辦法用 <code>const T&amp;</code> 傳。<br>
+    ④ 參數可能是「沒有」時才用指標，其餘場合優先用參考。<br>
+    ⑤ 永遠不要回傳區域變數的位址或參考。</p>
+  </div>
 
-<div id="restore-return-warning"><h3>回傳後仍可使用，才算有效的結果</h3>
-<div class="warn-box"><div class="info-label">不能用一次試跑證明生命週期安全</div><p>回傳數值會把結果交給呼叫端；回傳參考或位址則保留對某個物件的連結。若那個物件已結束生命，舊記憶體內容看似未變也沒有用。不要將「這次還印出原值」當成正確；改了編譯器、最佳化或下一個函式呼叫，就可能得到完全不同的行為。</p>
-</div><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>回傳內容</th><th>呼叫結束後的情況</th><th>判斷</th></tr></thead><tbody><tr><td>區域 int 的值</td><td>結果已交出；不再依賴該區域 int</td><td>可以</td></tr><tr><td>main 內仍存活物件的參考</td><td>仍依賴該物件的生命週期</td><td>使用時原物件仍活著才可以</td></tr><tr><td>一般區域物件的參考或位址</td><td>原物件生命已結束</td><td>不得經由它繼續存取</td></tr><tr><td>暫時物件的連結</td><td>可能在完整敘述結束時失效</td><td>不能假設回傳會延長其生命</td></tr></tbody></table></div>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的 <code>swap</code> 三個版本貼進去單步跑，看兩個函式框裡的方格與箭頭。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/reference" target="_blank" rel="noopener">cppreference · Reference declaration</a></td><td>參考的完整規則，包含它為什麼不能重新綁定。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/default_arguments" target="_blank" rel="noopener">cppreference · Default arguments</a></td><td>預設引數的完整限制。</td></tr>
+      <tr><td><a href="p4_pointers_memory.html">先備 P4 · 陣列、指標與動態記憶體</a></td><td>下一頁。<code>*</code> 與 <code>&amp;</code>、堆疊與堆積、<code>new</code>／<code>delete</code> 的完整版。</td></tr>
+      <tr><td><a href="recursion.html">本站 · 遞迴</a></td><td>把 PART 08 的呼叫堆疊實際用起來。</td></tr>
+    </tbody>
+  </table></div>
+</section>
 
-</div></section>
-<section id="overload"><div class="section-number">PART 10</div><h2>多載與預設引數：分清楚選版本和補資料</h2>
-<p>多載讓同名函式有不同的參數列。編譯器根據呼叫的引數選擇能匹配的版本；這個選擇發生在編譯時，不是程式執行後猜測你想要的行為。只有回傳型別不同，不足以形成這種同名多載。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="24 30&#10;">#include &lt;iostream&gt;
-int deliveryFee(int boxes) { return boxes * 12; }
-double deliveryFee(double weight) { return weight * 12.0; }
-int main() {
-    std::cout &lt;&lt; deliveryFee(2) &lt;&lt; &quot; &quot; &lt;&lt; deliveryFee(2.5) &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>24 30&#10;</pre></div>
-<p>2 是 int，因此第一個版本直接匹配；2.5 是 double，第二個版本匹配。若不同版本都需要轉型，可能沒有唯一較好的候選，這時編譯器會報多義。明確的型別與不同用途的函式名稱，通常比堆疊許多容易混淆的多載更易使用。</p>
-<p>預設引數做的是另一件事：呼叫省略尾端資料時，用宣告提供的值補上。參數仍存在，不是少了一個參數。預設值應從參數列尾端安排，並在呼叫端看得到的宣告中提供；同一預設值不要在宣告與定義重複指定。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="36 30&#10;">#include &lt;iostream&gt;
-int fee(int boxes, int rate = 12);
-int fee(int boxes, int rate) { return boxes * rate; }
-int main() {
-    std::cout &lt;&lt; fee(3) &lt;&lt; &quot; &quot; &lt;&lt; fee(3, 10) &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>36 30&#10;</pre></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>同時提供 int f(int) 與 int f(int, int = 0)，呼叫 f(3) 會更方便嗎？</p><details><summary>看解答與理由</summary><p>反而會多義：兩個版本都能接受這個呼叫，沒有唯一應選的版本。預設引數與多載要一起考慮。</p></details></div>
-
-<div id="restore-default-warning"><h3>預設引數與多載一起檢查</h3>
-<div class="warn-box"><div class="info-label">兩種方便寫法，也可能合成歧義</div><p>省略參數列尾端的引數之前，要先確認呼叫位置看得到預設值。已有多載版本時，再檢查省略後是否同時符合兩個候選。這是編譯時的介面問題，不能期待執行時自動挑出「比較符合直覺」的版本。</p>
-</div><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>檢查項目</th><th>正確做法</th><th>常見錯誤</th></tr></thead><tbody><tr><td>參數順序</td><td>一般情況從尾端安排預設值</td><td>前面有預設、後面卻仍必填</td></tr><tr><td>宣告與定義</td><td>在呼叫端可見的宣告提供預設，定義不重複</td><td>同一個預設值在相同作用域重複指定</td></tr><tr><td>多載候選</td><td>檢查所有可以接受省略引數的版本</td><td>把 f(int) 與 f(int,int=0) 當成不會衝突</td></tr><tr><td>回傳型別</td><td>依參數列區分一般函式多載</td><td>只改 int/double 回傳型別，參數完全相同</td></tr></tbody></table></div>
-
-</div></section>
-<section id="recursion"><div class="section-number">PART 11</div><h2>從一般呼叫到遞迴：每次呼叫都有自己的狀態</h2>
-<p>函式可以呼叫其他函式，也可以再次呼叫自己。遞迴沒有新的呼叫語法，困難在於同時存在多次尚未完成的呼叫。理解它時，要把每次呼叫的參數、區域變數與回來後要繼續的位置分開記錄。這一份紀錄常稱為呼叫框架，通常由呼叫堆疊管理。</p>
-<p>先用小範圍的倒數理解控制流程。停止條件回答「何時不再呼叫」，n - 1 則讓輸入逐次靠近停止條件。沒有停止條件，或每次仍傳入同一個 n，都可能讓呼叫越堆越多，最終耗盡可用資源。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="2 enter&#10;1 enter&#10;1 leave&#10;2 leave&#10;">#include &lt;iostream&gt;
-void countdown(int n) {
-    if (n &lt;= 0) return;
-    std::cout &lt;&lt; n &lt;&lt; &quot; enter\n&quot;;
-    countdown(n - 1);
-    std::cout &lt;&lt; n &lt;&lt; &quot; leave\n&quot;;
-}
-int main() { countdown(2); }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 enter&#10;1 enter&#10;1 leave&#10;2 leave&#10;</pre></div>
-<p>n=2 的呼叫尚未結束，就暫停去執行 n=1。n=1 又呼叫 n=0，後者立即返回；這才輪到 n=1 印 leave，再回到 n=2 印 leave。看見不同的 n 不是同一個變數不斷被改值，而是不同呼叫各自保存自己的參數。</p>
-<div class="deck-extra lesson-trace" id="stack-flow"><h3>互動：進入與返回不是同一個順序</h3><p>堆疊由左到右表示較早到較新的呼叫。返回時，先完成最後進入的呼叫。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">countdown(2);</span>
-<span class="line">// n=2 印 enter，再呼叫 countdown(1)</span>
-<span class="line">// n=1 印 enter，再呼叫 countdown(0)</span>
-<span class="line">// n=0 直接 return</span>
-<span class="line">// n=1 印 leave 並返回</span>
-<span class="line">// n=2 印 leave 並返回</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "尚未呼叫 countdown。", "vars": {"呼叫堆疊": "main"}}, {"note": "建立 n=2 的呼叫。", "line": 0, "vars": {"呼叫堆疊": "main → n=2"}}, {"note": "外層等待內層完成。", "line": 1, "vars": {"呼叫堆疊": "main → n=2 → n=1"}, "output": "2 enter"}, {"note": "再建立停止條件那一次呼叫。", "line": 2, "vars": {"呼叫堆疊": "main → n=2 → n=1 → n=0"}, "output": "2 enter\n1 enter"}, {"note": "n=0 不再向內呼叫。", "line": 3, "vars": {"呼叫堆疊": "main → n=2 → n=1"}, "output": "2 enter\n1 enter"}, {"note": "回到 n=1 呼叫原先暫停的位置。", "line": 4, "vars": {"呼叫堆疊": "main → n=2"}, "output": "2 enter\n1 enter\n1 leave"}, {"note": "最後完成最外層。", "line": 5, "vars": {"呼叫堆疊": "main"}, "output": "2 enter\n1 enter\n1 leave\n2 leave"}]</script></div>
-<p>遞迴並不自動比較快，也不一定比較慢；此處重點是能否清楚表示子問題以及需要保存多少呼叫狀態。深度很大的遞迴應特別小心，不能把「某個小例子跑得動」當成可以無限加深。後續演算法教材會再比較用迴圈或遞迴表達問題。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>若呼叫 countdown(3)，最後一行是 1 leave 還是 3 leave？</p><details><summary>看解答與理由</summary><p>3 leave。最外層最早進入，必須等所有內層呼叫完成才返回；輸出為 3 enter、2 enter、1 enter、1 leave、2 leave、3 leave。</p></details></div>
-
-<div id="restore-recursive-return"><h3>遞迴也會逐層回傳計算結果</h3>
-<p>除了在進入、離開時輸出文字，函式也可以等待內層的回傳值再完成計算。以下假設第 day 天讀 2×day 頁；pagesAfter(day) 回傳前 day 天合計讀了幾頁。先處理零天，再把今天的頁數加上前幾天的結果。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="12&#10;">#include &lt;iostream&gt;
-int pagesAfter(int day) {
-    if (day &lt;= 0) return 0;
-    return 2 * day + pagesAfter(day - 1);
-}
-int main() { std::cout &lt;&lt; pagesAfter(3) &lt;&lt; &#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>12&#10;</pre></div>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>正在完成的呼叫</th><th>等內層回來後的算式</th><th>交回的值</th></tr></thead><tbody><tr><td>pagesAfter(0)</td><td>基底情形直接 return 0</td><td>0</td></tr><tr><td>pagesAfter(1)</td><td>2 + 0</td><td>2</td></tr><tr><td>pagesAfter(2)</td><td>4 + 2</td><td>6</td></tr><tr><td>pagesAfter(3)</td><td>6 + 6</td><td>12</td></tr></tbody></table></div>
-<p>day=3 的呼叫沒有先把 6 當成最終答案回傳；它要等待 day=2 的結果。每層都保留自己的 day，直到內層回來才做剩下的加法。倒數例子幫你看進入順序，這個表則幫你看結果如何反方向累積。</p>
-<div class="warn-box"><div class="info-label">呼叫堆疊有有限容量</div><p>本頁的每個呼叫框架只需固定數量的參數、區域值與返回資訊。在這個呼叫堆疊模型中，同時存活的框架數隨遞迴深度增加，所以額外空間為 <code>O(深度)</code>。例如 pagesAfter(n) 到基底情形最多有 n+1 層，因此額外空間為 O(n)。若每層另建立大小會變的資料，還要把那部分空間算進去。<br>有停止條件仍不代表任意大的輸入都安全：如果需要的呼叫深度太大，實作仍可能耗盡堆疊。不同平台的限制與失敗方式不相同，不能預測一定收到某個固定例外或訊號。對可能很深的遞迴，應重新考慮迴圈或其他保存狀態的方式。</p>
-</div><div class="info-box"><div class="info-label">動手練習</div><p>pagesAfter(4) 等待哪個結果？最後多少頁？</p><details><summary>看解答與理由</summary><p>先等 pagesAfter(3) 回傳 12，再做 8 + 12，因此是 20 頁。</p></details></div>
-
-</div></section>
-<section id="reference"><div class="section-number">PART 12</div><h2>語法速查與下一步</h2>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>寫法／判斷</th></tr></thead><tbody><tr><td><code>int f(int x)</code></td><td>取得輸入副本並回傳整數。</td></tr><tr><td><code>void f(int&amp; x)</code></td><td>經由參數修改既有物件。</td></tr><tr><td><code>void f(const int&amp; x)</code></td><td>透過唯讀參考使用物件。</td></tr><tr><td><code>int&amp; f(int&amp; x)</code></td><td>回傳既有物件的參考，必須檢查生命週期。</td></tr><tr><td><code>int f(int x, int y = 1);</code></td><td>宣告預設尾端引數；定義不要重複指定。</td></tr><tr><td>遞迴</td><td>停止條件、逐步靠近停止條件、每次呼叫的獨立狀態。</td></tr></tbody></table></div>
-<p>P4 會先建立位址與指標，再介紹指標參數，最後把傳值、傳參考、傳指標放在同一張圖中比較。P8 的 const 成員函式則是另一種位置的 const，要等類別與物件建立後再讀。</p>
-<p>補充閱讀：<a href="https://openhome.cc/Gossip/CppGossip/Reference.html" target="_blank" rel="noopener">OpenHome：參考</a>。閱讀外部例子時，先分清它使用的是哪一種參數與物件生命週期。</p>
-
-<div id="restore-four-parameter-matrix"><h3>四種傳參形式的完整對照</h3>
-<p>這張表保留完整介面比較。讀完 P3 可先掌握值與參考三欄；P4 說明位址後，再回看指標欄與呼叫形式。所有「可用」都以物件生命週期有效為前提。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較維度</th><th>傳值 T x</th><th>參考 T& x</th><th>唯讀參考 const T& x</th><th>指標 T* p</th></tr></thead><tbody><tr><td>函式取得什麼</td><td>自己的值</td><td>既有物件的別名</td><td>唯讀存取途徑</td><td>指標值的副本</td></tr><tr><td>是否複製目標</td><td>一般以引數初始化參數值</td><td>不複製所綁定的目標</td><td>直接綁定既有相容目標時不複製</td><td>只複製位址值，不複製所指物件</td></tr><tr><td>修改 x 或 *p</td><td>只改自己的參數</td><td>改原物件</td><td>不能透過這個參考改原物件</td><td>有效且可修改的目標可被改動</td></tr><tr><td>是否可表示無目標</td><td>本形式本身沒有此含義</td><td>沒有空參考狀態</td><td>沒有空參考狀態</td><td>可用 nullptr 表示無目標</td></tr><tr><td>重新綁定／換目標</td><td>自己的物件，可賦新值</td><td>不能重新綁定</td><td>不能重新綁定</td><td>可改函式內的指標副本，不會自動改呼叫端指標</td></tr><tr><td>呼叫端寫法</td><td><code>f(value);</code></td><td><code>f(value);</code></td><td><code>f(value);</code></td><td><code>f(&amp;value);</code></td></tr><tr><td>函式內讀值</td><td><code>x</code></td><td><code>x</code></td><td><code>x</code></td><td><code>*p</code></td></tr><tr><td>常見需求</td><td>小型輸入或自己的快照</td><td>修改既有物件</td><td>避免不必要複製並只讀</td><td>可選目標、陣列位置或位址操作</td></tr><tr><td>生命週期注意</td><td>參數是自己的物件</td><td>使用時原物件仍須存在</td><td>原物件／暫時物件須在使用時仍存在</td><td>非空也可能懸空，必須確定目標仍存在</td></tr></tbody></table></div>
-<p>表內的「不複製目標」不等同任何情況都零成本，也不代表參考必定不占儲存空間。指標大小由實作決定。P4 將以獨立程式比較修改指標本身與修改所指物件，避免把兩件事混為一談。</p>
-
-</div><div id="restore-function-task-map"><h3>從需求回查 C++ 語法</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>C++ 寫法／位置</th><th>容易漏掉的條件</th></tr></thead><tbody><tr><td>呼叫寫在實作前</td><td>先有可見的函式宣告</td><td>回傳與參數型別須和定義對應</td></tr><tr><td>只改函式自己的暫時計算</td><td>傳值</td><td>不要誤以為會改呼叫端</td></tr><tr><td>改動呼叫端內容</td><td>參考參數；P4 另教指標參數</td><td>先確認目標與生命週期</td></tr><tr><td>只讀大物件</td><td>const 參考</td><td>const 限制這條途徑，不是凍結所有其他途徑</td></tr><tr><td>省略部分引數</td><td>預設尾端引數</td><td>檢查可見宣告與多載歧義</td></tr><tr><td>同名、不同輸入型別</td><td>函式多載</td><td>只改回傳型別不夠</td></tr><tr><td>把結果帶出函式</td><td>回傳值，或在合適情況回傳參考</td><td>不要交出已死亡物件的連結</td></tr><tr><td>用較小問題表示目前問題</td><td>遞迴</td><td>基底情形、輸入進展與呼叫深度都要檢查</td></tr></tbody></table></div>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>延伸資源</th><th>用來核對什麼</th></tr></thead><tbody><tr><td><a href="https://pythontutor.com/cpp.html">C++ Tutor</a></td><td>把獨立的參考或遞迴例子逐步執行，觀察呼叫端與區域狀態。</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/language/reference">cppreference：參考宣告</a></td><td>核對別名、綁定、不能重新綁定與生命週期規則。</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/language/default_arguments">cppreference：預設引數</a></td><td>核對預設值的可見性、重複指定與參數列限制。</td></tr><tr><td><a href="https://openhome.cc/Gossip/CppGossip/Reference.html">OpenHome：參考</a></td><td>別名、綁定與參數用途的補充說明。</td></tr><tr><td><a href="p4_pointers_memory.html#params">P4：參數與指標</a></td><td>補齊完整矩陣的指標欄。</td></tr><tr><td><a href="p8_oop_basics.html#constmember">P8：const 成員函式</a></td><td>類別建立後，再分清參數 const 與括號後 const。</td></tr><tr><td><a href="recursion.html">遞迴主文</a></td><td>在本頁呼叫模型之上學習更多問題。</td></tr></tbody></table></div>
-
-</div></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：函式與參考 <span class="sec-badge">隨堂自測 · 13 題</span></h2>
+  <h2>自我檢測：函式與參考 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>deliveryFee(quantity + 1, 10) 中，quantity 原本是 3；計算引數會把 quantity 改成 4 嗎？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="加法產生值 4，沒有對 quantity 賦值。"><span class="opt-letter">(A)</span> 不會，除非另有賦值</button>
-      <button class="sq-opt" data-c="0" data-fb="加法產生值 4，沒有對 quantity 賦值。"><span class="opt-letter">(B)</span> 會，函式自動改引數</button>
-      <button class="sq-opt" data-c="0" data-fb="加法產生值 4，沒有對 quantity 賦值。"><span class="opt-letter">(C)</span> 編譯錯誤</button>
-      <button class="sq-opt" data-c="0" data-fb="函式回傳不會替先前加法補上賦值。quantity + 1 只產生值。"><span class="opt-letter">(D)</span> quantity 會在回傳後才變成 4</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>函式 cout 印出數字 8，卻回傳 3；int x = f(); 後 x 是多少？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。"><span class="opt-letter">(A)</span> 3</button>
-      <button class="sq-opt" data-c="0" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。"><span class="opt-letter">(B)</span> 8</button>
-      <button class="sq-opt" data-c="0" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。"><span class="opt-letter">(C)</span> 11</button>
-      <button class="sq-opt" data-c="0" data-fb="輸出與回傳可以同時存在；return 3 仍會把 3 交回 x。"><span class="opt-letter">(D)</span> x 沒有值，因為函式也使用 cout</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>一般 int 函式的某條正常路徑沒有 return，能依賴自動得到 0 嗎？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"><span class="opt-letter">(A)</span> 不能</button>
-      <button class="sq-opt" data-c="0" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"><span class="opt-letter">(B)</span> 可以，所有函式都像 main</button>
-      <button class="sq-opt" data-c="0" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"><span class="opt-letter">(C)</span> 只有負數輸入才不能</button>
-      <button class="sq-opt" data-c="0" data-fb="const 不會替遺漏的 return 產生值。"><span class="opt-letter">(D)</span> 只要加上 const 就會自動補回傳</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>只有函式宣告、沒有相符定義，呼叫時可能在哪個階段失敗？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"><span class="opt-letter">(A)</span> 連結階段</button>
-      <button class="sq-opt" data-c="0" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"><span class="opt-letter">(B)</span> 只在執行時</button>
-      <button class="sq-opt" data-c="0" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"><span class="opt-letter">(C)</span> 一定是前處理</button>
-      <button class="sq-opt" data-c="0" data-fb="宣告只提供介面，執行仍需要相符實作。"><span class="opt-letter">(D)</span> 永遠不會失敗，宣告就是完整函式</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>void f(int x) 內把 x 改成 0；以 score=20 呼叫 f(score) 後 score 為何？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="int 參數是副本，沒有修改 score。"><span class="opt-letter">(A)</span> 20</button>
-      <button class="sq-opt" data-c="0" data-fb="int 參數是副本，沒有修改 score。"><span class="opt-letter">(B)</span> 0</button>
-      <button class="sq-opt" data-c="0" data-fb="int 參數是副本，沒有修改 score。"><span class="opt-letter">(C)</span> 不確定</button>
-      <button class="sq-opt" data-c="0" data-fb="這裡沒有未初始化讀值，score 保持原本的 20。"><span class="opt-letter">(D)</span> score 會變成未定值</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>int a=4,b=9; int&amp; r=a; r=b; b=2; 最後 r 為何？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"><span class="opt-letter">(A)</span> 9</button>
-      <button class="sq-opt" data-c="0" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"><span class="opt-letter">(B)</span> 2</button>
-      <button class="sq-opt" data-c="0" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"><span class="opt-letter">(C)</span> 4</button>
-      <button class="sq-opt" data-c="0" data-fb="普通賦值沒有解除或改變參考綁定，r 仍代表 a。"><span class="opt-letter">(D)</span> r 不再綁定任何物件</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q7.</span>const int&amp; view=score; 之後透過 score 改值，view 看到什麼？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。"><span class="opt-letter">(A)</span> 更新後的 score</button>
-      <button class="sq-opt" data-c="0" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。"><span class="opt-letter">(B)</span> 綁定時的舊值</button>
-      <button class="sq-opt" data-c="0" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。"><span class="opt-letter">(C)</span> 一定編譯失敗</button>
-      <button class="sq-opt" data-c="0" data-fb="原物件可以由 score 修改，但 view 的唯讀限制不會因此消失。"><span class="opt-letter">(D)</span> view 自動變成可修改參考</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q8.</span>為何不可回傳區域 int 的 int&amp; 再使用它？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="回傳參考不延長該區域物件的生命。"><span class="opt-letter">(A)</span> 原物件已結束生命</button>
-      <button class="sq-opt" data-c="0" data-fb="回傳參考不延長該區域物件的生命。"><span class="opt-letter">(B)</span> 參考永遠不能回傳</button>
-      <button class="sq-opt" data-c="0" data-fb="回傳參考不延長該區域物件的生命。"><span class="opt-letter">(C)</span> 參考不能指向整數</button>
-      <button class="sq-opt" data-c="0" data-fb="數值內容不能修補生命週期已結束的問題。"><span class="opt-letter">(D)</span> 只要回傳值恰好是 0 就安全</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q9.</span>只有回傳型別不同的兩個同名、同參數函式，可以作為多載嗎？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="函式不能僅依回傳型別形成這種多載。"><span class="opt-letter">(A)</span> 不可以</button>
-      <button class="sq-opt" data-c="0" data-fb="函式不能僅依回傳型別形成這種多載。"><span class="opt-letter">(B)</span> 可以</button>
-      <button class="sq-opt" data-c="0" data-fb="函式不能僅依回傳型別形成這種多載。"><span class="opt-letter">(C)</span> 只有 void 可以</button>
-      <button class="sq-opt" data-c="0" data-fb="分開檔案不會讓回傳型別成為一般函式多載的區分條件。"><span class="opt-letter">(D)</span> 同一檔案不行，不同檔案就可任意區分</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q10.</span>void countdown(int n) 先印 n enter，呼叫 n-1，再印 n leave；n&lt;=0返回。呼叫2的最後一行？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。"><span class="opt-letter">(A)</span> 2 leave</button>
-      <button class="sq-opt" data-c="0" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。"><span class="opt-letter">(B)</span> 1 leave</button>
-      <button class="sq-opt" data-c="0" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。"><span class="opt-letter">(C)</span> 0 leave</button>
-      <button class="sq-opt" data-c="0" data-fb="n=0 會立即返回，不會執行後面的輸出。"><span class="opt-letter">(D)</span> 0 enter</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q11.</span>下列遞迴回傳值是多少？</div>
-    <pre class="sq-code">int pagesAfter(int day) {
-    if (day &lt;= 0) return 0;
-    return 2 * day + pagesAfter(day - 1);
-}
-// 在 main 中計算 pagesAfter(3)</pre>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="內層由0往外回傳2、6、12。 若 day=n，每個框架使用固定空間，遞迴深度最多 n+1，額外空間為 O(n)。"><span class="opt-letter">(A)</span> 12</button>
-      <button class="sq-opt" data-c="0" data-fb="6只是最外層今天的頁數，還要加上前幾天的6。"><span class="opt-letter">(B)</span> 6</button>
-      <button class="sq-opt" data-c="0" data-fb="基底的0會被各層繼續加上今天的頁數。"><span class="opt-letter">(C)</span> 0</button>
-      <button class="sq-opt" data-c="0" data-fb="每層day不同，不是三次都加最外層的6。"><span class="opt-letter">(D)</span> 18</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q12.</span>三次呼叫的回傳值依序為何？</div>
-    <pre class="sq-code">int charge(int items, int rate = 12) { return items * rate; }
-double charge(double kg) { return kg * 5.0; }
-// 在 main 中依序呼叫 charge(3), charge(3, 10), charge(3.0)</pre>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="int呼叫可使用預設rate；第二次明寫10；double精確匹配另一版本。"><span class="opt-letter">(A)</span> 36、30、15</button>
-      <button class="sq-opt" data-c="0" data-fb="第三個引數3.0是double，會選double版本而非轉為int。"><span class="opt-letter">(B)</span> 36、30、36</button>
-      <button class="sq-opt" data-c="0" data-fb="這些呼叫有各自較好的匹配，並不因預設值本身就多義。"><span class="opt-letter">(C)</span> 編譯錯誤</button>
-      <button class="sq-opt" data-c="0" data-fb="3與3.0的型別不同，不能忽略int版本。"><span class="opt-letter">(D)</span> 15、15、15</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q13.</span>介面希望只讀既有大型資料、避免不必要複製，首選哪種形式？T表示資料型別。</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="唯讀參考表達不透過參數修改，直接綁定相容原物件時不複製目標。"><span class="opt-letter">(A)</span> const T&amp; value</button>
-      <button class="sq-opt" data-c="0" data-fb="傳值一般會取得自己的物件，未表達避免複製的需求。"><span class="opt-letter">(B)</span> T value</button>
-      <button class="sq-opt" data-c="0" data-fb="這會允許透過參數修改，不是唯讀承諾。"><span class="opt-letter">(C)</span> T&amp; value</button>
-      <button class="sq-opt" data-c="0" data-fb="這是可修改指標介面，未表達唯讀限制，且另允許空目標。"><span class="opt-letter">(D)</span> T* value</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-</section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p2_flow_control.html"><div class="nav-dir">上一頁</div><div class="nav-title">流程控制</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p4_pointers_memory.html"><div class="nav-dir">下一頁</div><div class="nav-title">陣列、指標與動態記憶體</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "函式（Function）", "back": "命名一段可呼叫的工作，以參數接收輸入，可回傳結果。"}, {"front": "引數與參數（Argument / Parameter）", "back": "引數是呼叫給的資料，參數是函式用來接收資料的名稱。"}, {"front": "回傳（Return）", "back": "結束這次呼叫並交出結果；與輸出到螢幕不同。"}, {"front": "無回傳值（void）", "back": "表示函式沒有回傳值；可用 return; 提早離開。"}, {"front": "宣告與定義（Declaration / Definition）", "back": "宣告描述介面；定義另含實作本體。"}, {"front": "作用域（Scope）", "back": "名稱能被使用的程式範圍，不等同物件生命週期。"}, {"front": "傳值（Pass by Value）", "back": "參數取得自己的副本，修改副本不直接修改呼叫端。"}, {"front": "參考（Reference）", "back": "既有物件的別名，綁定後的賦值修改原物件，不是重新綁定。"}, {"front": "唯讀參考（const Reference）", "back": "不能透過此參考修改物件；原物件仍可能由其他可修改途徑改變。"}, {"front": "回傳參考（Return by Reference）", "back": "結果指向既有物件的身分，必須確保被參考物件在使用時仍活著。"}, {"front": "懸空參考（Dangling Reference）", "back": "參考的物件已結束生命，不能再經由它存取原物件。"}, {"front": "函式多載（Function Overloading）", "back": "同名函式以不同參數列區分，不能只靠回傳型別。"}, {"front": "預設引數（Default Argument）", "back": "省略尾端引數時由可見宣告提供的預設值補上。"}, {"front": "呼叫框架（Call Frame）", "back": "一次呼叫的參數、區域狀態與返回位置的概念紀錄。"}, {"front": "遞迴（Recursion）", "back": "函式再次呼叫自己，需有停止條件並逐步靠近它。"}, {"front": "傳參考（Pass by Reference）", "back": "參數成為既有物件的別名，透過可修改參考的賦值會反映到原物件。"}, {"front": "呼叫堆疊（Call Stack）", "back": "保存尚未完成呼叫的狀態及返回位置；較新的呼叫先返回。"}, {"front": "基底情形（Base Case）", "back": "遞迴不再向內呼叫、可以直接回傳的情況；每次遞迴應逐步靠近它。"}, {"front": "堆疊溢位（Stack Overflow）", "back": "所需呼叫狀態超過實作可用堆疊資源；不能假設任意大的遞迴深度安全，也不保證固定失敗訊號。"}, {"front": "未定義行為（Undefined Behavior）", "back": "語言不規定結果的操作，不能靠單次成功試跑證明正確；使用懸空連結就是例子。"}];
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
 
-/* depth-runtime:start */
-(() => {
- const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
- document.querySelectorAll('.lesson-trace').forEach(root => {
-   const frames=JSON.parse(root.querySelector('.trace-data').textContent);
-   let index=0,timer=null;const play=root.querySelector('[data-action="play"]');
-   const stop=()=>{clearInterval(timer);timer=null;};
-   function draw(){
-     const frame=frames[index];
-     root.querySelector('.trace-note').textContent=frame.note;
-     root.querySelector('.trace-vars').innerHTML='<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>名稱／狀態</th><th>目前的值</th></tr></thead><tbody>'+Object.entries(frame.vars||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</tbody></table></div>';
-     root.querySelector('.trace-output').textContent=frame.output ? '目前輸出：\n'+frame.output : '目前尚無輸出';
-     root.querySelectorAll('.line').forEach((el,i)=>el.classList.toggle('active',i===frame.line));
-     play.textContent=timer?'⏸ 暫停':index===frames.length-1?'↻ 重播':'▶ 播放';
-     root.dataset.frame=String(index);root.dataset.frames=String(frames.length);
-   }
-   function next(){index=Math.min(index+1,frames.length-1);if(index===frames.length-1)stop();draw();}
-   play.onclick=()=>{if(timer){stop();draw();return;}if(index===frames.length-1)index=0;timer=setInterval(next,850);draw();};
-   root.querySelector('[data-action="next"]').onclick=()=>{stop();next();};
-   root.querySelector('[data-action="prev"]').onclick=()=>{stop();index=Math.max(0,index-1);draw();};
-   root.querySelector('[data-action="reset"]').onclick=()=>{stop();index=0;draw();};draw();
- });
- document.querySelectorAll('.sq-item').forEach(q=>q.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{
-   q.querySelectorAll('.sq-opt').forEach(x=>x.classList.remove('correct','wrong'));
-   const good=b.dataset.c==='1';b.classList.add(good?'correct':'wrong');
-   const f=q.querySelector('.sq-fb');f.textContent=b.dataset.fb;f.className='sq-fb show '+(good?'good':'bad');
- }));
- const grid=document.getElementById('fcGrid');
- function render(cards){grid.innerHTML=cards.map(c=>'<div class="fc-card" tabindex="0" role="button" aria-pressed="false"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');}
- function flip(card,on){card.classList.toggle('flipped',on);card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));}
- grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)flip(c,!c.classList.contains('flipped'));};
- grid.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.fc-card');if(c){e.preventDefault();flip(c,!c.classList.contains('flipped'));}}};
- document.getElementById('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,true));
- document.getElementById('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,false));
- document.getElementById('fcShuffle').onclick=()=>{const a=[...FLASHCARDS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}render(a);};render(FLASHCARDS);
- const links=[...document.querySelectorAll('.float-nav a[data-target]')];
- const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}),{rootMargin:'-10% 0px -65% 0px'});
- document.querySelectorAll('section[id]').forEach(el=>observer.observe(el));
+void bump(int n) { n = n + 10; }
+
+int main() {
+    int n = 5;
+    bump(n);
+    cout &lt;&lt; n &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。bump 的參數是 int n，屬於傳值，函式拿到的是一份副本，加 10 加在副本上。函式一結束副本就消失，main 裡的 n 從頭到尾都是 5。是否有警告取決於編譯器與設定。"><span class="opt-letter">(A)</span> 5</button>
+      <button class="sq-opt" data-c="0" data-fb="要印出 15，參數必須寫成 int &amp;n 或 int *p。目前的簽章是傳值，函式碰不到 main 裡的那一格。"><span class="opt-letter">(B)</span> 15</button>
+      <button class="sq-opt" data-c="0" data-fb="函式沒有回傳值，也沒有把結果寫回任何地方，main 裡的 n 完全沒被動過。"><span class="opt-letter">(C)</span> 10</button>
+      <button class="sq-opt" data-c="0" data-fb="語法完全合法。傳值是最基本的傳法，語法合法，警告則依編譯器設定而定，這正是這個錯誤難抓的原因。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>跟上一題的程式只差一個符號，這次印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+void bump(int &amp;n) { n = n + 10; }
+
+int main() {
+    int n = 5;
+    bump(n);
+    cout &lt;&lt; n &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="int &amp;n 是傳參考，函式收到的是 main 裡那個 n 本人，加 10 會直接反映到外面。"><span class="opt-letter">(A)</span> 5</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。int &amp;n 讓參數變成 main 裡那個 n 的別名，兩者位址相同，所以 n = n + 10 改的就是本尊。"><span class="opt-letter">(B)</span> 15</button>
+      <button class="sq-opt" data-c="0" data-fb="起始值是 5，加 10 之後是 15。"><span class="opt-letter">(C)</span> 10</button>
+      <button class="sq-opt" data-c="0" data-fb="傳參考是合法且常見的寫法。要注意的限制是非 const 左值參考需要可修改且型別相容的左值（例如一般變數或陣列元素），這裡傳的是變數 n，沒有問題。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>這段程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+void grow(int *p) { *p = *p * 2; }
+
+int main() {
+    int v = 21;
+    grow(&amp;v);
+    cout &lt;&lt; v &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="grow 收到的是 v 的位址，*p = *p * 2 是順著位址走進去把 v 本人改掉，不是改副本。"><span class="opt-letter">(A)</span> 21</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。呼叫端寫 grow(&amp;v) 明著把位址交出去，函式用 *p 解參考後直接改動 main 裡的 v。跟傳參考效果相同，差別是指標可以是 nullptr、也可以中途改指向別的東西。"><span class="opt-letter">(B)</span> 42</button>
+      <button class="sq-opt" data-c="0" data-fb="v 的初始值是 21，乘 2 之後是 42。"><span class="opt-letter">(C)</span> 0</button>
+      <button class="sq-opt" data-c="0" data-fb="印出來的是 v 這個 int，不是指標。位址只存在 grow 的參數 p 裡，main 裡印的是 v 本身。"><span class="opt-letter">(D)</span> 一個記憶體位址</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>這段程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int f(int a, int b = 2) { return a * b; }
+double f(double a)      { return a + 0.5; }
+
+int main() {
+    cout &lt;&lt; f(3) &lt;&lt; &quot; &quot; &lt;&lt; f(3, 4) &lt;&lt; &quot; &quot; &lt;&lt; f(3.0) &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。f(3) 少給一個引數，b 吃預設值 2，得 6；f(3, 4) 給滿兩個，得 12；f(3.0) 的引數是 double，挑中另一個多載，得 3.5。多載看參數型別與個數，回傳型別不列入判斷。"><span class="opt-letter">(A)</span> 6 12 3.5</button>
+      <button class="sq-opt" data-c="0" data-fb="f(3) 不是回傳 a 本身，b 用了預設值 2，所以是 3 乘 2。"><span class="opt-letter">(B)</span> 3 12 3.5</button>
+      <button class="sq-opt" data-c="0" data-fb="f(3.0) 傳的是 double，挑中的是 double f(double a)，回傳 3.5 不是 3。"><span class="opt-letter">(C)</span> 6 12 3</button>
+      <button class="sq-opt" data-c="0" data-fb="兩個 f 的參數型別不同，多載成立。真正會衝突的是同時寫 f(int) 與 f(int, int = 0)，那時 f(3) 兩邊都符合才會 ambiguous。"><span class="opt-letter">(D)</span> 編譯錯誤，兩個 f 衝突</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>這個遞迴函式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+
+int mystery(int n) {
+    if (n == 0) return 0;
+    return n % 10 + mystery(n / 10);
+}
+
+int main() {
+    cout &lt;&lt; mystery(9305) &lt;&lt; endl;
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="函式每次只取個位數 n % 10，再把 n / 10 交給下一層，累加的是各位數字。"><span class="opt-letter">(A)</span> 9305</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。9 + 3 + 0 + 5 = 17。基底情形是 n == 0，每次呼叫讓問題少一位數，最深疊到 5 個堆疊框（含 n 為 0 的那一層）。"><span class="opt-letter">(B)</span> 17</button>
+      <button class="sq-opt" data-c="0" data-fb="只算了第一層的 n % 10。後面的 mystery(n / 10) 會繼續把剩下的位數加進來。"><span class="opt-letter">(C)</span> 5</button>
+      <button class="sq-opt" data-c="0" data-fb="n / 10 是整數除法，9305 會依序變成 930、93、9、0，撞到基底情形 n == 0 就停下來。"><span class="opt-letter">(D)</span> 無窮遞迴</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>一個函式只需要讀取一個很大的 vector，不會改動它。參數該怎麼寫？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="這是傳值，會把整個 vector 複製一份。元素越多成本越高，而且函式根本不需要那份副本。"><span class="opt-letter">(A)</span> vector&lt;int&gt; v</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。const 參考不複製、也不允許函式改動內容，是 C++ 傳遞大型唯讀參數的標準做法。附帶好處是簽章直接告訴讀者這個函式不會動你的資料。"><span class="opt-letter">(B)</span> const vector&lt;int&gt;&amp; v</button>
+      <button class="sq-opt" data-c="0" data-fb="不複製這點對了，但少了 const，函式有能力改動呼叫端的資料，編譯器也不會替你把關。只讀的參數應該把這個能力關掉。"><span class="opt-letter">(C)</span> vector&lt;int&gt;&amp; v</button>
+      <button class="sq-opt" data-c="0" data-fb="指標也能避開複製，但它多了「可以是 nullptr」的語意，逼函式去檢查一個根本不會發生的情況。參數一定存在時優先用參考。"><span class="opt-letter">(D)</span> vector&lt;int&gt;* p</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p2_flow_control.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">流程控制</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p4_pointers_memory.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">陣列、指標與動態記憶體</div></a></div>
+</div>
+
+<footer>
+  先備知識 P3 · 函式 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
+    this.onDone = onDone || (()=>{});
+  }
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
+  }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
+  play() {
+    this.pause(); this.playing = true;
+    const tick = () => {
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
+    };
+    tick();
+    this._sync();
+  }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
+}
+/* /player-v2 */
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 })();
-/* depth-runtime:end */
-</script><script>/* quiz-shuffle v1 */
+
+/* ---------- 讓 hlLine 找得到行號：替每個 .pseudo-code 裡的 .line 編號 ---------- */
+(function numberLines() {
+  document.querySelectorAll('.pseudo-code').forEach(pc => {
+    pc.querySelectorAll('.line').forEach((l, i) => {
+      if (!l.hasAttribute('data-l')) l.setAttribute('data-l', i + 1);
+    });
+  });
+})();
+
+/* ---------- 共用：記憶體格子（取自 P4） ---------- */
+function memCell(name, val, addr, opts = {}) {
+  const {tone = 'idle', note = ''} = opts;
+  const map = {
+    idle: ['var(--card-border)', 'var(--card)'],
+    hot:  ['var(--node-current)', 'rgba(243,156,18,.14)'],
+    ok:   ['var(--node-found)',   'rgba(22,160,133,.12)'],
+    ptr:  ['var(--accent2)',      'rgba(44,62,122,.08)'],
+    gone: ['var(--accent)',       'rgba(192,57,43,.08)'],
+  };
+  const [bd, bg] = map[tone] || map.idle;
+  return `<div style="border:2px solid ${bd};background:${bg};border-radius:9px;padding:.4rem .7rem;min-width:126px;">
+    <div style="font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${addr}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;">${name}</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent2);">${val}</div>
+    ${note ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.15rem;">${note}</div>` : ''}
+  </div>`;
+}
+function frameBox(label, cells, color) {
+  return `<div style="flex:1;min-width:180px;border:1px solid var(--card-border);border-radius:10px;padding:.5rem .7rem;background:var(--paper);">
+     <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1px;color:${color};margin-bottom:.4rem;">${label}</div>
+     <div style="display:flex;gap:.5rem;flex-wrap:wrap;">${cells.length ? cells.join('') : '<div style="font-size:.8rem;color:var(--muted);">（這個框還不存在）</div>'}</div>
+   </div>`;
+}
+function twoFrames(callerCells, calleeLabel, calleeCells) {
+  return `<div style="display:flex;gap:.7rem;flex-wrap:wrap;">
+    ${frameBox('main 的框（呼叫端）', callerCells, 'var(--accent2)')}
+    ${frameBox(calleeLabel, calleeCells, 'var(--accent3)')}</div>`;
+}
+
+/* ---------- PART 04 · 三種傳法逐步器 ---------- */
+let swapPlayer = null;
+const XA = '0x7ffc1040', YA = '0x7ffc1044';
+const AA = '0x7ffc1010', BA = '0x7ffc1014', TA = '0x7ffc1018';
+const MODE_LABEL = {val: '傳值', ref: '傳參考', ptr: '傳指標'};
+const MODE_CODE  = {val: 'swapCodeVal', ref: 'swapCodeRef', ptr: 'swapCodePtr'};
+
+function showCode(mode) {
+  ['val', 'ref', 'ptr'].forEach(m => {
+    const el = $(MODE_CODE[m]);
+    if (el) el.style.display = (m === mode ? '' : 'none');
+  });
+}
+
+function swapFrames(mode) {
+  const F = [];
+  const caller = (x, y, tx, ty) => [memCell('x', x, XA, {tone: tx || 'idle'}), memCell('y', y, YA, {tone: ty || 'idle'})];
+  const name = {val: 'swapByValue', ref: 'swapByRef', ptr: 'swapByPtr'}[mode];
+  const flabel = name + ' 的框（被呼叫端）';
+
+  F.push({line: 7, html: twoFrames(caller(3, 7, 'hot', 'hot'), flabel, []),
+          msg: 'main 裡配了兩格：<code>x</code> 放 3、<code>y</code> 放 7。函式還沒被呼叫，右邊的框還不存在。'});
+
+  if (mode === 'val') {
+    F.push({line: 8, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 3, AA, {tone: 'hot', note: '新的一格，抄來的'}), memCell('b', 7, BA, {tone: 'hot', note: '新的一格，抄來的'})]),
+            msg: '呼叫發生。<strong>編譯器在右邊的框裡新配了兩格</strong>，把 3 和 7 抄過去。注意位址：<span class="mono">' + AA + '</span> 跟 <span class="mono">' + XA + '</span> 是兩個不同的地方。'});
+    F.push({line: 2, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 3, AA), memCell('b', 7, BA), memCell('t', 3, TA, {tone: 'hot'})]),
+            msg: '<code>int t = a;</code> — 交換的第一步，把 a 存起來。'});
+    F.push({line: 3, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 7, AA, {tone: 'hot'}), memCell('b', 7, BA), memCell('t', 3, TA)]),
+            msg: '<code>a = b;</code> — 右邊的框裡確實在換，<strong>左邊完全沒動靜</strong>。'});
+    F.push({line: 4, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', 7, AA), memCell('b', 3, BA, {tone: 'hot'}), memCell('t', 3, TA)]),
+            msg: '<code>b = t;</code> — 交換完成。副本裡的 a=7、b=3，看起來很成功。'});
+    F.push({line: 5, html: twoFrames(caller(3, 7, 'gone', 'gone'), flabel,
+              [memCell('a', 7, AA, {tone: 'gone'}), memCell('b', 3, BA, {tone: 'gone'}), memCell('t', 3, TA, {tone: 'gone'})]),
+            msg: '函式結束，<strong>整個框連同剛剛的成果一起被彈掉</strong>。'});
+    F.push({line: null, html: twoFrames(caller(3, 7, 'hot', 'hot'), flabel, []),
+            msg: '回到 main：<code>x</code> 還是 3、<code>y</code> 還是 7。<strong>忙了半天，換的是副本。</strong>'});
+  } else if (mode === 'ref') {
+    F.push({line: 8, html: twoFrames(caller(3, 7, 'ptr', 'ptr'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'ptr', note: '同一個位址，只是別名'}), memCell('b', '＝ y', YA, {tone: 'ptr', note: '同一個位址，只是別名'})]),
+            msg: '呼叫發生。<strong>右邊的框沒有配任何新的格子</strong> —— <code>a</code> 的位址就是 <span class="mono">' + XA + '</span>，它跟 <code>x</code> 是同一格的兩個名字。'});
+    F.push({line: 2, html: twoFrames(caller(3, 7, 'ptr', 'ptr'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'ptr'}), memCell('b', '＝ y', YA, {tone: 'ptr'}), memCell('t', 3, TA, {tone: 'hot', note: '這格是真的新配的'})]),
+            msg: '<code>int t = a;</code> — <code>t</code> 是區域變數，它才是這個框裡唯一真正新配的格子。'});
+    F.push({line: 3, html: twoFrames(caller(7, 7, 'hot', 'ptr'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'hot'}), memCell('b', '＝ y', YA, {tone: 'ptr'}), memCell('t', 3, TA)]),
+            msg: '<code>a = b;</code> — 寫進 <code>a</code> 就是寫進 <code>x</code>。<strong>左邊的 x 當場變成 7。</strong>'});
+    F.push({line: 4, html: twoFrames(caller(7, 3, 'ptr', 'hot'), flabel,
+              [memCell('a', '＝ x', XA, {tone: 'ptr'}), memCell('b', '＝ y', YA, {tone: 'hot'}), memCell('t', 3, TA)]),
+            msg: '<code>b = t;</code> — 同理，<code>y</code> 變成 3。'});
+    F.push({line: 5, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel,
+              [memCell('t', 3, TA, {tone: 'gone'})]),
+            msg: '函式結束，只有 <code>t</code> 被彈掉。<code>a</code> 和 <code>b</code> 本來就沒有身體，沒東西可彈。'});
+    F.push({line: null, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel, []),
+            msg: '回到 main：<code>x</code>=7、<code>y</code>=3。<strong>兩個字元的差別，結果完全相反。</strong>'});
+  } else {
+    F.push({line: 8, html: twoFrames(caller(3, 7, 'hot', 'hot'), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr', note: '存的是 x 的門牌'}), memCell('b', YA, BA, {tone: 'ptr', note: '存的是 y 的門牌'})]),
+            msg: '呼叫端寫的是 <code>swapByPtr(&amp;x, &amp;y)</code>，那個 <code>&amp;</code> 擺在明處。右邊<strong>多了兩格</strong>，但裡面裝的是位址，不是值。'});
+    F.push({line: 2, html: twoFrames(caller(3, 7), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr'}), memCell('b', YA, BA, {tone: 'ptr'}), memCell('t', 3, TA, {tone: 'hot'})]),
+            msg: '<code>int t = *a;</code> — 順著 <code>a</code> 存的門牌走進 <code>x</code>，讀出 3。'});
+    F.push({line: 3, html: twoFrames(caller(7, 7, 'hot', 'idle'), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr'}), memCell('b', YA, BA, {tone: 'ptr'}), memCell('t', 3, TA)]),
+            msg: '<code>*a = *b;</code> — 兩次解參考，把 y 的值寫進 x。<strong>x 變成 7。</strong>'});
+    F.push({line: 4, html: twoFrames(caller(7, 3, 'idle', 'hot'), flabel,
+              [memCell('a', XA, AA, {tone: 'ptr'}), memCell('b', YA, BA, {tone: 'ptr'}), memCell('t', 3, TA)]),
+            msg: '<code>*b = t;</code> — y 變成 3。'});
+    F.push({line: 5, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel,
+              [memCell('a', XA, AA, {tone: 'gone'}), memCell('b', YA, BA, {tone: 'gone'}), memCell('t', 3, TA, {tone: 'gone'})]),
+            msg: '函式結束，三格全彈掉。<strong>但被它們指到的 x 與 y 住在別人的框裡，不受影響。</strong>'});
+    F.push({line: null, html: twoFrames(caller(7, 3, 'ok', 'ok'), flabel, []),
+            msg: '回到 main：<code>x</code>=7、<code>y</code>=3。跟傳參考結果一樣，代價是多兩格記憶體與滿篇的 <code>*</code>。'});
+  }
+  return F;
+}
+
+function swapStart(mode) {
+  if (swapPlayer) swapPlayer.stop();
+  showCode(mode);
+  const codeId = MODE_CODE[mode];
+  swapPlayer = new Player({frames: swapFrames(mode), apply: f => {
+    $('swapStage').innerHTML = f.html;
+    hlLine(codeId, f.line);
+    setStatus('swapStatus', `<b>${MODE_LABEL[mode]}</b> · ${f.msg}`);
+  }, delayInput: $('swapSpeed')});
+  swapPlayer.play();
+}
+function swapReset() {
+  if (swapPlayer) swapPlayer.stop();
+  swapPlayer = null;
+  showCode('val');
+  hlLine('swapCodeVal', null); hlLine('swapCodeRef', null); hlLine('swapCodePtr', null);
+  $('swapStage').innerHTML = twoFrames([memCell('x', 3, XA), memCell('y', 7, YA)], '被呼叫端的框', []);
+  setStatus('swapStatus', '選一種傳法開始。三個版本的函式本體完全一樣。');
+}
+
+/* ---------- PART 08 · 呼叫堆疊逐步器 ---------- */
+let csPlayer = null;
+function csRender(stack, ret) {
+  const rows = stack.slice().reverse().map((fr, idx) => {
+    const top = idx === 0;
+    return `<div style="border:2px solid ${top ? 'var(--node-current)' : 'var(--card-border)'};
+       background:${top ? 'rgba(243,156,18,.14)' : 'var(--card)'};border-radius:8px;
+       padding:.35rem .7rem;margin:.25rem 0;display:flex;gap:.8rem;align-items:center;">
+       <span class="mono" style="font-weight:700;">sumTo(n=${fr.n})</span>
+       <span style="font-size:.78rem;color:var(--muted);">${fr.note}</span>
+       ${top ? '<span class="pill pill-green" style="margin-left:auto;">執行中</span>' : ''}
+     </div>`;
+  }).join('');
+  const retLine = ret === null ? '' :
+    `<div class="mono" style="margin-top:.5rem;color:var(--node-found);font-weight:700;">↑ 剛剛回傳：${ret}</div>`;
+  return `<div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1px;color:var(--accent3);margin-bottom:.3rem;">CALL STACK（最上面是正在執行的）</div>
+    ${stack.length ? rows : '<div style="font-size:.85rem;color:var(--muted);">（堆疊是空的）</div>'}${retLine}`;
+}
+function csFrames() {
+  const F = [];
+  const st = [];
+  const snap = (line, ret, msg) => F.push({line, depth: st.length, html: csRender(st, ret), msg});
+
+  snap(8, null, 'main 呼叫 <code>sumTo(4)</code> 之前，堆疊上還沒有它的框。');
+  st.push({n: 4, note: '參數 n=4'});
+  snap(1, null, '<code>sumTo(4)</code> 的框被推上堆疊，裡面放著<strong>這一次專屬的</strong> <code>n</code>。');
+  snap(2, null, '<code>n &lt;= 1</code>？4 不成立，往下走。');
+  st.push({n: 3, note: '參數 n=3'});
+  snap(5, null, '<code>n + sumTo(n - 1)</code> 要先算右邊，所以 <code>sumTo(3)</code> 的框疊上來。<strong>n=4 的框停在這裡等，不會消失。</strong>');
+  st.push({n: 2, note: '參數 n=2'});
+  snap(5, null, '同樣的事再來一次：<code>sumTo(2)</code> 疊上來。堆疊已經三層。');
+  st.push({n: 1, note: '參數 n=1'});
+  snap(5, null, '<code>sumTo(1)</code> 疊上來。四個框同時活著，每個都有自己的 <code>n</code>。');
+  snap(2, null, '<code>n &lt;= 1</code>？這次成立了。<strong>基底情形到了，不再往下叫。</strong>');
+  st.pop();
+  snap(3, 1, '<code>return n;</code> — 回傳 1，<code>sumTo(1)</code> 的框被彈掉。');
+  st.pop();
+  snap(5, 3, '<code>sumTo(2)</code> 拿到 1，算出 <code>2 + 1 = 3</code> 回傳，框彈掉。');
+  st.pop();
+  snap(5, 6, '<code>sumTo(3)</code> 拿到 3，算出 <code>3 + 3 = 6</code> 回傳，框彈掉。');
+  st.pop();
+  snap(5, 10, '<code>sumTo(4)</code> 拿到 6，算出 <code>4 + 6 = 10</code> 回傳，最後一個框也彈掉。');
+  F.push({line: null, depth: 0, html: csRender([], 10),
+          msg: '堆疊清空，答案是 <strong>10</strong>。整趟最深疊到 <strong>4</strong> 層，所以這個遞迴的空間成本是 <code>O(n)</code> —— 換成 <code>sumTo(1000000)</code> 就要一百萬個框，堆疊撐不住。'});
+  return F;
+}
+function csStart() {
+  if (csPlayer) csPlayer.stop();
+  csPlayer = new Player({frames: csFrames(), apply: f => {
+    $('csStage').innerHTML = f.html;
+    $('csDepth').textContent = f.depth;
+    $('csDepth').style.color = f.depth >= 4 ? 'var(--accent)' : '';
+    hlLine('csCode', f.line);
+    setStatus('csStatus', f.msg);
+  }, delayInput: $('csSpeed')});
+  csPlayer.play();
+}
+function csReset() {
+  if (csPlayer) csPlayer.stop();
+  csPlayer = null;
+  $('csStage').innerHTML = csRender([], null);
+  $('csDepth').textContent = '0';
+  $('csDepth').style.color = '';
+  hlLine('csCode', null);
+  setStatus('csStatus', '按「開始」，看堆疊框怎麼疊上去、又怎麼收回來。');
+}
+
+(function () {
+  if ($('swapStage')) swapReset();
+  if ($('csStage')) csReset();
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "函式原型（Function Prototype）", "back": "只寫回傳型別、函式名稱與參數型別，並以分號結尾的宣告，例如 int square(int n);。一般函式需在呼叫處可見宣告；定義可放在後面或其他來源檔中。"}, {"front": "傳值（Pass by Value）", "back": "呼叫時把引數整個複製一份放進參數裡。函式改的是副本，呼叫端的變數完全不受影響。適合 int、double 這種小型別，用在大物件上會付出整份複製的成本。"}, {"front": "參數（Parameter）", "back": "函式宣告或定義中列出的接收端，例如 int deliveryFee(int count) 的 count。每個參數有自己的型別，決定如何接收呼叫端提供的值或參考。"}, {"front": "參考（Reference）", "back": "T& 是既有物件的別名，必須初始化，綁定後不能改綁；對參考取址得到被參考物件的位址。它是否占用實作上的儲存空間不由語言保證，且使用時須確保目標仍存活。"}, {"front": "傳參考（Pass by Reference）", "back": "參數寫成 T&，函式收到的是呼叫端那個變數本人，改動會直接反映到外面，而且完全不複製。"}, {"front": "傳指標（Pass by Pointer）", "back": "T* 參數本身以值傳遞，複製的是位址。f(&x) 可讓函式透過 *p 修改 x；在函式裡改 p 的指向不會改變呼叫端指標。解參考前須確認目標有效。"}, {"front": "空指標（nullptr）", "back": "nullptr 表達空指標值，代表沒有指向物件。函式若允許「未提供目標」可用它表示；解參考空指標是未定義行為，不能依賴固定的當機方式。"}, {"front": "常數參考（const Reference）", "back": "寫成 const T&，不複製也不允許函式改動內容，違反時編譯期就報 assignment of read-only reference。這是 C++ 傳遞大物件的標準做法，看到 const vector<int>& v 就是這個意思。"}, {"front": "引數（Argument）", "back": "呼叫函式時實際提供的運算式，例如 deliveryFee(3) 的 3。引數會依參數型別初始化對應的值參數或綁定參考，不能把呼叫端引數與函式內參數一律當成同一個物件。"}, {"front": "回傳參考（Return by Reference）", "back": "回傳型別寫成 T&，交出去的是那個東西本人，所以函式呼叫可以出現在等號左邊。前提是被指向的東西活得比函式久，通常是類別的成員，絕不能是區域變數。"}, {"front": "懸空指標（Dangling Pointer）", "back": "指標指向一塊已經失效的記憶體，最典型的成因就是回傳區域變數的位址。函式一 return，它的堆疊框連同區域變數一起被彈掉，交出去的位址立刻過期。"}, {"front": "未定義行為（Undefined Behavior）", "back": "標準不規定會發生什麼的操作，例如解參考懸空指標。它的可怕之處在於結果不保證一致：同一支程式換個編譯器或最佳化等級，可能印出正確答案、印出垃圾、或當場崩潰，所以你無法靠試跑證明它是對的。"}, {"front": "函式多載（Function Overloading）", "back": "多個函式共用名稱，由參數型別、個數及轉換規則決定可用版本。只有回傳型別不同不能構成多載；若沒有唯一最佳版本，呼叫會有歧義。"}, {"front": "預設引數（Default Argument）", "back": "在參數列直接給參數一個預設值，呼叫時可以省略。因為呼叫端由左往右對位，有預設值的參數必須排在最後面而且一路排到底，否則編譯器直接報 default argument missing。"}, {"front": "呼叫堆疊（Call Stack）", "back": "常用來理解函式呼叫與回傳的模型：每次呼叫有自己的參數、區域狀態與返回位置。實際機器可能使用暫存器、內嵌等最佳化；可用堆疊容量依環境而異。"}, {"front": "堆疊框（Stack Frame）", "back": "一次函式呼叫在堆疊上佔的那一塊，裡面放這一次專屬的參數、區域變數，以及回去之後要從哪裡繼續執行。遞迴時每一層都有自己的框，所以各層的 n 互不干擾。"}, {"front": "基底情形（Base Case）", "back": "遞迴中小到不必再往下呼叫、可以直接給答案的情況，例如 sumTo 裡的 n <= 1。少了它，或問題沒有真的變小，遞迴就停不下來，堆疊會一路疊到爆。"}, {"front": "堆疊溢位（Stack Overflow）", "back": "呼叫過深可能耗盡執行環境可用的堆疊資源。C++ 不保證拋出特定例外、固定訊號或固定結束碼；遞迴需有可達的基底情形，必要時改為迴圈。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+<script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {
     var h = 2166136261;
@@ -982,4 +1861,5 @@ const FLASHCARDS = [{"front": "函式（Function）", "back": "命名一段可�
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 /* /quiz-shuffle v1 */</script>
-</body></html>
+</body>
+</html>

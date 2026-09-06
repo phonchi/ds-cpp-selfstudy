@@ -1,328 +1,156 @@
 [
   {
-    "question": "deliveryFee(quantity + 1, 10) 中，quantity 原本是 3；計算引數會把 quantity 改成 4 嗎？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\n\nvoid bump(int n) { n = n + 10; }\n\nint main() {\n    int n = 5;\n    bump(n);\n    cout << n << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "不會，除非另有賦值",
+        "answer": "5",
         "correct": true,
-        "feedback": "加法產生值 4，沒有對 quantity 賦值。"
+        "feedback": "正確。bump 的參數是 int n，屬於傳值，函式拿到的是一份副本，加 10 加在副本上。函式一結束副本就消失，main 裡的 n 從頭到尾都是 5。是否有警告取決於編譯器與設定。"
       },
       {
-        "answer": "會，函式自動改引數",
+        "answer": "15",
         "correct": false,
-        "feedback": "加法產生值 4，沒有對 quantity 賦值。"
+        "feedback": "要印出 15，參數必須寫成 int &n 或 int *p。目前的簽章是傳值，函式碰不到 main 裡的那一格。"
+      },
+      {
+        "answer": "10",
+        "correct": false,
+        "feedback": "函式沒有回傳值，也沒有把結果寫回任何地方，main 裡的 n 完全沒被動過。"
       },
       {
         "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "加法產生值 4，沒有對 quantity 賦值。"
-      },
-      {
-        "answer": "quantity 會在回傳後才變成 4",
-        "correct": false,
-        "feedback": "函式回傳不會替先前加法補上賦值。quantity + 1 只產生值。"
+        "feedback": "語法完全合法。傳值是最基本的傳法，語法合法，警告則依編譯器設定而定，這正是這個錯誤難抓的原因。"
       }
     ]
   },
   {
-    "question": "函式 cout 印出數字 8，卻回傳 3；int x = f(); 後 x 是多少？",
+    "question": "跟上一題的程式只差一個符號，這次印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\n\nvoid bump(int &n) { n = n + 10; }\n\nint main() {\n    int n = 5;\n    bump(n);\n    cout << n << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "3",
+        "answer": "5",
+        "correct": false,
+        "feedback": "int &n 是傳參考，函式收到的是 main 裡那個 n 本人，加 10 會直接反映到外面。"
+      },
+      {
+        "answer": "15",
         "correct": true,
-        "feedback": "x 接收 return 的結果，cout 只是螢幕輸出。"
+        "feedback": "正確。int &n 讓參數變成 main 裡那個 n 的別名，兩者位址相同，所以 n = n + 10 改的就是本尊。"
       },
       {
-        "answer": "8",
+        "answer": "10",
         "correct": false,
-        "feedback": "x 接收 return 的結果，cout 只是螢幕輸出。"
-      },
-      {
-        "answer": "11",
-        "correct": false,
-        "feedback": "x 接收 return 的結果，cout 只是螢幕輸出。"
-      },
-      {
-        "answer": "x 沒有值，因為函式也使用 cout",
-        "correct": false,
-        "feedback": "輸出與回傳可以同時存在；return 3 仍會把 3 交回 x。"
-      }
-    ]
-  },
-  {
-    "question": "一般 int 函式的某條正常路徑沒有 return，能依賴自動得到 0 嗎？",
-    "answers": [
-      {
-        "answer": "不能",
-        "correct": true,
-        "feedback": "一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"
-      },
-      {
-        "answer": "可以，所有函式都像 main",
-        "correct": false,
-        "feedback": "一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"
-      },
-      {
-        "answer": "只有負數輸入才不能",
-        "correct": false,
-        "feedback": "一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"
-      },
-      {
-        "answer": "只要加上 const 就會自動補回傳",
-        "correct": false,
-        "feedback": "const 不會替遺漏的 return 產生值。"
-      }
-    ]
-  },
-  {
-    "question": "只有函式宣告、沒有相符定義，呼叫時可能在哪個階段失敗？",
-    "answers": [
-      {
-        "answer": "連結階段",
-        "correct": true,
-        "feedback": "宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"
-      },
-      {
-        "answer": "只在執行時",
-        "correct": false,
-        "feedback": "宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"
-      },
-      {
-        "answer": "一定是前處理",
-        "correct": false,
-        "feedback": "宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"
-      },
-      {
-        "answer": "永遠不會失敗，宣告就是完整函式",
-        "correct": false,
-        "feedback": "宣告只提供介面，執行仍需要相符實作。"
-      }
-    ]
-  },
-  {
-    "question": "void f(int x) 內把 x 改成 0；以 score=20 呼叫 f(score) 後 score 為何？",
-    "answers": [
-      {
-        "answer": "20",
-        "correct": true,
-        "feedback": "int 參數是副本，沒有修改 score。"
-      },
-      {
-        "answer": "0",
-        "correct": false,
-        "feedback": "int 參數是副本，沒有修改 score。"
-      },
-      {
-        "answer": "不確定",
-        "correct": false,
-        "feedback": "int 參數是副本，沒有修改 score。"
-      },
-      {
-        "answer": "score 會變成未定值",
-        "correct": false,
-        "feedback": "這裡沒有未初始化讀值，score 保持原本的 20。"
-      }
-    ]
-  },
-  {
-    "question": "int a=4,b=9; int& r=a; r=b; b=2; 最後 r 為何？",
-    "answers": [
-      {
-        "answer": "9",
-        "correct": true,
-        "feedback": "r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"
-      },
-      {
-        "answer": "2",
-        "correct": false,
-        "feedback": "r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"
-      },
-      {
-        "answer": "4",
-        "correct": false,
-        "feedback": "r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"
-      },
-      {
-        "answer": "r 不再綁定任何物件",
-        "correct": false,
-        "feedback": "普通賦值沒有解除或改變參考綁定，r 仍代表 a。"
-      }
-    ]
-  },
-  {
-    "question": "const int& view=score; 之後透過 score 改值，view 看到什麼？",
-    "answers": [
-      {
-        "answer": "更新後的 score",
-        "correct": true,
-        "feedback": "const 限制經由 view 修改，不是把數值凍結成快照。"
-      },
-      {
-        "answer": "綁定時的舊值",
-        "correct": false,
-        "feedback": "const 限制經由 view 修改，不是把數值凍結成快照。"
-      },
-      {
-        "answer": "一定編譯失敗",
-        "correct": false,
-        "feedback": "const 限制經由 view 修改，不是把數值凍結成快照。"
-      },
-      {
-        "answer": "view 自動變成可修改參考",
-        "correct": false,
-        "feedback": "原物件可以由 score 修改，但 view 的唯讀限制不會因此消失。"
-      }
-    ]
-  },
-  {
-    "question": "為何不可回傳區域 int 的 int& 再使用它？",
-    "answers": [
-      {
-        "answer": "原物件已結束生命",
-        "correct": true,
-        "feedback": "回傳參考不延長該區域物件的生命。"
-      },
-      {
-        "answer": "參考永遠不能回傳",
-        "correct": false,
-        "feedback": "回傳參考不延長該區域物件的生命。"
-      },
-      {
-        "answer": "參考不能指向整數",
-        "correct": false,
-        "feedback": "回傳參考不延長該區域物件的生命。"
-      },
-      {
-        "answer": "只要回傳值恰好是 0 就安全",
-        "correct": false,
-        "feedback": "數值內容不能修補生命週期已結束的問題。"
-      }
-    ]
-  },
-  {
-    "question": "只有回傳型別不同的兩個同名、同參數函式，可以作為多載嗎？",
-    "answers": [
-      {
-        "answer": "不可以",
-        "correct": true,
-        "feedback": "函式不能僅依回傳型別形成這種多載。"
-      },
-      {
-        "answer": "可以",
-        "correct": false,
-        "feedback": "函式不能僅依回傳型別形成這種多載。"
-      },
-      {
-        "answer": "只有 void 可以",
-        "correct": false,
-        "feedback": "函式不能僅依回傳型別形成這種多載。"
-      },
-      {
-        "answer": "同一檔案不行，不同檔案就可任意區分",
-        "correct": false,
-        "feedback": "分開檔案不會讓回傳型別成為一般函式多載的區分條件。"
-      }
-    ]
-  },
-  {
-    "question": "void countdown(int n) 先印 n enter，呼叫 n-1，再印 n leave；n<=0返回。呼叫2的最後一行？",
-    "answers": [
-      {
-        "answer": "2 leave",
-        "correct": true,
-        "feedback": "最早進入的外層最後完成，n=0 的呼叫不輸出。"
-      },
-      {
-        "answer": "1 leave",
-        "correct": false,
-        "feedback": "最早進入的外層最後完成，n=0 的呼叫不輸出。"
-      },
-      {
-        "answer": "0 leave",
-        "correct": false,
-        "feedback": "最早進入的外層最後完成，n=0 的呼叫不輸出。"
-      },
-      {
-        "answer": "0 enter",
-        "correct": false,
-        "feedback": "n=0 會立即返回，不會執行後面的輸出。"
-      }
-    ]
-  },
-  {
-    "question": "下列遞迴回傳值是多少？",
-    "answers": [
-      {
-        "answer": "12",
-        "correct": true,
-        "feedback": "內層由0往外回傳2、6、12。 若 day=n，每個框架使用固定空間，遞迴深度最多 n+1，額外空間為 O(n)。"
-      },
-      {
-        "answer": "6",
-        "correct": false,
-        "feedback": "6只是最外層今天的頁數，還要加上前幾天的6。"
-      },
-      {
-        "answer": "0",
-        "correct": false,
-        "feedback": "基底的0會被各層繼續加上今天的頁數。"
-      },
-      {
-        "answer": "18",
-        "correct": false,
-        "feedback": "每層day不同，不是三次都加最外層的6。"
-      }
-    ],
-    "code": "int pagesAfter(int day) {\n    if (day <= 0) return 0;\n    return 2 * day + pagesAfter(day - 1);\n}\n// 在 main 中計算 pagesAfter(3)"
-  },
-  {
-    "question": "三次呼叫的回傳值依序為何？",
-    "answers": [
-      {
-        "answer": "36、30、15",
-        "correct": true,
-        "feedback": "int呼叫可使用預設rate；第二次明寫10；double精確匹配另一版本。"
-      },
-      {
-        "answer": "36、30、36",
-        "correct": false,
-        "feedback": "第三個引數3.0是double，會選double版本而非轉為int。"
+        "feedback": "起始值是 5，加 10 之後是 15。"
       },
       {
         "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "這些呼叫有各自較好的匹配，並不因預設值本身就多義。"
-      },
-      {
-        "answer": "15、15、15",
-        "correct": false,
-        "feedback": "3與3.0的型別不同，不能忽略int版本。"
+        "feedback": "傳參考是合法且常見的寫法。要注意的限制是非 const 左值參考需要可修改且型別相容的左值（例如一般變數或陣列元素），這裡傳的是變數 n，沒有問題。"
       }
-    ],
-    "code": "int charge(int items, int rate = 12) { return items * rate; }\ndouble charge(double kg) { return kg * 5.0; }\n// 在 main 中依序呼叫 charge(3), charge(3, 10), charge(3.0)"
+    ]
   },
   {
-    "question": "介面希望只讀既有大型資料、避免不必要複製，首選哪種形式？T表示資料型別。",
+    "question": "這段程式印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\n\nvoid grow(int *p) { *p = *p * 2; }\n\nint main() {\n    int v = 21;\n    grow(&v);\n    cout << v << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "const T& value",
+        "answer": "21",
+        "correct": false,
+        "feedback": "grow 收到的是 v 的位址，*p = *p * 2 是順著位址走進去把 v 本人改掉，不是改副本。"
+      },
+      {
+        "answer": "42",
         "correct": true,
-        "feedback": "唯讀參考表達不透過參數修改，直接綁定相容原物件時不複製目標。"
+        "feedback": "正確。呼叫端寫 grow(&v) 明著把位址交出去，函式用 *p 解參考後直接改動 main 裡的 v。跟傳參考效果相同，差別是指標可以是 nullptr、也可以中途改指向別的東西。"
       },
       {
-        "answer": "T value",
+        "answer": "0",
         "correct": false,
-        "feedback": "傳值一般會取得自己的物件，未表達避免複製的需求。"
+        "feedback": "v 的初始值是 21，乘 2 之後是 42。"
       },
       {
-        "answer": "T& value",
+        "answer": "一個記憶體位址",
         "correct": false,
-        "feedback": "這會允許透過參數修改，不是唯讀承諾。"
+        "feedback": "印出來的是 v 這個 int，不是指標。位址只存在 grow 的參數 p 裡，main 裡印的是 v 本身。"
+      }
+    ]
+  },
+  {
+    "question": "這段程式印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\n\nint f(int a, int b = 2) { return a * b; }\ndouble f(double a)      { return a + 0.5; }\n\nint main() {\n    cout << f(3) << \" \" << f(3, 4) << \" \" << f(3.0) << endl;\n    return 0;\n}",
+    "answers": [
+      {
+        "answer": "6 12 3.5",
+        "correct": true,
+        "feedback": "正確。f(3) 少給一個引數，b 吃預設值 2，得 6；f(3, 4) 給滿兩個，得 12；f(3.0) 的引數是 double，挑中另一個多載，得 3.5。多載看參數型別與個數，回傳型別不列入判斷。"
       },
       {
-        "answer": "T* value",
+        "answer": "3 12 3.5",
         "correct": false,
-        "feedback": "這是可修改指標介面，未表達唯讀限制，且另允許空目標。"
+        "feedback": "f(3) 不是回傳 a 本身，b 用了預設值 2，所以是 3 乘 2。"
+      },
+      {
+        "answer": "6 12 3",
+        "correct": false,
+        "feedback": "f(3.0) 傳的是 double，挑中的是 double f(double a)，回傳 3.5 不是 3。"
+      },
+      {
+        "answer": "編譯錯誤，兩個 f 衝突",
+        "correct": false,
+        "feedback": "兩個 f 的參數型別不同，多載成立。真正會衝突的是同時寫 f(int) 與 f(int, int = 0)，那時 f(3) 兩邊都符合才會 ambiguous。"
+      }
+    ]
+  },
+  {
+    "question": "這個遞迴函式印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\n\nint mystery(int n) {\n    if (n == 0) return 0;\n    return n % 10 + mystery(n / 10);\n}\n\nint main() {\n    cout << mystery(9305) << endl;\n    return 0;\n}",
+    "answers": [
+      {
+        "answer": "9305",
+        "correct": false,
+        "feedback": "函式每次只取個位數 n % 10，再把 n / 10 交給下一層，累加的是各位數字。"
+      },
+      {
+        "answer": "17",
+        "correct": true,
+        "feedback": "正確。9 + 3 + 0 + 5 = 17。基底情形是 n == 0，每次呼叫讓問題少一位數，最深疊到 5 個堆疊框（含 n 為 0 的那一層）。"
+      },
+      {
+        "answer": "5",
+        "correct": false,
+        "feedback": "只算了第一層的 n % 10。後面的 mystery(n / 10) 會繼續把剩下的位數加進來。"
+      },
+      {
+        "answer": "無窮遞迴",
+        "correct": false,
+        "feedback": "n / 10 是整數除法，9305 會依序變成 930、93、9、0，撞到基底情形 n == 0 就停下來。"
+      }
+    ]
+  },
+  {
+    "question": "一個函式只需要讀取一個很大的 vector，不會改動它。參數該怎麼寫？",
+    "answers": [
+      {
+        "answer": "vector<int> v",
+        "correct": false,
+        "feedback": "這是傳值，會把整個 vector 複製一份。元素越多成本越高，而且函式根本不需要那份副本。"
+      },
+      {
+        "answer": "const vector<int>& v",
+        "correct": true,
+        "feedback": "正確。const 參考不複製、也不允許函式改動內容，是 C++ 傳遞大型唯讀參數的標準做法。附帶好處是簽章直接告訴讀者這個函式不會動你的資料。"
+      },
+      {
+        "answer": "vector<int>& v",
+        "correct": false,
+        "feedback": "不複製這點對了，但少了 const，函式有能力改動呼叫端的資料，編譯器也不會替你把關。只讀的參數應該把這個能力關掉。"
+      },
+      {
+        "answer": "vector<int>* p",
+        "correct": false,
+        "feedback": "指標也能避開複製，但它多了「可以是 nullptr」的語意，逼函式去檢查一個根本不會發生的情況。參數一定存在時優先用參考。"
       }
     ]
   }

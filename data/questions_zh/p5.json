@@ -1,351 +1,156 @@
 [
   {
-    "question": "vector<int> a(3,8) 與 vector<int> b{3,8} 的差別？",
+    "question": "以下程式印出什麼？",
+    "code": "vector<int> v = {31, 17, 93};\nv.insert(v.begin(), 54);\nv.erase(v.begin() + 2);\nfor (int x : v) cout << x << \" \";",
     "answers": [
       {
-        "answer": "a 有三個 8；b 有 3、8 兩項",
+        "answer": "54 31 93",
         "correct": true,
-        "feedback": "括號選數量/初值建構式；大括號是元素清單。"
+        "feedback": "正確。insert(v.begin(), 54) 把 31、17、93 全部往後挪一格，變成 54 31 17 93；erase(v.begin() + 2) 刪掉索引 2 的 17，後面的 93 再往前補位。兩個操作都是 O(n)，因為每一個動作都牽動後面所有元素。"
       },
       {
-        "answer": "兩者完全相同",
+        "answer": "31 17 93",
         "correct": false,
-        "feedback": "括號的兩個引數是「數量3、初值8」，大括號則列出兩個元素；兩者的size已不同。"
+        "feedback": "不對。insert 和 erase 都會真的改動 v，不是回傳一份新的 vector。"
       },
       {
-        "answer": "a 只有兩項",
+        "answer": "54 17 93",
         "correct": false,
-        "feedback": "把 a(3,8) 當成清單初始化了；小括號會建立三格，不是兩格。"
+        "feedback": "不對。erase 的參數是 v.begin() + 2，指的是插入之後的索引 2，也就是 17，不是 31。"
       },
       {
-        "answer": "b 有八個 3",
+        "answer": "54 31 17",
         "correct": false,
-        "feedback": "把 b{3,8} 誤讀成 count/value，還顛倒成八個3；大括號只列出元素3與8。"
+        "feedback": "不對。刪掉的是索引 2，不是最後一個。要刪最後一個請用 pop_back()。"
       }
     ]
   },
   {
-    "question": "reserve(100) 之後哪個敘述一定成立？",
+    "question": "以下程式印出什麼？",
+    "code": "vector<int> v = {1, 2, 3};\nfor (int x : v) x = x * 10;\nfor (int& y : v) y = y + 1;\nfor (int x : v) cout << x << \" \";",
     "answers": [
       {
-        "answer": "capacity() 至少為 100，size() 不因 reserve 增加",
+        "answer": "2 3 4",
         "correct": true,
-        "feedback": "reserve 預留容量而不建立元素；實際 capacity 可更大。"
+        "feedback": "正確。第一個迴圈的 x 是複製品，乘 10 只改到那份暫存值，v 完全沒動；第二個迴圈的 y 宣告成 int&，是元素本人的別名，加 1 才真的寫回 vector。這個範圍 for 若要透過迴圈變數修改 int 元素，需要參考。"
       },
       {
-        "answer": "size() 一定是 100",
+        "answer": "11 21 31",
         "correct": false,
-        "feedback": "reserve只調整可容納空間，不建立元素，因此size仍是原值。"
+        "feedback": "不對。for (int x : v) 的 x 是複製品，那個乘 10 的結果每一輪都被丟掉了。"
       },
       {
-        "answer": "capacity() 一定恰為 100",
+        "answer": "1 2 3",
         "correct": false,
-        "feedback": "標準只保證capacity至少100，實作可以配置更多，不能要求恰為100。"
+        "feedback": "不對。第二個迴圈用了 int&，那一次修改是有效的。"
       },
       {
-        "answer": "已建立 100 個元素",
+        "answer": "10 20 30",
         "correct": false,
-        "feedback": "預留一百格不等於建立一百個物件；要改元素數需使用resize。"
+        "feedback": "不對。乘 10 的那個迴圈沒有效果，而加 1 的那個有效果，剛好跟這個選項相反。"
       }
     ]
   },
   {
-    "question": "vector 重配置後，先前保存的元素 iterator 怎麼了？",
+    "question": "以下程式印出什麼？",
+    "code": "vector<int> v(3, 7);\ntry {\n    cout << v.at(3) << endl;\n} catch (out_of_range& e) {\n    cout << \"caught\" << endl;\n}\ncout << v.size() << endl;",
     "answers": [
       {
-        "answer": "全部失效，必須重新取得",
+        "answer": "先印 caught，再印 3",
         "correct": true,
-        "feedback": "元素搬到新區塊，所有舊 iterator、指標與參考失效。"
+        "feedback": "正確。v(3, 7) 建出三個 7，合法索引只有 0 到 2，所以 at(3) 丟出 out_of_range，被 catch 接住印出 caught。丟例外不會改動 vector，size 仍然是 3。"
       },
       {
-        "answer": "仍然有效",
+        "answer": "先印 7，再印 3",
         "correct": false,
-        "feedback": "重配置會把元素搬到新區塊，舊iterator保存的位置不再指向那些元素。"
+        "feedback": "不對。at(3) 越界了。v(3, 7) 的第一個參數是元素個數、第二個才是填進去的值。"
       },
       {
-        "answer": "只有 begin 失效",
+        "answer": "先印 0，再印 3",
         "correct": false,
-        "feedback": "失效範圍不限begin；所有指向舊區塊元素的位置都受影響。"
+        "feedback": "at() 越界時不會回傳 0，而會丟例外；若改用越界的 v[3] 則是未定義行為，不能保證會回傳任何特定值。"
       },
       {
-        "answer": "只有 end 失效",
+        "answer": "程式當掉，什麼都印不出來",
         "correct": false,
-        "feedback": "end固然失效，但元素iterator也因整塊搬家而全部失效。"
+        "feedback": "有相容的 catch 接住例外，程式會在 catch 後繼續；沒有任何相容 catch 時才會呼叫 std::terminate。"
       }
     ]
   },
   {
-    "question": "在迴圈中刪除 it 指向元素的安全核心寫法？",
+    "question": "以下程式印出什麼？",
+    "code": "vector<int> v = {1, 2, 3, 4};\nauto before = v.capacity();\nv.clear();\ncout << v.size() << \" \" << (v.capacity() == before);",
     "answers": [
       {
-        "answer": "it = v.erase(it)",
+        "answer": "0 1",
         "correct": true,
-        "feedback": "erase 回傳下一個有效位置；舊 it 已失效。"
+        "feedback": "正確。clear() 移除所有元素，所以 size 為 0；它不改變 capacity，因此和事前保存的 before 相等，布林值印成 1。初始 capacity 的確切數字不必假定。"
       },
       {
-        "answer": "v.erase(it); ++it",
+        "answer": "0 4",
         "correct": false,
-        "feedback": "erase之後舊it已失效，不能先對它++；應接住erase回傳的新位置。"
+        "feedback": "這把布林比較結果誤當成實際 capacity；第二個輸出是相等比較，成立時印 1。"
       },
       {
-        "answer": "v.erase(it); *it",
+        "answer": "4 1",
         "correct": false,
-        "feedback": "刪除後立即解參考舊it仍是使用失效iterator，行為未定義。"
+        "feedback": "capacity 的比較成立，但 clear() 已移除四個元素，size 必須是 0。"
       },
       {
-        "answer": "++it; v.erase(it)",
+        "answer": "0 0",
         "correct": false,
-        "feedback": "先++會改成刪下一項，而且刪除後那個位置仍需使用erase回傳值繼續。"
+        "feedback": "clear() 不改變 capacity，所以它仍等於 before，第二個值不會是 0。"
       }
     ]
   },
   {
-    "question": "哪個位置可以拿來比較、但不可解參考？",
+    "question": "以下程式印出什麼？",
+    "code": "string s = \"fool\";\ns += \"s\";\ncout << s.substr(1, 2) << \" \" << s.find(\"ol\") << \" \" << s.length();",
     "answers": [
       {
-        "answer": "v.end()",
+        "answer": "oo 2 5",
         "correct": true,
-        "feedback": "end 是尾後哨兵，不代表元素。"
+        "feedback": "正確。s 變成 fools；substr(1, 2) 從索引 1 取兩個字元得到 oo，第二個參數是長度不是結束位置；find(\"ol\") 在索引 2 找到 ol；長度是 5。"
       },
       {
-        "answer": "v.begin()",
+        "answer": "oo 2 4",
         "correct": false,
-        "feedback": "非空vector的begin指向第一個真實元素，可以解參考。"
+        "feedback": "不對。s += \"s\" 已經把長度變成 5 了，+= 是就地修改。"
       },
       {
-        "answer": "v.begin()+0",
+        "answer": "ool 2 5",
         "correct": false,
-        "feedback": "begin()+0與begin相同，仍指向第一項，不是尾後哨兵。"
+        "feedback": "不對。substr 的第二個參數是要取幾個字元，這裡是 2，不是取到索引 2 為止。"
       },
       {
-        "answer": "v.back()",
+        "answer": "oo -1 5",
         "correct": false,
-        "feedback": "back()回傳最後元素的參考，不是用來和iterator比較的位置。"
+        "feedback": "不對。C++ 的 find 找不到時回傳 string::npos 而不是 -1，而且這裡本來就找得到，答案是 2。"
       }
     ]
   },
   {
-    "question": "範圍 for 的 auto x 與 auto& x 差在哪裡？",
+    "question": "你用 vector 實作一個佇列：enqueue 用 push_back 加在尾端，dequeue 用 erase(v.begin()) 從前端拿。dequeue 的複雜度是什麼？",
     "answers": [
       {
-        "answer": "auto x 複製元素；auto& x 綁定原元素",
+        "answer": "O(n)，因為前端拿走一個之後，後面每個元素都要往前挪一格",
         "correct": true,
-        "feedback": "auto 只負責型別推導，& 才決定是否為參考。"
+        "feedback": "正確。vector 的元素放在一整塊連續記憶體裡，拿掉第 0 格就必須讓後面 n-1 個元素全部往前補位。"
       },
       {
-        "answer": "兩者都一定是指標",
+        "answer": "O(1)，因為只拿走一個元素",
         "correct": false,
-        "feedback": "auto推導的是元素型別，不會把迴圈變數自動變成指標。"
+        "feedback": "不對。拿走的動作本身很快，但為了維持連續性而做的補位是線性的。只有 pop_back() 才是真正的 O(1)。"
       },
       {
-        "answer": "auto x 會刪除元素",
+        "answer": "O(log n)，因為 vector 內部有排序",
         "correct": false,
-        "feedback": "auto x只建立副本；離開一圈時副本銷毀，但不會刪容器元素。"
+        "feedback": "不對。vector 不會幫你排序，也沒有任何二分搜尋的結構，跟對數複雜度無關。"
       },
       {
-        "answer": "auto& x 是任意型別",
+        "answer": "O(n^2)，因為每個元素都要被搬 n 次",
         "correct": false,
-        "feedback": "auto&中的&表示參考，不表示任意型別；實際型別仍由元素推導。"
-      }
-    ]
-  },
-  {
-    "question": "vector<vector<int>> rows 中每列長度一定相同嗎？",
-    "answers": [
-      {
-        "answer": "不一定；每個內層 vector 可有自己的長度",
-        "correct": true,
-        "feedback": "二維 vector 可以是不規則列。"
-      },
-      {
-        "answer": "一定相同",
-        "correct": false,
-        "feedback": "外層vector只保存多個內層vector，沒有矩形限制，各列可有不同size。"
-      },
-      {
-        "answer": "只有兩列時相同",
-        "correct": false,
-        "feedback": "列數是2不會替兩個內層vector強制相同長度。"
-      },
-      {
-        "answer": "由 capacity 決定",
-        "correct": false,
-        "feedback": "capacity是單一vector的配置狀態，不會同步決定其他列的size。"
-      }
-    ]
-  },
-  {
-    "question": "stack 的 top() 與 pop() 分工是？",
-    "answers": [
-      {
-        "answer": "top 查看；pop 移除且不回傳",
-        "correct": true,
-        "feedback": "標準容器轉接器把查看與移除分成兩步。"
-      },
-      {
-        "answer": "兩者都回傳並移除",
-        "correct": false,
-        "feedback": "top只查看、pop只移除；標準stack沒有一個同時回傳並移除的操作。"
-      },
-      {
-        "answer": "top 移除",
-        "correct": false,
-        "feedback": "top不改stack大小，它回傳目前頂端元素的參考。"
-      },
-      {
-        "answer": "pop 只查看",
-        "correct": false,
-        "feedback": "pop確實移除頂端且回傳void，不是只查看。"
-      }
-    ]
-  },
-  {
-    "question": "s.find(\"xy\") == string::npos 表示？",
-    "answers": [
-      {
-        "answer": "沒有找到 xy",
-        "correct": true,
-        "feedback": "npos 是 string 搜尋失敗的特殊值。"
-      },
-      {
-        "answer": "在位置 0 找到",
-        "correct": false,
-        "feedback": "找到位置0時find回傳0，不會等於npos。"
-      },
-      {
-        "answer": "字串是空的",
-        "correct": false,
-        "feedback": "空字串與搜尋失敗是不同狀態；非空字串也可能找不到xy。"
-      },
-      {
-        "answer": "發生編譯錯誤",
-        "correct": false,
-        "feedback": "find與npos比較是合法string介面，不會造成編譯錯誤。"
-      }
-    ]
-  },
-  {
-    "question": "UTF-8 中文字串可否用 substr(pos,1) 保證取一個可見中文字？",
-    "answers": [
-      {
-        "answer": "不保證；string 以 char/byte 單位處理",
-        "correct": true,
-        "feedback": "一個可見中文字通常跨多個 UTF-8 byte。"
-      },
-      {
-        "answer": "可以",
-        "correct": false,
-        "feedback": "UTF-8中文字通常跨多個char byte，count=1可能只切出編碼的一部分。"
-      },
-      {
-        "answer": "只有奇數位置可以",
-        "correct": false,
-        "feedback": "byte位置的奇偶與Unicode字元邊界沒有固定關係。"
-      },
-      {
-        "answer": "npos 時可以",
-        "correct": false,
-        "feedback": "npos表示搜尋失敗，不會讓substr突然按可見字元切割。"
-      }
-    ]
-  },
-  {
-    "question": "cin >> n 後接 getline，想忽略殘留換行可用？",
-    "answers": [
-      {
-        "answer": "getline(cin >> ws, text)",
-        "correct": true,
-        "feedback": "ws 先略過前導空白與換行；行首空白有意義時要換策略。"
-      },
-      {
-        "answer": "getline(n,text)",
-        "correct": false,
-        "feedback": "getline第一參數必須是輸入串流；整數n不能放在cin的位置。"
-      },
-      {
-        "answer": "cin << ws",
-        "correct": false,
-        "feedback": "<<是輸出方向，cin也不是輸出串流；清空前導空白要用>>ws。"
-      },
-      {
-        "answer": "text >> getline",
-        "correct": false,
-        "feedback": "getline是函式而非可被text用>>讀出的值，資料方向與語法都相反。"
-      }
-    ]
-  },
-  {
-    "question": "迴圈累積許多片段，通常哪個寫法較合適？",
-    "answers": [
-      {
-        "answer": "out += piece",
-        "correct": true,
-        "feedback": "+= 通常可重用容量，避免每輪複製整個舊前綴。"
-      },
-      {
-        "answer": "out = out + piece 永遠 O(1)",
-        "correct": false,
-        "feedback": "每輪s=s+piece通常要複製舊前綴，成本不可能永遠O(1)。"
-      },
-      {
-        "answer": "每輪建立新的空 string",
-        "correct": false,
-        "feedback": "每輪重建空string會丟掉先前累積內容，無法得到完整結果。"
-      },
-      {
-        "answer": "用 substr 增加",
-        "correct": false,
-        "feedback": "substr用來擷取既有文字，不會把piece附加到out。"
-      }
-    ]
-  },
-  {
-    "question": "vector<int> b(a.begin()+1, a.begin()+4) 會包含哪個範圍？",
-    "answers": [
-      {
-        "answer": "索引1、2、3",
-        "correct": true,
-        "feedback": "範圍是左含右不含 [first,last)，所以不包含索引4。"
-      },
-      {
-        "answer": "索引1到4",
-        "correct": false,
-        "feedback": "第二個iterator是右開界線，索引4不會被複製。"
-      },
-      {
-        "answer": "只含索引1",
-        "correct": false,
-        "feedback": "兩個iterator界定連續區間，不是只複製first指向的一項。"
-      },
-      {
-        "answer": "編譯器任意決定",
-        "correct": false,
-        "feedback": "range constructor的[first,last)由標準介面確定，不由編譯器任意選。"
-      }
-    ]
-  },
-  {
-    "question": "char c='A'; 要建立只含 A 的 string，哪個正確？",
-    "answers": [
-      {
-        "answer": "string one(1,c);",
-        "correct": true,
-        "feedback": "第一個引數是數量1，第二個是要重複的char。"
-      },
-      {
-        "answer": "string one=c+1;",
-        "correct": false,
-        "feedback": "c+1先把char提升成整數再加一，結果不是string。"
-      },
-      {
-        "answer": "string one=to_string(c);",
-        "correct": false,
-        "feedback": "to_string(c)會把字元碼的數值轉成數字文字，不會得到字元A。"
-      },
-      {
-        "answer": "string one='A'+'B';",
-        "correct": false,
-        "feedback": "'A'+'B'是兩個char的整數加法，既不建立string也不只含A。"
+        "feedback": "不對。單次 dequeue 只掃一輪；連做 n 次 dequeue 才會累積成 O(n^2)。"
       }
     ]
   }

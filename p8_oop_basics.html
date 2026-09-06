@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>類別與物件 — 先備 P8（C++）</title>
+<title>物件導向（基礎）— 先備 P8（C++）</title>
 <script>
   MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
 </script>
@@ -289,6 +289,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .tok-op{background:#8e44ad;}
 .tok-new{outline:3px solid #f39c12;}
 .mono{font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:700px){.float-nav{display:none;}}
+/* Preserve original diagrams; contain wide code, tables and controls locally. */
+.viz-layout > *{min-width:0;}
+.viz-panel{min-width:0;max-width:100%;overflow-x:auto;}
+.table-scroll{max-width:100%;overflow-x:auto;}
+@media(max-width:900px){section p code,section li code{white-space:normal;overflow-wrap:anywhere;}.status-text{min-width:0;overflow-wrap:anywhere;}}
 </style>
 <style>
 /* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
@@ -460,12 +467,36 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </style>
 <!-- /contrast-fix -->
 <style>
-@media (max-width: 760px) { .float-nav { display: none; } }
+/* P8 local containment: preserve original cards and SVG geometry on narrow screens. */
+.viz-layout > *, .side-panel, .info-card { min-width: 0; }
+.viz-layout .pseudo-code { max-width: 100%; overflow-x: auto; }
+@media (max-width: 760px) { .viz-layout { display: block; } .viz-layout > * + * { margin-top: 1rem; } }
 </style>
-
-<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#purpose" data-target="purpose"><span class="fn-num">01</span><span class="fn-name">類別把狀態與合法操作放在一起</span></a><a href="#construct" data-target="construct"><span class="fn-num">02</span><span class="fn-name">建構式先建立有效物件</span></a><a href="#defaults" data-target="defaults"><span class="fn-num">03</span><span class="fn-name">類內初值與初始化串列如何合作</span></a><a href="#thisptr" data-target="thisptr"><span class="fn-num">04</span><span class="fn-name">this、物件指標、點號與箭頭</span></a><a href="#encapsulation" data-target="encapsulation"><span class="fn-num">05</span><span class="fn-name">public、private 與不變條件</span></a><a href="#constmember" data-target="constmember"><span class="fn-num">06</span><span class="fn-name">三個 const 位置，承諾不同</span></a><a href="#candidates" data-target="candidates"><span class="fn-num">07</span><span class="fn-name">建構式候選：先看引數，再比較轉換</span></a><a href="#lifetime" data-target="lifetime"><span class="fn-num">08</span><span class="fn-name">解構、生命週期與基本複製</span></a><a href="#stream" data-target="stream"><span class="fn-num">09</span><span class="fn-name">operator<< 與 friend：維持串接慣例</span></a><a href="#composition" data-target="composition"><span class="fn-num">10</span><span class="fn-name">組合：一個物件擁有另一個物件</span></a><a href="#files" data-target="files"><span class="fn-num">11</span><span class="fn-name">從類別宣告到多檔程式</span></a><a href="#reference" data-target="reference"><span class="fn-num">12</span><span class="fn-name">P8 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">13</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">14</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p8-adt" data-target="restore-p8-adt"><span class="fn-num">15</span><span class="fn-name">從抽象資料型別對到 C++ 類別</span></a><a href="#restore-p8-access" data-target="restore-p8-access"><span class="fn-num">16</span><span class="fn-name">三種存取區段</span></a><a href="#restore-p8-class-syntax" data-target="restore-p8-class-syntax"><span class="fn-num">17</span><span class="fn-name">類別語法一次定位</span></a><a href="#restore-p8-vexing" data-target="restore-p8-vexing"><span class="fn-num">18</span><span class="fn-name">最令人困惑的解析： Timer c();</span></a><a href="#restore-p8-stream-contrast" data-target="restore-p8-stream-contrast"><span class="fn-num">19</span><span class="fn-name">為何物件不能直接輸出，以及 overload 補了什麼</span></a><a href="#restore-p8-resources" data-target="restore-p8-resources"><span class="fn-num">20</span><span class="fn-name">資源與回查位置</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">資料結構就是類別</span></a>
+  <a href="#classes" data-target="classes"><span class="fn-num">P01</span><span class="fn-name">類別與物件</span></a>
+  <a href="#ctor" data-target="ctor"><span class="fn-num">P02</span><span class="fn-name">建構式與 this</span></a>
+  <a href="#access" data-target="access"><span class="fn-num">P03</span><span class="fn-name">public 與 private</span></a>
+  <a href="#encap" data-target="encap"><span class="fn-num">P04</span><span class="fn-name">封裝：介面與實作</span></a>
+  <a href="#constfn" data-target="constfn"><span class="fn-num">P05</span><span class="fn-name">const 成員函式</span></a>
+  <a href="#overload" data-target="overload"><span class="fn-num">P06</span><span class="fn-name">建構式多載</span></a>
+  <a href="#stream" data-target="stream"><span class="fn-num">P07</span><span class="fn-name">operator<< 與 friend</span></a>
+  <a href="#compose" data-target="compose"><span class="fn-num">P08</span><span class="fn-name">組合：ReadingLog 與 vector</span></a>
+  <a href="#header" data-target="header"><span class="fn-num">P09</span><span class="fn-name">標頭檔</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
   <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
     <rect x="90" y="26" width="120" height="52" rx="8"/>
     <line x1="150" y1="78" x2="150" y2="104"/><line x1="60" y1="104" x2="240" y2="104"/>
@@ -479,476 +510,1010 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <text x="112" y="57">class</text>
     <text x="43" y="157">obj</text><text x="133" y="157">obj</text><text x="223" y="157">obj</text>
   </g>
-</svg><div class="hero-content"><div class="chapter-tag">PREREQ P8</div><h1>類別與物件</h1><div class="subtitle">從類別語法、建構與封裝，走到物件生命週期及可獨立編譯的多檔設計。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#purpose"><span class="toc-num">01</span>類別把狀態與合法操作放在一起</a><a href="#construct"><span class="toc-num">02</span>建構式先建立有效物件</a><a href="#defaults"><span class="toc-num">03</span>類內初值與初始化串列如何合作</a><a href="#thisptr"><span class="toc-num">04</span>this、物件指標、點號與箭頭</a><a href="#encapsulation"><span class="toc-num">05</span>public、private 與不變條件</a><a href="#constmember"><span class="toc-num">06</span>三個 const 位置，承諾不同</a><a href="#candidates"><span class="toc-num">07</span>建構式候選：先看引數，再比較轉換</a><a href="#lifetime"><span class="toc-num">08</span>解構、生命週期與基本複製</a><a href="#stream"><span class="toc-num">09</span>operator<< 與 friend：維持串接慣例</a><a href="#composition"><span class="toc-num">10</span>組合：一個物件擁有另一個物件</a><a href="#files"><span class="toc-num">11</span>從類別宣告到多檔程式</a><a href="#reference"><span class="toc-num">12</span>P8 語法速查</a><a href="#bankquiz"><span class="toc-num">13</span>自我檢測</a><a href="#cards"><span class="toc-num">14</span>關鍵詞彙卡</a><a href="#restore-p8-adt"><span class="toc-num">補</span>從抽象資料型別對到 C++ 類別</a><a href="#restore-p8-access"><span class="toc-num">補</span>三種存取區段</a><a href="#restore-p8-class-syntax"><span class="toc-num">補</span>類別語法一次定位</a><a href="#restore-p8-vexing"><span class="toc-num">補</span>最令人困惑的解析： Timer c();</a><a href="#restore-p8-stream-contrast"><span class="toc-num">補</span>為何物件不能直接輸出，以及 overload 補了什麼</a><a href="#restore-p8-resources"><span class="toc-num">補</span>資源與回查位置</a></div></div><section id="purpose"><div class="section-number">PART 01</div><h2>類別把狀態與合法操作放在一起</h2>
-<p>當幾個數值必須共同遵守規則，把它們散放成變數會讓任何程式碼都能製造無效狀態。類別定義一種新型別：資料成員保存狀態，成員函式提供操作。依類別建立出的每個物件叫 instance；每個 instance 各自擁有非 static 資料成員。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="2.5 7&#10;">#include &lt;iostream&gt;
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P8</div>
+    <h1><span class="blue">物件導向</span>（基礎）：資料＋操作打包成一個東西</h1>
+    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
+    <div class="big-formula">class｜建構式｜this｜public / private｜const｜operator&lt;&lt;｜組合</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
+  <p>① 這頁從類別語法開始，逐步建立物件、建構式、封裝、組合與檔案拆分的觀念。已經熟的可以直接跳過。
+  ② 每節都附一個<strong>「這個語法解決什麼問題」</strong>的小方框，讀完要能用自己的話解釋。
+  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
+  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>一個資料結構就是一個類別</a>
+    <a href="#classes"><span class="toc-num">P01</span>類別與物件</a>
+    <a href="#ctor"><span class="toc-num">P02</span>建構式與 this</a>
+    <a href="#access"><span class="toc-num">P03</span>public 與 private</a>
+    <a href="#encap"><span class="toc-num">P04</span>封裝：介面與實作</a>
+    <a href="#constfn"><span class="toc-num">P05</span>const 成員函式</a>
+    <a href="#overload"><span class="toc-num">P06</span>建構式多載</a>
+    <a href="#stream"><span class="toc-num">P07</span>operator<< 與 friend</a>
+    <a href="#compose"><span class="toc-num">P08</span>組合：ReadingLog 與 vector</a>
+    <a href="#header"><span class="toc-num">P09</span>標頭檔與 include guard</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>把狀態與操作放在同一個型別裡</h2>
+  <p>例如一筆測量有數值，也有讀取與更新這個數值的操作。class 讓我們定義這樣的型別；建立物件後，每個物件保存自己的狀態。這頁先從一個 int 成員開始，再逐步加入存取控制、建構式與輸出介面。</p>
+  <p>「抽象資料型別」從使用者能儲存什麼、能做什麼操作來描述一種資料，不先限定內部實作。C++ 類別是表達這類介面的一種工具；不是每種資料結構都必須以一個類別實作。下表保留兩種觀點的對照。</p>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>抽象資料型別（ADT）的說法</th><th>C++ 的說法</th><th>例子</th></tr></thead>
+    <tbody>
+      <tr><td>這個結構「存什麼」</td><td>成員變數（member variable）</td><td class="mono">int value;</td></tr>
+      <tr><td>這個結構「能做什麼」</td><td>成員函式（member function）</td><td class="mono">getData() / setData()</td></tr>
+      <tr><td>結構的規格（介面）</td><td><code>class</code> 定義</td><td class="mono">class Reading { … };</td></tr>
+      <tr><td>實際被建立出來的一個結構</td><td>物件／實例</td><td class="mono">Reading room(18);</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 這一頁的目標</div>
+    <p style="margin-bottom:0;">讀完應能自行寫出 Reading 與 ReadingLog，說明物件何時初始化、private 限制哪些存取，以及如何用公開介面讀值、更新與輸出。</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但 P8 與 <a href="p9_oop_advanced.html">P9</a> 是整套先備頁裡除了 <a href="p4_pointers_memory.html">P4</a> 之外最該讀的兩頁。</p>
+  </div>
+</section>
+
+<section id="classes">
+  <div class="section-number">PART 01 · 類別與物件</div>
+  <h2>藍圖與成品 <span class="sec-badge">四個必背詞</span></h2>
+  <p><strong>類別是藍圖，物件是照著藍圖蓋出來的東西。</strong>藍圖只有一份，蓋出來的房子可以有很多間，每一間的門牌、住戶各自不同。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">最小可用的 Reading 類別</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Reading {                       <span class="com">// 藍圖</span>
+<span class="line" data-l="5"></span>    <span class="kw">private</span>:</span>
+<span class="line" data-l="6">        <span class="kw">int</span> value;                  <span class="com">// 成員變數：每個物件各有一份</span>
+<span class="line" data-l="8">    <span class="kw">public</span>:</span>
+<span class="line" data-l="9">        Reading(<span class="kw">int</span> initialValue) {       <span class="com">// 建構式：建立物件時自動執行</span>
+<span class="line" data-l="10"></span>            value = initialValue;</span>
+<span class="line" data-l="12">        }</span>
+<span class="line" data-l="13">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> value; }   <span class="com">// const：不透過此函式修改一般成員</span>
+<span class="line" data-l="16">};</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="19">    Reading n(<span class="num">93</span>);                    <span class="com">// 一個物件（實例）</span>
+<span class="line" data-l="20"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">n.getData() = </span><span class="str">"</span> &lt;&lt; n.getData() &lt;&lt; endl;</span>
+<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="24">}</span>
+<span class="line" data-l="25"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>n.getData() = 93</pre></div>
+  <p class="dx-note"><code>Reading n(93);</code> 建立一個物件並自動執行建構式。每個 Reading 物件各自保存 value；修改其中一個物件不會改到另一個。</p>
+</div>
+
+<div class="ds-hook"><div class="dh-title">🔗 每個物件有自己的狀態</div><p style='margin-bottom:0;'><code>Reading</code> 把測量值與操作包在一起。類別定義只有一份，但每個 instance 都有自己的 value。</p></div>
+</section>
+
+<section id="ctor">
+  <div class="section-number">PART 02 · 建構式</div>
+  <h2>建構式與 <code>this</code></h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.3rem 0 .5rem;color:var(--accent2);">建構式：跟類別同名、沒有回傳型別</h3>
+  <p>你寫 <code>Reading n(93);</code> 的時候，C++ 先配置一塊記憶體，然後<strong>自動</strong>呼叫 <code>Reading(93)</code> 把它填好。所以建構式裡做的事就是「這個物件一出生要帶著哪些資料」。</p>
+  <p>它有兩個外觀特徵：<strong>名字跟類別一模一樣</strong>，而且<strong>沒有回傳型別</strong>（連 <code>void</code> 都不寫）。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.3rem 0 .5rem;color:var(--accent2);"><code>this</code>：指向「是誰呼叫我」的指標</h3>
+  <p>成員函式被呼叫時，C++ 會偷偷傳一個 <code>this</code> 進來，它是<strong>指向呼叫者本人的指標</strong>。平常你不用寫它 —— 直接寫 <code>value</code> 就等於 <code>this-&gt;value</code>。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Reading {</span>
+<span class="line" data-l="2">    <span class="kw">private</span>:</span>
+<span class="line" data-l="3">        <span class="kw">int</span> value;</span>
+<span class="line" data-l="4">    <span class="kw">public</span>:</span>
+<span class="line" data-l="5">        Reading(<span class="kw">int</span> value) {</span>
+<span class="line" data-l="6">            <span class="kw">this</span>-&gt;value = value;     <span class="com">// 左邊是成員，右邊是參數，同名時要用 this 分辨</span>
+<span class="line" data-l="7"></span>        }</span>
+<span class="line" data-l="8">        <span class="kw">int</span> getData() <span class="kw">const</span> {</span>
+<span class="line" data-l="9">            <span class="kw">return</span> value;           <span class="com">// 等同 this-&gt;value，沒有同名問題就不用寫</span>
+<span class="line" data-l="10"></span>        }</span>
+<span class="line" data-l="11">};</span>
+<span class="line" data-l="12"> </span></div>
+
+  <div class="info-box">
+    <div class="info-label">💡 跟 Python 的 <code>self</code> 差在哪</div>
+    <p style="margin-bottom:0;">Python 的 <code>self</code> 是<strong>明寫在參數列裡的第一個參數</strong>；C++ 的 <code>this</code> 是<strong>編譯器偷偷傳進來的指標</strong>，不寫在參數列裡，而且因為是指標所以用 <code>-&gt;</code> 存取。兩者角色一樣，但 C++ 這邊你平常根本不會看到它。</p>
+  </div>
+</section>
+
+<section id="access">
+  <div class="section-number">PART 03 · 存取控制</div>
+  <h2><code>public</code> 與 <code>private</code>：C++ 靠編譯器擋，不靠約定</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">private 成員從外面碰不到（真的編不過）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Reading {</span>
+<span class="line" data-l="5">    <span class="kw">private</span>:</span>
+<span class="line" data-l="6">        <span class="kw">int</span> value;</span>
+<span class="line" data-l="7">    <span class="kw">public</span>:</span>
+<span class="line" data-l="8">        Reading(<span class="kw">int</span> d) { value = d; }</span>
+<span class="line" data-l="9">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> value; }</span>
+<span class="line" data-l="10">};</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="13">    Reading n(<span class="num">93</span>);</span>
+<span class="line" data-l="14">    cout &lt;&lt; n.getData() &lt;&lt; endl;   <span class="com">// 可以：透過公開介面</span>
+<span class="line" data-l="15"></span>    cout &lt;&lt; n.value &lt;&lt; endl;        <span class="com">// 不行：value 是 private</span>
+<span class="line" data-l="16"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre data-cpp="fragment">[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:15:15: error: ‘int Reading::value’ is private within this context
+   15 |     cout &lt;&lt; n.value &lt;&lt; endl;        // 不行：value 是 private</pre></div>
+  <p class="dx-note">private 由 C++ 編譯器檢查，類別外不能直接讀取這裡的 value。若熟悉 Python，可把底線命名的慣例與這種強制存取控制作比較；不需先學 Python，也能直接從成功／失敗程式看出差別。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>區段</th><th>誰能存取</th><th>通常放什麼</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">public:</td><td>任何人</td><td>建構式、對外的操作（介面）</td></tr>
+      <tr><td class="mono">private:</td><td>這個類別的成員與 friend（後面介紹）</td><td>資料成員、內部輔助函式</td></tr>
+      <tr><td class="mono">protected:</td><td>自己 ＋ 子類別</td><td>要給子類別用的東西（見 <a href="p9_oop_advanced.html">P9</a>）</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ <code>class</code> 預設是 private</div>
+    <p style="margin-bottom:0;">沒寫存取區段的話，<code>class</code> 裡的成員預設是 <code>private</code>（<code>struct</code> 則預設 <code>public</code>，這是兩者主要的差別）。所以建構式忘了放在 <code>public:</code> 底下，就會出現「明明有建構式卻說不能建立物件」的錯誤。另一個差別是預設繼承層級：<code>class</code> 預設 private 繼承、<code>struct</code> 預設 public，所以 <a href="p9_oop_advanced.html">P9</a> 一律寫 <code>: public</code>。</p>
+  </div>
+</section>
+
+<section id="encap">
+  <div class="section-number">PART 04 · 封裝</div>
+  <h2>隱藏狀態或公開資料：依類別的需求選擇</h2>
+  <p>這一節值得慢慢看，因為它是真實世界的取捨，不是參考資料的標準答案。</p>
+  <p>兩個類別可以依各自的不變條件採取不同的存取設計：</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="info-card">
+        <div class="ic-title">Reading <span class="ic-badge">全包起來</span></div>
+<div class="pseudo-code" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">class</span> Reading {</span>
+<span class="line" data-l="2"><span class="kw">private</span>:</span>
+<span class="line" data-l="3">    <span class="kw">int</span> value = <span class="num">0</span>;</span>
+<span class="line" data-l="4"><span class="kw">public</span>:</span>
+<span class="line" data-l="5">    <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> value; }</span>
+<span class="line" data-l="6">    <span class="kw">void</span> setData(<span class="kw">int</span> newValue) { value = newValue; }</span>
+<span class="line" data-l="7">};</span>
+<span class="line" data-l="8"> </span></div>
+      </div>
+    </div>
+    <div>
+      <div class="info-card">
+        <div class="ic-title">DisplayPoint <span class="ic-badge">全公開</span></div>
+<div class="pseudo-code" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">class</span> DisplayPoint {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        <span class="kw">double</span> x;</span>
+<span class="line" data-l="4">        <span class="kw">double</span> y;</span>
+<span class="line" data-l="5">        DisplayPoint(<span class="kw">double</span> initX, <span class="kw">double</span> initY) {</span>
+<span class="line" data-l="6">            x = initX;</span>
+<span class="line" data-l="7">            y = initY;</span>
+<span class="line" data-l="8">        }</span>
+<span class="line" data-l="9">};</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼可以不一樣</div>
+    <p style="margin-bottom:0;">Reading 透過 getter/setter 集中處理讀寫，之後若要加入驗證或記錄修改，也有一致入口。DisplayPoint 只是一起傳遞座標，若沒有額外不變條件，公開成員也可能合理。封裝是控制使用者依賴的介面，不是單純替每個欄位機械地加上 getter/setter。</p>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 該不該包起來</div>
+    <p>ReadingLog 以 vector 保存讀數，並希望使用者只透過 add、size、average 操作。內部 vector 應放在哪個存取區段？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="true" data-fb="正確。items 若公開，呼叫端可任意插入、刪除或排序，繞過 ReadingLog 對記錄順序與狀態的控制。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> <code>private</code>，只留 add／size／average 對外</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。public 會讓使用者繞過 ReadingLog 的公開操作，類別便無法維持自己的承諾。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> <code>public</code>，這樣比較方便</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。這裡有明確的判準：這個成員被外面亂改會不會破壞結構的契約？會，所以要藏。公開簡單座標與公開 ReadingLog 內部容器的後果不同；後者會讓人繞過記錄規則。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 都可以，沒有差別</div>
+      <div class="quiz-opt" data-correct="false" data-fb="protected 主要提供衍生類別存取，不能阻止衍生類別繞過 ReadingLog 的公開操作。此處沒有這項需求。" onclick="quizCheck('qa', this)"><span class="opt-letter">(D)</span> <code>protected</code>，讓所有呼叫端直接修改</div>
+    </div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 封裝不是固定公式</div><p style='margin-bottom:0;'><code>Reading</code> 透過 getter/setter 控制存取；有些單純資料型別則會公開成員。判準是外部直接修改狀態是否可能破壞類別承諾的不變條件。</p></div>
+</section>
+
+<section id="constfn">
+  <div class="section-number">PART 05 · const 成員函式</div>
+  <h2><code>T getData() const</code>：括號後面那個 const 在承諾什麼</h2>
+  <p>參數列後面的 const 限制透過 this 修改一般成員，因此唯讀物件也能呼叫它。mutable 成員有例外；先將一般 getter 寫成 const，需要更新物件的 setter 則不加。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Reading {</span>
+<span class="line" data-l="2">    <span class="kw">private</span>:</span>
+<span class="line" data-l="3">        <span class="kw">int</span> value;</span>
+<span class="line" data-l="4">    <span class="kw">public</span>:</span>
+<span class="line" data-l="5">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> value; }      <span class="com">// 只讀，加 const</span>
+<span class="line" data-l="6"></span>        <span class="kw">void</span> setData(<span class="kw">int</span> d) { value = d; }         <span class="com">// 要改，不能加 const</span>
+<span class="line" data-l="7"></span>};</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9"><span class="kw">void</span> <span class="fn">printIt</span>(<span class="kw">const</span> Reading&amp; n) {      <span class="com">// 收到的是 const 參考</span>
+<span class="line" data-l="10"></span>    cout &lt;&lt; n.getData();           <span class="com">// 可以：getData 保證不改</span>
+<span class="line" data-l="11"></span>    <span class="com">// n.setData(5);               // 不行：setData 沒有 const 承諾</span>
+<span class="line" data-l="12"></span>}</span>
+<span class="line" data-l="13"> </span></div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 為什麼值得養成習慣</div>
+    <p style="margin-bottom:0;">因為 <strong><code>const</code> 物件只能呼叫 <code>const</code> 成員函式</strong>。傳大物件時用 <code>const T&amp;</code> 可避免複製並限制修改（見 <a href="p3_functions.html">P3</a>）；相應的查詢函式必須標成 <code>const</code>，否則唯讀物件無法呼叫。</p>
+  </div>
+  <details style="margin-top:1rem;"><summary><strong>備註：既有標頭幾乎沒寫 <code>const</code></strong></summary>
+    <p style="margin-top:.7rem;margin-bottom:0;">判斷方式直接看函式承諾：查詢狀態且不修改成員的函式應標成 <code>const</code>；會更新狀態的函式則不能加。這讓同一組查詢介面也能安全用在唯讀物件與 <code>const T&amp;</code> 參數上。</p>
+  </details>
+  <div id="getter-from-functions" class="deck-extra">
+    <div class="dx-label">getter 有 const，const 參考才用得下去</div>
+    <pre class="pseudo-code" data-cpp="run" data-expected="1/2&#10;">#include &lt;iostream&gt;
+using namespace std;
 class Reading {
 public:
-    double value{0.0};
-    void add(double amount) { value += amount; }
+    Reading(int low, int high) : low(low), high(high) {}
+    int getLow() const { return low; }
+    int getHigh() const { return high; }
+private:
+    int low, high;
 };
-int main() {
-    Reading morning;
-    Reading evening;
-    morning.add(2.5);
-    evening.add(7.0);
-    std::cout &lt;&lt; morning.value &lt;&lt; &quot; &quot; &lt;&lt; evening.value &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2.5 7&#10;</pre></div>
-<p><code>class Reading { ... };</code> 的尾端分號屬於類別定義。<code>morning.add</code> 與 <code>morning.value</code> 的點號表示「存取這個物件的成員」。兩個物件使用同一組成員函式定義，但狀態分開保存；修改 morning 不會改 evening。後續會把 value 收進 private，讓類別守住規則。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>建立 Reading a 與 b，只呼叫 a.add(3)。b.value 為何？</p><details><summary>看解答與理由</summary><p>仍是 0.0，因為類別內的 <code>value{0.0}</code> 是每個物件各自的成員初值，不是所有 instance 共用的一格。</p></details></div>
-
-</section>
-<section id="construct"><div class="section-number">PART 02</div><h2>建構式先建立有效物件</h2>
-<p>建構式在物件建立時自動執行，名稱與類別相同，而且沒有回傳型別，連 void 都不能寫。它的工作不是「稍後修補」，而是讓物件從生命開始就滿足規則。若類別完全沒有使用者宣告的建構式，編譯器通常可產生預設建構式；一旦宣告了帶參數建構式，無引數版本不會因此自動保留。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="0 18.5&#10;">#include &lt;iostream&gt;
-class Reading {
-    double value_;
+void show(const Reading &amp;r) {
+    cout &lt;&lt; r.getLow() &lt;&lt; "/" &lt;&lt; r.getHigh() &lt;&lt; '\n';
+}
+int main() { Reading sample(1, 2); show(sample); }</pre>
+    <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1/2</pre></div>
+    <div class="dx-label" style="margin-top:1rem;">把 getter 的 const 拿掉，同一支程式就編不過</div>
+    <pre class="pseudo-code" data-cpp="compile-error">class Reading {
 public:
-    Reading() : value_{0.0} {}
-    Reading(double value) : value_{value} {}
-    double value() const { return value_; }
+    int getLow() { return low; } // 忘記寫 const
+private:
+    int low = 1;
 };
-int main() {
-    Reading empty;
-    Reading sample{18.5};
-    std::cout &lt;&lt; empty.value() &lt;&lt; &quot; &quot; &lt;&lt; sample.value() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0 18.5&#10;</pre></div>
-<p><code>Reading empty;</code> 尋找無參數建構式；<code>Reading sample{18.5};</code> 尋找能接收 double 的候選。冒號後是 member initializer list，它在進入建構式本體前直接初始化成員。若只寫 <code>Reading(double v) { value_=v; }</code>，value_ 會先經歷預設初始化，再被指定；對需要建構的成員可能多做一次工作。</p>
-<p>不要假設 <code>Reading empty;</code> 會把普通基本型別成員自動清成 0。上例能保證 0，是因為無參數建構式明寫 <code>value_{0.0}</code>。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>只保留 <code>Reading(double)</code> 後，<code>Reading r;</code> 為何失敗？</p><details><summary>看解答與理由</summary><p>呼叫沒有引數，但類別只有需要一個 double 的候選；編譯器不會因為你需要就額外合成無參數建構式。應明確提供 <code>Reading()</code> 或合適的預設引數。</p></details></div>
-
-</section>
-<section id="defaults"><div class="section-number">PART 03</div><h2>類內初值與初始化串列如何合作</h2>
-<p>資料成員可以在類別定義內提供 in-class initializer，作為建構式沒有另外指定時的後備初值。這能把共同預設集中一處；某個建構式若在初始化串列提供該成員，便使用建構式的值。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="untitled: 0&#10;room: 21.5&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-class Reading {
-    std::string label_{&quot;untitled&quot;};
-    double value_{0.0};
-public:
-    Reading() = default;
-    Reading(std::string label, double value)
-        : label_{label}, value_{value} {}
-    void show() const { std::cout &lt;&lt; label_ &lt;&lt; &quot;: &quot; &lt;&lt; value_ &lt;&lt; &#x27;\n&#x27;; }
-};
-int main() {
-    Reading first;
-    Reading second{&quot;room&quot;, 21.5};
-    first.show();
-    second.show();
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>untitled: 0&#10;room: 21.5&#10;</pre></div>
-<p><code>= default</code> 要求編譯器產生無參數建構式；其成員使用類內初值。第二個建構式逐一覆蓋 label_ 與 value_ 的後備值。成員真正的初始化順序永遠依它們在類別中宣告的順序，不依初始化串列書寫順序，因此串列最好也照宣告順序排列。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>value_ 有類內初值 0，而某建構式寫 <code>: value_{8}</code>，最後是哪個值？</p><details><summary>看解答與理由</summary><p>8。類內初值是後備方案；該建構式已直接指定 value_ 的初始化式。</p></details></div>
-
-</section>
-<section id="thisptr"><div class="section-number">PART 04</div><h2>this、物件指標、點號與箭頭</h2>
-<p>每次呼叫非 static 成員函式，都有一個隱含的 <code>this</code> 指標，指向此次呼叫的物件。直接寫 <code>value_</code> 等同 <code>this-&gt;value_</code>。參數與成員同名時，<code>this-&gt;</code> 能明確指出左側成員。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="22.5 22.5&#10;">#include &lt;iostream&gt;
-class Reading {
-    double value_{0.0};
-public:
-    explicit Reading(double value) : value_{value} {}
-    void setValue(double value) { this-&gt;value_ = value; }
-    double value() const { return value_; }
-};
-int main() {
-    Reading room{20.0};
-    Reading* p{&amp;room};
-    room.setValue(21.0);
-    p-&gt;setValue(22.5);
-    std::cout &lt;&lt; room.value() &lt;&lt; &quot; &quot; &lt;&lt; (*p).value() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>22.5 22.5&#10;</pre></div>
-<p>物件本身用 <code>.</code>；物件指標用 <code>-&gt;</code>。<code>p-&gt;value()</code> 等同 <code>(*p).value()</code>，括號不能省，因為點號的優先順序高於解參考。箭頭不會替你檢查空指標；p 必須指向仍存活的 Reading。<code>explicit</code> 則防止單一引數建構式被拿來做意外的隱式轉換。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>p 是 Reading*，哪個呼叫正確：<code>p.value()</code> 或 <code>p-&gt;value()</code>？</p><details><summary>看解答與理由</summary><p>後者。p 本身是指標而不是 Reading 物件；也可寫成較冗長的 <code>(*p).value()</code>。</p></details></div>
-
-<h3>同型別物件之間的連結：一步一步追蹤工作流程</h3><p>物件指標也可以成為資料成員。以下每個 WorkStep 保存步驟名稱，以及下一個步驟的位址；它表達的是物件之間的連結。這個例子中的所有步驟都由 main 建立，next 只借用它們的位址，不負責配置或釋放。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="包裝&#10;檢查&#10;寄出&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-class WorkStep {
-public:
-    std::string name;
-    WorkStep* next;
-    WorkStep(std::string text) : name(text), next(nullptr) {}
-};
-int main() {
-    WorkStep pack(&quot;包裝&quot;), check(&quot;檢查&quot;), send(&quot;寄出&quot;);
-    pack.next = &amp;check;
-    check.next = &amp;send;
-    WorkStep* current = &amp;pack;
-    while (current != nullptr) {
-        std::cout &lt;&lt; current-&gt;name &lt;&lt; &#x27;\n&#x27;;
-        current = current-&gt;next;
-    }
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>包裝&#10;檢查&#10;寄出&#10;</pre></div>
-<p>宣告中的 WorkStep* 表示指向另一個 WorkStep，並不把另一個完整物件塞進自身。pack.next 保存 check 的位址，check.next 保存 send 的位址，send.next 則仍為 nullptr。current 每輪換成目前步驟的 next；改變的是走訪指標，三個步驟物件的位置與名稱都沒有被修改。</p>
-<p>箭頭每次只前進一層：current->name 讀目前物件的名稱；current->next 讀目前物件保存的下一個位址。進入本體前先排除 nullptr，走到 send 之後取出的 next 為空，下輪便停止。這也說明為什麼不能直接把「指標非空」當作完整安全保證：本例還依賴三個區域物件一直存活到 main 結束。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>若把 check.next 改成 nullptr，會印幾行？send 是否因此消失？</p><details><summary>看解答與理由</summary><p>只印包裝與檢查兩行。連結變短並不銷毀 send；它仍是 main 裡的區域物件，只是這次走訪無法經由 next 抵達它。</p></details></div>
-</section>
-<section id="encapsulation"><div class="section-number">PART 05</div><h2>public、private 與不變條件</h2>
-<p>public 是使用者可依賴的介面；private 是類別自己維護的實作細節。<code>class</code> 在未標示時預設 private。封裝的目的，是讓每一次狀態改變都通過能檢查規則的入口，而不是機械地替每個欄位做無條件 setter。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="0 20&#10;">#include &lt;iostream&gt;
-class Reading {
-    double value_{0.0};
-public:
-    explicit Reading(double value) { setValue(value); }
-    bool setValue(double value) {
-        if (value &lt; -100.0 || value &gt; 100.0) return false;
-        value_ = value;
-        return true;
-    }
-    double value() const { return value_; }
-};
-int main() {
-    Reading r{20.0};
-    std::cout &lt;&lt; r.setValue(150.0) &lt;&lt; &quot; &quot; &lt;&lt; r.value() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0 20&#10;</pre></div>
-<p>不變條件是所有公開操作前後都必須成立的規則；此例要求 value_ 落在 -100 到 100。建構式与 setter 共用同一檢查路徑，失敗時保留原值。若 value_ 是 public，外部可直接寫 150，類別就無法保證自己的承諾。更嚴格的設計可能讓無效建構直接丟出例外；這裡先用普通回傳值表達結果。</p>
-<pre class="pseudo-code" data-cpp="fragment">Reading r{20.0};
-// r.value_ = 150.0; // 編譯錯誤：value_ 是 private</pre>
-<div class="info-box"><div class="info-label">動手練習</div><p>為什麼「private 欄位 + 不檢查的 setValue」未必形成有效封裝？</p><details><summary>看解答與理由</summary><p>若 setter 接受任何值，外部仍可透過公開介面破壞規則。關鍵是公開操作是否維持不變條件，而不只是欄位能否直接碰到。</p></details></div>
-
-</section>
-<section id="constmember"><div class="section-number">PART 06</div><h2>三個 const 位置，承諾不同</h2>
-<p><code>double value() const</code> 的尾端 const 約束隱含的 this：此函式不能經由一般成員修改物件狀態，因此可對 const Reading 呼叫。它不表示回傳值自動成為 const。相反地，回傳 <code>const T&amp;</code> 是限制呼叫端透過回傳的參考修改那個 T。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="room 21&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-class Reading {
-    std::string label_{&quot;room&quot;};
-    double value_{21.0};
-public:
-    double value() const { return value_; }
-    const std::string&amp; label() const { return label_; }
-};
-int main() {
-    const Reading r;
-    double copy = r.value();
-    const std::string&amp; view = r.label();
-    std::cout &lt;&lt; view &lt;&lt; &quot; &quot; &lt;&lt; copy &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>room 21&#10;</pre></div>
-<p>第一個函式按值回傳 double，呼叫端修改 copy 不影響物件。第二個回傳內部 string 的唯讀參考，避免複製並阻止經由 view 修改；但參考不能活得比 r 久。若把尾端 const 拿掉，兩個函式都不能對 const r 呼叫，即使函式本體看起來只讀。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p><code>const std::string&amp; label() const</code> 中兩個 const 各約束什麼？</p><details><summary>看解答與理由</summary><p>前面的 const 使回傳參考只能讀 string；尾端 const 使函式承諾不經由 this 修改 Reading，因而可對 const 物件呼叫。</p></details></div>
-
-</section>
-<section id="candidates"><div class="section-number">PART 07</div><h2>建構式候選：先看引數，再比較轉換</h2>
-<p>物件建立式會形成一組可見的建構式候選。編譯器先淘汰引數個數或型別不能成立者，再比較所需轉換，選唯一最佳者；若沒有可行候選或同樣好，就編譯失敗。這個選擇在編譯時完成。</p>
-<pre class="pseudo-code" data-cpp="fragment">class Timer {
-public:
-    Timer();
-    explicit Timer(int seconds);
-    Timer(int minutes, int seconds);
-};
-Timer a;          // Timer()
-Timer b{30};      // Timer(int)
-Timer c{2, 15};   // Timer(int, int)
-// Timer d{1,2,3}; // 沒有三參數候選</pre>
-<div class="deck-extra lesson-trace" id="p8-ctor"><h3>建構式候選播放器</h3><p>用 Timer c{2,15} 逐步篩選候選。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">Timer();</span>
-<span class="line">explicit Timer(int seconds);</span>
-<span class="line">Timer(int minutes, int seconds);</span>
-<span class="line">Timer c{2, 15};</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "收集三個可見建構式。", "vars": {"候選": "0參數、1參數、2參數"}}, {"note": "呼叫提供兩個 int 引數。", "vars": {"引數": "int 2, int 15"}, "line": 3}, {"note": "0參數與1參數版本的引數個數不合。", "vars": {"淘汰": "Timer(), Timer(int)"}, "line": 0}, {"note": "兩參數版本逐項精確匹配。", "vars": {"選中": "Timer(int, int)"}, "line": 2}, {"note": "以該版本建立 c。", "vars": {"c": "已由 Timer(int, int) 建構"}, "line": 3}]</script></div>
-<p>預設引數也會影響候選可行性。若同時有 <code>Timer(int)</code> 與 <code>Timer(int,int=0)</code>，<code>Timer{30}</code> 會多義。不要靠加入更多相似多載來猜使用者意圖；讓每種建立方式有清楚且不重疊的呼叫形狀。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>已有 <code>Timer()</code> 與 <code>Timer(int seconds=0)</code>，無引數建立 Timer 會選哪個？</p><details><summary>看解答與理由</summary><p>兩個候選都可行且沒有唯一更好者，因此多義並編譯失敗。移除重疊的預設引數或其中一個版本。</p></details></div>
-
-</section>
-<section id="lifetime"><div class="section-number">PART 08</div><h2>解構、生命週期與基本複製</h2>
-<pre class="pseudo-code" data-cpp="run" data-expected="construct 5&#10;copy 5&#10;destroy 5&#10;after block&#10;destroy 5&#10;">#include &lt;iostream&gt;
-class Timer {
-    int seconds_{0};
-public:
-    explicit Timer(int seconds) : seconds_{seconds} {
-        std::cout &lt;&lt; &quot;construct &quot; &lt;&lt; seconds_ &lt;&lt; &#x27;\n&#x27;;
-    }
-    Timer(const Timer&amp; other) : seconds_{other.seconds_} {
-        std::cout &lt;&lt; &quot;copy &quot; &lt;&lt; seconds_ &lt;&lt; &#x27;\n&#x27;;
-    }
-    ~Timer() { std::cout &lt;&lt; &quot;destroy &quot; &lt;&lt; seconds_ &lt;&lt; &#x27;\n&#x27;; }
-};
-int main() {
-    Timer first{5};
-    { Timer second{first}; }
-    std::cout &lt;&lt; &quot;after block\n&quot;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>construct 5&#10;copy 5&#10;destroy 5&#10;after block&#10;destroy 5&#10;</pre></div>
-<p>建構完成後物件生命開始；離開作用域時自動呼叫 <code>~Timer()</code>，名稱前有波浪號、沒有參數與回傳型別。內層 second 先離開，所以先解構；first 活到 main 結束。解構式用於釋放物件擁有的資源，普通數值成員通常不需要自行清理。</p>
-<p><code>Timer second{first}</code> 呼叫 copy constructor，以既有同型物件建立新物件。兩者之後仍是獨立 instance。若沒有自訂版本，編譯器的基本行為通常逐成員複製；當類別直接擁有裸指標資源時，淺複製可能使兩個物件誤以為擁有同一資源，需改用安全成員或完整設計複製語意。</p>
-<div class="deck-extra lesson-trace" id="p8-life"><h3>物件生命週期播放器</h3><p>觀察內層物件先銷毀。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">Timer first{5};</span>
-<span class="line">{</span>
-<span class="line">  Timer second{first};</span>
-<span class="line">}</span>
-<span class="line">std::cout &lt;&lt; &quot;after block\n&quot;;</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "first 建構並開始生命。", "vars": {"first": "存活 5"}, "line": 0, "output": "construct 5"}, {"note": "由 first 複製建立 second。", "vars": {"first": "存活 5", "second": "存活 5"}, "line": 2, "output": "construct 5\ncopy 5"}, {"note": "內層區塊結束，second 解構。", "vars": {"first": "存活 5", "second": "生命已結束"}, "line": 3, "output": "construct 5\ncopy 5\ndestroy 5"}, {"note": "first 仍可繼續存活到 main 結束。", "vars": {"first": "存活 5"}, "line": 4, "output": "construct 5\ncopy 5\ndestroy 5\nafter block"}, {"note": "main 結束，最後解構 first。", "vars": {"first": "生命已結束"}, "output": "construct 5\ncopy 5\ndestroy 5\nafter block\ndestroy 5"}]</script></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>second 是 first 的 copy；修改 second 的 int 成員會自動改 first 嗎？</p><details><summary>看解答與理由</summary><p>不會。逐成員複製會建立另一份 int。只有成員本身代表共享或別名關係時，才需要進一步分析是否指向同一資源。</p></details></div>
-
-</section>
-<section id="stream"><div class="section-number">PART 09</div><h2>operator<< 與 friend：維持串接慣例</h2>
-<pre class="pseudo-code" data-cpp="run" data-expected="reading=23.5&#10;">#include &lt;iostream&gt;
-class Reading {
-    double value_{0.0};
-public:
-    explicit Reading(double value) : value_{value} {}
-    friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Reading&amp; r) {
-        out &lt;&lt; r.value_;
-        return out;
-    }
-};
-int main() {
-    Reading r{23.5};
-    std::cout &lt;&lt; &quot;reading=&quot; &lt;&lt; r &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>reading=23.5&#10;</pre></div>
-<p>左運算元是 std::ostream，不是 Reading，所以這個 overload 寫成非成員函式。第一參數用 ostream&，因為輸出要累積在同一個 stream；第二參數用 const Reading&，避免複製且承諾不改物件。回傳同一個 out 的參考，才能讓 <code>std::cout &lt;&lt; r &lt;&lt; "\n"</code> 繼續串接。</p>
-<p><code>friend</code> 讓這個指定函式可讀 private 成員，它不是成員函式，也沒有 this。friend 會擴大可接觸內部狀態的範圍，因此只授權確實需要的函式；若公開 getter 已足夠，也可不用 friend。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>operator&lt;&lt; 若回傳 void，最直接失去什麼？</p><details><summary>看解答與理由</summary><p>無法自然串接下一個 <code>&lt;&lt;</code>。標準慣例回傳收到的 <code>std::ostream&amp;</code>。</p></details></div>
-
-</section>
-<section id="composition"><div class="section-number">PART 10</div><h2>組合：一個物件擁有另一個物件</h2>
-<pre class="pseudo-code" data-cpp="run" data-expected="A17 2.4&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-class Reading {
-    double value_{0.0};
-public:
-    explicit Reading(double value) : value_{value} {}
-    double value() const { return value_; }
-};
-class Parcel {
-    std::string id_;
-    Reading weight_;
-public:
-    Parcel(std::string id, double weight)
-        : id_{id}, weight_{weight} {}
-    void show() const { std::cout &lt;&lt; id_ &lt;&lt; &quot; &quot; &lt;&lt; weight_.value() &lt;&lt; &#x27;\n&#x27;; }
-};
-int main() { Parcel box{&quot;A17&quot;, 2.4}; box.show(); }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>A17 2.4&#10;</pre></div>
-<p>Parcel 的 weight_ 是一個 Reading 子物件，表示 has-a 關係。建立 Parcel 時，成員必須先完成建構，才進入 Parcel 建構式本體；因此初始化串列把 weight 傳給 Reading 建構式。銷毀時順序反過來：先完成 Parcel 解構式本體，再自動銷毀成員。</p>
-<p>若 Reading 沒有無參數建構式，省略 <code>weight_{weight}</code> 就會失敗，因為 C++ 會嘗試先無參數建立 weight_。組合通常比手動 new 一個成員更簡單：Parcel 的生命週期自動包含其 Reading，不需要自己 delete。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>為何不能等進入 Parcel 建構式本體後才「建立」weight_？</p><details><summary>看解答與理由</summary><p>進入本體前所有資料成員都必須已初始化。初始化串列負責選擇 Reading 建構式；本體內的指定只能修改一個已存在的成員。</p></details></div>
-
-</section>
-<section id="files"><div class="section-number">PART 11</div><h2>從類別宣告到多檔程式</h2>
-<p>標頭檔放呼叫端需要看見的類別宣告，來源檔放非 inline 成員的定義，main.cpp 使用公開介面。<code>Reading::value</code> 中的 <code>::</code> 是 scope resolution operator，表示這個 value 函式屬於 Reading；少了 <code>Reading::</code> 就是在定義無關的自由函式。</p>
-<h3>Reading.hpp</h3><pre class="pseudo-code" data-cpp="file" data-example="p8-reading" data-filename="Reading.hpp">#ifndef READING_HPP
-#define READING_HPP
-#include &lt;iosfwd&gt;
-#include &lt;string&gt;
-class Reading {
-    std::string label_;
-    double value_{0.0};
-public:
-    Reading(std::string label, double value);
-    const std::string&amp; label() const;
-    double value() const;
-    friend std::ostream&amp; operator&lt;&lt;(std::ostream&amp;, const Reading&amp;);
-};
-#endif</pre>
-<h3>Reading.cpp</h3><pre class="pseudo-code" data-cpp="file" data-example="p8-reading" data-filename="Reading.cpp">#include &quot;Reading.hpp&quot;
-#include &lt;ostream&gt;
-Reading::Reading(std::string label, double value)
-    : label_{label}, value_{value} {}
-const std::string&amp; Reading::label() const { return label_; }
-double Reading::value() const { return value_; }
-std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, const Reading&amp; r) {
-    return out &lt;&lt; r.label_ &lt;&lt; &quot;: &quot; &lt;&lt; r.value_;
+void show(const Reading &amp;r) {
+    std::cout &lt;&lt; r.getLow(); // 錯誤：唯讀物件不能呼叫非 const 成員函式
 }</pre>
-<h3>main.cpp</h3><pre class="pseudo-code" data-cpp="file" data-example="p8-reading" data-filename="main.cpp" data-expected="room: 22.5&#10;">#include &quot;Reading.hpp&quot;
-#include &lt;iostream&gt;
-int main() {
-    Reading room{&quot;room&quot;, 22.5};
-    std::cout &lt;&lt; room &lt;&lt; &#x27;\n&#x27;;
-}</pre>
-<pre class="pseudo-code" data-cpp="fragment">g++ -std=c++17 -Wall -Wextra -pedantic Reading.cpp main.cpp -o reading
-./reading</pre>
-<p>include guard 的三行形成條件：第一次包含時 READING_HPP 尚未定義，因此讀入內容並定義它；同一 編譯單元（每個 .cpp 經過 include 展開後交給編譯器的內容） 再包含時便跳過，避免類別重複定義。巨集名稱要在專案內唯一。標頭只前向需要的 stream 型別，因此用 <code>&lt;iosfwd&gt;</code>（只提供 ostream 等串流型別的宣告，不提供輸出操作的完整定義）；真正輸出操作所在的 Reading.cpp 再包含 <code>&lt;ostream&gt;</code>。</p>
-<p>編譯命令同時提供兩個 .cpp，讓它們各自編譯後再連結。只編 main.cpp 時，宣告足以讓呼叫通過編譯，卻會在連結階段找不到 Reading 的建構式與 operator&lt;&lt; 定義。不要在 main.cpp 直接 include Reading.cpp；應 include 標頭並把來源檔交給編譯器。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>為何 Reading.cpp 第一行仍要 include 自己的 Reading.hpp？</p><details><summary>看解答與理由</summary><p>它讓編譯器用同一份宣告檢查類別外定義，能及早抓出參數、const 或回傳型別不一致；也確保來源檔獨立取得所需宣告。</p></details></div>
-
+    <p class="dx-note"><em>discards qualifiers</em> 表示程式嘗試用唯讀物件呼叫可能修改狀態的函式。</p>
+  </div>
 </section>
-<div id="restore-p8-adt" class="deck-extra"><h3>從抽象資料型別對到 C++ 類別</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>設計語言</th><th>C++ 寫法</th><th>Reading 例子</th></tr></thead><tbody><tr><td>保存什麼狀態</td><td>資料成員</td><td><code>double value_</code></td></tr><tr><td>允許哪些操作</td><td>成員函式</td><td><code>setValue()</code>、<code>value()</code></td></tr><tr><td>公開契約</td><td><code>public</code> 介面</td><td>建構、查詢、受檢查的更新</td></tr><tr><td>內部表示</td><td><code>private</code> 成員</td><td>不能繞過規則直接寫 value_</td></tr><tr><td>規格／藍圖</td><td>class 定義</td><td><code>class Reading { ... };</code></td></tr><tr><td>實際狀態</td><td>object／instance</td><td><code>Reading room{22.5};</code></td></tr></tbody></table></div></div>
-<div id="restore-p8-access" class="deck-extra"><h3>三種存取區段</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>區段</th><th>誰能直接存取</th><th>通常放什麼</th></tr></thead><tbody><tr><td><code>public</code></td><td>任何持有物件的程式碼</td><td>穩定的建構式與公開操作</td></tr><tr><td><code>private</code></td><td>類別成員與被授權的 friend</td><td>表示細節與維持不變條件的輔助內容</td></tr><tr><td><code>protected</code></td><td>類別自身、friend 與衍生類別</td><td>確實要供衍生實作使用的介面；繼承見 <a href="p9_oop_advanced.html#inherit">P9</a></td></tr></tbody></table></div><div class="warn-box"><b>class 未標示的成員預設為 private。</b> 建構式若忘記放在 public，外部即使看得到類別名稱也不能建立物件。</div></div>
-<div id="restore-p8-class-syntax" class="deck-extra"><h3>類別語法一次定位</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>語法</th><th>角色</th><th>容易混淆處</th></tr></thead><tbody><tr><td><code>class Reading { ... };</code></td><td>定義新型別</td><td>結尾分號不可少</td></tr><tr><td><code>Reading(double)</code></td><td>建構式</td><td>沒有回傳型別</td></tr><tr><td><code>: value_{value}</code></td><td>成員初始化串列</td><td>在本體前初始化；順序依成員宣告</td></tr><tr><td><code>double value() const</code></td><td>const 成員函式</td><td>尾端 const 約束 this，不是回傳值</td></tr><tr><td><code>this-&gt;value_</code></td><td>目前物件的成員</td><td>this 是指標，因此用箭頭</td></tr><tr><td><code>Reading::value</code></td><td>類別外定義</td><td><code>::</code> 指定所屬作用域</td></tr><tr><td><code>~Reading()</code></td><td>解構式</td><td>生命結束時自動呼叫</td></tr></tbody></table></div></div>
-<div id="restore-p8-vexing" class="deck-extra"><h3>最令人困惑的解析：<code>Timer c();</code></h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>編譯器解讀</th><th>建議</th></tr></thead><tbody><tr><td><code>Timer a;</code></td><td>以無參數建構式建立物件</td><td>合法</td></tr><tr><td><code>Timer b{};</code></td><td>以無參數建構式建立物件</td><td>現代 C++ 清楚寫法</td></tr><tr><td><code>Timer c();</code></td><td>宣告一個名為 c、回傳 Timer 的函式</td><td>不是物件；改用 <code>c{}</code></td></tr><tr><td><code>Timer d{30};</code></td><td>選擇能接收 int 的建構式</td><td>配合候選比較</td></tr></tbody></table></div><p>C++ 在語法能解讀為函式宣告時會採函式宣告，這稱為 most vexing parse。它不是呼叫無參數建構式時必須加括號的語言。</p></div>
-<div id="restore-p8-stream-contrast" class="deck-extra"><h3>為何物件不能直接輸出，以及 overload 補了什麼</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>版本</th><th>編譯器掌握的資訊</th><th>結果</th></tr></thead><tbody><tr><td><code>std::cout &lt;&lt; reading;</code>，尚未定義 overload</td><td>知道 ostream 如何輸出基本型別，找不到 Reading 的相符版本</td><td>編譯失敗：沒有可行的 <code>operator&lt;&lt;</code></td></tr><tr><td>提供 <code>operator&lt;&lt;(ostream&amp;, const Reading&amp;)</code></td><td>知道如何把 Reading 寫入既有 stream</td><td>可輸出且不複製／不修改 reading</td></tr><tr><td>回傳 <code>ostream&amp;</code></td><td>結果仍代表同一個 stream</td><td>可繼續 <code>&lt;&lt; "\n"</code> 串接</td></tr><tr><td>必要時宣告 <code>friend</code></td><td>該指定非成員函式可讀 private 表示</td><td>不等於把所有 private 公開</td></tr></tbody></table></div><pre class="pseudo-code" data-cpp="fragment">// 尚未宣告 Reading 的 operator&lt;&lt; 時：
-Reading r{20.0};
-std::cout &lt;&lt; r; // 編譯器找不到接受 Reading 的輸出 overload</pre><p>成功版本已在本頁 <a href="#stream">operator&lt;&lt; 與 friend</a> 完整編譯。若公開 getter 足以格式化，也可讓非 friend overload 使用 getter，縮小權限。</p></div>
-<section id="reference"><div class="section-number">PART 12</div><h2>P8 語法速查</h2>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>概念</th><th>寫法</th><th>判斷重點</th></tr></thead><tbody><tr><td>物件成員</td><td>object.member()</td><td>左側是物件</td></tr><tr><td>指標成員</td><td>pointer->member()</td><td>指標非空且目標存活</td></tr><tr><td>建構式</td><td>Reading(...) : member_{...} {}</td><td>成員先於本體初始化</td></tr><tr><td>const 成員</td><td>value() const</td><td>可對 const 物件呼叫</td></tr><tr><td>唯讀回傳</td><td>const T& view() const</td><td>回傳參考不可比物件長壽</td></tr><tr><td>解構式</td><td>~Reading()</td><td>生命結束時自動呼叫</td></tr><tr><td>類別外定義</td><td>T Reading::value() const</td><td>簽章須與宣告一致</td></tr><tr><td>include guard</td><td>#ifndef / #define / #endif</td><td>防同一翻譯單元重複定義</td></tr></tbody></table></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>看到 <code>const T&amp; get() const</code>，應分別問哪兩件事？</p><details><summary>看解答與理由</summary><p>問回傳參考能否修改 T，以及函式能否修改／能否對 const 物件呼叫；前後兩個 const 是不同承諾。</p></details></div>
 
-<p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p><div id="restore-p8-resources"><h3>資源與回查位置</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>資源</th><th>核對內容</th></tr></thead><tbody><tr><td><a href="https://en.cppreference.com/w/cpp/language/classes">cppreference：Classes</a></td><td>類別、存取權限、建構與成員函式規則</td></tr><tr><td><a href="https://pythontutor.com/cpp.html">C++ Tutor</a></td><td>用獨立的 Reading／WorkStep 例子觀察物件、成員與生命週期</td></tr><tr><td><a href="p9_oop_advanced.html">P9：類別延伸與模板</a></td><td>繼承、多型、模板與資源複製的下一步</td></tr></tbody></table></div>
-</div></section>
+<section id="overload">
+  <div class="section-number">PART 06 · 多載</div>
+  <h2>同名不同參數：<code>Timer</code> 的三種建立方式</h2>
+  <p>C++ 允許同一個名字有多個版本，只要<strong>參數列可區分</strong>即可。編譯器會依呼叫時提供的引數個數與型別挑選最合適的版本。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Timer {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        Timer(<span class="kw">int</span> initial, <span class="kw">int</span> step) { initialValue = initial;  stepValue = step; }   <span class="com">// 兩個引數</span>
+<span class="line" data-l="4"></span>        Timer(<span class="kw">int</span> initial)             { initialValue = initial;  stepValue = <span class="num">1</span>; }        <span class="com">// 省略步幅時使用 1</span>
+<span class="line" data-l="5"></span>        Timer()                    { initialValue = <span class="num">0</span>;    stepValue = <span class="num">1</span>; }        <span class="com">// 都沒給：從 0 起、步幅 1</span>
+<span class="line" data-l="6"></span>    <span class="kw">private</span>:</span>
+<span class="line" data-l="7">        <span class="kw">int</span> initialValue, stepValue;</span>
+<span class="line" data-l="8">};</span>
+<span class="line" data-l="9"> </span></div>
+
+<div class="deck-extra">
+  <div class="dx-label">三個建構式各自被挑中（完整 Timer 定義接在 main 前）</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"><span class="kw">class</span> Timer {</span>
+<span class="line" data-l="4">    <span class="kw">int</span> initialValue, stepValue;</span>
+<span class="line" data-l="5"><span class="kw">public</span>:</span>
+<span class="line" data-l="6">    Timer(<span class="kw">int</span> initial, <span class="kw">int</span> step) : initialValue(initial), stepValue(step) {}</span>
+<span class="line" data-l="7">    Timer(<span class="kw">int</span> initial) : initialValue(initial), stepValue(<span class="num">1</span>) {}</span>
+<span class="line" data-l="8">    Timer() : initialValue(<span class="num">0</span>), stepValue(<span class="num">1</span>) {}</span>
+<span class="line" data-l="9">    <span class="kw">int</span> initial() <span class="kw">const</span> { <span class="kw">return</span> initialValue; }</span>
+<span class="line" data-l="10">    <span class="kw">int</span> step() <span class="kw">const</span> { <span class="kw">return</span> stepValue; }</span>
+<span class="line" data-l="11">};</span>
+<span class="line" data-l="12"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="13">    Timer a(<span class="num">3</span>, <span class="num">4</span>), b(<span class="num">5</span>), c;</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">a: </span><span class="str">"</span> &lt;&lt; a.initial() &lt;&lt; <span class="str">"</span><span class="str">, </span><span class="str">"</span> &lt;&lt; a.step() &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">b: </span><span class="str">"</span> &lt;&lt; b.initial() &lt;&lt; <span class="str">"</span><span class="str">, </span><span class="str">"</span> &lt;&lt; b.step() &lt;&lt; endl;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">c: </span><span class="str">"</span> &lt;&lt; c.initial() &lt;&lt; <span class="str">"</span><span class="str">, </span><span class="str">"</span> &lt;&lt; c.step() &lt;&lt; endl;</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a: 3, 4
+b: 5, 1
+c: 0, 1</pre></div>
+  <p class="dx-note">Timer a(3, 4) 選兩參數版本，b(5) 選單參數版本，c 選無參數版本。這裡透過已學過的公開 getter 印出初值與步幅，稍後再教如何替整個物件定義 operator&lt;&lt;。</p>
+</div>
+
+<div id="copy-from-functions" class="deck-extra">
+  <div class="dx-label">複製是有成本的，而且成本看得見</div>
+  <pre class="pseudo-code" data-cpp="run" data-expected="  [建構] Big 7&#10;呼叫 byValue(item):&#10;  [複製] 又抄了一份 Big 7 ← 這行就是成本&#10;  函式裡看到 7&#10;呼叫 byConstRef(item):&#10;  函式裡看到 7&#10;">#include &lt;iostream&gt;
+using namespace std;
+class Big {
+public:
+    Big(int id) : tag(id) { cout &lt;&lt; "  [建構] Big " &lt;&lt; tag &lt;&lt; '\n'; }
+    Big(const Big &amp;other) : tag(other.tag) {
+        cout &lt;&lt; "  [複製] 又抄了一份 Big " &lt;&lt; tag &lt;&lt; " ← 這行就是成本\n";
+    }
+    int getTag() const { return tag; }
+private:
+    int tag;
+};
+void byValue(Big b) { cout &lt;&lt; "  函式裡看到 " &lt;&lt; b.getTag() &lt;&lt; '\n'; }
+void byConstRef(const Big &amp;b) { cout &lt;&lt; "  函式裡看到 " &lt;&lt; b.getTag() &lt;&lt; '\n'; }
+int main() {
+    Big item(7);
+    cout &lt;&lt; "呼叫 byValue(item):\n"; byValue(item);
+    cout &lt;&lt; "呼叫 byConstRef(item):\n"; byConstRef(item);
+}</pre>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  [建構] Big 7
+呼叫 byValue(item):
+  [複製] 又抄了一份 Big 7 ← 這行就是成本
+  函式裡看到 7
+呼叫 byConstRef(item):
+  函式裡看到 7</pre></div>
+  <p class="dx-note"><code>byValue(item)</code> 觸發一次複製建構；<code>byConstRef(item)</code> 直接讀原物件而不複製。</p>
+</div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">編譯器怎麼挑：一個一個比參數列</h3>
+  <p>「編譯器會依你傳的引數挑一個」這句話講得太快了。它實際上做三件事：<strong>先把同名的建構式全抓出來當候選</strong>，再<strong>逐一比對參數列，個數或型別對不上就淘汰</strong>，最後從活下來的裡面挑一個。下面的逐步器把這個過程放慢給你看。</p>
+  <p>本例的 Timer 可使用編譯器隱式宣告的複製建構式，將兩個 int 成員複製到新物件。這不表示所有類別都永遠能複製：某些成員或其他特殊成員函式的宣告，會讓隱式複製建構式被定義為 deleted。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="mono" id="ovlCall" style="font-size:.9rem;font-weight:600;color:var(--accent2);margin-bottom:.2rem;">呼叫端：（按下面任一顆按鈕開始）</div>
+        <div class="mono" id="ovlOut" style="font-size:.8rem;color:var(--muted);min-height:1.2rem;">&nbsp;</div>
+        <div class="bq-row" id="ovlArgs"></div>
+        <div class="pseudo-code" id="ovlCands" style="font-size:.78rem;"><span class="line" data-l="1">#1  Timer()                      <span class="com">// 候選 A：不收引數</span></span>
+<span class="line" data-l="2">#2  Timer(<span class="kw">int</span> initial)               <span class="com">// 候選 B：1 個 int</span></span>
+<span class="line" data-l="3">#3  Timer(<span class="kw">int</span> initial, <span class="kw">int</span> step)   <span class="com">// 候選 C：2 個 int</span></span>
+<span class="line" data-l="4">#4  Timer(<span class="kw">const</span> Timer &amp;other) <span class="com">// 候選 D：複製建構式（自動生成）</span></span></div>
+        <div class="status-banner" id="ovlStatus"><span class="status-icon">›</span><span class="status-text">選一種呼叫寫法開始。四個候選的名字一模一樣，決勝負的只有括號裡那一段。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="ovlStart('none')">▶ Timer f;</button>
+          <button class="btn btn-play" onclick="ovlStart('one')">▶ Timer f(3);</button>
+          <button class="btn btn-play" onclick="ovlStart('two')">▶ Timer f(3, 5);</button>
+          <button class="btn btn-play" onclick="ovlStart('copy')">▶ Timer g = f;</button>
+          <button class="btn btn-step" onclick="ovlPlayer &amp;&amp; ovlPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="ovlReset()">⟲ 重設</button>
+          <button class="btn" onclick="ovlPlayer &amp;&amp; ovlPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="ovlSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">看簽名，不看名字 <span class="ic-badge">KEY</span></div>
+        <p style="font-size:.86rem;margin-bottom:.5rem;">能區分多載的只有<strong>參數列</strong>：型別、個數、順序。名字全部相同，回傳型別也<strong>不算</strong>在內 —— 兩個函式只差回傳型別的話，那不是多載，是重複定義，直接編不過。</p>
+        <p style="font-size:.86rem;margin-bottom:0;">Timer g = f; 與 Timer g(f); 用已存在的同型別物件初始化新物件，這裡會複製成員。以左值物件傳入值參數也可能複製；回傳值則還可能移動或省略複製，不能說每次回傳都必定呼叫複製建構式。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">預設參數 vs 多載 <span class="ic-badge">取捨</span></div>
+        <p style="font-size:.86rem;margin-bottom:.5rem;">前三個候選也可以用<strong>一個</strong>帶預設值的建構式取代：<code>Timer(int initial = 0, int step = 1);</code>。少寫兩份本體、少兩份要一起維護的程式碼，這是它的好處。</p>
+        <p style="font-size:.86rem;margin-bottom:0;">代價是<strong>兩者不能並存</strong>：留著預設參數版又留著 <code>Timer()</code>，寫 <code>Timer c;</code> 時兩個都可行、也分不出高下，編譯器會報 <em>call of overloaded … is ambiguous</em>。判準很簡單：各版本<strong>本體一樣、只差沒填的值</strong>就用預設參數；<strong>本體真的要做不同的事</strong>（例如收 <code>int</code> 跟收 <code>Timer</code>）就寫成多載。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ <code>Timer c;</code> 不要寫成 <code>Timer c();</code></div>
+    <p style="margin-bottom:0;">加了括號，C++ 會把它當成「宣告一個回傳 <code>Timer</code> 的函式 <code>c</code>」，而不是建立物件。這個坑有個名字叫 <em>most vexing parse</em>，錯誤訊息通常離現場很遠。要建立物件就不要加空括號。</p>
+  </div>
+</section>
+
+<section id="stream">
+  <div class="section-number">PART 07 · 印得出來</div>
+  <h2><code>operator&lt;&lt;</code> 與 <code>friend</code>：讓你的物件說人話</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">沒有定義 operator<< 的下場</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">class</span> Point {</span>
+<span class="line" data-l="5">    <span class="kw">private</span>:</span>
+<span class="line" data-l="6">        <span class="kw">int</span> x, y;</span>
+<span class="line" data-l="7">    <span class="kw">public</span>:</span>
+<span class="line" data-l="8">        Point(<span class="kw">int</span> a, <span class="kw">int</span> b) { x = a; y = b; }</span>
+<span class="line" data-l="9">};</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="12">    Point p(<span class="num">3</span>, <span class="num">4</span>);</span>
+<span class="line" data-l="13">    cout &lt;&lt; p &lt;&lt; endl;      <span class="com">// 沒有定義 operator&lt;&lt;，編譯器不知道怎麼印</span>
+<span class="line" data-l="14"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre data-cpp="fragment">[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:13:10: error: no match for ‘operator&lt;&lt;’ (operand types are ‘std::ostream’ {aka ‘std::basic_ostream&lt;char&gt;’} and ‘Point’)
+   13 |     cout &lt;&lt; p &lt;&lt; endl;      // 沒有定義 operator&lt;&lt;，編譯器不知道怎麼印</pre></div>
+  <p class="dx-note"><code>cout &lt;&lt; p</code> 編不過，因為自訂類別沒有自動產生的串流輸出格式。訊息 <em>no match for 'operator&lt;&lt;'</em> 的意思是：編譯器找不到能接收這個型別的 <code>&lt;&lt;</code> 版本。</p>
+</div>
+
+  <p>要支援 cout &lt;&lt; p，左運算元是 ostream，所以不能只寫成 Point 的一般成員運算子；可定義接收 ostream 與 Point 的非成員函式。下面函式需要直接讀取 private 的 x、y，因此在類別內以 friend 授權。如果改用公開 getter 讀值，就不一定需要 friend。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"><span class="kw">class</span> Point {</span>
+<span class="line" data-l="4">    <span class="kw">int</span> x, y;</span>
+<span class="line" data-l="5"><span class="kw">public</span>:</span>
+<span class="line" data-l="6">    Point(<span class="kw">int</span> a, <span class="kw">int</span> b) : x(a), y(b) {}</span>
+<span class="line" data-l="7">    <span class="kw">friend</span> ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp; out, <span class="kw">const</span> Point&amp; p);</span>
+<span class="line" data-l="8">};</span>
+<span class="line" data-l="9">ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp; out, <span class="kw">const</span> Point&amp; p) {</span>
+<span class="line" data-l="10">    out &lt;&lt; <span class="str">"</span><span class="str">(</span><span class="str">"</span> &lt;&lt; p.x &lt;&lt; <span class="str">"</span><span class="str">, </span><span class="str">"</span> &lt;&lt; p.y &lt;&lt; <span class="str">"</span><span class="str">)</span><span class="str">"</span>;</span>
+<span class="line" data-l="11">    <span class="kw">return</span> out;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"><span class="kw">int</span> main() { Point <span class="fn">p</span>(<span class="num">3</span>, <span class="num">4</span>); cout &lt;&lt; p &lt;&lt; endl; }</span>
+<span class="line" data-l="14"> </span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>(3, 4)</pre></div>
+
+  <div class="info-box">
+    <div class="info-label">💡 兩個容易漏的細節</div>
+    <p style="margin-bottom:0;">回傳 ostream&amp; 讓 cout &lt;&lt; a &lt;&lt; b 能繼續串接；參數 const Point&amp; 避免複製並允許唯讀物件。friend 只授權指定函式存取，並不把該函式變成 Point 的成員。</p>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 可讀輸出也是介面</div><p style='margin-bottom:0;'>定義 <code>operator&lt;&lt;</code> 後，計時設定、測量值或座標都能用一致方式輸出，方便檢查程式執行期間的物件狀態。</p></div>
+</section>
+
+<section id="compose">
+  <div class="section-number">PART 08 · 組合</div>
+  <h2>用現成的東西蓋新的東西 <span class="sec-badge">has-a</span></h2>
+  <p>ReadingLog 保存多筆測量，內部持有 vector&lt;int&gt;，對外提供加入、計數與計算平均。這種「A 擁有 B」的關係就是組合：自己的類別決定介面，標準容器管理底層儲存。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">完整的 ReadingLog：用現成容器管理測量記錄</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstddef&gt;</span><span class="kw"></span>
+<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"><span class="kw">class</span> ReadingLog {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; values;</span>
+<span class="line" data-l="8"><span class="kw">public</span>:</span>
+<span class="line" data-l="9">    <span class="kw">void</span> add(<span class="kw">int</span> value) { values.push_back(value); }</span>
+<span class="line" data-l="10">    <span class="kw">size_t</span> size() <span class="kw">const</span> { <span class="kw">return</span> values.size(); }</span>
+<span class="line" data-l="11">    <span class="kw">double</span> average() <span class="kw">const</span> {</span>
+<span class="line" data-l="12">        <span class="kw">if</span> (values.empty()) <span class="kw">throw</span> runtime_error(<span class="str">"</span><span class="str">no readings</span><span class="str">"</span>);</span>
+<span class="line" data-l="13">        <span class="kw">double</span> total = <span class="num">0</span>;</span>
+<span class="line" data-l="14">        <span class="kw">for</span> (<span class="kw">int</span> value : values) total += value;</span>
+<span class="line" data-l="15">        <span class="kw">return</span> total / values.size();</span>
+<span class="line" data-l="16">    }</span>
+<span class="line" data-l="17">};</span>
+<span class="line" data-l="18"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="19">    ReadingLog log;</span>
+<span class="line" data-l="20">    log.add(<span class="num">18</span>); log.add(<span class="num">22</span>); log.add(<span class="num">20</span>);</span>
+<span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">count = </span><span class="str">"</span> &lt;&lt; log.size() &lt;&lt; endl;</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">average = </span><span class="str">"</span> &lt;&lt; log.average() &lt;&lt; endl;</span>
+<span class="line" data-l="23">}</span>
+<span class="line" data-l="24"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>count = 3
+average = 20</pre></div>
+  <p>重點是 <code>vector&lt;int&gt; values;</code>：ReadingLog 擁有一個 vector，並不是 vector 本身。values 維持 private，外部以 add、size、average 操作。沒有自訂建構式時，本例的預設建構會建立空 vector；對空記錄呼叫 average 會依契約拋出例外。未來更換內部儲存方式時，可以維持公開操作不變。</p>
+</div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 2 · 選對那一端</div>
+    <p>ReadingLog::add 目前用 push_back 加到 vector 尾端。若改用 insert(begin(), value) 從前端加入，新版本的一次插入成本有何差別？</p>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="移除最新與移除最舊的行為本就不同；而前端插入還需要搬移後方元素。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 完全一樣，只是寫法不同</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。在 vector 前端插入或刪除，需要搬移後方元素，時間隨元素數量成長；尾端操作通常是常數攤銷時間。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 從 vector 前端插入通常是 $O(n)$</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不會錯，vector 兩端都支援插入與刪除。問題不在對錯，在成本。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 會出錯，<code>vector</code> 不支援從前端插入</div>
+      <div class="quiz-opt" data-correct="false" data-fb="vector 不會因為改用前端操作就自動切換成其他容器；成員型別仍由類別定義決定。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 編譯器會自動改用 另一種內部儲存</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+
+<div class="ds-hook"><div class="dh-title">🔗 內部容器不等於公開介面</div><p style='margin-bottom:0;'>ReadingLog 持有 vector，但不需要向外公開所有 vector 操作。尾端加入具有攤還常數成本；前端插入通常要搬移原有元素，成本線性。average 則走訪所有讀數，呼叫一次的成本與記錄數成正比。</p></div>
+</section>
+
+<section id="header">
+  <div class="section-number">PART 09 · 標頭檔</div>
+  <h2><code>.hpp</code> 與 include guard：避免類別重複定義</h2>
+  <p>類別通常放在 <code>.hpp</code> 裡，讓別的檔案 <code>#include</code> 進來用。但 <code>#include</code> 就是<strong>把整個檔案的內容原地貼過來</strong>，同一個檔案被貼兩次，類別就重複定義了。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="com">// reading.hpp</span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">ifnde<span></span>f READING_HPP</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">define READING_HPP</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">class</span> Reading {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> value;</span>
+<span class="line" data-l="6"><span class="kw">public</span>:</span>
+<span class="line" data-l="7">    <span class="kw">explicit</span> Reading(<span class="kw">int</span> initial) : value(initial) {}</span>
+<span class="line" data-l="8">    <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> value; }</span>
+<span class="line" data-l="9">};</span>
+<span class="line" data-l="10"><span class="kw">#</span><span class="kw">endif</span><span class="kw"></span>
+<span class="line" data-l="11"></span></span></div>
+
+  <div class="info-box">
+    <div class="info-label">💡 類別定義與成員函式實作</div>
+    <p style="margin-bottom:0;">要建立 Reading 物件的來源檔，需 include 含完整類別定義的 reading.hpp。簡短成員函式可像上例直接定義在類別內；較長實作也可分到 .cpp 再一同連結。以型別為參數的 template 語法留到 P9，這裡先掌握普通類別與標頭防護。</p>
+  </div>
+</section>
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂檢核</div>
+  <h2>物件指標與公開介面</h2>
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE · 箭頭運算子</div>
+    <p>已有 <code>Reading room(18); Reading *p = &amp;room;</code>。若要透過 p 讀取 room 的測量值，哪個寫法正確？</p>
+    <div class="quiz-options" id="qExerciseOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="p 是指標，點號要求左側本身是物件。" onclick="quizCheck('qExercise', this)"><span class="opt-letter">(A)</span> <code>p.getData()</code></div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。箭頭先沿 p 找到 Reading 物件，再呼叫它的公開 const 成員函式。" onclick="quizCheck('qExercise', this)"><span class="opt-letter">(B)</span> <code>p-&gt;getData()</code></div>
+      <div class="quiz-opt" data-correct="false" data-fb="&amp;p 是指標變數自己的地址，不是 Reading 物件。" onclick="quizCheck('qExercise', this)"><span class="opt-letter">(C)</span> <code>(&amp;p)-&gt;getData()</code></div>
+      <div class="quiz-opt" data-correct="false" data-fb="getData 是公開成員函式；不能省略括號把它當資料成員。" onclick="quizCheck('qExercise', this)"><span class="opt-letter">(D)</span> <code>p-&gt;getData</code></div>
+    </div>
+    <div class="quiz-feedback" id="qExerciseFeedback"></div>
+  </div>
+</section>
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P8 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> 類別名稱 {</span>
+<span class="line" data-l="2">    <span class="kw">private</span>:</span>
+<span class="line" data-l="3">        型別 成員變數;                    <span class="com">// 預設就是 private</span>
+<span class="line" data-l="4"></span></span>
+<span class="line" data-l="5">    <span class="kw">public</span>:</span>
+<span class="line" data-l="6">        類別名稱(參數) { … }              <span class="com">// 建構式：同名、沒有回傳型別</span>
+<span class="line" data-l="7"></span>        類別名稱() { … }                  <span class="com">// 多載：參數列不同就是不同版本</span>
+<span class="line" data-l="8"></span></span>
+<span class="line" data-l="9">        回傳型別 成員函式(參數) <span class="kw">const</span> {    <span class="com">// const = 不修改一般成員</span>
+<span class="line" data-l="10"></span>            <span class="kw">return</span> 成員變數;</span>
+<span class="line" data-l="11">        }</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    <span class="kw">friend</span> ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp;, <span class="kw">const</span> 類別名稱&amp;);   <span class="com">// 開門給外部函式</span>
+<span class="line" data-l="14"></span>};</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16">類別名稱 <span class="fn">物件</span>(引數);            <span class="com">// 建在堆疊上，離開範圍自動消失</span>
+<span class="line" data-l="17"></span>類別名稱 *p = <span class="kw">new</span> 類別名稱(引數);  <span class="com">// 建在堆積上，要自己 delete</span>
+<span class="line" data-l="18"></span></span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">C++ ↔ Python 對照</h3>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>概念</th><th>C++</th><th>Python</th></tr></thead>
+    <tbody>
+      <tr><td>建構式</td><td class="mono">類別名稱(…)</td><td class="mono">__init__</td></tr>
+      <tr><td>指向自己</td><td class="mono">this（指標，隱含）</td><td class="mono">self（參數，要明寫）</td></tr>
+      <tr><td>藏起來</td><td class="mono">private（編譯器強制）</td><td>底線開頭（只是約定）</td></tr>
+      <tr><td>印出來</td><td class="mono">operator&lt;&lt;</td><td class="mono">__str__</td></tr>
+      <tr><td>唯讀承諾</td><td class="mono">函式後面加 const</td><td>沒有對應機制</td></tr>
+      <tr><td>同名多版本</td><td>參數列不同即可</td><td>只能靠預設參數</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted);">繼承、多型、<code>virtual</code>、運算子多載與 template，見 <a href="p9_oop_advanced.html"><strong>P9 · 物件導向（進階）</strong></a>。</p>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/classes" target="_blank" rel="noopener">cppreference · Classes</a></td><td>類別、成員與存取控制的語言參考。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/language/classes" target="_blank" rel="noopener">cppreference · Classes</a></td><td>存取控制、建構式、成員函式的完整規則。</td></tr>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的 <code>Reading</code> 貼進去，看物件的成員在記憶體裡怎麼排。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：類別與物件 <span class="sec-badge">隨堂自測 · 13 題</span></h2>
+  <h2>自我檢測：類別與物件 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>類別定義右大括號後需要什麼？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；整個 class 定義以分號結束。"><span class="opt-letter">(A)</span> 分號</button>
-      <button class="sq-opt" data-c="0" data-fb="逗號不能結束類別定義。"><span class="opt-letter">(B)</span> 逗號</button>
-      <button class="sq-opt" data-c="0" data-fb="類別定義仍需要尾端分號。"><span class="opt-letter">(C)</span> 右大括號即可</button>
-      <button class="sq-opt" data-c="0" data-fb="冒號用於存取標籤或初始化串列，不結束類別。"><span class="opt-letter">(D)</span> 冒號</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>p 是 Reading*，呼叫 value 的寫法？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；箭頭透過物件指標存取成員。"><span class="opt-letter">(A)</span> p-&gt;value()</button>
-      <button class="sq-opt" data-c="0" data-fb="點號要求左側本身是物件。"><span class="opt-letter">(B)</span> p.value()</button>
-      <button class="sq-opt" data-c="0" data-fb="雙冒號指定作用域，不是經物件指標呼叫。"><span class="opt-letter">(C)</span> p::value()</button>
-      <button class="sq-opt" data-c="0" data-fb="*p 已是物件，不能再用箭頭。"><span class="opt-letter">(D)</span> (*p)-&gt;value()</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>建構式可以宣告 void 回傳型別嗎？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；建構式沒有任何回傳型別。"><span class="opt-letter">(A)</span> 不可以</button>
-      <button class="sq-opt" data-c="0" data-fb="寫 void 會使它不再符合建構式語法。"><span class="opt-letter">(B)</span> 可以</button>
-      <button class="sq-opt" data-c="0" data-fb="任何回傳型別都不屬於建構式語法。"><span class="opt-letter">(C)</span> 可以，而且必須寫 int</button>
-      <button class="sq-opt" data-c="0" data-fb="所有建構式都沒有回傳型別。"><span class="opt-letter">(D)</span> 只有預設建構式可以</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>成員真正初始化順序依據？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；串列最好也照宣告順序寫。"><span class="opt-letter">(A)</span> 在類別中的宣告順序</button>
-      <button class="sq-opt" data-c="0" data-fb="改變串列順序不會改變實際初始化順序。"><span class="opt-letter">(B)</span> 初始化串列的書寫順序</button>
-      <button class="sq-opt" data-c="0" data-fb="參數列不決定資料成員初始化次序。"><span class="opt-letter">(C)</span> 依參數列順序</button>
-      <button class="sq-opt" data-c="0" data-fb="語言固定按成員宣告順序。"><span class="opt-letter">(D)</span> 依初始化式計算快慢</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>只有 Reading(double) 時，Reading r; 會怎樣？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；使用者宣告帶參數版本不會保留隱含無參數版本。"><span class="opt-letter">(A)</span> 沒有相符的無參數建構式，編譯失敗</button>
-      <button class="sq-opt" data-c="0" data-fb="普通基本型別成員也不應假設自動為 0。"><span class="opt-letter">(B)</span> value 自動成為 0</button>
-      <button class="sq-opt" data-c="0" data-fb="編譯器不會合成這個帶值呼叫。"><span class="opt-letter">(C)</span> 自動呼叫 Reading(0)</button>
-      <button class="sq-opt" data-c="0" data-fb="沒有可行建構式時直接編譯失敗。"><span class="opt-letter">(D)</span> 建立未初始化物件</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>private 欄位最主要保護什麼？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；封裝控制合法狀態轉換。"><span class="opt-letter">(A)</span> 讓狀態修改通過維持不變條件的公開操作</button>
-      <button class="sq-opt" data-c="0" data-fb="存取層級不以此方式縮小成員大小。"><span class="opt-letter">(B)</span> 讓物件占用更少記憶體</button>
-      <button class="sq-opt" data-c="0" data-fb="存取控制不提供這種效能保證。"><span class="opt-letter">(C)</span> 讓 private 資料更快</button>
-      <button class="sq-opt" data-c="0" data-fb="private 與 const 是不同限制。"><span class="opt-letter">(D)</span> 讓所有欄位自動變 const</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q7.</span>double value() const 的尾端 const 表示？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；它約束隱含 this。"><span class="opt-letter">(A)</span> 不經由此函式修改物件，可對 const 物件呼叫</button>
-      <button class="sq-opt" data-c="0" data-fb="回傳型別前方是否有 const 才涉及回傳值型別。"><span class="opt-letter">(B)</span> 回傳值一定是 const double</button>
-      <button class="sq-opt" data-c="0" data-fb="尾端 const 不約束按值回傳型別。"><span class="opt-letter">(C)</span> 函式只能回傳常數</button>
-      <button class="sq-opt" data-c="0" data-fb="const 與呼叫次數無關。"><span class="opt-letter">(D)</span> 函式只能呼叫一次</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q8.</span>operator&lt;&lt; 為何回傳 ostream&amp;？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；回傳收到的 out。"><span class="opt-letter">(A)</span> 讓輸出可繼續串接在同一個 stream</button>
-      <button class="sq-opt" data-c="0" data-fb="它沒有改變 Reading 的型別。"><span class="opt-letter">(B)</span> 讓 Reading 自動變成 stream</button>
-      <button class="sq-opt" data-c="0" data-fb="輸出 overload 不建立繼承。"><span class="opt-letter">(C)</span> 讓 Reading 繼承 ostream</button>
-      <button class="sq-opt" data-c="0" data-fb="回傳 ostream&amp; 是為了串接，與 friend 無必然關係。"><span class="opt-letter">(D)</span> 因為 friend 函式一定要回傳參考</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q9.</span>Timer(int) 與 Timer(int,int=0) 同時存在，Timer{3} 結果？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；兩者都可接受，沒有唯一最佳。"><span class="opt-letter">(A)</span> 候選多義，編譯失敗</button>
-      <button class="sq-opt" data-c="0" data-fb="編譯器不能以「較短」猜意圖。"><span class="opt-letter">(B)</span> 一定選一參數版本</button>
-      <button class="sq-opt" data-c="0" data-fb="兩個候選都能接一個引數。"><span class="opt-letter">(C)</span> 一定選兩參數版本</button>
-      <button class="sq-opt" data-c="0" data-fb="多載解析在編譯期且必須唯一。"><span class="opt-letter">(D)</span> 執行時隨機選一個</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q10.</span>複製含普通 int 成員的物件後，兩物件的 int 狀態？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；逐成員複製建立另一個 int。"><span class="opt-letter">(A)</span> 各自一份，之後可獨立修改</button>
-      <button class="sq-opt" data-c="0" data-fb="普通 int 不表示共享。"><span class="opt-letter">(B)</span> 自動成為同一格的別名</button>
-      <button class="sq-opt" data-c="0" data-fb="普通 int 成員會複製成獨立物件。"><span class="opt-letter">(C)</span> 共享同一個 int</button>
-      <button class="sq-opt" data-c="0" data-fb="拷貝會建立完整同型物件。"><span class="opt-letter">(D)</span> 第二個物件沒有成員</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q11.</span>Parcel 直接含 Reading 成員屬於？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；Reading 是 Parcel 的子物件。"><span class="opt-letter">(A)</span> composition / has-a</button>
-      <button class="sq-opt" data-c="0" data-fb="類別成員沒有建立 is-a 關係。"><span class="opt-letter">(B)</span> inheritance / is-a</button>
-      <button class="sq-opt" data-c="0" data-fb="直接資料成員在此就是 has-a 子物件。"><span class="opt-letter">(C)</span> aggregation 一定不算 composition</button>
-      <button class="sq-opt" data-c="0" data-fb="friend 是存取授權，不是物件包含。"><span class="opt-letter">(D)</span> friendship</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q12.</span>多檔程式只編 main.cpp，已有宣告但缺 Reading.cpp，常在哪裡失敗？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；呼叫可編譯，但定義未加入連結。"><span class="opt-letter">(A)</span> 連結階段</button>
-      <button class="sq-opt" data-c="0" data-fb="標頭可讓前置處理與編譯通過。"><span class="opt-letter">(B)</span> 前置處理一定失敗</button>
-      <button class="sq-opt" data-c="0" data-fb="程式尚未成功連結，不能進入執行。"><span class="opt-letter">(C)</span> 執行階段</button>
-      <button class="sq-opt" data-c="0" data-fb="宣告已足以完成編譯，缺的是連結所需定義。"><span class="opt-letter">(D)</span> 編譯階段一定失敗</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q13.</span>三個區域 WorkStep 以 next 連結；把中間步驟的 next 設為 nullptr，會自動銷毀最後一個步驟嗎？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="next 保存借用的位址。改變連結不會改變 main 中區域物件的生命週期。"><span class="opt-letter">(A)</span> 不會，只是從這條連結無法走到它</button>
-      <button class="sq-opt" data-c="0" data-fb="普通裸指標沒有自動追蹤引用與銷毀目標的功能。區域物件在自己的作用域結束時才銷毀。"><span class="opt-letter">(B)</span> 會，沒有前一個指標指向就自動銷毀</button>
-      <button class="sq-opt" data-c="0" data-fb="普通裸指標本身不表示所有權。"><span class="opt-letter">(C)</span> 會，因為 next 是 owner</button>
-      <button class="sq-opt" data-c="0" data-fb="區域物件依自己的作用域結束生命。"><span class="opt-letter">(D)</span> 會在 delete 時才保留</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-</section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p7_files_exceptions.html"><div class="nav-dir">上一頁</div><div class="nav-title">檔案與例外</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p9_oop_advanced.html"><div class="nav-dir">下一頁</div><div class="nav-title">類別延伸與模板</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "類別（class）", "back": "定義一種型別的資料成員、成員函式與存取控制；結尾有分號。"}, {"front": "實例／物件（instance / object）", "back": "依類別建立的實體，每個物件有自己的非 static 狀態。"}, {"front": "成員（member）", "back": "隸屬類別的資料或函式。"}, {"front": "點號成員存取（dot operator .）", "back": "從物件本身存取成員。"}, {"front": "箭頭成員存取（arrow operator ->）", "back": "透過物件指標存取成員，等同 (*p).member。"}, {"front": "建構式（constructor）", "back": "與類別同名、無回傳型別；建立物件時初始化它。"}, {"front": "預設建構式（default constructor）", "back": "可無引數呼叫的建構式。"}, {"front": "成員初始化串列（member initializer list）", "back": "在建構式本體之前直接初始化成員。"}, {"front": "類內成員初值（in-class initializer）", "back": "建構式未另指定時採用的成員後備初值。"}, {"front": "目前物件指標（this）", "back": "指向此次呼叫物件的隱含指標。"}, {"front": "公開／私有（public / private）", "back": "公開介面與由類別控制的內部實作。"}, {"front": "不變條件（invariant）", "back": "所有公開操作前後都必須維持的狀態規則。"}, {"front": "唯讀成員函式（const member function）", "back": "參數列後的 const 約束 this，允許對 const 物件呼叫。"}, {"front": "複製建構式（Copy Constructor）", "back": "用既有同型物件建立新物件。"}, {"front": "解構式（destructor）", "back": "物件生命結束時自動執行的收尾函式。"}, {"front": "友誼宣告（friend）", "back": "授權指定非成員函式存取 private 成員。"}, {"front": "組合（composition）", "back": "一個類別以另一類別物件作成員，表達 has-a。"}, {"front": "作用域解析（scope resolution ::）", "back": "指出類別外定義所屬的類別作用域。"}, {"front": "引入防護（Include Guard）", "back": "避免標頭內容在同一翻譯單元重複納入。"}, {"front": "資料成員（Data Member）", "back": "類別中保存每個物件狀態的欄位；一般非static成員屬於個別物件。"}, {"front": "成員函式（Member Function）", "back": "對物件提供的操作，能依權限讀寫其狀態；透過物件以點號或箭頭呼叫。"}, {"front": "存取控制（Access Specifier）", "back": "public、private、protected區分公開介面與受限制的成員存取。"}, {"front": "封裝（Encapsulation）", "back": "透過公開操作維持資料的不變條件，把表示細節與外界使用方式分開。"}, {"front": "取值與設值（Getter / Setter）", "back": "查詢與更新物件的介面；setter可檢查條件，getter若不改物件通常宣告const。"}, {"front": "建構式多載（Constructor Overloading）", "back": "用不同參數列提供不同建立方式；仍須檢查預設引數造成的歧義。"}, {"front": "運算子多載（Operator Overloading）", "back": "為自訂型別定義運算子的行為；應維持符號的合理語意與必要回傳形式。"}, {"front": "物件輸出（Stream Insertion, operator<<）", "back": "常以非成員函式接收ostream&及const物件參考，回傳同一個ostream&以支持串接。"}, {"front": "標頭檔（Header File, .hpp）", "back": "保存供多個來源檔使用的宣告等內容；搭配防護避免同一編譯單元重複引入。"}, {"front": "抽象資料型別（Abstract Data Type, ADT）", "back": "從可用操作及行為承諾描述資料，而不要求使用者知道內部儲存方式。"}];
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+class Reading {
+    private:
+        int value;
+    public:
+        Reading(int v) { value = v; }
+        int getData() const { return value; }
+};
 
-/* depth-runtime:start */
-(() => {
- const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
- document.querySelectorAll('.lesson-trace').forEach(root => {
-   const frames=JSON.parse(root.querySelector('.trace-data').textContent);
-   let index=0,timer=null;const play=root.querySelector('[data-action="play"]');
-   const stop=()=>{clearInterval(timer);timer=null;};
-   function draw(){
-     const frame=frames[index];
-     root.querySelector('.trace-note').textContent=frame.note;
-     root.querySelector('.trace-vars').innerHTML='<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>名稱／狀態</th><th>目前的值</th></tr></thead><tbody>'+Object.entries(frame.vars||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</tbody></table></div>';
-     root.querySelector('.trace-output').textContent=frame.output ? '目前輸出：\n'+frame.output : '目前尚無輸出';
-     root.querySelectorAll('.line').forEach((el,i)=>el.classList.toggle('active',i===frame.line));
-     play.textContent=timer?'⏸ 暫停':index===frames.length-1?'↻ 重播':'▶ 播放';
-     root.dataset.frame=String(index);root.dataset.frames=String(frames.length);
-   }
-   function next(){index=Math.min(index+1,frames.length-1);if(index===frames.length-1)stop();draw();}
-   play.onclick=()=>{if(timer){stop();draw();return;}if(index===frames.length-1)index=0;timer=setInterval(next,850);draw();};
-   root.querySelector('[data-action="next"]').onclick=()=>{stop();next();};
-   root.querySelector('[data-action="prev"]').onclick=()=>{stop();index=Math.max(0,index-1);draw();};
-   root.querySelector('[data-action="reset"]').onclick=()=>{stop();index=0;draw();};draw();
- });
- document.querySelectorAll('.sq-item').forEach(q=>q.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{
-   q.querySelectorAll('.sq-opt').forEach(x=>x.classList.remove('correct','wrong'));
-   const good=b.dataset.c==='1';b.classList.add(good?'correct':'wrong');
-   const f=q.querySelector('.sq-fb');f.textContent=b.dataset.fb;f.className='sq-fb show '+(good?'good':'bad');
- }));
- const grid=document.getElementById('fcGrid');
- function render(cards){grid.innerHTML=cards.map(c=>'<div class="fc-card" tabindex="0" role="button" aria-pressed="false"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');}
- function flip(card,on){card.classList.toggle('flipped',on);card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));}
- grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)flip(c,!c.classList.contains('flipped'));};
- grid.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.fc-card');if(c){e.preventDefault();flip(c,!c.classList.contains('flipped'));}}};
- document.getElementById('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,true));
- document.getElementById('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,false));
- document.getElementById('fcShuffle').onclick=()=>{const a=[...FLASHCARDS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}render(a);};render(FLASHCARDS);
- const links=[...document.querySelectorAll('.float-nav a[data-target]')];
- const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}),{rootMargin:'-10% 0px -65% 0px'});
- document.querySelectorAll('section[id]').forEach(el=>observer.observe(el));
+int main() {
+    Reading sample(93);
+    cout &lt;&lt; sample.getData();
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。Reading sample(93) 建立物件時會自動執行建構式，把 93 存進 value。getData 是公開的。"><span class="opt-letter">(A)</span> 93</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。建構式已經把 value 設成 93 了。未初始化的一般區域 int 成員不能直接讀取。"><span class="opt-letter">(B)</span> 0</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。程式並沒有從外面直接碰 value，而是透過公開的 getData。這正是封裝的用法。"><span class="opt-letter">(C)</span> 編譯錯誤，value 是 private</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。getData 回傳的是 int，不是指標。"><span class="opt-letter">(D)</span> 會印出記憶體位址</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式為什麼編不過？</div>
+    <pre class="sq-code">#include &lt;iostream&gt;
+using namespace std;
+class Reading {
+    private:
+        int value;
+    public:
+        Reading(int v) { value = v; }
+};
+
+int main() {
+    Reading sample(93);
+    cout &lt;&lt; sample.value;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。C++ 的 private 由編譯器強制；錯誤訊息會說 is private within this context。要讀它就得提供一個公開的 getter。"><span class="opt-letter">(A)</span> value 是 private，從類別外面不能存取</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。建構式與類別同名、沒有回傳型別，寫法完全正確。"><span class="opt-letter">(B)</span> 建構式寫錯了</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。cout 印 int 完全沒問題，問題出在存取權限。"><span class="opt-letter">(C)</span> cout 不能印 int</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。main 可以省略 return 0，編譯器會自動補上。"><span class="opt-letter">(D)</span> 少寫 return 0</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q3.</span>類別的成員如果沒有寫任何存取區段，預設是什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。這是 class 與 struct 在 C++ 裡主要的差別。所以建構式忘了放在 public 底下就會出現「明明有建構式卻不能建立物件」的錯誤。另一個差別是預設繼承層級：class 預設 private 繼承、struct 預設 public，所以 P9 一律寫 : public。"><span class="opt-letter">(A)</span> class 預設 private，struct 預設 public</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。struct 是 public，但 class 是 private，這是它們主要的差異。"><span class="opt-letter">(B)</span> 兩者都預設 public</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。struct 為了與 C 相容，預設是 public。"><span class="opt-letter">(C)</span> 兩者都預設 private</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。可以省略，只是會套用各自的預設值。"><span class="opt-letter">(D)</span> C++ 規定一定要明寫，不能省略</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>依本頁 Timer 三個建構式，以下程式透過 getter 印出什麼？</div>
+    <pre class="sq-code">Timer a(3, 4), b(5), c;
+cout &lt;&lt; a.initial() &lt;&lt; &quot;,&quot; &lt;&lt; a.step() &lt;&lt; &quot; &quot;
+     &lt;&lt; b.initial() &lt;&lt; &quot;,&quot; &lt;&lt; b.step() &lt;&lt; &quot; &quot;
+     &lt;&lt; c.initial() &lt;&lt; &quot;,&quot; &lt;&lt; c.step();</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。兩個引數指定初值與步幅；一個引數把步幅補成 1；無引數版本採初值 0、步幅 1。"><span class="opt-letter">(A)</span> 3,4 5,1 0,1</button>
+      <button class="sq-opt" data-c="0" data-fb="單參數與無參數版本都把步幅明確設為 1，不會是 0。"><span class="opt-letter">(B)</span> 3,4 5,0 0,0</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。只要參數的個數或型別可區分，就能合法多載。"><span class="opt-letter">(C)</span> 編譯錯誤，同名函式不能有三個版本</button>
+      <button class="sq-opt" data-c="0" data-fb="initial() 與 step() 回傳 int，所以印出的是成員數值，不是位址。"><span class="opt-letter">(D)</span> 3,4 然後兩個記憶體位址</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>要支援 cout &lt;&lt; p，為何一般將 operator&lt;&lt; 定義為接收 ostream 與 Point 的非成員函式？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。左運算元是 ostream，不能只以 Point 的一般成員運算子實現 cout &lt;&lt; p。若非成員函式需直接讀 private 資料，可用 friend 授權；透過公開 getter 則未必需要 friend。"><span class="opt-letter">(A)</span> 因為 cout &lt;&lt; f 的左運算元是 ostream 而不是你的物件</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。&lt;&lt; 是可以多載的，這正是本題在做的事。"><span class="opt-letter">(B)</span> 因為 C++ 不允許多載 &lt;&lt; 運算子</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。成員函式當然可以回傳參考，這跟本題無關。"><span class="opt-letter">(C)</span> 因為成員函式不能回傳參考</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。friend 與效能無關，它只影響存取權限。"><span class="opt-letter">(D)</span> 因為 friend 比較快</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>若把 ReadingLog 的 values 從 private 改為 public，主要影響是什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。使用者將能繞過 ReadingLog 的操作直接增刪資料；日後改變儲存方式時，也可能破壞那些直接存取 values 的程式。"><span class="opt-letter">(A)</span> 使用者可以繞過 add 等公開操作直接修改 vector，並依賴內部實作</button>
+      <button class="sq-opt" data-c="0" data-fb="內部實作公開後，呼叫端能繞過 ReadingLog 操作，也會依賴特定儲存方式。"><span class="opt-letter">(B)</span> 沒有差別，只是寫法不同</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。public 成員完全合法，問題是設計上的而不是語法上的。"><span class="opt-letter">(C)</span> 會編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。存取控制是編譯期的檢查，對執行效能沒有影響。"><span class="opt-letter">(D)</span> 效能會變差</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p7_files_exceptions.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">檔案與例外</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p9_oop_advanced.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">物件導向（進階）</div></a></div>
+</div>
+
+<footer>
+  先備知識 P8 · 物件導向（基礎）· 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
+    this.onDone = onDone || (()=>{});
+  }
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
+  }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
+  play() {
+    this.pause(); this.playing = true;
+    const tick = () => {
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
+    };
+    tick();
+    this._sync();
+  }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
+}
+/* /player-v2 */
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 })();
-/* depth-runtime:end */
-</script><script>/* quiz-shuffle v1 */
+
+/* ---------- PART 06 · 建構式多載解析逐步器 ---------- */
+let ovlPlayer = null;
+
+const OVL_CASE = {
+  none: {
+    call: 'Timer f;',
+    args: ['（無引數）'],
+    lead: '呼叫端寫 <code>Timer f;</code>，引數 <b>0</b> 個。四個同名建構式全都進候選名單，接下來一個一個比參數列。',
+    verdict: [
+      {ok: true,  msg: '<b>#1</b> 收 0 個引數，你給 0 個 —— 個數吻合，留著。'},
+      {ok: false, msg: '<b>#2</b> 要 1 個 <code>int</code>，你一個都沒給 —— 個數就對不上，淘汰。'},
+      {ok: false, msg: '<b>#3</b> 要 2 個 <code>int</code>，同理 —— 淘汰。'},
+      {ok: false, msg: '<b>#4</b> 要 1 個 <code>Timer</code>，你也沒給 —— 淘汰。'}
+    ],
+    done: '只有 <b>#1</b> 活下來，編譯器就挑它。它把 <code>initialValue</code> 設 0、<code>stepValue</code> 設 1。',
+    out: 'f = Timer(0,1)'
+  },
+  one: {
+    call: 'Timer f(3);',
+    args: ['3 : int'],
+    lead: '呼叫端寫 <code>Timer f(3);</code>，引數 <b>1</b> 個，型別是 <code>int</code>。比對從個數開始，個數過了才看型別。',
+    verdict: [
+      {ok: false, msg: '<b>#1</b> 收 0 個，你給 1 個 —— 個數不合，淘汰。'},
+      {ok: true,  msg: '<b>#2</b> 收 1 個 <code>int</code>：個數對、型別也完全吻合 —— 這是目前最好的一個。'},
+      {ok: false, msg: '<b>#3</b> 收 2 個，你只給 1 個 —— 淘汰。C++ 不會自己幫你補第二個引數，除非那個參數有預設值。'},
+      {ok: false, msg: '<b>#4</b> 個數對，但參數是 <code>Timer</code>、你給的是 <code>int</code>；此呼叫選擇直接接收 int 的 #2；複製版本是以已有 Timer 物件初始化新物件時的重點。'}
+    ],
+    done: '挑中 <b>#2</b>：<code>initialValue</code> 設 3、<code>stepValue</code> 補 1。這就是為什麼省略步幅時會採用 1。',
+    out: 'f = Timer(3,1)'
+  },
+  two: {
+    call: 'Timer f(3, 5);',
+    args: ['3 : int', '5 : int'],
+    lead: '呼叫端寫 <code>Timer f(3, 5);</code>，引數 <b>2</b> 個，型別都是 <code>int</code>。注意編譯器比對的是型別與個數，參數名稱不影響選擇。',
+    verdict: [
+      {ok: false, msg: '<b>#1</b> 收 0 個，你給 2 個 —— 淘汰。'},
+      {ok: false, msg: '<b>#2</b> 收 1 個，你給 2 個 —— 淘汰。多給的引數沒地方放。'},
+      {ok: true,  msg: '<b>#3</b> 收 2 個 <code>int</code>：個數對、兩個型別也都對 —— 完全吻合。'},
+      {ok: false, msg: '<b>#4</b> 收 1 個 <code>Timer</code>，你給 2 個 —— 淘汰。'}
+    ],
+    done: '挑中 <b>#3</b>：<code>initialValue</code> 設 3、<code>stepValue</code> 設 5。這是最常見的那一條路。',
+    out: 'f = Timer(3,5)'
+  },
+  copy: {
+    call: 'Timer g = f;',
+    args: ['f : Timer'],
+    lead: '接著上一步，假設已經有 <code>Timer f(3, 5);</code>。這裡的 <code>=</code> 是<b>初始化</b>：<code>g</code> 是新物件，這一行仍在挑建構式，引數 <b>1</b> 個、型別 <code>Timer</code>。',
+    verdict: [
+      {ok: false, msg: '<b>#1</b> 收 0 個，你給 1 個 —— 淘汰。'},
+      {ok: false, msg: '<b>#2</b> 個數對，但參數是 <code>int</code>、你給的是 <code>Timer</code>，沒有可用轉換，淘汰。'},
+      {ok: false, msg: '<b>#3</b> 收 2 個，你給 1 個 —— 淘汰。'},
+      {ok: true,  msg: '<b>#4</b> 收 1 個 <code>const Timer &amp;</code>：個數對、型別完全吻合 —— 這正是複製建構式該上場的時候。'}
+    ],
+    done: '挑中 <b>#4</b>，複製建構式把 <code>f</code> 的成員一個一個抄進 <code>g</code>。再說一次：這一行是<b>初始化</b>不是賦值，<code>g</code> 從頭到尾只被建構一次。',
+    out: 'g = Timer(3,5)   （f 仍然是 Timer(3,5)，兩個物件各有一份成員）'
+  }
+};
+
+function ovlFrames(kind) {
+  const c = OVL_CASE[kind];
+  const F = [{scan: null, dead: [], out: '', msg: c.lead}];
+  const dead = [];
+  let win = null;
+  c.verdict.forEach((v, idx) => {
+    const n = idx + 1;
+    if (v.ok) win = n; else dead.push(n);   // 先定生死，這一幀的畫面才跟訊息同步
+    F.push({scan: n, dead: dead.slice(), out: '', msg: v.msg});
+  });
+  F.push({scan: win, dead: dead.slice(), out: c.out, msg: c.done});
+  return F;
+}
+
+function ovlPaint(f) {
+  const root = $('ovlCands');
+  if (root) {
+    root.querySelectorAll('.line').forEach(l => {
+      const gone = f.dead.indexOf(parseInt(l.dataset.l, 10)) >= 0;
+      l.style.opacity = gone ? '.32' : '';
+      l.style.textDecoration = gone ? 'line-through' : '';
+    });
+  }
+  hlLine('ovlCands', f.scan);
+  $('ovlOut').innerHTML = f.out ? '結果：' + f.out : '&nbsp;';
+}
+
+function ovlStart(kind) {
+  if (ovlPlayer) ovlPlayer.stop();
+  const c = OVL_CASE[kind];
+  $('ovlCall').textContent = '呼叫端：' + c.call;
+  $('ovlArgs').innerHTML = c.args.map(a => `<div class="bq-item">${a}</div>`).join('');
+  ovlPlayer = new Player({frames: ovlFrames(kind), apply: f => {
+    ovlPaint(f);
+    setStatus('ovlStatus', f.msg);
+  }, delayInput: $('ovlSpeed')});
+  ovlPlayer.play();
+}
+
+function ovlReset() {
+  if (ovlPlayer) ovlPlayer.stop();
+  ovlPlayer = null;
+  ovlPaint({scan: null, dead: [], out: ''});
+  $('ovlCall').textContent = '呼叫端：（按下面任一顆按鈕開始）';
+  $('ovlArgs').innerHTML = '';
+  setStatus('ovlStatus', '選一種呼叫寫法開始。四個候選的名字一模一樣，決勝負的只有括號裡那一段。');
+}
+
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "類別（Class）", "back": "建立物件的藍圖：定義這一族物件會有哪些成員變數與成員函式。藍圖只有一份，照著它可以蓋出無數個物件。"}, {"front": "物件／實例（Object / Instance）", "back": "照著類別藍圖實際建立出來的東西。每個實例各自持有自己的成員變數，彼此互不影響。"}, {"front": "成員變數（Member Variable）", "back": "類別裡用來保存每個物件狀態的變數，例如 Reading 的 value。不同物件各有自己的非 static 成員。"}, {"front": "成員函式（Member Function）", "back": "隸屬類別的函式，可以依存取權限讀寫目前物件的成員；呼叫時目前物件由隱含的 this 指標指出。"}, {"front": "建構式（Constructor）", "back": "與類別同名、沒有回傳型別的特殊成員函式，建立物件時自動執行，負責把初始狀態填好。你不會自己呼叫它。"}, {"front": "本體指標（this）", "back": "成員函式裡隱含可用的指標，指向呼叫這個函式的物件本人。平常不必寫，只有在參數與成員同名時才需要用 this->data 來分辨。"}, {"front": "存取控制（Access Specifier）", "back": "public 任何人都能存取、private 只有自己的成員函式能存取、protected 再加上子類別。class 沒寫的話預設是 private，struct 預設是 public。"}, {"front": "封裝（Encapsulation）", "back": "把內部實作細節藏起來、只暴露有意義操作的設計原則。判準是問「這個成員被外面亂改會不會破壞結構的契約」，會就藏起來。"}, {"front": "取值與設值函式（Getter / Setter）", "back": "用來查詢或更新 private 成員的公開介面。setter 可驗證新值，getter 若不修改物件通常宣告為 const。"}, {"front": "唯讀成員函式（const Member Function）", "back": "寫在參數列後面的 const，是對編譯器承諾這個函式不會改動任何成員。const 物件只能呼叫 const 成員函式，所以傳 const 參考時所有讀取函式都必須加。"}, {"front": "多載（Overloading）", "back": "同一個名字可有多個版本，只要參數的個數或型別可區分；編譯器依呼叫端引數選出最合適的版本。"}, {"front": "運算子多載（Operator Overloading）", "back": "為自訂型別定義運算子的行為。例如 Timer 定義 operator<< 後，就能以一致格式輸出物件；其他運算子的設計見 P9。"}, {"front": "串流輸出運算子（operator<<）", "back": "為自訂物件提供串流輸出格式，例如 ostream& operator<<(ostream& out, const Point& p)。cout << p 的左側是 ostream，因此此版本是非成員函式；直接讀 private 成員時需授權，但使用公開 getter 就未必需要 friend。回傳 out 以支援串接。"}, {"front": "友誼宣告（friend）", "back": "friend 讓指定非成員函式或類別可存取 private/protected 成員；它不會把非成員變成成員。串流 operator<< 若改用公開 getter 讀值，就不一定需要 friend。"}, {"front": "組合（Composition）", "back": "一個類別持有另一個型別的物件作為成員，例如 ReadingLog 內部有 vector<int> values。外部依賴 ReadingLog 的介面，內部儲存細節可由類別管理。"}, {"front": "標頭檔（Header File, .hpp）", "back": "放類別定義、讓別的檔案 #include 進來用的檔案。#include 的行為就是把整份內容原地貼過來，所以需要 include guard 防止重複定義。"}, {"front": "引入防護（Include Guard）", "back": "用 #ifndef／#define／#endif 包住標頭內容，避免同一翻譯單元重複納入後造成重複定義。"}, {"front": "抽象資料型別（Abstract Data Type, ADT）", "back": "以可觀察的資料與操作描述一種型別，而不先限定實作。例如讀數記錄允許加入、計數與平均；C++ 類別可用公開介面表達這些操作，以 private 隱藏儲存細節。"}, {"front": "拷貝建構式（Copy Constructor）", "back": "用既有同型物件初始化新物件的特殊建構式，常見形式為 T(const T& other)。未自訂時編譯器可能產生成員逐一複製版本；若類別直接擁有資源，必須另外檢查複製語意。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+<script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {
     var h = 2166136261;
@@ -982,4 +1547,5 @@ const FLASHCARDS = [{"front": "類別（class）", "back": "定義一種型別�
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 /* /quiz-shuffle v1 */</script>
-</body></html>
+</body>
+</html>

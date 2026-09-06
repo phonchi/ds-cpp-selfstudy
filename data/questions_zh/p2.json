@@ -1,201 +1,156 @@
 [
   {
-    "question": "0 放入 if 條件會轉成？",
+    "question": "這段程式印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int sum = 0;\n    for (int i = 1; i <= 4; i++) {\n        sum += i;\n    }\n    cout << sum << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "false",
+        "answer": "10",
         "correct": true,
-        "feedback": "正確。"
+        "feedback": "正確。i 從 1 跑到 4，1+2+3+4 = 10。注意條件寫的是 i <= 4，所以最後一圈 i 是 4；如果寫成 i < 4 就只加到 3，答案會變成 6。這個邊界差一格是初學最常見的錯。"
       },
       {
-        "answer": "true",
+        "answer": "6",
         "correct": false,
-        "feedback": "數值零轉為 false。"
+        "feedback": "6 是 1+2+3，也就是條件寫成 i < 4 的結果。這裡寫的是 i <= 4，多跑了一圈。"
       },
       {
-        "answer": "只有負數是 false",
+        "answer": "15",
         "correct": false,
-        "feedback": "任何非零數值都轉為 true。"
+        "feedback": "15 是 1 加到 5。i 的初始值是 1、上界是 4，只跑四圈。"
       },
       {
-        "answer": "只有正數是 true",
+        "answer": "4",
         "correct": false,
-        "feedback": "負的非零值也轉為 true。"
+        "feedback": "sum 是累加，不是只留最後一個值。每一圈都做 sum += i。"
       }
     ]
   },
   {
-    "question": "false && f() 是否呼叫 f？",
+    "question": "switch 少了 break，這段印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int n = 2;\n    switch (n) {\n        case 1: cout << \"one \";\n        case 2: cout << \"two \";\n        case 3: cout << \"three \";\n                break;\n        case 4: cout << \"four \";\n    }\n    cout << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "不會",
+        "answer": "two three",
         "correct": true,
-        "feedback": "正確，&& 短路。"
+        "feedback": "正確。n 是 2，控制流從 case 2 跳進去印 two，因為沒有 break 就掉進 case 3 印 three，直到 case 3 底下的 break 才離開。case 4 完全沒有機會執行。"
       },
       {
-        "answer": "會",
+        "answer": "two",
         "correct": false,
-        "feedback": "左側已決定整體為 false。"
+        "feedback": "這是「每個 case 各自獨立」的直覺，但 C++ 的 case 只是一個跳進去的標籤。沒有 break 就會繼續往下執行。"
       },
       {
-        "answer": "仍會比較，但忽略結果",
+        "answer": "two three four",
         "correct": false,
-        "feedback": "短路表示右運算元不求值。"
+        "feedback": "case 3 底下有 break，控制流在那裡就離開 switch 了，跑不到 case 4。"
       },
       {
-        "answer": "只在最佳化開啟時不比較",
+        "answer": "one two three",
         "correct": false,
-        "feedback": "短路是語言語意，不是最佳化。"
+        "feedback": "case 1 在 case 2 上面。switch 不會往回跑，只會從相符的標籤往下掉。"
       }
     ]
   },
   {
-    "question": "if (x = 5) 的主要問題？",
+    "question": "兩個範圍 for 只差一個 & 符號，最後印出什麼？",
+    "code": "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    vector<int> v = {1, 2, 3};\n    for (int x : v) x += 10;\n    for (int &y : v) y += 100;\n    for (int z : v) cout << z << \" \";\n    cout << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "指定 x 為 5，再把 5 當 true",
+        "answer": "101 102 103",
         "correct": true,
-        "feedback": "正確；等號是指定。"
+        "feedback": "正確。第一個迴圈的 x 是每個元素的複本，x += 10 改完就被丟掉，v 沒有變。第二個迴圈的 y 宣告成 int&，是元素本身的別名，所以 y += 100 真的改到了 v。少那個 & 的版本 g++ 連警告都不會給。"
       },
       {
-        "answer": "比較 x 是否等於 5",
+        "answer": "111 112 113",
         "correct": false,
-        "feedback": "比較要用 ==。"
+        "feedback": "這假設兩個迴圈都改到了 v。第一個迴圈的 x 沒有 &，拿到的是複本，那 10 加在複本上。"
       },
       {
-        "answer": "只是比較，不改 x",
+        "answer": "11 12 13",
         "correct": false,
-        "feedback": "單等號會先修改 x。"
+        "feedback": "剛好相反：有效的是第二個迴圈（宣告成 int&），無效的是第一個。"
       },
       {
-        "answer": "一定造成編譯錯誤",
+        "answer": "1 2 3",
         "correct": false,
-        "feedback": "整數指定結果可轉成 bool，因此常能編譯。"
+        "feedback": "第二個迴圈的 y 是參考，確實改到了容器。只有第一個迴圈是白做工。"
       }
     ]
   },
   {
-    "question": "switch 的 case 後漏 break 會怎樣？",
+    "question": "條件一開始就不成立，這段的 count 是多少？",
+    "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int i = 5;\n    int count = 0;\n    do {\n        count++;\n        i++;\n    } while (i < 3);\n    cout << count << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "繼續執行後續 case 的敘述",
+        "answer": "1",
         "correct": true,
-        "feedback": "正確，這是 fallthrough。"
+        "feedback": "正確。do-while 是先跑主體再檢查條件，所以主體保證至少執行一次。i 從 5 變成 6，回頭檢查 6 < 3 不成立就結束，count 停在 1。同樣的條件換成 while 迴圈，count 會是 0。"
       },
       {
-        "answer": "自動離開 switch",
+        "answer": "0",
         "correct": false,
-        "feedback": "case 標籤不會自動停止。"
+        "feedback": "0 是 while 迴圈的答案。do-while 把檢查放在主體之後，所以主體一定會先跑過一次。"
       },
       {
-        "answer": "跳回 switch 開頭",
+        "answer": "3",
         "correct": false,
-        "feedback": "fallthrough 是向下繼續，不是重跑。"
+        "feedback": "條件是 i < 3，而 i 從 5 開始，一次都不會成立。迴圈不會跑三圈。"
       },
       {
-        "answer": "只執行 default",
+        "answer": "程式會無窮迴圈",
         "correct": false,
-        "feedback": "已匹配 case 後會沿後續敘述執行。"
+        "feedback": "i 每圈遞增，而且條件從一開始就不成立，跑一次就結束了。無窮迴圈的成因是主體沒有把條件推向不成立。"
       }
     ]
   },
   {
-    "question": "哪種迴圈保證本體至少一次？",
+    "question": "這個三角形雙層迴圈，內層主體執行幾次？",
+    "code": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int hits = 0;\n    for (int i = 0; i < 5; i++) {\n        for (int j = i + 1; j < 5; j++) {\n            hits++;\n        }\n    }\n    cout << hits << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "do-while",
+        "answer": "10",
         "correct": true,
-        "feedback": "正確，條件在本體後。"
+        "feedback": "正確。i 是 0 時內層跑 4 次、i 是 1 時 3 次，依序是 4+3+2+1+0 = 10，也就是 n(n-1)/2 = 5×4/2。"
       },
       {
-        "answer": "while",
+        "answer": "25",
         "correct": false,
-        "feedback": "while 可能零次。"
+        "feedback": "25 是兩層都跑滿 5 次的方形迴圈。這裡內層從 i+1 開始，所以每一圈都比上一圈短。"
       },
       {
-        "answer": "for",
+        "answer": "20",
         "correct": false,
-        "feedback": "for 也是前測，可能零次。"
+        "feedback": "20 是 n(n-1)，也就是三角形的兩倍。內層每一圈只跑剩下的那一半。"
       },
       {
-        "answer": "if",
+        "answer": "5",
         "correct": false,
-        "feedback": "if 不是重複結構。"
+        "feedback": "5 是外層的圈數。題目問的是內層主體被執行的總次數。"
       }
     ]
   },
   {
-    "question": "for(int i=0;i<4;++i) 本體與條件各幾次？",
+    "question": "條件 divisor != 0 && numerator / divisor > 3 可以避免除以零。如果把 && 兩邊對調，會發生什麼？",
     "answers": [
       {
-        "answer": "本體 4 次、條件 5 次",
+        "answer": "divisor 為 0 時，會先執行整數除以零，造成未定義行為",
         "correct": true,
-        "feedback": "正確；最後一次失敗檢查也算。"
+        "feedback": "正確。對調後 numerator / divisor 會先被求值；divisor 為 0 時已經發生未定義行為，右側的檢查來不及保護它。原本的順序靠短路求值避免執行除法。"
       },
       {
-        "answer": "兩者都是 4 次",
+        "answer": "編譯錯誤，因為條件的順序不合法",
         "correct": false,
-        "feedback": "i=4 時還會檢查一次條件。"
+        "feedback": "兩種順序在語法上都合法。問題出在執行時的整數除以零，而不是條件式語法。"
       },
       {
-        "answer": "本體 5 次、條件 5 次",
+        "answer": "結果一樣，&& 兩邊可以任意對調",
         "correct": false,
-        "feedback": "i=4 的失敗檢查不執行本體。"
+        "feedback": "&& 的求值是有先後的，左邊先算，左邊為假就不算右邊。順序在這裡是正確性問題，不是風格問題。"
       },
       {
-        "answer": "本體 4 次、條件 4 次",
+        "answer": "會變慢，但結果仍然正確",
         "correct": false,
-        "feedback": "還有一次使迴圈結束的失敗檢查。"
-      }
-    ]
-  },
-  {
-    "question": "continue 在 for 中下一步通常是？",
-    "answers": [
-      {
-        "answer": "執行更新式，再檢查條件",
-        "correct": true,
-        "feedback": "正確。"
-      },
-      {
-        "answer": "立刻離開整個迴圈",
-        "correct": false,
-        "feedback": "離開迴圈是 break。"
-      },
-      {
-        "answer": "重新執行本體開頭，不更新",
-        "correct": false,
-        "feedback": "for 的 continue 仍走更新式。"
-      },
-      {
-        "answer": "結束目前最內層迴圈",
-        "correct": false,
-        "feedback": "那是 break 的效果。"
-      }
-    ]
-  },
-  {
-    "question": "兩層各跑 n 次、內層 O(1)，總成本？",
-    "answers": [
-      {
-        "answer": "O(n²)",
-        "correct": true,
-        "feedback": "正確，n×n。"
-      },
-      {
-        "answer": "O(2n)",
-        "correct": false,
-        "feedback": "Big-O 不把巢狀迴圈次數相加。"
-      },
-      {
-        "answer": "O(n)",
-        "correct": false,
-        "feedback": "兩層次數相乘。"
-      },
-      {
-        "answer": "O(log n)",
-        "correct": false,
-        "feedback": "每層都完整跑 n 次，沒有折半。"
+        "feedback": "效能不是重點；對調後保護條件太晚執行，可能先觸發未定義行為。"
       }
     ]
   }

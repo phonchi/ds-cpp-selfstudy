@@ -1,202 +1,156 @@
 [
   {
-    "question": "四個建置階段的正確順序？",
+    "question": "以下程式印出什麼？",
+    "code": "int a = 7, b = 2;\ncout << a / b << \" \" << a % b << endl;",
     "answers": [
       {
-        "answer": "前置處理 → 編譯 → 組譯 → 連結",
+        "answer": "3 1",
         "correct": true,
-        "feedback": "正確；g++ 通常一次代辦四步。"
+        "feedback": "正確。兩邊都是 int，/ 做的是整數除法，小數直接截掉得到 3；% 取的是餘數 1。"
       },
       {
-        "answer": "編譯 → 前置處理 → 連結 → 組譯",
+        "answer": "3.5 1",
         "correct": false,
-        "feedback": "前置處理必須先展開來源，連結則在目的檔之後。"
+        "feedback": "不對。C++ 只要 / 的兩邊都是整數就做整數除法；要浮點結果得先把一邊轉成 double。"
       },
-      {
-        "answer": "連結 → 編譯 → 組譯 → 前置處理",
-        "correct": false,
-        "feedback": "連結必須在目的檔產生之後。"
-      },
-      {
-        "answer": "前置處理 → 組譯 → 編譯 → 連結",
-        "correct": false,
-        "feedback": "編譯先產生組合語言，才進行組譯。"
-      }
-    ]
-  },
-  {
-    "question": "區域變數 int n; 尚未指定就讀取，應如何判斷？",
-    "answers": [
-      {
-        "answer": "屬未定義行為",
-        "correct": true,
-        "feedback": "正確；不要依賴碰巧結果。"
-      },
-      {
-        "answer": "保證是 0",
-        "correct": false,
-        "feedback": "自動儲存期的區域基本型別不保證零初始化。"
-      },
-      {
-        "answer": "保證沿用上次的值",
-        "correct": false,
-        "feedback": "未初始化物件沒有這項保證。"
-      },
-      {
-        "answer": "由編譯器自動選一個有效整數",
-        "correct": false,
-        "feedback": "編譯器不會替區域 int 選業務上有效的初值。"
-      }
-    ]
-  },
-  {
-    "question": "哪個是單一字元？",
-    "answers": [
-      {
-        "answer": "'Q'",
-        "correct": true,
-        "feedback": "正確，單引號是 char 字面值。"
-      },
-      {
-        "answer": "std::string{\"Q\"}",
-        "correct": false,
-        "feedback": "雙引號形成字串字面值。"
-      },
-      {
-        "answer": "\"Q\"",
-        "correct": false,
-        "feedback": "這會建立 string 物件，不是 char 字面值。"
-      },
-      {
-        "answer": "Q",
-        "correct": false,
-        "feedback": "原始碼字元字面值需要引號。"
-      }
-    ]
-  },
-  {
-    "question": "下列輸出為何？",
-    "answers": [
       {
         "answer": "3 3.5",
-        "correct": true,
-        "feedback": "正確；第一次先做整數除法。"
+        "correct": false,
+        "feedback": "不對。% 是取餘數運算子，不是除法，而且它只能用在整數上，7.0 % 2 會編譯錯誤。"
       },
       {
-        "answer": "3.5 3.5",
+        "answer": "4 1",
         "correct": false,
-        "feedback": "指定到 double 不會回復已截斷小數。"
-      },
-      {
-        "answer": "3 3",
-        "correct": false,
-        "feedback": "第二次除法前已轉型，會保留 .5。"
-      },
-      {
-        "answer": "3.5 3",
-        "correct": false,
-        "feedback": "第一次是整數除法，第二次才是浮點除法。"
+        "feedback": "不對。整數除法是往零的方向截斷，不是四捨五入。7 / 2 得到 3 而不是 4。"
       }
-    ],
-    "code": "double a=7/2; double b=static_cast<double>(7)/2; std::cout<<a<<\" \"<<b;"
+    ]
   },
   {
-    "question": "sizeof(char) 由標準保證為何？",
+    "question": "以下程式印出什麼？",
+    "code": "int x = 10;\ndouble y = x / 4;\ncout << y << endl;",
     "answers": [
+      {
+        "answer": "2",
+        "correct": true,
+        "feedback": "正確。y 雖然是 double，但等號右邊的 x / 4 兩邊都是 int，除法先做完得到 2，才被轉成 2.0 存進 y。轉型必須發生在除法之前才有用。"
+      },
+      {
+        "answer": "2.5",
+        "correct": false,
+        "feedback": "不對。這是很多人以為的答案，但編譯器不會因為左邊是 double 就回頭改變右邊的算法。要拿到 2.5 得寫 static_cast<double>(x) / 4。"
+      },
+      {
+        "answer": "2.0",
+        "correct": false,
+        "feedback": "值確實是 2.0，但 cout 預設不印多餘的 0，所以螢幕上會看到 2。要固定印小數位得用 setprecision 搭配 fixed。"
+      },
+      {
+        "answer": "編譯錯誤",
+        "correct": false,
+        "feedback": "不對。把 int 指派給 double 是合法的隱式轉換，完全編得過。這正是這個坑危險的地方：沒有任何錯誤訊息。"
+      }
+    ]
+  },
+  {
+    "question": "以下合法的 C++ 程式印出什麼？",
+    "code": "cout << boolalpha << (10 < 5 < 3) << endl;",
+    "answers": [
+      {
+        "answer": "true",
+        "correct": true,
+        "feedback": "正確。C++ 從左邊算起：10 < 5 得到 false，也就是 0；接著算 0 < 3，成立，所以是 true。要表達範圍檢查一定要寫成 (5 < x) && (x < 10)。"
+      },
+      {
+        "answer": "false",
+        "correct": false,
+        "feedback": "不對。C++ 不會把連續比較自動展開成兩個條件，只會從左到右兩兩比較。"
+      },
       {
         "answer": "1",
-        "correct": true,
-        "feedback": "正確，單位是 byte。"
+        "correct": false,
+        "feedback": "值確實是真，但這行先丟了 boolalpha 進 cout，之後的 bool 就會印成 true 或 false 而不是 1 或 0。"
       },
       {
-        "answer": "8",
+        "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "char 的位元數未必是 8，但 sizeof(char) 定義為 1。"
-      },
-      {
-        "answer": "由平台任意決定",
-        "correct": false,
-        "feedback": "標準明確定義 sizeof(char) 為 1。"
-      },
-      {
-        "answer": "CHAR_BIT",
-        "correct": false,
-        "feedback": "CHAR_BIT 是一個 byte 的 bit 數，不是 sizeof(char) 的結果。"
+        "feedback": "不對。這行完全合法，這正是它危險的地方。編譯器只看到兩個合法的比較運算，不會知道你想寫的是範圍檢查。"
       }
     ]
   },
   {
-    "question": "score=4；執行 cout << score++ 後輸出與 score 各為何？",
+    "question": "以下程式印出什麼？",
+    "code": "int i = 5;\ncout << i++ << \" \";\ncout << i << endl;",
     "answers": [
       {
-        "answer": "輸出 4，score 變 5",
+        "answer": "5 6",
         "correct": true,
-        "feedback": "正確，後置遞增先產生舊值。"
+        "feedback": "正確。i++ 是後置遞增：先把舊值 5 交出去印，之後才把 i 加成 6。如果寫成 ++i，印出來的就會是 6 6。"
       },
       {
-        "answer": "輸出 5，score 變 5",
+        "answer": "6 6",
         "correct": false,
-        "feedback": "那是前置遞增的輸出。"
+        "feedback": "不對，那是 ++i 的行為。前置遞增先加再交出新值，後置遞增先交出舊值再加。"
       },
       {
-        "answer": "輸出 4，score 仍為 4",
+        "answer": "5 5",
         "correct": false,
-        "feedback": "後置 ++ 產生舊值後仍會遞增物件。"
+        "feedback": "不對。i++ 確實會把 i 加一，只是加的時機在把舊值交出去之後。第二行印的是已經變成 6 的 i。"
       },
       {
-        "answer": "輸出 5，score 仍為 4",
+        "answer": "6 5",
         "correct": false,
-        "feedback": "後置遞增不會得到這組狀態。"
+        "feedback": "不對。第一個 cout 一定先執行，不可能印出比第二個大的值。"
       }
     ]
   },
   {
-    "question": "帶號 int 超出可表示範圍時可以依賴它繞回嗎？",
+    "question": "假設本次執行環境的 sizeof(int) 為 4，以下程式印出什麼？",
+    "code": "int a[5] = {1, 2, 3, 4, 5};\ncout << sizeof(int) << \" \" << sizeof(a) << \" \" << sizeof(a) / sizeof(int) << endl;",
     "answers": [
       {
-        "answer": "不可以",
+        "answer": "4 20 5",
         "correct": true,
-        "feedback": "正確；帶號溢位是未定義行為。"
+        "feedback": "正確。在題設環境中每個 int 佔 4 bytes，五個共 20 bytes，陣列總大小除以元素大小得到 5；其他環境的 int 大小可能不同。"
       },
       {
-        "answer": "可以，必然繞回",
+        "answer": "4 5 1",
         "correct": false,
-        "feedback": "模數回繞是 unsigned 的規則。"
+        "feedback": "不對。sizeof(a) 量的是整個陣列佔的位元組數 20，不是元素個數。元素個數要自己用 sizeof(a) / sizeof(int) 算出來。"
       },
       {
-        "answer": "可以，只要編譯器沒有警告",
+        "answer": "8 40 5",
         "correct": false,
-        "feedback": "帶號溢位的語意不由警告有無決定。"
+        "feedback": "不對。8 是指標與 double 的大小，int 在主流平台上是 4 bytes。要問大小就寫 sizeof，不要用機器位元數去猜。"
       },
       {
-        "answer": "只在 64 位元平台可以",
+        "answer": "4 20 4",
         "correct": false,
-        "feedback": "平台位元數不把帶號溢位變成可依賴。"
+        "feedback": "不對。20 除以 4 是 5，剛好等於元素個數。這個除法在陣列傳進函式之後就失效了，因為那時 sizeof 量到的是指標。"
       }
     ]
   },
   {
-    "question": "看到十多則編譯錯誤，第一步？",
+    "question": "編譯時出現 undefined reference to addUp(int, int)，這個錯誤發生在哪一個階段？該往哪裡找？",
     "answers": [
       {
-        "answer": "先修第一則真正的 error 再重編",
+        "answer": "連結階段。某個函式只有宣告沒有定義，或編譯指令少放了一個原始檔",
         "correct": true,
-        "feedback": "正確；後續常是連鎖診斷。"
+        "feedback": "正確。這類訊息開頭通常是 /usr/bin/ld，而且不會指到你的哪一行，因為連結器看的是整個程式而不是單一檔案。前面三個階段都已經順利通過了。"
       },
       {
-        "answer": "從最後一則往回修",
+        "answer": "前處理階段。include 的路徑寫錯了",
         "correct": false,
-        "feedback": "最後一則可能只是前方語法錯誤的後果。"
+        "feedback": "不對。前處理找不到檔案的訊息是 fatal error 加上 No such file or directory，那是另一種錯。"
       },
       {
-        "answer": "先刪除所有警告選項",
+        "answer": "編譯階段。函式的參數型別打錯了",
         "correct": false,
-        "feedback": "關掉診斷沒有修正錯誤。"
+        "feedback": "不對。參數型別對不上是編譯階段的錯，訊息會是 no matching function for call to，而且會指到你呼叫的那一行。"
       },
       {
-        "answer": "直接執行舊的執行檔",
+        "answer": "執行階段。程式跑到那一行才發現函式不存在",
         "correct": false,
-        "feedback": "舊執行檔不能驗證目前來源是否已修好。"
+        "feedback": "不對。C++ 在產生執行檔之前就必須把每個名字接上實作，接不上就根本產不出執行檔，程式一次都沒跑過。"
       }
     ]
   }

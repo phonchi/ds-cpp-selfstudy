@@ -289,6 +289,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .tok-op{background:#8e44ad;}
 .tok-new{outline:3px solid #f39c12;}
 .mono{font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:700px){.float-nav{display:none;}}
+/* Preserve original diagrams; contain wide code, tables and controls locally. */
+.viz-layout > *{min-width:0;}
+.viz-panel{min-width:0;max-width:100%;overflow-x:auto;}
+.table-scroll{max-width:100%;overflow-x:auto;}
+@media(max-width:900px){section p code,section li code{white-space:normal;overflow-wrap:anywhere;}.status-text{min-width:0;overflow-wrap:anywhere;}}
 </style>
 <style>
 /* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
@@ -459,14 +466,31 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .vert-table th i{color:inherit;}
 </style>
 <!-- /contrast-fix -->
-<style>
-@media (max-width: 760px) { .float-nav { display: none; } }
-</style>
-
-<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
-<style>.diagram-scroll{overflow-x:auto;margin:1rem 0;}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#why" data-target="why"><span class="fn-num">01</span><span class="fn-name">從清單需求到 vector&lt;T&gt;</span></a><a href="#create" data-target="create"><span class="fn-num">02</span><span class="fn-name">初始化、索引與界線檢查</span></a><a href="#walk" data-target="walk"><span class="fn-num">03</span><span class="fn-name">三種走訪與 iterator 基礎</span></a><a href="#modify" data-target="modify"><span class="fn-num">04</span><span class="fn-name">五種增刪與搬移成本</span></a><a href="#capacity" data-target="capacity"><span class="fn-num">05</span><span class="fn-name">size、capacity、reserve 與攤還</span></a><a href="#invalidate" data-target="invalidate"><span class="fn-num">06</span><span class="fn-name">iterator 失效與安全 erase</span></a><a href="#twod" data-target="twod"><span class="fn-num">07</span><span class="fn-name">二維 vector：表格與不規則列</span></a><a href="#adaptors" data-target="adaptors"><span class="fn-num">08</span><span class="fn-name">stack、queue、deque 的生活模型</span></a><a href="#string" data-target="string"><span class="fn-num">09</span><span class="fn-name">string、字元陣列、npos 與 substr</span></a><a href="#io-cost" data-target="io-cost"><span class="fn-num">10</span><span class="fn-name">混合輸入與字串串接成本</span></a><a href="#reference" data-target="reference"><span class="fn-num">11</span><span class="fn-name">語法速查與章末整合</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">12</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">13</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p5-range-bindings" data-target="restore-p5-range-bindings"><span class="fn-num">14</span><span class="fn-name">範圍 for 的值、參考與唯讀參考</span></a><a href="#restore-p5-array-vector" data-target="restore-p5-array-vector"><span class="fn-num">15</span><span class="fn-name">原生陣列與 vector：三個需求差異</span></a><a href="#restore-p5-constructors" data-target="restore-p5-constructors"><span class="fn-num">16</span><span class="fn-name">從型別、變數、引數讀懂完整建構式家族</span></a><a href="#restore-p5-invalidation" data-target="restore-p5-invalidation"><span class="fn-num">17</span><span class="fn-name">逐操作判斷 iterator、指標與參考是否失效</span></a><a href="#restore-p5-adaptors" data-target="restore-p5-adaptors"><span class="fn-num">18</span><span class="fn-name">stack、queue、deque 的完整介面矩陣</span></a><a href="#restore-p5-string-convert" data-target="restore-p5-string-convert"><span class="fn-num">19</span><span class="fn-name">char、單字元 string、字面值串接與數字轉換</span></a><a href="#restore-p5-costs" data-target="restore-p5-costs"><span class="fn-num">20</span><span class="fn-name">完整操作成本：成本是資料移動量，不是方法名稱</span></a><a href="#restore-p5-uses-resources" data-target="restore-p5-uses-resources"><span class="fn-num">21</span><span class="fn-name">六種用途與查閱入口</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">原生陣列的痛點</span></a>
+  <a href="#create" data-target="create"><span class="fn-num">P01</span><span class="fn-name">建立與存取</span></a>
+  <a href="#modify" data-target="modify"><span class="fn-num">P02</span><span class="fn-name">增刪的成本</span></a>
+  <a href="#capacity" data-target="capacity"><span class="fn-num">P03</span><span class="fn-name">容量與攤還</span></a>
+  <a href="#iterate" data-target="iterate"><span class="fn-num">P04</span><span class="fn-name">三種走訪</span></a>
+  <a href="#invalidate" data-target="invalidate"><span class="fn-num">P05</span><span class="fn-name">iterator 失效</span></a>
+  <a href="#twod" data-target="twod"><span class="fn-num">P06</span><span class="fn-name">二維 vector</span></a>
+  <a href="#seqcont" data-target="seqcont"><span class="fn-num">P07</span><span class="fn-name">stack／queue／deque</span></a>
+  <a href="#string" data-target="string"><span class="fn-num">P08</span><span class="fn-name">string</span></a>
+  <a href="#stringcost" data-target="stringcost"><span class="fn-num">P09</span><span class="fn-name">字串的成本</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
   <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
     <rect x="30" y="70" width="38" height="38" rx="5"/>
     <rect x="68" y="70" width="38" height="38" rx="5"/>
@@ -485,464 +509,1659 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <text x="30" y="150">capacity 8</text>
     <text x="112" y="140">搬家</text>
   </g>
-</svg><div class="hero-content"><div class="chapter-tag">PREREQ P5</div><h1>vector 與 string</h1><div class="subtitle">從可變清單、iterator 到可靠的文字處理</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#why"><span class="toc-num">01</span>從清單需求到 vector&lt;T&gt;</a><a href="#create"><span class="toc-num">02</span>初始化、索引與界線檢查</a><a href="#walk"><span class="toc-num">03</span>三種走訪與 iterator 基礎</a><a href="#modify"><span class="toc-num">04</span>五種增刪與搬移成本</a><a href="#capacity"><span class="toc-num">05</span>size、capacity、reserve 與攤還</a><a href="#invalidate"><span class="toc-num">06</span>iterator 失效與安全 erase</a><a href="#twod"><span class="toc-num">07</span>二維 vector：表格與不規則列</a><a href="#adaptors"><span class="toc-num">08</span>stack、queue、deque 的生活模型</a><a href="#string"><span class="toc-num">09</span>string、字元陣列、npos 與 substr</a><a href="#io-cost"><span class="toc-num">10</span>混合輸入與字串串接成本</a><a href="#reference"><span class="toc-num">11</span>語法速查與章末整合</a><a href="#bankquiz"><span class="toc-num">12</span>自我檢測</a><a href="#cards"><span class="toc-num">13</span>關鍵詞彙卡</a><a href="#restore-p5-range-bindings"><span class="toc-num">補</span>範圍 for 的值、參考與唯讀參考</a><a href="#restore-p5-array-vector"><span class="toc-num">補</span>原生陣列與 vector：三個需求差異</a><a href="#restore-p5-constructors"><span class="toc-num">補</span>從型別、變數、引數讀懂完整建構式家族</a><a href="#restore-p5-invalidation"><span class="toc-num">補</span>逐操作判斷 iterator、指標與參考是否失效</a><a href="#restore-p5-adaptors"><span class="toc-num">補</span>stack、queue、deque 的完整介面矩陣</a><a href="#restore-p5-string-convert"><span class="toc-num">補</span>char、單字元 string、字面值串接與數字轉換</a><a href="#restore-p5-costs"><span class="toc-num">補</span>完整操作成本：成本是資料移動量，不是方法名稱</a><a href="#restore-p5-uses-resources"><span class="toc-num">補</span>六種用途與查閱入口</a></div></div><section id="why"><div class="section-number">PART 01</div><h2>從清單需求到 vector&lt;T&gt;</h2>
-<p>程式常要保存「數量到執行時才知道」的一串同型別資料，例如購物清單、每小時溫度或文字的每個字元。原生陣列的長度固定；<code>vector</code> 會自己記住元素數量，也能在執行中增減。<code>string</code> 則把字元序列包成文字專用型別。</p>
-<h3>先讀懂物件、點號與樣板參數</h3>
-<p><code>vector&lt;int&gt; scores;</code> 中，<code>vector</code> 是容器種類，角括號的 <code>int</code> 指定每一格能放的元素型別，<code>scores</code> 才是變數名稱。換成 <code>vector&lt;string&gt;</code>，語法不變，但每格改放一個 <code>string</code>。</p>
-<p>容器是一個物件；點號表示「請這個物件做事」。因此 <code>scores.size()</code> 是請 scores 回報項目數，<code>scores.push_back(80)</code> 是請 scores 在尾端放入 80。括號表示呼叫方法；即使沒有引數，<code>size()</code> 的括號也不能省。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>逐項讀法</th><th>用途</th></tr></thead><tbody><tr><td><code>vector&lt;int&gt; scores;</code></td><td>int 是元素型別；scores 是物件</td><td>可增減的整數清單</td></tr><tr><td><code>scores.push_back(80);</code></td><td>對 scores 呼叫 push_back，傳入 80</td><td>尾端加入</td></tr><tr><td><code>scores.size()</code></td><td>對 scores 呼叫 size，不傳引數</td><td>取得目前項目數</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="2 件：買牛奶、寄包裹&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main() {
-    vector&lt;string&gt; errands;
-    errands.push_back(&quot;買牛奶&quot;);
-    errands.push_back(&quot;寄包裹&quot;);
-    cout &lt;&lt; errands.size() &lt;&lt; &quot; 件：&quot; &lt;&lt; errands[0] &lt;&lt; &quot;、&quot; &lt;&lt; errands[1] &lt;&lt; &quot;\n&quot;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 件：買牛奶、寄包裹&#10;</pre></div>
-<p>第 6 行建立空容器；第 7、8 行依序加入兩個字串，因此有效索引是 0 與 1。第 9 行的 <code>size()</code> 回傳 2。方括號不是第幾個人的日常編號，而是從 0 開始的位移。</p>
-<div class="info-box warm"><div class="info-label">界線</div><p><code>vector&lt;int&gt;</code> 只能直接放 int；它不是「任何東西都可放」的袋子。需要不同型別時，應重新設計資料型別，而不是期待 vector 自動改型。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>把上例改成三項待辦並印出最後一項；索引要怎麼寫？</p><details><summary>看解答與理由</summary><p>加入 <code>errands.push_back("繳水費");</code>，最後一項是 <code>errands[errands.size()-1]</code>。只有在非空時才能減 1。</p></details></div>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P5</div>
+    <h1><span class="blue">vector</span> 與 <span class="orange">string</span></h1>
+    <div class="subtitle">先備知識 · 語法與互動</div>
+    <div class="big-formula">push_back｜insert｜size vs capacity｜攤還 O(1)｜substr｜iterator 失效</div>
+    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備知識 · 語法與互動）</div>
+  <p>先讀語法與例子，再操作互動圖解並完成四選一自測。忘記寫法時回看速查表，最後用中英詞彙卡複習。</p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>原生陣列的三個痛點</a>
+    <a href="#create"><span class="toc-num">P01</span>建立與存取</a>
+    <a href="#modify"><span class="toc-num">P02</span>增刪：成本差很多</a>
+    <a href="#capacity"><span class="toc-num">P03</span>容量、搬家與攤還 O(1)</a>
+    <a href="#iterate"><span class="toc-num">P04</span>三種走訪寫法</a>
+    <a href="#invalidate"><span class="toc-num">P05</span>iterator 與指標失效</a>
+    <a href="#twod"><span class="toc-num">P06</span>二維 vector 與相鄰矩陣</a>
+    <a href="#seqcont"><span class="toc-num">P07</span>STL 的 stack／queue／deque 速覽</a>
+    <a href="#string"><span class="toc-num">P08</span>string 就是加了方法的 vector<char></a>
+    <a href="#stringcost"><span class="toc-num">P09</span>字串操作的成本</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue">
+  <div class="section-number">PROLOGUE · 開場</div>
+  <h2>原生陣列有三個痛點，<code>vector</code> 一次解決</h2>
+  <p>先看你已經會的東西壞在哪裡。<code>int a[5];</code> 這行有三個你改不掉的限制：</p>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>痛點</th><th>原生陣列</th><th><code>vector</code></th></tr></thead>
+    <tbody>
+      <tr><td>長度能不能變</td><td>不能。<code>int a[5]</code> 就是永遠 5 格</td><td>能，<code>push_back</code> 隨時加</td></tr>
+      <tr><td>傳進函式會怎樣</td><td>一般 T arr[] 參數調整為 T*，不攜帶長度；陣列參考等寫法可保留型別</td><td>照樣是完整的物件，<code>size()</code> 還在</td></tr>
+      <tr><td>自己知不知道多長</td><td>陣列型別本身保有長度；以一般指標參數接收後，通常需另傳 n</td><td>知道，<code>v.size()</code></td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">同一件事，陣列做不到、vector 做得到</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">showArray</span>(<span class="kw">int</span> arr[]) {                 <span class="com">// 陣列一進來就退化成 int*</span>
+<span class="line" data-l="6"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">  函式裡 sizeof(arr) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(arr) &lt;&lt; <span class="str">"</span><span class="str"> bytes（指標的大小）</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"><span class="kw">void</span> <span class="fn">showVector</span>(vector&lt;<span class="kw">int</span>&gt;&amp; v) {           <span class="com">// vector 自己記得長度</span>
+<span class="line" data-l="9"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">  函式裡 v.size() = </span><span class="str">"</span> &lt;&lt; v.size() &lt;&lt; endl;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="13">    <span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>};</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">原生陣列：main 裡 sizeof(a) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(a) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="15">    showArray(a);</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>};</span>
+<span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">vector：main 裡 v.size() = </span><span class="str">"</span> &lt;&lt; v.size() &lt;&lt; endl;</span>
+<span class="line" data-l="19">    showVector(v);</span>
+<span class="line" data-l="20">    v.push_back(<span class="num">60</span>);                        <span class="com">// 陣列做不到這件事</span>
+<span class="line" data-l="21"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">push_back 之後 v.size() = </span><span class="str">"</span> &lt;&lt; v.size() &lt;&lt; endl;</span>
+<span class="line" data-l="22">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="23">}</span>
+<span class="line" data-l="24"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>原生陣列：main 裡 sizeof(a) = 20 bytes
+  函式裡 sizeof(arr) = 8 bytes（指標的大小）
+vector：main 裡 v.size() = 5
+  函式裡 v.size() = 5
+push_back 之後 v.size() = 6</pre></div>
+  <p class="dx-note">int arr[] 作為函式參數會調整成 int*，因此函式內 sizeof(arr) 是指標大小，實際 bytes 依平台而定。在陣列原本的作用域中，sizeof(a) 仍是整個陣列大小。vector 以參考傳入時保有完整型別與 size() 介面。</p>
+</div>
+
+
+
+  <div class="cmp-table-wrap">
+
+  </div>
+
+  <p>這一頁同時介紹操作方式與成本：尾端加入、中間插入、容量搬移和字串累積看似都在改資料，實際需要的工作可能不同。</p>
+
+  <div class="warn-box">
+    <div class="info-label">📌 本頁定位</div>
+
+  </div>
+<h3>這些操作各自解決什麼需求</h3><div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table"><thead><tr><th>情境</th><th>語法或操作</th><th>要注意的事</th></tr></thead><tbody><tr><td>保存讀數</td><td>vector&lt;int&gt;</td><td>長度會隨輸入增加，用 push_back 加到尾端。</td></tr><tr><td>預先知道資料量</td><td>reserve</td><td>先安排容量，避免已知範圍內的重複配置。</td></tr><tr><td>保留原始資料</td><td>複製容器</td><td>獨立副本適合之後要各自修改的情況。</td></tr><tr><td>更新一筆資料</td><td>v[i] 或 v.at(i)</td><td>索引要合法，需要範圍檢查時選 at。</td></tr><tr><td>刪除無效記錄</td><td>erase</td><td>接住回傳的迭代器，避免繼續使用已失效的位置。</td></tr><tr><td>保存分列資料</td><td>vector&lt;vector&lt;int&gt;&gt;</td><td>每一列各自管理長度；稍後以座位表練習。</td></tr></tbody></table></div></section>
+
+
+<section id="create">
+  <div class="section-number">PART 01 · 建立與存取</div>
+  <h2>四種建法，兩種存取</h2>
+  <p><code>vector</code> 要先 <code>#include &lt;vector&gt;</code>。建立的四種寫法對應四種情境：</p>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>寫法</th><th>結果</th><th>什麼時候用</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">vector&lt;int&gt; v;</td><td>空的，<code>size()</code> 是 0</td><td>邊跑邊 <code>push_back</code></td></tr>
+      <tr><td class="mono">vector&lt;int&gt; v(5, 0);</td><td>5 個 0</td><td>已知長度、要先填預設值（計數陣列）</td></tr>
+      <tr><td class="mono">vector&lt;int&gt; v = {31, 17, 93};</td><td>照清單填好</td><td>寫測試資料</td></tr>
+      <tr><td class="mono">vector&lt;int&gt; w(v);</td><td>整份複製一份新的</td><td>要留原本那份不動時</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <p>存取有兩個：<code>v[i]</code> 和 <code>v.at(i)</code>。功能一樣，<strong>差別只在越界時的反應</strong>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">[] 與 at() 的差別</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; a;                  <span class="com">// 空的，size 是 0</span>
+<span class="line" data-l="8"></span>    vector&lt;<span class="kw">int</span>&gt; b(<span class="num">5</span>, <span class="num">0</span>);            <span class="com">// 5 個 0</span>
+<span class="line" data-l="9"></span>    vector&lt;<span class="kw">int</span>&gt; c = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>};   <span class="com">// 初始化清單</span>
+<span class="line" data-l="10"></span>    vector&lt;<span class="kw">int</span>&gt; d(c);               <span class="com">// 整個複製一份</span>
+<span class="line" data-l="11"></span></span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">a.size()=</span><span class="str">"</span> &lt;&lt; a.size() &lt;&lt; <span class="str">"</span><span class="str">  b.size()=</span><span class="str">"</span> &lt;&lt; b.size()</span>
+<span class="line" data-l="13">         &lt;&lt; <span class="str">"</span><span class="str">  c.size()=</span><span class="str">"</span> &lt;&lt; c.size() &lt;&lt; <span class="str">"</span><span class="str">  d.size()=</span><span class="str">"</span> &lt;&lt; d.size() &lt;&lt; endl;</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">c[1]    = </span><span class="str">"</span> &lt;&lt; c[<span class="num">1</span>] &lt;&lt; <span class="str">"</span><span class="str">      &lt;- 不檢查範圍，快</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">c.at(1) = </span><span class="str">"</span> &lt;&lt; c.at(<span class="num">1</span>) &lt;&lt; <span class="str">"</span><span class="str">      &lt;- 檢查範圍</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    <span class="kw">try</span> {</span>
+<span class="line" data-l="19">        cout &lt;&lt; c.at(<span class="num">5</span>) &lt;&lt; endl;    <span class="com">// 越界：at 會丟例外</span>
+<span class="line" data-l="20"></span>    } <span class="kw">catch</span> (out_of_range&amp; e) {</span>
+<span class="line" data-l="21">        cout &lt;&lt; <span class="str">"</span><span class="str">c.at(5) 丟出 out_of_range：</span><span class="str">"</span> &lt;&lt; e.what() &lt;&lt; endl;</span>
+<span class="line" data-l="22">    }</span>
+<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="24">}</span>
+<span class="line" data-l="25"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a.size()=0  b.size()=5  c.size()=3  d.size()=3
+c[1]    = 17      &lt;- 不檢查範圍，快
+c.at(1) = 17      &lt;- 檢查範圍
+c.at(5) 丟出 out_of_range：vector::_M_range_check: __n (which is 5) &gt;= this-&gt;size() (which is 3)</pre></div>
+  <p class="dx-note"><code>at(5)</code> 在只有 3 個元素的 vector 上會丟出 <code>out_of_range</code>，訊息裡連 5 和 3 都寫出來了，非常好 debug。換成 <code>c[5]</code> 就<strong>什麼檢查都不做</strong>：讀到隔壁那塊記憶體，印出一個看起來像亂數的值，或者直接當掉，而且當掉的位置常常離出錯的那一行很遠。</p>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">例外沒人接會怎樣</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>};</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">v.at(5)：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; v.at(<span class="num">5</span>) &lt;&lt; endl;      <span class="com">// 沒有 try/catch，例外沒人接</span>
+<span class="line" data-l="9"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>v.at(5)：
+
+[執行結束碼 -6]
+terminate called after throwing an instance of &#x27;std::out_of_range&#x27;
+  what():  vector::_M_range_check: __n (which is 5) &gt;= this-&gt;size() (which is 3)</pre></div>
+  <p class="dx-note">沒有相符的 <code>catch</code> 時，例外一路離開 <code>main</code>，系統會呼叫 <code>std::terminate</code>；預設處理通常使程式異常終止。診斷文字格式由實作決定，正式程式仍應在能處理問題的層級接住例外。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 該用哪一個</div>
+    <p>確定索引合法時可使用 v[i]；不確定來自輸入或計算的索引時，可用 at(i) 檢查範圍。越界時 at 會以例外回報，而 [] 不保證替你檢查；不要靠試跑未定義行為判斷安全。</p>
+  </div>
+
+  <h3 style="margin-top:1.6rem;"><code>Type 變數(引數);</code>：宣告變數與呼叫建構式，同一行發生</h3>
+  <p>取出測量資料的一段時，可以寫 <code>vector&lt;int&gt; left(aList.begin(), aList.begin() + midpoint);</code>。這一行宣告 left，同時把一對區間位置交給建構式。這稱為直接初始化，以下仍逐項拆開型別、名稱與引數。</p>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>片段</th><th>身分</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">vector&lt;int&gt;</td><td>型別</td></tr>
+      <tr><td class="mono">left</td><td>變數名稱</td></tr>
+      <tr><td class="mono">(aList.begin(), aList.begin() + midpoint)</td><td>傳給<strong>建構式</strong>的引數</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 一句話心法</div>
+    <p style="margin-bottom:0;"><code>Type variable(arguments);</code> 讀成「<strong>建立 variable，並呼叫 Type 的建構式</strong>」。<code>vector</code> 提供好幾個建構式，編譯器照引數的個數與型別挑一個 —— 挑選的過程正是 <a href="p8_oop_basics.html#overload">P8 講的多載解析</a>。</p>
+  </div>
+
+  <p>同一個語法家族可以用來建立不同資料，以下逐列比較。</p>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>寫法</th><th>呼叫到的建構式</th><th>使用情境</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">vector&lt;int&gt; x(2000000);</td><td>計數：200 萬個元素，各是 0</td><td>效能實測</td></tr>
+      <tr><td class="mono">vector&lt;int&gt; hashTable(11, -1);</td><td>計數＋初值：11 個 −1</td><td>雜湊表</td></tr>
+      <tr><td class="mono">vector&lt;int&gt; left(a.begin(), a.begin()+mid);</td><td><strong>範圍建構式</strong>：把 <code>[first, last)</code> 那一段抄成新的 vector（尾端不含）—— C++ 的「切片」就是這招</td><td>複製一段連續資料</td></tr>
+      <tr><td class="mono">string s("hello");</td><td><code>string</code> 的建構式 —— 完全同一個概念</td><td>各章</td></tr>
+      <tr><td class="mono">listSum({1, 3, 5, 7, 9});</td><td><strong>初始化清單直接當引數</strong>：函式收的是 <code>vector&lt;int&gt;</code>，編譯器就照這個型別把 <code>{…}</code> 現場建成一個 vector 傳進去 —— <code>{…}</code> 不是只能寫在等號右邊</td><td>遞迴加總</td></tr>
+      <tr><td class="mono">string(1, convertString[n]);</td><td>「<strong>n 個字元 c</strong>」建構式：<code>string(1, 'D')</code> 就是長度 1 的 <code>"D"</code>。用來把單一 <code>char</code> 變成 <code>string</code>，才能跟別的字串用 <code>+</code> 接起來</td><td>進位轉換</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+  <p style="font-size:.9rem;color:var(--muted);">寫成 <code>auto sub = vector&lt;double&gt;(v.begin()+1, v.begin()+3);</code> 也合法：先把右邊的物件建出來，再用它初始化 <code>sub</code>，結果相同。<code>[first, last)</code> 為什麼含頭不含尾、<code>begin()</code>／<code>end()</code> 到底指哪裡，圖解見 <a href="p6_map_set.html#iterator">P6 的迭代器</a>。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">同一家族的建構式，一次看完</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">double</span>&gt; v = {<span class="num">8.1</span>, <span class="num">9.2</span>, <span class="num">7.3</span>, <span class="num">6.4</span>};</span>
+<span class="line" data-l="8">    vector&lt;<span class="kw">double</span>&gt; sub(v.begin() + <span class="num">1</span>, v.begin() + <span class="num">3</span>);   <span class="com">// 範圍建構：抄索引 1、2</span></span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">sub.size()=</span><span class="str">"</span> &lt;&lt; sub.size() &lt;&lt; <span class="str">"</span><span class="str">  sub[0]=</span><span class="str">"</span> &lt;&lt; sub[<span class="num">0</span>]</span>
+<span class="line" data-l="10">         &lt;&lt; <span class="str">"</span><span class="str">  sub[1]=</span><span class="str">"</span> &lt;&lt; sub[<span class="num">1</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    vector&lt;<span class="kw">int</span>&gt; a(<span class="num">3</span>);        <span class="com">// 計數建構：3 個元素，各是 0</span></span>
+<span class="line" data-l="13">    vector&lt;<span class="kw">int</span>&gt; b{<span class="num">3</span>};        <span class="com">// 初始化清單：1 個元素，值是 3！</span></span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">a.size()=</span><span class="str">"</span> &lt;&lt; a.size() &lt;&lt; <span class="str">"</span><span class="str">  a[0]=</span><span class="str">"</span> &lt;&lt; a[<span class="num">0</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">b.size()=</span><span class="str">"</span> &lt;&lt; b.size() &lt;&lt; <span class="str">"</span><span class="str">  b[0]=</span><span class="str">"</span> &lt;&lt; b[<span class="num">0</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">    string s(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>);       <span class="com">// string 也是同一個概念</span></span>
+<span class="line" data-l="18">    <span class="kw">auto</span> t = vector&lt;<span class="kw">double</span>&gt;(v.begin() + <span class="num">1</span>, v.begin() + <span class="num">3</span>);</span>
+<span class="line" data-l="19">    cout &lt;&lt; <span class="str">"</span><span class="str">s=</span><span class="str">"</span> &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str">  t.size()=</span><span class="str">"</span> &lt;&lt; t.size() &lt;&lt; endl;</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>sub.size()=2  sub[0]=9.2  sub[1]=7.3
+a.size()=3  a[0]=0
+b.size()=1  b[0]=3
+s=hello  t.size()=2</pre></div>
+  <p class="dx-note">第 8 行就是本頁速查表那招「C++ 切片」：<code>[first, last)</code> 尾端不含，所以抄到的是索引 1、2 兩格。第 12、13 行是下面警告框要講的陷阱。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 小括號與大括號不是同一件事</div>
+    <p style="margin-bottom:0;"><code>vector&lt;int&gt; a(3);</code> 是「<strong>3 個元素</strong>，各是 0」；<code>vector&lt;int&gt; b{3};</code> 卻是「<strong>1 個元素</strong>，值是 3」——大括號會優先配對 <code>initializer_list</code> 建構式。計數用小括號、列出元素用大括號，可讓意圖更清楚。</p>
+  </div>
+
+  <p>為什麼初學會覺得亂？因為 C 和 Python 都沒有把「宣告」跟「建構」黏在同一行的寫法：</p>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th></th><th>寫法</th><th>概念</th></tr></thead>
+    <tbody>
+      <tr><td>C</td><td class="mono">int x = 5;</td><td>宣告＋給值就結束了，<strong>沒有建構式這個概念</strong></td></tr>
+      <tr><td>Python</td><td class="mono">v = list(range(5))</td><td>概念上類似 —— 呼叫型別建立物件 —— 但變數不必宣告型別，「建構」只出現在等號右邊</td></tr>
+      <tr><td>C++</td><td class="mono">vector&lt;int&gt; v(5);</td><td>宣告與建構<strong>黏在同一行</strong>，所以長得像函式呼叫 —— 其實兩件事同時發生</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+<div class="quiz-box">
+  <div class="quiz-label">隨堂 · 括號的陷阱</div>
+  <p><code>vector&lt;int&gt; v(3);</code> 和 <code>vector&lt;int&gt; w{3};</code> 各裝了什麼？</p>
+  <div class="quiz-options" id="qDiOptions">
+    <div class="quiz-opt" data-correct="false" data-fb="小括號的 (3) 是計數建構式：3 個元素沒錯，但 {3} 是初始化清單，只有一個元素。" onclick="quizCheck('qDi', this)"><span class="opt-letter">(A)</span> 都是 3 個 0</div>
+    <div class="quiz-opt" data-correct="true" data-fb="正確。(3) 走計數建構式得到 0 0 0；{3} 優先配對初始化清單，得到單一元素 3。上面的實跑範例第 12、13 行就是這兩行。" onclick="quizCheck('qDi', this)"><span class="opt-letter">(B)</span> v 是 3 個 0，w 是 1 個 3</div>
+    <div class="quiz-opt" data-correct="false" data-fb="兩行都合法。C++ 的麻煩不是編譯不過，是兩種括號安靜地給你不同的東西。" onclick="quizCheck('qDi', this)"><span class="opt-letter">(C)</span> w 那行編譯錯誤</div>
+  <div class="quiz-opt" onclick="quizCheck('qDi', this)" data-correct="false" data-fb="兩種寫法都會建立元素；小括號 3 指定數量，大括號 3 指定單一元素的值。"><span class="opt-letter">(D)</span> v 與 w 都沒有元素</div>
+</div>
+  <div class="quiz-feedback" id="qDiFeedback"></div>
+</div>
+</section>
+
+
+<section id="modify">
+  <div class="section-number">PART 02 · 增刪</div>
+  <h2>五個操作，兩種價錢 <span class="sec-badge">本頁重點</span></h2>
+  <p>增刪的成本只看一件事：<strong>你動的是尾巴，還是尾巴以外的地方</strong>。動尾巴不影響任何人；動前面或中間，後面每一個元素都要跟著挪一格。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">五個操作跑一遍</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> <span class="kw">char</span>* tag, vector&lt;<span class="kw">int</span>&gt;&amp; v) {</span>
+<span class="line" data-l="6">    cout &lt;&lt; tag &lt;&lt; <span class="str">"</span><span class="str">  size=</span><span class="str">"</span> &lt;&lt; v.size() &lt;&lt; <span class="str">"</span><span class="str">  [ </span><span class="str">"</span>;</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> x : v) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">]</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="12">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>};</span>
+<span class="line" data-l="13">    show(<span class="str">"</span><span class="str">起始          </span><span class="str">"</span>, v);</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">    v.push_back(<span class="num">26</span>);                    <span class="com">// 尾端加：O(1)</span>
+<span class="line" data-l="16"></span>    show(<span class="str">"</span><span class="str">push_back(26) </span><span class="str">"</span>, v);</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    v.pop_back();                       <span class="com">// 尾端刪：O(1)</span>
+<span class="line" data-l="19"></span>    show(<span class="str">"</span><span class="str">pop_back()    </span><span class="str">"</span>, v);</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">    v.insert(v.begin(), <span class="num">54</span>);            <span class="com">// 頭部插：後面每一個都要往後挪</span>
+<span class="line" data-l="22"></span>    show(<span class="str">"</span><span class="str">insert(begin) </span><span class="str">"</span>, v);</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24">    v.erase(v.begin() + <span class="num">1</span>);             <span class="com">// 中間刪：後面每一個都要往前挪</span>
+<span class="line" data-l="25"></span>    show(<span class="str">"</span><span class="str">erase(begin+1)</span><span class="str">"</span>, v);</span>
+<span class="line" data-l="26"> </span>
+<span class="line" data-l="27">    v.clear();                          <span class="com">// 清空，但容量不還</span>
+<span class="line" data-l="28"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">clear() 之後  size=</span><span class="str">"</span> &lt;&lt; v.size()</span>
+<span class="line" data-l="29">         &lt;&lt; <span class="str">"</span><span class="str">  capacity=</span><span class="str">"</span> &lt;&lt; v.capacity() &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 容量沒有跟著變 0</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="30">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="31">}</span>
+<span class="line" data-l="32"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>起始            size=3  [ 31 17 93 ]
+push_back(26)   size=4  [ 31 17 93 26 ]
+pop_back()      size=3  [ 31 17 93 ]
+insert(begin)   size=4  [ 54 31 17 93 ]
+erase(begin+1)  size=3  [ 54 17 93 ]
+clear() 之後  size=0  capacity=6  &lt;- 容量沒有跟著變 0</pre></div>
+  <p class="dx-note">看 <code>insert(v.begin(), 54)</code> 那一步：31、17、93 三個元素全部往後挪一格，54 才放得進第 0 格。<code>erase(v.begin() + 1)</code> 同理，後面的元素往前補位。最後一行的 <code>clear()</code> 把 size 清成 0，<strong>但 capacity 還是 6</strong>——記憶體沒有還給系統，下次 push_back 可以直接用。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="slider-row">
+          <span class="slider-label">連續操作 n 次</span>
+          <input id="endSlider" type="range" min="10" max="2000" step="10" value="500">
+          <span class="slider-val mono" id="endVal">500</span>
+        </div>
+        <div id="endStage" style="min-height:190px;"></div>
+        <div class="status-banner" id="endStatus"><span class="status-icon">›</span><span class="status-text">拉動滑桿，看兩端的搬移總量怎麼拉開。</span></div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">兩種 push <span class="ic-badge">CODE</span></div>
+        <div class="pseudo-code" style="font-size:.76rem;"><span class="line" data-l="1"><span class="com">// 兩種一般清單更新：資料相同，插入位置不同</span>
+<span class="line" data-l="2"></span>items.push_back(value);               <span class="com">// 在尾端加入</span>
+<span class="line" data-l="3"></span>items.insert(items.begin(), value);   <span class="com">// 在前端加入</span>
+<span class="line" data-l="4"></span></span></div>
+        <p>尾端加入通常只需處理新元素；前端插入還需把原元素往後移。前者攤還 O(1)，後者為 O(n)，不能因為兩個操作都叫「加入」就忽略位置差異。</p>
+      </div>
+    </div>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">使用相同數量的資料比較兩種寫法，保留計算結果以便核對。計時以標準 &lt;chrono&gt; 完成，不需外部標頭。實際時間會隨環境、資料量及最佳化而變，不能把一次比值當成固定保證。</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">5000</span>;</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; tail, front;</span>
+<span class="line" data-l="8">    <span class="kw">auto</span> t1 = chrono::steady_clock::now();</span>
+<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; ++i) tail.push_back(i);</span>
+<span class="line" data-l="10">    <span class="kw">double</span> ms1 = chrono::duration&lt;<span class="kw">double</span>, milli&gt;(chrono::steady_clock::now()-t1).count();</span>
+<span class="line" data-l="11">    <span class="kw">auto</span> t2 = chrono::steady_clock::now();</span>
+<span class="line" data-l="12">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; ++i) front.insert(front.begin(), i);</span>
+<span class="line" data-l="13">    <span class="kw">double</span> ms2 = chrono::duration&lt;<span class="kw">double</span>, milli&gt;(chrono::steady_clock::now()-t2).count();</span>
+<span class="line" data-l="14">    printf(<span class="str">"</span><span class="str">尾端 push_back %10.2f ms</span><span class="str">\n</span><span class="str">"</span>, ms1);</span>
+<span class="line" data-l="15">    printf(<span class="str">"</span><span class="str">前端 insert    %10.2f ms</span><span class="str">\n</span><span class="str">"</span>, ms2);</span>
+<span class="line" data-l="16">    printf(<span class="str">"</span><span class="str">兩份長度 %zu %zu</span><span class="str">\n</span><span class="str">"</span>, tail.size(), front.size());</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>尾端 push_back       0.10 ms
+前端 insert          0.80 ms
+兩份長度 5000 5000
+（時間僅示例，依環境與最佳化而變）</pre></div>
+  <p>使用相同數量的資料比較兩種寫法，保留計算結果以便核對。計時以標準 &lt;chrono&gt; 完成，不需外部標頭。實際時間會隨環境、資料量及最佳化而變，不能把一次比值當成固定保證。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 kernel 沒有幫你 include &lt;chrono&gt;</div>
+    <p>獨立程式使用時間工具時，應明確 <code>#include &lt;chrono&gt;</code>，不要依賴執行環境偷偷帶入標頭。若 steady_clock 未宣告，先檢查標頭及 std::chrono 名稱範圍。</p>
+  </div>
+
 
 </section>
-<section id="create"><div class="section-number">PART 02</div><h2>初始化、索引與界線檢查</h2>
-<h3>四種初始化各回答不同問題</h3>
-<p>初始化發生在物件誕生的那一刻。空建構適合邊讀邊加；計數建構適合已知格數；清單初始化適合已知內容；複製建構適合保留快照。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>語法</th><th>結果</th><th>何時用</th></tr></thead><tbody><tr><td><code>vector&lt;int&gt; a;</code></td><td>空，size 為 0</td><td>稍後 push_back</td></tr><tr><td><code>vector&lt;int&gt; b(4, 7);</code></td><td>四個 7</td><td>已知格數與初值</td></tr><tr><td><code>vector&lt;int&gt; c{4, 7};</code></td><td>兩項：4、7</td><td>列出實際元素</td></tr><tr><td><code>vector&lt;int&gt; d(c);</code></td><td>複製 c；之後各自修改</td><td>保留獨立副本</td></tr></tbody></table></div>
-<p>括號與大括號不能隨意交換：<code>vector&lt;int&gt; x(4, 7)</code> 呼叫「數量、初值」建構式；<code>vector&lt;int&gt; y{4, 7}</code> 優先解讀為元素清單。前者四格，後者兩格。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="4 7&#10;2 4&#10;2 99&#10;">#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main() {
-    vector&lt;int&gt; repeated(4, 7);
-    vector&lt;int&gt; listed{4, 7};
-    vector&lt;int&gt; copied(listed);
-    copied[0] = 99;
-    cout &lt;&lt; repeated.size() &lt;&lt; &quot; &quot; &lt;&lt; repeated[0] &lt;&lt; &quot;\n&quot;;
-    cout &lt;&lt; listed.size() &lt;&lt; &quot; &quot; &lt;&lt; listed[0] &lt;&lt; &quot;\n&quot;;
-    cout &lt;&lt; copied.size() &lt;&lt; &quot; &quot; &lt;&lt; copied[0] &lt;&lt; &quot;\n&quot;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>4 7&#10;2 4&#10;2 99&#10;</pre></div>
-<p>第 5 行建立四個 7；第 6 行只列出兩項。第 7 行複製出新容器，第 8 行改 copied 不會改 listed，因為 vector 的一般複製是整份元素複製。</p>
-<h3>索引與 at</h3>
-<p><code>v[i]</code> 快而且不檢查界線；若 i 不合法，行為未定義。<code>v.at(i)</code> 會檢查並丟出 <code>out_of_range</code>。初學除錯時，索引來自輸入或計算便可優先用 at。完整捕捉例外的語法在 <a href="p7_files_exceptions.html">P7</a>；本頁先理解錯誤模式，不塞入尚未教過的 try/catch。</p>
-<pre class="pseudo-code" data-cpp="fragment">vector&lt;int&gt; v{10, 20, 30};
-cout &lt;&lt; v.at(5); // 錯誤示例：執行時丟出 out_of_range；這是片段，不要執行</pre>
-<div class="info-box warm"><div class="info-label">反例</div><p>不要用 <code>v[v.size()]</code> 取最後一項；size 是尾後位置。非空 vector 的最後一項是 <code>v[v.size()-1]</code> 或 <code>v.back()</code>。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>預測 <code>vector&lt;int&gt; x(3, 5); vector&lt;int&gt; y{3, 5};</code> 的內容。</p><details><summary>看解答與理由</summary><p>x 是 <code>{5,5,5}</code>，y 是 <code>{3,5}</code>。括號選計數建構式，大括號列元素。</p></details></div>
+
+
+<section id="capacity">
+  <div class="section-number">PART 03 · 容量與攤還</div>
+  <h2><code>size()</code> 是住了幾個，<code>capacity()</code> 是有幾個位子</h2>
+  <p><code>vector</code> 的元素一定放在<strong>一整塊連續記憶體</strong>裡——這是 <code>v[i]</code> 能 $O(1)$ 的原因。連續就代表不能隨便往後長，隔壁可能已經被別人佔走了。所以位子坐滿時，<code>vector</code> 的做法是：<strong>另外找一塊更大的，把所有元素搬過去，再把舊的還掉。</strong></p>
+
+  <div class="viz-panel">
+    <div class="diagram-scroll" style="overflow-x:auto;max-width:100%;" tabindex="0" aria-label="圖解，可左右捲動"><svg viewBox="0 0 760 500" width="760" height="500" style="max-width:100%;height:auto;display:block;margin:0 auto;;width:760px;max-width:none;height:auto;" role="img" aria-label="vector 擴容四步驟：位子坐滿、配置兩倍新記憶體、整批複製、釋放舊塊">
+      <defs>
+        <marker id="p5GrowCopyArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"></path>
+        </marker>
+      </defs>
+      <g style="stroke:var(--card-border);stroke-width:1.5;fill:none" stroke-dasharray="5 5">
+        <path d="M380 16 V486"></path>
+        <path d="M24 249 H736"></path>
+      </g>
+
+      <text x="30" y="40" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">① size 到頂</text>
+      <text x="30" y="62" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">四個位子全滿，下一個 push_back 塞不進去</text>
+      <g style="fill:var(--accent2);stroke:var(--ink);stroke-width:1.5">
+        <rect x="30" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="62" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="94" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="126" y="80" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="45" y="102">31</text><text x="77" y="102">17</text><text x="109" y="102">93</text><text x="141" y="102">54</text>
+      </g>
+      <rect x="176" y="80" width="30" height="34" rx="4" style="fill:none;stroke:var(--accent);stroke-width:1.8" stroke-dasharray="4 3"></rect>
+      <text x="191" y="102" style="fill:var(--accent);font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">26</text>
+      <text x="216" y="98" style="fill:var(--accent);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">← 沒有位子了</text>
+      <text x="30" y="134" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">size 4 ／ capacity 4</text>
+
+      <text x="398" y="40" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">② 配置兩倍新記憶體</text>
+      <text x="398" y="62" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">另外找一塊 capacity 8 的空地，舊塊還在</text>
+      <g style="fill:var(--accent2);stroke:var(--ink);stroke-width:1.5">
+        <rect x="398" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="80" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="80" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="413" y="102">31</text><text x="445" y="102">17</text><text x="477" y="102">93</text><text x="509" y="102">54</text>
+      </g>
+      <text x="398" y="134" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">舊塊 capacity 4</text>
+      <g style="fill:var(--card);stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="398" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="526" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="558" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="590" y="158" width="30" height="34" rx="4"></rect>
+        <rect x="622" y="158" width="30" height="34" rx="4"></rect>
+      </g>
+      <text x="398" y="212" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">新塊 capacity 8（全空）</text>
+
+      <text x="30" y="282" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">③ 整批複製</text>
+      <text x="30" y="304" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">舊塊的每一個元素逐一搬到新塊</text>
+      <g style="fill:var(--accent2);stroke:var(--ink);stroke-width:1.5">
+        <rect x="30" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="62" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="94" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="126" y="320" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="45" y="342">31</text><text x="77" y="342">17</text><text x="109" y="342">93</text><text x="141" y="342">54</text>
+      </g>
+      <g style="stroke:var(--accent);stroke-width:2;fill:none;marker-end:url(#p5GrowCopyArrow)">
+        <path d="M45 354 V392"></path>
+        <path d="M77 354 V392"></path>
+        <path d="M109 354 V392"></path>
+        <path d="M141 354 V392"></path>
+      </g>
+      <text x="176" y="380" style="fill:var(--accent);font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700">複製 O(n)</text>
+      <g style="fill:var(--accent3);stroke:var(--ink);stroke-width:1.5">
+        <rect x="30" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="62" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="94" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="126" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:var(--card);stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="158" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="190" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="222" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="254" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="45" y="418">31</text><text x="77" y="418">17</text><text x="109" y="418">93</text><text x="141" y="418">54</text>
+      </g>
+      <text x="30" y="450" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">新塊 size 4 ／ capacity 8</text>
+
+      <text x="398" y="282" style="fill:var(--accent2);font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700">④ 釋放舊塊</text>
+      <text x="398" y="304" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12.5px">舊記憶體還給系統，26 這才放得進去</text>
+      <g style="fill:none;stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="398" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="320" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="320" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="stroke:var(--accent);stroke-width:2.5;fill:none">
+        <path d="M398 320 L524 354"></path>
+        <path d="M398 354 L524 320"></path>
+      </g>
+      <text x="398" y="378" style="fill:var(--accent);font-family:'Noto Sans TC',sans-serif;font-size:12px">已釋放：舊位址上的指標與 iterator 全部失效</text>
+      <g style="fill:var(--accent3);stroke:var(--ink);stroke-width:1.5">
+        <rect x="398" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="430" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="462" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="494" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <rect x="526" y="396" width="30" height="34" rx="4" style="fill:var(--node-current);stroke:var(--ink);stroke-width:1.5"></rect>
+      <g style="fill:var(--card);stroke:var(--muted);stroke-width:1.8" stroke-dasharray="4 3">
+        <rect x="558" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="590" y="396" width="30" height="34" rx="4"></rect>
+        <rect x="622" y="396" width="30" height="34" rx="4"></rect>
+      </g>
+      <g style="fill:#ffffff;font-family:'JetBrains Mono',monospace;font-size:13px" text-anchor="middle">
+        <text x="413" y="418">31</text><text x="445" y="418">17</text><text x="477" y="418">93</text><text x="509" y="418">54</text>
+      </g>
+      <text x="541" y="418" style="fill:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700" text-anchor="middle">26</text>
+      <text x="398" y="450" style="fill:var(--accent3);font-family:'JetBrains Mono',monospace;font-size:12px">新塊 size 5 ／ capacity 8　還剩 3 格</text>
+      <text x="398" y="470" style="fill:var(--ink);font-family:'Noto Sans TC',sans-serif;font-size:12px">接下來 3 次 push_back 直接放，不必再搬</text>
+    </svg></div>
+    <p>▲ 圖中採用「容量倍增」的示範模型：新空間建立後，既有元素需逐一搬移或複製，這部分工作量隨元素數量增加。倍增模型可用等比級數理解攤還成本；C++ 標準保證 vector 尾端加入的攤還複雜度，但不規定實際容量必須每次翻倍，也不能據此假設配置本身一定耗時固定。重新配置後，舊元素的指標與迭代器失效。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">17 次 push_back，容量變化與搬移總量</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v;</span>
+<span class="line" data-l="7">    <span class="kw">size_t</span> cap = v.capacity();</span>
+<span class="line" data-l="8">    <span class="kw">long</span> <span class="kw">long</span> moved = <span class="num">0</span>;                       <span class="com">// 累計搬移過幾個元素</span>
+<span class="line" data-l="9"></span></span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">一開始 size=0 capacity=</span><span class="str">"</span> &lt;&lt; cap &lt;&lt; endl;</span>
+<span class="line" data-l="11">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">1</span>; i &lt;= <span class="num">17</span>; i++) {</span>
+<span class="line" data-l="12">        v.push_back(i);</span>
+<span class="line" data-l="13">        <span class="kw">if</span> (v.capacity() != cap) {             <span class="com">// 容量變了，代表剛剛搬過家</span>
+<span class="line" data-l="14"></span>            <span class="kw">long</span> <span class="kw">long</span> n = v.size() - <span class="num">1</span>;        <span class="com">// 搬的是「新元素放進去之前」的那些</span>
+<span class="line" data-l="15"></span>            moved += n;</span>
+<span class="line" data-l="16">            cout &lt;&lt; <span class="str">"</span><span class="str">第 </span><span class="str">"</span> &lt;&lt; i &lt;&lt; <span class="str">"</span><span class="str"> 次 push_back：capacity </span><span class="str">"</span></span>
+<span class="line" data-l="17">                 &lt;&lt; cap &lt;&lt; <span class="str">"</span><span class="str"> -&gt; </span><span class="str">"</span> &lt;&lt; v.capacity()</span>
+<span class="line" data-l="18">                 &lt;&lt; <span class="str">"</span><span class="str">，搬了 </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str"> 個元素</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="19">            cap = v.capacity();</span>
+<span class="line" data-l="20">        }</span>
+<span class="line" data-l="21">    }</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">17 次 push_back，總共搬移 </span><span class="str">"</span> &lt;&lt; moved &lt;&lt; <span class="str">"</span><span class="str"> 個元素</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="23">    cout &lt;&lt; <span class="str">"</span><span class="str">平均每次 push_back 搬 </span><span class="str">"</span> &lt;&lt; (<span class="kw">double</span>)moved / <span class="num">17</span> &lt;&lt; <span class="str">"</span><span class="str"> 個 -&gt; 這就是攤還 O(1)</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="24">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="25">}</span>
+<span class="line" data-l="26"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>一開始 size=0 capacity=0
+第 1 次 push_back：capacity 0 -&gt; 1，搬了 0 個元素
+第 2 次 push_back：capacity 1 -&gt; 2，搬了 1 個元素
+第 3 次 push_back：capacity 2 -&gt; 4，搬了 2 個元素
+第 5 次 push_back：capacity 4 -&gt; 8，搬了 4 個元素
+第 9 次 push_back：capacity 8 -&gt; 16，搬了 8 個元素
+第 17 次 push_back：capacity 16 -&gt; 32，搬了 16 個元素
+17 次 push_back，總共搬移 31 個元素
+平均每次 push_back 搬 1.82353 個 -&gt; 這就是攤還 O(1)</pre></div>
+  <p class="dx-note">容量走的是 0 → 1 → 2 → 4 → 8 → 16 → 32，<strong>每次翻倍</strong>（這是 libstdc++ 的策略，標準只要求攤還 $O(1)$）。17 次 push_back 裡只有 6 次搬了家，總共搬移 31 個元素，平均每次不到 2 個。這就是<strong>攤還分析</strong>：個別一次可能很貴，但把成本分攤到所有操作上，平均仍是常數。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div id="growStage" style="min-height:200px;"></div>
+        <div class="status-banner" id="growStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，一次一次 push_back，看什麼時候會搬家。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="growStart()">▶ 開始</button>
+          <button class="btn btn-step" onclick="growPlayer &amp;&amp; growPlayer.step()">→ 單步</button>
+          <button class="btn btn-reset" onclick="growReset()">⟲ 重設</button>
+          <button class="btn" onclick="growPlayer &amp;&amp; growPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="growSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+        </div>
+        <div class="stats-grid" style="margin-top:.7rem;">
+          <div class="stat-tile"><div class="stat-value mono" id="growN">0</div><div class="stat-label">push_back 次數</div></div>
+          <div class="stat-tile"><div class="stat-value mono" id="growCap">0</div><div class="stat-label">capacity</div></div>
+          <div class="stat-tile"><div class="stat-value mono" id="growMoved">0</div><div class="stat-label">累計搬移元素</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">為什麼是翻倍 <span class="ic-badge">WHY</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;">如果每次只多加一格，塞 n 個元素要搬 1+2+…+(n-1) 次，是 $O(n^2)$。改成翻倍之後，搬家次數只有 $\log_2 n$ 回，搬移總量是 1+2+4+…+n，不超過 2n。<strong>把 2n 分攤到 n 次 push_back，平均每次是常數。</strong></p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">reserve <span class="ic-badge">TIP</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;">已經知道要放幾個的話，先 <code>v.reserve(n)</code> 把位子訂好，一次搬家都不會發生。</p>
+      </div>
+    </div>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">reserve 之後，擴容次數歸零</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v;</span>
+<span class="line" data-l="7">    v.reserve(<span class="num">1000</span>);                     <span class="com">// 先講好要用 1000 格</span>
+<span class="line" data-l="8"></span>    <span class="kw">size_t</span> cap = v.capacity();</span>
+<span class="line" data-l="9">    <span class="kw">int</span> grows = <span class="num">0</span>;</span>
+<span class="line" data-l="10">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">1000</span>; i++) {</span>
+<span class="line" data-l="11">        v.push_back(i);</span>
+<span class="line" data-l="12">        <span class="kw">if</span> (v.capacity() != cap) { grows++; cap = v.capacity(); }</span>
+<span class="line" data-l="13">    }</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">reserve(1000) 之後塞 1000 個，擴容次數 = </span><span class="str">"</span> &lt;&lt; grows &lt;&lt; endl;</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16">    vector&lt;<span class="kw">int</span>&gt; w;</span>
+<span class="line" data-l="17">    cap = w.capacity(); grows = <span class="num">0</span>;</span>
+<span class="line" data-l="18">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">1000</span>; i++) {</span>
+<span class="line" data-l="19">        w.push_back(i);</span>
+<span class="line" data-l="20">        <span class="kw">if</span> (w.capacity() != cap) { grows++; cap = w.capacity(); }</span>
+<span class="line" data-l="21">    }</span>
+<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">沒有 reserve 塞 1000 個，擴容次數 = </span><span class="str">"</span> &lt;&lt; grows &lt;&lt; endl;</span>
+<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="24">}</span>
+<span class="line" data-l="25"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>reserve(1000) 之後塞 1000 個，擴容次數 = 0
+沒有 reserve 塞 1000 個，擴容次數 = 11</pre></div>
+  <p>圖中採用示範性的倍增策略；實際標準庫不保證容量恰好兩倍。先 reserve(1000) 可確保在大小不超過預留容量的加入過程中不因容量不足而重配置，原有操作與 reserve 對照仍可逐步觀察。</p>
+</div>
+
 
 </section>
-<section id="walk"><div class="section-number">PART 03</div><h2>三種走訪與 iterator 基礎</h2>
-<p>「走訪」是依序看每個元素。三種寫法各有用途：需要索引用傳統 for；只關心值用範圍 for；要傳給 STL、表示位置或區間時用 iterator。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>適合情境</th><th>易錯點</th></tr></thead><tbody><tr><td><code>for (size_t i=0; i&lt;v.size(); ++i)</code></td><td>同時需要 i</td><td>條件必須是 &lt;</td></tr><tr><td><code>for (const auto&amp; x : v)</code></td><td>只讀每個元素</td><td>省略 &amp; 會複製</td></tr><tr><td><code>for (auto it=v.begin(); it!=v.end(); ++it)</code></td><td>操作位置／區間</td><td>end 不可解參考</td></tr></tbody></table></div>
-<h3 id="restore-p5-range-bindings">範圍 for 的值、參考與唯讀參考</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>迴圈宣告</th><th>每輪 x 是什麼</th><th>能否改容器元素</th><th>是否複製元素</th><th>適用情況</th></tr></thead><tbody><tr><td><code>for (auto x : v)</code></td><td>目前元素的獨立副本</td><td>否；改 x 只改副本</td><td>是</td><td>小型值，或刻意需要副本</td></tr><tr><td><code>for (auto&amp; x : v)</code></td><td>目前元素的可修改別名</td><td>是</td><td>否</td><td>要就地更新每個元素</td></tr><tr><td><code>for (const auto&amp; x : v)</code></td><td>目前元素的唯讀別名</td><td>否</td><td>否</td><td>只讀大型物件，避免複製</td></tr></tbody></table></div>
-<p><code>auto</code> 只推導元素型別；是否複製由 <code>&amp;</code> 決定，是否允許經由 x 修改則由 <code>const</code> 決定。即使 x 是 const reference，容器仍可能經由其他非 const 名稱被修改，因此它不是資料快照。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="0:4 1:7 2:9 &#10;8 14 18 &#10;5 8 10 &#10;">#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main() {
-    vector&lt;int&gt; v{4, 7, 9};
-    for (size_t i=0; i&lt;v.size(); ++i) cout &lt;&lt; i &lt;&lt; &#x27;:&#x27; &lt;&lt; v[i] &lt;&lt; &#x27; &#x27;;
-    cout &lt;&lt; &#x27;\n&#x27;;
-    for (const int&amp; x : v) cout &lt;&lt; x*2 &lt;&lt; &#x27; &#x27;;
-    cout &lt;&lt; &#x27;\n&#x27;;
-    for (vector&lt;int&gt;::iterator it=v.begin(); it!=v.end(); ++it) *it += 1;
-    for (int x : v) cout &lt;&lt; x &lt;&lt; &#x27; &#x27;;
-    cout &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0:4 1:7 2:9 &#10;8 14 18 &#10;5 8 10 &#10;</pre></div>
-<p><code>auto</code> 請編譯器從右側運算式推導型別：<code>auto it=v.begin()</code> 的 it 就是該 vector 的 iterator。它不代表「任意型別」；型別在編譯時已固定。範圍 for 的 <code>auto x</code> 同樣會推得元素型別，但 x 仍是每輪的複製值；寫 <code>auto&amp; x</code> 才是元素別名。</p>
-<p><code>begin()</code> 指第一項；<code>end()</code> 指最後一項的再下一格，形成左閉右開區間 <code>[begin,end)</code>。<code>*it</code> 取得目前元素，<code>++it</code> 前進。空容器的 begin 等於 end，所以迴圈自然跑零次。</p>
-<div class="info-box warm"><div class="info-label">反例</div><p><code>*v.end()</code> 永遠不合法。end 是停下來比較用的哨兵，不是一個元素。範圍 for 若寫 <code>auto x</code>，x 是複製品；要修改原元素寫 <code>auto&amp; x</code>。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>要把全部元素加 10，範圍 for 怎麼寫？</p><details><summary>看解答與理由</summary><p><code>for (int&amp; x : v) x += 10;</code>。& 讓 x 直接代表容器中的元素。</p></details></div>
+
+
+<section id="iterate">
+  <div class="section-number">PART 04 · 走訪</div>
+  <h2>三種寫法，還有那個關鍵的 <code>&amp;</code></h2>
+  <p>三種走訪在效能上完全一樣，差別在你需不需要索引、要不要改到元素本人。</p>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>寫法</th><th>拿得到索引嗎</th><th>什麼時候用</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">for (unsigned i = 0; i &lt; v.size(); i++)</td><td>拿得到</td><td>要比較 <code>v[i]</code> 與 <code>v[i+1]</code>、要換位置（排序全部用這種）</td></tr>
+      <tr><td class="mono">for (int x : v)</td><td>拿不到</td><td>只是把每個值讀一遍，最好讀</td></tr>
+      <tr><td class="mono">for (auto it = v.begin(); it != v.end(); ++it)</td><td>間接可以</td><td>要呼叫 <code>insert</code>／<code>erase</code>（它們吃的就是 iterator）</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">三種走訪，加上 & 的差別</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>, <span class="num">26</span>};</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">① 索引：      </span><span class="str">"</span>;</span>
+<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">unsigned</span> i = <span class="num">0</span>; i &lt; v.size(); i++) cout &lt;&lt; v[i] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="10">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">② 範圍 for：  </span><span class="str">"</span>;</span>
+<span class="line" data-l="13">    <span class="kw">for</span> (<span class="kw">int</span> x : v) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;        <span class="com">// x 是複製品</span>
+<span class="line" data-l="14"></span>    cout &lt;&lt; endl;</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">③ iterator：  </span><span class="str">"</span>;</span>
+<span class="line" data-l="17">    <span class="kw">for</span> (vector&lt;<span class="kw">int</span>&gt;::iterator it = v.begin(); it != v.end(); ++it)</span>
+<span class="line" data-l="18">        cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;                  <span class="com">// *it 跟指標一樣要解參考</span>
+<span class="line" data-l="19"></span>    cout &lt;&lt; endl;</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">    <span class="kw">for</span> (<span class="kw">int</span> x : v) x = x * <span class="num">10</span>;              <span class="com">// 改的是複製品，白改</span>
+<span class="line" data-l="22"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">for (int x : v) x*=10 之後：  </span><span class="str">"</span>;</span>
+<span class="line" data-l="23">    <span class="kw">for</span> (<span class="kw">int</span> x : v) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="24">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="25"> </span>
+<span class="line" data-l="26">    <span class="kw">for</span> (<span class="kw">int</span>&amp; x : v) x = x * <span class="num">10</span>;             <span class="com">// 加了 &amp; 才是本人</span>
+<span class="line" data-l="27"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">for (int&amp; x : v) x*=10 之後： </span><span class="str">"</span>;</span>
+<span class="line" data-l="28">    <span class="kw">for</span> (<span class="kw">int</span> x : v) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="29">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="30">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="31">}</span>
+<span class="line" data-l="32"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>① 索引：      31 17 93 26
+② 範圍 for：  31 17 93 26
+③ iterator：  31 17 93 26
+for (int x : v) x*=10 之後：  31 17 93 26
+for (int&amp; x : v) x*=10 之後： 310 170 930 260 </pre></div>
+  <p class="dx-note">前三行印出一樣的東西。重點在後面兩組：<code>for (int x : v)</code> 的 <code>x</code> 是<strong>複製品</strong>，改它等於改一個馬上就要丟掉的暫存值，原本的 vector 一動也沒動；加了 <code>&amp;</code> 寫成 <code>for (int&amp; x : v)</code>，<code>x</code> 才是元素本人，改了就真的改到。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 什麼時候一定要加 &amp;</div>
+    <p>兩個常見理由是：需要修改原元素，或元素較大而不想取得副本。只讀字串時可寫 <code>for (const string&amp; s : words)</code>；這不複製既有字串，也禁止透過 s 修改它。</p>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 迴圈計數型別： <code>unsigned</code> 而不是 <code>int</code></div>
+    <p>v.size() 與 s.length() 回傳無號大小型別。拿帶號 int 比較可能收到不同符號的警告；要選合適的計數型別，並小心無號值的減法與倒數。不要只為消除警告就把所有數字轉成無號。</p>
+    <p style="margin-bottom:0;">代價是要記住一件事：<strong>無號數相減永遠不會是負的</strong>，減過頭會從最大值繞回來。<code>v.size() - 1</code> 在空 vector 上不是 −1，而是 <code>18446744073709551615</code>（64 位元的最大值）。所以 <code>for (unsigned i = 0; i &lt; v.size() - 1; i++)</code> 這種寫法碰到空 vector 就會跑天文數字圈然後越界當掉——想比較相鄰兩格時，改寫成 <code>i + 1 &lt; v.size()</code> 才安全。</p>
+  </div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 現代 C++ 對照</div>
+    <p>迭代器常寫成 <code>for (auto it = v.begin(); it != v.end(); ++it)</code>，讓編譯器從初值推導型別。它仍是固定型別，不是變成可以裝任意資料的變數；完整名稱 <code>vector&lt;int&gt;::iterator</code> 也合法。</p>
+  </div>
+</section>
+
+
+<section id="invalidate">
+  <div class="section-number">PART 05 · iterator 失效</div>
+  <h2><code>push_back</code> 之後，舊的指標可能指到空地</h2>
+  <p>PART 03 說擴容會把元素<strong>整批搬到新位址</strong>。那你在搬家前記下來的位址呢？它還指著舊地址——而舊那塊已經還給系統了。這就是 iterator 失效。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">重新配置前取得的指標，之後不能再使用</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>};</span>
+<span class="line" data-l="6">    <span class="kw">int</span>* p = &amp;v[<span class="num">0</span>];</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">before: first = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; <span class="str">"</span><span class="str">, capacity = </span><span class="str">"</span> &lt;&lt; v.capacity() &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">auto</span> oldCapacity = v.capacity();</span>
+<span class="line" data-l="9">    v.reserve(oldCapacity + <span class="num">1</span>); <span class="com">// 明確要求超過舊容量，會重新配置</span>
+<span class="line" data-l="10"></span>    <span class="com">// p 已失效，不再讀取 p 或 *p。</span>
+<span class="line" data-l="11"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">after: first = </span><span class="str">"</span> &lt;&lt; v[<span class="num">0</span>] &lt;&lt; <span class="str">"</span><span class="str">, capacity = </span><span class="str">"</span> &lt;&lt; v.capacity() &lt;&lt; endl;</span>
+<span class="line" data-l="12">    p = &amp;v[<span class="num">0</span>]; <span class="com">// 重新取得有效指標</span>
+<span class="line" data-l="13"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">new pointer reads </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>before 與 after 的 first 都是 31，after 的容量大於 before。
+最後一行：new pointer reads 31
+確切 capacity 依實作而異。</pre></div>
+  <p class="dx-note">初始化清單不保證 capacity 剛好等於 size，因此本例用 reserve(oldCapacity + 1) 明確觸發重新配置。元素的值仍保留，但舊指標 p 已失效，不能再解參考，也不把舊位址拿來當可依賴的輸出。重新以 &amp;v[0] 取址才可繼續使用。</p>
+</div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 最陰的是它常常「看起來還是對的」</div>
+    <p style="margin-bottom:0;">若 push_back 沒有重新配置，指向既有元素的指標仍有效；一旦重新配置便全部失效。索引可用來在搬家後重新取得元素，但插入或刪除也可能改變索引所對應的元素，不能把「記索引」當成所有操作的通用解法。</p>
+  </div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>操作</th><th>誰失效</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">push_back / insert</td><td>重新配置時全部失效；否則 insert 在插入點及其後失效，push_back 使舊 end() 失效</td></tr>
+      <tr><td class="mono">erase(it)</td><td>刪除位置及其後的迭代器、參考失效，包含舊 end()；erase 回傳刪除後的下一個有效迭代器</td></tr>
+      <tr><td class="mono">pop_back</td><td>被刪除元素的迭代器／參考及舊 end() 失效</td></tr>
+      <tr><td class="mono">clear</td><td>全部失效</td></tr>
+      <tr><td class="mono">v[i] = x</td><td>沒有人失效，改值不影響配置</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="quiz-box">
+    <div class="quiz-label">隨堂 1 · 這個迴圈錯在哪</div>
+    <p>有人想在走訪時把等於 0 的元素刪掉，寫成 <code>for (auto it = v.begin(); it != v.end(); ++it) if (*it == 0) v.erase(it);</code>。問題在哪？</p>
+    <div class="quiz-options" id="qaOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="編譯得過。erase 吃的就是 iterator，型別完全正確，這正是它危險的地方。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 編譯錯誤，<code>erase</code> 不吃 iterator</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。erase 之後 it 就失效了，接著的 ++it 是在動一個已經沒有意義的 iterator，可能跳過元素、可能直接當掉。正確寫法是 it = v.erase(it)，用 erase 的回傳值接住下一個有效位置，而且那一輪不要再 ++it。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> <code>erase</code> 之後 <code>it</code> 已經失效，再 <code>++it</code> 是未定義行為</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。問題不在效能，而是這段程式的行為本身就不可靠：它可能漏刪，也可能當掉。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 只是慢，因為每次 <code>erase</code> 都是 <code>O(n)</code></div>
+    <div class="quiz-opt" onclick="quizCheck('qa', this)" data-correct="false" data-fb="erase 回傳下一個有效迭代器；必須用 it = v.erase(it) 接住，原本的 it 不會自動修復。"><span class="opt-letter">(D)</span> erase 會自動讓原本的 it 指向下一個有效元素</div>
+</div>
+    <div class="quiz-feedback" id="qaFeedback"></div>
+  </div>
+</section>
+
+
+<section id="twod">
+  <div class="section-number">PART 06 · 二維 vector</div>
+  <h2><code>vector&lt;vector&lt;int&gt;&gt;</code>：一個裝著 vector 的 vector</h2>
+  <p>二維 vector 是「每個元素本身又是一個 vector」。例如 vector&lt;vector&lt;int&gt;&gt; seats(3, vector&lt;int&gt;(4, 0)); 建立三列，每列有四個初值為 0 的元素。下例用 0 表示空位、1 表示已預訂，練習列與欄兩層索引。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">用二維 vector 記錄三列座位的預訂狀態</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    vector&lt;vector&lt;<span class="kw">int</span>&gt;&gt; seats(<span class="num">3</span>, vector&lt;<span class="kw">int</span>&gt;(<span class="num">4</span>, <span class="num">0</span>));</span>
+<span class="line" data-l="6">    seats[<span class="num">0</span>][<span class="num">1</span>] = <span class="num">1</span>;</span>
+<span class="line" data-l="7">    seats[<span class="num">1</span>][<span class="num">2</span>] = <span class="num">1</span>;</span>
+<span class="line" data-l="8">    seats[<span class="num">2</span>][<span class="num">0</span>] = <span class="num">1</span>;</span>
+<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">int</span> row = <span class="num">0</span>; row &lt; <span class="num">3</span>; ++row) {</span>
+<span class="line" data-l="10">        cout &lt;&lt; <span class="str">"</span><span class="str">row </span><span class="str">"</span> &lt;&lt; row &lt;&lt; <span class="str">"</span><span class="str">: </span><span class="str">"</span>;</span>
+<span class="line" data-l="11">        <span class="kw">for</span> (<span class="kw">int</span> col = <span class="num">0</span>; col &lt; <span class="num">4</span>; ++col) cout &lt;&lt; seats[row][col] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="12">        cout &lt;&lt; endl;</span>
+<span class="line" data-l="13">    }</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">rows = </span><span class="str">"</span> &lt;&lt; seats.size() &lt;&lt; <span class="str">"</span><span class="str">, first row seats = </span><span class="str">"</span> &lt;&lt; seats[<span class="num">0</span>].size() &lt;&lt; endl;</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>row 0: 0 1 0 0
+row 1: 0 0 1 0
+row 2: 1 0 0 0
+rows = 3, first row seats = 4</pre></div>
+  <p class="dx-note">seats[row][col] 先用 row 找到某列，再用 col 存取該列的座位。seats.size() 是列數，seats[row].size() 才是該列座位數。存取前兩層索引都要有效；若外層是空的，seats[0] 就不能使用。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 每列可以有不同長度</div>
+    <p>每一列是獨立的 vector，所以可用 seats[1].push_back(0) 只替第二列多加一個座位。這和固定長寬的原生二維陣列不同，也表示不能拿第一列長度當作所有列的上限。若要按分類存可變長度名單，P6 再介紹 map 搭配 vector。</p>
+  </div>
+
 
 </section>
-<section id="modify"><div class="section-number">PART 04</div><h2>五種增刪與搬移成本</h2>
-<p>清單會成長也會縮短。尾端操作通常便宜；在中間插入或刪除，後面的元素必須搬動來騰空或補洞。先把語法和成本一起記，才能在資料變大時預測慢在哪裡。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>操作</th><th>效果</th><th>典型成本</th></tr></thead><tbody><tr><td><code>push_back(x)</code></td><td>尾端加入 x</td><td>攤還 O(1)</td></tr><tr><td><code>pop_back()</code></td><td>移除尾端；不回傳該值</td><td>O(1)</td></tr><tr><td><code>insert(begin()+i,x)</code></td><td>在索引 i 前插入</td><td>O(n)，搬動 i 之後元素</td></tr><tr><td><code>erase(begin()+i)</code></td><td>刪除索引 i</td><td>O(n)，補洞</td></tr><tr><td><code>clear()</code></td><td>刪除全部元素</td><td>O(n)，逐一銷毀元素</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="10 20 &#10;0&#10;">#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-void show(const vector&lt;int&gt;&amp; v) { for (int x : v) cout &lt;&lt; x &lt;&lt; &#x27; &#x27;; cout &lt;&lt; &#x27;\n&#x27;; }
-int main() {
-    vector&lt;int&gt; stops{10, 30};
-    stops.push_back(40);             // 10 30 40
-    stops.insert(stops.begin()+1,20);// 10 20 30 40
-    stops.erase(stops.begin()+2);    // 10 20 40
-    stops.pop_back();                // 10 20
-    show(stops);
-    stops.clear();
-    cout &lt;&lt; stops.size() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>10 20 &#10;0&#10;</pre></div>
-<p>insert 的位置是「新元素要放在誰前面」；<code>begin()+1</code> 指索引 1，所以 20 插在原本 30 前。erase 刪掉該位置後，右邊元素左移。pop_back 只移除，若需要舊尾值，要先讀 <code>back()</code> 再 pop。</p>
-<div class="info-box warm"><div class="info-label">成本界線</div><p>O(n) 不是說每次一定很慢，而是資料量加倍時，中間搬移量可能也加倍。偶爾編輯短清單沒有問題；若大量在前端增刪，後面介紹的 deque 或專門資料結構更合適。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>把 <code>{2,4,6}</code> 變成 <code>{2,3,4}</code>，寫出兩個操作並說明搬動。</p><details><summary>看解答與理由</summary><p>先 <code>v.insert(v.begin()+1,3)</code>，再 <code>v.pop_back()</code>。insert 會把 4、6 往右搬；pop_back 不必搬其他元素。</p></details></div>
+
+
+<section id="seqcont">
+  <div class="section-number">PART 07 · STL 容器速覽</div>
+  <h2>STL 的 <code>stack</code>／<code>queue</code>／<code>deque</code>：現成容器的介面</h2>
+  <p>標準函式庫已提供 <code>stack</code>、<code>queue</code>、<code>deque</code>。下面比較同樣的「加入、查看、移除」需求，在不同容器上要使用哪些介面；這些型別都由標準標頭提供。</p>
+
+  <div class="info-box">
+    <div class="info-label">💡 記得補標頭檔</div>
+    <p>這三種容器分別需要 <code>&lt;stack&gt;</code>、<code>&lt;queue&gt;</code>、<code>&lt;deque&gt;</code>。自己建立程式時應明確引入所需標頭。</p>
+  </div>
+
+  <p>三個容器的成員協定不一樣，而且<strong>不是誰包含誰</strong>——記錯就會呼叫到不存在的方法：</p>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>容器</th><th>放進去</th><th>看一眼</th><th>拿掉</th><th>其他</th><th>使用情境</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="mono">stack&lt;T&gt;</td>
+        <td class="mono">push(x)</td>
+        <td class="mono">top()</td>
+        <td class="mono">pop()</td>
+        <td class="mono">empty() size()</td>
+        <td>括號配對：<code>stack&lt;char&gt; s;</code></td>
+      </tr>
+      <tr>
+        <td class="mono">queue&lt;T&gt;</td>
+        <td class="mono">push(x)</td>
+        <td class="mono">front() back()</td>
+        <td class="mono">pop()</td>
+        <td class="mono">empty() size()</td>
+        <td>燙手山芋：<code>queue&lt;string&gt; simQueue;</code></td>
+      </tr>
+      <tr>
+        <td class="mono">deque&lt;T&gt;</td>
+        <td class="mono">push_front(x) push_back(x)</td>
+        <td class="mono">front() back()</td>
+        <td class="mono">pop_front() pop_back()</td>
+        <td class="mono">empty() size() d[i]</td>
+        <td>迴文：<code>deque&lt;char&gt; charDeque;</code></td>
+      </tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <p>三個要點：stack 用 top 查看，queue 用 front/back；deque 的兩端操作名稱明確帶方向。容器可以保存物件，也可以保存指標，但保存指標不代表容器自動擁有或釋放所指物件。</p>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 最容易寫錯的一點：STL 的 <code>pop()</code> 不回傳東西</div>
+    <p>課本自己蓋的 <code>Stack&lt;T&gt;</code> 照 Python 的慣例，<code>pop()</code> <strong>會把彈出來的值回傳給你</strong>，所以可以寫 <code>T item = s.pop();</code> 一行搞定。</p>
+    <p>STL 的 <code>stack</code> 不是這樣：它的 <code>pop()</code> 回傳型別是 <code>void</code>。要值就得<strong>分成兩步</strong>——先 <code>top()</code> 抄下來，再 <code>pop()</code> 丟掉：</p>
+    <div class="cmp-table-wrap">
+    <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+      <thead><tr><th>你想做的事</th><th>假設自訂介面回傳移除值</th><th>STL <code>stack&lt;T&gt;</code></th></tr></thead>
+      <tbody>
+        <tr><td>取出並移除頂端</td><td class="mono">T x = s.pop();</td><td class="mono">T x = s.top();<br>s.pop();</td></tr>
+        <tr><td>只移除、不要值</td><td class="mono">s.pop();</td><td class="mono">s.pop();</td></tr>
+      </tbody>
+    </table></div>
+    </div>
+    <p>把標準 stack 的 pop() 當成回傳元素會編譯失敗，因為它回傳 void。若需要取出並移除，先讀 top，再 pop；queue/deque 的對應移除介面也不回傳值。自訂介面若有不同設計，必須明確區分。</p>
+  </div>
+
+<div class="deck-extra">
+  <div class="dx-label">三個容器，一次跑完</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#include</span> <span class="kw">&lt;stack&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#include</span> <span class="kw">&lt;queue&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">#include</span> <span class="kw">&lt;deque&gt;</span></span>
+<span class="line" data-l="6"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    stack&lt;<span class="kw">char</span>&gt; s;                       <span class="com">// 第 05 章括號配對用的就是這個</span></span>
+<span class="line" data-l="10">    s.push(<span class="str">'('</span>);  s.push(<span class="str">'['</span>);  s.push(<span class="str">'{'</span>);</span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"s.size() = "</span> &lt;&lt; s.size() &lt;&lt; <span class="str">"  s.top() = "</span> &lt;&lt; s.top() &lt;&lt; endl;</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    <span class="kw">char</span> top = s.top();                  <span class="com">// 第一步：看一眼頂端</span></span>
+<span class="line" data-l="14">    s.pop();                             <span class="com">// 第二步：拿掉它，pop 不回傳東西</span></span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"取出 "</span> &lt;&lt; top &lt;&lt; <span class="str">" 之後 top = "</span> &lt;&lt; s.top()</span>
+<span class="line" data-l="16">         &lt;&lt; <span class="str">"  size = "</span> &lt;&lt; s.size() &lt;&lt; endl;</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    queue&lt;string&gt; simQueue;              <span class="com">// 第 05 章燙手山芋</span></span>
+<span class="line" data-l="19">    simQueue.push(<span class="str">"Bill"</span>);  simQueue.push(<span class="str">"David"</span>);  simQueue.push(<span class="str">"Susan"</span>);</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"queue front = "</span> &lt;&lt; simQueue.front()</span>
+<span class="line" data-l="21">         &lt;&lt; <span class="str">"  back = "</span> &lt;&lt; simQueue.back() &lt;&lt; endl;</span>
+<span class="line" data-l="22">    simQueue.push(simQueue.front());     <span class="com">// 把排頭再排到隊尾</span></span>
+<span class="line" data-l="23">    simQueue.pop();                      <span class="com">// 排頭離開</span></span>
+<span class="line" data-l="24">    cout &lt;&lt; <span class="str">"傳一次之後 front = "</span> &lt;&lt; simQueue.front()</span>
+<span class="line" data-l="25">         &lt;&lt; <span class="str">"  back = "</span> &lt;&lt; simQueue.back() &lt;&lt; endl;</span>
+<span class="line" data-l="26"> </span>
+<span class="line" data-l="27">    deque&lt;<span class="kw">char</span>&gt; charDeque;               <span class="com">// 第 05 章迴文檢查</span></span>
+<span class="line" data-l="28">    charDeque.push_back(<span class="str">'r'</span>);</span>
+<span class="line" data-l="29">    charDeque.push_back(<span class="str">'a'</span>);</span>
+<span class="line" data-l="30">    charDeque.push_front(<span class="str">'x'</span>);           <span class="com">// 兩頭都能進</span></span>
+<span class="line" data-l="31">    cout &lt;&lt; <span class="str">"deque front = "</span> &lt;&lt; charDeque.front()</span>
+<span class="line" data-l="32">         &lt;&lt; <span class="str">"  back = "</span> &lt;&lt; charDeque.back()</span>
+<span class="line" data-l="33">         &lt;&lt; <span class="str">"  size = "</span> &lt;&lt; charDeque.size() &lt;&lt; endl;</span>
+<span class="line" data-l="34">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="35">}</span>
+<span class="line" data-l="36"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>s.size() = 3  s.top() = {
+取出 { 之後 top = [  size = 2
+queue front = Bill  back = Susan
+傳一次之後 front = David  back = Bill
+deque front = x  back = a  size = 3</pre></div>
+  <p class="dx-note">第 13、14 行就是那個兩步——少了第 13 行，<code>{</code> 就永遠拿不回來了。第 22、23 行是燙手山芋的一整輪：排頭先被 <code>push</code> 到隊尾，再 <code>pop</code> 掉原本的排頭，所以 Bill 從最前面跑到最後面。第 30 行的 <code>push_front</code> 是 <code>deque</code> 才有的東西，<code>x</code> 插到最前面，<code>stack</code> 和 <code>queue</code> 都做不到。</p>
+</div>
+
+<div class="quiz-box">
+  <div class="quiz-label">隨堂 · pop 到底給不給你值</div>
+  <p>手上是 STL 的 <code>stack&lt;char&gt; s;</code>，你想<strong>取出頂端元素並把它移除</strong>。哪一種寫法對？</p>
+  <div class="quiz-options" id="qSeqOptions">
+    <div class="quiz-opt" data-correct="false" data-fb="編譯不過。STL stack 的 pop() 回傳型別是 void，寫成這樣會得到 void value not ignored as it ought to be。若需要取值，先呼叫 top()，再呼叫 pop()。" onclick="quizCheck('qSeq', this)"><span class="opt-letter">(A)</span> <code class="mono">char c = s.pop();</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="正確。分兩步：top() 先把值抄下來，pop() 再把它從堆疊上拿掉。STL 把「看」和「拿掉」拆成兩個方法，所以要值一定得寫兩行。" onclick="quizCheck('qSeq', this)"><span class="opt-letter">(B)</span> <code class="mono">char c = s.top(); s.pop();</code></div>
+    <div class="quiz-opt" data-correct="false" data-fb="stack 沒有 front()。front()／back() 是 queue 和 deque 的方法，stack 只認得 top()。" onclick="quizCheck('qSeq', this)"><span class="opt-letter">(C)</span> <code class="mono">char c = s.front(); s.pop();</code></div>
+  <div class="quiz-opt" onclick="quizCheck('qSeq', this)" data-correct="false" data-fb="std::stack 提供 top() 讀取頂端，不提供 back()。"><span class="opt-letter">(D)</span> char c = s.back(); s.pop();</div>
+</div>
+  <div class="quiz-feedback" id="qSeqFeedback"></div>
+</div>
+
 
 </section>
-<section id="capacity"><div class="section-number">PART 05</div><h2>size、capacity、reserve 與攤還</h2>
-<p><code>size()</code> 是已存在的元素數，<code>capacity()</code> 是目前已配置、尚未重新配置便能容納的元素數。必有 size ≤ capacity，但兩者不必相等。</p>
-<h3>為什麼 push_back 平均仍快</h3>
-<p>空位尚足時，只在尾端建一個元素。空位不足時，vector 會另找更大的連續區塊，把所有元素搬過去，再釋放舊區塊；那一次是 O(n)。實作通常按倍數成長，因此昂貴搬家不會每次發生，分攤到許多次 push_back 後稱為「攤還 O(1)」。成長倍數與實際 capacity 數列不是 C++ 標準保證，不能把「一定雙倍」寫進程式邏輯。</p>
-<p><code>reserve(n)</code> 至少預留 n 格容量，但不建立元素，size 不變。若已大致知道會讀入幾筆，可先 reserve 減少重配置。<code>resize(n)</code> 才會改元素數；兩者不要混淆。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="0 1&#10;3 9&#10;">#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main() {
-    vector&lt;int&gt; samples;
-    samples.reserve(3);
-    cout &lt;&lt; samples.size() &lt;&lt; &quot; &quot; &lt;&lt; (samples.capacity() &gt;= 3) &lt;&lt; &quot;\n&quot;;
-    for (int x : {8, 5, 9}) samples.push_back(x);
-    cout &lt;&lt; samples.size() &lt;&lt; &quot; &quot; &lt;&lt; samples[2] &lt;&lt; &quot;\n&quot;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0 1&#10;3 9&#10;</pre></div>
-<p>輸出只檢查標準保證：reserve(3) 後 capacity 至少為 3，所以印布林值 1；沒有假定容量恰為 3。三次加入後 size 是 3。</p>
-<div class="deck-extra lesson-trace" id="p5growth"><h3>互動：分辨 size、capacity 與搬家</h3><p>這是概念模型；容量用「至少」描述，避免假定特定 STL 的成長倍數。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">vector&lt;int&gt; v;</span>
-<span class="line">v.reserve(2);</span>
-<span class="line">v.push_back(8);</span>
-<span class="line">v.push_back(5);</span>
-<span class="line">v.push_back(9);</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "剛建立時沒有元素。", "vars": {"size": "0", "capacity": "實作決定，至少 0", "元素": "{}"}, "line": 0, "output": ""}, {"note": "reserve(2) 只預留空間，不建立元素。", "vars": {"size": "0", "capacity": "至少 2", "元素": "{}"}, "line": 1, "output": ""}, {"note": "加入 8，使用既有空位。", "vars": {"size": "1", "capacity": "至少 2", "元素": "{8}"}, "line": 2, "output": ""}, {"note": "加入 5，仍可使用預留空位。", "vars": {"size": "2", "capacity": "至少 2", "元素": "{8,5}"}, "line": 3, "output": ""}, {"note": "第三項使 size 變成 3；只有原先 capacity 小於 3 時才需要重配置。若搬到新區塊，先前元素位置才會改變；新容量確值由實作決定。", "vars": {"size": "3", "capacity": "至少 3", "元素": "{8,5,9}"}, "line": 4, "output": ""}]</script></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>已知會讀 10,000 筆，應用 reserve 還是 resize？</p><details><summary>看解答與理由</summary><p>若只是想避免多次搬家，用 <code>v.reserve(10000)</code>，size 仍為 0，再 push_back。若 10,000 個元素此刻就要存在，才用 resize。</p></details></div>
+
+
+<section id="string">
+  <div class="section-number">PART 08 · string</div>
+  <h2>string：連續字元與文字操作</h2>
+  <p>std::string 與 vector&lt;char&gt; 是不同類別。兩者都提供連續儲存、size、capacity 與下標存取等概念，但不能把全部介面、失效規則和成本保證視為相同。string 額外提供子字串、文字搜尋與 C 字串介面；以下從獨立文字例子認識它。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">常用的六個方法</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    string s = <span class="str">"</span><span class="str">book</span><span class="str">"</span>;</span>
+<span class="line" data-l="6">    cout &lt;&lt; <span class="str">"</span><span class="str">length = </span><span class="str">"</span> &lt;&lt; s.length() &lt;&lt; <span class="str">"</span><span class="str">, size = </span><span class="str">"</span> &lt;&lt; s.size() &lt;&lt; endl;</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">first = </span><span class="str">"</span> &lt;&lt; s[<span class="num">0</span>] &lt;&lt; <span class="str">"</span><span class="str">, last = </span><span class="str">"</span> &lt;&lt; s[<span class="num">3</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">substr(1, 2) = </span><span class="str">"</span> &lt;&lt; s.substr(<span class="num">1</span>, <span class="num">2</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">substr(2) = </span><span class="str">"</span> &lt;&lt; s.substr(<span class="num">2</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">find(oo) = </span><span class="str">"</span> &lt;&lt; s.find(<span class="str">"</span><span class="str">oo</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="11">    <span class="kw">if</span> (s.find(<span class="str">"</span><span class="str">xy</span><span class="str">"</span>) == string::npos) cout &lt;&lt; <span class="str">"</span><span class="str">xy not found</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="12">    string label = s.substr(<span class="num">0</span>, <span class="num">2</span>) + <span class="str">"</span><span class="str">-</span><span class="str">"</span> + s.substr(<span class="num">2</span>);</span>
+<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">label = </span><span class="str">"</span> &lt;&lt; label &lt;&lt; endl;</span>
+<span class="line" data-l="14">    s += <span class="str">'</span><span class="str">s</span><span class="str">'</span>;</span>
+<span class="line" data-l="15">    s += <span class="str">"</span><span class="str">!</span><span class="str">"</span>;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">after += : </span><span class="str">"</span> &lt;&lt; s &lt;&lt; endl;</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>length = 4, size = 4
+first = b, last = k
+substr(1, 2) = oo
+substr(2) = ok
+find(oo) = 1
+xy not found
+label = bo-ok
+after += : books!</pre></div>
+  <p class="dx-note">四個要記住的細節：① <code>length()</code> 和 <code>size()</code> 完全一樣，兩個名字而已。② <code>substr(pos, len)</code> 的第二個參數是<strong>長度</strong>，不是結束位置（跟 Python 的切片不同）。③ <code>find</code> 找不到時回傳 <code>string::npos</code>，那是一個超大的數字，所以判斷要寫 <code>== string::npos</code>，<strong>不要寫 <code>&lt; 0</code></strong>。④ <code>+=</code> 接字元或接字串都可以。</p>
+</div>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="slider-row">
+          <span class="slider-label">起點 pos</span>
+          <input id="subPos" type="range" min="0" max="6" value="0">
+          <span class="slider-val mono" id="subPosVal">0</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">長度 len</span>
+          <input id="subLen" type="range" min="1" max="7" value="3">
+          <span class="slider-val mono" id="subLenVal">3</span>
+        </div>
+        <div id="subStage" style="min-height:140px;"></div>
+        <div class="status-banner" id="subStatus"><span class="status-icon">›</span><span class="status-text">拉動兩個滑桿，看 substr 切出哪一段。</span></div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">切過頭會怎樣 <span class="ic-badge">NOTE</span></div>
+        <p style="font-size:.86rem;margin-bottom:0;"><code>len</code> 超出尾端不會出錯，<code>substr</code> 給你到字串結尾為止。但 <code>pos</code> 超出長度會丟 <code>out_of_range</code>，跟 <code>at()</code> 一樣的例外。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>你在 Python 寫</th><th>C++ 寫成</th><th>注意</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">len(s)</td><td class="mono">s.length()</td><td>回傳的是無號整數，跟 <code>int</code> 比大小會被編譯器警告</td></tr>
+      <tr><td class="mono">s[1:3]</td><td class="mono">s.substr(1, 2)</td><td>第二個參數是長度，不是結束位置</td></tr>
+      <tr><td class="mono">s.find("oo")</td><td class="mono">s.find("oo")</td><td>找不到 Python 給 -1，C++ 給 <code>string::npos</code></td></tr>
+      <tr><td class="mono">s += "x"</td><td class="mono">s += "x"</td><td>寫法一樣，成本差很多，見下一節</td></tr>
+      <tr><td class="mono">s[0]</td><td class="mono">s[0]</td><td>Python 給長度 1 的字串，C++ 給一個 <code>char</code></td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="info-box">
+    <div class="info-label">💡 <code>char</code> 可以做算術：<code>s[i] - 'a'</code> 是什麼意思</div>
+    <p><code>char</code> 說穿了就是一個<strong>小整數</strong>（一個 byte），存的是字元的編碼值。ASCII 把 <code>'a'</code> 到 <code>'z'</code> 排成<strong>連續</strong>的 97 到 122，所以兩個字元相減，得到的是它們在字母表上差幾格：<code>'c' - 'a'</code> 是 2、<code>'t' - 'a'</code> 是 19、<code>'a' - 'a'</code> 是 0。</p>
+    <p>在常見 ASCII 相容編碼中，減去字元 a 可把小寫英文字母映射到 0–25，用來計數。但要先確認輸入確實是該範圍；一般字串可能有空白、大小寫或多位元組文字，不能直接當成合法索引。</p>
+  </div>
+
 
 </section>
-<section id="invalidate"><div class="section-number">PART 06</div><h2>iterator 失效與安全 erase</h2>
-<p>iterator 與指向元素的指標都依賴容器目前的儲存位置。vector 重配置時全部元素搬家，先前所有 iterator、指標與參考都失效。<code>erase(pos)</code> 則讓 pos 與其後位置失效，因為後方元素向左搬。</p>
-<h3>安全規則：不要執行失效 iterator</h3>
-<p>失效後再解參考是未定義行為：可能看似成功，也可能印垃圾或當掉。正確作法是使用操作回傳的新 iterator，或在可能重配置後重新取得 begin。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="10 30 &#10;">#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main() {
-    vector&lt;int&gt; v{10, 20, 30, 40};
-    for (auto it=v.begin(); it!=v.end(); ) {
-        if (*it % 20 == 0) it = v.erase(it);
-        else ++it;
-    }
-    for (int x : v) cout &lt;&lt; x &lt;&lt; &#x27; &#x27;;
-    cout &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>10 30 &#10;</pre></div>
-<p>erase 回傳「被刪元素後面的新位置」。刪 20 後，新 iterator 指 30，不額外 ++；保留 10 或 30 時才 ++。這避免跳過元素，也沒有碰失效位置。</p>
-<pre class="pseudo-code" data-cpp="fragment">auto it = v.begin();
-v.push_back(99);
-cout &lt;&lt; *it; // 錯誤示例：push_back 若重配置，it 已失效；不要執行</pre>
-<div class="deck-extra lesson-trace" id="p5erase"><h3>互動：erase 時 iterator 指向哪裡</h3><p>逐格看安全刪除；紅色警戒以文字呈現，不會執行失效 iterator。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">for (auto it=v.begin(); it!=v.end(); ) {</span>
-<span class="line">  if (*it % 20 == 0) it=v.erase(it);</span>
-<span class="line">  else ++it;</span>
-<span class="line">}</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "it 指 10；條件為假。", "vars": {"v": "{10,20,30,40}", "it": "10"}, "line": 0, "output": ""}, {"note": "執行 ++it，現在指 20。", "vars": {"v": "{10,20,30,40}", "it": "20"}, "line": 2, "output": ""}, {"note": "erase 刪 20；舊 it 失效，但立刻用回傳值覆蓋，新的 it 指 30。", "vars": {"v": "{10,30,40}", "it": "30（erase 回傳）"}, "line": 1, "output": ""}, {"note": "30 保留，++ 後指 40。", "vars": {"v": "{10,30,40}", "it": "40"}, "line": 2, "output": ""}, {"note": "刪 40 後回傳 end，迴圈結束。", "vars": {"v": "{10,30}", "it": "end()"}, "line": 1, "output": "10 30"}]</script></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>為何不能寫 <code>erase(it); ++it;</code>？</p><details><summary>看解答與理由</summary><p>erase 後舊 it 已失效，對它 ++ 仍是使用失效 iterator。應寫 <code>it = v.erase(it)</code>。</p></details></div>
 
-</section>
-<section id="twod"><div class="section-number">PART 07</div><h2>二維 vector：表格與不規則列</h2>
-<p><code>vector&lt;vector&lt;int&gt;&gt;</code> 是「外層每一格又是一個 vector」。常用來存表格、棋盤或每位學生的一串成績。先讀外層索引 row，再讀內層索引 col：<code>grid[row][col]</code>。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="2 rows, 4 occupied&#10;">#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main() {
-    vector&lt;vector&lt;int&gt;&gt; seats{{1,0,1},{0,1,1}};
-    int occupied=0;
-    for (size_t r=0; r&lt;seats.size(); ++r)
-        for (size_t c=0; c&lt;seats[r].size(); ++c)
-            occupied += seats[r][c];
-    cout &lt;&lt; seats.size() &lt;&lt; &quot; rows, &quot; &lt;&lt; occupied &lt;&lt; &quot; occupied\n&quot;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 rows, 4 occupied&#10;</pre></div>
-<p>外層 size 是列數；每一列可以有不同長度，所以內層條件必須用 <code>seats[r].size()</code>。若資料保證矩形才可拿第一列寬度套全部列，而且還要先確認不為空。</p>
-<div class="info-box warm"><div class="info-label">界線</div><p>二維 vector 不自動保證矩形。<code>{{1,2},{3}}</code> 完全合法；此時讀 <code>v[1][1]</code> 越界。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>建立 3×4、全為 0 的表格。</p><details><summary>看解答與理由</summary><p><code>vector&lt;vector&lt;int&gt;&gt; grid(3, vector&lt;int&gt;(4,0));</code>。外層建立 3 列，每列由內層建構式建立 4 個 0。</p></details></div>
 
-</section>
-<section id="adaptors"><div class="section-number">PART 08</div><h2>stack、queue、deque 的生活模型</h2>
-<p>有時需求只允許從特定端操作。<code>stack</code> 像復原紀錄：最後做的先撤銷。<code>queue</code> 像排隊：先來先服務。<code>deque</code> 是雙端佇列，兩端都能常數時間增刪，也是 stack/queue 常見的底層容器。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>容器</th><th>加入／查看／移除</th><th>典型用途</th></tr></thead><tbody><tr><td><code>stack&lt;T&gt;</code></td><td>push / top / pop</td><td>編輯器 undo、括號配對</td></tr><tr><td><code>queue&lt;T&gt;</code></td><td>push / front / pop</td><td>客服排隊、工作佇列</td></tr><tr><td><code>deque&lt;T&gt;</code></td><td>push_front/back、front/back、pop_front/back</td><td>兩端都有新資料</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="撤銷：刪除 B&#10;服務：小安&#10;下一位：小美&#10;">#include &lt;iostream&gt;
-#include &lt;queue&gt;
-#include &lt;stack&gt;
-#include &lt;string&gt;
-using namespace std;
-int main() {
-    stack&lt;string&gt; undo;
-    undo.push(&quot;輸入 A&quot;); undo.push(&quot;刪除 B&quot;);
-    cout &lt;&lt; &quot;撤銷：&quot; &lt;&lt; undo.top() &lt;&lt; &#x27;\n&#x27;; undo.pop();
-    queue&lt;string&gt; line;
-    line.push(&quot;小安&quot;); line.push(&quot;小美&quot;);
-    cout &lt;&lt; &quot;服務：&quot; &lt;&lt; line.front() &lt;&lt; &#x27;\n&#x27;; line.pop();
-    cout &lt;&lt; &quot;下一位：&quot; &lt;&lt; line.front() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>撤銷：刪除 B&#10;服務：小安&#10;下一位：小美&#10;</pre></div>
-<p>top/front 只查看，不移除；pop 只移除，不回傳。因此常見順序是先讀，再 pop。空容器呼叫 top/front/pop 沒有有效元素可用，先以 <code>empty()</code> 判斷。</p>
-<div class="info-box warm"><div class="info-label">範圍</div><p>這裡只建立使用者模型，不展開 stack/queue 的底層演算法。之後章節遇到 DFS/BFS 時，會直接使用這組介面。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>印出並移除 stack 頂端，且避免空容器錯誤。</p><details><summary>看解答與理由</summary><p><code>if (!s.empty()) { cout &lt;&lt; s.top(); s.pop(); }</code>。查看與移除是兩個動作。</p></details></div>
+<section id="stringcost">
+  <div class="section-number">PART 09 · 字串的成本</div>
+  <h2>在迴圈裡串接字串：<code>+=</code> 便宜，<code>s = s + x</code> 很貴</h2>
+  <p>兩行看起來只差一個等號，成本差了兩個數量級。原因回到 PART 03：<code>s += 'x'</code> 是<strong>就地</strong>加在尾端，容量夠就什麼都不用搬；<code>s = s + 'x'</code> 則要先算出 <code>s + 'x'</code> 這個<strong>全新的字串</strong>（複製整個 s），再賦值回去。</p>
 
-</section>
-<section id="string"><div class="section-number">PART 09</div><h2>string、字元陣列、npos 與 substr</h2>
-<p><code>string</code> 管理一串 char，會自己記長度並提供搜尋、切片、串接。C 風格字元陣列以 <code>\0</code> 結尾，容量與有效文字長度要由程式設計者小心處理；初學一般文字優先用 string。需要傳給舊式 C API 時，可用 <code>s.c_str()</code> 取得唯讀的結尾字元陣列指標。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>string 寫法</th><th>說明</th></tr></thead><tbody><tr><td>長度</td><td><code>s.size()</code></td><td>char 數量；不含結尾字元</td></tr><tr><td>索引</td><td><code>s[i]</code> / <code>s.at(i)</code></td><td>一個 char</td></tr><tr><td>串接</td><td><code>s += suffix</code></td><td>修改 s</td></tr><tr><td>搜尋</td><td><code>s.find(needle)</code></td><td>位置或 string::npos</td></tr><tr><td>切片</td><td><code>s.substr(pos,count)</code></td><td>從 pos 起最多 count 個 char</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="AB / 204&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-using namespace std;
-int main() {
-    string code=&quot;AB-204&quot;;
-    size_t dash=code.find(&#x27;-&#x27;);
-    if (dash != string::npos) {
-        string group=code.substr(0,dash);
-        string number=code.substr(dash+1);
-        cout &lt;&lt; group &lt;&lt; &quot; / &quot; &lt;&lt; number &lt;&lt; &#x27;\n&#x27;;
-    }
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>AB / 204&#10;</pre></div>
-<p>find 成功回傳第一個符合位置；失敗回傳特殊值 <code>string::npos</code>，不能用 -1 當跨平台契約。第一個 substr 取 [0,dash)，第二個省略 count，表示一路取到結尾。</p>
-<h3>UTF-8 的 byte 界線</h3>
-<p>string 的 size、索引、find 位置與 substr count 都以 char 單位運作；在常見 UTF-8 環境，一個中文字通常由多個 byte 組成。因此 <code>substr(0,1)</code> 可能切壞中文字。要按「可見字」處理，需要額外的 Unicode 函式庫或明確的編碼層，本頁不假裝 string 已懂 Unicode。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>若找不到連字號，為何不能直接 <code>substr(dash+1)</code>？</p><details><summary>看解答與理由</summary><p>dash 是 npos；加一可能回繞，且程式語意已不成立。先判斷 <code>dash != string::npos</code>。</p></details></div>
+<div class="deck-extra">
+  <div class="dx-label">量給你看</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">10000</span>;</span>
+<span class="line" data-l="7">    <span class="kw">auto</span> t1 = chrono::steady_clock::now();</span>
+<span class="line" data-l="8">    string a;</span>
+<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; ++i) a += <span class="str">'</span><span class="str">x</span><span class="str">'</span>;</span>
+<span class="line" data-l="10">    <span class="kw">double</span> ms1 = chrono::duration&lt;<span class="kw">double</span>, milli&gt;(chrono::steady_clock::now()-t1).count();</span>
+<span class="line" data-l="11">    <span class="kw">auto</span> t2 = chrono::steady_clock::now();</span>
+<span class="line" data-l="12">    string b;</span>
+<span class="line" data-l="13">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; ++i) b = b + <span class="str">'</span><span class="str">x</span><span class="str">'</span>;</span>
+<span class="line" data-l="14">    <span class="kw">double</span> ms2 = chrono::duration&lt;<span class="kw">double</span>, milli&gt;(chrono::steady_clock::now()-t2).count();</span>
+<span class="line" data-l="15">    printf(<span class="str">"</span><span class="str">累積 +=   %10.2f ms</span><span class="str">\n</span><span class="str">"</span>, ms1);</span>
+<span class="line" data-l="16">    printf(<span class="str">"</span><span class="str">重建 +    %10.2f ms</span><span class="str">\n</span><span class="str">"</span>, ms2);</span>
+<span class="line" data-l="17">    printf(<span class="str">"</span><span class="str">內容相同 %d</span><span class="str">\n</span><span class="str">"</span>, a == b);</span>
+<span class="line" data-l="18">}</span>
+<span class="line" data-l="19"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>累積 +=         0.10 ms
+重建 +          0.80 ms
+內容相同 1
+（時間僅示例，依環境與最佳化而變）</pre></div>
+  <p class="dx-note">十萬次的差距。<code>+=</code> 那條走的是攤還 $O(1)$，總成本 $O(n)$；<code>s = s + 'x'</code> 每一輪都複製一次現有內容，總成本是 $O(n^2)$。絕對時間每次跑會浮動，但兩者的比例穩定在幾百倍這個量級。</p>
+</div>
 
-</section>
-<section id="io-cost"><div class="section-number">PART 10</div><h2>混合輸入與字串串接成本</h2>
-<p><code>cin &gt;&gt; value</code> 以空白分隔 token，讀完整行則用 <code>getline(cin,text)</code>。混用時，<code>&gt;&gt;</code> 通常把換行留在輸入緩衝區，下一個 getline 會立刻讀到空行。<code>getline(cin &gt;&gt; ws, text)</code> 先用 <code>ws</code> 吃掉前導空白與換行，再讀一整行。</p>
-<div class="expected-out"><span class="eo-tag">範例輸入</span><pre>2026&#10;C++ 入門筆記&#10;</pre></div><pre class="pseudo-code" data-cpp="run" data-expected="[2026] C++ 入門筆記&#10;" data-stdin="2026&#10;C++ 入門筆記&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-using namespace std;
-int main() {
-    int year;
-    string title;
-    cin &gt;&gt; year;
-    getline(cin &gt;&gt; ws, title);
-    cout &lt;&lt; &#x27;[&#x27; &lt;&lt; year &lt;&lt; &quot;] &quot; &lt;&lt; title &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[2026] C++ 入門筆記&#10;</pre></div>
-<p>先讀整數 2026；ws 消耗其後換行，再由 getline 保留標題中的空白。代價是 ws 也會丟掉使用者刻意放在行首的空白；若那些空白有意義，改用一次 getline 讀原始行再自行解析。</p>
-<h3>串接的成本</h3>
-<p><code>a+b</code> 建立新字串結果，反覆在迴圈寫 <code>s = s + piece</code> 可能一次次配置與複製愈來愈長的前綴，總成本可能接近平方級。要累積內容，優先 <code>s += piece</code> 或 <code>s.append(piece)</code>，已知大約長度可先 <code>s.reserve(total)</code>。一次性的短字串串接則不必過度優化。</p>
-<pre class="pseudo-code" data-cpp="fragment">string out;
-for (const string&amp; p : parts) out = out + p; // 反例：每輪可能複製整個舊 out
-// 改為 out += p；若可估總長度，再先 reserve</pre>
-<div class="info-box"><div class="info-label">動手練習</div><p>何時 <code>getline(cin &gt;&gt; ws,s)</code> 不是正確選擇？</p><details><summary>看解答與理由</summary><p>當行首空白是資料的一部分時。ws 會跳過所有前導空白，這時應保留原始行並明確處理前一個換行。</p></details></div>
+  <div class="info-box purple">
+    <div class="info-label">🎯 這一點跟 Python 的直覺相反</div>
+    <p style="margin-bottom:0;">Python 的字串是不可變的，<code>s += x</code> 骨子裡也是重新配一個新字串（CPython 有特例最佳化，但不保證），所以那邊教你改用 <code>"".join(parts)</code>。C++ 的 <code>string</code> 是<strong>可變</strong>的，<code>+=</code> 就是真的就地長大，不需要繞路。記法很簡單：C++ 裡的 <code>+=</code> 跟 <code>push_back</code> 是同一種東西。</p>
+  </div>
 
-</section>
-<section id="restore-p5-depth"><div class="section-number">RESTORED DEPTH</div><h2>把容器選擇、建構、字元轉換與成本放回同一張圖</h2>
-<h3 id="restore-p5-array-vector">原生陣列與 vector：三個需求差異</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>問題</th><th>原生陣列</th><th><code>vector</code></th></tr></thead><tbody><tr><td>長度能否在執行中改變</td><td>宣告後固定</td><td>可用增刪操作改變 <code>size()</code></td></tr><tr><td>傳進一般函式後</td><td>常退化成指標，長度不隨附</td><td>物件仍記得 <code>size()</code>；通常以參考傳遞</td></tr><tr><td>是否自行記住元素數</td><td>不記得，需另帶長度</td><td>由 <code>size()</code> 回報</td></tr></tbody></table></div>
-<p>選擇不是「新的一定勝過舊的」。固定、很小且介面明確的資料可用陣列；數量在執行時才知道或需要增減時，vector 能把長度與儲存空間放在同一個物件中。</p>
-<h3 id="restore-p5-constructors">從型別、變數、引數讀懂完整建構式家族</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>片段</th><th>身分</th></tr></thead><tbody><tr><td><code>vector&lt;int&gt;</code></td><td>完整型別：元素型別是 int</td></tr><tr><td><code>left</code></td><td>新物件的變數名稱</td></tr><tr><td><code>(a.begin(), a.begin()+mid)</code></td><td>交給建構式的兩個 iterator 引數</td></tr></tbody></table></div>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>語法</th><th>結果</th><th>用途／界線</th></tr></thead><tbody><tr><td><code>vector&lt;int&gt; a;</code></td><td>空容器</td><td>稍後逐筆加入</td></tr><tr><td><code>vector&lt;int&gt; a(5);</code></td><td>5 個值初始化的 int，也就是 0</td><td>數量已知</td></tr><tr><td><code>vector&lt;int&gt; a(5,-1);</code></td><td>5 個 -1</td><td>數量與共同初值</td></tr><tr><td><code>vector&lt;int&gt; a{5,-1};</code></td><td>兩項：5、-1</td><td>大括號列的是元素</td></tr><tr><td><code>vector&lt;int&gt; b(a);</code></td><td>獨立複製</td><td>修改 b 不改 a</td></tr><tr><td><code>vector&lt;int&gt; b(first,last);</code></td><td>複製 <code>[first,last)</code></td><td>last 指向不包含的尾後位置</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="2 3 4 &#10;">#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main(){ vector&lt;int&gt; all{1,2,3,4,5}; vector&lt;int&gt; middle(all.begin()+1,all.begin()+4); for(int x:middle) cout&lt;&lt;x&lt;&lt;' '; cout&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 3 4 &#10;</pre></div>
-<p>第一個 iterator 指到 2，第二個指到 5；右端不包含，因此只複製 2、3、4。這也是把一段 iterator 範圍交給清單函式或演算法時共同採用的半開區間。</p>
-<h3 id="restore-p5-invalidation">逐操作判斷 iterator、指標與參考是否失效</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>操作</th><th>失效範圍</th></tr></thead><tbody><tr><td><code>push_back</code>／<code>emplace_back</code></td><td>若重配置：全部與舊 past-the-end；否則只有舊 past-the-end</td></tr><tr><td><code>insert(pos,...)</code></td><td>若重配置：全部；否則 pos 與其後（包含舊 past-the-end）</td></tr><tr><td><code>erase(pos)</code></td><td>pos 與其後（包含舊 past-the-end）</td></tr><tr><td><code>pop_back()</code></td><td>被刪元素與舊 past-the-end</td></tr><tr><td><code>clear()</code></td><td>所有元素與舊 past-the-end</td></tr><tr><td><code>reserve(n)</code></td><td>容量增加即全部失效；未增加則不失效</td></tr><tr><td><code>resize(n)</code> 增長、未重配置</td><td>原有元素的 iterator/reference 仍有效；舊 past-the-end 失效</td></tr><tr><td><code>resize(n)</code> 增長、發生重配置</td><td>全部 iterator、pointer、reference 與舊 past-the-end 失效</td></tr><tr><td><code>resize(n)</code> 縮小</td><td>被刪除元素及其後位置（包含舊 past-the-end）失效；保留下來元素的位置仍有效</td></tr></tbody></table></div>
-<p>past-the-end 就是當時的 <code>end()</code>。即使沒有搬家，改變 size 的操作也可能使舊 end 不再代表新的尾後位置；不要保存它跨越增刪操作。</p>
-<h3 id="restore-p5-adaptors">stack、queue、deque 的完整介面矩陣</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>容器</th><th>加入</th><th>查看</th><th>移除</th><th>其他</th><th>典型用途</th></tr></thead><tbody><tr><td><code>stack&lt;T&gt;</code></td><td><code>push(x)</code></td><td><code>top()</code></td><td><code>pop()</code></td><td><code>empty() size()</code></td><td>undo、後進先出</td></tr><tr><td><code>queue&lt;T&gt;</code></td><td><code>push(x)</code></td><td><code>front() back()</code></td><td><code>pop()</code></td><td><code>empty() size()</code></td><td>先來先服務</td></tr><tr><td><code>deque&lt;T&gt;</code></td><td><code>push_front/back</code></td><td><code>front() back() []</code></td><td><code>pop_front/back</code></td><td><code>empty() size()</code></td><td>兩端工作列</td></tr></tbody></table></div>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>錯誤期待</th><th>STL 正確寫法</th></tr></thead><tbody><tr><td>取得並移除 stack 頂端</td><td><code>int x=s.pop();</code></td><td><code>int x=s.top(); s.pop();</code></td></tr><tr><td>只移除</td><td>期待 pop 回傳值</td><td><code>s.pop();</code>，回傳型別是 void</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="urgent normal later&#10;">#include &lt;deque&gt;
-#include &lt;iostream&gt;
-#include &lt;string&gt;
-using namespace std;
-int main(){ deque&lt;string&gt; jobs; jobs.push_back("normal"); jobs.push_front("urgent"); jobs.push_back("later"); cout&lt;&lt;jobs.front()&lt;&lt;' '&lt;&lt;jobs[1]&lt;&lt;' '&lt;&lt;jobs.back()&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>urgent normal later&#10;</pre></div>
-<h3 id="restore-p5-string-convert">char、單字元 string、字面值串接與數字轉換</h3>
-<pre class="pseudo-code" data-cpp="run" data-expected="A! abcd 1454 2906&#10;">#include &lt;iostream&gt;
-#include &lt;string&gt;
-using namespace std;
-int main(){ char c='A'; string one(1,c); string joined=string("ab")+"cd"; int n=stoi("1453"); cout&lt;&lt;one+"!"&lt;&lt;' '&lt;&lt;joined&lt;&lt;' '&lt;&lt;n+1&lt;&lt;' '&lt;&lt;to_string(n*2)&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>A! abcd 1454 2906&#10;</pre></div>
-<p><code>'A'</code> 是 char；<code>string(1,c)</code> 建出含一個 c 的 string。<code>"ab"+"cd"</code> 的兩側都是字元陣列，沒有字串加法；先把一側變成 <code>string("ab")</code> 才能串接。<code>stoi</code> 把文字轉 int，無法轉換時會丟 <code>invalid_argument</code>；<code>to_string</code> 把數字轉文字。</p>
-<h3 id="restore-p5-costs">完整操作成本：成本是資料移動量，不是方法名稱</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>操作</th><th>典型複雜度</th><th>原因</th></tr></thead><tbody><tr><td><code>v[i]</code></td><td>O(1)</td><td>連續儲存直接定位</td></tr><tr><td><code>v.at(i)</code></td><td>O(1)</td><td>多一次界線檢查</td></tr><tr><td><code>v.size()</code></td><td>O(1)</td><td>讀取已保存的元素數量</td></tr><tr><td><code>v.empty()</code></td><td>O(1)</td><td>判斷是否為空，不需走訪</td></tr><tr><td><code>v.front()/v.back()</code></td><td>O(1)</td><td>直接讀取端點；先確認非空</td></tr><tr><td><code>v.capacity()</code></td><td>O(1)</td><td>容量是容器已保存的狀態</td></tr><tr><td><code>v.push_back(x)</code></td><td>攤還 O(1)，重配置當次 O(n)</td><td>偶爾搬移全部元素</td></tr><tr><td><code>v.pop_back()</code></td><td>O(1)</td><td>只銷毀尾端元素</td></tr><tr><td><code>v.insert(pos, x)</code></td><td>O(n)</td><td>後段向右搬移；若另有重配置，還要搬到新區塊。</td></tr><tr><td><code>v.erase(pos)</code></td><td>O(n)</td><td>銷毀被刪元素，後段向左搬移補洞。</td></tr><tr><td><code>v.clear()</code></td><td>O(n)</td><td>逐一銷毀元素</td></tr><tr><td><code>v.reserve(n)</code></td><td>若配置則 O(n)</td><td>搬到較大連續區塊</td></tr><tr><td><code>resize</code></td><td>與新增／刪除數及可能搬家成正比</td><td>建構或銷毀元素</td></tr><tr><td><code>s.length() / s.size()</code></td><td>O(1)</td><td>讀取已保存的 char 個數，不等於 UTF-8 可見字數。</td></tr><tr><td><code>s[i]</code></td><td>O(1)</td><td>按 char 位置讀取字元；存取界線見本頁與 P7。</td></tr><tr><td><code>s.find(x)</code></td><td>保守模型最壞 O(nm)</td><td>簡單逐位置比對時，長度 n 文字逐一比對長度 m 模式；實際標準庫策略依實作，不當成標準保證</td></tr><tr><td><code>s.substr(pos,k)</code></td><td>O(k)</td><td>建立並複製新字串</td></tr><tr><td><code>s += piece</code></td><td>攤還 O(piece.size())</td><td>至少要複製新增字元，偶爾重配置</td></tr><tr><td><code>s = s + piece</code></td><td>O(s.size()+piece.size())</td><td>建立新結果並複製兩側</td></tr><tr><td><code>stack/queue</code> 端點操作</td><td>通常 O(1)</td><td>由底層容器端點支援</td></tr><tr><td><code>deque</code> 兩端增刪</td><td>O(1)</td><td>分段儲存避免搬完整序列</td></tr><tr><td><code>deque[i]</code></td><td>O(1)</td><td>支援隨機存取</td></tr><tr><td>走訪 n 項</td><td>O(n)</td><td>每項處理一次</td></tr><tr><td>複製 n 項容器</td><td>O(n)</td><td>建立 n 個獨立元素</td></tr><tr><td><code>std::find(v.begin(), v.end(), x)</code></td><td>O(n)</td><td>最多逐項比較 n 個元素，找到時可提早結束；不是 map 的成員 find</td></tr></tbody></table></div>
-<div class="diagram-scroll"><svg style="width:800px;max-width:none;height:auto;display:block;margin:auto" viewBox="0 0 800 260" role="img" aria-label="vector 擴容四階段：舊區塊已滿、配置較大區塊、搬移元素、釋放舊區塊"><g font-family="sans-serif" font-size="16" text-anchor="middle"><text x="100" y="28">1 舊區塊已滿</text><text x="300" y="28">2 配置較大區塊</text><text x="500" y="28">3 搬移既有元素</text><text x="700" y="28">4 釋放舊區塊</text></g><g stroke="currentColor" fill="none" stroke-width="2"><path d="M35 55h130v45H35z M35 105h130v45H35z"/><path d="M215 55h130v45H215z M215 115h130v80H215z"/><path d="M415 55h130v45H415z M415 115h130v80H415z"/><path d="M615 55h130v45H615z" stroke-dasharray="6 4"/><path d="M615 115h130v80H615z"/><path d="M470 102v32"/><path d="M455 122l15 12 15-12"/><path d="M165 128h35 M190 120l10 8-10 8 M365 128h35 M390 120l10 8-10 8 M565 128h35 M590 120l10 8-10 8"/></g><g font-family="monospace" font-size="14" text-anchor="middle"><text x="100" y="83">size==capacity</text><text x="280" y="83">舊資料</text><text x="280" y="160">新容量（實作決定）</text><text x="480" y="83">舊資料</text><text x="480" y="160">搬入新區塊</text><text x="680" y="83">舊區塊失效</text><text x="680" y="160">新資料位置</text></g></svg></div>
-<div class="info-box green"><div class="info-label">擴容與 reserve 圖的讀法</div><p>四階段是「舊區塊已滿 → 配置較大連續區塊 → 搬移／複製既有元素 → 釋放舊區塊」。新容量的成長倍數由實作決定，標準不保證雙倍。</p></div>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>策略</th><th>size</th><th>搬家情形</th></tr></thead><tbody><tr><td>逐項 push，不預估</td><td>每次成功加入後增加</td><td>容量不足時可能多次重配置</td></tr><tr><td>先 <code>reserve(expected)</code></td><td>reserve 本身不改 size</td><td>expected 範圍內通常不需再次重配置</td></tr></tbody></table></div>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>C++ 寫法</th><th>邊界</th></tr></thead><tbody><tr><td>空清單</td><td><code>vector&lt;T&gt; v;</code></td><td>T 固定元素型別</td></tr><tr><td>n 個共同初值</td><td><code>vector&lt;T&gt; v(n,value);</code></td><td>勿與 <code>{n,value}</code> 混淆</td></tr><tr><td>尾端新增／刪除</td><td><code>push_back/pop_back</code></td><td>pop 不回值；push 可能使 iterator 失效</td></tr><tr><td>中段新增／刪除</td><td><code>insert/erase</code></td><td>位置用 iterator，後段搬移</td></tr><tr><td>安全索引</td><td><code>at(i)</code></td><td>錯誤丟 out_of_range</td></tr><tr><td>切 iterator 範圍</td><td><code>vector(first,last)</code></td><td>右端不包含</td></tr><tr><td>文字搜尋</td><td><code>find</code></td><td>找不到為 npos</td></tr><tr><td>文字切片</td><td><code>substr(pos,count)</code></td><td>char/byte 單位，不是 Unicode 字素</td></tr><tr><td>累積文字</td><td><code>+=</code>／<code>append</code></td><td>成本至少與新增片段長度成正比</td></tr><tr><td>讀整行</td><td><code>getline</code></td><td>混用 &gt;&gt; 時處理殘留換行</td></tr><tr><td>單字元變 string</td><td><code>string(1,c)</code></td><td><code>to_string(c)</code> 不是此用途</td></tr><tr><td>數字與文字互轉</td><td><code>stoi/to_string</code></td><td>stoi 可能丟例外</td></tr></tbody></table></div>
-<h3 id="restore-p5-uses-resources">六種用途與查閱入口</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>用途</th><th>常見型別／操作</th><th>為何適合</th></tr></thead><tbody><tr><td>逐筆收集輸入</td><td><code>vector&lt;T&gt; + push_back</code></td><td>筆數可在執行中成長</td></tr><tr><td>固定格數計數</td><td><code>vector&lt;int&gt;(n,0)</code></td><td>直接建立並初始化 n 格</td></tr><tr><td>複製子區間</td><td><code>vector(first,last)</code></td><td>沿用半開 iterator 範圍</td></tr><tr><td>排序資料輸入</td><td><code>vector&lt;T&gt;</code></td><td>連續且提供 random-access iterator</td></tr><tr><td>二維表格</td><td><code>vector&lt;vector&lt;T&gt;&gt;</code></td><td>每列可獨立管理長度</td></tr><tr><td>stack/queue底層序列</td><td>vector或deque</td><td>由轉接器限制公開操作</td></tr></tbody></table></div><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>資源</th><th>查閱重點</th></tr></thead><tbody><tr><td><a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">cppreference vector</a></td><td>成員函式、成本、iterator invalidation</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/string/basic_string" target="_blank" rel="noopener">cppreference string</a></td><td>find、substr、npos與轉換</td></tr><tr><td><a href="p4_pointers_memory.html">P4</a></td><td>連續記憶體、陣列退化與地址</td></tr><tr><td><a href="p6_map_set.html">P6</a></td><td>iterator範圍與標準演算法</td></tr><tr><td><a href="p7_files_exceptions.html">P7</a></td><td>at與stoi失敗時的例外處理</td></tr></tbody></table></div>
-</section>
-<section id="reference"><div class="section-number">PART 11</div><h2>語法速查與章末整合</h2>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>想做的事</th><th>首選語法</th><th>先檢查</th></tr></thead><tbody><tr><td>尾端加入</td><td><code>v.push_back(x)</code></td><td>可能重配置並使 iterator 失效</td></tr><tr><td>安全索引</td><td><code>v.at(i)</code></td><td>錯誤會丟 out_of_range</td></tr><tr><td>刪迴圈目前項</td><td><code>it=v.erase(it)</code></td><td>不要再使用舊 it</td></tr><tr><td>找子字串</td><td><code>s.find(x)</code></td><td>比較 string::npos</td></tr><tr><td>讀含空白整行</td><td><code>getline(cin&gt;&gt;ws,s)</code></td><td>行首空白是否有意義</td></tr></tbody></table></div>
-<p>延伸查閱：<a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">std::vector</a>、<a href="https://en.cppreference.com/w/cpp/string/basic_string" target="_blank" rel="noopener">std::string</a>。這些是介面參考，不必一次背完。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>說明 vector 的 size、capacity 與 reserve 三者關係。</p><details><summary>看解答與理由</summary><p>size 是已存在元素數；capacity 是免重配置可容納數且至少等於 size；reserve(n) 讓 capacity 至少為 n，但不改 size。</p></details></div>
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);"><code>char</code> 與 <code>string</code> 是兩種東西</h3>
+  <p><code>'a'</code> 是一個 <code>char</code>，而 C++ 規定 <code>sizeof(char) == 1</code>；它屬於整數型別，但實際字元編碼由實作決定。<code>"a"</code> 則是含結尾空字元的字元陣列，兩者型別與可用運算不同：</p>
 
-<p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
+<div class="deck-extra">
+  <div class="dx-label">兩個字面值相加：編譯器怎麼罵你</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    string s = <span class="str">"</span><span class="str">ab</span><span class="str">"</span> + <span class="str">"</span><span class="str">cd</span><span class="str">"</span>;       <span class="com">// 兩個字面值相加：這行過不了</span>
+<span class="line" data-l="7"></span>    cout &lt;&lt; s &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span></div>
+  <div class="expected-out"><span class="eo-tag">編譯錯誤（前三行）</span><pre>[編譯失敗]
+cell.cpp: In function ‘int main()’:
+cell.cpp:6:21: error: invalid operands of types ‘const char [3]’ and ‘const char [3]’ to binary ‘operator+’
+    6 |     string s = &quot;ab&quot; + &quot;cd&quot;;       // 兩個字面值相加：這行過不了</pre></div>
+  <p class="dx-note"><code>&quot;ab&quot;</code> 和 <code>&quot;cd&quot;</code> 的型別是 <code>const char[3]</code>，兩個陣列不能用 <code>+</code> 相加。解法是讓其中一邊先變成 <code>string</code>：<code>string(&quot;ab&quot;) + &quot;cd&quot;</code>，或者宣告成 <code>string a = &quot;ab&quot;; a += &quot;cd&quot;;</code>。</p>
+</div>
+
+<div class="deck-extra">
+  <div class="dx-label">轉換與陷阱</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    string s = <span class="str">"</span><span class="str">1453</span><span class="str">"</span>;</span>
+<span class="line" data-l="7">    <span class="kw">int</span> n = stoi(s);                       <span class="com">// 字串 -&gt; 整數</span>
+<span class="line" data-l="8"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">stoi(</span><span class="str">\"</span><span class="str">1453</span><span class="str">\"</span><span class="str">) + 1 = </span><span class="str">"</span> &lt;&lt; n + <span class="num">1</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10">    string t = to_string(n * <span class="num">2</span>);           <span class="com">// 整數 -&gt; 字串</span>
+<span class="line" data-l="11"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">to_string(2906) + </span><span class="str">\"</span><span class="str">!</span><span class="str">\"</span><span class="str"> = </span><span class="str">"</span> &lt;&lt; t + <span class="str">"</span><span class="str">!</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    <span class="kw">char</span> c = s[<span class="num">0</span>];                         <span class="com">// s[0] 是 char，不是 string</span>
+<span class="line" data-l="14"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">s[0] 是 char：</span><span class="str">"</span> &lt;&lt; c &lt;&lt; <span class="str">"</span><span class="str">，佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(c) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">s.substr(0,1) 是 string：</span><span class="str">"</span> &lt;&lt; s.substr(<span class="num">0</span>, <span class="num">1</span>)</span>
+<span class="line" data-l="16">         &lt;&lt; <span class="str">"</span><span class="str">，物件佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(s.substr(<span class="num">0</span>, <span class="num">1</span>)) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    string one(<span class="num">1</span>, c);                      <span class="com">// 把一個 char 包成 string</span>
+<span class="line" data-l="19"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">string(1, c) + </span><span class="str">\"</span><span class="str">X</span><span class="str">\"</span><span class="str"> = </span><span class="str">"</span> &lt;&lt; one + <span class="str">"</span><span class="str">X</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">字元相加會變數字：c + 1 = </span><span class="str">"</span> &lt;&lt; c + <span class="num">1</span> &lt;&lt; <span class="str">"</span><span class="str">（char 被當成 ASCII 碼）</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="22">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="23">}</span>
+<span class="line" data-l="24"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>stoi(&quot;1453&quot;) + 1 = 1454
+to_string(2906) + &quot;!&quot; = 2906!
+s[0] 是 char：1，佔 1 bytes
+s.substr(0,1) 是 string：1，物件佔 32 bytes
+string(1, c) + &quot;X&quot; = 1X
+字元相加會變數字：c + 1 = 50（char 被當成 ASCII 碼）</pre></div>
+  <p class="dx-note"><code>stoi</code> 把字串轉整數、<code>to_string</code> 把數字轉字串，兩個都在 <code>&lt;string&gt;</code> 裡。最後一行是最容易中的陷阱：<code>c + 1</code> 得到 50，因為字元 <code>'1'</code> 的 ASCII 碼是 49——<strong>char 參與算術時會被當成整數</strong>。</p>
+</div>
+</section>
+
+
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>一題確認你抓到重點</h2>
+
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 1 · 搬移總量</div>
+    <p>一個空的 <code>vector&lt;int&gt;</code> 連續 <code>push_back</code> 8 次，容量走 0→1→2→4→8。整個過程中被「搬家」搬過的元素總共幾個？</p>
+    <div class="quiz-options" id="qbOptions">
+      <div class="quiz-opt" data-correct="false" data-fb="8 是 push_back 的次數，不是搬移量。搬移只發生在容量改變的那幾次。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 8 個</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。四次擴容分別搬了 0、1、2、4 個，加起來 7 個。平均每次 push_back 不到 1 個元素的搬移量，這就是攤還 O(1) 的意思：總搬移量是 1+2+4+…，不會超過 2n。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 7 個</div>
+      <div class="quiz-opt" data-correct="false" data-fb="0 只有在事先 reserve 過的情況下才成立。沒有 reserve 就一定會經歷幾次搬家。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 0 個，vector 會就地長大</div>
+      <div class="quiz-opt" data-correct="false" data-fb="這是「每次只加一格」的成本（1+2+…+7=28），也就是不翻倍的話會有多慘。翻倍策略正是為了避開這個。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 28 個</div>
+    </div>
+    <div class="quiz-feedback" id="qbFeedback"></div>
+  </div>
+</section>
+
+
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P5 速查表</h2>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; v;                  <span class="com">// 空的</span>
+<span class="line" data-l="8"></span>    vector&lt;<span class="kw">int</span>&gt; w(<span class="num">5</span>, <span class="num">0</span>);            <span class="com">// 5 個 0</span>
+<span class="line" data-l="9"></span>    vector&lt;<span class="kw">int</span>&gt; u = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>};   <span class="com">// 初始化清單</span>
+<span class="line" data-l="10"></span>    vector&lt;vector&lt;<span class="kw">int</span>&gt;&gt; m(<span class="num">4</span>, vector&lt;<span class="kw">int</span>&gt;(<span class="num">4</span>, <span class="num">0</span>));   <span class="com">// 4x4 全 0</span>
+<span class="line" data-l="11"></span></span>
+<span class="line" data-l="12">    v.push_back(<span class="num">31</span>);                <span class="com">// 尾端加</span>
+<span class="line" data-l="13"></span>    v.pop_back();                   <span class="com">// 尾端刪</span>
+<span class="line" data-l="14"></span>    v.insert(v.begin(), <span class="num">17</span>);        <span class="com">// 前端插</span>
+<span class="line" data-l="15"></span>    v.erase(v.begin());             <span class="com">// 前端刪</span>
+<span class="line" data-l="16"></span>    cout &lt;&lt; v.size() &lt;&lt; v.empty() &lt;&lt; endl;</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    <span class="kw">for</span> (<span class="kw">unsigned</span> i = <span class="num">0</span>; i &lt; v.size(); i++) cout &lt;&lt; v[i];</span>
+<span class="line" data-l="19">    <span class="kw">for</span> (<span class="kw">int</span>&amp; x : v) x = x * <span class="num">2</span>;     <span class="com">// 要改元素就加 &amp;</span>
+<span class="line" data-l="20"></span></span>
+<span class="line" data-l="21">    string s = <span class="str">"</span><span class="str">fool</span><span class="str">"</span>;</span>
+<span class="line" data-l="22">    s += <span class="str">"</span><span class="str">s</span><span class="str">"</span>;                       <span class="com">// 尾端接，攤還 O(1)</span>
+<span class="line" data-l="23"></span>    cout &lt;&lt; s.length() &lt;&lt; s.substr(<span class="num">1</span>, <span class="num">2</span>) &lt;&lt; s.find(<span class="str">"</span><span class="str">oo</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="24">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="25">}</span>
+<span class="line" data-l="26"> </span></div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">操作成本表（本頁最該回頭查的東西）</h3>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>操作</th><th>複雜度</th><th>為什麼</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">v[i]</td><td class="mono">$O(1)$</td><td>連續記憶體，位址直接算得出來。不檢查範圍</td></tr>
+      <tr><td class="mono">v.at(i)</td><td class="mono">$O(1)$</td><td>同上，多一次範圍檢查；越界丟 <code>out_of_range</code></td></tr>
+      <tr><td class="mono">v.size()</td><td class="mono">$O(1)$</td><td>長度是存起來的，不用數</td></tr>
+      <tr><td class="mono">v.empty()</td><td class="mono">$O(1)$</td><td>就是問 size 是不是 0</td></tr>
+      <tr><td class="mono">v.capacity()</td><td class="mono">$O(1)$</td><td>同樣是存起來的欄位</td></tr>
+      <tr><td class="mono">v.push_back(x)</td><td class="mono"><strong>攤還 $O(1)$</strong></td><td>通常只是寫進下一格；容量滿時要搬 n 個，但平攤下來是常數</td></tr>
+      <tr><td class="mono">v.pop_back()</td><td class="mono">$O(1)$</td><td>size 減一，沒有人需要移動</td></tr>
+      <tr><td class="mono">v.insert(pos, x)</td><td class="mono">$O(n)$</td><td>pos 之後每個元素都往後挪一格</td></tr>
+      <tr><td class="mono">v.erase(pos)</td><td class="mono">$O(n)$</td><td>pos 之後每個元素都往前挪一格</td></tr>
+      <tr><td class="mono">v.clear()</td><td class="mono">$O(n)$</td><td>要一個一個解構（<code>int</code> 這種簡單型別實務上很快）；<strong>capacity 不變</strong></td></tr>
+      <tr><td class="mono">v.reserve(n)</td><td class="mono">$O(n)$</td><td>一次搬完，之後就不用再搬</td></tr>
+      <tr><td>走訪一遍</td><td class="mono">$O(n)$</td><td>三種寫法都一樣</td></tr>
+      <tr><td class="mono">find(v.begin(), v.end(), x)</td><td class="mono">$O(n)$</td><td>沒排序就只能一個一個看（的主題）</td></tr>
+      <tr><td class="mono">s.length()</td><td class="mono">$O(1)$</td><td>跟 <code>size()</code> 是同一個東西</td></tr>
+      <tr><td class="mono">s[i]</td><td class="mono">$O(1)$</td><td>回傳的是 <code>char</code>，不是長度 1 的字串</td></tr>
+      <tr><td class="mono">s += x</td><td class="mono"><strong>攤還 $O(1)$</strong></td><td>就地加在尾端，跟 <code>push_back</code> 同一回事</td></tr>
+      <tr><td class="mono">s = s + x</td><td class="mono">$O(n)$ <strong>／次</strong></td><td>先做出一個全新的字串再賦值。放在迴圈裡整體是 $O(n^2)$</td></tr>
+      <tr><td class="mono">s.substr(pos, len)</td><td class="mono">$O(len)$</td><td>複製出一個新字串</td></tr>
+      <tr><td class="mono">s.find(t)</td><td class="mono">最差 $O(n \cdot m)$</td><td>逐位置比對；找不到回傳 <code>string::npos</code></td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python list ↔ C++ vector 對照</h3>
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>你在 Python 寫</th><th>C++ 寫成</th><th>差在哪</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">a = []</td><td class="mono">vector&lt;int&gt; a;</td><td>C++ 的容器要先講好裝什麼型別，而且只能裝那一種</td></tr>
+      <tr><td class="mono">a = [0] * 5</td><td class="mono">vector&lt;int&gt; a(5, 0);</td><td>—</td></tr>
+      <tr><td class="mono">a.append(x)</td><td class="mono">a.push_back(x);</td><td>兩邊都是攤還 $O(1)$</td></tr>
+      <tr><td class="mono">a.pop()</td><td class="mono">x = a.back(); a.pop_back();</td><td><strong>C++ 的 <code>pop_back</code> 不回傳值</strong>，要先 <code>back()</code> 拿</td></tr>
+      <tr><td class="mono">a.insert(0, x)</td><td class="mono">a.insert(a.begin(), x);</td><td>C++ 吃的是 iterator，不是索引</td></tr>
+      <tr><td class="mono">del a[0]</td><td class="mono">a.erase(a.begin());</td><td>同上，兩邊都是 $O(n)$</td></tr>
+      <tr><td class="mono">len(a)</td><td class="mono">a.size()</td><td>C++ 回傳無號整數，跟 <code>int</code> 比大小會被警告</td></tr>
+      <tr><td class="mono">a[1:3]</td><td class="mono">a.substr(1, 2)（string）<br>vector&lt;int&gt; b(a.begin()+1, a.begin()+3);</td><td>C++ 沒有切片語法，要自己給起訖</td></tr>
+      <tr><td class="mono">for x in a:</td><td class="mono">for (int x : a)</td><td>要改到元素就寫 <code>int&amp; x</code></td></tr>
+      <tr><td class="mono">x in a</td><td class="mono">find(a.begin(), a.end(), x) != a.end()</td><td>要 <code>#include &lt;algorithm&gt;</code></td></tr>
+      <tr><td class="mono">a.sort()</td><td class="mono">sort(a.begin(), a.end());</td><td>兩邊都是 $O(n \log n)$</td></tr>
+      <tr><td class="mono">b = a[:]</td><td class="mono">vector&lt;int&gt; b(a);</td><td>C++ 的 <code>b = a</code> 本來就是複製一整份，不是共用同一個物件</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">五條記得住的規則</h3>
+  <div class="info-box green">
+    <p style="margin-bottom:0;">① 動尾巴便宜（<code>push_back</code>／<code>pop_back</code>／<code>+=</code>），動前面或中間就是 $O(n)$。<br>
+    ② <code>size()</code> 是住了幾個，<code>capacity()</code> 是有幾個位子；<code>clear()</code> 只清前者。<br>
+    ③ 知道要放幾個就先 <code>reserve()</code>，一次搬家都不會發生。<br>
+    ④ <code>push_back</code> 之後，之前記下來的 iterator 與指標都當作失效——記索引，不要記位址。<br>
+    ⑤ <code>substr</code> 的第二個參數是長度；<code>find</code> 找不到回傳 <code>string::npos</code>。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">cppreference · std::vector</a></td><td>每個成員函式的完整規格，包括各操作會讓哪些 iterator 失效。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/string/basic_string" target="_blank" rel="noopener">cppreference · std::string</a></td><td><code>substr</code>、<code>find</code>、<code>npos</code> 的精確定義。</td></tr>
+      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的擴容範例貼進去單步跑，看記憶體真的被重新配置。</td></tr>
+      <tr><td><a href="analysis.html">本站 · 演算法分析</a></td><td>用 <code>&lt;chrono&gt;</code> 實測本頁這張成本表。</td></tr>
+      <tr><td><a href="arrays.html">本站 · 陣列與稀疏矩陣</a></td><td>理解 size 與 capacity 的差別，並以 reserve 減少不必要的重新配置。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：vector 與 string <span class="sec-badge">隨堂自測 · 14 題</span></h2>
+  <h2>自我檢測：vector 與 string <span class="sec-badge">隨堂自測 · 6 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>vector&lt;int&gt; a(3,8) 與 vector&lt;int&gt; b{3,8} 的差別？</div>
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">vector&lt;int&gt; v = {31, 17, 93};
+v.insert(v.begin(), 54);
+v.erase(v.begin() + 2);
+for (int x : v) cout &lt;&lt; x &lt;&lt; &quot; &quot;;</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="括號選數量/初值建構式；大括號是元素清單。"><span class="opt-letter">(A)</span> a 有三個 8；b 有 3、8 兩項</button>
-      <button class="sq-opt" data-c="0" data-fb="括號的兩個引數是「數量3、初值8」，大括號則列出兩個元素；兩者的size已不同。"><span class="opt-letter">(B)</span> 兩者完全相同</button>
-      <button class="sq-opt" data-c="0" data-fb="把 a(3,8) 當成清單初始化了；小括號會建立三格，不是兩格。"><span class="opt-letter">(C)</span> a 只有兩項</button>
-      <button class="sq-opt" data-c="0" data-fb="把 b{3,8} 誤讀成 count/value，還顛倒成八個3；大括號只列出元素3與8。"><span class="opt-letter">(D)</span> b 有八個 3</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。insert(v.begin(), 54) 把 31、17、93 全部往後挪一格，變成 54 31 17 93；erase(v.begin() + 2) 刪掉索引 2 的 17，後面的 93 再往前補位。兩個操作都是 O(n)，因為每一個動作都牽動後面所有元素。"><span class="opt-letter">(A)</span> 54 31 93</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。insert 和 erase 都會真的改動 v，不是回傳一份新的 vector。"><span class="opt-letter">(B)</span> 31 17 93</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。erase 的參數是 v.begin() + 2，指的是插入之後的索引 2，也就是 17，不是 31。"><span class="opt-letter">(C)</span> 54 17 93</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。刪掉的是索引 2，不是最後一個。要刪最後一個請用 pop_back()。"><span class="opt-letter">(D)</span> 54 31 17</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>reserve(100) 之後哪個敘述一定成立？</div>
+    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">vector&lt;int&gt; v = {1, 2, 3};
+for (int x : v) x = x * 10;
+for (int&amp; y : v) y = y + 1;
+for (int x : v) cout &lt;&lt; x &lt;&lt; &quot; &quot;;</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="reserve 預留容量而不建立元素；實際 capacity 可更大。"><span class="opt-letter">(A)</span> capacity() 至少為 100，size() 不因 reserve 增加</button>
-      <button class="sq-opt" data-c="0" data-fb="reserve只調整可容納空間，不建立元素，因此size仍是原值。"><span class="opt-letter">(B)</span> size() 一定是 100</button>
-      <button class="sq-opt" data-c="0" data-fb="標準只保證capacity至少100，實作可以配置更多，不能要求恰為100。"><span class="opt-letter">(C)</span> capacity() 一定恰為 100</button>
-      <button class="sq-opt" data-c="0" data-fb="預留一百格不等於建立一百個物件；要改元素數需使用resize。"><span class="opt-letter">(D)</span> 已建立 100 個元素</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。第一個迴圈的 x 是複製品，乘 10 只改到那份暫存值，v 完全沒動；第二個迴圈的 y 宣告成 int&amp;，是元素本人的別名，加 1 才真的寫回 vector。這個範圍 for 若要透過迴圈變數修改 int 元素，需要參考。"><span class="opt-letter">(A)</span> 2 3 4</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。for (int x : v) 的 x 是複製品，那個乘 10 的結果每一輪都被丟掉了。"><span class="opt-letter">(B)</span> 11 21 31</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。第二個迴圈用了 int&amp;，那一次修改是有效的。"><span class="opt-letter">(C)</span> 1 2 3</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。乘 10 的那個迴圈沒有效果，而加 1 的那個有效果，剛好跟這個選項相反。"><span class="opt-letter">(D)</span> 10 20 30</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>vector 重配置後，先前保存的元素 iterator 怎麼了？</div>
+    <div class="sq-q"><span class="sq-num">Q3.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">vector&lt;int&gt; v(3, 7);
+try {
+    cout &lt;&lt; v.at(3) &lt;&lt; endl;
+} catch (out_of_range&amp; e) {
+    cout &lt;&lt; &quot;caught&quot; &lt;&lt; endl;
+}
+cout &lt;&lt; v.size() &lt;&lt; endl;</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="元素搬到新區塊，所有舊 iterator、指標與參考失效。"><span class="opt-letter">(A)</span> 全部失效，必須重新取得</button>
-      <button class="sq-opt" data-c="0" data-fb="重配置會把元素搬到新區塊，舊iterator保存的位置不再指向那些元素。"><span class="opt-letter">(B)</span> 仍然有效</button>
-      <button class="sq-opt" data-c="0" data-fb="失效範圍不限begin；所有指向舊區塊元素的位置都受影響。"><span class="opt-letter">(C)</span> 只有 begin 失效</button>
-      <button class="sq-opt" data-c="0" data-fb="end固然失效，但元素iterator也因整塊搬家而全部失效。"><span class="opt-letter">(D)</span> 只有 end 失效</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。v(3, 7) 建出三個 7，合法索引只有 0 到 2，所以 at(3) 丟出 out_of_range，被 catch 接住印出 caught。丟例外不會改動 vector，size 仍然是 3。"><span class="opt-letter">(A)</span> 先印 caught，再印 3</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。at(3) 越界了。v(3, 7) 的第一個參數是元素個數、第二個才是填進去的值。"><span class="opt-letter">(B)</span> 先印 7，再印 3</button>
+      <button class="sq-opt" data-c="0" data-fb="at() 越界時不會回傳 0，而會丟例外；若改用越界的 v[3] 則是未定義行為，不能保證會回傳任何特定值。"><span class="opt-letter">(C)</span> 先印 0，再印 3</button>
+      <button class="sq-opt" data-c="0" data-fb="有相容的 catch 接住例外，程式會在 catch 後繼續；沒有任何相容 catch 時才會呼叫 std::terminate。"><span class="opt-letter">(D)</span> 程式當掉，什麼都印不出來</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>在迴圈中刪除 it 指向元素的安全核心寫法？</div>
+    <div class="sq-q"><span class="sq-num">Q4.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">vector&lt;int&gt; v = {1, 2, 3, 4};
+auto before = v.capacity();
+v.clear();
+cout &lt;&lt; v.size() &lt;&lt; &quot; &quot; &lt;&lt; (v.capacity() == before);</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="erase 回傳下一個有效位置；舊 it 已失效。"><span class="opt-letter">(A)</span> it = v.erase(it)</button>
-      <button class="sq-opt" data-c="0" data-fb="erase之後舊it已失效，不能先對它++；應接住erase回傳的新位置。"><span class="opt-letter">(B)</span> v.erase(it); ++it</button>
-      <button class="sq-opt" data-c="0" data-fb="刪除後立即解參考舊it仍是使用失效iterator，行為未定義。"><span class="opt-letter">(C)</span> v.erase(it); *it</button>
-      <button class="sq-opt" data-c="0" data-fb="先++會改成刪下一項，而且刪除後那個位置仍需使用erase回傳值繼續。"><span class="opt-letter">(D)</span> ++it; v.erase(it)</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。clear() 移除所有元素，所以 size 為 0；它不改變 capacity，因此和事前保存的 before 相等，布林值印成 1。初始 capacity 的確切數字不必假定。"><span class="opt-letter">(A)</span> 0 1</button>
+      <button class="sq-opt" data-c="0" data-fb="這把布林比較結果誤當成實際 capacity；第二個輸出是相等比較，成立時印 1。"><span class="opt-letter">(B)</span> 0 4</button>
+      <button class="sq-opt" data-c="0" data-fb="capacity 的比較成立，但 clear() 已移除四個元素，size 必須是 0。"><span class="opt-letter">(C)</span> 4 1</button>
+      <button class="sq-opt" data-c="0" data-fb="clear() 不改變 capacity，所以它仍等於 before，第二個值不會是 0。"><span class="opt-letter">(D)</span> 0 0</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>哪個位置可以拿來比較、但不可解參考？</div>
+    <div class="sq-q"><span class="sq-num">Q5.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">string s = &quot;fool&quot;;
+s += &quot;s&quot;;
+cout &lt;&lt; s.substr(1, 2) &lt;&lt; &quot; &quot; &lt;&lt; s.find(&quot;ol&quot;) &lt;&lt; &quot; &quot; &lt;&lt; s.length();</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="end 是尾後哨兵，不代表元素。"><span class="opt-letter">(A)</span> v.end()</button>
-      <button class="sq-opt" data-c="0" data-fb="非空vector的begin指向第一個真實元素，可以解參考。"><span class="opt-letter">(B)</span> v.begin()</button>
-      <button class="sq-opt" data-c="0" data-fb="begin()+0與begin相同，仍指向第一項，不是尾後哨兵。"><span class="opt-letter">(C)</span> v.begin()+0</button>
-      <button class="sq-opt" data-c="0" data-fb="back()回傳最後元素的參考，不是用來和iterator比較的位置。"><span class="opt-letter">(D)</span> v.back()</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。s 變成 fools；substr(1, 2) 從索引 1 取兩個字元得到 oo，第二個參數是長度不是結束位置；find(&quot;ol&quot;) 在索引 2 找到 ol；長度是 5。"><span class="opt-letter">(A)</span> oo 2 5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。s += &quot;s&quot; 已經把長度變成 5 了，+= 是就地修改。"><span class="opt-letter">(B)</span> oo 2 4</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。substr 的第二個參數是要取幾個字元，這裡是 2，不是取到索引 2 為止。"><span class="opt-letter">(C)</span> ool 2 5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。C++ 的 find 找不到時回傳 string::npos 而不是 -1，而且這裡本來就找得到，答案是 2。"><span class="opt-letter">(D)</span> oo -1 5</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>範圍 for 的 auto x 與 auto&amp; x 差在哪裡？</div>
+    <div class="sq-q"><span class="sq-num">Q6.</span>你用 vector 實作一個佇列：enqueue 用 push_back 加在尾端，dequeue 用 erase(v.begin()) 從前端拿。dequeue 的複雜度是什麼？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="auto 只負責型別推導，&amp; 才決定是否為參考。"><span class="opt-letter">(A)</span> auto x 複製元素；auto&amp; x 綁定原元素</button>
-      <button class="sq-opt" data-c="0" data-fb="auto推導的是元素型別，不會把迴圈變數自動變成指標。"><span class="opt-letter">(B)</span> 兩者都一定是指標</button>
-      <button class="sq-opt" data-c="0" data-fb="auto x只建立副本；離開一圈時副本銷毀，但不會刪容器元素。"><span class="opt-letter">(C)</span> auto x 會刪除元素</button>
-      <button class="sq-opt" data-c="0" data-fb="auto&amp;中的&amp;表示參考，不表示任意型別；實際型別仍由元素推導。"><span class="opt-letter">(D)</span> auto&amp; x 是任意型別</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。vector 的元素放在一整塊連續記憶體裡，拿掉第 0 格就必須讓後面 n-1 個元素全部往前補位。"><span class="opt-letter">(A)</span> O(n)，因為前端拿走一個之後，後面每個元素都要往前挪一格</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。拿走的動作本身很快，但為了維持連續性而做的補位是線性的。只有 pop_back() 才是真正的 O(1)。"><span class="opt-letter">(B)</span> O(1)，因為只拿走一個元素</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。vector 不會幫你排序，也沒有任何二分搜尋的結構，跟對數複雜度無關。"><span class="opt-letter">(C)</span> O(log n)，因為 vector 內部有排序</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。單次 dequeue 只掃一輪；連做 n 次 dequeue 才會累積成 O(n^2)。"><span class="opt-letter">(D)</span> O(n^2)，因為每個元素都要被搬 n 次</button>
     </div>
     <div class="sq-fb"></div>
   </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q7.</span>vector&lt;vector&lt;int&gt;&gt; rows 中每列長度一定相同嗎？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="二維 vector 可以是不規則列。"><span class="opt-letter">(A)</span> 不一定；每個內層 vector 可有自己的長度</button>
-      <button class="sq-opt" data-c="0" data-fb="外層vector只保存多個內層vector，沒有矩形限制，各列可有不同size。"><span class="opt-letter">(B)</span> 一定相同</button>
-      <button class="sq-opt" data-c="0" data-fb="列數是2不會替兩個內層vector強制相同長度。"><span class="opt-letter">(C)</span> 只有兩列時相同</button>
-      <button class="sq-opt" data-c="0" data-fb="capacity是單一vector的配置狀態，不會同步決定其他列的size。"><span class="opt-letter">(D)</span> 由 capacity 決定</button>
-    </div>
-    <div class="sq-fb"></div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
   </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q8.</span>stack 的 top() 與 pop() 分工是？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="標準容器轉接器把查看與移除分成兩步。"><span class="opt-letter">(A)</span> top 查看；pop 移除且不回傳</button>
-      <button class="sq-opt" data-c="0" data-fb="top只查看、pop只移除；標準stack沒有一個同時回傳並移除的操作。"><span class="opt-letter">(B)</span> 兩者都回傳並移除</button>
-      <button class="sq-opt" data-c="0" data-fb="top不改stack大小，它回傳目前頂端元素的參考。"><span class="opt-letter">(C)</span> top 移除</button>
-      <button class="sq-opt" data-c="0" data-fb="pop確實移除頂端且回傳void，不是只查看。"><span class="opt-letter">(D)</span> pop 只查看</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q9.</span>s.find(&quot;xy&quot;) == string::npos 表示？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="npos 是 string 搜尋失敗的特殊值。"><span class="opt-letter">(A)</span> 沒有找到 xy</button>
-      <button class="sq-opt" data-c="0" data-fb="找到位置0時find回傳0，不會等於npos。"><span class="opt-letter">(B)</span> 在位置 0 找到</button>
-      <button class="sq-opt" data-c="0" data-fb="空字串與搜尋失敗是不同狀態；非空字串也可能找不到xy。"><span class="opt-letter">(C)</span> 字串是空的</button>
-      <button class="sq-opt" data-c="0" data-fb="find與npos比較是合法string介面，不會造成編譯錯誤。"><span class="opt-letter">(D)</span> 發生編譯錯誤</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q10.</span>UTF-8 中文字串可否用 substr(pos,1) 保證取一個可見中文字？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="一個可見中文字通常跨多個 UTF-8 byte。"><span class="opt-letter">(A)</span> 不保證；string 以 char/byte 單位處理</button>
-      <button class="sq-opt" data-c="0" data-fb="UTF-8中文字通常跨多個char byte，count=1可能只切出編碼的一部分。"><span class="opt-letter">(B)</span> 可以</button>
-      <button class="sq-opt" data-c="0" data-fb="byte位置的奇偶與Unicode字元邊界沒有固定關係。"><span class="opt-letter">(C)</span> 只有奇數位置可以</button>
-      <button class="sq-opt" data-c="0" data-fb="npos表示搜尋失敗，不會讓substr突然按可見字元切割。"><span class="opt-letter">(D)</span> npos 時可以</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q11.</span>cin &gt;&gt; n 後接 getline，想忽略殘留換行可用？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="ws 先略過前導空白與換行；行首空白有意義時要換策略。"><span class="opt-letter">(A)</span> getline(cin &gt;&gt; ws, text)</button>
-      <button class="sq-opt" data-c="0" data-fb="getline第一參數必須是輸入串流；整數n不能放在cin的位置。"><span class="opt-letter">(B)</span> getline(n,text)</button>
-      <button class="sq-opt" data-c="0" data-fb="&lt;&lt;是輸出方向，cin也不是輸出串流；清空前導空白要用&gt;&gt;ws。"><span class="opt-letter">(C)</span> cin &lt;&lt; ws</button>
-      <button class="sq-opt" data-c="0" data-fb="getline是函式而非可被text用&gt;&gt;讀出的值，資料方向與語法都相反。"><span class="opt-letter">(D)</span> text &gt;&gt; getline</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q12.</span>迴圈累積許多片段，通常哪個寫法較合適？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="+= 通常可重用容量，避免每輪複製整個舊前綴。"><span class="opt-letter">(A)</span> out += piece</button>
-      <button class="sq-opt" data-c="0" data-fb="每輪s=s+piece通常要複製舊前綴，成本不可能永遠O(1)。"><span class="opt-letter">(B)</span> out = out + piece 永遠 O(1)</button>
-      <button class="sq-opt" data-c="0" data-fb="每輪重建空string會丟掉先前累積內容，無法得到完整結果。"><span class="opt-letter">(C)</span> 每輪建立新的空 string</button>
-      <button class="sq-opt" data-c="0" data-fb="substr用來擷取既有文字，不會把piece附加到out。"><span class="opt-letter">(D)</span> 用 substr 增加</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q13.</span>vector&lt;int&gt; b(a.begin()+1, a.begin()+4) 會包含哪個範圍？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="範圍是左含右不含 [first,last)，所以不包含索引4。"><span class="opt-letter">(A)</span> 索引1、2、3</button>
-      <button class="sq-opt" data-c="0" data-fb="第二個iterator是右開界線，索引4不會被複製。"><span class="opt-letter">(B)</span> 索引1到4</button>
-      <button class="sq-opt" data-c="0" data-fb="兩個iterator界定連續區間，不是只複製first指向的一項。"><span class="opt-letter">(C)</span> 只含索引1</button>
-      <button class="sq-opt" data-c="0" data-fb="range constructor的[first,last)由標準介面確定，不由編譯器任意選。"><span class="opt-letter">(D)</span> 編譯器任意決定</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q14.</span>char c='A'; 要建立只含 A 的 string，哪個正確？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="第一個引數是數量1，第二個是要重複的char。"><span class="opt-letter">(A)</span> string one(1,c);</button>
-      <button class="sq-opt" data-c="0" data-fb="c+1先把char提升成整數再加一，結果不是string。"><span class="opt-letter">(B)</span> string one=c+1;</button>
-      <button class="sq-opt" data-c="0" data-fb="to_string(c)會把字元碼的數值轉成數字文字，不會得到字元A。"><span class="opt-letter">(C)</span> string one=to_string(c);</button>
-      <button class="sq-opt" data-c="0" data-fb="'A'+'B'是兩個char的整數加法，既不建立string也不只含A。"><span class="opt-letter">(D)</span> string one='A'+'B';</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-</section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p4_pointers_memory.html"><div class="nav-dir">上一頁</div><div class="nav-title">陣列、指標與動態記憶體</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p6_map_set.html"><div class="nav-dir">下一頁</div><div class="nav-title">map、set 與迭代器</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "向量容器（vector<T>）", "back": "可增減的同型別連續序列；T 是每個元素的型別。"}, {"front": "成員呼叫（object.method()）", "back": "要求特定物件執行方法；例如 v.size() 與 v.push_back(x)。"}, {"front": "括號與清單初始化（parentheses vs braces）", "back": "vector<int>(4,7) 是四個 7；vector<int>{4,7} 是兩個元素 4、7。"}, {"front": "界線檢查存取（at(i)）", "back": "檢查界線；越界丟出 out_of_range。完整捕捉方式見 P7。"}, {"front": "大小與容量（size / capacity）", "back": "size 是現有元素數；capacity 是免重配置可容納數。"}, {"front": "預留容量（reserve(n)）", "back": "讓容量至少為 n，不建立元素、不改 size。"}, {"front": "攤還常數時間（amortized O(1)）", "back": "少數重配置很貴，但分攤到多次 push_back 後每次平均為常數量級。成長倍數不受標準保證。"}, {"front": "左閉右開區間（[begin,end)）", "back": "左含右不含；end 是尾後哨兵，不能解參考。"}, {"front": "迭代器（iterator）", "back": "表示容器位置；*it 取元素、++it 前進。"}, {"front": "向量迭代器失效（vector iterator invalidation）", "back": "重配置使全部失效；erase 使刪除位置及其後位置失效。"}, {"front": "自動型別推導（auto deduction）", "back": "編譯器從右側決定固定型別；auto x 仍是複製，auto& x 才是原元素別名。"}, {"front": "刪除回傳位置（erase return iterator）", "back": "回傳刪除後下一個有效位置，安全迴圈寫 it=v.erase(it)。"}, {"front": "二維向量（two-dimensional vector）", "back": "vector<vector<T>>；每列可有不同長度。"}, {"front": "堆疊與佇列（stack / queue）", "back": "stack 後進先出用 top；queue 先進先出用 front。pop 都不回傳值。"}, {"front": "雙端佇列（deque）", "back": "雙端佇列，兩端都能有效率地加入與移除。"}, {"front": "字串搜尋失敗值（string::npos）", "back": "string 搜尋失敗的特殊值。"}, {"front": "子字串（substr(pos,count)）", "back": "以 char/byte 單位切片；UTF-8 可見字可能跨多個 byte。"}, {"front": "整行輸入（getline(cin >> ws,s)）", "back": "跳過前導空白再讀整行；若行首空白有意義便不適用。"}, {"front": "字串累積（string accumulation）", "back": "迴圈優先 += 或 append；反覆 s=s+piece 可能重複複製前綴。"}, {"front": "範圍建構（range constructor）", "back": "vector(first,last) 複製 [first,last)；last 指向不包含的尾後位置。"}, {"front": "單字元字串（single-character string）", "back": "char c 要包成 string 可寫 string(1,c)；兩個字串字面值不能直接相加。"}, {"front": "字串數字轉換（stoi／to_string）", "back": "stoi 將文字轉 int 且失敗可能丟例外；to_string 將數字轉成 string。"}, {"front": "直接初始化（Direct Initialization）", "back": "以型別、名稱和初始化引數建立物件；vector的括號計數建構與大括號元素清單可能得到不同內容。"}, {"front": "大小（size）", "back": "目前已存在的元素數，不是預留格數；合法一般元素索引由0到size-1。"}, {"front": "容量（capacity）", "back": "不重新配置時可容納的元素數，至少等於size；reserve不會因此建立元素。"}, {"front": "尾端加入（push_back）", "back": "把元素加在序列尾端；vector若重配置會使既有元素位置失效。"}, {"front": "尾端移除（pop_back）", "back": "移除尾端元素但不回傳其值；要保留舊值必須先讀back，且須先確認非空。"}, {"front": "插入（insert）", "back": "在指定位置前加入元素；vector位置以迭代器表示，中間插入通常需搬移後段。"}, {"front": "刪除（erase）", "back": "移除指定元素或區間；使用操作回傳的有效位置繼續走訪，不再使用已失效的舊迭代器。"}, {"front": "清空（clear）", "back": "移除所有元素；vector的size變成0，capacity不因此縮小。"}, {"front": "範圍迴圈（Range-based for Loop）", "back": "逐一取得元素；值版本會取得副本，參考版本可代表原元素。"}, {"front": "參考迴圈變數（Reference Loop Variable）", "back": "T&或auto&讓每輪名稱代表原元素；const參考限制經由該名稱修改。"}, {"front": "字串（string）", "back": "管理char序列的標準型別；大小和索引以char為單位，不等同UTF-8中文字數。"}, {"front": "無號大小型別（size_t）", "back": "標準庫常用的無號整數型別，用於sizeof或容器大小；減到負數前應先做邊界檢查。"}];
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p4_pointers_memory.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">陣列、指標與動態記憶體</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p6_map_set.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">map、set 與迭代器</div></a></div>
+</div>
 
-/* depth-runtime:start */
-(() => {
- const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
- document.querySelectorAll('.lesson-trace').forEach(root => {
-   const frames=JSON.parse(root.querySelector('.trace-data').textContent);
-   let index=0,timer=null;const play=root.querySelector('[data-action="play"]');
-   const stop=()=>{clearInterval(timer);timer=null;};
-   function draw(){
-     const frame=frames[index];
-     root.querySelector('.trace-note').textContent=frame.note;
-     root.querySelector('.trace-vars').innerHTML='<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>名稱／狀態</th><th>目前的值</th></tr></thead><tbody>'+Object.entries(frame.vars||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</tbody></table></div>';
-     root.querySelector('.trace-output').textContent=frame.output ? '目前輸出：\n'+frame.output : '目前尚無輸出';
-     root.querySelectorAll('.line').forEach((el,i)=>el.classList.toggle('active',i===frame.line));
-     play.textContent=timer?'⏸ 暫停':index===frames.length-1?'↻ 重播':'▶ 播放';
-     root.dataset.frame=String(index);root.dataset.frames=String(frames.length);
-   }
-   function next(){index=Math.min(index+1,frames.length-1);if(index===frames.length-1)stop();draw();}
-   play.onclick=()=>{if(timer){stop();draw();return;}if(index===frames.length-1)index=0;timer=setInterval(next,850);draw();};
-   root.querySelector('[data-action="next"]').onclick=()=>{stop();next();};
-   root.querySelector('[data-action="prev"]').onclick=()=>{stop();index=Math.max(0,index-1);draw();};
-   root.querySelector('[data-action="reset"]').onclick=()=>{stop();index=0;draw();};draw();
- });
- document.querySelectorAll('.sq-item').forEach(q=>q.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{
-   q.querySelectorAll('.sq-opt').forEach(x=>x.classList.remove('correct','wrong'));
-   const good=b.dataset.c==='1';b.classList.add(good?'correct':'wrong');
-   const f=q.querySelector('.sq-fb');f.textContent=b.dataset.fb;f.className='sq-fb show '+(good?'good':'bad');
- }));
- const grid=document.getElementById('fcGrid');
- function render(cards){grid.innerHTML=cards.map(c=>'<div class="fc-card" tabindex="0" role="button" aria-pressed="false"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');}
- function flip(card,on){card.classList.toggle('flipped',on);card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));}
- grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)flip(c,!c.classList.contains('flipped'));};
- grid.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.fc-card');if(c){e.preventDefault();flip(c,!c.classList.contains('flipped'));}}};
- document.getElementById('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,true));
- document.getElementById('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,false));
- document.getElementById('fcShuffle').onclick=()=>{const a=[...FLASHCARDS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}render(a);};render(FLASHCARDS);
- const links=[...document.querySelectorAll('.float-nav a[data-target]')];
- const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}),{rootMargin:'-10% 0px -65% 0px'});
- document.querySelectorAll('section[id]').forEach(el=>observer.observe(el));
+<footer>
+  先備知識 P5 · vector 與 string · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
+    this.onDone = onDone || (()=>{});
+  }
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
+  }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
+  play() {
+    this.pause(); this.playing = true;
+    const tick = () => {
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
+    };
+    tick();
+    this._sync();
+  }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
+}
+/* /player-v2 */
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 })();
-/* depth-runtime:end */
-</script><script>/* quiz-shuffle v1 */
+
+/* ---------- 共用：一格一格的 vector 圖 ---------- */
+function slotRow(cap, used, moved) {
+  if (cap === 0) {
+    return '<div style="font-size:.85rem;color:var(--muted);margin:.6rem 0;">capacity = 0，連一格位子都還沒有</div>';
+  }
+  let s = '<div style="display:flex;gap:.28rem;flex-wrap:wrap;margin:.6rem 0;">';
+  for (let k = 0; k < cap; k++) {
+    const filled = k < used;
+    const wasMoved = moved && k < moved;
+    const bd = filled ? (wasMoved ? 'var(--node-current)' : 'var(--accent3)') : 'var(--card-border)';
+    const bg = filled ? (wasMoved ? 'rgba(243,156,18,.18)' : 'rgba(22,160,133,.12)') : 'var(--card)';
+    s += '<div style="border:2px solid ' + bd + ';background:' + bg +
+         ';border-radius:7px;width:38px;height:40px;display:flex;align-items:center;justify-content:center;' +
+         'font-family:\'JetBrains Mono\',monospace;font-size:.9rem;font-weight:700;">' +
+         (filled ? (k + 1) : '') + '</div>';
+  }
+  return s + '</div>';
+}
+
+/* ---------- PART 03 擴容動畫 ---------- */
+let growPlayer = null;
+
+function growFrames() {
+  const F = [];
+  let cap = 0, moved = 0;
+  F.push({n: 0, cap: 0, moved: 0, html: slotRow(0, 0, 0),
+          msg: '空的 <code>vector&lt;int&gt; v;</code>：<code>size</code> 是 0，<code>capacity</code> 也是 0。'});
+  for (let i = 1; i <= 17; i++) {
+    const grew = i > cap;
+    const carried = grew ? i - 1 : 0;
+    if (grew) { cap = cap === 0 ? 1 : cap * 2; moved += carried; }
+    F.push({
+      n: i, cap: cap, moved: moved, html: slotRow(cap, i, carried),
+      msg: grew
+        ? '第 <strong>' + i + '</strong> 次 <code>push_back</code>：位子坐滿了，另外找一塊 <strong>capacity ' + cap +
+          '</strong> 的新記憶體，<strong>把已有的 ' + carried + ' 個元素全部複製過去</strong>（橘色那幾格），再放新的。' +
+          '累計搬移 <strong>' + moved + '</strong> 個。'
+        : '第 <strong>' + i + '</strong> 次 <code>push_back</code>：<strong>這一次沒搬</strong>，capacity ' + cap +
+          ' 還有空位，直接寫進下一格就好。累計搬移仍是 <strong>' + moved + '</strong> 個。'
+    });
+  }
+  F.push({n: 17, cap: cap, moved: moved, html: slotRow(cap, 17, 0),
+          msg: '17 次 <code>push_back</code>，只有 6 次搬了家，總共搬移 <strong>' + moved +
+               '</strong> 個元素，平均每次 ' + (moved / 17).toFixed(2) +
+               ' 個。<strong>所以平均下來還是 <code>O(1)</code>。</strong>'});
+  return F;
+}
+
+function growApply(f) {
+  $('growStage').innerHTML = f.html;
+  $('growN').textContent = f.n;
+  $('growCap').textContent = f.cap;
+  $('growMoved').textContent = f.moved;
+  setStatus('growStatus', f.msg);
+}
+
+function growStart() {
+  if (growPlayer) growPlayer.stop();
+  growPlayer = new Player({frames: growFrames(), delayInput: $('growSpeed'), apply: growApply});
+  growPlayer.play();
+}
+
+function growReset() {
+  if (growPlayer) growPlayer.stop();
+  growPlayer = new Player({frames: growFrames(), delayInput: $('growSpeed'), apply: growApply});
+  growApply(growPlayer.frames[0]);
+  setStatus('growStatus', '按「開始」，一次一次 push_back，看什麼時候會搬家。');
+}
+
+/* ---------- PART 02 兩端成本對照 ---------- */
+function endCost(n) {
+  let cap = 0, grow = 0, grows = 0;
+  for (let i = 1; i <= n; i++) {
+    if (i > cap) { grow += i - 1; cap = cap === 0 ? 1 : cap * 2; grows++; }
+  }
+  const shift = n * (n - 1) / 2;          // 每次 insert(begin) 都要把現有元素往後挪
+  return {grow: grow, grows: grows, back: grow, front: grow + shift, shift: shift};
+}
+
+function endRender() {
+  const n = parseInt($('endSlider').value, 10);
+  $('endVal').textContent = n;
+  const c = endCost(n);
+  const bar = (label, val, max, color) => {
+    const w = Math.max(1.5, 100 * Math.sqrt(val / max));
+    return '<div style="margin:.55rem 0;">' +
+      '<div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.2rem;">' +
+      '<span class="mono">' + label + '</span>' +
+      '<span class="mono" style="font-weight:700;color:' + color + ';">' + val.toLocaleString() + ' 次搬移</span></div>' +
+      '<div style="height:16px;background:var(--card);border:1px solid var(--card-border);border-radius:5px;overflow:hidden;">' +
+      '<div style="height:100%;width:' + w + '%;background:' + color + ';opacity:.75;"></div></div></div>';
+  };
+  const max = Math.max(c.front, 1);
+  $('endStage').innerHTML =
+    bar('v.push_back(x)', c.back, max, 'var(--accent3)') +
+    bar('v.insert(v.begin(), x)', c.front, max, 'var(--accent)') +
+    '<table class="cmp-table" style="margin:.6rem 0 0;"><tbody>' +
+    '<tr><td>擴容搬家次數（兩邊都有）</td><td class="mono">' + c.grows + ' 次，搬 ' + c.grow.toLocaleString() + ' 個</td></tr>' +
+    '<tr><td>前端插入額外的挪位</td><td class="mono">' + c.shift.toLocaleString() + ' 個</td></tr>' +
+    '<tr><td>前端比尾端貴幾倍</td><td class="mono" style="font-weight:700;">' + (c.front / c.back).toFixed(1) + ' 倍</td></tr>' +
+    '</tbody></table>';
+  setStatus('endStatus',
+    'n = ' + n + ' 時：尾端加總共只搬 <strong>' + c.back.toLocaleString() + '</strong> 個元素（全部來自擴容），' +
+    '前端插要搬 <strong>' + c.front.toLocaleString() + '</strong> 個。' +
+    '尾端是 <code>O(n)</code> 總量、平均 <code>O(1)</code>；前端是 <code>O(n^2)</code> 總量、每次 <code>O(n)</code>。' +
+    '把滑桿往右拉，看差距怎麼張開。');
+}
+
+/* ---------- PART 08 substr 切片尺 ---------- */
+const SUBWORD = 'anagram';
+
+function subRender() {
+  const pos = parseInt($('subPos').value, 10);
+  let len = parseInt($('subLen').value, 10);
+  $('subPosVal').textContent = pos;
+  $('subLenVal').textContent = len;
+  const real = SUBWORD.substr(pos, len);
+  let cells = '<div style="display:flex;gap:.3rem;flex-wrap:wrap;justify-content:center;margin:.5rem 0 .8rem;">';
+  for (let k = 0; k < SUBWORD.length; k++) {
+    const on = k >= pos && k < pos + len;
+    cells += '<div style="border:2px solid ' + (on ? 'var(--node-current)' : 'var(--card-border)') +
+      ';background:' + (on ? 'rgba(243,156,18,.16)' : 'var(--card)') +
+      ';border-radius:8px;padding:.3rem .5rem;text-align:center;min-width:44px;">' +
+      '<div class="mono" style="font-size:1.05rem;font-weight:700;">' + SUBWORD[k] + '</div>' +
+      '<div style="font-size:.66rem;color:var(--muted);">' + k + '</div></div>';
+  }
+  cells += '</div>';
+  $('subStage').innerHTML = cells +
+    '<table class="cmp-table" style="margin:0;"><tbody>' +
+    '<tr><td class="mono">s.substr(' + pos + ', ' + len + ')</td><td class="mono" style="font-weight:700;">"' + real + '"</td>' +
+    '<td style="font-size:.85rem;">從索引 ' + pos + ' 開始取 ' + len + ' 個</td></tr>' +
+    '<tr><td class="mono">s.substr(' + pos + ')</td><td class="mono">"' + SUBWORD.substr(pos) + '"</td>' +
+    '<td style="font-size:.85rem;">省略長度就取到底</td></tr>' +
+    '</tbody></table>';
+  const over = pos + len > SUBWORD.length;
+  setStatus('subStatus', over
+    ? 'pos + len 已經超過字串尾端了，<code>substr</code> <strong>不會出錯</strong>，就給你到結尾為止的 "' + real +
+      '"。但 <code>pos</code> 本身超出長度就會丟 <code>out_of_range</code>。'
+    : '切出 "' + real + '"。注意第二個參數是<strong>長度</strong>，所以結束索引是 ' + pos + ' + ' + len + ' - 1 = ' +
+      (pos + len - 1) + '，不是 ' + len + '。');
+}
+
+(function () {
+  if ($('growStage')) growReset();
+  const es = $('endSlider');
+  if (es) { es.addEventListener('input', endRender); endRender(); }
+  const sp = $('subPos'), sl = $('subLen');
+  if (sp && sl) { sp.addEventListener('input', subRender); sl.addEventListener('input', subRender); subRender(); }
+})();
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "動態陣列（vector）", "back": "C++ 標準函式庫的可變長度陣列，元素放在一整塊連續記憶體裡。它解決原生陣列的三個痛點：長度能變、傳進函式不會退化成指標、自己記得有多長。"}, {"front": "直接初始化（Direct Initialization）", "back": "Type variable(arguments); 的語法：宣告 variable 並同時呼叫 Type 的建構式，兩件事在同一行發生。vector<int> v(5) 是計數建構、v(a.begin(), a.end()) 是範圍建構。注意 v(3) 是 3 個 0，v{3} 卻是 1 個 3——大括號優先配對初始化清單。"}, {"front": "大小（size）", "back": "size() 回傳目前元素個數，時間複雜度為 O(1)。回傳型別是容器的無號 size_type；與有號整數比較時須注意轉換，編譯器可能依選項發出警告。"}, {"front": "容量（capacity）", "back": "vector 目前免重新配置可容納的元素數，一定大於等於 size。容量坐滿時再 push_back 會觸發擴容搬家。clear() 會把 size 歸零，但不改變 capacity。"}, {"front": "尾端加入（push_back）", "back": "在 vector 尾端建立新元素；容量不夠時重新配置，並將既有元素移動或複製到新儲存區。單次可能是 O(n)，連續加入的攤還複雜度為 O(1)。"}, {"front": "尾端移除（pop_back）", "back": "刪除 vector 的最後一個元素，不回傳被刪值。若需要該值，先以 back() 讀取再 pop_back()；兩者都要求容器非空。"}, {"front": "插入（insert）", "back": "v.insert(pos, x) 在指定位置前插入，原位置及其後元素需搬移，可能另需重新配置。尾端以外的插入通常要線性時間；使用時也要留意迭代器失效規則。"}, {"front": "刪除（erase）", "back": "v.erase(pos) 刪掉 iterator pos 指的元素，後面每個元素往前補位，是 O(n)。它會回傳下一個有效的 iterator，走訪中邊刪要寫成 it = v.erase(it)，否則舊的 it 已經失效。"}, {"front": "清空（clear）", "back": "clear() 移除全部元素但不改變 vector 的 capacity。shrink_to_fit() 只是縮減容量的請求，實作可以不採用，不能保證它一定釋放儲存空間。"}, {"front": "預留容量（reserve）", "back": "reserve(n) 確保容量至少為 n，卻不建立元素或改變 size。若目前容量已足夠就不重新配置；之後加入元素未超過容量前，不會因容量不足搬家。"}, {"front": "範圍檢查存取（at）", "back": "v.at(i) 在 i >= size() 時丟出 out_of_range，診斷文字依實作而異。vector 的 v[i] 要求 i < size()，不符合前提便是未定義行為。"}, {"front": "攤還分析（Amortized Analysis）", "back": "以一整串操作的總成本分析每次平均成本。圖中的倍增模型可用等比級數說明 vector 尾端加入為何可攤還 O(1)；標準保證複雜度，但不指定每次容量必須翻倍。"}, {"front": "迭代器（Iterator）", "back": "指向容器中某個位置的物件，用法跟指標很像：*it 取值、++it 往下一個走。v.begin() 是第一個元素，v.end() 是最後一個的再下一個。insert 與 erase 吃的參數就是它。"}, {"front": "迭代器失效（Iterator Invalidation）", "back": "容器改變之後，先前取得的 iterator 或指標可能指向已經釋放的記憶體。vector 擴容時整批元素會搬到新位址，舊的 iterator 全部失效，再使用就是未定義行為。對策是記索引而不是記位址。"}, {"front": "範圍 for 迴圈（Range-based for loop）", "back": "寫成 for (int x : v) 的走訪語法，最好讀但拿不到索引。x 預設是複製品，改它不會影響容器；要修改元素得寫 int& x，要避免複製又不想改到就寫 const string& x。"}, {"front": "二維向量（Vector of Vectors）", "back": "vector<vector<int>> 的每個元素又是一個 vector，例如 vector<vector<int>> grid(4, vector<int>(4, 0)); 建立四列、每列四個 0。各列可有不同長度，也不保證整張表共用一塊連續記憶體。"}, {"front": "字串（string）", "back": "std::string 管理連續的 char 序列，提供 length、substr、find、+= 等文字操作。它是獨立型別，不是 vector<char>；長度以 char 單位計，不等於 UTF-8 中文字數，成本與失效規則也須分別查看。"}, {"front": "取子字串（substr）", "back": "s.substr(pos, len) 從索引 pos 取最多 len 個字元，複製成新字串，成本與結果長度成正比。第二個參數是長度而不是結束位置。"}, {"front": "找不到的標記（string::npos）", "back": "find 系列函式找不到目標時回傳的 size_type 特殊值。判斷應寫 if (s.find(t) == string::npos)；位置型別是無號型別，不應用小於 0 判斷失敗。"}, {"front": "STL 現成容器（stack／queue／deque）", "back": "std::stack 的介面為 push/top/pop，std::queue 為 push/front/pop；兩者是容器轉接器，預設底層為 deque，也可指定符合需求的其他容器。pop 回傳 void，取值與移除分兩步，並先確認非空。deque 本身支援兩端加入與刪除。"}, {"front": "無號大小（size_t）", "back": "size_t 是 sizeof 結果使用的無號型別；容器大小則使用自身的 size_type。無號相減可能繞回，因此空容器上不能把 size() - 1 當作有效尾端索引。應先確認非空，或使用不需減一的迴圈條件。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+<script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {
     var h = 2166136261;
@@ -976,4 +2195,5 @@ const FLASHCARDS = [{"front": "向量容器（vector<T>）", "back": "可增減�
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 /* /quiz-shuffle v1 */</script>
-</body></html>
+</body>
+</html>

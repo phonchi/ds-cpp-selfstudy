@@ -1,130 +1,86 @@
 [
   {
-    "front": "公開繼承（public inheritance）",
-    "back": "class D : public B 表達 D is-a B，保留基底 public 介面。"
+    "front": "繼承（Inheritance）",
+    "back": "讓衍生類別包含基底類別部分並延伸行為。public 繼承適合表達可替代基底的「是一種」關係；基底的 private 成員仍不能由衍生類別直接存取。"
+  },
+  {
+    "front": "父類別／子類別（Base Class / Derived Class）",
+    "back": "被繼承的一方稱為父類別（基底類別），繼承別人的一方稱為子類別（衍生類別）。寫成 class Dog : public Animal。"
   },
   {
     "front": "保護存取（protected）",
-    "back": "類別本身與衍生類別可用，外部不可用；private 連衍生類別也不能直接碰。"
+    "back": "介於 public 與 private 之間的存取層級：自己與子類別看得到，外人看不到。專門用來放要給子類別用的成員。"
   },
   {
-    "front": "建構解構順序（construction/destruction order）",
-    "back": "建構：基底、成員宣告順序、衍生主體；解構完全反向。"
+    "front": "成員初始化列表（Member Initializer List）",
+    "back": "建構式參數列後以冒號開始，用於初始化基底與資料成員。未列出的基底嘗試預設初始化；若沒有可用預設建構式，就必須明確提供引數。實際順序依基底與成員宣告順序。"
   },
   {
-    "front": "虛擬覆寫（virtual / override）",
-    "back": "virtual 啟用動態選擇；override 要求編譯器驗證確實覆寫。"
+    "front": "方法覆寫（Overriding）",
+    "back": "衍生類別提供基底虛擬函式的對應版本。加上 override 可讓編譯器確認真的覆寫；僅有相同名稱不保證簽章符合，也可能只是遮蔽。"
   },
   {
-    "front": "物件切片（object slicing）",
-    "back": "以基底值接收衍生物件會切掉衍生部分；多型使用基底參考或指標。"
-  },
-  {
-    "front": "虛擬解構式（virtual destructor）",
-    "back": "可能透過基底指標刪除物件時，基底解構式必須 virtual。"
-  },
-  {
-    "front": "純虛擬函式（pure virtual）",
-    "back": "函式尾端 =0；含未實作純虛擬函式的類別是抽象類別。"
-  },
-  {
-    "front": "型別樣板參數（template<typename T>）",
-    "back": "宣告 T 是型別參數；實際使用時推導或明確指定。"
-  },
-  {
-    "front": "樣板實例化（template instantiation）",
-    "back": "編譯器依實際型別產生需要的具體版本；定義通常放 header。"
-  },
-  {
-    "front": "相等運算子（operator==）",
-    "back": "定義值相等；通常是 const 成員並以 const reference 接右側。"
-  },
-  {
-    "front": "嚴格弱序（strict weak ordering）",
-    "back": "operator< 必須一致且 x<x 為假；ordered 容器依此判斷鍵等價。"
-  },
-  {
-    "front": "常數與可改下標（const/non-const operator[]）",
-    "back": "非 const 回傳 T& 可修改；const 回傳 const T& 供唯讀物件。"
-  },
-  {
-    "front": "雜湊相等契約（hash/equality contract）",
-    "back": "equality 相等的鍵必須產生相同 hash；碰撞可由 equality 分辨。"
-  },
-  {
-    "front": "優先佇列模板（priority_queue<T,C,Compare>）",
-    "back": "三參數是值型別、底層容器、比較器；greater 形成最小值優先。"
-  },
-  {
-    "front": "函式物件（function object）",
-    "back": "定義 operator()、可像函式呼叫的物件；std::greater 位於 functional。"
-  },
-  {
-    "front": "容器介面（container interface）",
-    "back": "size、[]、begin/end 讓自訂型別支援熟悉查詢與範圍 for。"
-  },
-  {
-    "front": "組合（composition）",
-    "back": "has-a 關係；以成員重用功能並只公開必要介面。"
-  },
-  {
-    "front": "淺層複製（shallow copy）",
-    "back": "只複製擁有資源的指標，導致共享、double free 與意外連動。"
-  },
-  {
-    "front": "三法則（Rule of Three）",
-    "back": "直接管理資源時一起考慮解構、拷貝建構與 copy assignment。"
-  },
-  {
-    "front": "零法則與禁用（Rule of Zero / =delete）",
-    "back": "優先用標準資源型別免手寫；不允許複製則以 =delete 在編譯期拒絕。"
-  },
-  {
-    "front": "自訂標準例外（custom standard exception）",
-    "back": "public 繼承 runtime_error，初始化基底訊息並沿用 what。"
-  },
-  {
-    "front": "加法運算子（operator+）",
-    "back": "讓a+b產生自訂型別結果；一般值語意通常回傳新物件且不修改兩側。"
-  },
-  {
-    "front": "pair字典序（lexicographic ordering）",
-    "back": "pair先比較first；first等價時再比較second，priority_queue比較器沿用此規則。"
-  },
-  {
-    "front": "STL比較契約（comparison contract）",
-    "back": "sort與set都可呼叫operator<；set以雙向皆不小於判定鍵等價。"
-  },
-  {
-    "front": "基底與衍生類別（Base / Derived Class）",
-    "back": "衍生物件包含基底部分；public繼承應滿足可以作為基底使用的行為承諾。"
+    "front": "虛擬函式（virtual）",
+    "back": "virtual 讓一般成員呼叫依物件實際型別選擇最終覆寫版本。虛擬函式表是常見實作方式而非標準硬性要求；限定名稱呼叫等情況仍須分開看。"
   },
   {
     "front": "動態繫結（Dynamic Binding）",
-    "back": "經基底參考或指標呼叫虛擬函式時，依物件的實際型別選擇實作。"
+    "back": "一般虛擬函式呼叫依物件的動態型別決定版本，常透過基底指標或參考展示。它不要求實作一定使用查表，也不表示所有稱為多型的 C++ 技術都只有這一種。"
+  },
+  {
+    "front": "純虛擬函式（Pure Virtual Function）",
+    "back": "宣告以 = 0 指定的虛擬函式，讓類別在相應最終覆寫仍為純虛擬時保持抽象。衍生類別可以暫不實作並繼續保持抽象；純虛擬函式也可以在類別外另有定義。"
   },
   {
     "front": "抽象類別（Abstract Class）",
-    "back": "仍有未完成純虛擬操作的類別，不能直接建立完整物件，可作共同介面。"
+    "back": "具有純虛擬最終覆寫的類別，不能直接建立其物件。可透過指標或參考使用，讓具體衍生類別提供實作。"
+  },
+  {
+    "front": "物件切片（Object Slicing）",
+    "back": "用基底類別物件按值接收衍生物件（例如初始化、指定或傳值）時，只保留基底子物件，衍生部分被切掉。需要保留動態型別時，通常透過基底參考、指標或相應的智慧指標使用。"
   },
   {
     "front": "多型（Polymorphism）",
-    "back": "透過共同介面使用不同實作；此處以virtual與基底參考／指標示範。"
+    "back": "相同介面能對不同型別表現不同行為。本頁聚焦 virtual 帶來的執行期多型；C++ 另有樣板等編譯期多型方式。"
+  },
+  {
+    "front": "運算子多載（Operator Overloading）",
+    "back": "透過定義特殊名稱的函式，讓內建運算子對自訂型別也有意義。定義 operator+ 之後就能寫 a + b，定義 operator< 之後就能排序。"
+  },
+  {
+    "front": "相等運算子（operator==）",
+    "back": "operator== 定義自訂型別的相等語意。本頁 GridPosition 比較 row 與 column 都相同才算相等；在 C++17 中通常需要明確提供適用的比較運算。"
   },
   {
     "front": "小於運算子（operator<）",
-    "back": "為排序等操作定義比較關係；需要保持嚴格弱序，不是把<=改個名字。"
+    "back": "operator< 定義排序關係，可供使用預設比較方式的 sort、set 等使用；也可以另外提供比較器。比較必須滿足嚴格弱序，不能只求讓程式編譯成功。"
   },
   {
-    "front": "雜湊特化（std::hash Specialization）",
-    "back": "在標準允許範圍內為自訂型別提供hash版本；也可顯式提供自訂hasher，且須和相等規則相容。"
+    "front": "雜湊特化（std::hash 特化）",
+    "back": "自訂鍵使用雜湊容器時需提供可用的雜湊器，可特化 std::hash 或透過樣板參數指定。若相等判定認為 a 與 b 相同，兩者雜湊值必須一致；不同鍵則可以碰撞。"
   },
   {
-    "front": "有序與無序容器（Ordered / Unordered Containers）",
-    "back": "前者依比較規則管理順序，後者依hash與equality管理鍵；選擇取決於介面需求與成本。"
+    "front": "有序與無序容器（Ordered / Unordered Container）",
+    "back": "map/set 按比較器有序；unordered 容器使用雜湊與相等判定，走訪順序未指定。前者一般查詢 O(log n)，後者平均 O(1)、最壞 O(n)。依是否需要順序及查詢需求選擇。"
+  },
+  {
+    "front": "下標運算子（operator[]）",
+    "back": "讓自訂類別支援 x[i] 的函式。通常要寫兩個版本：一個回傳參考讓人修改，一個是 const 版本給唯讀情境用。"
+  },
+  {
+    "front": "組合優於繼承（Composition over Inheritance）",
+    "back": "設計原則：不確定該用哪個時選組合。判斷法則是問「父類別的每一個方法用在子類別身上都說得通嗎」，只要有一個說不通就別繼承。"
   },
   {
     "front": "樣板（Template）",
-    "back": "以型別等參數描述程式的產生規則；實際使用時仍要滿足模板正文的運算需求。"
+    "back": "樣板讓型別或其他值成為編譯期參數。通常將完整定義放在標頭，讓使用端可實例化；也可採明確實例化等組織方式，並非所有實作都只能放標頭。"
+  },
+  {
+    "front": "三法則（Rule of Three）",
+    "back": "類別若自行擁有需釋放的資源，應一起考慮解構式、複製建構式與複製賦值，避免淺複製造成重複釋放。也可禁止複製；使用標準資源管理成員時優先考慮 Rule of Zero。"
+  },
+  {
+    "front": "優先佇列（priority_queue）",
+    "back": "priority_queue 的 top() 提供依比較器選出的最高優先元素。預設比較器下最大元素在頂端；最小值優先可指定適用的 greater 比較器。自訂型別可定義運算子或提供比較器，top/pop 前須確認非空。"
   }
 ]

@@ -1,90 +1,90 @@
 [
   {
-    "front": "布林轉換（bool conversion）",
-    "back": "數值 0 為 false、非 0 為 true；空指標為 false。"
-  },
-  {
-    "front": "短路求值（short-circuit evaluation）",
-    "back": "&& 左側 false 或 || 左側 true 時，不計算右側。"
-  },
-  {
-    "front": "多路條件鏈（else-if chain）",
-    "back": "由上而下，只執行第一個為 true 的分支。"
-  },
-  {
-    "front": "指定與相等（assignment / equality）",
-    "back": "= 指定新值；== 比較是否相等。"
-  },
-  {
-    "front": "向下貫穿（fallthrough）",
-    "back": "switch 進入 case 後繼續向下執行。"
-  },
-  {
-    "front": "前測迴圈（while）",
-    "back": "前測迴圈，可能執行零次。"
-  },
-  {
-    "front": "後測迴圈（do-while）",
-    "back": "後測迴圈，至少執行一次。"
-  },
-  {
-    "front": "計數迴圈時序（for timing）",
-    "back": "初始化一次；條件、本體、更新循環。"
-  },
-  {
-    "front": "離開迴圈（break）",
-    "back": "離開最內層迴圈或 switch。"
-  },
-  {
-    "front": "跳過本圈（continue）",
-    "back": "跳過本圈剩餘本體。"
-  },
-  {
-    "front": "巢狀迴圈（nested loops）",
-    "back": "內層次數要對每個外層狀態加總。"
-  },
-  {
-    "front": "漸近上界（Big-O）",
-    "back": "描述工作量隨輸入規模增長的漸近上界。"
+    "front": "布林型別（bool）",
+    "back": "bool 只有 true 與 false。轉成整數時分別是 1 與 0；整數轉成 bool 時，0 為 false，其他值為 true。因此 if (x = 5) 的賦值結果會被當作真。"
   },
   {
     "front": "邏輯運算子（Logical Operator）",
-    "back": "&&要求兩邊成立，||要求至少一邊成立，!反轉真假；&&和||會短路。"
+    "back": "C++ 用 && 表示「而且」、|| 表示「或者」、! 表示「否定」。兩個雙元運算子都有短路求值，可用左側條件保護右側運算。"
+  },
+  {
+    "front": "短路求值（Short-circuit Evaluation）",
+    "back": "a && b 在 a 為假時完全不會求值 b；a || b 在 a 為真時完全不會求值 b。這是 C++ 標準規定的行為；例如 divisor != 0 && numerator / divisor > 3 可避免除以零。"
   },
   {
     "front": "條件敘述（if Statement）",
-    "back": "判斷條件後決定是否執行本體；else-if鏈只選第一個成立分支。"
+    "back": "if / else if / else 的三段式分支。條件必須用小括號包起來，else if 是兩個字。條件本身不必是 bool，任何可轉成 bool 的運算式都可以。"
   },
   {
-    "front": "區塊（Block）",
-    "back": "以大括號把多個敘述組成一個本體，同時建立區域名稱的作用域。"
+    "front": "大括號區塊（Block）",
+    "back": "用一對大括號把多個敘述綁成一個。C++ 靠它決定範圍，縮排對編譯器毫無意義。省略大括號時 if 只管接在後面的那一個敘述，第二行縮排得再整齊也不算數，這是最經典的無聲 bug。"
   },
   {
     "front": "賦值運算式（Assignment Expression）",
-    "back": "=會寫入新值，不是比較；把它誤放在if條件內可能修改狀態而非檢查。"
+    "back": "x = 5 在 C++ 裡是一個運算式，它的值就是被賦進去的 5。因此 if (x = 5) 合法且永遠成立，同時還把 x 改掉了。g++ 預設不警告，要加 -Wall 才會提醒。"
   },
   {
-    "front": "多路選擇（switch Statement）",
-    "back": "按整數類或列舉值跳到匹配case；沒有break時可能繼續執行後面的程式。"
+    "front": "switch 敘述（switch Statement）",
+    "back": "拿同一個整數、字元或列舉值去比對一串編譯期常數的分支結構。case 後面不能放變數、範圍或字串。"
+  },
+  {
+    "front": "掉落（Fall-through）",
+    "back": "switch 的 case 是跳進去的位置，不是互斥的分支。相符之後就從那裡一路往下執行，直到遇到 break 或右大括號。忘記寫 break 會安靜地多執行好幾段；把多個 case 疊在一起則是刻意利用掉落的標準寫法。"
+  },
+  {
+    "front": "break 敘述（break Statement）",
+    "back": "立刻離開最近包住它的迴圈或 switch。巢狀迴圈中只跳出一層；例如搜尋到目標後 break，可停止目前的搜尋迴圈。"
+  },
+  {
+    "front": "continue 敘述（continue Statement）",
+    "back": "放棄這一圈剩下的主體，直接跳到下一圈。在 for 迴圈裡，遞增那一段仍然會執行。跟 break 一樣，只作用在最內層的迴圈。"
+  },
+  {
+    "front": "while 迴圈（while Loop）",
+    "back": "先檢查條件，成立才執行主體，再回頭檢查。適合次數事先未知的重複工作，例如持續讀取輸入；條件一開始為假時，主體一次也不執行。"
+  },
+  {
+    "front": "do-while 迴圈（do-while Loop）",
+    "back": "先跑一次主體再檢查條件，所以主體保證至少執行一次；結尾的分號不能少。Python 沒有這個結構。適合「先做一次再問要不要繼續」，例如讀輸入直到合法為止。"
   },
   {
     "front": "無窮迴圈（Infinite Loop）",
-    "back": "控制狀態未能讓停止條件成立，導致持續重複。檢查更新是否被continue跳過。"
+    "back": "持續執行而未終止的迴圈。常見錯誤是漏掉 i++，使條件一直成立；刻意寫 while (true) 時，應有清楚的 break、return 或其他終止方式。"
   },
   {
-    "front": "終止條件（Termination Condition）",
-    "back": "決定何時不再進入下一圈的條件；需同時檢查初值、每輪更新和邊界。"
+    "front": "迴圈終止條件（Termination Condition）",
+    "back": "決定迴圈何時停止的條件。要同時檢查初始值、每圈更新與界限，例如 int i = 0; while (i < 5) { ++i; } 會在 i 到 5 時停止。條件本身不能單獨決定所有迴圈的時間複雜度。"
   },
   {
-    "front": "迴圈變數作用域（Loop Variable Scope）",
-    "back": "在for初始化部分宣告的變數，通常只能在該for及其本體中使用。"
+    "front": "三段式 for 迴圈（for Loop）",
+    "back": "for (初始化; 條件; 更新) 先初始化一次，再重複「檢查條件、執行主體、更新」。正常由條件變假而結束時，條件檢查比主體多一次；break 或 return 提早離開則不一定。"
   },
   {
-    "front": "條件運算子（Conditional Operator, ?:）",
-    "back": "先計算條件，再只計算被選中的一支，產生一個值；複雜流程適合改用if/else。"
+    "front": "迴圈變數範圍（Loop Variable Scope）",
+    "back": "for (int i = 0; ...) 宣告的 i 只在此 for 敘述內有效。若迴圈之後仍要讀取 i，須先在外部宣告。容器的 size() 通常回傳無號型別，與有號索引比較時要注意轉換。"
   },
   {
-    "front": "型別推導（Type Deduction, auto）",
-    "back": "讓編譯器從初始值推導型別，仍是編譯期固定型別，不是可隨意變型別。"
+    "front": "範圍 for 迴圈（Range-based for Loop）",
+    "back": "for (T x : v) 把容器的元素一個一個拿出來。要注意 x 預設是元素的複本，修改它不會改到容器。"
+  },
+  {
+    "front": "參考型迴圈變數（Reference Loop Variable）",
+    "back": "for (T& x : v) 的 x 是目前元素的別名，修改 x 會修改容器元素。for (T x : v) 則建立副本，修改副本不會回寫；是否有編譯警告取決於編譯器與選項。"
+  },
+  {
+    "front": "常數參考（const Reference）",
+    "back": "for (const T& x : v) 表示只讀又不複製，是走訪 string、vector 或自訂物件時的預設選擇。同樣的道理用在參數上：const vector<int>& 能避免每次呼叫都複製整個容器。"
+  },
+  {
+    "front": "巢狀迴圈（Nested Loop）",
+    "back": "迴圈內再放一層迴圈。若外層固定 n 次、每次內層固定 m 次，內層主體共執行 n×m 次；若內層次數隨外層改變，就要逐圈相加，不能一律相乘。"
+  },
+  {
+    "front": "三元運算子（Ternary Operator）",
+    "back": "cond ? a : b 依條件選擇並求值其中一個分支，例如 count == 0 ? 0.0 : total / count，可在 count 為 0 時避開除法。它是產生值的運算式，而非可隨意替代所有 if/else 的敘述。"
+  },
+  {
+    "front": "型別推導（auto）",
+    "back": "讓編譯器照右邊的初始值自動推變數型別。三個常見場景：計時樣板 auto start = steady_clock::now();（型別名又長又難記）、迭代器 auto it = v.begin()、範圍 for 的 for (auto& x : v)——T/T&/const T& 的規則原封不動，只是型別交給編譯器推。"
   }
 ]

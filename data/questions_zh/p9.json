@@ -1,426 +1,154 @@
 [
   {
-    "question": "public inheritance 最適合表達？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\nusing namespace std;\nclass Base {\n    public:\n        void who() { cout << \"Base\"; }\n};\nclass Derived : public Base {\n    public:\n        void who() { cout << \"Derived\"; }\n};\n\nint main() {\n    Derived d;\n    Base *p = &d;\n    p->who();\n}",
     "answers": [
       {
-        "answer": "衍生類別是一種基底類別",
+        "answer": "Base",
         "correct": true,
-        "feedback": "公開繼承代表可替代的 is-a 關係。"
+        "feedback": "正確。who 沒有 virtual，透過 Base* 呼叫選到 Base 的成員函式，不會依 Derived 的動態型別選擇版本。"
       },
       {
-        "answer": "衍生類別有一個基底物件",
+        "answer": "Derived",
         "correct": false,
-        "feedback": "「有一個基底物件」是has-a組合語意，不足以表示可替代的is-a。"
+        "feedback": "不對。這是加了 virtual 之後的結果。沒有 virtual 時走的是編譯期的靜態繫結。"
       },
       {
-        "answer": "只是想少寫幾行",
+        "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "少寫重複碼不是繼承契約；若無可替代關係應使用組合。"
+        "feedback": "不對。用基底指標指向子類別物件完全合法，這正是多型的標準寫法。"
       },
       {
-        "answer": "兩類別名字相似",
+        "answer": "兩個都印",
         "correct": false,
-        "feedback": "名字相似不保證行為契約相容，不能據此建立公開繼承。"
+        "feedback": "不對。一次呼叫只會執行一個版本。"
       }
     ]
   },
   {
-    "question": "建構衍生物件的固定順序？",
+    "question": "以下完整程式為什麼無法編譯？",
+    "code": "#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\nclass Task {\n    public:\n        string name;\n        int priority;\n        Task(string n, int p) { name = n; priority = p; }\n};\n\nint main() {\nvector<Task> v = { Task(\"a\", 5), Task(\"b\", 1) };\nsort(v.begin(), v.end());\n}",
     "answers": [
       {
-        "answer": "基底、按宣告順序的成員、衍生建構式主體",
+        "answer": "Task 沒有定義 operator<，sort 不知道怎麼比大小",
         "correct": true,
-        "feedback": "初始化列表順序不會改變真正建構順序。"
+        "feedback": "正確。本例的 sort 使用預設比較，Task 沒有可用的 operator<。可提供符合嚴格弱序的 operator<，或改傳入自訂比較器。"
       },
       {
-        "answer": "衍生、成員、基底",
+        "answer": "vector 不能用初始化列表建立",
         "correct": false,
-        "feedback": "衍生建構式主體最後才執行，不可能在基底之前完成。"
+        "feedback": "不對，那是 C++11 之後的標準寫法，完全合法。"
       },
       {
-        "answer": "初始化列表文字順序",
+        "answer": "Task 缺少無參數建構式",
         "correct": false,
-        "feedback": "成員依類別中的宣告順序建構，不依初始化列表排列。"
+        "feedback": "不對。這裡沒有需要預設建構的地方。"
       },
       {
-        "answer": "基底最後",
+        "answer": "sort 只能用在內建型別上",
         "correct": false,
-        "feedback": "基底子物件必須先存在，不能排到衍生主體之後。"
+        "feedback": "sort 可處理符合移動、交換及比较需求的自訂型別，本例欠缺的是可用的比較方式。"
       }
     ]
   },
   {
-    "question": "C++ 動態多型需要哪兩個條件？",
+    "question": "使用預設雜湊器與相等判定時，如何讓自訂型別成為 unordered_map 的鍵？",
     "answers": [
       {
-        "answer": "virtual 函式且透過基底參考或指標呼叫",
+        "answer": "operator== 加上 std::hash 的特化",
         "correct": true,
-        "feedback": "基底值會 slicing；沒有 virtual 則靜態選擇。"
+        "feedback": "正確。這是一種使用預設樣板參數的做法；也可另外指定雜湊器與相等判定。被判定相等的鍵必須有相同雜湊值。map/set 則依比較器判定次序與等價。"
       },
       {
-        "answer": "只要同名函式",
+        "answer": "只要 operator< 就好",
         "correct": false,
-        "feedback": "同名函式若未在基底宣告virtual，透過基底介面仍採靜態選擇。"
+        "feedback": "不對，那是 set 與 map 的需求。unordered 系列不比大小，它算雜湊值。"
       },
       {
-        "answer": "只要 public",
+        "answer": "只要 operator== 就好",
         "correct": false,
-        "feedback": "public只控制可存取性，不會啟用動態dispatch。"
+        "feedback": "不對。有了相等判斷還不夠，容器需要先算出雜湊值才知道要去哪個桶找。"
       },
       {
-        "answer": "以基底值複製",
+        "answer": "什麼都不用，編譯器會自動產生",
         "correct": false,
-        "feedback": "以基底值複製會造成slicing，衍生部分已不存在，無法保留多型。"
+        "feedback": "自訂型別通常需要自行提供適用的雜湊與相等判定；不能假定編譯器會自動生成。"
       }
     ]
   },
   {
-    "question": "多型基底為何需要 virtual destructor？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\n#include <string>\nusing namespace std;\ntemplate <typename T>\nclass Box {\n    private:\n        T item;\n    public:\n        Box(T v) { item = v; }\n        T get() const { return item; }\n};\n\nint main() {\n    Box<int> a(42);\n    Box<string> b(\"hi\");\n    cout << a.get() << \" \" << b.get();\n}",
     "answers": [
       {
-        "answer": "透過基底指標 delete 時能執行完整衍生解構",
+        "answer": "42 hi",
         "correct": true,
-        "feedback": "否則透過基底指標刪除衍生物件不安全。"
+        "feedback": "正確。Box<int> 與 Box<string> 是不同實例化型別，a 與 b 分別保存 42 與 hi，get 回傳各自的值。型別不同不代表 sizeof 一定不同。"
       },
       {
-        "answer": "讓建構更快",
+        "answer": "編譯錯誤，template 不能有兩種型別參數",
         "correct": false,
-        "feedback": "virtual destructor影響銷毀dispatch，不會加速任何建構步驟。"
+        "feedback": "不對。這裡是同一個 template 被實例化兩次，不是一個 template 吃兩種型別。"
       },
       {
-        "answer": "自動建立 pure virtual",
+        "answer": "42 42",
         "correct": false,
-        "feedback": "一般virtual destructor不是pure virtual，也不會替其他函式加上=0。"
+        "feedback": "不對。a 與 b 是兩個獨立的物件，各自存自己的值。"
       },
       {
-        "answer": "避免 operator<",
+        "answer": "兩個記憶體位址",
         "correct": false,
-        "feedback": "operator<是排序契約，與透過基底指標安全解構是兩件事。"
+        "feedback": "不對。get() 回傳的是值本身，而 int 與 string 都能直接被 cout 印出來。"
       }
     ]
   },
   {
-    "question": "pure virtual 的 =0 表示？",
+    "question": "Inbox 只允許依收件順序加入與取出。寫成 class Inbox : public vector<int> 的主要問題是什麼？",
     "answers": [
       {
-        "answer": "規定介面，類別在未完成前不可實例化",
+        "answer": "公開的 vector 操作仍可任意插入或配合 sort 排序，破壞 Inbox 的收件順序限制",
         "correct": true,
-        "feedback": "衍生類別須覆寫才能成為具體類別。"
+        "feedback": "正確。公開繼承暴露底層容器介面；以 private 成員保存 vector，再只提供 receive/take，才可由 Inbox 控制允許的操作。"
       },
       {
-        "answer": "回傳整數 0",
+        "answer": "編譯不過，vector 不能被繼承",
         "correct": false,
-        "feedback": "=0是pure virtual標記，不表示函式回傳數字0。"
+        "feedback": "不對。標準容器在語法上是可以被繼承的，問題出在設計而不是語法。"
       },
       {
-        "answer": "函式一定沒有名稱",
+        "answer": "效能會比組合差",
         "correct": false,
-        "feedback": "純虛擬函式仍有名稱與簽章，否則衍生類別無從override。"
+        "feedback": "本題確定的問題是介面暴露，不能只憑繼承或組合就斷言哪個效能較差。"
       },
       {
-        "answer": "自動 catch",
+        "answer": "沒有問題，這樣寫最省事",
         "correct": false,
-        "feedback": "=0不會建立catch；例外處理與抽象介面是獨立機制。"
+        "feedback": "不對。省下的那幾行程式碼，代價是喪失對介面的控制。"
       }
     ]
   },
   {
-    "question": "larger(3,2.5) 對單一 T 模板為何可能失敗？",
+    "question": "為什麼一般供其他來源檔使用、由使用端隱式實例化的類別樣板，通常把定義也放在標頭中？",
     "answers": [
       {
-        "answer": "T 同時被推導成 int 與 double，結果衝突",
+        "answer": "使用端實例化特定型別時，通常需要看見樣板的完整定義",
         "correct": true,
-        "feedback": "同一個 T 的各推導位置需一致。"
+        "feedback": "正確。完整定義通常隨標頭一起提供。這不是唯一組織方法；明確實例化等做法可將特定型別的產生安排到來源檔。"
       },
       {
-        "answer": "模板只能用 string",
+        "answer": "因為 .hpp 比 .cpp 編譯得快",
         "correct": false,
-        "feedback": "模板可用任何滿足所需操作的型別，不限string；此處失敗在推導衝突。"
+        "feedback": "不對。把實作放標頭檔反而會讓編譯變慢，因為每個 include 它的檔案都要重新處理一次。這是為了正確性而非速度。"
       },
       {
-        "answer": "3 不支援 <",
+        "answer": "因為 C++ 規定類別只能寫在標頭檔",
         "correct": false,
-        "feedback": "整數3支援小於比較；問題是另一引數讓同一T又推成double。"
+        "feedback": "不對。一般類別的成員函式完全可以定義在 .cpp 裡。"
       },
       {
-        "answer": "模板必須 virtual",
+        "answer": "只是作者的個人習慣",
         "correct": false,
-        "feedback": "函式模板不必是virtual；virtual也無法解決兩個T推導結果不一致。"
-      }
-    ]
-  },
-  {
-    "question": "模板定義通常放 header 的原因？",
-    "answers": [
-      {
-        "answer": "使用處需看見完整定義才能實例化",
-        "correct": true,
-        "feedback": "只有宣告常導致所需版本無法產生或連結。"
-      },
-      {
-        "answer": "header 執行較快",
-        "correct": false,
-        "feedback": "header不會讓程式在執行時較快；放置原因是編譯期定義可見性。"
-      },
-      {
-        "answer": "cpp 不能寫 template",
-        "correct": false,
-        "feedback": "template可以寫在cpp，但若使用處看不到定義且未明確實例化，所需版本無法產生。"
-      },
-      {
-        "answer": "為了 public 存取",
-        "correct": false,
-        "feedback": "public是類別存取控制，與模板實例化是否看得到定義無關。"
-      }
-    ]
-  },
-  {
-    "question": "operator< 用 <= 實作會破壞哪個要求？",
-    "answers": [
-      {
-        "answer": "strict weak ordering 中 x<x 必須為假",
-        "correct": true,
-        "feedback": "ordered 容器依賴嚴格弱序。"
-      },
-      {
-        "answer": "hash 必為零",
-        "correct": false,
-        "feedback": "hash是否為零不是strict weak ordering條件，且與operator<用<=無關。"
-      },
-      {
-        "answer": "virtual destructor",
-        "correct": false,
-        "feedback": "virtual destructor管理多型銷毀，不會修正x<x為真的比較錯誤。"
-      },
-      {
-        "answer": "RAII",
-        "correct": false,
-        "feedback": "RAII管理資源生命週期，不定義排序的反自反性。"
-      }
-    ]
-  },
-  {
-    "question": "unordered 自訂鍵最核心的相容規則？",
-    "answers": [
-      {
-        "answer": "equality 相等必須有相同 hash",
-        "correct": true,
-        "feedback": "碰撞允許，但相等鍵不能散到不相容位置。"
-      },
-      {
-        "answer": "不同鍵必須不同 hash",
-        "correct": false,
-        "feedback": "不同鍵允許hash碰撞；要求全部不同既不必要也通常做不到。"
-      },
-      {
-        "answer": "hash 相同必定相等",
-        "correct": false,
-        "feedback": "同hash只代表同桶候選，仍須equality分辨，不能反推相等。"
-      },
-      {
-        "answer": "operator< 必須存在",
-        "correct": false,
-        "feedback": "unordered容器使用hash與equality，不要求operator<。"
-      }
-    ]
-  },
-  {
-    "question": "最小 int 優先的標準宣告使用？",
-    "answers": [
-      {
-        "answer": "priority_queue<int,vector<int>,greater<int>>",
-        "correct": true,
-        "feedback": "三參數依序是值、底層容器、比較器。"
-      },
-      {
-        "answer": "priority_queue<int>",
-        "correct": false,
-        "feedback": "單參數priority_queue<int>使用預設less，top是最大值8而非最小值。"
-      },
-      {
-        "answer": "queue<int,greater<int>>",
-        "correct": false,
-        "feedback": "queue沒有priority_queue的三模板參數與heap比較器介面。"
-      },
-      {
-        "answer": "priority_queue<greater<int>>",
-        "correct": false,
-        "feedback": "第一模板參數應是元素int；把greater<int>放第一位會把比較器誤當元素。"
-      }
-    ]
-  },
-  {
-    "question": "範圍 for 對自訂容器主要尋找？",
-    "answers": [
-      {
-        "answer": "begin() 與 end()",
-        "correct": true,
-        "feedback": "範圍 for 依 [begin,end) iterator 走訪。"
-      },
-      {
-        "answer": "push() 與 pop()",
-        "correct": false,
-        "feedback": "push/pop是修改端點的容器操作，不能提供範圍for所需iterator區間。"
-      },
-      {
-        "answer": "hash()",
-        "correct": false,
-        "feedback": "hash用於unordered鍵定位，range-for不會尋找hash成員。"
-      },
-      {
-        "answer": "virtual size()",
-        "correct": false,
-        "feedback": "size只給數量；沒有begin/end仍不知道第一項位置與如何前進。"
-      }
-    ]
-  },
-  {
-    "question": "Mailbox 只想重用 vector 儲存，通常選？",
-    "answers": [
-      {
-        "answer": "把 vector 當 private 資料成員的 composition",
-        "correct": true,
-        "feedback": "組合只公開領域需要的介面。"
-      },
-      {
-        "answer": "public 繼承 vector",
-        "correct": false,
-        "feedback": "public繼承vector會暴露clear、insert等不屬於Mailbox契約的操作。"
-      },
-      {
-        "answer": "virtual 繼承 int",
-        "correct": false,
-        "feedback": "int不是可被Mailbox合理替代的基底；virtual繼承也不表達儲存關係。"
-      },
-      {
-        "answer": "特化 std::Mailbox",
-        "correct": false,
-        "feedback": "標準namespace不能任意特化不存在的std::Mailbox，且特化不是物件組合。"
-      }
-    ]
-  },
-  {
-    "question": "擁有 new[] 的類別只用預設複製會造成？",
-    "answers": [
-      {
-        "answer": "shallow copy，共享指標並可能 double free",
-        "correct": true,
-        "feedback": "需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。"
-      },
-      {
-        "answer": "自動深複製",
-        "correct": false,
-        "feedback": "裸指標的預設成員複製只抄地址，不會配置獨立陣列。"
-      },
-      {
-        "answer": "編譯器自動禁止",
-        "correct": false,
-        "feedback": "編譯器不會因看到new[]就自動刪除copy constructor。"
-      },
-      {
-        "answer": "vector 接管",
-        "correct": false,
-        "feedback": "vector只有在它本來就是資料成員時才管理資源，不會接管既有裸指標。"
-      }
-    ]
-  },
-  {
-    "question": "=delete 用在 copy constructor 表示？",
-    "answers": [
-      {
-        "answer": "複製操作在編譯期被明確禁止",
-        "correct": true,
-        "feedback": "它宣告該函式不可使用。"
-      },
-      {
-        "answer": "執行時刪物件",
-        "correct": false,
-        "feedback": "=delete在編譯期拒絕呼叫，不會等到執行時刪除物件。"
-      },
-      {
-        "answer": "自動深複製",
-        "correct": false,
-        "feedback": "=delete明確禁止該函式，不會替它產生深複製實作。"
-      },
-      {
-        "answer": "只刪資料成員",
-        "correct": false,
-        "feedback": "它刪除的是函式可用性，不會選擇性刪除某個資料成員。"
-      }
-    ]
-  },
-  {
-    "question": "自訂 AddressError public 繼承 runtime_error 的好處？",
-    "answers": [
-      {
-        "answer": "可沿用 what，且能被標準例外邊界捕捉",
-        "correct": true,
-        "feedback": "is-a 關係讓標準例外介面與捕捉階層成立。"
-      },
-      {
-        "answer": "自動忽略錯誤",
-        "correct": false,
-        "feedback": "繼承runtime_error不會吞掉throw；沒有適當catch時仍會向外傳。"
-      },
-      {
-        "answer": "不必 throw",
-        "correct": false,
-        "feedback": "型別只描述例外種類，偵測錯誤後仍須throw物件才會轉移控制。"
-      },
-      {
-        "answer": "變成模板",
-        "correct": false,
-        "feedback": "public繼承建立例外階層，不會把AddressError變成template。"
-      }
-    ]
-  },
-  {
-    "question": "自訂值的operator+通常採哪種值語意？",
-    "answers": [
-      {
-        "answer": "回傳新結果，不修改兩個運算元",
-        "correct": true,
-        "feedback": "這符合一般a+b的直覺；需要原地修改通常使用operator+=。"
-      },
-      {
-        "answer": "刪除右運算元",
-        "correct": false,
-        "feedback": "operator+處理值計算，不應刪除右運算元或改變其生命週期。"
-      },
-      {
-        "answer": "一定回傳void",
-        "correct": false,
-        "feedback": "a+b需要產生結果；回傳void會使表達式無法初始化total。"
-      },
-      {
-        "answer": "一定修改左運算元",
-        "correct": false,
-        "feedback": "修改左側符合operator+=語意；普通+通常讓a與b保持原值。"
-      }
-    ]
-  },
-  {
-    "question": "greater<pair<int,string>> 比較 {2,\"B\"} 與 {2,\"A\"} 時，哪個在最小priority_queue頂端？",
-    "answers": [
-      {
-        "answer": "{2,\"A\"}",
-        "correct": true,
-        "feedback": "pair先比first；同為2時再比second，A小於B。"
-      },
-      {
-        "answer": "{2,\"B\"}",
-        "correct": false,
-        "feedback": "first同為2時pair繼續比較second，A小於B，所以B不在最小top。"
-      },
-      {
-        "answer": "兩者永遠等價",
-        "correct": false,
-        "feedback": "pair在first等價時會以second打破平手，兩者不是永遠等價。"
-      },
-      {
-        "answer": "程式無法編譯",
-        "correct": false,
-        "feedback": "int、string與pair都已有比較，greater也已定義，因此宣告可編譯。"
+        "feedback": "不只是個人習慣：一般隱式實例化需要可見定義。採用明確實例化時則可有其他安排。"
       }
     ]
   }

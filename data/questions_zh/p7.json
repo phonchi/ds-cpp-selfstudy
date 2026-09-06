@@ -1,351 +1,153 @@
 [
   {
-    "question": "相對路徑 data/a.txt 以哪裡為起點？",
+    "question": "以下程式印出什麼？",
+    "code": "vector<int> v = {10, 20, 30};\ntry {\n    cout << v.at(10);\n} catch (const out_of_range& e) {\n    cout << \"接住了\";\n}\ncout << \"|繼續\";",
     "answers": [
       {
-        "answer": "程式執行時的 working directory",
+        "answer": "接住了|繼續",
         "correct": true,
-        "feedback": "相對路徑由 working directory 解析。"
+        "feedback": "正確。at() 會檢查範圍，越界時丟 out_of_range，被 catch 接住之後程式繼續往下跑。這正是例外的價值：出錯不等於整支程式陣亡。"
       },
       {
-        "answer": "原始碼檔所在處",
+        "answer": "一個垃圾值然後 |繼續",
         "correct": false,
-        "feedback": "原始碼位置只描述文字檔在哪裡，程序不會自動從該目錄啟動。"
+        "feedback": "v.at(10) 會檢查範圍並拋出例外；若改成 v[10] 則是未定義行為，連「讀到垃圾值」都不能保證。"
       },
       {
-        "answer": "編譯器安裝處",
+        "answer": "程式直接終止",
         "correct": false,
-        "feedback": "編譯器安裝目錄只供建置時尋找工具，不決定已啟動程式的cwd。"
+        "feedback": "不對。例外有被 catch 接住，所以不會終止。沒接住才會。"
       },
       {
-        "answer": "使用者家目錄固定",
+        "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "家目錄只有在程序恰好從那裡啟動時才是cwd，並非固定規則。"
+        "feedback": "不對。這是標準的例外處理寫法，需要 #include <stdexcept>。"
       }
     ]
   },
   {
-    "question": "ofstream 預設重開既有檔案與 ios::app 的差別？",
+    "question": "ifstream in(\"data.txt\"); 而 data.txt 不存在時會發生什麼？",
     "answers": [
       {
-        "answer": "前者通常截斷；app 保留並從尾端追加",
+        "answer": "安靜地進入失敗狀態，之後所有讀取都失敗但也不報錯",
         "correct": true,
-        "feedback": "寫日誌要明確用 app。"
+        "feedback": "正確。C++ 的檔案串流預設不為此丟例外。你如果不用 is_open() 檢查就直接讀，會拿到零筆資料然後困惑半天。開檔之後一定要接一句檢查。"
       },
       {
-        "answer": "兩者完全相同",
+        "answer": "丟出 FileNotFoundError",
         "correct": false,
-        "feedback": "預設模式與app的寫入位置不同；前者截斷、後者保留原內容。"
+        "feedback": "C++ 沒有 FileNotFoundError 這個標準例外型別；ifstream 在預設例外遮罩下以失敗狀態回報開檔失敗。"
       },
       {
-        "answer": "app 只允許讀",
+        "answer": "自動建立一個空檔案",
         "correct": false,
-        "feedback": "ios::app是輸出位置模式，不是讀取權限；ofstream仍然用來寫。"
+        "feedback": "不對，那是 ofstream 的行為。ifstream 是讀取用的。"
       },
       {
-        "answer": "預設一定追加",
+        "answer": "程式直接終止",
         "correct": false,
-        "feedback": "普通ofstream預設會截斷既有檔案，不會保留後追加。"
+        "feedback": "不對。它什麼都不做，繼續往下執行——這才是危險的地方。"
       }
     ]
   },
   {
-    "question": "可靠讀整數迴圈應寫？",
+    "question": "假設檔案開啟、寫入與讀取皆成功，以下片段印出什麼？",
+    "code": "ofstream out(\"log.txt\");   // log.txt 原本有 100 行\nout << \"新的一行\" << endl;\nout.close();\n\nifstream in(\"log.txt\");\nstring line;\nint n = 0;\nwhile (getline(in, line)) n++;\ncout << n;",
     "answers": [
       {
-        "answer": "while (in >> x)",
+        "answer": "1",
         "correct": true,
-        "feedback": "把讀取放在條件，成功才處理。"
+        "feedback": "正確。ofstream 預設會清空原檔案內容再寫。想附加到結尾必須傳 ios::app。這是不可逆的資料遺失，而且沒有任何警告。"
       },
       {
-        "answer": "while (!in.eof())",
+        "answer": "101",
         "correct": false,
-        "feedback": "eof要在一次讀取碰到檔尾後才設定，!eof會讓最後失敗讀取前多進一圈。"
+        "feedback": "不對，那是 ios::app 模式的行為。預設是清空重寫。"
       },
       {
-        "answer": "while (in.good()) { in >> x; use(x); }",
+        "answer": "100",
         "correct": false,
-        "feedback": "good是在讀取前檢查舊狀態；本體中的讀取仍可能失敗，卻繼續use舊x。"
+        "feedback": "不對。寫入一定會發生，問題在於它先把舊內容清掉了。"
       },
       {
-        "answer": "while (x)",
+        "answer": "0",
         "correct": false,
-        "feedback": "x的數值不是串流可否再讀的狀態；x為0也可能仍有輸入。"
+        "feedback": "不對。新的那一行確實寫進去了。"
       }
     ]
   },
   {
-    "question": "格式錯後呼叫 clear() 做了什麼？",
+    "question": "你在 debug 一個索引算錯的程式。把 v[i] 換成 v.at(i) 有什麼好處？",
     "answers": [
       {
-        "answer": "清狀態旗標，但壞 token 仍需移除",
+        "answer": "索引越界時明確拋出 out_of_range，可在 catch 處處理",
         "correct": true,
-        "feedback": "clear 不移動讀取位置。"
+        "feedback": "正確。vector 的 [] 越界是未定義行為，at 則有範圍檢查。what() 的訊息細節依實作而異；需要檢查時可繼續使用 at。"
       },
       {
-        "answer": "刪除整個檔案",
+        "answer": "at() 執行比較快",
         "correct": false,
-        "feedback": "clear只重設狀態位，不會刪檔案或改檔案內容。"
+        "feedback": "at 的語意是增加範圍檢查，不是保證加速。實際是否有額外執行成本也取決於最佳化。"
       },
       {
-        "answer": "自動跳過壞 token",
+        "answer": "at() 會自動把索引調整到合法範圍",
         "correct": false,
-        "feedback": "造成格式錯的token仍停在輸入位置，clear不會自動略過它。"
+        "feedback": "不對。它不會修正你的錯誤，只會誠實地告訴你越界了。"
       },
       {
-        "answer": "關閉串流",
+        "answer": "沒有差別，兩者完全一樣",
         "correct": false,
-        "feedback": "clear不是close；串流仍連到原來源，只是允許再次嘗試操作。"
+        "feedback": "不對。一個檢查範圍一個不檢查，這是它們唯一但關鍵的差別。"
       }
     ]
   },
   {
-    "question": "eof() 何時可靠變 true？",
+    "question": "接住 const runtime_error& e 後，e.what() 的用途是什麼？",
     "answers": [
       {
-        "answer": "一次讀取嘗試碰到檔尾之後",
+        "answer": "取得描述這個例外的訊息",
         "correct": true,
-        "feedback": "因此不要用 !eof() 預測下一次讀取。"
+        "feedback": "正確。what() 提供錯誤描述，例如 throw runtime_error(\"資料格式錯誤\") 所給的訊息；它不會自行修復錯誤。"
       },
       {
-        "answer": "讀最後一筆之前",
+        "answer": "重新執行失敗的敘述",
         "correct": false,
-        "feedback": "讀最後一筆之前尚未碰到尾端，不能預先知道eof。"
+        "feedback": "what() 只取得訊息，不會讓控制流程回到 throw 之前。"
       },
       {
-        "answer": "開檔時",
+        "answer": "清除所有檔案串流的失敗狀態",
         "correct": false,
-        "feedback": "成功開檔不代表已讀到檔尾；eof由讀取操作設定。"
+        "feedback": "串流狀態要透過串流自己的介面管理，與例外的 what() 不同。"
       },
       {
-        "answer": "每次 getline 前",
+        "answer": "結束整支程式",
         "correct": false,
-        "feedback": "getline開始前eof可能尚未設定，必須看這次讀取的結果。"
+        "feedback": "what() 是查詢訊息的成員函式，不會主動終止程式。"
       }
     ]
   },
   {
-    "question": "若 eofbit 單獨設定，fail() 一定為 true 嗎？",
+    "question": "一個例外沒有被任何 catch 接住，會發生什麼？",
     "answers": [
       {
-        "answer": "不一定；fail() 檢查 failbit 或 badbit",
+        "answer": "呼叫 std::terminate，程式無法沿原路徑繼續執行",
         "correct": true,
-        "feedback": "成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+        "feedback": "正確。未捕捉的例外會呼叫 std::terminate；預設終止處理會結束程式，診斷文字、訊號與結束碼依實作和環境而異。"
       },
       {
-        "answer": "一定",
+        "answer": "程式會跳過那一行繼續執行",
         "correct": false,
-        "feedback": "fail只檢查failbit或badbit；只有eofbit時不必為true。"
+        "feedback": "不對。例外會一路往上傳，沒人接就終止整支程式，後面的程式碼不會執行。"
       },
       {
-        "answer": "只有輸出串流一定",
+        "answer": "編譯器會在編譯時就攔下來",
         "correct": false,
-        "feedback": "輸出串流也使用同一iostate定義，不存在「輸出時eof一定令fail」的特例。"
+        "feedback": "不對。C++ 不強制檢查例外，編譯器不會要求你處理它。"
       },
       {
-        "answer": "good() 一定為 true",
+        "answer": "例外會被自動忽略",
         "correct": false,
-        "feedback": "good要求所有狀態位都未設定；eofbit已存在時good必為false。"
-      }
-    ]
-  },
-  {
-    "question": "離開區域作用域後 ofstream 通常如何處理？",
-    "answers": [
-      {
-        "answer": "解構並自動關檔",
-        "correct": true,
-        "feedback": "這是 RAII。"
-      },
-      {
-        "answer": "永遠保持開啟",
-        "correct": false,
-        "feedback": "ofstream是區域物件，離開作用域會解構，不會永遠保持開啟。"
-      },
-      {
-        "answer": "必須 leak",
-        "correct": false,
-        "feedback": "資源會由解構式釋放；leak不是語言要求，而是錯誤所有權結果。"
-      },
-      {
-        "answer": "自動刪除檔案",
-        "correct": false,
-        "feedback": "關閉串流只釋放檔案連結，不會把磁碟上的檔案刪除。"
-      }
-    ]
-  },
-  {
-    "question": "對已 close 的 out 再寫，應如何確認失敗？",
-    "answers": [
-      {
-        "answer": "寫入後檢查 fail() 或串流條件",
-        "correct": true,
-        "feedback": "close 成功本身可不 fail；後續無效寫入才設定狀態。"
-      },
-      {
-        "answer": "只查 eof()",
-        "correct": false,
-        "feedback": "eof描述輸入碰到檔尾，不能診斷對已關閉輸出串流的寫入。"
-      },
-      {
-        "answer": "檢查檔名長度",
-        "correct": false,
-        "feedback": "檔名長度與串流是否仍開啟、寫入是否成功完全無關。"
-      },
-      {
-        "answer": "close 一定先設 fail",
-        "correct": false,
-        "feedback": "成功close本身不必設fail；應在其後無效寫入完成後檢查狀態。"
-      }
-    ]
-  },
-  {
-    "question": "throw 發生後，控制流程去哪裡？",
-    "answers": [
-      {
-        "answer": "沿呼叫鏈尋找型別相容的 catch",
-        "correct": true,
-        "feedback": "沿途正常敘述不執行，區域物件會被銷毀。"
-      },
-      {
-        "answer": "總是下一行",
-        "correct": false,
-        "feedback": "throw會中止目前正常路徑，不會固定繼續執行下一行。"
-      },
-      {
-        "answer": "總是 main 第一行",
-        "correct": false,
-        "feedback": "搜尋依呼叫鏈與catch位置進行，不是無條件跳到main第一行。"
-      },
-      {
-        "answer": "自動回傳 0",
-        "correct": false,
-        "feedback": "例外不是函式回傳值，未捕捉時也不會自動替函式回傳0。"
-      }
-    ]
-  },
-  {
-    "question": "vector::at 越界與 operator[] 越界差別？",
-    "answers": [
-      {
-        "answer": "at 丟 out_of_range；[] 是未定義行為",
-        "correct": true,
-        "feedback": "[] 不做可靠界線檢查。"
-      },
-      {
-        "answer": "兩者都回 0",
-        "correct": false,
-        "feedback": "at與[]都不承諾越界回0；把垃圾結果當0會掩蓋未定義行為。"
-      },
-      {
-        "answer": "[] 丟例外",
-        "correct": false,
-        "feedback": "vector的[]不做範圍檢查，越界不保證丟任何例外。"
-      },
-      {
-        "answer": "at 插入元素",
-        "correct": false,
-        "feedback": "at只檢查並回報out_of_range，不會擴張vector或插入元素。"
-      }
-    ]
-  },
-  {
-    "question": "const string s 的 s[s.size()] 與 s.at(s.size()) 差別？",
-    "answers": [
-      {
-        "answer": "前者可讀結尾 \\0；後者丟 out_of_range",
-        "correct": true,
-        "feedback": "string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
-      },
-      {
-        "answer": "兩者都越界未定義",
-        "correct": false,
-        "feedback": "string在恰好size位置有唯讀結尾字元特例，不能把它與大於size的越界混為一談。"
-      },
-      {
-        "answer": "兩者都插入字元",
-        "correct": false,
-        "feedback": "讀取結尾字元不會插入；at(size)則直接丟例外，兩者都不增加size。"
-      },
-      {
-        "answer": "at 回 npos",
-        "correct": false,
-        "feedback": "npos是find失敗值，不是at的越界回傳；at以out_of_range回報。"
-      }
-    ]
-  },
-  {
-    "question": "map::at 缺鍵與 map::operator[] 缺鍵差別？",
-    "answers": [
-      {
-        "answer": "at 丟 out_of_range；[] 插入預設值",
-        "correct": true,
-        "feedback": "唯讀且要求存在時用 at 或 find。"
-      },
-      {
-        "answer": "兩者都插入",
-        "correct": false,
-        "feedback": "map::at缺鍵不插入，而operator[]才會建立預設mapped value。"
-      },
-      {
-        "answer": "兩者都回 end",
-        "correct": false,
-        "feedback": "find缺鍵才回end；at與[]回值/參考或丟例外，不回iterator哨兵。"
-      },
-      {
-        "answer": "[] 丟例外",
-        "correct": false,
-        "feedback": "operator[]缺鍵不丟例外，它建立value-initialized值後回傳參考。"
-      }
-    ]
-  },
-  {
-    "question": "例外一路沒有 catch 會怎樣？",
-    "answers": [
-      {
-        "answer": "呼叫 terminate，程式不繼續正常流程",
-        "correct": true,
-        "feedback": "應在能採取行動的邊界捕捉。"
-      },
-      {
-        "answer": "自動忽略",
-        "correct": false,
-        "feedback": "沒有catch時例外不會被忽略，執行期會終止正常流程。"
-      },
-      {
-        "answer": "自動重試",
-        "correct": false,
-        "feedback": "例外機制不會自行重試throw前的操作；重試必須由程式明寫。"
-      },
-      {
-        "answer": "轉為 failbit",
-        "correct": false,
-        "feedback": "failbit屬串流狀態，不是任意未捕捉例外的自動轉換結果。"
-      }
-    ]
-  },
-  {
-    "question": "例外沿呼叫鏈尋找catch時，沿途區域串流物件如何處理？",
-    "answers": [
-      {
-        "answer": "解構並依RAII關閉資源",
-        "correct": true,
-        "feedback": "stack unwinding會銷毀已建立的區域物件。"
-      },
-      {
-        "answer": "全部永久留在記憶體",
-        "correct": false,
-        "feedback": "stack unwinding會逐層銷毀區域物件，不會讓區域串流永久存活。"
-      },
-      {
-        "answer": "只有catch內物件解構",
-        "correct": false,
-        "feedback": "清理發生在throw到catch之間被離開的每個作用域，不只catch內。"
-      },
-      {
-        "answer": "必須每層catch才會關檔",
-        "correct": false,
-        "feedback": "RAII解構不要求每層都有catch；例外穿過該層時照樣清理。"
+        "feedback": "不對。例外的價值就在於它不會被無視。"
       }
     ]
   }

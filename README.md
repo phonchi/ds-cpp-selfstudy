@@ -50,7 +50,7 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 | P8 類別與物件 | ctor、封裝與 const、this/物件連結、複製解構、operator<</friend、組合與多檔 |
 | P9 類別延伸與模板 | 繼承多型、抽象介面、模板、運算子、比較/雜湊、priority_queue、資源複製與自訂例外 |
 
-完整範圍對照、來源與跨組審查見[覆蓋與驗收紀錄](docs/prereq-coverage-20260906.md)。
+本版以 `b97fe81` 的九頁 HTML 與題卡母檔重新開始，保留原版圖表與互動。修正與獨立審查見[原版恢復紀錄](docs/prereq-original-restoration.md)。
 
 頁面以單檔 HTML 與原生 JS 為主；00C 另引用三張有來源標註的本地官方介面截圖。
 先備頁的自測題與詞彙卡依新正文編寫，正課頁維持課程題庫來源。
@@ -64,10 +64,11 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 | `tools/apply_zh.py` | 從 `data/` 重生詞彙卡與題庫自測區（冪等）；`--pages p1,p2` 限定頁面，省略則全站 |
 | `tools/inject_prereq_cpp.py` | 課前章與先備頁的尾段注入（導讀框、詞彙卡區、上下頁導覽），冪等 |
 | `tools/check_links_cpp.py` | 全站錨點、頁面連結與注入前置條件檢查 |
-| `tools/check_prereq_fidelity.py` | 檢查已讀段落、表格欄列與SVG未被無聲刪減；不能取代原稿閱讀 |
+| `tools/check_prereq_fidelity.py` | 直接對照 b97fe81 的章節順序、表格結構、SVG 幾何及重要概念；不能取代原稿閱讀 |
 | `tools/check_prereq.py` | 編譯執行先備頁完整範例、核對輸出與 JSON、檢查 inline JS 及指向先備頁的跨頁錨點 |
-| `tools/check_prereq_browser.py` | 驗證每個 trace、每題每個選項、詞卡，以及九頁與主文的 computed style 一致性 |
-| `tools/prereq_authoring.py` | 可選的單檔 HTML 編寫輔助，沿用主文樣式與統一 trace 引擎；生成後仍以 HTML 為正文來源 |
+| `tools/check_prereq_runtime.py` | 在暫存目錄實跑原版完整 C++ 程式，區分危險反例與預期失敗，支援 JSON 報告 |
+| `tools/check_prereq_browser.py` | 驗證原版播放器各步驟、滑桿、每題四個選項、詞卡與桌面手機版面 |
+| `tools/prereq_authoring.py` | 舊改寫的輔助程式；不得用來覆蓋目前恢復的 P1–P9 原版互動 |
 | `tools/check_00c.py` | 解析 00C 三份 JSON、核對圖片與範圍，並編譯三種匿名專案模式 |
 | `tools/enrich/enrich_lib.py` | 頁面同格式 C++ 上色、講義範例卡、插入器，以及 `run_cpp()`（編譯執行取真實輸出） |
 | `tools/enrich/enrich_*.py` | 九章正課頁的一次性充實腳本，靠 `dx-*` 標記冪等（已注入完畢，不要重跑） |
@@ -86,12 +87,13 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 ```sh
 python3 tools/apply_zh.py --pages p1 p2 p3 p4 p5 p6 p7 p8 p9
 python3 tools/check_prereq.py
+python3 tools/check_prereq_runtime.py
 python3 tools/check_links_cpp.py
 python3 tools/check_contrast.py
 ```
 
 `check_prereq.py` 需要 Python 3、g++ 與 Node.js，不改動網站；程式範例在獨立暫存目錄執行，
-讀寫檔範例不會產生檔案到 repo。完整範例的 `<pre>` 使用 `data-cpp="run"`、`data-expected`，
+讀寫檔範例不會產生檔案到 repo。原版 `.pseudo-code` DIV 的完整程式也會檢查，刻意錯誤與多檔範例由 contract 明列；新增可執行 `<pre>` 可使用 `data-cpp="run"`、`data-expected`，
 需要輸入時加 `data-stdin`。預期編譯失敗的示例用 `data-cpp="compile-error"`；
 語法骨架與片段用 `data-cpp="fragment"`，並在正文交代上下文，不將未定義行為當作固定輸出。
 
@@ -109,13 +111,13 @@ python3 tools/check_prereq_browser.py --pages p3 p4 --screenshots /tmp/prereq-sc
 瀏覽器檢查直接開啟本地頁面，阻擋外部請求，不需啟動網站伺服器。
 它會加快互動計時器以驗證暫停、單步、重設、完成與重播，並檢查 1440px／390px 寬度的溢出。
 
-本次全面改寫的獨立閱讀審查、問題修正與驗證範圍見[審查紀錄](docs/prereq-reader-review-20260906.md)。
+本版的獨立閱讀審查與驗證範圍見[原版恢復紀錄](docs/prereq-original-restoration.md)。較早的改寫紀錄只保留歷史用途。
 
 多檔程式的每個 `<pre>` 標成 `data-cpp="file"`，用相同 `data-example` 分組，
 `data-filename` 指定實際檔名；其中一檔提供 `data-expected`（及需要時的 `data-stdin`）。
 檢查器建立真實檔案，將同組 `.cpp` 一起編譯，不以合併成單檔代替多檔驗證。
 
-本次精確恢復以[逐項恢復紀錄](docs/prereq-fidelity-review.md)為準；上次coverage結論已註記更正。
+本次直接從原 commit 恢復；先前 fidelity/coverage 紀錄描述的是已被取代的版本。
 
 ```sh
 python3 tools/check_prereq_fidelity.py
@@ -123,7 +125,7 @@ python3 -m unittest discover -s tests -v
 ```
 
 `write_page` 如需編寫新頁，必須明確提供該頁 `hero_svg`，不允許再默默生成缺圖章首。
-本次修正沒有使用整頁生成器，直接保留並補回既有區塊。`data/prereq_fidelity_contract.json` 是已審查快照，
-不能為了消除失敗就盲目重生；改動已接受的文字／表格／圖示後，須重新比對與閱讀才更新。
+本次先還原原稿，再替換課本案例與必要的錯誤敘述。`data/prereq_fidelity_contract.json` 指定原 commit、
+允許的搬移與程式檢查分類；不得改成只對照重寫後的新快照，也不得為了通過檢查而任意新增例外。
 計時等非固定輸出可使用 `data-expected-pattern` 作完整匹配，另以 `data-output-example` 顯示清楚標示的示例，
 不能把某次時間或跨平台亂數序列當保證。

@@ -1,28 +1,30 @@
 """Regression checks for the omission failures caught by the reader review."""
 import unittest
-from tools.check_prereq_fidelity import Units, validate
+from tools.check_prereq_fidelity import validate
 SOURCE='''<div class="container"><section id="lesson"><h2>Topic</h2>
 <p>A reference is an alias, not a snapshot.</p>
 <table><tr><th>Mode</th><th>Copies</th></tr><tr><td>value</td><td>yes</td></tr><tr><td>reference</td><td>no</td></tr></table>
 <svg viewBox="0 0 10 10"><rect width="4" height="4"/><path d="M4 2H8"/></svg>
 </section></div>'''
 class FidelityTests(unittest.TestCase):
- def setUp(self):self.expected=Units(SOURCE).records()
- def test_exact_page_passes(self):self.assertEqual(validate(SOURCE,self.expected),[])
- def test_same_heading_does_not_replace_explanation(self):
+ def check(self,changed,original=SOURCE):
+  return validate(changed,original,{'required_terms':['A reference is an alias']})
+ def test_exact_page_passes(self):self.assertEqual(self.check(SOURCE),[])
+ def test_required_explanation_cannot_disappear(self):
   changed=SOURCE.replace('<p>A reference is an alias, not a snapshot.</p>','')
-  self.assertTrue(any('paragraphs' in e for e in validate(changed,self.expected)))
- def test_same_table_title_does_not_replace_missing_row(self):
+  self.assertTrue(any('required concept' in e for e in self.check(changed)))
+ def test_missing_table_row_rejected(self):
   changed=SOURCE.replace('<tr><td>reference</td><td>no</td></tr>','')
-  self.assertTrue(any('tables' in e for e in validate(changed,self.expected)))
- def test_generic_empty_svg_does_not_replace_diagram(self):
+  self.assertTrue(any('table' in e for e in self.check(changed)))
+ def test_empty_svg_rejected(self):
   changed=SOURCE.replace('<rect width="4" height="4"/><path d="M4 2H8"/>','')
-  self.assertTrue(any('svgs' in e for e in validate(changed,self.expected)))
- def test_expansion_is_allowed(self):
-  changed=SOURCE.replace('</section>','<p>Additional detail.</p></section>')
-  self.assertEqual(validate(changed,self.expected),[])
- def test_units_outside_section_are_also_guarded(self):
-  source=SOURCE.replace('</section></div>','</section><div id="restored"><p>Restored explanation.</p></div></div>')
-  expected=Units(source).records()
-  self.assertTrue(validate(source.replace('<p>Restored explanation.</p>',''),expected))
+  self.assertTrue(any('SVG' in e for e in self.check(changed)))
+ def test_expansion_allowed(self):
+  self.assertEqual(self.check(SOURCE.replace('</section>','<p>Additional detail.</p></section>')),[])
+ def test_section_reorder_rejected(self):
+  first='<section id="first"></section>';last='<section id="last"></section>'
+  self.assertTrue(self.check(last+SOURCE+first,first+SOURCE+last))
+ def test_label_change_preserves_geometry(self):
+  original=SOURCE.replace('</svg>','<text x="1" y="2">course</text></svg>')
+  self.assertEqual(self.check(original.replace('>course<','>independent example<'),original),[])
 if __name__=='__main__':unittest.main()

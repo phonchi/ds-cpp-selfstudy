@@ -289,6 +289,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .tok-op{background:#8e44ad;}
 .tok-new{outline:3px solid #f39c12;}
 .mono{font-family:'JetBrains Mono',monospace;}
+
+@media(max-width:700px){.float-nav{display:none;}}
+/* Preserve original diagrams; contain wide code, tables and controls locally. */
+.viz-layout > *{min-width:0;}
+.viz-panel{min-width:0;max-width:100%;overflow-x:auto;}
+.table-scroll{max-width:100%;overflow-x:auto;}
+@media(max-width:900px){section p code,section li code{white-space:normal;overflow-wrap:anywhere;}.status-text{min-width:0;overflow-wrap:anywhere;}}
 </style>
 <style>
 /* ===== 網站化附加樣式（study-guide / flashcards / chapter-nav）===== */
@@ -459,418 +466,785 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .vert-table th i{color:inherit;}
 </style>
 <!-- /contrast-fix -->
-<style>
-@media (max-width: 760px) { .float-nav { display: none; } }
-</style>
-
-<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#streams" data-target="streams"><span class="fn-num">01</span><span class="fn-name">檔案就是輸入／輸出串流</span></a><a href="#paths" data-target="paths"><span class="fn-num">02</span><span class="fn-name">working directory 與路徑</span></a><a href="#write" data-target="write"><span class="fn-num">03</span><span class="fn-name">寫入、覆寫、追加與模式</span></a><a href="#read" data-target="read"><span class="fn-num">04</span><span class="fn-name">可靠讀取與 stringstream 解析</span></a><a href="#state" data-target="state"><span class="fn-num">05</span><span class="fn-name">good、fail、eof、bad 狀態機</span></a><a href="#raii" data-target="raii"><span class="fn-num">06</span><span class="fn-name">close、狀態檢查與 RAII</span></a><a href="#exceptions" data-target="exceptions"><span class="fn-num">07</span><span class="fn-name">try、throw、catch 與跨函式傳遞</span></a><a href="#standard" data-target="standard"><span class="fn-num">08</span><span class="fn-name">標準例外與 at／[] 的界線</span></a><a href="#boundaries" data-target="boundaries"><span class="fn-num">09</span><span class="fn-name">未捕捉例外與處理責任</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">語法速查與完整檢核</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p7-stream-five" data-target="restore-p7-stream-five"><span class="fn-num">13</span><span class="fn-name">檔案串流常用寫法與生命週期</span></a><a href="#restore-p7-exception-flow" data-target="restore-p7-exception-flow"><span class="fn-num">14</span><span class="fn-name">例外語法、控制流與資源效果</span></a><a href="#restore-p7-standard-table" data-target="restore-p7-standard-table"><span class="fn-num">15</span><span class="fn-name">常見標準例外與具體觸發來源</span></a><a href="#restore-p7-resources" data-target="restore-p7-resources"><span class="fn-num">16</span><span class="fn-name">查閱入口</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+<body>
+
+<nav class="float-nav" id="floatNav" aria-label="章節導覽">
+  <div class="fn-title">章節導覽</div>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">為什麼這頁比較短</span></a>
+  <a href="#read" data-target="read"><span class="fn-num">P01</span><span class="fn-name">讀檔與寫檔</span></a>
+  <a href="#check" data-target="check"><span class="fn-num">P02</span><span class="fn-name">開檔失敗</span></a>
+  <a href="#exception" data-target="exception"><span class="fn-num">P03</span><span class="fn-name">例外是什麼</span></a>
+  <a href="#standard" data-target="standard"><span class="fn-num">P04</span><span class="fn-name">標準例外</span></a>
+  <a href="#custom" data-target="custom"><span class="fn-num">P05</span><span class="fn-name">raise 自訂例外</span></a>
+  <a href="#uncaught" data-target="uncaught"><span class="fn-num">P06</span><span class="fn-name">沒人接會怎樣</span></a>
+  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
+  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
+  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
+  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
+  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
+</nav>
+
+<div class="hero" id="top">
+  <div class="hero-grid"></div>
+  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
   <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
     <path d="M70 40 h110 l40 40 v140 h-150 z"/><path d="M180 40 v40 h40"/>
     <line x1="95" y1="120" x2="200" y2="120"/><line x1="95" y1="146" x2="200" y2="146"/>
     <line x1="95" y1="172" x2="160" y2="172"/>
   </g>
-</svg><div class="hero-content"><div class="chapter-tag">PREREQ P7</div><h1>檔案與例外</h1><div class="subtitle">從可靠讀寫、串流狀態到例外責任邊界</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#streams"><span class="toc-num">01</span>檔案就是輸入／輸出串流</a><a href="#paths"><span class="toc-num">02</span>working directory 與路徑</a><a href="#write"><span class="toc-num">03</span>寫入、覆寫、追加與模式</a><a href="#read"><span class="toc-num">04</span>可靠讀取與 stringstream 解析</a><a href="#state"><span class="toc-num">05</span>good、fail、eof、bad 狀態機</a><a href="#raii"><span class="toc-num">06</span>close、狀態檢查與 RAII</a><a href="#exceptions"><span class="toc-num">07</span>try、throw、catch 與跨函式傳遞</a><a href="#standard"><span class="toc-num">08</span>標準例外與 at／[] 的界線</a><a href="#boundaries"><span class="toc-num">09</span>未捕捉例外與處理責任</a><a href="#reference"><span class="toc-num">10</span>語法速查與完整檢核</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a><a href="#restore-p7-stream-five"><span class="toc-num">補</span>檔案串流常用寫法與生命週期</a><a href="#restore-p7-exception-flow"><span class="toc-num">補</span>例外語法、控制流與資源效果</a><a href="#restore-p7-standard-table"><span class="toc-num">補</span>常見標準例外與具體觸發來源</a><a href="#restore-p7-resources"><span class="toc-num">補</span>查閱入口</a></div></div><section id="streams"><div class="section-number">PART 01</div><h2>檔案就是輸入／輸出串流</h2>
-<p>檔案讓資料在程式結束後仍存在。C++ 把檔案當成「串流」：輸出串流把資料依序送出去，輸入串流把資料依序讀進來。<code>ofstream</code> 寫檔、<code>ifstream</code> 讀檔、<code>fstream</code> 可同時讀寫；各自要 <code>#include &lt;fstream&gt;</code>。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>型別</th><th>預設用途</th><th>常見操作</th></tr></thead><tbody><tr><td><code>ofstream</code></td><td>輸出到檔案</td><td><<、write</td></tr><tr><td><code>ifstream</code></td><td>從檔案輸入</td><td>>>、getline、read</td></tr><tr><td><code>fstream</code></td><td>讀寫同一檔</td><td>明確指定開啟模式</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="tea:3&#10;rice:8&#10;">#include &lt;fstream&gt;
-#include &lt;iostream&gt;
-#include &lt;string&gt;
-using namespace std;
-int main() {
-    ofstream out(&quot;notes.txt&quot;);
-    if (!out) { cerr &lt;&lt; &quot;cannot open notes.txt\n&quot;; return 1; }
-    out &lt;&lt; &quot;tea 3\n&quot; &lt;&lt; &quot;rice 8\n&quot;;
-    out.close();
-    ifstream in(&quot;notes.txt&quot;);
-    string item; int count;
-    while (in &gt;&gt; item &gt;&gt; count) cout &lt;&lt; item &lt;&lt; &#x27;:&#x27; &lt;&lt; count &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>tea:3&#10;rice:8&#10;</pre></div>
-<p>第 6 行開檔；第 7 行先確認成功，避免後面假裝寫入。close 讓資料完成送出並關閉資源。第 10 行重新以輸入串流開啟，while 的條件直接嘗試讀一整筆；兩個欄位都成功才進入迴圈。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>為何不能只宣告 <code>ifstream in;</code> 就立刻讀？</p><details><summary>看解答與理由</summary><p>尚未連到檔案。要用建構式給路徑，或稍後呼叫 <code>in.open(path)</code>，並檢查開啟是否成功。</p></details></div>
+</svg>
+  <div class="hero-content">
+    <div class="chapter-tag">PREREQ P7</div>
+    <h1><span class="green">檔案</span>與<span class="blue">例外</span></h1>
+    <div class="subtitle">先備知識 · 語法與互動</div>
+    <div class="big-formula">ifstream｜ofstream｜getline｜try / catch｜throw｜at()</div>
+    <div class="scroll-hint">向下捲動開始<span>↓</span></div>
+  </div>
+</div>
+
+<div class="container">
+<div class="study-guide">
+  <div class="sg-title">📌 本頁使用方式（先備知識 · 語法與互動）</div>
+  <p>先讀語法與例子，再操作互動圖解並完成四選一自測。忘記寫法時回看速查表，最後用中英詞彙卡複習。</p>
+  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
+</div>
+
+
+<div class="toc">
+  <div class="toc-title">CONTENTS · 內容目錄</div>
+  <div class="toc-grid">
+    <a href="#prologue"><span class="toc-num">P00</span>為什麼這一頁比較短</a>
+    <a href="#read"><span class="toc-num">P01</span>讀檔與寫檔</a>
+    <a href="#check"><span class="toc-num">P02</span>開檔失敗怎麼知道</a>
+    <a href="#exception"><span class="toc-num">P03</span>例外是什麼</a>
+    <a href="#standard"><span class="toc-num">P04</span>標準例外與 at()</a>
+    <a href="#custom"><span class="toc-num">P05</span>throw 與自訂例外</a>
+    <a href="#uncaught"><span class="toc-num">P06</span>沒有人接會怎樣</a>
+    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
+    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
+    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
+  </div>
+</div>
+
+<section id="prologue"><div class="section-number">PART 00 · 檔案與錯誤</div><h2>讓資料留下來，並處理走不通的路</h2><p>本頁先讀寫文字檔，再學習開檔失敗、界線檢查與例外傳遞。檔案範例可以獨立執行，不需其他教材資料。這些做法也適用於一般程式的輸入驗證與錯誤回報。</p></section>
+
+<section id="read">
+  <div class="section-number">PART 01 · 檔案</div>
+  <h2>讀檔與寫檔：三個型別、一個模式</h2>
+  <p><code>ofstream</code> 寫、<code>ifstream</code> 讀，用法跟 <code>cout</code>／<code>cin</code> 一模一樣 —— 因為它們是同一家族。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">寫進去再讀回來</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;fstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="7">    ofstream out(<span class="str">"</span><span class="str">notes.txt</span><span class="str">"</span>);            <span class="com">// 開檔寫入，不存在就建立</span>
+<span class="line" data-l="8"></span>    <span class="kw">if</span> (!out.is_open()) {</span>
+<span class="line" data-l="9">        cout &lt;&lt; <span class="str">"</span><span class="str">開檔失敗</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">        <span class="kw">return</span> <span class="num">1</span>;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    out &lt;&lt; <span class="str">"</span><span class="str">READ</span><span class="str">"</span> &lt;&lt; endl &lt;&lt; <span class="str">"</span><span class="str">CHECK</span><span class="str">"</span> &lt;&lt; endl &lt;&lt; <span class="str">"</span><span class="str">SEND</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13">    out.close();                          <span class="com">// 也可以讓它離開範圍自動關</span>
+<span class="line" data-l="14"></span></span>
+<span class="line" data-l="15">    ifstream in(<span class="str">"</span><span class="str">notes.txt</span><span class="str">"</span>);             <span class="com">// 開檔讀取</span>
+<span class="line" data-l="16"></span>    string line;</span>
+<span class="line" data-l="17">    <span class="kw">int</span> n = <span class="num">0</span>;</span>
+<span class="line" data-l="18">    <span class="kw">while</span> (getline(in, line)) {           <span class="com">// 逐行讀到檔尾</span>
+<span class="line" data-l="19"></span>        cout &lt;&lt; ++n &lt;&lt; <span class="str">"</span><span class="str">: </span><span class="str">"</span> &lt;&lt; line &lt;&lt; endl;</span>
+<span class="line" data-l="20">    }</span>
+<span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="22">}</span>
+<span class="line" data-l="23"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1: READ
+2: CHECK
+3: SEND</pre></div>
+  <p class="dx-note">三個重點：① 檔案串流需 &lt;fstream&gt;。② getline 回傳串流參考，while 依讀取狀態判斷是否繼續；最後一行沒有換行也可成功讀取。③ 物件正常離開作用域時解構式會關檔，但本例要在 out 還活著時立刻讀同一檔案，所以先明確 close，確保寫入完成。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>寫法</th><th>意思</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">ifstream in("a.txt");</td><td>開檔讀取</td></tr>
+      <tr><td class="mono">ofstream out("a.txt");</td><td>開檔寫入，<strong>清空原內容</strong></td></tr>
+      <tr><td class="mono">ofstream out("a.txt", ios::app);</td><td>附加到結尾</td></tr>
+      <tr><td class="mono">getline(in, line)</td><td>讀取一行，回傳串流；作條件時反映這次讀取是否成功</td></tr>
+      <tr><td class="mono">in &gt;&gt; word</td><td>讀一個「詞」，以空白切開</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+
+
+  <h3 style="margin-top:1.4rem;">順便：字串也能當「檔案」讀 —— <code>stringstream</code></h3>
+  <p><code>stringstream</code> 是這一家族的第三個成員：把<strong>字串</strong>當成 <code>cin</code> 來讀，<code>&gt;&gt;</code> 一樣自動以空白切詞、照變數型別轉換。跟 <a href="p1_cpp_basics.html#io">P1</a> 用 <code>istringstream</code> 模擬鍵盤輸入是同一家，只是 <code>stringstream</code> 讀寫都能做。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">將一行用品記錄逐詞讀出</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;sstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    stringstream input(<span class="str">"</span><span class="str">pencil blue 12</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    string token;</span>
+<span class="line" data-l="8">    <span class="kw">while</span> (input &gt;&gt; token) {</span>
+<span class="line" data-l="9">        cout &lt;&lt; <span class="str">"</span><span class="str">[</span><span class="str">"</span> &lt;&lt; token &lt;&lt; <span class="str">"</span><span class="str">] </span><span class="str">"</span>;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[pencil] [blue] [12] </pre></div>
+  <p>stringstream 讓字串也能用串流的 &gt;&gt; 規則逐項解析，並依目標型別轉換。獨立程式應明確 <code>#include &lt;sstream&gt;</code>，不要依賴特定環境自動引入。</p>
+</div>
+</section>
+
+<section id="check">
+  <div class="section-number">PART 02 · 開檔失敗</div>
+  <h2>檔案開啟失敗時，串流會進入失敗狀態</h2>
+
+<div class="deck-extra">
+  <div class="dx-label">開一個不存在的檔案</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;fstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    ifstream in(<span class="str">"</span><span class="str">no_such_file.txt</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">is_open() = </span><span class="str">"</span> &lt;&lt; in.is_open() &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">檔案不存在時 ifstream 不會丟例外，只是進入失敗狀態。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">所以開檔之後一定要自己檢查。</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>is_open() = 0
+檔案不存在時 ifstream 不會丟例外，只是進入失敗狀態。
+所以開檔之後一定要自己檢查。</pre></div>
+  <p class="dx-note"><strong>它不丟例外、不當掉、什麼都不說</strong>，只是把串流設成失敗狀態。你如果不檢查就直接讀，會讀到零筆資料然後困惑半天。所以 <code>ifstream</code> 開完<strong>一定要接一句 <code>if (!in.is_open())</code></strong>。</p>
+</div>
+
+  <div class="info-box green">
+    <div class="info-label">✅ 相對路徑是相對於「執行時的工作目錄」</div>
+    <p style="margin-bottom:0;">不是相對於程式檔的位置。在 Jupyter 裡就是你啟動 <code>jupyter lab</code> 的那個目錄（跟 <a href="00b_setup.html#faq">00B</a> 講的 <code>-I.</code> 是同一個目錄）。「明明檔案就在旁邊卻開不起來」十次有九次是這個原因。</p>
+  </div>
+</section>
+
+<section id="exception">
+  <div class="section-number">PART 03 · 例外</div>
+  <h2>例外不是「壞掉」，是「這條路走不通，換你決定」</h2>
+  <p>例外處理的骨架只有兩個關鍵字：<code>try</code> 圈出可能失敗的程式，<code>catch</code> 接住失敗。</p>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">try</span> {</span>
+<span class="line" data-l="2">    <span class="com">// 可能失敗的那幾行，範圍越小越好找錯</span>
+<span class="line" data-l="3"></span>    risky();</span>
+<span class="line" data-l="4">} <span class="kw">catch</span> (<span class="kw">const</span> SpecificError&amp; e) {</span>
+<span class="line" data-l="5">    <span class="com">// 只接住你預期會發生的那一種</span>
+<span class="line" data-l="6"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">出事了: </span><span class="str">"</span> &lt;&lt; e.what() &lt;&lt; endl;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"><span class="com">// 接住之後程式繼續往下跑</span>
+<span class="line" data-l="9"></span></span></div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>C++</th><th>Python</th><th>備註</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">try { } catch (…) { }</td><td class="mono">try: / except:</td><td>概念相同</td></tr>
+      <tr><td class="mono">throw X();</td><td class="mono">raise X()</td><td>主動拋出</td></tr>
+      <tr><td class="mono">e.what()</td><td class="mono">str(e)</td><td>取得訊息</td></tr>
+      <tr><td>沒有對應</td><td class="mono">finally:</td><td>C++ 用解構式自動收尾（RAII）</td></tr>
+      <tr><td>沒有對應</td><td class="mono">else:</td><td>C++ 沒有這個區塊</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="warn-box">
+    <div class="info-label">⚠️ 不要寫 <code>catch (...)</code> 把所有東西一起接住</div>
+    <p style="margin-bottom:0;">它會連你自己寫錯造成的問題一起吞掉，讓程式默默給出錯誤答案。<strong>接住你預期會發生的那一種就好</strong>，其餘讓它往上傳。<code>catch</code> 的順序也要由窄到寬，寬的放後面 —— 放前面的話後面那些永遠接不到。</p>
+  </div>
+
+  <p>同一段程式，餵不同的輸入就會走出兩條完全不同的路。按下面兩顆 ▶ 各跑一次，注意<strong>例外那條路上 <code>readAge</code> 的框是什麼時候消失的</strong>。</p>
+
+  <div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="pseudo-code" id="excCode" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">readAge</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> age;</span>
+<span class="line" data-l="6">    cin &gt;&gt; age;</span>
+<span class="line" data-l="7">    <span class="kw">if</span> (age &lt; <span class="num">0</span>) {</span>
+<span class="line" data-l="8">        <span class="kw">throw</span> <span class="fn">invalid_argument</span>(<span class="str">"年齡不能是負數"</span>);</span>
+<span class="line" data-l="9">    }</span>
+<span class="line" data-l="10">    <span class="kw">return</span> age;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="14">    <span class="kw">try</span> {</span>
+<span class="line" data-l="15">        <span class="kw">int</span> age = readAge();</span>
+<span class="line" data-l="16">        cout &lt;&lt; <span class="str">"年齡："</span> &lt;&lt; age &lt;&lt; endl;</span>
+<span class="line" data-l="17">    } <span class="kw">catch</span> (<span class="kw">const</span> invalid_argument&amp; e) {</span>
+<span class="line" data-l="18">        cout &lt;&lt; <span class="str">"輸入有問題："</span> &lt;&lt; e.<span class="fn">what</span>() &lt;&lt; endl;</span>
+<span class="line" data-l="19">    }</span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"程式繼續往下跑"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="22">}</span></div>
+        <div class="bq-row" id="excStack"></div>
+        <div class="status-banner" id="excStatus"><span class="status-icon">›</span><span class="status-text">選一條路開始。同一份程式碼，合法輸入與負數輸入走的路完全不同。</span></div>
+        <div class="controls-bar">
+          <button class="btn btn-play" onclick="excStart(false)">▶ 合法輸入</button>
+          <button class="btn btn-play" onclick="excStart(true)">▶ 丟出例外</button>
+          <button class="btn btn-step" onclick="excPlayer &amp;&amp; excPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="excPlayer &amp;&amp; excPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="excSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card">
+        <div class="ic-title">堆疊解開 <span class="ic-badge">UNWIND</span></div>
+        <p style="margin:0;font-size:.85rem;">例外<strong>不是</strong>從 <code>throw</code> 直接跳到 <code>catch</code>。它會沿著呼叫鏈往回走，把中間每一個函式的框架逐一撤掉，撤掉時該框架裡區域物件的解構式都會被呼叫 —— 這叫 <strong>stack unwinding</strong>。所以檔案串流這類物件不必手動收尾，例外飛過去的時候它們也會自己關好。</p>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">型別要對得上 <span class="ic-badge">MATCH</span></div>
+        <p style="margin:0;font-size:.85rem;"><code>catch</code> 只接住型別相符的例外。丟 <code>invalid_argument</code>、只寫 <code>catch (const out_of_range&amp; e)</code>，例外就會穿過去繼續往上飛；一路到 <code>main</code> 外面都沒人接，程式直接 <code>terminate</code> 當掉。父類別接得住子類別，所以 <code>catch (const exception&amp; e)</code> 是最寬的那一層，要放最後面。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="standard">
+  <div class="section-number">PART 04 · at() 與 []</div>
+  <h2>兩個下標寫法，一個檢查範圍一個不檢查 <span class="sec-badge">查錯時用得到</span></h2>
+
+<div class="deck-extra">
+  <div class="dx-label">同一個越界存取，兩種下場</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>};</span>
+<span class="line" data-l="7">    <span class="com">// 錯誤示範：v[10] 越界，行為未定義，因此不執行。</span>
+<span class="line" data-l="8"></span>    <span class="kw">try</span> {</span>
+<span class="line" data-l="9">        cout &lt;&lt; <span class="str">"</span><span class="str">trying at: </span><span class="str">"</span>;</span>
+<span class="line" data-l="10">        <span class="kw">int</span> value = v.at(<span class="num">10</span>);</span>
+<span class="line" data-l="11">        cout &lt;&lt; value &lt;&lt; endl;</span>
+<span class="line" data-l="12">    } <span class="kw">catch</span> (<span class="kw">const</span> out_of_range&amp; e) {</span>
+<span class="line" data-l="13">        cout &lt;&lt; <span class="str">"</span><span class="str">caught out_of_range</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="14">        cout &lt;&lt; <span class="str">"</span><span class="str">details: </span><span class="str">"</span> &lt;&lt; e.what() &lt;&lt; endl;</span>
+<span class="line" data-l="15">    }</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">continue</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>trying at: caught out_of_range
+details: （由實作提供的錯誤描述）
+continue</pre></div>
+  <p class="dx-note">vector 的 v[10] 不符合有效索引前提，屬未定義行為，所以只留在註解中。實際執行的是 v.at(10)：它丟出 out_of_range，catch 接住後可繼續執行。what() 訊息依實作而異；trying at: 已在拋出之前輸出，例外不會回復先前的副作用。</p>
+</div>
+
+  <div class="cmp-table-wrap">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>常見標準例外</th><th>什麼時候發生</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">out_of_range</td><td><code>vector::at()</code>、<code>string::at()</code> 越界</td></tr>
+      <tr><td class="mono">invalid_argument</td><td><code>stoi("abc")</code> 這種轉不了的輸入</td></tr>
+      <tr><td class="mono">bad_alloc</td><td><code>new</code> 要不到記憶體</td></tr>
+      <tr><td class="mono">runtime_error</td><td>通用的執行期錯誤，自訂例外常繼承它</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+
+  <div class="info-box purple">
+    <div class="info-label">🎯 什麼時候用哪個</div>
+    <p>不確定索引時，at() 的範圍檢查能讓錯誤較早被發現。已確認合法且需要控制檢查成本時可用 []；兩者差別是介面契約，不是「所有程式都該用某一個」。string 的 size() 位置另可讀結尾空字元，不能把它和 vector 的界線完全混同。</p>
+  </div>
+
 
 </section>
-<section id="paths"><div class="section-number">PART 02</div><h2>working directory 與路徑</h2>
-<p>相對路徑不是相對於原始碼檔案，而是相對於程式執行時的 working directory（工作目錄）。IDE、終端機與測試工具可能用不同工作目錄，所以同一個 <code>"data/input.txt"</code> 在不同啟動方式可能指到不同位置。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>路徑</th><th>含義</th><th>取捨</th></tr></thead><tbody><tr><td><code>data/input.txt</code></td><td>工作目錄下的 data/input.txt</td><td>可搬移，但依賴啟動位置</td></tr><tr><td><code>../input.txt</code></td><td>工作目錄上一層</td><td>目錄結構變動就失效</td></tr><tr><td><code>/tmp/input.txt</code></td><td>絕對路徑</td><td>位置明確但不易跨電腦</td></tr></tbody></table></div>
-<pre class="pseudo-code" data-cpp="run" data-expected="data / input.txt&#10;">#include &lt;filesystem&gt;
-#include &lt;iostream&gt;
-using namespace std;
-int main() {
-    filesystem::path p=&quot;data/input.txt&quot;;
-    cout &lt;&lt; p.parent_path().string() &lt;&lt; &quot; / &quot; &lt;&lt; p.filename().string() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>data / input.txt&#10;</pre></div>
-<pre class="pseudo-code" data-cpp="fragment">cout &lt;&lt; filesystem::current_path() &lt;&lt; &quot;\n&quot;; // 診斷片段：印出的內容依啟動位置而變</pre>
-<p>實務上不要靠猜 working directory；先印 <code>filesystem::current_path()</code> 診斷。完整範例則示範 path 如何拆出父目錄與檔名。<code>filesystem::path</code> 會依平台處理分隔符，比手工串接斜線可靠。</p>
-<div class="info-box warm"><div class="info-label">界線</div><p>檔案不存在與路徑指錯是兩件事。若程式說開檔失敗，先確認 current_path、實際路徑與權限，再檢查檔案內容。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>程式在 build/ 目錄執行，資料在專案根目錄 data/a.txt；相對路徑可能怎麼寫？</p><details><summary>看解答與理由</summary><p>若 build 正好是根目錄的直接子目錄，可用 <code>../data/a.txt</code>；更可靠的是由啟動參數傳入路徑，不把目錄假設寫死。</p></details></div>
+
+<section id="custom">
+  <div class="section-number">PART 05 · 主動拋出</div>
+  <h2><code>throw</code> 與自訂例外</h2>
+  <p>當函式<strong>無法完成它承諾的事</strong>時就該拋例外，而不是悄悄回傳一個假值。</p>
+
+<div class="deck-extra">
+  <div class="dx-label">負數數量應立即拒絕</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">checkedQuantity</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (n &lt; <span class="num">0</span>) <span class="kw">throw</span> invalid_argument(<span class="str">"</span><span class="str">數量不可為負數</span><span class="str">"</span>);</span>
+<span class="line" data-l="6">    <span class="kw">return</span> n;</span>
+<span class="line" data-l="7">}</span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="9">    <span class="kw">try</span> { cout &lt;&lt; checkedQuantity(<span class="num">-1</span>) &lt;&lt; endl; }</span>
+<span class="line" data-l="10">    <span class="kw">catch</span> (<span class="kw">const</span> exception&amp; e) { cout &lt;&lt; e.what() &lt;&lt; endl; }</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>數量不可為負數</pre></div>
+  <p>先用標準的 invalid_argument 表達輸入不合法，throw 會離開目前正常路徑並尋找符合的 catch。等學過類別、繼承與模板後，<a href="p9_oop_advanced.html#custom-error">P9 保留完整自訂例外與草稿箱例子</a>。</p>
+</div>
+
+  <div class="info-box">
+    <div class="info-label">💡 為什麼不回傳一個特殊值就好</div>
+    <p style="margin-bottom:0;">因為<strong>沒有哪個值是安全的</strong>。空堆疊 <code>pop</code> 回傳 0？那真的存了 0 的時候怎麼辦？回傳 <code>-1</code>？那存負數呢？而且呼叫端很容易忘記檢查，錯誤就一路往下傳，最後在很遠的地方才爆出來。例外的價值就在於<strong>它不會被無視</strong>。</p>
+  </div>
+
 
 </section>
-<section id="write"><div class="section-number">PART 03</div><h2>寫入、覆寫、追加與模式</h2>
-<p>ofstream 預設開啟模式會清空原檔再寫。要保留舊內容並加到尾端，加入 <code>ios::app</code>。模式用位元 OR <code>|</code> 組合，例如 <code>ios::out | ios::app</code>。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="start&#10;finish&#10;">#include &lt;fstream&gt;
-#include &lt;iostream&gt;
-#include &lt;string&gt;
-using namespace std;
-int main() {
-    { ofstream out(&quot;events.txt&quot;); out &lt;&lt; &quot;start\n&quot;; }
-    { ofstream out(&quot;events.txt&quot;, ios::app); out &lt;&lt; &quot;finish\n&quot;; }
-    ifstream in(&quot;events.txt&quot;);
-    string line;
-    while (getline(in,line)) cout &lt;&lt; line &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>start&#10;finish&#10;</pre></div>
-<p>兩組大括號各形成一個作用域。離開作用域時串流物件被銷毀並自動關檔，所以第二次開檔前，第一次寫入已完成。第一次採預設截斷模式，只留下 start；第二次 app 從尾端追加 finish。</p>
-<h3>文字與二進位</h3>
-<p><code>ios::binary</code> 避免平台對換行等文字表示做轉換，搭配 read/write 處理原始 byte。但直接把含指標或平台相依布局的物件記憶體寫出去，不會自動變成可攜格式。初學資料交換優先用清楚的文字格式。</p>
-<div class="info-box warm"><div class="info-label">反例</div><p>想新增日誌卻忘了 <code>ios::app</code>，每次執行都會覆寫舊日誌。相反地，需要全新輸出時不要誤用 app。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>每次啟動都在 log.txt 後面補一行，宣告怎麼寫？</p><details><summary>看解答與理由</summary><p><code>ofstream log("log.txt", ios::app);</code>，接著檢查 <code>if (!log)</code>。</p></details></div>
 
-</section>
-<section id="read"><div class="section-number">PART 04</div><h2>可靠讀取與 stringstream 解析</h2>
-<p>輸入有兩種常見單位：<code>&gt;&gt;</code> 讀由空白分隔的 token，<code>getline</code> 讀到換行。最穩定的迴圈把「讀取動作本身」放在 while 條件，只有完整讀到資料才處理。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="Amy passed=1&#10;Bo passed=0&#10;">#include &lt;fstream&gt;
-#include &lt;iostream&gt;
-#include &lt;sstream&gt;
-#include &lt;string&gt;
-using namespace std;
-int main() {
-    { ofstream seed(&quot;scores.txt&quot;); seed &lt;&lt; &quot;Amy 82\nBo 51\n&quot;; }
-    ifstream in(&quot;scores.txt&quot;);
-    if (!in) { cerr &lt;&lt; &quot;open failed\n&quot;; return 1; }
-    string line;
-    while (getline(in,line)) {
-        istringstream row(line);
-        string name; int score;
-        if (row &gt;&gt; name &gt;&gt; score) cout &lt;&lt; name &lt;&lt; &quot; passed=&quot; &lt;&lt; (score&gt;=60) &lt;&lt; &#x27;\n&#x27;;
-        else cerr &lt;&lt; &quot;bad row: &quot; &lt;&lt; line &lt;&lt; &#x27;\n&#x27;;
-    }
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Amy passed=1&#10;Bo passed=0&#10;</pre></div>
-<p>外層 getline 保留一整筆的邊界；內層 istringstream 再從該字串解析欄位。壞列只影響該行，不會把整個檔案串流卡在 fail 狀態。<code>istringstream</code> 來自 <code>&lt;sstream&gt;</code>，讓字串使用與 cin 相同的 >> 規則。</p>
-<pre class="pseudo-code" data-cpp="fragment">while (!in.eof()) {
-    in &gt;&gt; value;
-    use(value);
-} // 反例：eof 只有讀取失敗後才會亮，可能重複處理舊 value</pre>
-<div class="info-box"><div class="info-label">動手練習</div><p>為何 <code>while (in &gt;&gt; x)</code> 比 <code>while (!in.eof())</code> 好？</p><details><summary>看解答與理由</summary><p>前者只有本次成功讀出 x 才進入；後者在最後一次讀之前 eof 尚未設定，可能帶著舊 x 多跑一次。</p></details></div>
+<section id="uncaught">
+  <div class="section-number">PART 06 · 沒人接</div>
+  <h2>例外沒有人接住會怎樣</h2>
 
-</section>
-<section id="state"><div class="section-number">PART 05</div><h2>good、fail、eof、bad 狀態機</h2>
-<p>每個串流保存可同時存在的狀態旗標。<code>good()</code> 只有在沒有任何旗標時為 true；<code>eof()</code> 檢查 eofbit；<code>fail()</code> 在 failbit 或 badbit 任一存在時為 true；<code>bad()</code> 只檢查較嚴重的 badbit。把串流放在 if/while 條件，是檢查它目前是否沒有 failbit/badbit，而不是單純問 eof。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>查詢</th><th>精確條件</th><th>解讀</th></tr></thead><tbody><tr><td>good()</td><td>所有狀態旗標皆未設定</td><td>目前完全正常</td></tr><tr><td>eof()</td><td>eofbit 已設定</td><td>某次讀取碰到檔尾</td></tr><tr><td>fail()</td><td>failbit 或 badbit 已設定</td><td>格式／操作失敗或嚴重 I/O 錯誤</td></tr><tr><td>bad()</td><td>badbit 已設定</td><td>較嚴重的 I/O 錯誤</td></tr></tbody></table></div>
-<p>eofbit 可以單獨存在而 fail() 仍為 false。例如格式化讀取最後一個整數時，若它正好延伸到檔尾，整數本身可以成功取得，同時設 eofbit；該次串流條件仍可成立。下一次再讀才會失敗並設 failbit。因此 eof 不能預測「下一筆是否可讀」，處理與否仍以那次讀取是否成功為準。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="12 fail=0&#10;fail=1 eof=0&#10;xx then 30&#10;">#include &lt;iostream&gt;
-#include &lt;sstream&gt;
-using namespace std;
-int main() {
-    istringstream in(&quot;12 xx 30&quot;);
-    int x;
-    in &gt;&gt; x; cout &lt;&lt; x &lt;&lt; &quot; fail=&quot; &lt;&lt; in.fail() &lt;&lt; &#x27;\n&#x27;;
-    in &gt;&gt; x; cout &lt;&lt; &quot;fail=&quot; &lt;&lt; in.fail() &lt;&lt; &quot; eof=&quot; &lt;&lt; in.eof() &lt;&lt; &#x27;\n&#x27;;
-    in.clear();
-    string badToken; in &gt;&gt; badToken;
-    in &gt;&gt; x; cout &lt;&lt; badToken &lt;&lt; &quot; then &quot; &lt;&lt; x &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>12 fail=0&#10;fail=1 eof=0&#10;xx then 30&#10;</pre></div>
-<p>讀 xx 到 int 失敗，fail 亮起，後續讀取都停止。clear 只清旗標，不會移走造成問題的 xx；所以再用 string 把壞 token 取走，才能讀到 30。eof 此時為 0，證明格式錯不等於檔尾。</p>
-<div class="deck-extra lesson-trace" id="p7state"><h3>互動：格式錯後如何恢復</h3><p>追蹤串流剩餘內容與狀態；每格對應程式真正發生的狀態轉換。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">in &gt;&gt; x;</span>
-<span class="line">in &gt;&gt; x;</span>
-<span class="line">in.clear();</span>
-<span class="line">in &gt;&gt; badToken;</span>
-<span class="line">in &gt;&gt; x;</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "開始時串流可讀。", "vars": {"剩餘": "12 xx 30", "x": "未設定", "fail": "false", "eof": "false"}, "line": 0, "output": ""}, {"note": "成功把 12 讀進 x。", "vars": {"剩餘": "xx 30", "x": "12", "fail": "false", "eof": "false"}, "line": 0, "output": "12 fail=0"}, {"note": "xx 不能轉 int，讀取失敗；xx 尚未被消耗。", "vars": {"剩餘": "xx 30", "x": "未用", "fail": "true", "eof": "false"}, "line": 1, "output": "12 fail=0\nfail=1 eof=0"}, {"note": "clear 只清狀態，資料仍是 xx 30。", "vars": {"剩餘": "xx 30", "fail": "false", "eof": "false"}, "line": 2, "output": "12 fail=0\nfail=1 eof=0"}, {"note": "以 string 讀掉 xx，再成功讀到整數 30。", "vars": {"剩餘": "空", "badToken": "xx", "x": "30", "fail": "false"}, "line": 4, "output": "12 fail=0\nfail=1 eof=0\nxx then 30"}]</script></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>呼叫 clear 後為什麼可能仍立刻再 fail？</p><details><summary>看解答與理由</summary><p>clear 只重設狀態旗標；造成格式錯的字元仍在輸入序列。還要 ignore 或以適合型別讀掉壞資料。</p></details></div>
+<div class="deck-extra">
+  <div class="dx-label">讓它直接炸給你看</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>};</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">接下來這行會丟例外，而且沒有人接：</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; v.at(<span class="num">99</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">這一行永遠不會被執行</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>接下來這行會丟例外，而且沒有人接：
 
-</section>
-<section id="raii"><div class="section-number">PART 06</div><h2>close、狀態檢查與 RAII</h2>
-<p>close 可以提早釋放檔案，但離開作用域時，fstream/ifstream/ofstream 的解構會自動 close，這是 RAII：資源的生命週期綁在物件生命週期。即使函式提早 return 或例外離開作用域，標準串流物件仍會被銷毀。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="after close: fail=0&#10;after write: fail=1&#10;">#include &lt;fstream&gt;
-#include &lt;iostream&gt;
-using namespace std;
-int main() {
-    ofstream out(&quot;result.txt&quot;);
-    if (!out) return 1;
-    out &lt;&lt; &quot;ready\n&quot;;
-    out.close();
-    cout &lt;&lt; &quot;after close: fail=&quot; &lt;&lt; out.fail() &lt;&lt; &#x27;\n&#x27;;
-    out &lt;&lt; &quot;too late\n&quot;;
-    cout &lt;&lt; &quot;after write: fail=&quot; &lt;&lt; out.fail() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>after close: fail=0&#10;after write: fail=1&#10;</pre></div>
-<p>成功 close 本身不必設定 fail，所以第一次可能是 0；對已關閉的串流再寫才使 fail 變 1。這也說明「closed」不是由 fail 單獨表示，可用 <code>is_open()</code> 查是否仍連到檔案。若要確認寫入／close 成功，應在操作後檢查串流狀態。</p>
-<div class="info-box warm"><div class="info-label">RAII 的實際價值</div><p>優先讓串流在小作用域中自然關閉；需要立刻重新開同一路徑、確認最終寫入錯誤或提早釋放檔案時，再明確 close 並檢查狀態。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>什麼情況仍值得手動 close？</p><details><summary>看解答與理由</summary><p>例如接著要用另一串流開同一檔、需要在程式繼續前確定 flush/close 狀態，或要提早釋放檔案控制代碼。</p></details></div>
+[執行結束碼 -6]
+terminate called after throwing an instance of &#x27;std::out_of_range&#x27;
+  what():  vector::_M_range_check: __n (which is 99) &gt;= this-&gt;size() (which is 3)</pre></div>
+  <p class="dx-note">程式<strong>直接終止</strong>，最後一行永遠不會執行。訊息 <code>terminate called after throwing an instance of …</code> 加上 <code>what()</code> 的內容，已經把「哪一種例外、為什麼」講得很清楚了 —— 這比讀到垃圾值好太多。結束碼 <code>-6</code> 是 <code>SIGABRT</code>，看到它就知道是例外沒接住或 assert 失敗。</p>
+</div>
 
+  <div class="info-box green">
+    <div class="info-label">✅ 沒接住其實常常是對的</div>
+    <p style="margin-bottom:0;">不要為了「讓程式不要當」而到處包 <code>try</code>。<strong>你不知道怎麼處理的錯誤，就讓它炸</strong> —— 帶著清楚訊息的當機，遠好過默默算出錯誤答案。只在你<strong>真的有辦法處理</strong>的地方才 catch。</p>
+  </div>
 </section>
-<section id="exceptions"><div class="section-number">PART 07</div><h2>try、throw、catch 與跨函式傳遞</h2>
-<p>回傳值適合正常結果；例外適合函式無法履行承諾且呼叫者不能就地處理的情況。<code>throw</code> 建立例外並停止目前正常流程；執行期沿呼叫鏈往外找相容的 catch，途中已建立的區域物件會被銷毀。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="input error: n must be positive&#10;program continues&#10;">#include &lt;iostream&gt;
-#include &lt;stdexcept&gt;
-using namespace std;
-int requirePositive(int n) {
-    if (n &lt;= 0) throw invalid_argument(&quot;n must be positive&quot;);
-    return n;
-}
-int doubleChecked(int n) { return requirePositive(n) * 2; }
-int main() {
-    try {
-        cout &lt;&lt; doubleChecked(-3) &lt;&lt; &#x27;\n&#x27;;
-    } catch (const invalid_argument&amp; e) {
-        cout &lt;&lt; &quot;input error: &quot; &lt;&lt; e.what() &lt;&lt; &#x27;\n&#x27;;
-    }
-    cout &lt;&lt; &quot;program continues\n&quot;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>input error: n must be positive&#10;program continues&#10;</pre></div>
-<p>requirePositive 偵測違約後 throw；它沒有 catch，所以 doubleChecked 也立刻離開；main 的 catch 型別匹配 invalid_argument，透過 <code>what()</code> 讀訊息。以 <code>const ...&</code> 捕捉可避免複製並保留實際例外型別。</p>
-<div class="deck-extra lesson-trace" id="p7exception"><h3>互動：例外如何跨函式傳遞</h3><p>逐步看正常流程被中止，以及哪個 catch 接住。</p><pre class="pseudo-code" data-cpp="fragment"><span class="line">int requirePositive(int n) {</span>
-<span class="line">  if (n &lt;= 0) throw invalid_argument(&quot;n must be positive&quot;);</span>
-<span class="line">  return n;</span>
-<span class="line">}</span>
-<span class="line">int doubleChecked(int n) { return requirePositive(n)*2; }</span>
-<span class="line">try { cout &lt;&lt; doubleChecked(-3); }</span>
-<span class="line">catch (const invalid_argument&amp; e) { cout &lt;&lt; "input error: " &lt;&lt; e.what() &lt;&lt; "\n"; }</span>
-<span class="line">cout &lt;&lt; "program continues\n";</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "main 進入 try，呼叫 doubleChecked(-3)。", "vars": {"目前函式": "main", "n": "-3", "例外": "無"}, "line": 5, "output": ""}, {"note": "doubleChecked 再呼叫 requirePositive。", "vars": {"目前函式": "doubleChecked", "n": "-3", "例外": "無"}, "line": 4, "output": ""}, {"note": "條件成立，建立 invalid_argument 並 throw；return 不執行。", "vars": {"目前函式": "requirePositive", "n": "-3", "例外": "invalid_argument"}, "line": 1, "output": ""}, {"note": "doubleChecked 沒有 catch，也不會乘 2；執行期繼續向 main 尋找。", "vars": {"目前函式": "沿呼叫鏈展開", "未執行": "return 與乘 2"}, "line": 4, "output": ""}, {"note": "main 的型別匹配 catch 接住，what() 提供訊息。", "vars": {"目前函式": "main catch", "e.what()": "n must be positive"}, "line": 6, "output": "input error: n must be positive"}, {"note": "catch 結束後繼續執行 main 的下一個敘述。", "vars": {"目前函式": "main，try/catch 之後"}, "line": 7, "output": "input error: n must be positive\nprogram continues"}]</script></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>doubleChecked 的乘 2 為什麼沒有發生？</p><details><summary>看解答與理由</summary><p>requirePositive throw 後，正常表達式求值中止；控制直接沿呼叫鏈尋找 catch。</p></details></div>
 
-</section>
-<section id="standard"><div class="section-number">PART 08</div><h2>標準例外與 at／[] 的界線</h2>
-<p>標準庫已提供常見例外型別，均可經由 <code>std::exception</code> 的 <code>what()</code> 取得說明。選具體型別讓呼叫者知道問題類別；最外層可再用 <code>catch (const exception&amp; e)</code> 作共同處理。</p>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>型別</th><th>表示問題</th><th>常見來源</th></tr></thead><tbody><tr><td><code>invalid_argument</code></td><td>引數值不符合前置條件</td><td>自行檢查輸入</td></tr><tr><td><code>out_of_range</code></td><td>索引／鍵超出有效範圍</td><td>vector::at、map::at、string::at</td></tr><tr><td><code>runtime_error</code></td><td>執行環境導致無法完成</td><td>檔案內容或外部資源錯誤</td></tr><tr><td><code>ios_base::failure</code></td><td>設定為丟例外的串流失敗</td><td>stream exceptions mask</td></tr></tbody></table></div>
-<h3>at 與 [] 的錯誤模型</h3>
-<p>vector 的 <code>v[v.size()]</code> 越界，是未定義行為；vector::at 越界會丟 out_of_range。string 有一條特別界線：對 const string 讀 <code>s[s.size()]</code> 會得到結尾字元 <code>\0</code>，但不能把非零值寫進該位置；大於 size 才越界。string::at(size()) 仍會丟 out_of_range。map 的 [] 缺鍵會插入預設值，map::at 缺鍵則丟 out_of_range。相同符號在不同容器上的契約必須逐一確認。</p>
-<pre class="pseudo-code" data-cpp="run" data-expected="9 range error&#10;1&#10;">#include &lt;iostream&gt;
-#include &lt;map&gt;
-#include &lt;stdexcept&gt;
-#include &lt;string&gt;
-#include &lt;vector&gt;
-using namespace std;
-int main() {
-    vector&lt;int&gt; v{7,9};
-    map&lt;string,int&gt; m{{&quot;tea&quot;,3}};
-    try {
-        cout &lt;&lt; v.at(1) &lt;&lt; &#x27; &#x27; &lt;&lt; m.at(&quot;coffee&quot;) &lt;&lt; &#x27;\n&#x27;;
-    } catch (const out_of_range&amp; e) {
-        cout &lt;&lt; &quot;range error\n&quot;;
-    }
-    cout &lt;&lt; m.size() &lt;&lt; &#x27;\n&#x27;;
-}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>9 range error&#10;1&#10;</pre></div>
-<p>v.at(1) 成功先印 9 和空白；m.at(coffee) 丟例外，所以換行那段不執行，catch 印 range error。at 不插入，map size 仍為 1。輸出第一行的空白正是例外發生前已完成的輸出。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>想讓 map 缺鍵時建立 0 與想讓它報錯，各用什麼？</p><details><summary>看解答與理由</summary><p>建立 0 用 <code>m[k]</code>；要求存在用 <code>m.at(k)</code> 並在合適邊界捕捉 out_of_range。</p></details></div>
+<section id="exercises">
+  <div class="section-number">EX · 隨堂練習</div>
+  <h2>兩題確認觀念</h2>
 
-</section>
-<section id="boundaries"><div class="section-number">PART 09</div><h2>未捕捉例外與處理責任</h2>
-<p>不要每層都 catch 後假裝成功。能補救就 catch；不能補救可不捕捉，讓更外層決定，或補充上下文後重新 throw。若例外一路找不到相容 catch，程式呼叫 <code>std::terminate</code>，通常直接結束。</p>
-<pre class="pseudo-code" data-cpp="fragment">void load() {
-    throw runtime_error(&quot;settings missing&quot;);
-}
-int main() {
-    load(); // 錯誤示例：沒有相容 catch，程式 terminate；不要執行
-}</pre>
-<p>未捕捉例外不是一般的錯誤回傳；main 後續敘述不會繼續。這也是為何應在能向使用者報告、重試或安全結束的邊界捕捉。另一方面，catch(...) 雖能接任何例外，卻拿不到具體型別資訊，通常只適合最外層清理／終止邊界。</p>
-<h3>串流預設用狀態，必要時才改成丟例外</h3>
-<p>串流預設以 fail/eof 等旗標回報，因此 <code>while (in &gt;&gt; x)</code> 不需要 try/catch。可用 <code>in.exceptions(mask)</code> 要求特定狀態改丟 ios_base::failure，但若把 eof 也納入，正常讀到檔尾也會丟，程式設計必須刻意處理。初學讀檔通常保留狀態式介面更清楚。</p>
-<div class="info-box warm"><div class="info-label">責任邊界</div><p>函式偵測到錯誤不代表它最適合決定 UI 訊息或是否結束。底層提供具體錯誤；能採取行動的較外層負責 catch。</p></div>
-<div class="info-box"><div class="info-label">動手練習</div><p>什麼叫「catch 後假裝成功」？</p><details><summary>看解答與理由</summary><p>例如讀檔失敗後 catch(...) 什麼都不做，仍回傳空資料，讓呼叫者誤以為檔案真的為空。應回報、提供替代方案或重新丟出。</p></details></div>
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 1 · 開檔失敗</div>
+    <p><code>ifstream in("data.txt");</code> 檔案不存在時會發生什麼？</p>
+    <div class="quiz-options" id="q1Options">
+      <div class="quiz-opt" data-correct="false" data-fb="不對。C++ 的檔案串流不會為了「檔案不存在」丟例外，除非你自己設定它這麼做。" onclick="quizCheck('q1', this)"><span class="opt-letter">(A)</span> 丟出一個例外</div>
+      <div class="quiz-opt" data-correct="true" data-fb="正確。它只是進入失敗狀態，什麼都不說。之後所有讀取都會失敗但也不報錯，你會拿到零筆資料然後困惑半天。所以開檔之後一定要接一句 if (!in.is_open())。" onclick="quizCheck('q1', this)"><span class="opt-letter">(B)</span> 安靜地進入失敗狀態，要自己用 <code>is_open()</code> 檢查</div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對，那是 ofstream 的行為。ifstream 是讀取用的，不會建立檔案。" onclick="quizCheck('q1', this)"><span class="opt-letter">(C)</span> 自動建立一個空檔案</div>
+    <div class="quiz-opt" onclick="quizCheck('q1', this)" data-correct="false" data-fb="預設只設定串流失敗狀態；後續如何處理由程式決定。"><span class="opt-letter">(D)</span> 程式必定立刻終止</div>
+</div>
+    <div class="quiz-feedback" id="q1Feedback"></div>
+  </div>
 
+  <div class="quiz-box">
+    <div class="quiz-label">EXERCISE 2 · 該用哪個下標</div>
+    <p>你在 debug 一個索引算錯的排序程式。應該把 <code>v[i]</code> 暫時換成什麼？</p>
+    <div class="quiz-options" id="q2Options">
+      <div class="quiz-opt" data-correct="true" data-fb="正確。at() 會檢查範圍，越界時直接丟 out_of_range ；例外訊息的詳細格式依實作而定。比讀到垃圾值再倒推快太多了。需要範圍檢查時可繼續使用 at()。" onclick="quizCheck('q2', this)"><span class="opt-letter">(A)</span> <code>v.at(i)</code></div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。front() 固定回傳第一個元素，跟索引無關。" onclick="quizCheck('q2', this)"><span class="opt-letter">(B)</span> <code>v.front()</code></div>
+      <div class="quiz-opt" data-correct="false" data-fb="不對。data() 回傳的是底層陣列的指標，一樣不檢查範圍，對 debug 沒有幫助。" onclick="quizCheck('q2', this)"><span class="opt-letter">(C)</span> <code>v.data()[i]</code></div>
+    <div class="quiz-opt" onclick="quizCheck('q2', this)" data-correct="false" data-fb="operator[] 不做可依賴的越界例外檢查；要取得 out_of_range 應使用 at(i)。"><span class="opt-letter">(D)</span> v[i]</div>
+</div>
+    <div class="quiz-feedback" id="q2Feedback"></div>
+  </div>
 </section>
-<section id="restore-p7-matrices"><div class="section-number">RESTORED DEPTH</div><h2>把串流與例外的完整骨架集中比較</h2>
-<h3 id="restore-p7-stream-five">檔案串流常用寫法與生命週期</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>作用</th><th>立即檢查</th></tr></thead><tbody><tr><td><code>ifstream in(path)</code></td><td>開檔讀取</td><td><code>if(!in)</code></td></tr><tr><td><code>ofstream out(path)</code></td><td>開檔寫入，既有內容會被截斷</td><td><code>if(!out)</code></td></tr><tr><td><code>ofstream out(path,ios::app)</code></td><td>從尾端追加</td><td>開啟與最後寫入狀態</td></tr><tr><td><code>while(getline(in,line))</code></td><td>成功讀到一整行才處理</td><td>迴圈後分辨 eof 與其他失敗</td></tr><tr><td>離開作用域</td><td>RAII 自動關閉串流</td><td>若需確認最終錯誤則明確 close 後檢查</td></tr><tr><td><code>in &gt;&gt; word</code></td><td>依目標型別擷取一項，字串以空白分隔</td><td>檢查本次擷取是否成功，再使用結果</td></tr></tbody></table></div>
-<h3 id="restore-p7-exception-flow">例外語法、控制流與資源效果</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>C++ 寫法</th><th>控制流</th><th>資源／資訊</th></tr></thead><tbody><tr><td><code>try { work(); }</code></td><td>圈住可能 throw 的操作</td><td>不會自行吞掉錯誤</td></tr><tr><td><code>throw invalid_argument(msg)</code></td><td>立即離開正常路徑並向外尋找 catch</td><td>建立具體例外物件</td></tr><tr><td><code>catch(const T&amp; e)</code></td><td>型別相容才接住</td><td>const reference 避免複製與 slicing</td></tr><tr><td><code>e.what()</code></td><td>不改變控制流</td><td>取得例外說明</td></tr><tr><td>stack unwinding</td><td>逐層離開尚未完成的函式</td><td>沿途區域物件解構，RAII 資源收回</td></tr></tbody></table></div>
-<h3 id="restore-p7-standard-table">常見標準例外與具體觸發來源</h3>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>型別</th><th>真實來源</th><th>本套頁面去向</th></tr></thead><tbody><tr><td><code>out_of_range</code></td><td><code>vector::at</code>、<code>string::at</code>、<code>map::at</code></td><td>P5、P6、P7</td></tr><tr><td><code>invalid_argument</code></td><td><code>stoi("abc")</code> 或函式拒絕不合法引數</td><td>P5 文字轉換、P7</td></tr><tr><td><code>bad_alloc</code></td><td>一般 throwing <code>new</code> 配置失敗</td><td>P4 對照 nothrow 模式</td></tr><tr><td><code>runtime_error</code></td><td>執行環境使操作無法完成</td><td>P9 自訂例外基底</td></tr><tr><td><code>ios_base::failure</code></td><td>串流設定 exceptions mask 後的 I/O 失敗</td><td>本頁；預設串流仍使用狀態旗標</td></tr></tbody></table></div>
-<h3 id="restore-p7-resources">查閱入口</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>資源</th><th>查閱重點</th></tr></thead><tbody><tr><td><a href="https://en.cppreference.com/w/cpp/io/basic_fstream" target="_blank" rel="noopener">fstream</a></td><td>開啟模式、讀寫與close</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/io/ios_base/iostate" target="_blank" rel="noopener">iostate</a></td><td>goodbit、eofbit、failbit、badbit</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/error/exception" target="_blank" rel="noopener">exceptions</a></td><td>標準例外階層、what與捕捉</td></tr></tbody></table></div>
-</section>
-<section id="reference"><div class="section-number">PART 10</div><h2>語法速查與完整檢核</h2>
-<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>任務</th><th>可靠寫法</th><th>避免</th></tr></thead><tbody><tr><td>開檔</td><td>建構/open 後立即檢查串流</td><td>只檢查路徑字串</td></tr><tr><td>逐筆讀</td><td><code>while (in &gt;&gt; ...)</code></td><td><code>while(!eof())</code></td></tr><tr><td>逐行解析</td><td>getline + istringstream</td><td>一列壞資料卡死整檔</td></tr><tr><td>追加</td><td><code>ios::app</code></td><td>誤用預設截斷</td></tr><tr><td>資源釋放</td><td>小作用域 RAII</td><td>依賴每條路徑手寫 close</td></tr><tr><td>可恢復錯誤</td><td>具體 catch</td><td>空的 catch(...)</td></tr></tbody></table></div>
-<p>參考：<a href="https://en.cppreference.com/w/cpp/io/basic_fstream" target="_blank" rel="noopener">file streams</a>、<a href="https://en.cppreference.com/w/cpp/io/basic_ios/rdstate" target="_blank" rel="noopener">stream state</a>、<a href="https://en.cppreference.com/w/cpp/error/exception" target="_blank" rel="noopener">std::exception</a>。</p>
-<div class="info-box"><div class="info-label">動手練習</div><p>設計「讀設定檔」流程：哪裡檢查、哪裡解析、哪裡報告？</p><details><summary>看解答與理由</summary><p>開檔後立刻檢查；逐行 getline，再以 istringstream 驗證欄位；底層丟具體錯誤或回報結果，main 等能向使用者說明的邊界統一處理。</p></details></div>
 
-<p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
+<section id="reference">
+  <div class="section-number">REFERENCE · 速查表</div>
+  <h2>P7 速查表</h2>
+
+<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;fstream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span></span>
+<span class="line" data-l="4"><span class="com">// 讀</span>
+<span class="line" data-l="5"></span>ifstream in(<span class="str">"</span><span class="str">data.txt</span><span class="str">"</span>);</span>
+<span class="line" data-l="6"><span class="kw">if</span> (!in.is_open()) { <span class="com">/* 處理開檔失敗 */</span> }</span>
+<span class="line" data-l="7">string line;</span>
+<span class="line" data-l="8"><span class="kw">while</span> (getline(in, line)) { <span class="com">/* 逐行處理 */</span> }</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10"><span class="com">// 寫（"a.txt" 會被清空；要附加用 ios::app）</span>
+<span class="line" data-l="11"></span>ofstream out(<span class="str">"</span><span class="str">out.txt</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">out &lt;&lt; <span class="str">"</span><span class="str">一行內容</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="13"><span class="com">// 不必 close()，離開範圍時解構式會自動關</span>
+<span class="line" data-l="14"></span></span>
+<span class="line" data-l="15"><span class="com">// 例外</span>
+<span class="line" data-l="16"></span><span class="kw">try</span> {</span>
+<span class="line" data-l="17">    cout &lt;&lt; v.at(i);                 <span class="com">// 越界會丟 out_of_range</span>
+<span class="line" data-l="18"></span>} <span class="kw">catch</span> (<span class="kw">const</span> out_of_range&amp; e) {</span>
+<span class="line" data-l="19">    cout &lt;&lt; e.what();</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span>
+<span class="line" data-l="22"><span class="com">// 自訂例外：繼承 runtime_error 就好</span>
+<span class="line" data-l="23"></span><span class="kw">class</span> MyError : <span class="kw">public</span> runtime_error {</span>
+<span class="line" data-l="24">    <span class="kw">public</span>:</span>
+<span class="line" data-l="25">        MyError() : runtime_error(<span class="str">"</span><span class="str">說清楚哪裡出錯</span><span class="str">"</span>) { }</span>
+<span class="line" data-l="26">};</span>
+<span class="line" data-l="27"><span class="kw">throw</span> MyError();</span>
+<span class="line" data-l="28"> </span></div>
+
+  <div class="info-box green">
+    <p style="margin-bottom:0;">① <code>ifstream</code> 開完一定要檢查 <code>is_open()</code>。<br>
+    ② 相對路徑是相對於<strong>執行時的工作目錄</strong>。<br>
+    ③ debug 時把 <code>[]</code> 換成 <code>at()</code>。<br>
+    ④ 只接住你真的有辦法處理的例外，其餘讓它炸。</p>
+  </div>
+
+  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/io/basic_fstream" target="_blank" rel="noopener">cppreference · fstream</a></td><td>開檔模式與串流狀態的完整說明。</td></tr>
+      <tr><td><a href="https://en.cppreference.com/w/cpp/error/exception" target="_blank" rel="noopener">cppreference · Exceptions</a></td><td>標準例外的完整階層。</td></tr>
+      <tr><td><a href="introduction.html">本站</a></td><td>程式唯一示範例外處理的地方。</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：檔案與例外 <span class="sec-badge">隨堂自測 · 14 題</span></h2>
+  <h2>自我檢測：檔案與例外 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>相對路徑 data/a.txt 以哪裡為起點？</div>
+    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
+    <pre class="sq-code">vector&lt;int&gt; v = {10, 20, 30};
+try {
+    cout &lt;&lt; v.at(10);
+} catch (const out_of_range&amp; e) {
+    cout &lt;&lt; &quot;接住了&quot;;
+}
+cout &lt;&lt; &quot;|繼續&quot;;</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="相對路徑由 working directory 解析。"><span class="opt-letter">(A)</span> 程式執行時的 working directory</button>
-      <button class="sq-opt" data-c="0" data-fb="原始碼位置只描述文字檔在哪裡，程序不會自動從該目錄啟動。"><span class="opt-letter">(B)</span> 原始碼檔所在處</button>
-      <button class="sq-opt" data-c="0" data-fb="編譯器安裝目錄只供建置時尋找工具，不決定已啟動程式的cwd。"><span class="opt-letter">(C)</span> 編譯器安裝處</button>
-      <button class="sq-opt" data-c="0" data-fb="家目錄只有在程序恰好從那裡啟動時才是cwd，並非固定規則。"><span class="opt-letter">(D)</span> 使用者家目錄固定</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。at() 會檢查範圍，越界時丟 out_of_range，被 catch 接住之後程式繼續往下跑。這正是例外的價值：出錯不等於整支程式陣亡。"><span class="opt-letter">(A)</span> 接住了|繼續</button>
+      <button class="sq-opt" data-c="0" data-fb="v.at(10) 會檢查範圍並拋出例外；若改成 v[10] 則是未定義行為，連「讀到垃圾值」都不能保證。"><span class="opt-letter">(B)</span> 一個垃圾值然後 |繼續</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。例外有被 catch 接住，所以不會終止。沒接住才會。"><span class="opt-letter">(C)</span> 程式直接終止</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是標準的例外處理寫法，需要 #include &lt;stdexcept&gt;。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>ofstream 預設重開既有檔案與 ios::app 的差別？</div>
+    <div class="sq-q"><span class="sq-num">Q2.</span>ifstream in(&quot;data.txt&quot;); 而 data.txt 不存在時會發生什麼？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="寫日誌要明確用 app。"><span class="opt-letter">(A)</span> 前者通常截斷；app 保留並從尾端追加</button>
-      <button class="sq-opt" data-c="0" data-fb="預設模式與app的寫入位置不同；前者截斷、後者保留原內容。"><span class="opt-letter">(B)</span> 兩者完全相同</button>
-      <button class="sq-opt" data-c="0" data-fb="ios::app是輸出位置模式，不是讀取權限；ofstream仍然用來寫。"><span class="opt-letter">(C)</span> app 只允許讀</button>
-      <button class="sq-opt" data-c="0" data-fb="普通ofstream預設會截斷既有檔案，不會保留後追加。"><span class="opt-letter">(D)</span> 預設一定追加</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。C++ 的檔案串流預設不為此丟例外。你如果不用 is_open() 檢查就直接讀，會拿到零筆資料然後困惑半天。開檔之後一定要接一句檢查。"><span class="opt-letter">(A)</span> 安靜地進入失敗狀態，之後所有讀取都失敗但也不報錯</button>
+      <button class="sq-opt" data-c="0" data-fb="C++ 沒有 FileNotFoundError 這個標準例外型別；ifstream 在預設例外遮罩下以失敗狀態回報開檔失敗。"><span class="opt-letter">(B)</span> 丟出 FileNotFoundError</button>
+      <button class="sq-opt" data-c="0" data-fb="不對，那是 ofstream 的行為。ifstream 是讀取用的。"><span class="opt-letter">(C)</span> 自動建立一個空檔案</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。它什麼都不做，繼續往下執行——這才是危險的地方。"><span class="opt-letter">(D)</span> 程式直接終止</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>可靠讀整數迴圈應寫？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="把讀取放在條件，成功才處理。"><span class="opt-letter">(A)</span> while (in &gt;&gt; x)</button>
-      <button class="sq-opt" data-c="0" data-fb="eof要在一次讀取碰到檔尾後才設定，!eof會讓最後失敗讀取前多進一圈。"><span class="opt-letter">(B)</span> while (!in.eof())</button>
-      <button class="sq-opt" data-c="0" data-fb="good是在讀取前檢查舊狀態；本體中的讀取仍可能失敗，卻繼續use舊x。"><span class="opt-letter">(C)</span> while (in.good()) { in &gt;&gt; x; use(x); }</button>
-      <button class="sq-opt" data-c="0" data-fb="x的數值不是串流可否再讀的狀態；x為0也可能仍有輸入。"><span class="opt-letter">(D)</span> while (x)</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>格式錯後呼叫 clear() 做了什麼？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="clear 不移動讀取位置。"><span class="opt-letter">(A)</span> 清狀態旗標，但壞 token 仍需移除</button>
-      <button class="sq-opt" data-c="0" data-fb="clear只重設狀態位，不會刪檔案或改檔案內容。"><span class="opt-letter">(B)</span> 刪除整個檔案</button>
-      <button class="sq-opt" data-c="0" data-fb="造成格式錯的token仍停在輸入位置，clear不會自動略過它。"><span class="opt-letter">(C)</span> 自動跳過壞 token</button>
-      <button class="sq-opt" data-c="0" data-fb="clear不是close；串流仍連到原來源，只是允許再次嘗試操作。"><span class="opt-letter">(D)</span> 關閉串流</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>eof() 何時可靠變 true？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="因此不要用 !eof() 預測下一次讀取。"><span class="opt-letter">(A)</span> 一次讀取嘗試碰到檔尾之後</button>
-      <button class="sq-opt" data-c="0" data-fb="讀最後一筆之前尚未碰到尾端，不能預先知道eof。"><span class="opt-letter">(B)</span> 讀最後一筆之前</button>
-      <button class="sq-opt" data-c="0" data-fb="成功開檔不代表已讀到檔尾；eof由讀取操作設定。"><span class="opt-letter">(C)</span> 開檔時</button>
-      <button class="sq-opt" data-c="0" data-fb="getline開始前eof可能尚未設定，必須看這次讀取的結果。"><span class="opt-letter">(D)</span> 每次 getline 前</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>若 eofbit 單獨設定，fail() 一定為 true 嗎？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"><span class="opt-letter">(A)</span> 不一定；fail() 檢查 failbit 或 badbit</button>
-      <button class="sq-opt" data-c="0" data-fb="fail只檢查failbit或badbit；只有eofbit時不必為true。"><span class="opt-letter">(B)</span> 一定</button>
-      <button class="sq-opt" data-c="0" data-fb="輸出串流也使用同一iostate定義，不存在「輸出時eof一定令fail」的特例。"><span class="opt-letter">(C)</span> 只有輸出串流一定</button>
-      <button class="sq-opt" data-c="0" data-fb="good要求所有狀態位都未設定；eofbit已存在時good必為false。"><span class="opt-letter">(D)</span> good() 一定為 true</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q7.</span>離開區域作用域後 ofstream 通常如何處理？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="這是 RAII。"><span class="opt-letter">(A)</span> 解構並自動關檔</button>
-      <button class="sq-opt" data-c="0" data-fb="ofstream是區域物件，離開作用域會解構，不會永遠保持開啟。"><span class="opt-letter">(B)</span> 永遠保持開啟</button>
-      <button class="sq-opt" data-c="0" data-fb="資源會由解構式釋放；leak不是語言要求，而是錯誤所有權結果。"><span class="opt-letter">(C)</span> 必須 leak</button>
-      <button class="sq-opt" data-c="0" data-fb="關閉串流只釋放檔案連結，不會把磁碟上的檔案刪除。"><span class="opt-letter">(D)</span> 自動刪除檔案</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q8.</span>對已 close 的 out 再寫，應如何確認失敗？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="close 成功本身可不 fail；後續無效寫入才設定狀態。"><span class="opt-letter">(A)</span> 寫入後檢查 fail() 或串流條件</button>
-      <button class="sq-opt" data-c="0" data-fb="eof描述輸入碰到檔尾，不能診斷對已關閉輸出串流的寫入。"><span class="opt-letter">(B)</span> 只查 eof()</button>
-      <button class="sq-opt" data-c="0" data-fb="檔名長度與串流是否仍開啟、寫入是否成功完全無關。"><span class="opt-letter">(C)</span> 檢查檔名長度</button>
-      <button class="sq-opt" data-c="0" data-fb="成功close本身不必設fail；應在其後無效寫入完成後檢查狀態。"><span class="opt-letter">(D)</span> close 一定先設 fail</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q9.</span>throw 發生後，控制流程去哪裡？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="沿途正常敘述不執行，區域物件會被銷毀。"><span class="opt-letter">(A)</span> 沿呼叫鏈尋找型別相容的 catch</button>
-      <button class="sq-opt" data-c="0" data-fb="throw會中止目前正常路徑，不會固定繼續執行下一行。"><span class="opt-letter">(B)</span> 總是下一行</button>
-      <button class="sq-opt" data-c="0" data-fb="搜尋依呼叫鏈與catch位置進行，不是無條件跳到main第一行。"><span class="opt-letter">(C)</span> 總是 main 第一行</button>
-      <button class="sq-opt" data-c="0" data-fb="例外不是函式回傳值，未捕捉時也不會自動替函式回傳0。"><span class="opt-letter">(D)</span> 自動回傳 0</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q10.</span>vector::at 越界與 operator[] 越界差別？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="[] 不做可靠界線檢查。"><span class="opt-letter">(A)</span> at 丟 out_of_range；[] 是未定義行為</button>
-      <button class="sq-opt" data-c="0" data-fb="at與[]都不承諾越界回0；把垃圾結果當0會掩蓋未定義行為。"><span class="opt-letter">(B)</span> 兩者都回 0</button>
-      <button class="sq-opt" data-c="0" data-fb="vector的[]不做範圍檢查，越界不保證丟任何例外。"><span class="opt-letter">(C)</span> [] 丟例外</button>
-      <button class="sq-opt" data-c="0" data-fb="at只檢查並回報out_of_range，不會擴張vector或插入元素。"><span class="opt-letter">(D)</span> at 插入元素</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q11.</span>const string s 的 s[s.size()] 與 s.at(s.size()) 差別？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"><span class="opt-letter">(A)</span> 前者可讀結尾 \0；後者丟 out_of_range</button>
-      <button class="sq-opt" data-c="0" data-fb="string在恰好size位置有唯讀結尾字元特例，不能把它與大於size的越界混為一談。"><span class="opt-letter">(B)</span> 兩者都越界未定義</button>
-      <button class="sq-opt" data-c="0" data-fb="讀取結尾字元不會插入；at(size)則直接丟例外，兩者都不增加size。"><span class="opt-letter">(C)</span> 兩者都插入字元</button>
-      <button class="sq-opt" data-c="0" data-fb="npos是find失敗值，不是at的越界回傳；at以out_of_range回報。"><span class="opt-letter">(D)</span> at 回 npos</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q12.</span>map::at 缺鍵與 map::operator[] 缺鍵差別？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="唯讀且要求存在時用 at 或 find。"><span class="opt-letter">(A)</span> at 丟 out_of_range；[] 插入預設值</button>
-      <button class="sq-opt" data-c="0" data-fb="map::at缺鍵不插入，而operator[]才會建立預設mapped value。"><span class="opt-letter">(B)</span> 兩者都插入</button>
-      <button class="sq-opt" data-c="0" data-fb="find缺鍵才回end；at與[]回值/參考或丟例外，不回iterator哨兵。"><span class="opt-letter">(C)</span> 兩者都回 end</button>
-      <button class="sq-opt" data-c="0" data-fb="operator[]缺鍵不丟例外，它建立value-initialized值後回傳參考。"><span class="opt-letter">(D)</span> [] 丟例外</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q13.</span>例外一路沒有 catch 會怎樣？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="應在能採取行動的邊界捕捉。"><span class="opt-letter">(A)</span> 呼叫 terminate，程式不繼續正常流程</button>
-      <button class="sq-opt" data-c="0" data-fb="沒有catch時例外不會被忽略，執行期會終止正常流程。"><span class="opt-letter">(B)</span> 自動忽略</button>
-      <button class="sq-opt" data-c="0" data-fb="例外機制不會自行重試throw前的操作；重試必須由程式明寫。"><span class="opt-letter">(C)</span> 自動重試</button>
-      <button class="sq-opt" data-c="0" data-fb="failbit屬串流狀態，不是任意未捕捉例外的自動轉換結果。"><span class="opt-letter">(D)</span> 轉為 failbit</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q14.</span>例外沿呼叫鏈尋找catch時，沿途區域串流物件如何處理？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="stack unwinding會銷毀已建立的區域物件。"><span class="opt-letter">(A)</span> 解構並依RAII關閉資源</button>
-      <button class="sq-opt" data-c="0" data-fb="stack unwinding會逐層銷毀區域物件，不會讓區域串流永久存活。"><span class="opt-letter">(B)</span> 全部永久留在記憶體</button>
-      <button class="sq-opt" data-c="0" data-fb="清理發生在throw到catch之間被離開的每個作用域，不只catch內。"><span class="opt-letter">(C)</span> 只有catch內物件解構</button>
-      <button class="sq-opt" data-c="0" data-fb="RAII解構不要求每層都有catch；例外穿過該層時照樣清理。"><span class="opt-letter">(D)</span> 必須每層catch才會關檔</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-</section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p6_map_set.html"><div class="nav-dir">上一頁</div><div class="nav-title">map、set 與迭代器</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p8_oop_basics.html"><div class="nav-dir">下一頁</div><div class="nav-title">類別與物件</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "檔案輸入輸出串流（ifstream / ofstream）", "back": "檔案輸入／輸出串流；開啟後立即檢查狀態。"}, {"front": "工作目錄（working directory）", "back": "相對路徑的起點，是程式啟動位置，不一定是原始碼位置。"}, {"front": "追加模式（ios::app）", "back": "從檔案尾端追加；ofstream 預設通常會截斷舊內容。"}, {"front": "讀取作為條件（while (in >> x)）", "back": "讀取成功才進入迴圈，避免 eof 反模式。"}, {"front": "逐行讀取（getline）", "back": "讀到換行；適合保留完整一列。"}, {"front": "輸入字串串流（istringstream）", "back": "把 string 當輸入串流解析，壞列不污染外層檔案串流。"}, {"front": "串流正常與失敗（good / fail）", "back": "good 表示無錯；fail 表示格式、開啟等操作失敗。"}, {"front": "檔尾與嚴重錯誤（eof / bad）", "back": "eof 表示讀取碰到尾端；bad 表示較嚴重 I/O 錯誤。"}, {"front": "失敗狀態旗標（failbit / badbit）", "back": "fail() 在 failbit 或 badbit 任一設定時為 true；eofbit 單獨存在不必使 fail() 為 true。"}, {"front": "清除狀態（clear()）", "back": "清串流狀態旗標，不會移除造成格式錯的資料。"}, {"front": "資源取得即初始化（RAII）", "back": "資源生命週期綁在物件上；串流離開作用域自動關檔。"}, {"front": "拋出例外（throw）", "back": "建立例外並中止目前正常流程，沿呼叫鏈尋找 catch。"}, {"front": "捕捉例外（catch (const T& e)）", "back": "依型別接例外，以 const reference 避免複製並可呼叫 what。"}, {"front": "無效引數例外（invalid_argument）", "back": "引數值違反函式前置條件。"}, {"front": "超出範圍例外（out_of_range）", "back": "at 的索引或鍵無效時使用的標準例外。"}, {"front": "字串大小邊界（string size boundary）", "back": "const string 可讀 s[s.size()] 得結尾 \\0；不可寫非零值，且 at(size()) 仍丟 out_of_range。"}, {"front": "執行期錯誤（runtime_error）", "back": "執行環境使操作無法完成的通用標準例外。"}, {"front": "未捕捉例外（uncaught exception）", "back": "一路找不到相容 catch 時呼叫 terminate，程式不再走正常流程。"}, {"front": "例外堆疊展開（stack unwinding）", "back": "throw後沿呼叫鏈找catch，沿途已建立的區域物件會解構，讓RAII資源收回。"}, {"front": "配置失敗例外（bad_alloc）", "back": "一般throwing new配置失敗會丟bad_alloc；P4的nothrow版本改回nullptr。"}, {"front": "例外（Exception）", "back": "在正常結果無法產生時傳遞的錯誤值；執行期沿呼叫鏈尋找相容的handler。"}, {"front": "例外訊息（what()）", "back": "標準例外介面提供的說明文字；程式判斷類別通常依例外型別，而不是假設各平台訊息完全相同。"}, {"front": "界線檢查與下標（at / operator[]）", "back": "at以例外回報非法存取；[]依容器各自規則處理，vector和map的行為不同。"}, {"front": "全包捕捉（catch-all Handler, catch (...)）", "back": "可接住任意例外，但沒有具體參數可讀訊息；不應吞掉錯誤後假裝成功。"}];
+    <div class="sq-q"><span class="sq-num">Q3.</span>假設檔案開啟、寫入與讀取皆成功，以下片段印出什麼？</div>
+    <pre class="sq-code">ofstream out(&quot;log.txt&quot;);   // log.txt 原本有 100 行
+out &lt;&lt; &quot;新的一行&quot; &lt;&lt; endl;
+out.close();
 
-/* depth-runtime:start */
-(() => {
- const esc = v => String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
- document.querySelectorAll('.lesson-trace').forEach(root => {
-   const frames=JSON.parse(root.querySelector('.trace-data').textContent);
-   let index=0,timer=null;const play=root.querySelector('[data-action="play"]');
-   const stop=()=>{clearInterval(timer);timer=null;};
-   function draw(){
-     const frame=frames[index];
-     root.querySelector('.trace-note').textContent=frame.note;
-     root.querySelector('.trace-vars').innerHTML='<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>名稱／狀態</th><th>目前的值</th></tr></thead><tbody>'+Object.entries(frame.vars||{}).map(([k,v])=>'<tr><td>'+esc(k)+'</td><td>'+esc(v)+'</td></tr>').join('')+'</tbody></table></div>';
-     root.querySelector('.trace-output').textContent=frame.output ? '目前輸出：\n'+frame.output : '目前尚無輸出';
-     root.querySelectorAll('.line').forEach((el,i)=>el.classList.toggle('active',i===frame.line));
-     play.textContent=timer?'⏸ 暫停':index===frames.length-1?'↻ 重播':'▶ 播放';
-     root.dataset.frame=String(index);root.dataset.frames=String(frames.length);
-   }
-   function next(){index=Math.min(index+1,frames.length-1);if(index===frames.length-1)stop();draw();}
-   play.onclick=()=>{if(timer){stop();draw();return;}if(index===frames.length-1)index=0;timer=setInterval(next,850);draw();};
-   root.querySelector('[data-action="next"]').onclick=()=>{stop();next();};
-   root.querySelector('[data-action="prev"]').onclick=()=>{stop();index=Math.max(0,index-1);draw();};
-   root.querySelector('[data-action="reset"]').onclick=()=>{stop();index=0;draw();};draw();
- });
- document.querySelectorAll('.sq-item').forEach(q=>q.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{
-   q.querySelectorAll('.sq-opt').forEach(x=>x.classList.remove('correct','wrong'));
-   const good=b.dataset.c==='1';b.classList.add(good?'correct':'wrong');
-   const f=q.querySelector('.sq-fb');f.textContent=b.dataset.fb;f.className='sq-fb show '+(good?'good':'bad');
- }));
- const grid=document.getElementById('fcGrid');
- function render(cards){grid.innerHTML=cards.map(c=>'<div class="fc-card" tabindex="0" role="button" aria-pressed="false"><div class="fc-inner"><div class="fc-face fc-front">'+esc(c.front)+'</div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');}
- function flip(card,on){card.classList.toggle('flipped',on);card.setAttribute('aria-pressed',String(card.classList.contains('flipped')));}
- grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)flip(c,!c.classList.contains('flipped'));};
- grid.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){const c=e.target.closest('.fc-card');if(c){e.preventDefault();flip(c,!c.classList.contains('flipped'));}}};
- document.getElementById('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,true));
- document.getElementById('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>flip(c,false));
- document.getElementById('fcShuffle').onclick=()=>{const a=[...FLASHCARDS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}render(a);};render(FLASHCARDS);
- const links=[...document.querySelectorAll('.float-nav a[data-target]')];
- const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('active',a.dataset.target===e.target.id));}),{rootMargin:'-10% 0px -65% 0px'});
- document.querySelectorAll('section[id]').forEach(el=>observer.observe(el));
+ifstream in(&quot;log.txt&quot;);
+string line;
+int n = 0;
+while (getline(in, line)) n++;
+cout &lt;&lt; n;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。ofstream 預設會清空原檔案內容再寫。想附加到結尾必須傳 ios::app。這是不可逆的資料遺失，而且沒有任何警告。"><span class="opt-letter">(A)</span> 1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對，那是 ios::app 模式的行為。預設是清空重寫。"><span class="opt-letter">(B)</span> 101</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。寫入一定會發生，問題在於它先把舊內容清掉了。"><span class="opt-letter">(C)</span> 100</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。新的那一行確實寫進去了。"><span class="opt-letter">(D)</span> 0</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q4.</span>你在 debug 一個索引算錯的程式。把 v[i] 換成 v.at(i) 有什麼好處？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。vector 的 [] 越界是未定義行為，at 則有範圍檢查。what() 的訊息細節依實作而異；需要檢查時可繼續使用 at。"><span class="opt-letter">(A)</span> 索引越界時明確拋出 out_of_range，可在 catch 處處理</button>
+      <button class="sq-opt" data-c="0" data-fb="at 的語意是增加範圍檢查，不是保證加速。實際是否有額外執行成本也取決於最佳化。"><span class="opt-letter">(B)</span> at() 執行比較快</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。它不會修正你的錯誤，只會誠實地告訴你越界了。"><span class="opt-letter">(C)</span> at() 會自動把索引調整到合法範圍</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。一個檢查範圍一個不檢查，這是它們唯一但關鍵的差別。"><span class="opt-letter">(D)</span> 沒有差別，兩者完全一樣</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q5.</span>接住 const runtime_error&amp; e 後，e.what() 的用途是什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。what() 提供錯誤描述，例如 throw runtime_error(&quot;資料格式錯誤&quot;) 所給的訊息；它不會自行修復錯誤。"><span class="opt-letter">(A)</span> 取得描述這個例外的訊息</button>
+      <button class="sq-opt" data-c="0" data-fb="what() 只取得訊息，不會讓控制流程回到 throw 之前。"><span class="opt-letter">(B)</span> 重新執行失敗的敘述</button>
+      <button class="sq-opt" data-c="0" data-fb="串流狀態要透過串流自己的介面管理，與例外的 what() 不同。"><span class="opt-letter">(C)</span> 清除所有檔案串流的失敗狀態</button>
+      <button class="sq-opt" data-c="0" data-fb="what() 是查詢訊息的成員函式，不會主動終止程式。"><span class="opt-letter">(D)</span> 結束整支程式</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q6.</span>一個例外沒有被任何 catch 接住，會發生什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。未捕捉的例外會呼叫 std::terminate；預設終止處理會結束程式，診斷文字、訊號與結束碼依實作和環境而異。"><span class="opt-letter">(A)</span> 呼叫 std::terminate，程式無法沿原路徑繼續執行</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。例外會一路往上傳，沒人接就終止整支程式，後面的程式碼不會執行。"><span class="opt-letter">(B)</span> 程式會跳過那一行繼續執行</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。C++ 不強制檢查例外，編譯器不會要求你處理它。"><span class="opt-letter">(C)</span> 編譯器會在編譯時就攔下來</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。例外的價值就在於它不會被無視。"><span class="opt-letter">(D)</span> 例外會被自動忽略</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+</section>
+<section id="cards">
+  <div class="section-number">CARDS · 關鍵詞彙卡</div>
+  <h2>關鍵詞彙卡：點卡片翻面</h2>
+  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <div class="fc-controls">
+    <button id="fcShuffle">🔀 洗牌</button>
+    <button id="fcFlipAll">全部翻面</button>
+    <button id="fcUnflip">全部翻回</button>
+  </div>
+  <div class="fc-grid" id="fcGrid"></div>
+</section>
+<div class="chapter-nav"><a class="prev" href="p6_map_set.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">map、set 與迭代器</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p8_oop_basics.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">物件導向（基礎）</div></a></div>
+</div>
+
+<footer>
+  先備知識 P7 · 檔案與例外 · 資料結構 × C++ 互動自學網站<br>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
+</footer>
+
+<script>
+/* ============ shared utilities ============ */
+const $ = id => document.getElementById(id);
+
+function quizCheck(quizId, optEl) {
+  const isCorrect = optEl.dataset.correct === 'true';
+  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
+  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  const fb = $(quizId + 'Feedback');
+  fb.classList.remove('correct','wrong');
+  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+}
+
+function hlLine(rootId, n) {
+  const root = $(rootId);
+  if (!root) return;
+  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+  if (n != null) {
+    const line = root.querySelector(`.line[data-l="${n}"]`);
+    if (line) line.classList.add('active');
+  }
+}
+
+/* player-v2 */
+/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
+   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
+   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
+   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
+class Player {
+  constructor({frames, apply, delayInput, onDone}) {
+    this.frames = frames; this.apply = apply;
+    this.delayInput = delayInput; this.i = -1; this.timer = null;
+    this.playing = false; this._delay = null; this._done = false;
+    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
+    this.onDone = onDone || (()=>{});
+  }
+  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
+  _d() {
+    if (this._delay != null) return this._delay;
+    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
+  }
+  setDelay(ms) { this._delay = ms; }
+  _advance() {
+    if (this.i + 1 >= this.frames.length) {
+      this.pause();
+      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
+      return false;
+    }
+    this.i += 1; this.apply(this.frames[this.i]);
+    return true;
+  }
+  step() { this.pause(); this._advance(); }
+  play() {
+    this.pause(); this.playing = true;
+    const tick = () => {
+      if (!this.playing) return;
+      if (!this._advance()) return;
+      this.timer = setTimeout(tick, this._d());
+    };
+    tick();
+    this._sync();
+  }
+  pause() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    this.playing = false;
+    this._sync();
+  }
+  toggle(btn) {
+    if (btn) this._btn = btn;
+    if (this.playing) this.pause();
+    else {
+      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
+      this.play();
+    }
+  }
+  stop() { this.pause(); }
+  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
+}
+/* /player-v2 */
+
+function setStatus(id, html) {
+  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+}
+
+/* vertical box stack renderer (DOM) */
+function renderBoxStack(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  const hl = opts.highlight ?? -1;   // index from top (0 = top)
+  el.innerHTML = '';
+  const label = document.createElement('div');
+  label.className = 'bs-toplabel';
+  label.textContent = items.length ? 'top ↓' : '(empty)';
+  el.appendChild(label);
+  items.slice().reverse().forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+
+/* horizontal queue renderer: front at left */
+function renderBoxQueue(containerId, items, opts={}) {
+  const el = $(containerId); if (!el) return;
+  el.innerHTML = '';
+  const front = document.createElement('div');
+  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
+  el.appendChild(front);
+  items.forEach((v, idx) => {
+    const d = document.createElement('div');
+    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+  const rear = document.createElement('div');
+  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
+  el.appendChild(rear);
+}
+
+/* ---------- PART 03 · try/catch 執行路徑逐步器 ---------- */
+let excPlayer = null;
+function excRender(stack) {
+  const el = $('excStack'); if (!el) return;
+  el.innerHTML = '';
+  const lab = document.createElement('div');
+  lab.className = 'mono';
+  lab.style.cssText = 'font-size:.7rem;letter-spacing:1px;color:var(--accent3);font-weight:700;';
+  lab.textContent = stack.length ? 'CALL STACK →' : 'CALL STACK（空的）';
+  el.appendChild(lab);
+  stack.forEach(fr => {
+    const d = document.createElement('div');
+    d.className = 'bq-item';
+    d.textContent = fr.name;
+    if (fr.state === 'run') d.style.cssText = 'box-shadow:0 0 0 3px var(--node-current);';
+    else if (fr.state === 'gone') d.style.cssText = 'opacity:.35;text-decoration:line-through;';
+    else d.style.cssText = 'opacity:.6;';
+    el.appendChild(d);
+  });
+}
+function excFrames(thrown) {
+  const F = [];
+  const snap = (line, stack, msg) => F.push({line, stack, msg});
+  const M = s => ({name: 'main', state: s});
+  const R = s => ({name: 'readAge', state: s});
+
+  snap(14, [M('run')], 'main 進入 <code>try</code>。這個區塊只圈住真正可能失敗的那兩行，範圍越小越好找錯。');
+  snap(15, [M('wait'), R('run')], '呼叫 <code>readAge()</code>，它的框疊到 main 上面。main 停在這裡等回傳。');
+  if (!thrown) {
+    snap(6, [M('wait'), R('run')], '<code>cin &gt;&gt; age</code> 讀進 <code>20</code>。');
+    snap(7, [M('wait'), R('run')], '檢查 <code>age &lt; 0</code>？20 不成立，整個 <code>throw</code> 被跳過。');
+    snap(10, [M('wait'), R('run')], '<code>return age;</code> —— 正常回傳 20，<code>readAge</code> 的框正常收掉。');
+    snap(16, [M('run')], '回到 main，印出「年齡：20」。<strong>這條路上 catch 一次都沒被碰到</strong>，它只是在旁邊備著。');
+    snap(20, [M('run')], '<code>try</code> 區塊平安走完，程式往下跑。');
+    F.push({line: 18, stack: [M('run')], msg: '結束。合法輸入的路徑跟沒寫 <code>try</code> 完全一樣快 —— <strong>沒丟例外時，try 幾乎不花成本</strong>。'});
+  } else {
+    snap(6, [M('wait'), R('run')], '<code>cin &gt;&gt; age</code> 這次讀到 <code>-5</code>。');
+    snap(7, [M('wait'), R('run')], '<code>age &lt; 0</code> 成立了。<code>readAge</code> 沒辦法履行「回傳一個合理年齡」的承諾。');
+    snap(8, [M('wait'), R('run')], '<code>throw</code>：丟出一個 <code>invalid_argument</code> 物件。<strong>從這一行起，第 10 行的 <code>return</code> 永遠不會執行。</strong>');
+    snap(8, [M('wait'), R('gone')], '<strong>stack unwinding</strong>：例外往回傳的路上，<code>readAge</code> 的框先被撤掉，框裡區域物件的解構式一個個被呼叫。<strong>這時候還沒進到 catch。</strong>');
+    snap(17, [M('run')], '回到 main 的框，才開始找 <code>catch</code>。丟出來的是 <code>invalid_argument</code>，這裡接的也是 <code>invalid_argument&amp;</code> —— <strong>型別對得上，接住</strong>。');
+    snap(18, [M('run')], '執行 catch 內容：<code>e.what()</code> 把當初 throw 時帶的訊息拿出來，印成「輸入有問題：年齡不能是負數」。');
+    snap(20, [M('run')], 'catch 收完，程式從 <code>try/catch</code> 後面繼續 —— <strong>沒有當掉</strong>。這就是例外的重點：出事之後還能決定怎麼辦。');
+    F.push({line: 18, stack: [M('run')], msg: '結束。如果 catch 的型別寫成 <code>out_of_range&amp;</code>，例外會直接穿過去、一路飛出 main，程式就 <code>terminate</code> 當掉了。'});
+  }
+  return F;
+}
+function excStart(thrown) {
+  if (excPlayer) excPlayer.stop();
+  excPlayer = new Player({frames: excFrames(thrown), apply: f => {
+    hlLine('excCode', f.line);
+    excRender(f.stack);
+    setStatus('excStatus', f.msg);
+  }, delayInput: $('excSpeed')});
+  excPlayer.play();
+}
+excRender([]);
+
+/* floating nav scroll spy */
+(function setupNav() {
+  const nav = $('floatNav');
+  const links = nav.querySelectorAll('a[data-target]');
+  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
+  function update() {
+    const y = window.scrollY + window.innerHeight * 0.3;
+    let active = sections[0]?.id;
+    for (const s of sections) if (s.offsetTop <= y) active = s.id;
+    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  update();
 })();
-/* depth-runtime:end */
-</script><script>/* quiz-shuffle v1 */
+
+
+</script>
+<script>
+const FLASHCARDS = [{"front": "輸入檔案串流（ifstream）", "back": "ifstream 用來讀取檔案，需 <fstream>。在預設例外遮罩下，開檔失敗會設定狀態而不主動拋出串流例外；可檢查 is_open() 或串流狀態，明確設定 exceptions() 後行為會不同。"}, {"front": "輸出檔案串流（ofstream）", "back": "開檔寫入用的型別，用法跟 cout 一樣。預設會清空原檔案內容；要附加到結尾得傳 ios::app。"}, {"front": "逐行讀取（getline）", "back": "std::getline(stream, line) 將一行讀入 string，移除分隔換行但不存入 line。它回傳串流參考，轉成條件時反映讀取是否成功；最後一行沒有換行也可能成功讀到，不能只看是否到檔尾。"}, {"front": "自動收尾（RAII）", "back": "RAII 把資源綁定到物件生命週期，在正常離開作用域或有處理程序的例外堆疊展開時由解構式釋放。程式被強制終止等情況不保證解構；檔案串流一般不需手動 close。"}, {"front": "例外（Exception）", "back": "程式執行中發生無法繼續的狀況時被拋出的物件。它不代表壞掉，而是「這條路走不通，交給呼叫我的人決定怎麼辦」。"}, {"front": "例外處理（try / catch）", "back": "把可能失敗的程式放進 try，失敗時跳到對應的 catch 處理。try 區塊應該只包含真正可能失敗的那幾行，範圍越小越好找錯。"}, {"front": "主動拋出（throw）", "back": "throw 拋出例外並尋找相符的處理程序，例如拒絕負數數量。例外與狀態回傳各有適用情況；拋出後的正常路徑不會繼續執行，呼叫端應按契約處理。"}, {"front": "例外訊息（what()）", "back": "std::exception 介面提供的成員函式，回傳描述錯誤的 C 字串；內容可用來報告問題，但確切文字通常依例外物件與實作而異。"}, {"front": "越界例外（out_of_range）", "back": "vector 或 string 的 at() 在索引不合法時丟出 std::out_of_range。例外型別可依賴，what() 的詳細文字則依實作而異。"}, {"front": "檢查與不檢查的下標（at() vs operator[]）", "back": "vector 的 at(i) 檢查範圍，operator[](i) 要求 i < size()。string 的 at 也要求 i < size()，但其 operator[](size()) 可讀到結尾空字元；不得把這個特例推廣到 vector。"}, {"front": "自訂例外（Custom Exception）", "back": "為錯誤建立獨立型別，讓 catch 能精準區分情況。通常繼承 std::runtime_error 並傳入訊息；類別與繼承的完整寫法放在 P9，先在 P7 練習標準例外。"}, {"front": "未接住的例外（Uncaught Exception）", "back": "例外若找不到對應處理程序，會呼叫 std::terminate。預設處理最終會終止程式；診斷文字、訊號及結束碼不能當成跨平台固定值。"}, {"front": "貪心捕捉（catch 全包）", "back": "catch (...) 能接住任何 C++ 例外，不代表一定錯誤。可用於清理後再 throw; 或在邊界統一處理；若無聲忽略所有例外，就容易掩蓋真正問題。"}, {"front": "工作目錄（Working Directory）", "back": "相對檔案路徑以程式當下的工作目錄解析，並非自動相對於原始碼所在資料夾。編譯時的 -I. 也是相對於編譯行程工作目錄；兩者可以不同。"}, {"front": "字串串流（stringstream）", "back": "<sstream> 提供字串串流，例如 istringstream input(text); 可用 >> 從文字讀取數字與詞，並像檔案串流一樣檢查失敗狀態。它不會憑空讀檔，資料來源是所提供的字串。"}];
+/* ===== Flashcards engine ===== */
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const grid = document.getElementById('fcGrid');
+  if (!grid) return;
+  const render = cards => {
+    grid.innerHTML = cards.map(c =>
+      `<div class="fc-card"><div class="fc-inner">
+         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
+         <div class="fc-face fc-back">${esc(c.back)}</div>
+       </div></div>`).join('');
+  };
+  render(FLASHCARDS);
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.fc-card');
+    if (card) card.classList.toggle('flipped');
+  });
+  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
+  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
+  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
+})();
+(function(){
+  document.querySelectorAll('.sq-item').forEach(item => {
+    const fb = item.querySelector('.sq-fb');
+    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
+      const good = btn.dataset.c === '1';
+      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
+      btn.classList.add(good ? 'correct' : 'wrong');
+      fb.textContent = btn.dataset.fb;
+      fb.classList.add('show');
+      fb.classList.toggle('good', good);
+      fb.classList.toggle('bad', !good);
+    }));
+  });
+})();
+</script>
+<script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {
     var h = 2166136261;
@@ -904,4 +1278,5 @@ const FLASHCARDS = [{"front": "檔案輸入輸出串流（ifstream / ofstream）
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 /* /quiz-shuffle v1 */</script>
-</body></html>
+</body>
+</html>

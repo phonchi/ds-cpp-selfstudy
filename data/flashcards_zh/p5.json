@@ -1,138 +1,86 @@
 [
   {
-    "front": "向量容器（vector<T>）",
-    "back": "可增減的同型別連續序列；T 是每個元素的型別。"
-  },
-  {
-    "front": "成員呼叫（object.method()）",
-    "back": "要求特定物件執行方法；例如 v.size() 與 v.push_back(x)。"
-  },
-  {
-    "front": "括號與清單初始化（parentheses vs braces）",
-    "back": "vector<int>(4,7) 是四個 7；vector<int>{4,7} 是兩個元素 4、7。"
-  },
-  {
-    "front": "界線檢查存取（at(i)）",
-    "back": "檢查界線；越界丟出 out_of_range。完整捕捉方式見 P7。"
-  },
-  {
-    "front": "大小與容量（size / capacity）",
-    "back": "size 是現有元素數；capacity 是免重配置可容納數。"
-  },
-  {
-    "front": "預留容量（reserve(n)）",
-    "back": "讓容量至少為 n，不建立元素、不改 size。"
-  },
-  {
-    "front": "攤還常數時間（amortized O(1)）",
-    "back": "少數重配置很貴，但分攤到多次 push_back 後每次平均為常數量級。成長倍數不受標準保證。"
-  },
-  {
-    "front": "左閉右開區間（[begin,end)）",
-    "back": "左含右不含；end 是尾後哨兵，不能解參考。"
-  },
-  {
-    "front": "迭代器（iterator）",
-    "back": "表示容器位置；*it 取元素、++it 前進。"
-  },
-  {
-    "front": "向量迭代器失效（vector iterator invalidation）",
-    "back": "重配置使全部失效；erase 使刪除位置及其後位置失效。"
-  },
-  {
-    "front": "自動型別推導（auto deduction）",
-    "back": "編譯器從右側決定固定型別；auto x 仍是複製，auto& x 才是原元素別名。"
-  },
-  {
-    "front": "刪除回傳位置（erase return iterator）",
-    "back": "回傳刪除後下一個有效位置，安全迴圈寫 it=v.erase(it)。"
-  },
-  {
-    "front": "二維向量（two-dimensional vector）",
-    "back": "vector<vector<T>>；每列可有不同長度。"
-  },
-  {
-    "front": "堆疊與佇列（stack / queue）",
-    "back": "stack 後進先出用 top；queue 先進先出用 front。pop 都不回傳值。"
-  },
-  {
-    "front": "雙端佇列（deque）",
-    "back": "雙端佇列，兩端都能有效率地加入與移除。"
-  },
-  {
-    "front": "字串搜尋失敗值（string::npos）",
-    "back": "string 搜尋失敗的特殊值。"
-  },
-  {
-    "front": "子字串（substr(pos,count)）",
-    "back": "以 char/byte 單位切片；UTF-8 可見字可能跨多個 byte。"
-  },
-  {
-    "front": "整行輸入（getline(cin >> ws,s)）",
-    "back": "跳過前導空白再讀整行；若行首空白有意義便不適用。"
-  },
-  {
-    "front": "字串累積（string accumulation）",
-    "back": "迴圈優先 += 或 append；反覆 s=s+piece 可能重複複製前綴。"
-  },
-  {
-    "front": "範圍建構（range constructor）",
-    "back": "vector(first,last) 複製 [first,last)；last 指向不包含的尾後位置。"
-  },
-  {
-    "front": "單字元字串（single-character string）",
-    "back": "char c 要包成 string 可寫 string(1,c)；兩個字串字面值不能直接相加。"
-  },
-  {
-    "front": "字串數字轉換（stoi／to_string）",
-    "back": "stoi 將文字轉 int 且失敗可能丟例外；to_string 將數字轉成 string。"
+    "front": "動態陣列（vector）",
+    "back": "C++ 標準函式庫的可變長度陣列，元素放在一整塊連續記憶體裡。它解決原生陣列的三個痛點：長度能變、傳進函式不會退化成指標、自己記得有多長。"
   },
   {
     "front": "直接初始化（Direct Initialization）",
-    "back": "以型別、名稱和初始化引數建立物件；vector的括號計數建構與大括號元素清單可能得到不同內容。"
+    "back": "Type variable(arguments); 的語法：宣告 variable 並同時呼叫 Type 的建構式，兩件事在同一行發生。vector<int> v(5) 是計數建構、v(a.begin(), a.end()) 是範圍建構。注意 v(3) 是 3 個 0，v{3} 卻是 1 個 3——大括號優先配對初始化清單。"
   },
   {
     "front": "大小（size）",
-    "back": "目前已存在的元素數，不是預留格數；合法一般元素索引由0到size-1。"
+    "back": "size() 回傳目前元素個數，時間複雜度為 O(1)。回傳型別是容器的無號 size_type；與有號整數比較時須注意轉換，編譯器可能依選項發出警告。"
   },
   {
     "front": "容量（capacity）",
-    "back": "不重新配置時可容納的元素數，至少等於size；reserve不會因此建立元素。"
+    "back": "vector 目前免重新配置可容納的元素數，一定大於等於 size。容量坐滿時再 push_back 會觸發擴容搬家。clear() 會把 size 歸零，但不改變 capacity。"
   },
   {
     "front": "尾端加入（push_back）",
-    "back": "把元素加在序列尾端；vector若重配置會使既有元素位置失效。"
+    "back": "在 vector 尾端建立新元素；容量不夠時重新配置，並將既有元素移動或複製到新儲存區。單次可能是 O(n)，連續加入的攤還複雜度為 O(1)。"
   },
   {
     "front": "尾端移除（pop_back）",
-    "back": "移除尾端元素但不回傳其值；要保留舊值必須先讀back，且須先確認非空。"
+    "back": "刪除 vector 的最後一個元素，不回傳被刪值。若需要該值，先以 back() 讀取再 pop_back()；兩者都要求容器非空。"
   },
   {
     "front": "插入（insert）",
-    "back": "在指定位置前加入元素；vector位置以迭代器表示，中間插入通常需搬移後段。"
+    "back": "v.insert(pos, x) 在指定位置前插入，原位置及其後元素需搬移，可能另需重新配置。尾端以外的插入通常要線性時間；使用時也要留意迭代器失效規則。"
   },
   {
     "front": "刪除（erase）",
-    "back": "移除指定元素或區間；使用操作回傳的有效位置繼續走訪，不再使用已失效的舊迭代器。"
+    "back": "v.erase(pos) 刪掉 iterator pos 指的元素，後面每個元素往前補位，是 O(n)。它會回傳下一個有效的 iterator，走訪中邊刪要寫成 it = v.erase(it)，否則舊的 it 已經失效。"
   },
   {
     "front": "清空（clear）",
-    "back": "移除所有元素；vector的size變成0，capacity不因此縮小。"
+    "back": "clear() 移除全部元素但不改變 vector 的 capacity。shrink_to_fit() 只是縮減容量的請求，實作可以不採用，不能保證它一定釋放儲存空間。"
   },
   {
-    "front": "範圍迴圈（Range-based for Loop）",
-    "back": "逐一取得元素；值版本會取得副本，參考版本可代表原元素。"
+    "front": "預留容量（reserve）",
+    "back": "reserve(n) 確保容量至少為 n，卻不建立元素或改變 size。若目前容量已足夠就不重新配置；之後加入元素未超過容量前，不會因容量不足搬家。"
   },
   {
-    "front": "參考迴圈變數（Reference Loop Variable）",
-    "back": "T&或auto&讓每輪名稱代表原元素；const參考限制經由該名稱修改。"
+    "front": "範圍檢查存取（at）",
+    "back": "v.at(i) 在 i >= size() 時丟出 out_of_range，診斷文字依實作而異。vector 的 v[i] 要求 i < size()，不符合前提便是未定義行為。"
+  },
+  {
+    "front": "攤還分析（Amortized Analysis）",
+    "back": "以一整串操作的總成本分析每次平均成本。圖中的倍增模型可用等比級數說明 vector 尾端加入為何可攤還 O(1)；標準保證複雜度，但不指定每次容量必須翻倍。"
+  },
+  {
+    "front": "迭代器（Iterator）",
+    "back": "指向容器中某個位置的物件，用法跟指標很像：*it 取值、++it 往下一個走。v.begin() 是第一個元素，v.end() 是最後一個的再下一個。insert 與 erase 吃的參數就是它。"
+  },
+  {
+    "front": "迭代器失效（Iterator Invalidation）",
+    "back": "容器改變之後，先前取得的 iterator 或指標可能指向已經釋放的記憶體。vector 擴容時整批元素會搬到新位址，舊的 iterator 全部失效，再使用就是未定義行為。對策是記索引而不是記位址。"
+  },
+  {
+    "front": "範圍 for 迴圈（Range-based for loop）",
+    "back": "寫成 for (int x : v) 的走訪語法，最好讀但拿不到索引。x 預設是複製品，改它不會影響容器；要修改元素得寫 int& x，要避免複製又不想改到就寫 const string& x。"
+  },
+  {
+    "front": "二維向量（Vector of Vectors）",
+    "back": "vector<vector<int>> 的每個元素又是一個 vector，例如 vector<vector<int>> grid(4, vector<int>(4, 0)); 建立四列、每列四個 0。各列可有不同長度，也不保證整張表共用一塊連續記憶體。"
   },
   {
     "front": "字串（string）",
-    "back": "管理char序列的標準型別；大小和索引以char為單位，不等同UTF-8中文字數。"
+    "back": "std::string 管理連續的 char 序列，提供 length、substr、find、+= 等文字操作。它是獨立型別，不是 vector<char>；長度以 char 單位計，不等於 UTF-8 中文字數，成本與失效規則也須分別查看。"
   },
   {
-    "front": "無號大小型別（size_t）",
-    "back": "標準庫常用的無號整數型別，用於sizeof或容器大小；減到負數前應先做邊界檢查。"
+    "front": "取子字串（substr）",
+    "back": "s.substr(pos, len) 從索引 pos 取最多 len 個字元，複製成新字串，成本與結果長度成正比。第二個參數是長度而不是結束位置。"
+  },
+  {
+    "front": "找不到的標記（string::npos）",
+    "back": "find 系列函式找不到目標時回傳的 size_type 特殊值。判斷應寫 if (s.find(t) == string::npos)；位置型別是無號型別，不應用小於 0 判斷失敗。"
+  },
+  {
+    "front": "STL 現成容器（stack／queue／deque）",
+    "back": "std::stack 的介面為 push/top/pop，std::queue 為 push/front/pop；兩者是容器轉接器，預設底層為 deque，也可指定符合需求的其他容器。pop 回傳 void，取值與移除分兩步，並先確認非空。deque 本身支援兩端加入與刪除。"
+  },
+  {
+    "front": "無號大小（size_t）",
+    "back": "size_t 是 sizeof 結果使用的無號型別；容器大小則使用自身的 size_type。無號相減可能繞回，因此空容器上不能把 size() - 1 當作有效尾端索引。應先確認非空，或使用不需減一的迴圈條件。"
   }
 ]

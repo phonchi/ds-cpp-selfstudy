@@ -1,326 +1,156 @@
 [
   {
-    "question": "只想知道鍵是否存在，且不能改 map，應用？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, int> m;\n    m[\"pear\"] = 30;\n    cout << m[\"mango\"] << \" \";\n    cout << m.count(\"kiwi\") << \" \";\n    cout << m.size() << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "count 或 find",
+        "answer": "0 0 2",
         "correct": true,
-        "feedback": "count/find 不插入；[] 缺鍵會插入。"
+        "feedback": "正確。m[\"mango\"] 查不到會當場插入一筆，值是預設初始化的 0，所以印出 0 而且 size 從 1 變成 2。m.count(\"kiwi\") 回傳 0 且不會建鍵，所以最後 size 是 2 而不是 3。"
       },
       {
-        "answer": "operator[]",
+        "answer": "0 0 1",
         "correct": false,
-        "feedback": "operator[]在缺鍵時插入預設值，因此違反「不能改map」。"
+        "feedback": "漏算了 m[\"mango\"] 造成的插入。operator[] 缺鍵時會改動容器；count、find 與 at 都不會因缺鍵而插入。"
       },
       {
-        "answer": "clear",
+        "answer": "0 0 3",
         "correct": false,
-        "feedback": "clear會清空整張map，是破壞資料的修改操作，不是存在查詢。"
+        "feedback": "count 不會建鍵，它只是數符合的筆數。會建鍵的只有 operator[] 那一行。"
       },
       {
-        "answer": "push_back",
+        "answer": "程式會丟出例外",
         "correct": false,
-        "feedback": "map不是序列容器，沒有push_back這個成員，也不能用它查鍵。"
+        "feedback": "C++ 的 map 用 [] 查不到不會丟例外，而是插入值初始化的 mapped value；要求缺鍵報錯要改用 m.at(k)。"
       }
     ]
   },
   {
-    "question": "m[\"x\"] 在 x 不存在且 mapped type 是 int 時？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\n#include <set>\nusing namespace std;\n\nint main() {\n    set<int> s;\n    s.insert(93); s.insert(17); s.insert(93);\n    s.insert(31); s.insert(17);\n    cout << s.size() << \": \";\n    for (set<int>::iterator it = s.begin(); it != s.end(); ++it)\n        cout << *it << \" \";\n    cout << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "插入 x→0 並回傳該值的參考",
+        "answer": "3: 17 31 93",
         "correct": true,
-        "feedback": "operator[] 會 value-initialize int 為 0。"
+        "feedback": "正確。set 自動去重，丟五次只留三種；走訪又是照鍵排好的，所以是由小到大的 17 31 93，跟插入順序無關。"
       },
       {
-        "answer": "丟 KeyError",
+        "answer": "5: 93 17 93 31 17",
         "correct": false,
-        "feedback": "KeyError是其他語言常見模型；C++ map的[]會建立預設mapped value。"
+        "feedback": "set 不是 vector。重複的鍵在 insert 時就被吃掉了，不會留兩份。"
       },
       {
-        "answer": "回 end 且不插入",
+        "answer": "3: 93 17 31",
         "correct": false,
-        "feedback": "找不到回end是find的契約，operator[]回傳新建值的參考。"
+        "feedback": "去重的部分對了，但 set 的走訪是排序好的，不是插入順序。想保留插入順序要自己用 vector 加一個 set 來記錄看過沒。"
       },
       {
-        "answer": "編譯錯誤",
+        "answer": "3: 93 31 17",
         "correct": false,
-        "feedback": "int可value-initialize成0，所以這個[]操作語法與型別都合法。"
+        "feedback": "set 預設由小到大。要由大到小可以用 rbegin()／rend() 反向走訪，或宣告 set 時把第二個樣板參數指定成 greater。"
       }
     ]
   },
   {
-    "question": "find 找不到後，哪一步合法？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    string w[5] = {\"b\", \"a\", \"b\", \"c\", \"b\"};\n    map<string, int> freq;\n    for (int i = 0; i < 5; i++) freq[w[i]]++;\n    for (auto& [k, n] : freq) cout << k << n << \" \";\n    cout << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "比較 it == m.end()",
+        "answer": "a1 b3 c1",
         "correct": true,
-        "feedback": "end 可比較但不可解參考。"
+        "feedback": "正確。freq[w[i]]++ 對沒看過的鍵會先建一筆值為 0 的資料再加一，所以不必先判斷鍵在不在。輸出照鍵排序，是 map 的走訪特性。"
       },
       {
-        "answer": "讀 it->second",
+        "answer": "b3 a1 c1",
         "correct": false,
-        "feedback": "end不指向資料，讀second會解參考尾後哨兵，行為未定義。"
+        "feedback": "次數算對了，但順序錯。map 走訪是照鍵排好的，不是照第一次出現的順序。要照插入順序得自己另外記錄。"
       },
       {
-        "answer": "讀 (*it).first",
+        "answer": "b1 a1 b1 c1 b1",
         "correct": false,
-        "feedback": "(*it).first同樣先解參考it；找不到時沒有pair可讀。"
+        "feedback": "map 的鍵不會重複，同一個鍵只會有一筆資料，++ 是累加在同一筆上。"
       },
       {
-        "answer": "對 *it 賦值",
+        "answer": "編譯錯誤，freq[w[i]] 還不存在不能 ++",
         "correct": false,
-        "feedback": "除了end不能解參考，map的pair鍵還是const；對整個*it賦值也不合法。"
+        "feedback": "operator[] 在鍵不存在時會回傳一個新建資料的參考，++ 作用在那個真實存在的 0 上面，完全合法。這正是計數寫法可以只有一行的原因。"
       }
     ]
   },
   {
-    "question": "it->first 與哪個式子等價？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, int> m;\n    m[\"pear\"] = 30;\n    map<string, int>::iterator it = m.find(\"kiwi\");\n    if (it == m.end()) cout << \"miss \";\n    else cout << it->second << \" \";\n    cout << m.size() << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "(*it).first",
+        "answer": "miss 1",
         "correct": true,
-        "feedback": "箭頭是先解參考再用點號取成員。"
+        "feedback": "正確。find 找不到時回傳 end()，這是一個哨兵位置，不能解參考。find 是唯讀的，所以 size 還是 1。想同時判斷與取值就用 find，比先 count 再 [] 少查一次。"
       },
       {
-        "answer": "*it.first",
+        "answer": "miss 2",
         "correct": false,
-        "feedback": "點號比*結合緊，*it.first會先嘗試取iterator本身的first，語法對象錯了。"
+        "feedback": "find 不會建鍵，只有 operator[] 會。size 維持 1。"
       },
       {
-        "answer": "it.first",
+        "answer": "0 1",
         "correct": false,
-        "feedback": "it是iterator，不是pair物件，不能直接用點號取first。"
+        "feedback": "find 回傳的是迭代器不是值，找不到時等於 end()，所以走的是 if 那一支。回傳 0 的是 count。"
       },
       {
-        "answer": "&(it.first)",
+        "answer": "程式當掉",
         "correct": false,
-        "feedback": "取地址&(it.first)仍假定iterator有first成員，也沒有完成解參考。"
+        "feedback": "程式沒有解參考 end()，只是拿它來比較，這是合法而且標準的寫法。真的寫 it->second 而 it 等於 end() 才會出事。"
       }
     ]
   },
   {
-    "question": "for (auto [k,v] : m) ++v; 執行後 map 會？",
+    "question": "以下程式印出什麼？",
+    "code": "#include <iostream>\n#include <map>\n#include <vector>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, vector<string>> adj;\n    adj[\"A\"].push_back(\"B\");\n    adj[\"A\"].push_back(\"C\");\n    adj[\"B\"].push_back(\"C\");\n    cout << adj.size() << \" \";\n    cout << adj[\"C\"].size() << \" \";\n    cout << adj.size() << endl;\n    return 0;\n}",
     "answers": [
       {
-        "answer": "不變，k、v 是每筆的複製",
+        "answer": "2 0 3",
         "correct": true,
-        "feedback": "要修改原值需 auto& [k,v]。"
+        "feedback": "正確。前兩行只建了 A 與 B 兩個鍵，所以第一個 adj.size() 是 2。接著 adj[\"C\"] 是一次 operator[]，它替 C 建了一個空的 vector（size 0），於是最後一個 adj.size() 變成 3。相鄰串列常見的 bug 就是這樣多出一堆空頂點。"
       },
       {
-        "answer": "所有值加一",
+        "answer": "2 0 2",
         "correct": false,
-        "feedback": "沒有&時v是second的副本，++只改副本，原map值不變。"
+        "feedback": "adj[\"C\"] 不是唯讀操作。即使只是讀它的 size()，鍵 C 也已經被插進 map 裡了，最後的 size 會是 3。"
       },
       {
-        "answer": "所有鍵加一",
+        "answer": "2 1 3",
         "correct": false,
-        "feedback": "k對應map的const鍵，程式只對v做++，既沒有權限也沒有敘述修改鍵。"
+        "feedback": "C 只出現在別人的鄰居串列裡，它自己的鄰居串列是空的，size 是 0。有向圖裡「被指到」不等於「指出去」。"
       },
       {
-        "answer": "清空",
+        "answer": "3 0 3",
         "correct": false,
-        "feedback": "迴圈只改區域副本，不包含clear或erase，map不會被清空。"
+        "feedback": "第一次印 size 時只有 A 與 B 兩個鍵，C 還沒被建出來。C 是下一行的 adj[\"C\"] 才生出來的。"
       }
     ]
   },
   {
-    "question": "需要依鍵排序輸出及 O(log n) 最壞界線，選？",
+    "question": "你要處理一份一百萬筆的資料，只需要不斷查詢「這個鍵在不在」，完全不需要照順序輸出。應該選哪個容器，為什麼？",
     "answers": [
       {
-        "answer": "map",
+        "answer": "unordered_set，因為不需排序且它提供平均常數時間的成員查詢",
         "correct": true,
-        "feedback": "map 保持鍵序，基本操作保證 O(log n)。"
+        "feedback": "正確。只查不排就選雜湊版。代價是走訪順序不保證，而且最壞情況（大量碰撞）會退化成線性時間，但一般的鍵分布不會發生。"
       },
       {
-        "answer": "unordered_map",
+        "answer": "set，因為它會自動排序，查起來比較快",
         "correct": false,
-        "feedback": "unordered_map不保證走訪排序，最壞查詢也可能退化到O(n)。"
+        "feedback": "set 提供有序走訪與 O(log n) 查詢，unordered_set 平均查詢 O(1)、最壞 O(n)。需要排序與否是選擇依據之一，不能保證後者對每筆資料都較快。"
       },
       {
-        "answer": "vector 必定 O(1)",
+        "answer": "vector，先排序再用二分搜尋",
         "correct": false,
-        "feedback": "vector隨機索引是O(1)，但按鍵搜尋並非必定O(1)，維護排序插入也有成本。"
+        "feedback": "這在資料固定不變時是可行的方案，但只要中途要插入新鍵就得重新排序，成本很高。純查詢的場合雜湊版更直接。"
       },
       {
-        "answer": "queue",
+        "answer": "map，因為只有 map 才有 count 可以查",
         "correct": false,
-        "feedback": "queue只提供前後端佇列操作，沒有按鍵查找或排序走訪。"
-      }
-    ]
-  },
-  {
-    "question": "unordered_set 的查詢成本與順序？",
-    "answers": [
-      {
-        "answer": "平均 O(1)、最壞 O(n)、走訪無順序保證",
-        "correct": true,
-        "feedback": "雜湊提供平均常數時間，但碰撞可退化。"
-      },
-      {
-        "answer": "永遠 O(1) 且排序",
-        "correct": false,
-        "feedback": "平均O(1)不是永遠O(1)，而且unordered_set不提供排序走訪。"
-      },
-      {
-        "answer": "O(log n) 且插入順序",
-        "correct": false,
-        "feedback": "O(log n)與鍵序是set的典型保證，不是unordered_set。"
-      },
-      {
-        "answer": "永遠 O(n)",
-        "correct": false,
-        "feedback": "雜湊查詢通常不是永遠O(n)；良好分布下平均為常數時間。"
-      }
-    ]
-  },
-  {
-    "question": "邊走訪 map 邊刪目前項，安全寫法？",
-    "answers": [
-      {
-        "answer": "it = m.erase(it)",
-        "correct": true,
-        "feedback": "erase 回傳下一個有效 iterator。"
-      },
-      {
-        "answer": "m.erase(it); ++it",
-        "correct": false,
-        "feedback": "erase後舊it失效，對它++無效；必須使用erase回傳的下一位置。"
-      },
-      {
-        "answer": "erase(end())",
-        "correct": false,
-        "feedback": "end是尾後哨兵而非元素，不能作為erase的單元素位置。"
-      },
-      {
-        "answer": "for(auto x:m) erase(x)",
-        "correct": false,
-        "feedback": "range-for隱藏自己的iterator，刪目前元素會破壞其後續推進；且x是值/參考不是erase所需位置。"
-      }
-    ]
-  },
-  {
-    "question": "set 的 insert 回傳結果中 .second 表示？",
-    "answers": [
-      {
-        "answer": "本次是否真的插入",
-        "correct": true,
-        "feedback": "鍵已存在時 second 為 false。"
-      },
-      {
-        "answer": "元素的值",
-        "correct": false,
-        "feedback": ".second是插入成功旗標，元素本身或iterator放在回傳pair的.first。"
-      },
-      {
-        "answer": "集合大小",
-        "correct": false,
-        "feedback": "集合目前大小要另呼叫size()，不會藏在insert結果的.second。"
-      },
-      {
-        "answer": "下一個鍵",
-        "correct": false,
-        "feedback": "insert結果不預先回傳「下一個鍵」；.first指向等價元素的位置。"
-      }
-    ]
-  },
-  {
-    "question": "要保留第一次出現順序的去重結果，單獨 set 足夠嗎？",
-    "answers": [
-      {
-        "answer": "不足；用 seen set 搭配 output vector",
-        "correct": true,
-        "feedback": "set 的走訪按鍵排序，不保存第一次出現順序。"
-      },
-      {
-        "answer": "足夠且保留插入順序",
-        "correct": false,
-        "feedback": "set按鍵排序走訪，不記錄第一次插入的先後。"
-      },
-      {
-        "answer": "換 map 就保序",
-        "correct": false,
-        "feedback": "map同樣按鍵排序且保存鍵值，不會自動保留首次出現順序。"
-      },
-      {
-        "answer": "呼叫 sort 即可保序",
-        "correct": false,
-        "feedback": "sort只重排資料；它不去除重複，也無法恢復首次出現順序。"
-      }
-    ]
-  },
-  {
-    "question": "map<string,vector<string>> groups; groups[k].push_back(v) 為何可用？",
-    "answers": [
-      {
-        "answer": "[] 缺鍵時建立空 vector，再加入 v",
-        "correct": true,
-        "feedback": "這裡有意利用 [] 的插入副作用。"
-      },
-      {
-        "answer": "vector 自動變 map",
-        "correct": false,
-        "feedback": "vector不會變成map；groups本來就是map，而[]只建立它的mapped vector。"
-      },
-      {
-        "answer": "find 會插入",
-        "correct": false,
-        "feedback": "find是唯讀定位，缺鍵回end；真正建立空vector的是operator[]。"
-      },
-      {
-        "answer": "所有 k 預先存在",
-        "correct": false,
-        "feedback": "k不必預先存在，這段正是利用[]在第一次遇到k時建立空vector。"
-      }
-    ]
-  },
-  {
-    "question": "在 map 中找鍵，為何優先使用 m.find(k) 而不是 std::find 掃完整區間？",
-    "answers": [
-      {
-        "answer": "成員find會利用map的有序樹結構",
-        "correct": true,
-        "feedback": "map::find是對數時間；通用std::find是線性逐項掃描。"
-      },
-      {
-        "answer": "std::find會插入鍵",
-        "correct": false,
-        "feedback": "std::find不插入資料；它的問題是線性掃描，未利用map的樹結構。"
-      },
-      {
-        "answer": "std::find只支援int",
-        "correct": false,
-        "feedback": "std::find是泛型演算法，可比較許多型別，不限int。"
-      },
-      {
-        "answer": "m.find一定是平均O(1)",
-        "correct": false,
-        "feedback": "m是ordered map，因此find保證O(log n)，不是平均O(1)。"
-      }
-    ]
-  },
-  {
-    "question": "set<int>{10,30,40}.lower_bound(25) 指向？",
-    "answers": [
-      {
-        "answer": "30",
-        "correct": true,
-        "feedback": "lower_bound回傳第一個不小於25的鍵。"
-      },
-      {
-        "answer": "10",
-        "correct": false,
-        "feedback": "10小於25，lower_bound要找第一個不小於25的鍵。"
-      },
-      {
-        "answer": "25",
-        "correct": false,
-        "feedback": "lower_bound不插入25；它只回傳容器中符合界線的既有鍵。"
-      },
-      {
-        "answer": "end()",
-        "correct": false,
-        "feedback": "30已符合不小於25，所以搜尋成功，不會回end。"
+        "feedback": "四個容器都有 count。而且這題只有鍵沒有值，用 map 等於浪費一個值的空間，該選 set 這一系列。"
       }
     ]
   }

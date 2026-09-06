@@ -8,6 +8,7 @@ class FormatTests(unittest.TestCase):
   with tempfile.TemporaryDirectory() as folder:
    root=Path(folder)
    for sub in ['flashcards_zh','questions_zh']:(root/'data'/sub).mkdir(parents=True)
+   (root/'data/prereq_fidelity_contract.json').write_text('{}')
    cards=[{'front':front,'back':'物件的別名。'}]
    answers=[{'answer':str(i),'correct':i==0,'feedback':'理由 '+str(i)} for i in range(options)]
    (root/'data/flashcards_zh/p3.json').write_text(json.dumps(cards))

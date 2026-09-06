@@ -1,98 +1,62 @@
 [
   {
-    "front": "檔案輸入輸出串流（ifstream / ofstream）",
-    "back": "檔案輸入／輸出串流；開啟後立即檢查狀態。"
+    "front": "輸入檔案串流（ifstream）",
+    "back": "ifstream 用來讀取檔案，需 <fstream>。在預設例外遮罩下，開檔失敗會設定狀態而不主動拋出串流例外；可檢查 is_open() 或串流狀態，明確設定 exceptions() 後行為會不同。"
   },
   {
-    "front": "工作目錄（working directory）",
-    "back": "相對路徑的起點，是程式啟動位置，不一定是原始碼位置。"
-  },
-  {
-    "front": "追加模式（ios::app）",
-    "back": "從檔案尾端追加；ofstream 預設通常會截斷舊內容。"
-  },
-  {
-    "front": "讀取作為條件（while (in >> x)）",
-    "back": "讀取成功才進入迴圈，避免 eof 反模式。"
+    "front": "輸出檔案串流（ofstream）",
+    "back": "開檔寫入用的型別，用法跟 cout 一樣。預設會清空原檔案內容；要附加到結尾得傳 ios::app。"
   },
   {
     "front": "逐行讀取（getline）",
-    "back": "讀到換行；適合保留完整一列。"
+    "back": "std::getline(stream, line) 將一行讀入 string，移除分隔換行但不存入 line。它回傳串流參考，轉成條件時反映讀取是否成功；最後一行沒有換行也可能成功讀到，不能只看是否到檔尾。"
   },
   {
-    "front": "輸入字串串流（istringstream）",
-    "back": "把 string 當輸入串流解析，壞列不污染外層檔案串流。"
-  },
-  {
-    "front": "串流正常與失敗（good / fail）",
-    "back": "good 表示無錯；fail 表示格式、開啟等操作失敗。"
-  },
-  {
-    "front": "檔尾與嚴重錯誤（eof / bad）",
-    "back": "eof 表示讀取碰到尾端；bad 表示較嚴重 I/O 錯誤。"
-  },
-  {
-    "front": "失敗狀態旗標（failbit / badbit）",
-    "back": "fail() 在 failbit 或 badbit 任一設定時為 true；eofbit 單獨存在不必使 fail() 為 true。"
-  },
-  {
-    "front": "清除狀態（clear()）",
-    "back": "清串流狀態旗標，不會移除造成格式錯的資料。"
-  },
-  {
-    "front": "資源取得即初始化（RAII）",
-    "back": "資源生命週期綁在物件上；串流離開作用域自動關檔。"
-  },
-  {
-    "front": "拋出例外（throw）",
-    "back": "建立例外並中止目前正常流程，沿呼叫鏈尋找 catch。"
-  },
-  {
-    "front": "捕捉例外（catch (const T& e)）",
-    "back": "依型別接例外，以 const reference 避免複製並可呼叫 what。"
-  },
-  {
-    "front": "無效引數例外（invalid_argument）",
-    "back": "引數值違反函式前置條件。"
-  },
-  {
-    "front": "超出範圍例外（out_of_range）",
-    "back": "at 的索引或鍵無效時使用的標準例外。"
-  },
-  {
-    "front": "字串大小邊界（string size boundary）",
-    "back": "const string 可讀 s[s.size()] 得結尾 \\0；不可寫非零值，且 at(size()) 仍丟 out_of_range。"
-  },
-  {
-    "front": "執行期錯誤（runtime_error）",
-    "back": "執行環境使操作無法完成的通用標準例外。"
-  },
-  {
-    "front": "未捕捉例外（uncaught exception）",
-    "back": "一路找不到相容 catch 時呼叫 terminate，程式不再走正常流程。"
-  },
-  {
-    "front": "例外堆疊展開（stack unwinding）",
-    "back": "throw後沿呼叫鏈找catch，沿途已建立的區域物件會解構，讓RAII資源收回。"
-  },
-  {
-    "front": "配置失敗例外（bad_alloc）",
-    "back": "一般throwing new配置失敗會丟bad_alloc；P4的nothrow版本改回nullptr。"
+    "front": "自動收尾（RAII）",
+    "back": "RAII 把資源綁定到物件生命週期，在正常離開作用域或有處理程序的例外堆疊展開時由解構式釋放。程式被強制終止等情況不保證解構；檔案串流一般不需手動 close。"
   },
   {
     "front": "例外（Exception）",
-    "back": "在正常結果無法產生時傳遞的錯誤值；執行期沿呼叫鏈尋找相容的handler。"
+    "back": "程式執行中發生無法繼續的狀況時被拋出的物件。它不代表壞掉，而是「這條路走不通，交給呼叫我的人決定怎麼辦」。"
+  },
+  {
+    "front": "例外處理（try / catch）",
+    "back": "把可能失敗的程式放進 try，失敗時跳到對應的 catch 處理。try 區塊應該只包含真正可能失敗的那幾行，範圍越小越好找錯。"
+  },
+  {
+    "front": "主動拋出（throw）",
+    "back": "throw 拋出例外並尋找相符的處理程序，例如拒絕負數數量。例外與狀態回傳各有適用情況；拋出後的正常路徑不會繼續執行，呼叫端應按契約處理。"
   },
   {
     "front": "例外訊息（what()）",
-    "back": "標準例外介面提供的說明文字；程式判斷類別通常依例外型別，而不是假設各平台訊息完全相同。"
+    "back": "std::exception 介面提供的成員函式，回傳描述錯誤的 C 字串；內容可用來報告問題，但確切文字通常依例外物件與實作而異。"
   },
   {
-    "front": "界線檢查與下標（at / operator[]）",
-    "back": "at以例外回報非法存取；[]依容器各自規則處理，vector和map的行為不同。"
+    "front": "越界例外（out_of_range）",
+    "back": "vector 或 string 的 at() 在索引不合法時丟出 std::out_of_range。例外型別可依賴，what() 的詳細文字則依實作而異。"
   },
   {
-    "front": "全包捕捉（catch-all Handler, catch (...)）",
-    "back": "可接住任意例外，但沒有具體參數可讀訊息；不應吞掉錯誤後假裝成功。"
+    "front": "檢查與不檢查的下標（at() vs operator[]）",
+    "back": "vector 的 at(i) 檢查範圍，operator[](i) 要求 i < size()。string 的 at 也要求 i < size()，但其 operator[](size()) 可讀到結尾空字元；不得把這個特例推廣到 vector。"
+  },
+  {
+    "front": "自訂例外（Custom Exception）",
+    "back": "為錯誤建立獨立型別，讓 catch 能精準區分情況。通常繼承 std::runtime_error 並傳入訊息；類別與繼承的完整寫法放在 P9，先在 P7 練習標準例外。"
+  },
+  {
+    "front": "未接住的例外（Uncaught Exception）",
+    "back": "例外若找不到對應處理程序，會呼叫 std::terminate。預設處理最終會終止程式；診斷文字、訊號及結束碼不能當成跨平台固定值。"
+  },
+  {
+    "front": "貪心捕捉（catch 全包）",
+    "back": "catch (...) 能接住任何 C++ 例外，不代表一定錯誤。可用於清理後再 throw; 或在邊界統一處理；若無聲忽略所有例外，就容易掩蓋真正問題。"
+  },
+  {
+    "front": "工作目錄（Working Directory）",
+    "back": "相對檔案路徑以程式當下的工作目錄解析，並非自動相對於原始碼所在資料夾。編譯時的 -I. 也是相對於編譯行程工作目錄；兩者可以不同。"
+  },
+  {
+    "front": "字串串流（stringstream）",
+    "back": "<sstream> 提供字串串流，例如 istringstream input(text); 可用 >> 從文字讀取數字與詞，並像檔案串流一樣檢查失敗狀態。它不會憑空讀檔，資料來源是所提供的字串。"
   }
 ]

@@ -464,8 +464,24 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </style>
 
 <style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
+<style>.diagram-scroll{overflow-x:auto;margin:1rem 0;}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#model" data-target="model"><span class="fn-num">01</span><span class="fn-name">鍵值與唯一集合的資料模型</span></a><a href="#iterator" data-target="iterator"><span class="fn-num">02</span><span class="fn-name">map iterator、pair 與箭頭</span></a><a href="#lookup" data-target="lookup"><span class="fn-num">03</span><span class="fn-name">[] 的副作用與 count、find、at</span></a><a href="#bindings" data-target="bindings"><span class="fn-num">04</span><span class="fn-name">從 auto [k,v] 到 structured bindings</span></a><a href="#choice" data-target="choice"><span class="fn-num">05</span><span class="fn-name">ordered 與 unordered：需求、順序、成本</span></a><a href="#erase" data-target="erase"><span class="fn-num">06</span><span class="fn-name">find、半開區間與安全 erase</span></a><a href="#counting" data-target="counting"><span class="fn-num">07</span><span class="fn-name">完整應用一：頻率計數</span></a><a href="#dedupe" data-target="dedupe"><span class="fn-num">08</span><span class="fn-name">完整應用二：去重與順序</span></a><a href="#grouping" data-target="grouping"><span class="fn-num">09</span><span class="fn-name">完整應用三：一對多分組</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">語法速查與選擇檢核</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P6</div><h1>map、set 與迭代器</h1><div class="subtitle">用鍵查值、去重、計數與分組</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#model"><span class="toc-num">01</span>鍵值與唯一集合的資料模型</a><a href="#iterator"><span class="toc-num">02</span>map iterator、pair 與箭頭</a><a href="#lookup"><span class="toc-num">03</span>[] 的副作用與 count、find、at</a><a href="#bindings"><span class="toc-num">04</span>從 auto [k,v] 到 structured bindings</a><a href="#choice"><span class="toc-num">05</span>ordered 與 unordered：需求、順序、成本</a><a href="#erase"><span class="toc-num">06</span>find、半開區間與安全 erase</a><a href="#counting"><span class="toc-num">07</span>完整應用一：頻率計數</a><a href="#dedupe"><span class="toc-num">08</span>完整應用二：去重與順序</a><a href="#grouping"><span class="toc-num">09</span>完整應用三：一對多分組</a><a href="#reference"><span class="toc-num">10</span>語法速查與選擇檢核</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a></div></div><section id="model"><div class="section-number">PART 01</div><h2>鍵值與唯一集合的資料模型</h2>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#model" data-target="model"><span class="fn-num">01</span><span class="fn-name">鍵值與唯一集合的資料模型</span></a><a href="#iterator" data-target="iterator"><span class="fn-num">02</span><span class="fn-name">map iterator、pair 與箭頭</span></a><a href="#lookup" data-target="lookup"><span class="fn-num">03</span><span class="fn-name">[] 的副作用與 count、find、at</span></a><a href="#bindings" data-target="bindings"><span class="fn-num">04</span><span class="fn-name">從 auto [k,v] 到 structured bindings</span></a><a href="#choice" data-target="choice"><span class="fn-num">05</span><span class="fn-name">ordered 與 unordered：需求、順序、成本</span></a><a href="#erase" data-target="erase"><span class="fn-num">06</span><span class="fn-name">find、半開區間與安全 erase</span></a><a href="#counting" data-target="counting"><span class="fn-num">07</span><span class="fn-name">完整應用一：頻率計數</span></a><a href="#dedupe" data-target="dedupe"><span class="fn-num">08</span><span class="fn-name">完整應用二：去重與順序</span></a><a href="#grouping" data-target="grouping"><span class="fn-num">09</span><span class="fn-name">完整應用三：一對多分組</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">語法速查與選擇檢核</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p6-map-api" data-target="restore-p6-map-api"><span class="fn-num">13</span><span class="fn-name">map 七個基本動作與缺鍵結果</span></a><a href="#restore-p6-set-map" data-target="restore-p6-set-map"><span class="fn-num">14</span><span class="fn-name">set 與 map 同一操作的差異</span></a><a href="#restore-p6-iterator-table" data-target="restore-p6-iterator-table"><span class="fn-num">15</span><span class="fn-name">iterator 六個符號與三種 map 走訪</span></a><a href="#restore-p6-algorithms" data-target="restore-p6-algorithms"><span class="fn-num">16</span><span class="fn-name">把 [begin,end) 交給標準演算法</span></a><a href="#restore-p6-ordered" data-target="restore-p6-ordered"><span class="fn-num">17</span><span class="fn-name">ordered 容器才有的端點與 lower_bound</span></a><a href="#restore-p6-four-containers" data-target="restore-p6-four-containers"><span class="fn-num">18</span><span class="fn-name">四種關聯容器完整比較</span></a><a href="#restore-p6-patterns" data-target="restore-p6-patterns"><span class="fn-num">19</span><span class="fn-name">四種完整模式</span></a><a href="#restore-p6-resources" data-target="restore-p6-resources"><span class="fn-num">20</span><span class="fn-name">查閱入口</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="26" y="40" width="96" height="34" rx="6"/>
+    <rect x="26" y="88" width="96" height="34" rx="6"/>
+    <rect x="26" y="136" width="96" height="34" rx="6"/>
+    <rect x="186" y="64" width="86" height="34" rx="6"/>
+    <rect x="186" y="112" width="86" height="34" rx="6"/>
+    <path d="M122 57 L186 81"/>
+    <path d="M122 105 L186 129"/>
+    <path d="M122 153 L186 129"/>
+  </g>
+  <g fill="#fff" opacity=".8" font-family="monospace" font-size="12">
+    <text x="46" y="62">"pear"</text><text x="46" y="110">"kiwi"</text><text x="46" y="158">"fig"</text>
+    <text x="216" y="86">30</text><text x="216" y="134">60</text>
+  </g>
+</svg><div class="hero-content"><div class="chapter-tag">PREREQ P6</div><h1>map、set 與迭代器</h1><div class="subtitle">用鍵查值、去重、計數與分組</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#model"><span class="toc-num">01</span>鍵值與唯一集合的資料模型</a><a href="#iterator"><span class="toc-num">02</span>map iterator、pair 與箭頭</a><a href="#lookup"><span class="toc-num">03</span>[] 的副作用與 count、find、at</a><a href="#bindings"><span class="toc-num">04</span>從 auto [k,v] 到 structured bindings</a><a href="#choice"><span class="toc-num">05</span>ordered 與 unordered：需求、順序、成本</a><a href="#erase"><span class="toc-num">06</span>find、半開區間與安全 erase</a><a href="#counting"><span class="toc-num">07</span>完整應用一：頻率計數</a><a href="#dedupe"><span class="toc-num">08</span>完整應用二：去重與順序</a><a href="#grouping"><span class="toc-num">09</span>完整應用三：一對多分組</a><a href="#reference"><span class="toc-num">10</span>語法速查與選擇檢核</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a><a href="#restore-p6-map-api"><span class="toc-num">補</span>map 七個基本動作與缺鍵結果</a><a href="#restore-p6-set-map"><span class="toc-num">補</span>set 與 map 同一操作的差異</a><a href="#restore-p6-iterator-table"><span class="toc-num">補</span>iterator 六個符號與三種 map 走訪</a><a href="#restore-p6-algorithms"><span class="toc-num">補</span>把 [begin,end) 交給標準演算法</a><a href="#restore-p6-ordered"><span class="toc-num">補</span>ordered 容器才有的端點與 lower_bound</a><a href="#restore-p6-four-containers"><span class="toc-num">補</span>四種關聯容器完整比較</a><a href="#restore-p6-patterns"><span class="toc-num">補</span>四種完整模式</a><a href="#restore-p6-resources"><span class="toc-num">補</span>查閱入口</a></div></div><section id="model"><div class="section-number">PART 01</div><h2>鍵值與唯一集合的資料模型</h2>
 <p>當資料的核心問題是「用鍵找值」或「某個值是否出現過」，map/set 比在 vector 中逐項掃描更直接。<code>map&lt;K,V&gt;</code> 把唯一鍵 K 對應到值 V；<code>set&lt;K&gt;</code> 只保存唯一鍵。</p>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>容器</th><th>保存內容</th><th>例子</th></tr></thead><tbody><tr><td><code>map&lt;string,int&gt;</code></td><td>鍵與值</td><td>品名 → 庫存</td></tr><tr><td><code>set&lt;string&gt;</code></td><td>唯一鍵</td><td>已使用的帳號</td></tr><tr><td><code>unordered_map&lt;K,V&gt;</code></td><td>鍵值、無排序保證</td><td>大量快速查表</td></tr><tr><td><code>unordered_set&lt;K&gt;</code></td><td>唯一鍵、無排序保證</td><td>大量 membership 檢查</td></tr></tbody></table></div>
 <pre class="pseudo-code" data-cpp="run" data-expected="3&#10;2&#10;">#include &lt;iostream&gt;
@@ -557,7 +573,7 @@ int main() {
 <p>這個例子刻意需要有序輸出，因此用 map。若換 unordered_map，三筆都會保存，但輸出順序不可寫入測試期待，也不應觀察某次結果後當作規則。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>一百萬個識別碼只做「是否出現」，不需順序，預設選什麼？限制是？</p><details><summary>看解答與理由</summary><p>預設 <code>unordered_set</code>，平均 O(1)；限制是走訪順序不保證、最壞可退化 O(n)，且鍵需可雜湊。</p></details></div>
 
-</section>
+<p>有序容器常以紅黑樹（red-black tree）等平衡搜尋樹實作；這能幫助理解為何要維持比較關係與高度，但 C++ 標準規範的是介面和複雜度，不強制指定這一種樹。雜湊容器則把元素分到桶（bucket），仍須用相等規則區分碰撞的鍵。</p></section>
 <section id="erase"><div class="section-number">PART 06</div><h2>find、半開區間與安全 erase</h2>
 <p>find 回傳 iterator；找到才能解參考。erase 有三種常見形式：<code>erase(key)</code> 回傳刪除筆數；<code>erase(it)</code> 在 C++11 起回傳下一個 iterator；<code>erase(first,last)</code> 刪左閉右開區間。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="2:75 4:90 &#10;">#include &lt;iostream&gt;
@@ -644,6 +660,36 @@ int main() {
 <div class="info-box warm"><div class="info-label">反例</div><p>若只想查看某分類，<code>groups[missing]</code> 會建立空分類。唯讀查看應先 find，找到才讀 <code>it-&gt;second</code>。</p></div>
 <div class="info-box"><div class="info-label">動手練習</div><p>要保存「課程 → 多位學生」，且課程排序、學生保留加入順序，型別？</p><details><summary>看解答與理由</summary><p><code>map&lt;string, vector&lt;string&gt;&gt;</code>。外層 map 排課程，內層 vector 留加入順序。</p></details></div>
 
+<p>相同的一對多結構也可描述連線：以某個地點為鍵，保存它直接連到的其他地點清單，稱為相鄰關係串列（adjacency list）。例如「大廳 → 展間、服務台」仍可用 <code>map&lt;string, vector&lt;string&gt;&gt;</code> 表達；這裡只建立資料表示，之後的圖演算法再處理如何走訪。</p></section>
+<section id="restore-p6-depth"><div class="section-number">RESTORED DEPTH</div><h2>完整介面、標準演算法與四容器比較</h2>
+<h3 id="restore-p6-map-api">map 七個基本動作與缺鍵結果</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>寫法</th><th>回傳／效果</th></tr></thead><tbody><tr><td>寫入或改值</td><td><code>m[k]=v</code></td><td>回傳 mapped value 的參考；缺鍵先插入</td></tr><tr><td>只在缺鍵時插入</td><td><code>m.insert({k,v})</code></td><td>pair：iterator 與是否插入的 bool</td></tr><tr><td>判斷存在</td><td><code>m.count(k)</code></td><td>map 中為 0 或 1</td></tr><tr><td>找位置</td><td><code>m.find(k)</code></td><td>iterator；缺鍵回 end</td></tr><tr><td>要求鍵存在</td><td><code>m.at(k)</code></td><td>值的參考；缺鍵丟 out_of_range</td></tr><tr><td>刪鍵</td><td><code>m.erase(k)</code></td><td>刪除筆數，map 中為 0 或 1</td></tr><tr><td>大小／空否</td><td><code>m.size()/m.empty()</code></td><td>項目數／bool，不改容器</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>缺少鍵 k 時</th><th>結果</th><th>容器大小</th></tr></thead><tbody><tr><td><code>m[k]</code></td><td>建立 value-initialized 值並回傳參考</td><td>增加 1</td></tr><tr><td><code>m.count(k)</code></td><td>回 0</td><td>不變</td></tr><tr><td><code>m.find(k)</code></td><td>回 <code>m.end()</code></td><td>不變</td></tr><tr><td><code>m.at(k)</code></td><td>丟 <code>out_of_range</code></td><td>不變</td></tr></tbody></table></div>
+<h3 id="restore-p6-set-map">set 與 map 同一操作的差異</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>操作</th><th><code>set&lt;T&gt;</code></th><th><code>map&lt;K,V&gt;</code></th></tr></thead><tbody><tr><td>插入</td><td><code>s.insert(x)</code></td><td><code>m.insert({k,v})</code> 或 <code>m[k]=v</code></td></tr><tr><td>存在</td><td><code>s.count(x)</code></td><td><code>m.count(k)</code></td></tr><tr><td>刪除</td><td><code>s.erase(x)</code></td><td><code>m.erase(k)</code></td></tr><tr><td>資料</td><td>唯一鍵，元素不可就地改鍵值</td><td>鍵唯讀、mapped value 可改</td></tr><tr><td>走訪</td><td>得到鍵</td><td>得到 <code>pair&lt;const K,V&gt;</code></td></tr></tbody></table></div>
+<h3 id="restore-p6-iterator-table">iterator 六個符號與三種 map 走訪</h3>
+<div class="diagram-scroll"><svg style="width:620px;max-width:none;height:auto;display:block;margin:auto" viewBox="0 0 620 150" role="img" aria-label="左閉右開 iterator 範圍：begin 指向第一項，end 指向最後一項之後"><g stroke="currentColor" fill="none" stroke-width="2"><rect x="80" y="55" width="100" height="55"/><rect x="180" y="55" width="100" height="55"/><rect x="280" y="55" width="100" height="55"/><rect x="380" y="55" width="100" height="55" stroke-dasharray="6 4"/><path d="M130 35v18M430 35v18"/></g><g font-family="monospace" font-size="15" text-anchor="middle"><text x="130" y="28">begin()</text><text x="430" y="28">end()</text><text x="130" y="88">第一項</text><text x="230" y="88">中間項</text><text x="330" y="88">最後項</text><text x="430" y="88">不可解參考</text><text x="280" y="135">[ begin, end )</text></g></svg></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>意思</th><th>界線</th></tr></thead><tbody><tr><td><code>c.begin()</code></td><td>第一項位置</td><td>空容器時等於 end</td></tr><tr><td><code>c.end()</code></td><td>尾後哨兵</td><td>不可解參考</td></tr><tr><td><code>++it</code></td><td>移到下一項</td><td>不可越過 end 再遞增</td></tr><tr><td><code>*it</code></td><td>目前整筆資料</td><td>it 必須可解參考</td></tr><tr><td><code>it-&gt;second</code></td><td><code>(*it).second</code></td><td>map 的 mapped value</td></tr><tr><td><code>it==c.end()</code></td><td>沒有有效項目／搜尋失敗</td><td>比較合法，解參考不合法</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>風格</th><th>寫法</th><th>取得內容</th></tr></thead><tbody><tr><td>iterator</td><td><code>for(auto it=m.begin();it!=m.end();++it)</code></td><td><code>it-&gt;first/second</code></td></tr><tr><td>range-for pair</td><td><code>for(const auto&amp; p:m)</code></td><td><code>p.first/p.second</code></td></tr><tr><td>structured binding</td><td><code>for(const auto&amp; [k,v]:m)</code></td><td>直接使用 k、v</td></tr></tbody></table></div>
+<h3 id="restore-p6-algorithms">把 [begin,end) 交給標準演算法</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>演算法</th><th>效果／回傳</th><th>必要條件</th></tr></thead><tbody><tr><td><code>sort(b,e)</code></td><td>區間由小到大排列</td><td>random-access iterator；元素可比較</td></tr><tr><td><code>find(b,e,x)</code></td><td>首個 x 的 iterator，否則 e</td><td>線性走訪並比較相等</td></tr><tr><td><code>reverse(b,e)</code></td><td>區間次序反轉</td><td>可雙向走訪與交換</td></tr><tr><td><code>count(b,e,x)</code></td><td>相等項目的數量</td><td>線性走訪</td></tr><tr><td><code>min_element/max_element</code></td><td>最小／最大項 iterator</td><td>非空前才解參考結果</td></tr><tr><td><code>swap(a,b)</code></td><td>交換兩個物件內容</td><td>兩側型別相容</td></tr></tbody></table></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="1 4 4 2&#10;9 7&#10;4 4 2 1&#10;">#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+int main(){ vector&lt;int&gt; v{4,1,4,2}; sort(v.begin(),v.end()); auto it=find(v.begin(),v.end(),4); cout&lt;&lt;*min_element(v.begin(),v.end())&lt;&lt;' '&lt;&lt;*max_element(v.begin(),v.end())&lt;&lt;' '&lt;&lt;*it&lt;&lt;' '&lt;&lt;count(v.begin(),v.end(),4)&lt;&lt;'\n'; reverse(v.begin(),v.end()); int a=7,b=9; swap(a,b); cout&lt;&lt;a&lt;&lt;' '&lt;&lt;b&lt;&lt;'\n'; for(size_t i=0;i&lt;v.size();++i) cout&lt;&lt;(i?" ":"")&lt;&lt;v[i]; cout&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1 4 4 2&#10;9 7&#10;4 4 2 1&#10;</pre></div>
+<p><code>std::find</code> 是吃 iterator 區間的通用線性演算法；map/set 的成員 <code>m.find(k)</code> 會利用樹或雜湊結構，應優先使用。swap 把 a、b 由 7、9 交換成 9、7；reverse 則把已排序 vector 變成 4、4、2、1，兩者操作不同物件。</p>
+<h3 id="restore-p6-ordered">ordered 容器才有的端點與 lower_bound</h3>
+<pre class="pseudo-code" data-cpp="run" data-expected="10 40 30 end&#10;">#include &lt;iostream&gt;
+#include &lt;set&gt;
+using namespace std;
+int main(){ set&lt;int&gt; s{30,10,40}; cout&lt;&lt;*s.begin()&lt;&lt;' '&lt;&lt;*s.rbegin()&lt;&lt;' '; auto p=s.lower_bound(25); if(p!=s.end()) cout&lt;&lt;*p; cout&lt;&lt;' '; cout&lt;&lt;(s.lower_bound(99)==s.end()?"end":"found")&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>10 40 30 end&#10;</pre></div>
+<p><code>begin</code> 是最小鍵，<code>rbegin</code> 是反向走訪的第一項，也就是最大鍵。<code>lower_bound(x)</code> 找第一個不小於 x 的鍵；若沒有則回 end。unordered 容器沒有排序，因此不提供這組有序查詢。</p>
+<h3 id="restore-p6-four-containers">四種關聯容器完整比較</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>維度</th><th>map</th><th>unordered_map</th><th>set</th><th>unordered_set</th></tr></thead><tbody><tr><td>保存</td><td>鍵＋值</td><td>鍵＋值</td><td>鍵</td><td>鍵</td></tr><tr><td>底層模型</td><td>有序樹</td><td>雜湊表</td><td>有序樹</td><td>雜湊表</td></tr><tr><td>按鍵查詢／插入／刪除</td><td>O(log n)</td><td>平均O(1)，最壞O(n)</td><td>O(log n)</td><td>平均O(1)，最壞O(n)</td></tr><tr><td>走訪順序</td><td>按鍵</td><td>不保證</td><td>按鍵</td><td>不保證</td></tr><tr><td>重複鍵</td><td>不允許</td><td>不允許</td><td>不允許</td><td>不允許</td></tr><tr><td>lower_bound／rbegin</td><td>有</td><td>無</td><td>有</td><td>無</td></tr><tr><td>鍵需求</td><td>嚴格弱序比較</td><td>hash＋equality</td><td>嚴格弱序比較</td><td>hash＋equality</td></tr><tr><td>典型選擇</td><td>鍵值且要順序</td><td>鍵值快速查表</td><td>排序唯一鍵</td><td>快速 membership</td></tr><tr><td>需要標頭</td><td><code>&lt;map&gt;</code></td><td><code>&lt;unordered_map&gt;</code></td><td><code>&lt;set&gt;</code></td><td><code>&lt;unordered_set&gt;</code></td></tr></tbody></table></div>
+<h3 id="restore-p6-patterns">四種完整模式</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>容器</th><th>核心</th></tr></thead><tbody><tr><td>頻率計數</td><td><code>map&lt;T,int&gt;</code></td><td><code>++freq[x]</code></td></tr><tr><td>不同種類</td><td><code>set&lt;T&gt;</code></td><td><code>unique.insert(x)</code></td></tr><tr><td>已處理 membership</td><td><code>set&lt;T&gt;</code> 或 unordered_set</td><td><code>if(seen.insert(x).second)</code></td></tr><tr><td>依鍵分組</td><td><code>map&lt;K,vector&lt;V&gt;&gt;</code></td><td><code>groups[k].push_back(v)</code></td></tr></tbody></table></div>
+<h3 id="restore-p6-resources">查閱入口</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>資源</th><th>查閱重點</th></tr></thead><tbody><tr><td><a href="https://en.cppreference.com/w/cpp/container/map" target="_blank" rel="noopener">cppreference map</a></td><td>at、insert、lower_bound與iterator失效</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/container/unordered_map" target="_blank" rel="noopener">unordered_map</a></td><td>bucket、load factor、rehash</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/container/set" target="_blank" rel="noopener">set</a></td><td>唯一鍵、insert結果、有序查詢</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/algorithm" target="_blank" rel="noopener">algorithms</a></td><td>iterator範圍、成本與必要條件</td></tr><tr><td><a href="p5_vector_string.html">P5</a></td><td>iterator基礎與vector失效規則</td></tr><tr><td><a href="p9_oop_advanced.html">P9</a></td><td>自訂鍵的比較、hash與equality</td></tr></tbody></table></div>
 </section>
 <section id="reference"><div class="section-number">PART 10</div><h2>語法速查與選擇檢核</h2>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>首選</th><th>關鍵界線</th></tr></thead><tbody><tr><td>寫入或累加</td><td><code>m[k]</code></td><td>不存在時會插入</td></tr><tr><td>唯讀存在判斷</td><td><code>count</code></td><td>map/set 結果 0 或 1</td></tr><tr><td>找到後取資料</td><td><code>find</code></td><td>先比較 end</td></tr><tr><td>邊走邊刪</td><td><code>it=erase(it)</code></td><td>不使用舊 iterator</td></tr><tr><td>要排序／範圍查詢</td><td>ordered</td><td>O(log n) 保證</td></tr><tr><td>只求平均快速查表</td><td>unordered</td><td>平均 O(1)，無順序保證</td></tr></tbody></table></div>
@@ -653,120 +699,140 @@ int main() {
 <p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：map、set 與迭代器 <span class="sec-badge">隨堂自測 · 11 題</span></h2>
+  <h2>自我檢測：map、set 與迭代器 <span class="sec-badge">隨堂自測 · 13 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>只想知道鍵是否存在，且不能改 map，應用？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="count/find 不插入；[] 缺鍵會插入。">count 或 find</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。count/find 不插入；[] 缺鍵會插入。">operator[]</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。count/find 不插入；[] 缺鍵會插入。">clear</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。count/find 不插入；[] 缺鍵會插入。">push_back</button>
+      <button class="sq-opt" data-c="1" data-fb="count/find 不插入；[] 缺鍵會插入。"><span class="opt-letter">(A)</span> count 或 find</button>
+      <button class="sq-opt" data-c="0" data-fb="operator[]在缺鍵時插入預設值，因此違反「不能改map」。"><span class="opt-letter">(B)</span> operator[]</button>
+      <button class="sq-opt" data-c="0" data-fb="clear會清空整張map，是破壞資料的修改操作，不是存在查詢。"><span class="opt-letter">(C)</span> clear</button>
+      <button class="sq-opt" data-c="0" data-fb="map不是序列容器，沒有push_back這個成員，也不能用它查鍵。"><span class="opt-letter">(D)</span> push_back</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>m[&quot;x&quot;] 在 x 不存在且 mapped type 是 int 時？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="operator[] 會 value-initialize int 為 0。">插入 x→0 並回傳該值的參考</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。operator[] 會 value-initialize int 為 0。">丟 KeyError</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。operator[] 會 value-initialize int 為 0。">回 end 且不插入</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。operator[] 會 value-initialize int 為 0。">編譯錯誤</button>
+      <button class="sq-opt" data-c="1" data-fb="operator[] 會 value-initialize int 為 0。"><span class="opt-letter">(A)</span> 插入 x→0 並回傳該值的參考</button>
+      <button class="sq-opt" data-c="0" data-fb="KeyError是其他語言常見模型；C++ map的[]會建立預設mapped value。"><span class="opt-letter">(B)</span> 丟 KeyError</button>
+      <button class="sq-opt" data-c="0" data-fb="找不到回end是find的契約，operator[]回傳新建值的參考。"><span class="opt-letter">(C)</span> 回 end 且不插入</button>
+      <button class="sq-opt" data-c="0" data-fb="int可value-initialize成0，所以這個[]操作語法與型別都合法。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q3.</span>find 找不到後，哪一步合法？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="end 可比較但不可解參考。">比較 it == m.end()</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。end 可比較但不可解參考。">讀 it-&gt;second</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。end 可比較但不可解參考。">讀 (*it).first</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。end 可比較但不可解參考。">對 *it 賦值</button>
+      <button class="sq-opt" data-c="1" data-fb="end 可比較但不可解參考。"><span class="opt-letter">(A)</span> 比較 it == m.end()</button>
+      <button class="sq-opt" data-c="0" data-fb="end不指向資料，讀second會解參考尾後哨兵，行為未定義。"><span class="opt-letter">(B)</span> 讀 it-&gt;second</button>
+      <button class="sq-opt" data-c="0" data-fb="(*it).first同樣先解參考it；找不到時沒有pair可讀。"><span class="opt-letter">(C)</span> 讀 (*it).first</button>
+      <button class="sq-opt" data-c="0" data-fb="除了end不能解參考，map的pair鍵還是const；對整個*it賦值也不合法。"><span class="opt-letter">(D)</span> 對 *it 賦值</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q4.</span>it-&gt;first 與哪個式子等價？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="箭頭是先解參考再用點號取成員。">(*it).first</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。箭頭是先解參考再用點號取成員。">*it.first</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。箭頭是先解參考再用點號取成員。">it.first</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。箭頭是先解參考再用點號取成員。">&amp;(it.first)</button>
+      <button class="sq-opt" data-c="1" data-fb="箭頭是先解參考再用點號取成員。"><span class="opt-letter">(A)</span> (*it).first</button>
+      <button class="sq-opt" data-c="0" data-fb="點號比*結合緊，*it.first會先嘗試取iterator本身的first，語法對象錯了。"><span class="opt-letter">(B)</span> *it.first</button>
+      <button class="sq-opt" data-c="0" data-fb="it是iterator，不是pair物件，不能直接用點號取first。"><span class="opt-letter">(C)</span> it.first</button>
+      <button class="sq-opt" data-c="0" data-fb="取地址&amp;(it.first)仍假定iterator有first成員，也沒有完成解參考。"><span class="opt-letter">(D)</span> &amp;(it.first)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>for (auto [k,v] : m) ++v; 執行後 map 會？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="要修改原值需 auto&amp; [k,v]。">不變，k、v 是每筆的複製</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。要修改原值需 auto&amp; [k,v]。">所有值加一</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。要修改原值需 auto&amp; [k,v]。">所有鍵加一</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。要修改原值需 auto&amp; [k,v]。">清空</button>
+      <button class="sq-opt" data-c="1" data-fb="要修改原值需 auto&amp; [k,v]。"><span class="opt-letter">(A)</span> 不變，k、v 是每筆的複製</button>
+      <button class="sq-opt" data-c="0" data-fb="沒有&amp;時v是second的副本，++只改副本，原map值不變。"><span class="opt-letter">(B)</span> 所有值加一</button>
+      <button class="sq-opt" data-c="0" data-fb="k對應map的const鍵，程式只對v做++，既沒有權限也沒有敘述修改鍵。"><span class="opt-letter">(C)</span> 所有鍵加一</button>
+      <button class="sq-opt" data-c="0" data-fb="迴圈只改區域副本，不包含clear或erase，map不會被清空。"><span class="opt-letter">(D)</span> 清空</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>需要依鍵排序輸出及 O(log n) 最壞界線，選？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="map 保持鍵序，基本操作保證 O(log n)。">map</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。map 保持鍵序，基本操作保證 O(log n)。">unordered_map</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。map 保持鍵序，基本操作保證 O(log n)。">vector 必定 O(1)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。map 保持鍵序，基本操作保證 O(log n)。">queue</button>
+      <button class="sq-opt" data-c="1" data-fb="map 保持鍵序，基本操作保證 O(log n)。"><span class="opt-letter">(A)</span> map</button>
+      <button class="sq-opt" data-c="0" data-fb="unordered_map不保證走訪排序，最壞查詢也可能退化到O(n)。"><span class="opt-letter">(B)</span> unordered_map</button>
+      <button class="sq-opt" data-c="0" data-fb="vector隨機索引是O(1)，但按鍵搜尋並非必定O(1)，維護排序插入也有成本。"><span class="opt-letter">(C)</span> vector 必定 O(1)</button>
+      <button class="sq-opt" data-c="0" data-fb="queue只提供前後端佇列操作，沒有按鍵查找或排序走訪。"><span class="opt-letter">(D)</span> queue</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q7.</span>unordered_set 的查詢成本與順序？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="雜湊提供平均常數時間，但碰撞可退化。">平均 O(1)、最壞 O(n)、走訪無順序保證</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。雜湊提供平均常數時間，但碰撞可退化。">永遠 O(1) 且排序</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。雜湊提供平均常數時間，但碰撞可退化。">O(log n) 且插入順序</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。雜湊提供平均常數時間，但碰撞可退化。">永遠 O(n)</button>
+      <button class="sq-opt" data-c="1" data-fb="雜湊提供平均常數時間，但碰撞可退化。"><span class="opt-letter">(A)</span> 平均 O(1)、最壞 O(n)、走訪無順序保證</button>
+      <button class="sq-opt" data-c="0" data-fb="平均O(1)不是永遠O(1)，而且unordered_set不提供排序走訪。"><span class="opt-letter">(B)</span> 永遠 O(1) 且排序</button>
+      <button class="sq-opt" data-c="0" data-fb="O(log n)與鍵序是set的典型保證，不是unordered_set。"><span class="opt-letter">(C)</span> O(log n) 且插入順序</button>
+      <button class="sq-opt" data-c="0" data-fb="雜湊查詢通常不是永遠O(n)；良好分布下平均為常數時間。"><span class="opt-letter">(D)</span> 永遠 O(n)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q8.</span>邊走訪 map 邊刪目前項，安全寫法？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="erase 回傳下一個有效 iterator。">it = m.erase(it)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效 iterator。">m.erase(it); ++it</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效 iterator。">erase(end())</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效 iterator。">for(auto x:m) erase(x)</button>
+      <button class="sq-opt" data-c="1" data-fb="erase 回傳下一個有效 iterator。"><span class="opt-letter">(A)</span> it = m.erase(it)</button>
+      <button class="sq-opt" data-c="0" data-fb="erase後舊it失效，對它++無效；必須使用erase回傳的下一位置。"><span class="opt-letter">(B)</span> m.erase(it); ++it</button>
+      <button class="sq-opt" data-c="0" data-fb="end是尾後哨兵而非元素，不能作為erase的單元素位置。"><span class="opt-letter">(C)</span> erase(end())</button>
+      <button class="sq-opt" data-c="0" data-fb="range-for隱藏自己的iterator，刪目前元素會破壞其後續推進；且x是值/參考不是erase所需位置。"><span class="opt-letter">(D)</span> for(auto x:m) erase(x)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q9.</span>set 的 insert 回傳結果中 .second 表示？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="鍵已存在時 second 為 false。">本次是否真的插入</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。鍵已存在時 second 為 false。">元素的值</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。鍵已存在時 second 為 false。">集合大小</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。鍵已存在時 second 為 false。">下一個鍵</button>
+      <button class="sq-opt" data-c="1" data-fb="鍵已存在時 second 為 false。"><span class="opt-letter">(A)</span> 本次是否真的插入</button>
+      <button class="sq-opt" data-c="0" data-fb=".second是插入成功旗標，元素本身或iterator放在回傳pair的.first。"><span class="opt-letter">(B)</span> 元素的值</button>
+      <button class="sq-opt" data-c="0" data-fb="集合目前大小要另呼叫size()，不會藏在insert結果的.second。"><span class="opt-letter">(C)</span> 集合大小</button>
+      <button class="sq-opt" data-c="0" data-fb="insert結果不預先回傳「下一個鍵」；.first指向等價元素的位置。"><span class="opt-letter">(D)</span> 下一個鍵</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q10.</span>要保留第一次出現順序的去重結果，單獨 set 足夠嗎？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="set 的走訪按鍵排序，不保存第一次出現順序。">不足；用 seen set 搭配 output vector</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。set 的走訪按鍵排序，不保存第一次出現順序。">足夠且保留插入順序</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。set 的走訪按鍵排序，不保存第一次出現順序。">換 map 就保序</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。set 的走訪按鍵排序，不保存第一次出現順序。">呼叫 sort 即可保序</button>
+      <button class="sq-opt" data-c="1" data-fb="set 的走訪按鍵排序，不保存第一次出現順序。"><span class="opt-letter">(A)</span> 不足；用 seen set 搭配 output vector</button>
+      <button class="sq-opt" data-c="0" data-fb="set按鍵排序走訪，不記錄第一次插入的先後。"><span class="opt-letter">(B)</span> 足夠且保留插入順序</button>
+      <button class="sq-opt" data-c="0" data-fb="map同樣按鍵排序且保存鍵值，不會自動保留首次出現順序。"><span class="opt-letter">(C)</span> 換 map 就保序</button>
+      <button class="sq-opt" data-c="0" data-fb="sort只重排資料；它不去除重複，也無法恢復首次出現順序。"><span class="opt-letter">(D)</span> 呼叫 sort 即可保序</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q11.</span>map&lt;string,vector&lt;string&gt;&gt; groups; groups[k].push_back(v) 為何可用？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="這裡有意利用 [] 的插入副作用。">[] 缺鍵時建立空 vector，再加入 v</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這裡有意利用 [] 的插入副作用。">vector 自動變 map</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這裡有意利用 [] 的插入副作用。">find 會插入</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這裡有意利用 [] 的插入副作用。">所有 k 預先存在</button>
+      <button class="sq-opt" data-c="1" data-fb="這裡有意利用 [] 的插入副作用。"><span class="opt-letter">(A)</span> [] 缺鍵時建立空 vector，再加入 v</button>
+      <button class="sq-opt" data-c="0" data-fb="vector不會變成map；groups本來就是map，而[]只建立它的mapped vector。"><span class="opt-letter">(B)</span> vector 自動變 map</button>
+      <button class="sq-opt" data-c="0" data-fb="find是唯讀定位，缺鍵回end；真正建立空vector的是operator[]。"><span class="opt-letter">(C)</span> find 會插入</button>
+      <button class="sq-opt" data-c="0" data-fb="k不必預先存在，這段正是利用[]在第一次遇到k時建立空vector。"><span class="opt-letter">(D)</span> 所有 k 預先存在</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q12.</span>在 map 中找鍵，為何優先使用 m.find(k) 而不是 std::find 掃完整區間？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="map::find是對數時間；通用std::find是線性逐項掃描。"><span class="opt-letter">(A)</span> 成員find會利用map的有序樹結構</button>
+      <button class="sq-opt" data-c="0" data-fb="std::find不插入資料；它的問題是線性掃描，未利用map的樹結構。"><span class="opt-letter">(B)</span> std::find會插入鍵</button>
+      <button class="sq-opt" data-c="0" data-fb="std::find是泛型演算法，可比較許多型別，不限int。"><span class="opt-letter">(C)</span> std::find只支援int</button>
+      <button class="sq-opt" data-c="0" data-fb="m是ordered map，因此find保證O(log n)，不是平均O(1)。"><span class="opt-letter">(D)</span> m.find一定是平均O(1)</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q13.</span>set&lt;int&gt;{10,30,40}.lower_bound(25) 指向？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="lower_bound回傳第一個不小於25的鍵。"><span class="opt-letter">(A)</span> 30</button>
+      <button class="sq-opt" data-c="0" data-fb="10小於25，lower_bound要找第一個不小於25的鍵。"><span class="opt-letter">(B)</span> 10</button>
+      <button class="sq-opt" data-c="0" data-fb="lower_bound不插入25；它只回傳容器中符合界線的既有鍵。"><span class="opt-letter">(C)</span> 25</button>
+      <button class="sq-opt" data-c="0" data-fb="30已符合不小於25，所以搜尋成功，不會回end。"><span class="opt-letter">(D)</span> end()</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p5_vector_string.html"><div class="nav-dir">上一頁</div><div class="nav-title">vector 與 string</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p7_files_exceptions.html"><div class="nav-dir">下一頁</div><div class="nav-title">檔案與例外</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "map<K,V>", "back": "唯一鍵 K 對應值 V；預設依鍵排序。"}, {"front": "set<K>", "back": "只保存唯一鍵；預設依鍵排序。"}, {"front": "operator[]", "back": "鍵不存在就插入 value-initialized 值；適合寫入與計數，不是唯讀查詢。"}, {"front": "count(k)", "back": "map/set 中回傳 0 或 1，不插入。"}, {"front": "find(k)", "back": "找到回 iterator，否則回 end；先比較再解參考。"}, {"front": "at(k)", "back": "鍵存在便取值；缺鍵丟 out_of_range，且不插入。"}, {"front": "map iterator", "back": "指向 pair；(*it).first 是鍵、second 是值。"}, {"front": "it->second", "back": "等價於 (*it).second：先解參考，再取 pair 成員。"}, {"front": "structured binding", "back": "auto [k,v] 拆 pair 為兩個名字；加 & 才綁定原資料。"}, {"front": "ordered 容器", "back": "map/set 保持鍵序，查詢插入刪除 O(log n)。"}, {"front": "unordered 容器", "back": "平均 O(1)，最壞 O(n)，走訪順序不保證。"}, {"front": "erase(iterator)", "back": "回傳刪除位置後的下一個 iterator，適合安全刪除迴圈。"}, {"front": "insert(x).second", "back": "set 插入結果中的 bool；true 表示本次真的插入。"}, {"front": "頻率計數", "back": "++freq[x] 利用 [] 缺鍵先建 0 的規則。"}, {"front": "保序去重", "back": "set 記 seen，vector 保存第一次出現的順序。"}, {"front": "一對多分組", "back": "map<K,vector<V>>；groups[k].push_back(v)。"}];
+const FLASHCARDS = [{"front": "映射容器（map<K,V>）", "back": "唯一鍵 K 對應值 V；預設依鍵排序。"}, {"front": "集合容器（set<K>）", "back": "只保存唯一鍵；預設依鍵排序。"}, {"front": "下標運算子（operator[]）", "back": "鍵不存在就插入 value-initialized 值；適合寫入與計數，不是唯讀查詢。"}, {"front": "存在計數（count(k)）", "back": "map/set 中回傳 0 或 1，不插入。"}, {"front": "鍵搜尋（find(k)）", "back": "找到回 iterator，否則回 end；先比較再解參考。"}, {"front": "必要鍵存取（at(k)）", "back": "鍵存在便取值；缺鍵丟 out_of_range，且不插入。"}, {"front": "映射迭代器（map iterator）", "back": "指向 pair；(*it).first 是鍵、second 是值。"}, {"front": "箭頭取值（it->second）", "back": "等價於 (*it).second：先解參考，再取 pair 成員。"}, {"front": "結構化繫結（structured binding）", "back": "auto [k,v] 拆 pair 為兩個名字；加 & 才綁定原資料。"}, {"front": "有序容器（ordered container）", "back": "map/set 保持鍵序，查詢插入刪除 O(log n)。"}, {"front": "無序容器（unordered container）", "back": "平均 O(1)，最壞 O(n)，走訪順序不保證。"}, {"front": "依位置刪除（erase(iterator)）", "back": "回傳刪除位置後的下一個 iterator，適合安全刪除迴圈。"}, {"front": "插入結果（insert(x).second）", "back": "set 插入結果中的 bool；true 表示本次真的插入。"}, {"front": "頻率計數（frequency counting）", "back": "++freq[x] 利用 [] 缺鍵先建 0 的規則。"}, {"front": "保序去重（stable deduplication）", "back": "set 記 seen，vector 保存第一次出現的順序。"}, {"front": "一對多分組（grouping）", "back": "map<K,vector<V>>；groups[k].push_back(v)。"}, {"front": "標準演算法（standard algorithms）", "back": "sort、find、reverse、count、min_element、max_element 接受 [begin,end) iterator 範圍。"}, {"front": "下界查詢（lower_bound）", "back": "ordered容器的 lower_bound(x) 回傳第一個不小於x的鍵；沒有則為end。"}, {"front": "成員搜尋與通用搜尋（member find vs std::find）", "back": "map/set成員find利用容器結構；std::find逐項線性掃描iterator範圍。"}, {"front": "無序映射（unordered_map）", "back": "保存鍵和值的雜湊關聯容器；走訪不保證排序或插入順序。"}, {"front": "無序集合（unordered_set）", "back": "保存不重複鍵的雜湊集合；沒有map的mapped value。"}, {"front": "成對資料（pair）", "back": "保存first與second兩部分；map走訪取得鍵值配對，鍵不能直接改動。"}, {"front": "值初始化（Value Initialization）", "back": "以型別規則產生初值；map用[]新增缺少的int值時會得到0，不要誤稱所有預設初始化都會歸零。"}, {"front": "尾後迭代器（Past-the-end Iterator, end）", "back": "代表最後元素之後的位置，供區間邊界和比較使用，不可解參考。"}, {"front": "左閉右開區間（Half-open Range）", "back": "包含first指向的元素、不包含last；[first,last)可用相同規則表示空區間。"}, {"front": "紅黑樹（Red-black Tree）", "back": "維持高度受控的一種平衡搜尋樹，常用來實作map/set；標準規範介面與複雜度，不強制這個實作。"}, {"front": "桶（Bucket）", "back": "雜湊容器依雜湊值把元素分到的群組；碰撞仍需用相等規則辨認鍵。"}, {"front": "相鄰關係串列（Adjacency List）", "back": "以每個對象為鍵保存它連到哪些對象；可用map<K,vector<V>>表達，寫法沿用一對多分組。"}];
 
 /* depth-runtime:start */
 (() => {

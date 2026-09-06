@@ -10,17 +10,17 @@
       {
         "answer": "operator[]",
         "correct": false,
-        "feedback": "不對。count/find 不插入；[] 缺鍵會插入。"
+        "feedback": "operator[]在缺鍵時插入預設值，因此違反「不能改map」。"
       },
       {
         "answer": "clear",
         "correct": false,
-        "feedback": "不對。count/find 不插入；[] 缺鍵會插入。"
+        "feedback": "clear會清空整張map，是破壞資料的修改操作，不是存在查詢。"
       },
       {
         "answer": "push_back",
         "correct": false,
-        "feedback": "不對。count/find 不插入；[] 缺鍵會插入。"
+        "feedback": "map不是序列容器，沒有push_back這個成員，也不能用它查鍵。"
       }
     ]
   },
@@ -35,17 +35,17 @@
       {
         "answer": "丟 KeyError",
         "correct": false,
-        "feedback": "不對。operator[] 會 value-initialize int 為 0。"
+        "feedback": "KeyError是其他語言常見模型；C++ map的[]會建立預設mapped value。"
       },
       {
         "answer": "回 end 且不插入",
         "correct": false,
-        "feedback": "不對。operator[] 會 value-initialize int 為 0。"
+        "feedback": "找不到回end是find的契約，operator[]回傳新建值的參考。"
       },
       {
         "answer": "編譯錯誤",
         "correct": false,
-        "feedback": "不對。operator[] 會 value-initialize int 為 0。"
+        "feedback": "int可value-initialize成0，所以這個[]操作語法與型別都合法。"
       }
     ]
   },
@@ -60,17 +60,17 @@
       {
         "answer": "讀 it->second",
         "correct": false,
-        "feedback": "不對。end 可比較但不可解參考。"
+        "feedback": "end不指向資料，讀second會解參考尾後哨兵，行為未定義。"
       },
       {
         "answer": "讀 (*it).first",
         "correct": false,
-        "feedback": "不對。end 可比較但不可解參考。"
+        "feedback": "(*it).first同樣先解參考it；找不到時沒有pair可讀。"
       },
       {
         "answer": "對 *it 賦值",
         "correct": false,
-        "feedback": "不對。end 可比較但不可解參考。"
+        "feedback": "除了end不能解參考，map的pair鍵還是const；對整個*it賦值也不合法。"
       }
     ]
   },
@@ -85,17 +85,17 @@
       {
         "answer": "*it.first",
         "correct": false,
-        "feedback": "不對。箭頭是先解參考再用點號取成員。"
+        "feedback": "點號比*結合緊，*it.first會先嘗試取iterator本身的first，語法對象錯了。"
       },
       {
         "answer": "it.first",
         "correct": false,
-        "feedback": "不對。箭頭是先解參考再用點號取成員。"
+        "feedback": "it是iterator，不是pair物件，不能直接用點號取first。"
       },
       {
         "answer": "&(it.first)",
         "correct": false,
-        "feedback": "不對。箭頭是先解參考再用點號取成員。"
+        "feedback": "取地址&(it.first)仍假定iterator有first成員，也沒有完成解參考。"
       }
     ]
   },
@@ -110,17 +110,17 @@
       {
         "answer": "所有值加一",
         "correct": false,
-        "feedback": "不對。要修改原值需 auto& [k,v]。"
+        "feedback": "沒有&時v是second的副本，++只改副本，原map值不變。"
       },
       {
         "answer": "所有鍵加一",
         "correct": false,
-        "feedback": "不對。要修改原值需 auto& [k,v]。"
+        "feedback": "k對應map的const鍵，程式只對v做++，既沒有權限也沒有敘述修改鍵。"
       },
       {
         "answer": "清空",
         "correct": false,
-        "feedback": "不對。要修改原值需 auto& [k,v]。"
+        "feedback": "迴圈只改區域副本，不包含clear或erase，map不會被清空。"
       }
     ]
   },
@@ -135,17 +135,17 @@
       {
         "answer": "unordered_map",
         "correct": false,
-        "feedback": "不對。map 保持鍵序，基本操作保證 O(log n)。"
+        "feedback": "unordered_map不保證走訪排序，最壞查詢也可能退化到O(n)。"
       },
       {
         "answer": "vector 必定 O(1)",
         "correct": false,
-        "feedback": "不對。map 保持鍵序，基本操作保證 O(log n)。"
+        "feedback": "vector隨機索引是O(1)，但按鍵搜尋並非必定O(1)，維護排序插入也有成本。"
       },
       {
         "answer": "queue",
         "correct": false,
-        "feedback": "不對。map 保持鍵序，基本操作保證 O(log n)。"
+        "feedback": "queue只提供前後端佇列操作，沒有按鍵查找或排序走訪。"
       }
     ]
   },
@@ -160,17 +160,17 @@
       {
         "answer": "永遠 O(1) 且排序",
         "correct": false,
-        "feedback": "不對。雜湊提供平均常數時間，但碰撞可退化。"
+        "feedback": "平均O(1)不是永遠O(1)，而且unordered_set不提供排序走訪。"
       },
       {
         "answer": "O(log n) 且插入順序",
         "correct": false,
-        "feedback": "不對。雜湊提供平均常數時間，但碰撞可退化。"
+        "feedback": "O(log n)與鍵序是set的典型保證，不是unordered_set。"
       },
       {
         "answer": "永遠 O(n)",
         "correct": false,
-        "feedback": "不對。雜湊提供平均常數時間，但碰撞可退化。"
+        "feedback": "雜湊查詢通常不是永遠O(n)；良好分布下平均為常數時間。"
       }
     ]
   },
@@ -185,17 +185,17 @@
       {
         "answer": "m.erase(it); ++it",
         "correct": false,
-        "feedback": "不對。erase 回傳下一個有效 iterator。"
+        "feedback": "erase後舊it失效，對它++無效；必須使用erase回傳的下一位置。"
       },
       {
         "answer": "erase(end())",
         "correct": false,
-        "feedback": "不對。erase 回傳下一個有效 iterator。"
+        "feedback": "end是尾後哨兵而非元素，不能作為erase的單元素位置。"
       },
       {
         "answer": "for(auto x:m) erase(x)",
         "correct": false,
-        "feedback": "不對。erase 回傳下一個有效 iterator。"
+        "feedback": "range-for隱藏自己的iterator，刪目前元素會破壞其後續推進；且x是值/參考不是erase所需位置。"
       }
     ]
   },
@@ -210,17 +210,17 @@
       {
         "answer": "元素的值",
         "correct": false,
-        "feedback": "不對。鍵已存在時 second 為 false。"
+        "feedback": ".second是插入成功旗標，元素本身或iterator放在回傳pair的.first。"
       },
       {
         "answer": "集合大小",
         "correct": false,
-        "feedback": "不對。鍵已存在時 second 為 false。"
+        "feedback": "集合目前大小要另呼叫size()，不會藏在insert結果的.second。"
       },
       {
         "answer": "下一個鍵",
         "correct": false,
-        "feedback": "不對。鍵已存在時 second 為 false。"
+        "feedback": "insert結果不預先回傳「下一個鍵」；.first指向等價元素的位置。"
       }
     ]
   },
@@ -235,17 +235,17 @@
       {
         "answer": "足夠且保留插入順序",
         "correct": false,
-        "feedback": "不對。set 的走訪按鍵排序，不保存第一次出現順序。"
+        "feedback": "set按鍵排序走訪，不記錄第一次插入的先後。"
       },
       {
         "answer": "換 map 就保序",
         "correct": false,
-        "feedback": "不對。set 的走訪按鍵排序，不保存第一次出現順序。"
+        "feedback": "map同樣按鍵排序且保存鍵值，不會自動保留首次出現順序。"
       },
       {
         "answer": "呼叫 sort 即可保序",
         "correct": false,
-        "feedback": "不對。set 的走訪按鍵排序，不保存第一次出現順序。"
+        "feedback": "sort只重排資料；它不去除重複，也無法恢復首次出現順序。"
       }
     ]
   },
@@ -260,17 +260,67 @@
       {
         "answer": "vector 自動變 map",
         "correct": false,
-        "feedback": "不對。這裡有意利用 [] 的插入副作用。"
+        "feedback": "vector不會變成map；groups本來就是map，而[]只建立它的mapped vector。"
       },
       {
         "answer": "find 會插入",
         "correct": false,
-        "feedback": "不對。這裡有意利用 [] 的插入副作用。"
+        "feedback": "find是唯讀定位，缺鍵回end；真正建立空vector的是operator[]。"
       },
       {
         "answer": "所有 k 預先存在",
         "correct": false,
-        "feedback": "不對。這裡有意利用 [] 的插入副作用。"
+        "feedback": "k不必預先存在，這段正是利用[]在第一次遇到k時建立空vector。"
+      }
+    ]
+  },
+  {
+    "question": "在 map 中找鍵，為何優先使用 m.find(k) 而不是 std::find 掃完整區間？",
+    "answers": [
+      {
+        "answer": "成員find會利用map的有序樹結構",
+        "correct": true,
+        "feedback": "map::find是對數時間；通用std::find是線性逐項掃描。"
+      },
+      {
+        "answer": "std::find會插入鍵",
+        "correct": false,
+        "feedback": "std::find不插入資料；它的問題是線性掃描，未利用map的樹結構。"
+      },
+      {
+        "answer": "std::find只支援int",
+        "correct": false,
+        "feedback": "std::find是泛型演算法，可比較許多型別，不限int。"
+      },
+      {
+        "answer": "m.find一定是平均O(1)",
+        "correct": false,
+        "feedback": "m是ordered map，因此find保證O(log n)，不是平均O(1)。"
+      }
+    ]
+  },
+  {
+    "question": "set<int>{10,30,40}.lower_bound(25) 指向？",
+    "answers": [
+      {
+        "answer": "30",
+        "correct": true,
+        "feedback": "lower_bound回傳第一個不小於25的鍵。"
+      },
+      {
+        "answer": "10",
+        "correct": false,
+        "feedback": "10小於25，lower_bound要找第一個不小於25的鍵。"
+      },
+      {
+        "answer": "25",
+        "correct": false,
+        "feedback": "lower_bound不插入25；它只回傳容器中符合界線的既有鍵。"
+      },
+      {
+        "answer": "end()",
+        "correct": false,
+        "feedback": "30已符合不小於25，所以搜尋成功，不會回end。"
       }
     ]
   }

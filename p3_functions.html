@@ -465,7 +465,22 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#purpose" data-target="purpose"><span class="fn-num">01</span><span class="fn-name">先看一項工作如何變成函式</span></a><a href="#parameters" data-target="parameters"><span class="fn-num">02</span><span class="fn-name">引數、參數與回傳值：把資料流追清楚</span></a><a href="#return" data-target="return"><span class="fn-num">03</span><span class="fn-name">return 結束呼叫，void 表示沒有回傳值</span></a><a href="#scope" data-target="scope"><span class="fn-num">04</span><span class="fn-name">作用域、生命週期與同名變數</span></a><a href="#declare" data-target="declare"><span class="fn-num">05</span><span class="fn-name">先宣告呼叫方式，再提供定義</span></a><a href="#byvalue" data-target="byvalue"><span class="fn-num">06</span><span class="fn-name">傳值：函式改的是副本</span></a><a href="#byref" data-target="byref"><span class="fn-num">07</span><span class="fn-name">參考先是別名，之後才是參數寫法</span></a><a href="#constref" data-target="constref"><span class="fn-num">08</span><span class="fn-name">唯讀參考：限制透過這個名稱的修改</span></a><a href="#retval" data-target="retval"><span class="fn-num">09</span><span class="fn-name">回傳數值安全，回傳參考要問物件還活著嗎</span></a><a href="#overload" data-target="overload"><span class="fn-num">10</span><span class="fn-name">多載與預設引數：分清楚選版本和補資料</span></a><a href="#recursion" data-target="recursion"><span class="fn-num">11</span><span class="fn-name">從一般呼叫到遞迴：每次呼叫都有自己的狀態</span></a><a href="#reference" data-target="reference"><span class="fn-num">12</span><span class="fn-name">語法速查與下一步</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">13</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">14</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P3</div><h1>函式與參考</h1><div class="subtitle">從函式的每個符號開始，追蹤呼叫、參考與返回的完整過程</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#purpose"><span class="toc-num">01</span>先看一項工作如何變成函式</a><a href="#parameters"><span class="toc-num">02</span>引數、參數與回傳值：把資料流追清楚</a><a href="#return"><span class="toc-num">03</span>return 結束呼叫，void 表示沒有回傳值</a><a href="#scope"><span class="toc-num">04</span>作用域、生命週期與同名變數</a><a href="#declare"><span class="toc-num">05</span>先宣告呼叫方式，再提供定義</a><a href="#byvalue"><span class="toc-num">06</span>傳值：函式改的是副本</a><a href="#byref"><span class="toc-num">07</span>參考先是別名，之後才是參數寫法</a><a href="#constref"><span class="toc-num">08</span>唯讀參考：限制透過這個名稱的修改</a><a href="#retval"><span class="toc-num">09</span>回傳數值安全，回傳參考要問物件還活著嗎</a><a href="#overload"><span class="toc-num">10</span>多載與預設引數：分清楚選版本和補資料</a><a href="#recursion"><span class="toc-num">11</span>從一般呼叫到遞迴：每次呼叫都有自己的狀態</a><a href="#reference"><span class="toc-num">12</span>語法速查與下一步</a><a href="#bankquiz"><span class="toc-num">13</span>自我檢測</a><a href="#cards"><span class="toc-num">14</span>關鍵詞彙卡</a></div></div><section id="purpose"><div class="section-number">PART 01</div><h2>先看一項工作如何變成函式</h2>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#purpose" data-target="purpose"><span class="fn-num">01</span><span class="fn-name">先看一項工作如何變成函式</span></a><a href="#parameters" data-target="parameters"><span class="fn-num">02</span><span class="fn-name">引數、參數與回傳值：把資料流追清楚</span></a><a href="#return" data-target="return"><span class="fn-num">03</span><span class="fn-name">return 結束呼叫，void 表示沒有回傳值</span></a><a href="#scope" data-target="scope"><span class="fn-num">04</span><span class="fn-name">作用域、生命週期與同名變數</span></a><a href="#declare" data-target="declare"><span class="fn-num">05</span><span class="fn-name">先宣告呼叫方式，再提供定義</span></a><a href="#byvalue" data-target="byvalue"><span class="fn-num">06</span><span class="fn-name">傳值：函式改的是副本</span></a><a href="#byref" data-target="byref"><span class="fn-num">07</span><span class="fn-name">參考先是別名，之後才是參數寫法</span></a><a href="#constref" data-target="constref"><span class="fn-num">08</span><span class="fn-name">唯讀參考：限制透過這個名稱的修改</span></a><a href="#retval" data-target="retval"><span class="fn-num">09</span><span class="fn-name">回傳數值安全，回傳參考要問物件還活著嗎</span></a><a href="#overload" data-target="overload"><span class="fn-num">10</span><span class="fn-name">多載與預設引數：分清楚選版本和補資料</span></a><a href="#recursion" data-target="recursion"><span class="fn-num">11</span><span class="fn-name">從一般呼叫到遞迴：每次呼叫都有自己的狀態</span></a><a href="#reference" data-target="reference"><span class="fn-num">12</span><span class="fn-name">語法速查與下一步</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">13</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">14</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-declaration-table" data-target="restore-declaration-table"><span class="fn-num">15</span><span class="fn-name">把宣告與定義放在一起比較</span></a><a href="#restore-value-decisions" data-target="restore-value-decisions"><span class="fn-num">16</span><span class="fn-name">什麼時候刻意選擇傳值</span></a><a href="#restore-value-reference" data-target="restore-value-reference"><span class="fn-num">17</span><span class="fn-name">同一個呼叫，副本與別名差在哪裡</span></a><a href="#restore-parameter-decisions" data-target="restore-parameter-decisions"><span class="fn-num">18</span><span class="fn-name">用需求挑選介面</span></a><a href="#restore-return-warning" data-target="restore-return-warning"><span class="fn-num">19</span><span class="fn-name">回傳後仍可使用，才算有效的結果</span></a><a href="#restore-default-warning" data-target="restore-default-warning"><span class="fn-num">20</span><span class="fn-name">預設引數與多載一起檢查</span></a><a href="#restore-recursive-return" data-target="restore-recursive-return"><span class="fn-num">21</span><span class="fn-name">遞迴也會逐層回傳計算結果</span></a><a href="#restore-four-parameter-matrix" data-target="restore-four-parameter-matrix"><span class="fn-num">22</span><span class="fn-name">四種傳參形式的完整對照</span></a><a href="#restore-function-task-map" data-target="restore-function-task-map"><span class="fn-num">23</span><span class="fn-name">從需求回查 C++ 語法</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="26" y="46" width="104" height="52" rx="7"/>
+    <rect x="26" y="150" width="104" height="52" rx="7"/>
+    <rect x="176" y="46" width="96" height="52" rx="7"/>
+    <rect x="176" y="150" width="96" height="52" rx="7"/>
+    <path d="M130 72 L176 72"/>
+    <path d="M130 176 L176 176"/>
+    <path d="M176 176 L130 176"/>
+  </g>
+  <g fill="#fff" opacity=".8" font-family="monospace" font-size="11">
+    <text x="44" y="76">caller a</text><text x="192" y="76">副本 a</text>
+    <text x="44" y="180">caller b</text><text x="196" y="180">別名 b</text>
+    <text x="140" y="66">複製</text><text x="132" y="200">同一格</text>
+  </g>
+</svg><div class="hero-content"><div class="chapter-tag">PREREQ P3</div><h1>函式與參考</h1><div class="subtitle">從函式的每個符號開始，追蹤呼叫、參考與返回的完整過程</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#purpose"><span class="toc-num">01</span>先看一項工作如何變成函式</a><a href="#parameters"><span class="toc-num">02</span>引數、參數與回傳值：把資料流追清楚</a><a href="#return"><span class="toc-num">03</span>return 結束呼叫，void 表示沒有回傳值</a><a href="#scope"><span class="toc-num">04</span>作用域、生命週期與同名變數</a><a href="#declare"><span class="toc-num">05</span>先宣告呼叫方式，再提供定義</a><a href="#byvalue"><span class="toc-num">06</span>傳值：函式改的是副本</a><a href="#byref"><span class="toc-num">07</span>參考先是別名，之後才是參數寫法</a><a href="#constref"><span class="toc-num">08</span>唯讀參考：限制透過這個名稱的修改</a><a href="#retval"><span class="toc-num">09</span>回傳數值安全，回傳參考要問物件還活著嗎</a><a href="#overload"><span class="toc-num">10</span>多載與預設引數：分清楚選版本和補資料</a><a href="#recursion"><span class="toc-num">11</span>從一般呼叫到遞迴：每次呼叫都有自己的狀態</a><a href="#reference"><span class="toc-num">12</span>語法速查與下一步</a><a href="#bankquiz"><span class="toc-num">13</span>自我檢測</a><a href="#cards"><span class="toc-num">14</span>關鍵詞彙卡</a><a href="#restore-declaration-table"><span class="toc-num">補</span>把宣告與定義放在一起比較</a><a href="#restore-value-decisions"><span class="toc-num">補</span>什麼時候刻意選擇傳值</a><a href="#restore-value-reference"><span class="toc-num">補</span>同一個呼叫，副本與別名差在哪裡</a><a href="#restore-parameter-decisions"><span class="toc-num">補</span>用需求挑選介面</a><a href="#restore-return-warning"><span class="toc-num">補</span>回傳後仍可使用，才算有效的結果</a><a href="#restore-default-warning"><span class="toc-num">補</span>預設引數與多載一起檢查</a><a href="#restore-recursive-return"><span class="toc-num">補</span>遞迴也會逐層回傳計算結果</a><a href="#restore-four-parameter-matrix"><span class="toc-num">補</span>四種傳參形式的完整對照</a><a href="#restore-function-task-map"><span class="toc-num">補</span>從需求回查 C++ 語法</a></div></div><section id="purpose"><div class="section-number">PART 01</div><h2>先看一項工作如何變成函式</h2>
 <p>想像你要在不同地方計算包裹費用：預估畫面要算一次，確認訂單時又要算一次。直接複製算式雖然能工作，但調整規則時容易只改到其中一處。函式把一項工作命名，讓程式透過名稱重複使用同一份規則。這裡先學如何定義、呼叫和取得結果，之後才比較不同的參數傳遞方式。</p>
 <p>先把函式想成有清楚邊界的一段程式：呼叫端交出輸入，函式用自己的參數與區域變數完成工作，再把結果交回。輸入、輸出與螢幕顯示是不同的事；函式可以回傳一個數字而完全不印文字，也可以只顯示提醒而不回傳計算結果。</p>
 <pre class="pseudo-code" data-cpp="fragment">回傳型別 函式名稱(參數列) {
@@ -563,7 +578,11 @@ int deliveryFee(int boxes, int rate) {
 <p>「沒有宣告就呼叫」通常在編譯時被抓到；「已有宣告，卻找不到相符定義」則可能到連結階段才失敗。P1 的編譯流程在這裡就有實際用途：先辨認失敗階段，才知道該查名稱可見性、型別，還是漏編譯的來源檔。P8 會再把這個做法用到標頭檔與多檔程式。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>上例保留宣告，但刪掉最後的定義，問題會出在哪裡？</p><details><summary>看解答與理由</summary><p>呼叫的語法與型別已有宣告可以檢查，但連結器找不到 deliveryFee(int, int) 的實作，所以不能產生完整可執行程式。</p></details></div>
 
-</section>
+<div id="restore-declaration-table"><h3>把宣告與定義放在一起比較</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較項目</th><th>函式宣告（Declaration）</th><th>函式定義（Definition）</th></tr></thead><tbody><tr><td>語法外觀</td><td><code>int deliveryFee(int n);</code></td><td><code>int deliveryFee(int n) { return n * 12; }</code></td></tr><tr><td>提供的資訊</td><td>名稱、參數型別與回傳型別；讓呼叫可被型別檢查</td><td>除了介面，也提供完成工作的函式本體</td></tr><tr><td>結尾</td><td>沒有本體，以分號結束</td><td>帶有大括號包住的本體</td></tr><tr><td>可出現的位置／次數</td><td>相容宣告可以在需要的地方重複出現</td><td>本頁的一般函式在整個程式中應只有一份定義</td></tr><tr><td>常見檔案組織</td><td>對外介面常放標頭 .hpp</td><td>一般實作常放 .cpp；其他組織方式在 P8、P9 再說明</td></tr><tr><td>缺少時的症狀</td><td>呼叫前完全沒有可見宣告，通常在編譯階段失敗</td><td>已宣告卻未提供相符定義，通常在連結階段失敗</td></tr></tbody></table></div>
+<p>這張表描述本頁一般函式的基本組織方式，不是規定所有定義都只能寫在 .cpp。P8 會用真正多檔範例說明標頭與來源檔；P9 再介紹模板及它需要的檔案安排。</p>
+
+</div></section>
 <section id="byvalue"><div class="section-number">PART 06</div><h2>傳值：函式改的是副本</h2>
 <p>參數寫成 int points 時，這一次呼叫會建立自己的 points，初值來自引數。它不是呼叫端變數換了名字，也不是把原物件搬進函式。對 int 而言可以直接想成把數字複製到另一格。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="函式內 30&#10;呼叫後 20&#10;">#include &lt;iostream&gt;
@@ -580,7 +599,11 @@ int main() {
 <p>這不是「函式裡的修改沒有作用」，而是要先問修改的是哪個物件。等到 P5 學容器，傳值可能涉及複製整份資料，成本就不只是一個整數；這時才更能理解唯讀參考的用途。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>如果函式內把 points 改成 0，score 會變嗎？要如何明確更新 score？</p><details><summary>看解答與理由</summary><p>仍不會變。可改成回傳新值的 int 函式，然後在 main 寫 score = 函式呼叫；下一節則會介紹直接修改原物件的參考參數。</p></details></div>
 
-</section>
+<div id="restore-value-decisions"><h3>什麼時候刻意選擇傳值</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>情境</th><th>傳值是否合適</th><th>原因與取捨</th></tr></thead><tbody><tr><td>int、double、char、bool 等小型輸入</td><td>通常合適</td><td>取得自己的值，介面簡單。不要只用固定 byte 數或未量測的速度斷言誰一定比較快。</td></tr><tr><td>函式需要可以自行修改的快照</td><td>合適</td><td>副本正是所需效果；呼叫端物件保持原樣。</td></tr><tr><td>大型資料只需讀取</td><td>先考慮 const 參考</td><td>避免不必要的整份複製，並表達不透過參數修改。</td></tr><tr><td>函式需要保存一份獨立資料</td><td>需依需求評估</td><td>不能只因物件大就一律禁止傳值；若本來就需要自己的資料，複製或後續移動可能合理。</td></tr></tbody></table></div>
+<p>選參數形式先看資料要不要共享、修改與保存，再談成本。對自訂類別而言，複製的工作由型別自己定義；它可能很便宜，也可能涉及多個資源。P8 建立類別後會介紹複製建構，P9 再談資源所有權。</p>
+
+</div></section>
 <section id="byref"><div class="section-number">PART 07</div><h2>參考先是別名，之後才是參數寫法</h2>
 <p>參考替既有物件取另一個名稱。先離開函式，單獨理解 int& alias = value：型別中的 & 表示參考，alias 必須在宣告時綁定到物件。它不是第三份數值，也不是指向不同地方的可改變門牌。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="25 25&#10;7 7&#10;">#include &lt;iostream&gt;
@@ -611,7 +634,12 @@ int main() {
 <span class="line">// 回到 main</span></pre><div class="controls-bar"><button class="btn btn-step" data-action="prev">上一步</button><button class="btn btn-play" data-action="play">▶ 播放</button><button class="btn btn-step" data-action="next">下一步</button><button class="btn btn-reset" data-action="reset">重設</button></div><div class="trace-note" aria-live="polite"></div><div class="trace-vars"></div><pre class="trace-output"></pre><script type="application/json" class="trace-data">[{"note": "尚未宣告 score。", "vars": {"score": "尚未建立"}}, {"note": "建立原物件 score。", "line": 0, "vars": {"score": 20}}, {"note": "進入函式，參數別名綁到原物件。", "line": 2, "vars": {"score": 20, "points": "score 的另一個名稱"}}, {"note": "經由別名修改同一個物件。", "line": 3, "vars": {"score": 30, "points": "同一格，值也是 30"}}, {"note": "函式結束，參數名稱不再可用；原物件仍存在。", "line": 4, "vars": {"score": 30, "points": "名稱離開作用域"}}]</script></div>
 <div class="info-box"><div class="info-label">動手練習</div><p>int a = 4; int b = 9; int& r = a; r = b; b = 2; 最後 a、b、r 為何？</p><details><summary>看解答與理由</summary><p>a 與 r 都是 9，b 是 2。r = b 只複製當時的數值 9 到 a，沒有改變 r 的綁定。</p></details></div>
 
-</section>
+<div id="restore-value-reference"><h3>同一個呼叫，副本與別名差在哪裡</h3>
+<p>以下以可修改的 int 變數 score 為例。先比較本頁已介紹的兩種形式；注意呼叫看起來一樣，參數宣告才決定是否使用副本。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較項目</th><th><code>void f(int x)</code></th><th><code>void f(int&amp; x)</code></th></tr></thead><tbody><tr><td>函式內的 x</td><td>這次呼叫建立的獨立值</td><td>score 的另一個名稱</td></tr><tr><td>執行 x = 0</td><td>只改參數副本</td><td>改到呼叫端的 score</td></tr><tr><td>呼叫端外觀</td><td><code>f(score);</code></td><td><code>f(score);</code></td></tr><tr><td>複製什麼</td><td>以引數的值初始化參數</td><td>不複製被參考的 int 物件</td></tr><tr><td>常量或算式能否作引數</td><td><code>f(3); f(score + 1);</code> 可以</td><td>一般可修改的 int& 不能綁到這些暫時值</td></tr><tr><td>需要特別符號讀值嗎</td><td>函式內直接使用 x</td><td>函式內也直接使用 x</td></tr><tr><td>使用情境</td><td>希望函式有自己的輸入值</td><td>需要經由函式修改既有物件</td></tr></tbody></table></div>
+<p>「必須是有名字的變數」只是過度簡化的口訣。真正要問的是引數能否代表合適、仍活著的物件；例如本頁稍後回傳 int& 的函式，也可能提供可綁定的位置。另一方面，參考宣告本身不承諾執行時永遠零儲存成本，sizeof(reference) 量到的則是被參考型別。</p>
+
+</div></section>
 <section id="constref"><div class="section-number">PART 08</div><h2>唯讀參考：限制透過這個名稱的修改</h2>
 <p>const int& 同樣是參考，但不能透過這個名稱改變原值。這讓函式介面能表達「我只讀取你交給我的物件」。const 約束的是這條存取途徑；若原物件本來不是 const，擁有可修改名稱的其他程式仍可能修改它。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="35&#10;8&#10;">#include &lt;iostream&gt;
@@ -629,7 +657,12 @@ int main() {
 <p>對 int 這類小型數值，傳值通常已很清楚，並不是所有輸入都應改成參考。參考更重要的價值，是清楚表達是否修改原物件，或在需要時避免複製較大的資料。P5 會用 string 與 vector 示範這個差別。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>如果希望函式能更新呼叫端的 score，該選 int、int& 還是 const int&？</p><details><summary>看解答與理由</summary><p>選 int&，讓參數代表可修改的原物件。int 是副本；const int& 不能透過參數修改物件。</p></details></div>
 
-</section>
+<div id="restore-parameter-decisions"><h3>用需求挑選介面</h3>
+<p>表中的 T 是表示資料型別的記號，例如 int；不是省略型別就能直接編譯的寫法。指標列供讀完 P4 後回查，本頁先掌握前三列。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>參數形式</th><th>是否取得物件副本</th><th>能否透過參數修改原物件</th></tr></thead><tbody><tr><td>只需要小型輸入，或本來就需要快照</td><td><code>T x</code></td><td>一般由引數初始化自己的值</td><td>不直接修改</td></tr><tr><td>需要修改既有物件</td><td><code>T&amp; x</code></td><td>不複製目標物件</td><td>可以</td></tr><tr><td>只讀既有大型物件</td><td><code>const T&amp; x</code></td><td>不複製該目標物件</td><td>不可以</td></tr><tr><td>要用位址表達目標，也允許沒有目標</td><td><code>T* p</code>（<a href="p4_pointers_memory.html#params">P4</a>）</td><td>複製指標的值，不是複製所指物件</td><td>指向有效可修改物件時可以</td></tr></tbody></table></div>
+<p>const 參考在直接綁定既有相容物件時避免複製，但型別轉換可能先建立暫時物件。不要把簡短表格讀成任何呼叫都不會建立物件。物件的大小、使用方式與生命週期仍要一起判斷。</p>
+
+</div></section>
 <section id="retval"><div class="section-number">PART 09</div><h2>回傳數值安全，回傳參考要問物件還活著嗎</h2>
 <p>回傳參考會讓呼叫結果代表既有物件。語法是在回傳型別加 &，但它不會自動延長物件生命。要先指出「參考的是誰」以及「呼叫結束後誰仍負責讓它存在」，才能判斷是否安全。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="4 12&#10;">#include &lt;iostream&gt;
@@ -652,7 +685,11 @@ int main() {
 <p>這個片段用來辨識錯誤，不要拿回傳結果來存取。函式結束時 local 消失，回傳的參考懸空；即使某次執行看似讀到 10，也不構成任何保證。回傳 local 的數值則不同：在 local 還活著時取出值，再交給呼叫端。回傳位址也有同樣的生命週期問題，等 P4 建立指標觀念後再對照。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>把 largerSlot 的參數改成傳值 int left, int right，仍回傳 int& 可以嗎？</p><details><summary>看解答與理由</summary><p>不可以這樣使用。left/right 變成函式自己的區域副本，呼叫結束後生命終止，回傳它們的參考會懸空。</p></details></div>
 
-</section>
+<div id="restore-return-warning"><h3>回傳後仍可使用，才算有效的結果</h3>
+<div class="warn-box"><div class="info-label">不能用一次試跑證明生命週期安全</div><p>回傳數值會把結果交給呼叫端；回傳參考或位址則保留對某個物件的連結。若那個物件已結束生命，舊記憶體內容看似未變也沒有用。不要將「這次還印出原值」當成正確；改了編譯器、最佳化或下一個函式呼叫，就可能得到完全不同的行為。</p>
+</div><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>回傳內容</th><th>呼叫結束後的情況</th><th>判斷</th></tr></thead><tbody><tr><td>區域 int 的值</td><td>結果已交出；不再依賴該區域 int</td><td>可以</td></tr><tr><td>main 內仍存活物件的參考</td><td>仍依賴該物件的生命週期</td><td>使用時原物件仍活著才可以</td></tr><tr><td>一般區域物件的參考或位址</td><td>原物件生命已結束</td><td>不得經由它繼續存取</td></tr><tr><td>暫時物件的連結</td><td>可能在完整敘述結束時失效</td><td>不能假設回傳會延長其生命</td></tr></tbody></table></div>
+
+</div></section>
 <section id="overload"><div class="section-number">PART 10</div><h2>多載與預設引數：分清楚選版本和補資料</h2>
 <p>多載讓同名函式有不同的參數列。編譯器根據呼叫的引數選擇能匹配的版本；這個選擇發生在編譯時，不是程式執行後猜測你想要的行為。只有回傳型別不同，不足以形成這種同名多載。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="24 30&#10;">#include &lt;iostream&gt;
@@ -671,7 +708,11 @@ int main() {
 }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>36 30&#10;</pre></div>
 <div class="info-box"><div class="info-label">動手練習</div><p>同時提供 int f(int) 與 int f(int, int = 0)，呼叫 f(3) 會更方便嗎？</p><details><summary>看解答與理由</summary><p>反而會多義：兩個版本都能接受這個呼叫，沒有唯一應選的版本。預設引數與多載要一起考慮。</p></details></div>
 
-</section>
+<div id="restore-default-warning"><h3>預設引數與多載一起檢查</h3>
+<div class="warn-box"><div class="info-label">兩種方便寫法，也可能合成歧義</div><p>省略參數列尾端的引數之前，要先確認呼叫位置看得到預設值。已有多載版本時，再檢查省略後是否同時符合兩個候選。這是編譯時的介面問題，不能期待執行時自動挑出「比較符合直覺」的版本。</p>
+</div><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>檢查項目</th><th>正確做法</th><th>常見錯誤</th></tr></thead><tbody><tr><td>參數順序</td><td>一般情況從尾端安排預設值</td><td>前面有預設、後面卻仍必填</td></tr><tr><td>宣告與定義</td><td>在呼叫端可見的宣告提供預設，定義不重複</td><td>同一個預設值在相同作用域重複指定</td></tr><tr><td>多載候選</td><td>檢查所有可以接受省略引數的版本</td><td>把 f(int) 與 f(int,int=0) 當成不會衝突</td></tr><tr><td>回傳型別</td><td>依參數列區分一般函式多載</td><td>只改 int/double 回傳型別，參數完全相同</td></tr></tbody></table></div>
+
+</div></section>
 <section id="recursion"><div class="section-number">PART 11</div><h2>從一般呼叫到遞迴：每次呼叫都有自己的狀態</h2>
 <p>函式可以呼叫其他函式，也可以再次呼叫自己。遞迴沒有新的呼叫語法，困難在於同時存在多次尚未完成的呼叫。理解它時，要把每次呼叫的參數、區域變數與回來後要繼續的位置分開記錄。這一份紀錄常稱為呼叫框架，通常由呼叫堆疊管理。</p>
 <p>先用小範圍的倒數理解控制流程。停止條件回答「何時不再呼叫」，n - 1 則讓輸入逐次靠近停止條件。沒有停止條件，或每次仍傳入同一個 n，都可能讓呼叫越堆越多，最終耗盡可用資源。</p>
@@ -693,109 +734,179 @@ int main() { countdown(2); }</pre><div class="expected-out"><span class="eo-tag"
 <p>遞迴並不自動比較快，也不一定比較慢；此處重點是能否清楚表示子問題以及需要保存多少呼叫狀態。深度很大的遞迴應特別小心，不能把「某個小例子跑得動」當成可以無限加深。後續演算法教材會再比較用迴圈或遞迴表達問題。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>若呼叫 countdown(3)，最後一行是 1 leave 還是 3 leave？</p><details><summary>看解答與理由</summary><p>3 leave。最外層最早進入，必須等所有內層呼叫完成才返回；輸出為 3 enter、2 enter、1 enter、1 leave、2 leave、3 leave。</p></details></div>
 
-</section>
+<div id="restore-recursive-return"><h3>遞迴也會逐層回傳計算結果</h3>
+<p>除了在進入、離開時輸出文字，函式也可以等待內層的回傳值再完成計算。以下假設第 day 天讀 2×day 頁；pagesAfter(day) 回傳前 day 天合計讀了幾頁。先處理零天，再把今天的頁數加上前幾天的結果。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="12&#10;">#include &lt;iostream&gt;
+int pagesAfter(int day) {
+    if (day &lt;= 0) return 0;
+    return 2 * day + pagesAfter(day - 1);
+}
+int main() { std::cout &lt;&lt; pagesAfter(3) &lt;&lt; &#x27;\n&#x27;; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>12&#10;</pre></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>正在完成的呼叫</th><th>等內層回來後的算式</th><th>交回的值</th></tr></thead><tbody><tr><td>pagesAfter(0)</td><td>基底情形直接 return 0</td><td>0</td></tr><tr><td>pagesAfter(1)</td><td>2 + 0</td><td>2</td></tr><tr><td>pagesAfter(2)</td><td>4 + 2</td><td>6</td></tr><tr><td>pagesAfter(3)</td><td>6 + 6</td><td>12</td></tr></tbody></table></div>
+<p>day=3 的呼叫沒有先把 6 當成最終答案回傳；它要等待 day=2 的結果。每層都保留自己的 day，直到內層回來才做剩下的加法。倒數例子幫你看進入順序，這個表則幫你看結果如何反方向累積。</p>
+<div class="warn-box"><div class="info-label">呼叫堆疊有有限容量</div><p>本頁的每個呼叫框架只需固定數量的參數、區域值與返回資訊。在這個呼叫堆疊模型中，同時存活的框架數隨遞迴深度增加，所以額外空間為 <code>O(深度)</code>。例如 pagesAfter(n) 到基底情形最多有 n+1 層，因此額外空間為 O(n)。若每層另建立大小會變的資料，還要把那部分空間算進去。<br>有停止條件仍不代表任意大的輸入都安全：如果需要的呼叫深度太大，實作仍可能耗盡堆疊。不同平台的限制與失敗方式不相同，不能預測一定收到某個固定例外或訊號。對可能很深的遞迴，應重新考慮迴圈或其他保存狀態的方式。</p>
+</div><div class="info-box"><div class="info-label">動手練習</div><p>pagesAfter(4) 等待哪個結果？最後多少頁？</p><details><summary>看解答與理由</summary><p>先等 pagesAfter(3) 回傳 12，再做 8 + 12，因此是 20 頁。</p></details></div>
+
+</div></section>
 <section id="reference"><div class="section-number">PART 12</div><h2>語法速查與下一步</h2>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>寫法／判斷</th></tr></thead><tbody><tr><td><code>int f(int x)</code></td><td>取得輸入副本並回傳整數。</td></tr><tr><td><code>void f(int&amp; x)</code></td><td>經由參數修改既有物件。</td></tr><tr><td><code>void f(const int&amp; x)</code></td><td>透過唯讀參考使用物件。</td></tr><tr><td><code>int&amp; f(int&amp; x)</code></td><td>回傳既有物件的參考，必須檢查生命週期。</td></tr><tr><td><code>int f(int x, int y = 1);</code></td><td>宣告預設尾端引數；定義不要重複指定。</td></tr><tr><td>遞迴</td><td>停止條件、逐步靠近停止條件、每次呼叫的獨立狀態。</td></tr></tbody></table></div>
 <p>P4 會先建立位址與指標，再介紹指標參數，最後把傳值、傳參考、傳指標放在同一張圖中比較。P8 的 const 成員函式則是另一種位置的 const，要等類別與物件建立後再讀。</p>
 <p>補充閱讀：<a href="https://openhome.cc/Gossip/CppGossip/Reference.html" target="_blank" rel="noopener">OpenHome：參考</a>。閱讀外部例子時，先分清它使用的是哪一種參數與物件生命週期。</p>
 
-</section>
+<div id="restore-four-parameter-matrix"><h3>四種傳參形式的完整對照</h3>
+<p>這張表保留完整介面比較。讀完 P3 可先掌握值與參考三欄；P4 說明位址後，再回看指標欄與呼叫形式。所有「可用」都以物件生命週期有效為前提。</p>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較維度</th><th>傳值 T x</th><th>參考 T& x</th><th>唯讀參考 const T& x</th><th>指標 T* p</th></tr></thead><tbody><tr><td>函式取得什麼</td><td>自己的值</td><td>既有物件的別名</td><td>唯讀存取途徑</td><td>指標值的副本</td></tr><tr><td>是否複製目標</td><td>一般以引數初始化參數值</td><td>不複製所綁定的目標</td><td>直接綁定既有相容目標時不複製</td><td>只複製位址值，不複製所指物件</td></tr><tr><td>修改 x 或 *p</td><td>只改自己的參數</td><td>改原物件</td><td>不能透過這個參考改原物件</td><td>有效且可修改的目標可被改動</td></tr><tr><td>是否可表示無目標</td><td>本形式本身沒有此含義</td><td>沒有空參考狀態</td><td>沒有空參考狀態</td><td>可用 nullptr 表示無目標</td></tr><tr><td>重新綁定／換目標</td><td>自己的物件，可賦新值</td><td>不能重新綁定</td><td>不能重新綁定</td><td>可改函式內的指標副本，不會自動改呼叫端指標</td></tr><tr><td>呼叫端寫法</td><td><code>f(value);</code></td><td><code>f(value);</code></td><td><code>f(value);</code></td><td><code>f(&amp;value);</code></td></tr><tr><td>函式內讀值</td><td><code>x</code></td><td><code>x</code></td><td><code>x</code></td><td><code>*p</code></td></tr><tr><td>常見需求</td><td>小型輸入或自己的快照</td><td>修改既有物件</td><td>避免不必要複製並只讀</td><td>可選目標、陣列位置或位址操作</td></tr><tr><td>生命週期注意</td><td>參數是自己的物件</td><td>使用時原物件仍須存在</td><td>原物件／暫時物件須在使用時仍存在</td><td>非空也可能懸空，必須確定目標仍存在</td></tr></tbody></table></div>
+<p>表內的「不複製目標」不等同任何情況都零成本，也不代表參考必定不占儲存空間。指標大小由實作決定。P4 將以獨立程式比較修改指標本身與修改所指物件，避免把兩件事混為一談。</p>
+
+</div><div id="restore-function-task-map"><h3>從需求回查 C++ 語法</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>C++ 寫法／位置</th><th>容易漏掉的條件</th></tr></thead><tbody><tr><td>呼叫寫在實作前</td><td>先有可見的函式宣告</td><td>回傳與參數型別須和定義對應</td></tr><tr><td>只改函式自己的暫時計算</td><td>傳值</td><td>不要誤以為會改呼叫端</td></tr><tr><td>改動呼叫端內容</td><td>參考參數；P4 另教指標參數</td><td>先確認目標與生命週期</td></tr><tr><td>只讀大物件</td><td>const 參考</td><td>const 限制這條途徑，不是凍結所有其他途徑</td></tr><tr><td>省略部分引數</td><td>預設尾端引數</td><td>檢查可見宣告與多載歧義</td></tr><tr><td>同名、不同輸入型別</td><td>函式多載</td><td>只改回傳型別不夠</td></tr><tr><td>把結果帶出函式</td><td>回傳值，或在合適情況回傳參考</td><td>不要交出已死亡物件的連結</td></tr><tr><td>用較小問題表示目前問題</td><td>遞迴</td><td>基底情形、輸入進展與呼叫深度都要檢查</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>延伸資源</th><th>用來核對什麼</th></tr></thead><tbody><tr><td><a href="https://pythontutor.com/cpp.html">C++ Tutor</a></td><td>把獨立的參考或遞迴例子逐步執行，觀察呼叫端與區域狀態。</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/language/reference">cppreference：參考宣告</a></td><td>核對別名、綁定、不能重新綁定與生命週期規則。</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/language/default_arguments">cppreference：預設引數</a></td><td>核對預設值的可見性、重複指定與參數列限制。</td></tr><tr><td><a href="https://openhome.cc/Gossip/CppGossip/Reference.html">OpenHome：參考</a></td><td>別名、綁定與參數用途的補充說明。</td></tr><tr><td><a href="p4_pointers_memory.html#params">P4：參數與指標</a></td><td>補齊完整矩陣的指標欄。</td></tr><tr><td><a href="p8_oop_basics.html#constmember">P8：const 成員函式</a></td><td>類別建立後，再分清參數 const 與括號後 const。</td></tr><tr><td><a href="recursion.html">遞迴主文</a></td><td>在本頁呼叫模型之上學習更多問題。</td></tr></tbody></table></div>
+
+</div></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：函式與參考 <span class="sec-badge">隨堂自測 · 10 題</span></h2>
+  <h2>自我檢測：函式與參考 <span class="sec-badge">隨堂自測 · 13 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>deliveryFee(quantity + 1, 10) 中，quantity 原本是 3；計算引數會把 quantity 改成 4 嗎？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="加法產生值 4，沒有對 quantity 賦值。">不會，除非另有賦值</button>
-      <button class="sq-opt" data-c="0" data-fb="加法產生值 4，沒有對 quantity 賦值。">會，函式自動改引數</button>
-      <button class="sq-opt" data-c="0" data-fb="加法產生值 4，沒有對 quantity 賦值。">編譯錯誤</button>
+      <button class="sq-opt" data-c="1" data-fb="加法產生值 4，沒有對 quantity 賦值。"><span class="opt-letter">(A)</span> 不會，除非另有賦值</button>
+      <button class="sq-opt" data-c="0" data-fb="加法產生值 4，沒有對 quantity 賦值。"><span class="opt-letter">(B)</span> 會，函式自動改引數</button>
+      <button class="sq-opt" data-c="0" data-fb="加法產生值 4，沒有對 quantity 賦值。"><span class="opt-letter">(C)</span> 編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="函式回傳不會替先前加法補上賦值。quantity + 1 只產生值。"><span class="opt-letter">(D)</span> quantity 會在回傳後才變成 4</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>函式 cout 印出數字 8，卻回傳 3；int x = f(); 後 x 是多少？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。">3</button>
-      <button class="sq-opt" data-c="0" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。">8</button>
-      <button class="sq-opt" data-c="0" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。">11</button>
+      <button class="sq-opt" data-c="1" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。"><span class="opt-letter">(A)</span> 3</button>
+      <button class="sq-opt" data-c="0" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。"><span class="opt-letter">(B)</span> 8</button>
+      <button class="sq-opt" data-c="0" data-fb="x 接收 return 的結果，cout 只是螢幕輸出。"><span class="opt-letter">(C)</span> 11</button>
+      <button class="sq-opt" data-c="0" data-fb="輸出與回傳可以同時存在；return 3 仍會把 3 交回 x。"><span class="opt-letter">(D)</span> x 沒有值，因為函式也使用 cout</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q3.</span>一般 int 函式的某條正常路徑沒有 return，能依賴自動得到 0 嗎？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。">不能</button>
-      <button class="sq-opt" data-c="0" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。">可以，所有函式都像 main</button>
-      <button class="sq-opt" data-c="0" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。">只有負數輸入才不能</button>
+      <button class="sq-opt" data-c="1" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"><span class="opt-letter">(A)</span> 不能</button>
+      <button class="sq-opt" data-c="0" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"><span class="opt-letter">(B)</span> 可以，所有函式都像 main</button>
+      <button class="sq-opt" data-c="0" data-fb="一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"><span class="opt-letter">(C)</span> 只有負數輸入才不能</button>
+      <button class="sq-opt" data-c="0" data-fb="const 不會替遺漏的 return 產生值。"><span class="opt-letter">(D)</span> 只要加上 const 就會自動補回傳</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q4.</span>只有函式宣告、沒有相符定義，呼叫時可能在哪個階段失敗？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。">連結階段</button>
-      <button class="sq-opt" data-c="0" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。">只在執行時</button>
-      <button class="sq-opt" data-c="0" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。">一定是前處理</button>
+      <button class="sq-opt" data-c="1" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"><span class="opt-letter">(A)</span> 連結階段</button>
+      <button class="sq-opt" data-c="0" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"><span class="opt-letter">(B)</span> 只在執行時</button>
+      <button class="sq-opt" data-c="0" data-fb="宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"><span class="opt-letter">(C)</span> 一定是前處理</button>
+      <button class="sq-opt" data-c="0" data-fb="宣告只提供介面，執行仍需要相符實作。"><span class="opt-letter">(D)</span> 永遠不會失敗，宣告就是完整函式</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>void f(int x) 內把 x 改成 0；以 score=20 呼叫 f(score) 後 score 為何？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="int 參數是副本，沒有修改 score。">20</button>
-      <button class="sq-opt" data-c="0" data-fb="int 參數是副本，沒有修改 score。">0</button>
-      <button class="sq-opt" data-c="0" data-fb="int 參數是副本，沒有修改 score。">不確定</button>
+      <button class="sq-opt" data-c="1" data-fb="int 參數是副本，沒有修改 score。"><span class="opt-letter">(A)</span> 20</button>
+      <button class="sq-opt" data-c="0" data-fb="int 參數是副本，沒有修改 score。"><span class="opt-letter">(B)</span> 0</button>
+      <button class="sq-opt" data-c="0" data-fb="int 參數是副本，沒有修改 score。"><span class="opt-letter">(C)</span> 不確定</button>
+      <button class="sq-opt" data-c="0" data-fb="這裡沒有未初始化讀值，score 保持原本的 20。"><span class="opt-letter">(D)</span> score 會變成未定值</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>int a=4,b=9; int&amp; r=a; r=b; b=2; 最後 r 為何？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。">9</button>
-      <button class="sq-opt" data-c="0" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。">2</button>
-      <button class="sq-opt" data-c="0" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。">4</button>
+      <button class="sq-opt" data-c="1" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"><span class="opt-letter">(A)</span> 9</button>
+      <button class="sq-opt" data-c="0" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"><span class="opt-letter">(B)</span> 2</button>
+      <button class="sq-opt" data-c="0" data-fb="r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"><span class="opt-letter">(C)</span> 4</button>
+      <button class="sq-opt" data-c="0" data-fb="普通賦值沒有解除或改變參考綁定，r 仍代表 a。"><span class="opt-letter">(D)</span> r 不再綁定任何物件</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q7.</span>const int&amp; view=score; 之後透過 score 改值，view 看到什麼？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。">更新後的 score</button>
-      <button class="sq-opt" data-c="0" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。">綁定時的舊值</button>
-      <button class="sq-opt" data-c="0" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。">一定編譯失敗</button>
+      <button class="sq-opt" data-c="1" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。"><span class="opt-letter">(A)</span> 更新後的 score</button>
+      <button class="sq-opt" data-c="0" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。"><span class="opt-letter">(B)</span> 綁定時的舊值</button>
+      <button class="sq-opt" data-c="0" data-fb="const 限制經由 view 修改，不是把數值凍結成快照。"><span class="opt-letter">(C)</span> 一定編譯失敗</button>
+      <button class="sq-opt" data-c="0" data-fb="原物件可以由 score 修改，但 view 的唯讀限制不會因此消失。"><span class="opt-letter">(D)</span> view 自動變成可修改參考</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q8.</span>為何不可回傳區域 int 的 int&amp; 再使用它？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="回傳參考不延長該區域物件的生命。">原物件已結束生命</button>
-      <button class="sq-opt" data-c="0" data-fb="回傳參考不延長該區域物件的生命。">參考永遠不能回傳</button>
-      <button class="sq-opt" data-c="0" data-fb="回傳參考不延長該區域物件的生命。">參考不能指向整數</button>
+      <button class="sq-opt" data-c="1" data-fb="回傳參考不延長該區域物件的生命。"><span class="opt-letter">(A)</span> 原物件已結束生命</button>
+      <button class="sq-opt" data-c="0" data-fb="回傳參考不延長該區域物件的生命。"><span class="opt-letter">(B)</span> 參考永遠不能回傳</button>
+      <button class="sq-opt" data-c="0" data-fb="回傳參考不延長該區域物件的生命。"><span class="opt-letter">(C)</span> 參考不能指向整數</button>
+      <button class="sq-opt" data-c="0" data-fb="數值內容不能修補生命週期已結束的問題。"><span class="opt-letter">(D)</span> 只要回傳值恰好是 0 就安全</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q9.</span>只有回傳型別不同的兩個同名、同參數函式，可以作為多載嗎？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="函式不能僅依回傳型別形成這種多載。">不可以</button>
-      <button class="sq-opt" data-c="0" data-fb="函式不能僅依回傳型別形成這種多載。">可以</button>
-      <button class="sq-opt" data-c="0" data-fb="函式不能僅依回傳型別形成這種多載。">只有 void 可以</button>
+      <button class="sq-opt" data-c="1" data-fb="函式不能僅依回傳型別形成這種多載。"><span class="opt-letter">(A)</span> 不可以</button>
+      <button class="sq-opt" data-c="0" data-fb="函式不能僅依回傳型別形成這種多載。"><span class="opt-letter">(B)</span> 可以</button>
+      <button class="sq-opt" data-c="0" data-fb="函式不能僅依回傳型別形成這種多載。"><span class="opt-letter">(C)</span> 只有 void 可以</button>
+      <button class="sq-opt" data-c="0" data-fb="分開檔案不會讓回傳型別成為一般函式多載的區分條件。"><span class="opt-letter">(D)</span> 同一檔案不行，不同檔案就可任意區分</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q10.</span>void countdown(int n) 先印 n enter，呼叫 n-1，再印 n leave；n&lt;=0返回。呼叫2的最後一行？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。">2 leave</button>
-      <button class="sq-opt" data-c="0" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。">1 leave</button>
-      <button class="sq-opt" data-c="0" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。">0 leave</button>
+      <button class="sq-opt" data-c="1" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。"><span class="opt-letter">(A)</span> 2 leave</button>
+      <button class="sq-opt" data-c="0" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。"><span class="opt-letter">(B)</span> 1 leave</button>
+      <button class="sq-opt" data-c="0" data-fb="最早進入的外層最後完成，n=0 的呼叫不輸出。"><span class="opt-letter">(C)</span> 0 leave</button>
+      <button class="sq-opt" data-c="0" data-fb="n=0 會立即返回，不會執行後面的輸出。"><span class="opt-letter">(D)</span> 0 enter</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q11.</span>下列遞迴回傳值是多少？</div>
+    <pre class="sq-code">int pagesAfter(int day) {
+    if (day &lt;= 0) return 0;
+    return 2 * day + pagesAfter(day - 1);
+}
+// 在 main 中計算 pagesAfter(3)</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="內層由0往外回傳2、6、12。 若 day=n，每個框架使用固定空間，遞迴深度最多 n+1，額外空間為 O(n)。"><span class="opt-letter">(A)</span> 12</button>
+      <button class="sq-opt" data-c="0" data-fb="6只是最外層今天的頁數，還要加上前幾天的6。"><span class="opt-letter">(B)</span> 6</button>
+      <button class="sq-opt" data-c="0" data-fb="基底的0會被各層繼續加上今天的頁數。"><span class="opt-letter">(C)</span> 0</button>
+      <button class="sq-opt" data-c="0" data-fb="每層day不同，不是三次都加最外層的6。"><span class="opt-letter">(D)</span> 18</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q12.</span>三次呼叫的回傳值依序為何？</div>
+    <pre class="sq-code">int charge(int items, int rate = 12) { return items * rate; }
+double charge(double kg) { return kg * 5.0; }
+// 在 main 中依序呼叫 charge(3), charge(3, 10), charge(3.0)</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="int呼叫可使用預設rate；第二次明寫10；double精確匹配另一版本。"><span class="opt-letter">(A)</span> 36、30、15</button>
+      <button class="sq-opt" data-c="0" data-fb="第三個引數3.0是double，會選double版本而非轉為int。"><span class="opt-letter">(B)</span> 36、30、36</button>
+      <button class="sq-opt" data-c="0" data-fb="這些呼叫有各自較好的匹配，並不因預設值本身就多義。"><span class="opt-letter">(C)</span> 編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="3與3.0的型別不同，不能忽略int版本。"><span class="opt-letter">(D)</span> 15、15、15</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q13.</span>介面希望只讀既有大型資料、避免不必要複製，首選哪種形式？T表示資料型別。</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="唯讀參考表達不透過參數修改，直接綁定相容原物件時不複製目標。"><span class="opt-letter">(A)</span> const T&amp; value</button>
+      <button class="sq-opt" data-c="0" data-fb="傳值一般會取得自己的物件，未表達避免複製的需求。"><span class="opt-letter">(B)</span> T value</button>
+      <button class="sq-opt" data-c="0" data-fb="這會允許透過參數修改，不是唯讀承諾。"><span class="opt-letter">(C)</span> T&amp; value</button>
+      <button class="sq-opt" data-c="0" data-fb="這是可修改指標介面，未表達唯讀限制，且另允許空目標。"><span class="opt-letter">(D)</span> T* value</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p2_flow_control.html"><div class="nav-dir">上一頁</div><div class="nav-title">流程控制</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p4_pointers_memory.html"><div class="nav-dir">下一頁</div><div class="nav-title">陣列、指標與動態記憶體</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "函式（Function）", "back": "命名一段可呼叫的工作，以參數接收輸入，可回傳結果。"}, {"front": "引數與參數（Argument / Parameter）", "back": "引數是呼叫給的資料，參數是函式用來接收資料的名稱。"}, {"front": "回傳（Return）", "back": "結束這次呼叫並交出結果；與輸出到螢幕不同。"}, {"front": "void", "back": "表示函式沒有回傳值；可用 return; 提早離開。"}, {"front": "宣告與定義", "back": "宣告描述介面；定義另含實作本體。"}, {"front": "作用域（Scope）", "back": "名稱能被使用的程式範圍，不等同物件生命週期。"}, {"front": "傳值（Pass by value）", "back": "參數取得自己的副本，修改副本不直接修改呼叫端。"}, {"front": "參考（Reference）", "back": "既有物件的別名，綁定後的賦值修改原物件，不是重新綁定。"}, {"front": "const 參考", "back": "不能透過此參考修改物件；原物件仍可能由其他可修改途徑改變。"}, {"front": "回傳參考", "back": "結果指向既有物件的身分，必須確保被參考物件在使用時仍活著。"}, {"front": "懸空參考", "back": "參考的物件已結束生命，不能再經由它存取原物件。"}, {"front": "多載（Overload）", "back": "同名函式以不同參數列區分，不能只靠回傳型別。"}, {"front": "預設引數", "back": "省略尾端引數時由可見宣告提供的預設值補上。"}, {"front": "呼叫框架（Call frame）", "back": "一次呼叫的參數、區域狀態與返回位置的概念紀錄。"}, {"front": "遞迴（Recursion）", "back": "函式再次呼叫自己，需有停止條件並逐步靠近它。"}];
+const FLASHCARDS = [{"front": "函式（Function）", "back": "命名一段可呼叫的工作，以參數接收輸入，可回傳結果。"}, {"front": "引數與參數（Argument / Parameter）", "back": "引數是呼叫給的資料，參數是函式用來接收資料的名稱。"}, {"front": "回傳（Return）", "back": "結束這次呼叫並交出結果；與輸出到螢幕不同。"}, {"front": "無回傳值（void）", "back": "表示函式沒有回傳值；可用 return; 提早離開。"}, {"front": "宣告與定義（Declaration / Definition）", "back": "宣告描述介面；定義另含實作本體。"}, {"front": "作用域（Scope）", "back": "名稱能被使用的程式範圍，不等同物件生命週期。"}, {"front": "傳值（Pass by Value）", "back": "參數取得自己的副本，修改副本不直接修改呼叫端。"}, {"front": "參考（Reference）", "back": "既有物件的別名，綁定後的賦值修改原物件，不是重新綁定。"}, {"front": "唯讀參考（const Reference）", "back": "不能透過此參考修改物件；原物件仍可能由其他可修改途徑改變。"}, {"front": "回傳參考（Return by Reference）", "back": "結果指向既有物件的身分，必須確保被參考物件在使用時仍活著。"}, {"front": "懸空參考（Dangling Reference）", "back": "參考的物件已結束生命，不能再經由它存取原物件。"}, {"front": "函式多載（Function Overloading）", "back": "同名函式以不同參數列區分，不能只靠回傳型別。"}, {"front": "預設引數（Default Argument）", "back": "省略尾端引數時由可見宣告提供的預設值補上。"}, {"front": "呼叫框架（Call Frame）", "back": "一次呼叫的參數、區域狀態與返回位置的概念紀錄。"}, {"front": "遞迴（Recursion）", "back": "函式再次呼叫自己，需有停止條件並逐步靠近它。"}, {"front": "傳參考（Pass by Reference）", "back": "參數成為既有物件的別名，透過可修改參考的賦值會反映到原物件。"}, {"front": "呼叫堆疊（Call Stack）", "back": "保存尚未完成呼叫的狀態及返回位置；較新的呼叫先返回。"}, {"front": "基底情形（Base Case）", "back": "遞迴不再向內呼叫、可以直接回傳的情況；每次遞迴應逐步靠近它。"}, {"front": "堆疊溢位（Stack Overflow）", "back": "所需呼叫狀態超過實作可用堆疊資源；不能假設任意大的遞迴深度安全，也不保證固定失敗訊號。"}, {"front": "未定義行為（Undefined Behavior）", "back": "語言不規定結果的操作，不能靠單次成功試跑證明正確；使用懸空連結就是例子。"}];
 
 /* depth-runtime:start */
 (() => {

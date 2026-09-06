@@ -16,6 +16,11 @@
         "answer": "編譯錯誤",
         "correct": false,
         "feedback": "加法產生值 4，沒有對 quantity 賦值。"
+      },
+      {
+        "answer": "quantity 會在回傳後才變成 4",
+        "correct": false,
+        "feedback": "函式回傳不會替先前加法補上賦值。quantity + 1 只產生值。"
       }
     ]
   },
@@ -36,6 +41,11 @@
         "answer": "11",
         "correct": false,
         "feedback": "x 接收 return 的結果，cout 只是螢幕輸出。"
+      },
+      {
+        "answer": "x 沒有值，因為函式也使用 cout",
+        "correct": false,
+        "feedback": "輸出與回傳可以同時存在；return 3 仍會把 3 交回 x。"
       }
     ]
   },
@@ -56,6 +66,11 @@
         "answer": "只有負數輸入才不能",
         "correct": false,
         "feedback": "一般需要回傳值的函式不能在沒有值時走到結尾；main 的規則是特例。"
+      },
+      {
+        "answer": "只要加上 const 就會自動補回傳",
+        "correct": false,
+        "feedback": "const 不會替遺漏的 return 產生值。"
       }
     ]
   },
@@ -76,6 +91,11 @@
         "answer": "一定是前處理",
         "correct": false,
         "feedback": "宣告讓呼叫通過型別檢查，但連結仍需要相符實作。"
+      },
+      {
+        "answer": "永遠不會失敗，宣告就是完整函式",
+        "correct": false,
+        "feedback": "宣告只提供介面，執行仍需要相符實作。"
       }
     ]
   },
@@ -96,6 +116,11 @@
         "answer": "不確定",
         "correct": false,
         "feedback": "int 參數是副本，沒有修改 score。"
+      },
+      {
+        "answer": "score 會變成未定值",
+        "correct": false,
+        "feedback": "這裡沒有未初始化讀值，score 保持原本的 20。"
       }
     ]
   },
@@ -116,6 +141,11 @@
         "answer": "4",
         "correct": false,
         "feedback": "r 始終是 a 的別名，r=b 把當時的 9 指派給 a。"
+      },
+      {
+        "answer": "r 不再綁定任何物件",
+        "correct": false,
+        "feedback": "普通賦值沒有解除或改變參考綁定，r 仍代表 a。"
       }
     ]
   },
@@ -136,6 +166,11 @@
         "answer": "一定編譯失敗",
         "correct": false,
         "feedback": "const 限制經由 view 修改，不是把數值凍結成快照。"
+      },
+      {
+        "answer": "view 自動變成可修改參考",
+        "correct": false,
+        "feedback": "原物件可以由 score 修改，但 view 的唯讀限制不會因此消失。"
       }
     ]
   },
@@ -156,6 +191,11 @@
         "answer": "參考不能指向整數",
         "correct": false,
         "feedback": "回傳參考不延長該區域物件的生命。"
+      },
+      {
+        "answer": "只要回傳值恰好是 0 就安全",
+        "correct": false,
+        "feedback": "數值內容不能修補生命週期已結束的問題。"
       }
     ]
   },
@@ -176,6 +216,11 @@
         "answer": "只有 void 可以",
         "correct": false,
         "feedback": "函式不能僅依回傳型別形成這種多載。"
+      },
+      {
+        "answer": "同一檔案不行，不同檔案就可任意區分",
+        "correct": false,
+        "feedback": "分開檔案不會讓回傳型別成為一般函式多載的區分條件。"
       }
     ]
   },
@@ -196,6 +241,88 @@
         "answer": "0 leave",
         "correct": false,
         "feedback": "最早進入的外層最後完成，n=0 的呼叫不輸出。"
+      },
+      {
+        "answer": "0 enter",
+        "correct": false,
+        "feedback": "n=0 會立即返回，不會執行後面的輸出。"
+      }
+    ]
+  },
+  {
+    "question": "下列遞迴回傳值是多少？",
+    "answers": [
+      {
+        "answer": "12",
+        "correct": true,
+        "feedback": "內層由0往外回傳2、6、12。 若 day=n，每個框架使用固定空間，遞迴深度最多 n+1，額外空間為 O(n)。"
+      },
+      {
+        "answer": "6",
+        "correct": false,
+        "feedback": "6只是最外層今天的頁數，還要加上前幾天的6。"
+      },
+      {
+        "answer": "0",
+        "correct": false,
+        "feedback": "基底的0會被各層繼續加上今天的頁數。"
+      },
+      {
+        "answer": "18",
+        "correct": false,
+        "feedback": "每層day不同，不是三次都加最外層的6。"
+      }
+    ],
+    "code": "int pagesAfter(int day) {\n    if (day <= 0) return 0;\n    return 2 * day + pagesAfter(day - 1);\n}\n// 在 main 中計算 pagesAfter(3)"
+  },
+  {
+    "question": "三次呼叫的回傳值依序為何？",
+    "answers": [
+      {
+        "answer": "36、30、15",
+        "correct": true,
+        "feedback": "int呼叫可使用預設rate；第二次明寫10；double精確匹配另一版本。"
+      },
+      {
+        "answer": "36、30、36",
+        "correct": false,
+        "feedback": "第三個引數3.0是double，會選double版本而非轉為int。"
+      },
+      {
+        "answer": "編譯錯誤",
+        "correct": false,
+        "feedback": "這些呼叫有各自較好的匹配，並不因預設值本身就多義。"
+      },
+      {
+        "answer": "15、15、15",
+        "correct": false,
+        "feedback": "3與3.0的型別不同，不能忽略int版本。"
+      }
+    ],
+    "code": "int charge(int items, int rate = 12) { return items * rate; }\ndouble charge(double kg) { return kg * 5.0; }\n// 在 main 中依序呼叫 charge(3), charge(3, 10), charge(3.0)"
+  },
+  {
+    "question": "介面希望只讀既有大型資料、避免不必要複製，首選哪種形式？T表示資料型別。",
+    "answers": [
+      {
+        "answer": "const T& value",
+        "correct": true,
+        "feedback": "唯讀參考表達不透過參數修改，直接綁定相容原物件時不複製目標。"
+      },
+      {
+        "answer": "T value",
+        "correct": false,
+        "feedback": "傳值一般會取得自己的物件，未表達避免複製的需求。"
+      },
+      {
+        "answer": "T& value",
+        "correct": false,
+        "feedback": "這會允許透過參數修改，不是唯讀承諾。"
+      },
+      {
+        "answer": "T* value",
+        "correct": false,
+        "feedback": "這是可修改指標介面，未表達唯讀限制，且另允許空目標。"
       }
     ]
   }

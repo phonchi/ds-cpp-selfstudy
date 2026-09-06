@@ -64,11 +64,18 @@ def apply_page(page, ch):
     if page in BQ:
         qch, note = BQ[page]
         qs = json.load(open(ROOT / f"data/questions_zh/{qch}.json"))
+        if qch.startswith('p'):
+            for i, q in enumerate(qs, 1):
+                assert len(q['answers']) == 4, f'{page} Q{i}: prerequisite quizzes require four options'
+                assert all(type(a['correct']) is bool for a in q['answers']), f'{page} Q{i}: correct must be boolean'
+                assert sum(a['correct'] for a in q['answers']) == 1, f'{page} Q{i}: expected one correct answer'
         items = []
         for i, q in enumerate(qs, 1):
             opts = "\n".join(
-                f'      <button class="sq-opt" data-c="{1 if a["correct"] else 0}" data-fb="{esc_attr(a["feedback"])}">{esc_attr(a["answer"])}</button>'
-                for a in q["answers"])
+                f'      <button class="sq-opt" data-c="{1 if a["correct"] else 0}" data-fb="{esc_attr(a["feedback"])}">'
+                + (f'<span class="opt-letter">({chr(65 + j)})</span> ' if qch.startswith('p') else '')
+                + f'{esc_attr(a["answer"])}</button>'
+                for j, a in enumerate(q["answers"]))
             code_html = (f'\n    <pre class="sq-code">{esc_attr(q["code"])}</pre>' if q.get("code") else "")
             items.append(f'''  <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q{i}.</span>{esc_attr(q["question"])}</div>{code_html}

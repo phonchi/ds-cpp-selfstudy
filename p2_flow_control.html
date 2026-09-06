@@ -464,8 +464,23 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </style>
 
 <style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
+<style>.diagram-scroll{overflow-x:auto;margin:1rem 0;}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#prologue" data-target="prologue"><span class="fn-num">01</span><span class="fn-name">控制流程就是決定下一個執行位置</span></a><a href="#bool" data-target="bool"><span class="fn-num">02</span><span class="fn-name">bool 轉換、比較、邏輯與短路</span></a><a href="#ifelse" data-target="ifelse"><span class="fn-num">03</span><span class="fn-name">if / else if / else 與大括號</span></a><a href="#switch" data-target="switch"><span class="fn-num">04</span><span class="fn-name">switch、case、break 與刻意 fallthrough</span></a><a href="#while" data-target="while"><span class="fn-num">05</span><span class="fn-name">while：先檢查，再決定是否進入</span></a><a href="#dowhile" data-target="dowhile"><span class="fn-num">06</span><span class="fn-name">do-while：本體至少執行一次</span></a><a href="#forloop" data-target="forloop"><span class="fn-num">07</span><span class="fn-name">三段式 for 的精確時序</span></a><a href="#jump" data-target="jump"><span class="fn-num">08</span><span class="fn-name">break 與 continue 改變哪一段流程</span></a><a href="#nested" data-target="nested"><span class="fn-num">09</span><span class="fn-name">巢狀迴圈：精確次數與成本直覺</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">P2 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P2</div><h1>流程控制</h1><div class="subtitle">用條件與迴圈精確控制執行路徑，並開始計算程式成本。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#prologue"><span class="toc-num">01</span>控制流程就是決定下一個執行位置</a><a href="#bool"><span class="toc-num">02</span>bool 轉換、比較、邏輯與短路</a><a href="#ifelse"><span class="toc-num">03</span>if / else if / else 與大括號</a><a href="#switch"><span class="toc-num">04</span>switch、case、break 與刻意 fallthrough</a><a href="#while"><span class="toc-num">05</span>while：先檢查，再決定是否進入</a><a href="#dowhile"><span class="toc-num">06</span>do-while：本體至少執行一次</a><a href="#forloop"><span class="toc-num">07</span>三段式 for 的精確時序</a><a href="#jump"><span class="toc-num">08</span>break 與 continue 改變哪一段流程</a><a href="#nested"><span class="toc-num">09</span>巢狀迴圈：精確次數與成本直覺</a><a href="#reference"><span class="toc-num">10</span>P2 語法速查</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a></div></div><section id="prologue"><div class="section-number">PART 01</div><h2>控制流程就是決定下一個執行位置</h2>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#prologue" data-target="prologue"><span class="fn-num">01</span><span class="fn-name">控制流程就是決定下一個執行位置</span></a><a href="#bool" data-target="bool"><span class="fn-num">02</span><span class="fn-name">bool 轉換、比較、邏輯與短路</span></a><a href="#ifelse" data-target="ifelse"><span class="fn-num">03</span><span class="fn-name">if / else if / else 與大括號</span></a><a href="#switch" data-target="switch"><span class="fn-num">04</span><span class="fn-name">switch、case、break 與刻意 fallthrough</span></a><a href="#while" data-target="while"><span class="fn-num">05</span><span class="fn-name">while：先檢查，再決定是否進入</span></a><a href="#dowhile" data-target="dowhile"><span class="fn-num">06</span><span class="fn-name">do-while：本體至少執行一次</span></a><a href="#forloop" data-target="forloop"><span class="fn-num">07</span><span class="fn-name">三段式 for 的精確時序</span></a><a href="#jump" data-target="jump"><span class="fn-num">08</span><span class="fn-name">break 與 continue 改變哪一段流程</span></a><a href="#nested" data-target="nested"><span class="fn-num">09</span><span class="fn-name">巢狀迴圈：精確次數與成本直覺</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">P2 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p2-flow-shapes" data-target="restore-p2-flow-shapes"><span class="fn-num">13</span><span class="fn-name">三種控制流程的形狀</span></a><a href="#restore-p2-operators" data-target="restore-p2-operators"><span class="fn-num">14</span><span class="fn-name">條件運算子的讀法</span></a><a href="#restore-p2-conditional" data-target="restore-p2-conditional"><span class="fn-num">15</span><span class="fn-name">三元運算子：選一個值</span></a><a href="#restore-p2-branch-choice" data-target="restore-p2-branch-choice"><span class="fn-num">16</span><span class="fn-name">if 鏈與 switch 怎麼選</span></a><a href="#restore-p2-for-boundaries" data-target="restore-p2-for-boundaries"><span class="fn-num">17</span><span class="fn-name">for 邊界與實際走過的值</span></a><a href="#restore-p2-timing" data-target="restore-p2-timing"><span class="fn-num">18</span><span class="fn-name">用 chrono 量一段程式：逐件拆解</span></a><a href="#restore-p2-loop-matrix" data-target="restore-p2-loop-matrix"><span class="fn-num">19</span><span class="fn-name">迴圈選擇與成本矩陣</span></a><a href="#restore-p2-halving" data-target="restore-p2-halving"><span class="fn-num">20</span><span class="fn-name">倒序邊界與折半迴圈</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <path d="M150 40 L196 76 L150 112 L104 76 Z"/>
+    <path d="M150 112 L150 150"/>
+    <rect x="100" y="150" width="100" height="40" rx="6"/>
+    <path d="M100 170 C 50 170, 50 76, 104 76"/>
+    <path d="M196 76 L250 76 L250 220"/>
+  </g>
+  <g fill="#fff" opacity=".8" font-family="monospace" font-size="11">
+    <text x="128" y="82">i &lt; n ?</text>
+    <text x="124" y="175">body</text>
+    <text x="44" y="128">i++</text>
+    <text x="228" y="238">done</text>
+  </g>
+</svg><div class="hero-content"><div class="chapter-tag">PREREQ P2</div><h1>流程控制</h1><div class="subtitle">用條件與迴圈精確控制執行路徑，並開始計算程式成本。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#prologue"><span class="toc-num">01</span>控制流程就是決定下一個執行位置</a><a href="#bool"><span class="toc-num">02</span>bool 轉換、比較、邏輯與短路</a><a href="#ifelse"><span class="toc-num">03</span>if / else if / else 與大括號</a><a href="#switch"><span class="toc-num">04</span>switch、case、break 與刻意 fallthrough</a><a href="#while"><span class="toc-num">05</span>while：先檢查，再決定是否進入</a><a href="#dowhile"><span class="toc-num">06</span>do-while：本體至少執行一次</a><a href="#forloop"><span class="toc-num">07</span>三段式 for 的精確時序</a><a href="#jump"><span class="toc-num">08</span>break 與 continue 改變哪一段流程</a><a href="#nested"><span class="toc-num">09</span>巢狀迴圈：精確次數與成本直覺</a><a href="#reference"><span class="toc-num">10</span>P2 語法速查</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a><a href="#restore-p2-flow-shapes"><span class="toc-num">補</span>三種控制流程的形狀</a><a href="#restore-p2-operators"><span class="toc-num">補</span>條件運算子的讀法</a><a href="#restore-p2-conditional"><span class="toc-num">補</span>三元運算子：選一個值</a><a href="#restore-p2-branch-choice"><span class="toc-num">補</span>if 鏈與 switch 怎麼選</a><a href="#restore-p2-for-boundaries"><span class="toc-num">補</span>for 邊界與實際走過的值</a><a href="#restore-p2-timing"><span class="toc-num">補</span>用 chrono 量一段程式：逐件拆解</a><a href="#restore-p2-loop-matrix"><span class="toc-num">補</span>迴圈選擇與成本矩陣</a><a href="#restore-p2-halving"><span class="toc-num">補</span>倒序邊界與折半迴圈</a></div></div><section id="prologue"><div class="section-number">PART 01</div><h2>控制流程就是決定下一個執行位置</h2>
 <p>程式預設由上往下執行。條件式讓它選一條路，迴圈讓它回到前面再做一次。讀流程控制時不要只看縮排；C++ 真正採用的是括號、分號與大括號。每次追蹤都問三件事：現在檢查哪個條件、條件值為何、下一行去哪裡。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>條件為 false 的 if 本體會執行幾次？</p><details><summary>看解答與理由</summary><p>零次；流程直接跳到該本體之後，或進入相連的 else。</p></details></div>
 
@@ -610,6 +625,37 @@ int main() {
 <div class="info-box"><div class="info-label">動手練習</div><p>外層 i=0..n-1，內層 j=0..i，內層本體精確執行幾次？Big-O 為何？</p><details><summary>看解答與理由</summary><p>次數為 1+2+…+n=n(n+1)/2；主要項與 n² 成比例，所以是 O(n²)。</p></details></div>
 
 </section>
+<div id="restore-p2-flow-shapes" class="deck-extra"><h3>三種控制流程的形狀</h3><div class="diagram-scroll"><svg style="width:900px;max-width:none;height:auto;display:block;margin:auto" viewBox="0 0 900 230" width="900" height="230" role="img" aria-label="循序、選擇與重複三種流程"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="40" y="35" width="180" height="42" rx="8"/><rect x="40" y="125" width="180" height="42" rx="8"/><path d="M130 77V125"/><path d="M450 25l65 45-65 45-65-45z"/><rect x="300" y="150" width="120" height="42" rx="8"/><rect x="480" y="150" width="120" height="42" rx="8"/><path d="M405 100L360 150M495 100l45 50"/><path d="M750 25l65 45-65 45-65-45z"/><rect x="690" y="150" width="120" height="42" rx="8"/><path d="M750 115v35M690 171H650V70h35"/></g><g text-anchor="middle" font-family="sans-serif" font-size="17" fill="currentColor"><text x="130" y="22">循序</text><text x="130" y="62">敘述 A</text><text x="130" y="152">敘述 B</text><text x="450" y="22">選擇</text><text x="450" y="76">條件</text><text x="360" y="176">true 路徑</text><text x="540" y="176">false 路徑</text><text x="750" y="22">重複</text><text x="750" y="76">條件</text><text x="750" y="176">迴圈本體</text></g></svg></div><p>循序只往下；選擇只走一支；重複在狀態更新後回到條件。追程式時把每一步落到這三種形狀之一。</p></div>
+<div id="restore-p2-operators" class="deck-extra"><h3>條件運算子的讀法</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>運算子</th><th>讀法</th><th>要注意</th></tr></thead><tbody><tr><td><code>== / !=</code></td><td>相等／不相等</td><td><code>=</code> 是指定，不是比較</td></tr><tr><td><code>&lt; &lt;= &gt; &gt;=</code></td><td>大小關係</td><td>邊界是否包含等號</td></tr><tr><td><code>&amp;&amp;</code></td><td>而且</td><td>左側 false 時右側短路</td></tr><tr><td><code>||</code></td><td>或者</td><td>左側 true 時右側短路</td></tr><tr><td><code>!</code></td><td>不是／反轉真假</td><td>複合條件可加括號表意</td></tr></tbody></table></div></div>
+<div id="restore-p2-conditional" class="deck-extra"><h3>三元運算子：選一個值</h3><p><code>condition ? value_if_true : value_if_false</code> 是一個運算式，會先判斷條件且只計算其中一支。它適合兩個簡短值的選擇；若分支會做多個敘述或需要說明，用 if/else。</p><pre class="pseudo-code" data-cpp="run" data-expected="fee=80&#10;">#include &lt;iostream&gt;
+int main() {
+    int age{12};
+    int fee = age &lt; 18 ? 80 : 120;
+    std::cout &lt;&lt; "fee=" &lt;&lt; fee &lt;&lt; '\n';
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>fee=80&#10;</pre></div><div class="warn-box"><b>不要把 ?: 當成縮短所有 if 的工具。</b> 巢狀三元式很快失去可讀性；它的核心用途是產生一個值。</div></div>
+<div id="restore-p2-branch-choice" class="deck-extra"><h3>if 鏈與 switch 怎麼選</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較</th><th><code>switch</code></th><th><code>if / else if</code></th></tr></thead><tbody><tr><td>條件形狀</td><td>同一整數類／列舉值與各 case 常數比較</td><td>可寫範圍、複合條件與不同變數</td></tr><tr><td>檢查順序</td><td>跳到匹配 case</td><td>由上而下，第一個 true</td></tr><tr><td>分支結束</td><td>通常需 <code>break</code>；否則 fallthrough</td><td>一支完成後整鏈結束</td></tr><tr><td>適用情境</td><td>指令碼、狀態碼、選單</td><td>成績區間、資格條件</td></tr></tbody></table></div></div>
+<div id="restore-p2-for-boundaries" class="deck-extra"><h3>for 邊界與實際走過的值</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>本體次數</th><th>i 的值</th><th>常見用途</th></tr></thead><tbody><tr><td><code>for(int i=0;i&lt;n;++i)</code></td><td>n（n≥0）</td><td>0 到 n−1</td><td>零起點索引</td></tr><tr><td><code>for(int i=1;i&lt;=n;++i)</code></td><td>n（n≥1）</td><td>1 到 n</td><td>一到 n 的計數</td></tr><tr><td><code>for(int i=n-1;i&gt;=0;--i)</code></td><td>n（n≥1）</td><td>n−1 到 0</td><td>倒序；i 必須是有號型別</td></tr><tr><td><code>for(int i=0;i&lt;n;i+=2)</code></td><td>ceil(n/2)</td><td>0,2,4,…</td><td>每隔一項</td></tr></tbody></table></div><div class="warn-box"><b>無號倒數是另一個問題。</b> <code>size_t i&gt;=0</code> 永遠成立；不要把上表的 int 寫法機械換成 size_t。</div></div>
+<div id="restore-p2-timing" class="deck-extra"><h3>用 chrono 量一段程式：逐件拆解</h3><p><code>steady_clock::now()</code> 是對 clock 型別呼叫靜態方法；<code>auto</code> 讓編譯器推導時間點型別。計時值會受硬體、編譯最佳化與系統負載影響；這裡真的輸出微秒數。下方 240 只是示例，你的結果可以不同，甚至在時鐘精度不足時為 0。</p><pre class="pseudo-code" data-cpp="run" data-expected-pattern="sum=4999950000 elapsed_us=[0-9]+\n" data-output-example="sum=4999950000 elapsed_us=240&#10;">#include &lt;chrono&gt;
+#include &lt;iostream&gt;
+int main() {
+    auto start = std::chrono::steady_clock::now();
+    long long sum{0};
+    for (int i{0}; i &lt; 100000; ++i) sum += i;
+    auto stop = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast&lt;std::chrono::microseconds&gt;(stop-start);
+    std::cout &lt;&lt; &quot;sum=&quot; &lt;&lt; sum &lt;&lt; &quot; elapsed_us=&quot; &lt;&lt; elapsed.count() &lt;&lt; &#x27;\n&#x27;;
+}</pre><div class="expected-out"><span class="eo-tag">輸出示例（數字依實際執行而變）</span><pre>sum=4999950000 elapsed_us=240&#10;</pre></div><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>零件</th><th>角色</th></tr></thead><tbody><tr><td><code>start/stop</code></td><td>工作前後的時間點</td></tr><tr><td><code>stop-start</code></td><td>時間長度</td></tr><tr><td><code>duration_cast&lt;microseconds&gt;</code></td><td>轉成指定單位</td></tr><tr><td><code>elapsed.count()</code></td><td>取得該單位的數值；每次可不同</td></tr></tbody></table></div></div>
+<div id="restore-p2-loop-matrix" class="deck-extra"><h3>迴圈選擇與成本矩陣</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>問題形狀</th><th>首選</th><th>次數推理</th><th>典型成本</th></tr></thead><tbody><tr><td>次數未知、可能零次</td><td><code>while</code></td><td>追蹤條件與更新</td><td>依狀態收斂速度</td></tr><tr><td>本體必須先做一次</td><td><code>do-while</code></td><td>至少 1 次</td><td>依後測條件</td></tr><tr><td>明確計數或索引</td><td>三段式 <code>for</code></td><td>展開初始化→檢查→本體→更新</td><td>常見 O(n)</td></tr><tr><td>每圈把正數除以 2</td><td><code>while</code></td><td>約 floor(log₂n)+1（n≥1）</td><td>O(log n)</td></tr><tr><td>外層 n 次、每次折半迴圈</td><td>巢狀</td><td>n·(floor(log₂n)+1)</td><td>O(n log n)</td></tr><tr><td>兩層各完整跑 n 次</td><td>巢狀迴圈</td><td>n×n</td><td>O(n²)</td></tr><tr><td>內層跑 1+2+…+n</td><td>三角形巢狀迴圈</td><td>n(n+1)/2</td><td>O(n²)</td></tr></tbody></table></div><p>範圍 for 的值、參考、const 參考五維比較已移到 <a href="p5_vector_string.html#restore-p5-range-bindings">P5 的完整 range-for 表</a>，避免在容器出現前先用。</p></div>
+<div id="restore-p2-halving" class="deck-extra"><h3>倒序邊界與折半迴圈</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>前提</th><th>實際值／次數</th><th>成本</th></tr></thead><tbody><tr><td><code>for(int i=n-1;i&gt;=0;--i)</code></td><td>n≥1、i 為有號型別</td><td>n−1,n−2,…,0；n 次</td><td>O(n)</td></tr><tr><td><code>for(int i=n-1;i&gt;0;--i)</code></td><td>n≥1</td><td>n−1,…,1；n−1 次，刻意不含 0</td><td>O(n)</td></tr><tr><td><code>while(x&gt;0){x/=2;}</code></td><td>x 初值 n≥1</td><td>n,floor(n/2),…；floor(log₂n)+1 次</td><td>O(log n)</td></tr></tbody></table></div><pre class="pseudo-code" data-cpp="run" data-expected="iterations=4&#10;">#include &lt;iostream&gt;
+int main() {
+    int x{10};
+    int iterations{0};
+    while (x &gt; 0) {
+        x /= 2;
+        ++iterations;
+    }
+    std::cout &lt;&lt; "iterations=" &lt;&lt; iterations &lt;&lt; '\n';
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>iterations=4&#10;</pre></div><p>狀態依序是 10→5→2→1→0，本體四次。每次減 1 與每次除 2 的成長率不同，不能都因為「一個 while」就判成 O(n)。</p></div>
 <section id="reference"><div class="section-number">PART 10</div><h2>P2 語法速查</h2>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>結構</th><th>何時用</th><th>關鍵</th></tr></thead><tbody><tr><td>if / else if</td><td>互斥條件分支</td><td>第一個 true 分支</td></tr><tr><td>switch</td><td>同一整數類值的離散案例</td><td>通常以 break 結束</td></tr><tr><td>while</td><td>次數未知且可能為零</td><td>先測條件</td></tr><tr><td>do-while</td><td>本體至少一次</td><td>尾端有分號</td></tr><tr><td>for</td><td>初始化、條件、更新清楚</td><td>條件常比本體多查一次</td></tr><tr><td>break</td><td>離開最內層迴圈／switch</td><td>後續圈不再執行</td></tr><tr><td>continue</td><td>跳過本圈剩餘本體</td><td>for 仍執行更新</td></tr></tbody></table></div>
 <div class="info-box"><div class="info-label">動手練習</div><p>需要反覆讀值，直到成功讀到 1–5；你會先想到哪種結構？</p><details><summary>看解答與理由</summary><p>若一定要讀一次，可用 do-while；若先前已有一次讀值，也可用 while。重點是每次失敗後必須更新輸入狀態與 value，讓條件有機會改變。</p></details></div>
@@ -622,69 +668,85 @@ int main() {
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>0 放入 if 條件會轉成？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。">false</button>
-      <button class="sq-opt" data-c="0" data-fb="數值零轉為 false。">true</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。"><span class="opt-letter">(A)</span> false</button>
+      <button class="sq-opt" data-c="0" data-fb="數值零轉為 false。"><span class="opt-letter">(B)</span> true</button>
+      <button class="sq-opt" data-c="0" data-fb="任何非零數值都轉為 true。"><span class="opt-letter">(C)</span> 只有負數是 false</button>
+      <button class="sq-opt" data-c="0" data-fb="負的非零值也轉為 true。"><span class="opt-letter">(D)</span> 只有正數是 true</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>false &amp;&amp; f() 是否呼叫 f？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，&amp;&amp; 短路。">不會</button>
-      <button class="sq-opt" data-c="0" data-fb="左側已決定整體為 false。">會</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，&amp;&amp; 短路。"><span class="opt-letter">(A)</span> 不會</button>
+      <button class="sq-opt" data-c="0" data-fb="左側已決定整體為 false。"><span class="opt-letter">(B)</span> 會</button>
+      <button class="sq-opt" data-c="0" data-fb="短路表示右運算元不求值。"><span class="opt-letter">(C)</span> 仍會比較，但忽略結果</button>
+      <button class="sq-opt" data-c="0" data-fb="短路是語言語意，不是最佳化。"><span class="opt-letter">(D)</span> 只在最佳化開啟時不比較</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q3.</span>if (x = 5) 的主要問題？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；等號是指定。">指定 x 為 5，再把 5 當 true</button>
-      <button class="sq-opt" data-c="0" data-fb="比較要用 ==。">比較 x 是否等於 5</button>
+      <button class="sq-opt" data-c="1" data-fb="正確；等號是指定。"><span class="opt-letter">(A)</span> 指定 x 為 5，再把 5 當 true</button>
+      <button class="sq-opt" data-c="0" data-fb="比較要用 ==。"><span class="opt-letter">(B)</span> 比較 x 是否等於 5</button>
+      <button class="sq-opt" data-c="0" data-fb="單等號會先修改 x。"><span class="opt-letter">(C)</span> 只是比較，不改 x</button>
+      <button class="sq-opt" data-c="0" data-fb="整數指定結果可轉成 bool，因此常能編譯。"><span class="opt-letter">(D)</span> 一定造成編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q4.</span>switch 的 case 後漏 break 會怎樣？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，這是 fallthrough。">繼續執行後續 case 的敘述</button>
-      <button class="sq-opt" data-c="0" data-fb="case 標籤不會自動停止。">自動離開 switch</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，這是 fallthrough。"><span class="opt-letter">(A)</span> 繼續執行後續 case 的敘述</button>
+      <button class="sq-opt" data-c="0" data-fb="case 標籤不會自動停止。"><span class="opt-letter">(B)</span> 自動離開 switch</button>
+      <button class="sq-opt" data-c="0" data-fb="fallthrough 是向下繼續，不是重跑。"><span class="opt-letter">(C)</span> 跳回 switch 開頭</button>
+      <button class="sq-opt" data-c="0" data-fb="已匹配 case 後會沿後續敘述執行。"><span class="opt-letter">(D)</span> 只執行 default</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>哪種迴圈保證本體至少一次？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，條件在本體後。">do-while</button>
-      <button class="sq-opt" data-c="0" data-fb="while 可能零次。">while</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，條件在本體後。"><span class="opt-letter">(A)</span> do-while</button>
+      <button class="sq-opt" data-c="0" data-fb="while 可能零次。"><span class="opt-letter">(B)</span> while</button>
+      <button class="sq-opt" data-c="0" data-fb="for 也是前測，可能零次。"><span class="opt-letter">(C)</span> for</button>
+      <button class="sq-opt" data-c="0" data-fb="if 不是重複結構。"><span class="opt-letter">(D)</span> if</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>for(int i=0;i&lt;4;++i) 本體與條件各幾次？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；最後一次失敗檢查也算。">本體 4 次、條件 5 次</button>
-      <button class="sq-opt" data-c="0" data-fb="i=4 時還會檢查一次條件。">兩者都是 4 次</button>
+      <button class="sq-opt" data-c="1" data-fb="正確；最後一次失敗檢查也算。"><span class="opt-letter">(A)</span> 本體 4 次、條件 5 次</button>
+      <button class="sq-opt" data-c="0" data-fb="i=4 時還會檢查一次條件。"><span class="opt-letter">(B)</span> 兩者都是 4 次</button>
+      <button class="sq-opt" data-c="0" data-fb="i=4 的失敗檢查不執行本體。"><span class="opt-letter">(C)</span> 本體 5 次、條件 5 次</button>
+      <button class="sq-opt" data-c="0" data-fb="還有一次使迴圈結束的失敗檢查。"><span class="opt-letter">(D)</span> 本體 4 次、條件 4 次</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q7.</span>continue 在 for 中下一步通常是？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。">執行更新式，再檢查條件</button>
-      <button class="sq-opt" data-c="0" data-fb="離開迴圈是 break。">立刻離開整個迴圈</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。"><span class="opt-letter">(A)</span> 執行更新式，再檢查條件</button>
+      <button class="sq-opt" data-c="0" data-fb="離開迴圈是 break。"><span class="opt-letter">(B)</span> 立刻離開整個迴圈</button>
+      <button class="sq-opt" data-c="0" data-fb="for 的 continue 仍走更新式。"><span class="opt-letter">(C)</span> 重新執行本體開頭，不更新</button>
+      <button class="sq-opt" data-c="0" data-fb="那是 break 的效果。"><span class="opt-letter">(D)</span> 結束目前最內層迴圈</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q8.</span>兩層各跑 n 次、內層 O(1)，總成本？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，n×n。">O(n²)</button>
-      <button class="sq-opt" data-c="0" data-fb="Big-O 不把巢狀迴圈次數相加。">O(2n)</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，n×n。"><span class="opt-letter">(A)</span> O(n²)</button>
+      <button class="sq-opt" data-c="0" data-fb="Big-O 不把巢狀迴圈次數相加。"><span class="opt-letter">(B)</span> O(2n)</button>
+      <button class="sq-opt" data-c="0" data-fb="兩層次數相乘。"><span class="opt-letter">(C)</span> O(n)</button>
+      <button class="sq-opt" data-c="0" data-fb="每層都完整跑 n 次，沒有折半。"><span class="opt-letter">(D)</span> O(log n)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p1_cpp_basics.html"><div class="nav-dir">上一頁</div><div class="nav-title">C++ 基礎與編譯流程</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p3_functions.html"><div class="nav-dir">下一頁</div><div class="nav-title">函式與參考</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "bool 轉換", "back": "數值 0 為 false、非 0 為 true；空指標為 false。"}, {"front": "短路求值", "back": "&& 左側 false 或 || 左側 true 時，不計算右側。"}, {"front": "else-if 鏈", "back": "由上而下，只執行第一個為 true 的分支。"}, {"front": "assignment / equality", "back": "= 指定新值；== 比較是否相等。"}, {"front": "fallthrough", "back": "switch 進入 case 後繼續向下執行。"}, {"front": "while", "back": "前測迴圈，可能執行零次。"}, {"front": "do-while", "back": "後測迴圈，至少執行一次。"}, {"front": "for 時序", "back": "初始化一次；條件、本體、更新循環。"}, {"front": "break", "back": "離開最內層迴圈或 switch。"}, {"front": "continue", "back": "跳過本圈剩餘本體。"}, {"front": "巢狀迴圈", "back": "內層次數要對每個外層狀態加總。"}, {"front": "Big-O", "back": "描述工作量隨輸入規模增長的漸近上界。"}];
+const FLASHCARDS = [{"front": "布林轉換（bool conversion）", "back": "數值 0 為 false、非 0 為 true；空指標為 false。"}, {"front": "短路求值（short-circuit evaluation）", "back": "&& 左側 false 或 || 左側 true 時，不計算右側。"}, {"front": "多路條件鏈（else-if chain）", "back": "由上而下，只執行第一個為 true 的分支。"}, {"front": "指定與相等（assignment / equality）", "back": "= 指定新值；== 比較是否相等。"}, {"front": "向下貫穿（fallthrough）", "back": "switch 進入 case 後繼續向下執行。"}, {"front": "前測迴圈（while）", "back": "前測迴圈，可能執行零次。"}, {"front": "後測迴圈（do-while）", "back": "後測迴圈，至少執行一次。"}, {"front": "計數迴圈時序（for timing）", "back": "初始化一次；條件、本體、更新循環。"}, {"front": "離開迴圈（break）", "back": "離開最內層迴圈或 switch。"}, {"front": "跳過本圈（continue）", "back": "跳過本圈剩餘本體。"}, {"front": "巢狀迴圈（nested loops）", "back": "內層次數要對每個外層狀態加總。"}, {"front": "漸近上界（Big-O）", "back": "描述工作量隨輸入規模增長的漸近上界。"}, {"front": "邏輯運算子（Logical Operator）", "back": "&&要求兩邊成立，||要求至少一邊成立，!反轉真假；&&和||會短路。"}, {"front": "條件敘述（if Statement）", "back": "判斷條件後決定是否執行本體；else-if鏈只選第一個成立分支。"}, {"front": "區塊（Block）", "back": "以大括號把多個敘述組成一個本體，同時建立區域名稱的作用域。"}, {"front": "賦值運算式（Assignment Expression）", "back": "=會寫入新值，不是比較；把它誤放在if條件內可能修改狀態而非檢查。"}, {"front": "多路選擇（switch Statement）", "back": "按整數類或列舉值跳到匹配case；沒有break時可能繼續執行後面的程式。"}, {"front": "無窮迴圈（Infinite Loop）", "back": "控制狀態未能讓停止條件成立，導致持續重複。檢查更新是否被continue跳過。"}, {"front": "終止條件（Termination Condition）", "back": "決定何時不再進入下一圈的條件；需同時檢查初值、每輪更新和邊界。"}, {"front": "迴圈變數作用域（Loop Variable Scope）", "back": "在for初始化部分宣告的變數，通常只能在該for及其本體中使用。"}, {"front": "條件運算子（Conditional Operator, ?:）", "back": "先計算條件，再只計算被選中的一支，產生一個值；複雜流程適合改用if/else。"}, {"front": "型別推導（Type Deduction, auto）", "back": "讓編譯器從初始值推導型別，仍是編譯期固定型別，不是可隨意變型別。"}];
 
 /* depth-runtime:start */
 (() => {

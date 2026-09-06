@@ -2,7 +2,7 @@
 """Verify every prerequisite trace, quiz option, card and main-chapter visual contract.
 Requires Playwright with Chromium. All pages are loaded locally; external requests are blocked.
 """
-import argparse,json,re
+import argparse,json,re,hashlib
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parent.parent
@@ -17,6 +17,7 @@ def main():
  args=parser.parse_args()
  if args.screenshots:args.screenshots.mkdir(parents=True,exist_ok=True)
  reports=[]
+ hero_signatures=set()
  with sync_playwright() as pw:
   browser=pw.chromium.launch(headless=True,timeout=15000,args=['--no-sandbox','--disable-dev-shm-usage'])
   baseline={}
@@ -33,6 +34,12 @@ def main():
    page.add_init_script("const nativeInterval=window.setInterval.bind(window);window.setInterval=(fn,ms,...args)=>nativeInterval(fn,Math.min(ms,80),...args);")
    try:
     page.goto(path.as_uri(),wait_until='load')
+    hero=page.locator('.hero svg.hero-graph')
+    assert hero.count()==1 and hero.is_visible(), 'missing visible chapter-specific hero SVG'
+    assert hero.locator('path,rect,circle,line,polygon,polyline').count()>0, 'empty hero SVG'
+    signature=hashlib.sha256(hero.evaluate('(e)=>e.outerHTML').encode()).hexdigest()
+    assert signature not in hero_signatures, 'generic hero duplicated across chapters'
+    hero_signatures.add(signature)
     traces=page.locator('.lesson-trace');assert traces.count()>=2,'need at least two substantive traces'
     for i in range(traces.count()):
      trace=traces.nth(i);play=trace.locator('[data-action="play"]');step=trace.locator('[data-action="next"]');prev=trace.locator('[data-action="prev"]');reset=trace.locator('[data-action="reset"]')
@@ -52,6 +59,9 @@ def main():
     options_checked=0;positions=[]
     for i in range(qs.count()):
      q=qs.nth(i);opts=q.locator('.sq-opt')
+     assert opts.count()==4, f'question {i+1} must have four options'
+     assert q.locator('.sq-opt[data-c="1"]').count()==1, f'question {i+1} must have one correct option'
+     assert opts.locator('.opt-letter').all_text_contents()==['(A)','(B)','(C)','(D)'], f'question {i+1}: missing A-D labels after shuffle'
      for j in range(opts.count()):
       b=opts.nth(j);good=b.get_attribute('data-c')=='1';b.click();assert ('correct' if good else 'wrong') in b.get_attribute('class')
       assert q.locator('.sq-fb').is_visible();assert q.locator('.sq-fb').inner_text()==b.get_attribute('data-fb')
@@ -61,6 +71,7 @@ def main():
     expected=json.loads((ROOT/f'data/flashcards_zh/{chapter}.json').read_text())
     cards=page.locator('.fc-card');assert cards.count()==len(expected)
     for i,card in enumerate(expected):
+     assert re.search(r'[\u4e00-\u9fff]',card['front']) and re.search(r'（[^（）]*[A-Za-z][^（）]*）',card['front']), f'card {i+1}: not bilingual'
      assert cards.nth(i).locator('.fc-front').inner_text()==card['front']
      assert cards.nth(i).locator('.fc-back').inner_text()==card['back']
     cards.first.focus();page.keyboard.press('Enter');assert 'flipped' in cards.first.get_attribute('class')
@@ -76,10 +87,19 @@ def main():
      assert not differences,f'{width}px style drift: {differences}'
      assert not page.evaluate('document.documentElement.scrollWidth > innerWidth + 2'),f'{width}px overflow'
      if width==390:assert not page.locator('.float-nav').is_visible()
+     assert hero.is_visible()==(width>900), 'hero responsive visibility differs from original main-chapter rule'
      if args.screenshots:
       for region,selector in [('top','#top'),('lesson','section'),('interaction','.lesson-trace'),('cards','#cards')]:
        page.locator(selector).first.evaluate("el=>{document.documentElement.style.scrollBehavior='auto';el.scrollIntoView({block:'start',behavior:'instant'});}")
        page.wait_for_timeout(100);page.screenshot(path=str(args.screenshots/f'{chapter}-{width}-{region}.png'))
+      diagrams=page.locator('.diagram-scroll')
+      for di in range(diagrams.count()):
+       diagram=diagrams.nth(di)
+       diagram.evaluate("el=>el.scrollIntoView({block:'center',behavior:'instant'})")
+       assert diagram.locator('svg').is_visible(), 'restored content diagram is hidden'
+       sizes=diagram.locator('svg text').evaluate_all('(els)=>els.map(e=>e.getBoundingClientRect().height).filter(h=>h>0)')
+       assert not sizes or min(sizes)>=9, 'diagram labels shrunk below readable size'
+       page.screenshot(path=str(args.screenshots/f'{chapter}-{width}-diagram-{di+1}.png'))
     report['styles']='match introduction.html at 1440px/390px'
    except Exception as exc:report['errors'].append(str(exc))
    page.close();reports.append(report);print(json.dumps(report,ensure_ascii=False),flush=True)

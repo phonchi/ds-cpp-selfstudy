@@ -54,8 +54,7 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 
 頁面以單檔 HTML 與原生 JS 為主；00C 另引用三張有來源標註的本地官方介面截圖。
 先備頁的自測題與詞彙卡依新正文編寫，正課頁維持課程題庫來源。
-兩者的母檔均在 `data/flashcards_zh/`、`data/questions_zh/`。先備頁以中文解釋術語、保留 C++ 關鍵字；
-正課詞彙卡沿用「中文（English）」格式。
+兩者的母檔均在 `data/flashcards_zh/`、`data/questions_zh/`。先備與正課字卡正面均使用「中文（English term／C++ identifier）」格式，不能只有單語。先備選擇題一律四個選項、唯一正解與逐項理由。
 改內容時同步更新母檔，再用 `tools/apply_zh.py --pages p1 p2` 指定重生對應頁面。
 
 ## 維護
@@ -65,6 +64,7 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 | `tools/apply_zh.py` | 從 `data/` 重生詞彙卡與題庫自測區（冪等）；`--pages p1,p2` 限定頁面，省略則全站 |
 | `tools/inject_prereq_cpp.py` | 課前章與先備頁的尾段注入（導讀框、詞彙卡區、上下頁導覽），冪等 |
 | `tools/check_links_cpp.py` | 全站錨點、頁面連結與注入前置條件檢查 |
+| `tools/check_prereq_fidelity.py` | 檢查已讀段落、表格欄列與SVG未被無聲刪減；不能取代原稿閱讀 |
 | `tools/check_prereq.py` | 編譯執行先備頁完整範例、核對輸出與 JSON、檢查 inline JS 及指向先備頁的跨頁錨點 |
 | `tools/check_prereq_browser.py` | 驗證每個 trace、每題每個選項、詞卡，以及九頁與主文的 computed style 一致性 |
 | `tools/prereq_authoring.py` | 可選的單檔 HTML 編寫輔助，沿用主文樣式與統一 trace 引擎；生成後仍以 HTML 為正文來源 |
@@ -114,3 +114,16 @@ python3 tools/check_prereq_browser.py --pages p3 p4 --screenshots /tmp/prereq-sc
 多檔程式的每個 `<pre>` 標成 `data-cpp="file"`，用相同 `data-example` 分組，
 `data-filename` 指定實際檔名；其中一檔提供 `data-expected`（及需要時的 `data-stdin`）。
 檢查器建立真實檔案，將同組 `.cpp` 一起編譯，不以合併成單檔代替多檔驗證。
+
+本次精確恢復以[逐項恢復紀錄](docs/prereq-fidelity-review.md)為準；上次coverage結論已註記更正。
+
+```sh
+python3 tools/check_prereq_fidelity.py
+python3 -m unittest discover -s tests -v
+```
+
+`write_page` 如需編寫新頁，必須明確提供該頁 `hero_svg`，不允許再默默生成缺圖章首。
+本次修正沒有使用整頁生成器，直接保留並補回既有區塊。`data/prereq_fidelity_contract.json` 是已審查快照，
+不能為了消除失敗就盲目重生；改動已接受的文字／表格／圖示後，須重新比對與閱讀才更新。
+計時等非固定輸出可使用 `data-expected-pattern` 作完整匹配，另以 `data-output-example` 顯示清楚標示的示例，
+不能把某次時間或跨平台亂數序列當保證。

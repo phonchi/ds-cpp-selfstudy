@@ -465,7 +465,13 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#streams" data-target="streams"><span class="fn-num">01</span><span class="fn-name">檔案就是輸入／輸出串流</span></a><a href="#paths" data-target="paths"><span class="fn-num">02</span><span class="fn-name">working directory 與路徑</span></a><a href="#write" data-target="write"><span class="fn-num">03</span><span class="fn-name">寫入、覆寫、追加與模式</span></a><a href="#read" data-target="read"><span class="fn-num">04</span><span class="fn-name">可靠讀取與 stringstream 解析</span></a><a href="#state" data-target="state"><span class="fn-num">05</span><span class="fn-name">good、fail、eof、bad 狀態機</span></a><a href="#raii" data-target="raii"><span class="fn-num">06</span><span class="fn-name">close、狀態檢查與 RAII</span></a><a href="#exceptions" data-target="exceptions"><span class="fn-num">07</span><span class="fn-name">try、throw、catch 與跨函式傳遞</span></a><a href="#standard" data-target="standard"><span class="fn-num">08</span><span class="fn-name">標準例外與 at／[] 的界線</span></a><a href="#boundaries" data-target="boundaries"><span class="fn-num">09</span><span class="fn-name">未捕捉例外與處理責任</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">語法速查與完整檢核</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P7</div><h1>檔案與例外</h1><div class="subtitle">從可靠讀寫、串流狀態到例外責任邊界</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#streams"><span class="toc-num">01</span>檔案就是輸入／輸出串流</a><a href="#paths"><span class="toc-num">02</span>working directory 與路徑</a><a href="#write"><span class="toc-num">03</span>寫入、覆寫、追加與模式</a><a href="#read"><span class="toc-num">04</span>可靠讀取與 stringstream 解析</a><a href="#state"><span class="toc-num">05</span>good、fail、eof、bad 狀態機</a><a href="#raii"><span class="toc-num">06</span>close、狀態檢查與 RAII</a><a href="#exceptions"><span class="toc-num">07</span>try、throw、catch 與跨函式傳遞</a><a href="#standard"><span class="toc-num">08</span>標準例外與 at／[] 的界線</a><a href="#boundaries"><span class="toc-num">09</span>未捕捉例外與處理責任</a><a href="#reference"><span class="toc-num">10</span>語法速查與完整檢核</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a></div></div><section id="streams"><div class="section-number">PART 01</div><h2>檔案就是輸入／輸出串流</h2>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#streams" data-target="streams"><span class="fn-num">01</span><span class="fn-name">檔案就是輸入／輸出串流</span></a><a href="#paths" data-target="paths"><span class="fn-num">02</span><span class="fn-name">working directory 與路徑</span></a><a href="#write" data-target="write"><span class="fn-num">03</span><span class="fn-name">寫入、覆寫、追加與模式</span></a><a href="#read" data-target="read"><span class="fn-num">04</span><span class="fn-name">可靠讀取與 stringstream 解析</span></a><a href="#state" data-target="state"><span class="fn-num">05</span><span class="fn-name">good、fail、eof、bad 狀態機</span></a><a href="#raii" data-target="raii"><span class="fn-num">06</span><span class="fn-name">close、狀態檢查與 RAII</span></a><a href="#exceptions" data-target="exceptions"><span class="fn-num">07</span><span class="fn-name">try、throw、catch 與跨函式傳遞</span></a><a href="#standard" data-target="standard"><span class="fn-num">08</span><span class="fn-name">標準例外與 at／[] 的界線</span></a><a href="#boundaries" data-target="boundaries"><span class="fn-num">09</span><span class="fn-name">未捕捉例外與處理責任</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">語法速查與完整檢核</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p7-stream-five" data-target="restore-p7-stream-five"><span class="fn-num">13</span><span class="fn-name">檔案串流常用寫法與生命週期</span></a><a href="#restore-p7-exception-flow" data-target="restore-p7-exception-flow"><span class="fn-num">14</span><span class="fn-name">例外語法、控制流與資源效果</span></a><a href="#restore-p7-standard-table" data-target="restore-p7-standard-table"><span class="fn-num">15</span><span class="fn-name">常見標準例外與具體觸發來源</span></a><a href="#restore-p7-resources" data-target="restore-p7-resources"><span class="fn-num">16</span><span class="fn-name">查閱入口</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <path d="M70 40 h110 l40 40 v140 h-150 z"/><path d="M180 40 v40 h40"/>
+    <line x1="95" y1="120" x2="200" y2="120"/><line x1="95" y1="146" x2="200" y2="146"/>
+    <line x1="95" y1="172" x2="160" y2="172"/>
+  </g>
+</svg><div class="hero-content"><div class="chapter-tag">PREREQ P7</div><h1>檔案與例外</h1><div class="subtitle">從可靠讀寫、串流狀態到例外責任邊界</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#streams"><span class="toc-num">01</span>檔案就是輸入／輸出串流</a><a href="#paths"><span class="toc-num">02</span>working directory 與路徑</a><a href="#write"><span class="toc-num">03</span>寫入、覆寫、追加與模式</a><a href="#read"><span class="toc-num">04</span>可靠讀取與 stringstream 解析</a><a href="#state"><span class="toc-num">05</span>good、fail、eof、bad 狀態機</a><a href="#raii"><span class="toc-num">06</span>close、狀態檢查與 RAII</a><a href="#exceptions"><span class="toc-num">07</span>try、throw、catch 與跨函式傳遞</a><a href="#standard"><span class="toc-num">08</span>標準例外與 at／[] 的界線</a><a href="#boundaries"><span class="toc-num">09</span>未捕捉例外與處理責任</a><a href="#reference"><span class="toc-num">10</span>語法速查與完整檢核</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a><a href="#restore-p7-stream-five"><span class="toc-num">補</span>檔案串流常用寫法與生命週期</a><a href="#restore-p7-exception-flow"><span class="toc-num">補</span>例外語法、控制流與資源效果</a><a href="#restore-p7-standard-table"><span class="toc-num">補</span>常見標準例外與具體觸發來源</a><a href="#restore-p7-resources"><span class="toc-num">補</span>查閱入口</a></div></div><section id="streams"><div class="section-number">PART 01</div><h2>檔案就是輸入／輸出串流</h2>
 <p>檔案讓資料在程式結束後仍存在。C++ 把檔案當成「串流」：輸出串流把資料依序送出去，輸入串流把資料依序讀進來。<code>ofstream</code> 寫檔、<code>ifstream</code> 讀檔、<code>fstream</code> 可同時讀寫；各自要 <code>#include &lt;fstream&gt;</code>。</p>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>型別</th><th>預設用途</th><th>常見操作</th></tr></thead><tbody><tr><td><code>ofstream</code></td><td>輸出到檔案</td><td><<、write</td></tr><tr><td><code>ifstream</code></td><td>從檔案輸入</td><td>>>、getline、read</td></tr><tr><td><code>fstream</code></td><td>讀寫同一檔</td><td>明確指定開啟模式</td></tr></tbody></table></div>
 <pre class="pseudo-code" data-cpp="run" data-expected="tea:3&#10;rice:8&#10;">#include &lt;fstream&gt;
@@ -662,6 +668,15 @@ int main() {
 <div class="info-box"><div class="info-label">動手練習</div><p>什麼叫「catch 後假裝成功」？</p><details><summary>看解答與理由</summary><p>例如讀檔失敗後 catch(...) 什麼都不做，仍回傳空資料，讓呼叫者誤以為檔案真的為空。應回報、提供替代方案或重新丟出。</p></details></div>
 
 </section>
+<section id="restore-p7-matrices"><div class="section-number">RESTORED DEPTH</div><h2>把串流與例外的完整骨架集中比較</h2>
+<h3 id="restore-p7-stream-five">檔案串流常用寫法與生命週期</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>作用</th><th>立即檢查</th></tr></thead><tbody><tr><td><code>ifstream in(path)</code></td><td>開檔讀取</td><td><code>if(!in)</code></td></tr><tr><td><code>ofstream out(path)</code></td><td>開檔寫入，既有內容會被截斷</td><td><code>if(!out)</code></td></tr><tr><td><code>ofstream out(path,ios::app)</code></td><td>從尾端追加</td><td>開啟與最後寫入狀態</td></tr><tr><td><code>while(getline(in,line))</code></td><td>成功讀到一整行才處理</td><td>迴圈後分辨 eof 與其他失敗</td></tr><tr><td>離開作用域</td><td>RAII 自動關閉串流</td><td>若需確認最終錯誤則明確 close 後檢查</td></tr><tr><td><code>in &gt;&gt; word</code></td><td>依目標型別擷取一項，字串以空白分隔</td><td>檢查本次擷取是否成功，再使用結果</td></tr></tbody></table></div>
+<h3 id="restore-p7-exception-flow">例外語法、控制流與資源效果</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>C++ 寫法</th><th>控制流</th><th>資源／資訊</th></tr></thead><tbody><tr><td><code>try { work(); }</code></td><td>圈住可能 throw 的操作</td><td>不會自行吞掉錯誤</td></tr><tr><td><code>throw invalid_argument(msg)</code></td><td>立即離開正常路徑並向外尋找 catch</td><td>建立具體例外物件</td></tr><tr><td><code>catch(const T&amp; e)</code></td><td>型別相容才接住</td><td>const reference 避免複製與 slicing</td></tr><tr><td><code>e.what()</code></td><td>不改變控制流</td><td>取得例外說明</td></tr><tr><td>stack unwinding</td><td>逐層離開尚未完成的函式</td><td>沿途區域物件解構，RAII 資源收回</td></tr></tbody></table></div>
+<h3 id="restore-p7-standard-table">常見標準例外與具體觸發來源</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>型別</th><th>真實來源</th><th>本套頁面去向</th></tr></thead><tbody><tr><td><code>out_of_range</code></td><td><code>vector::at</code>、<code>string::at</code>、<code>map::at</code></td><td>P5、P6、P7</td></tr><tr><td><code>invalid_argument</code></td><td><code>stoi("abc")</code> 或函式拒絕不合法引數</td><td>P5 文字轉換、P7</td></tr><tr><td><code>bad_alloc</code></td><td>一般 throwing <code>new</code> 配置失敗</td><td>P4 對照 nothrow 模式</td></tr><tr><td><code>runtime_error</code></td><td>執行環境使操作無法完成</td><td>P9 自訂例外基底</td></tr><tr><td><code>ios_base::failure</code></td><td>串流設定 exceptions mask 後的 I/O 失敗</td><td>本頁；預設串流仍使用狀態旗標</td></tr></tbody></table></div>
+<h3 id="restore-p7-resources">查閱入口</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>資源</th><th>查閱重點</th></tr></thead><tbody><tr><td><a href="https://en.cppreference.com/w/cpp/io/basic_fstream" target="_blank" rel="noopener">fstream</a></td><td>開啟模式、讀寫與close</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/io/ios_base/iostate" target="_blank" rel="noopener">iostate</a></td><td>goodbit、eofbit、failbit、badbit</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/error/exception" target="_blank" rel="noopener">exceptions</a></td><td>標準例外階層、what與捕捉</td></tr></tbody></table></div>
+</section>
 <section id="reference"><div class="section-number">PART 10</div><h2>語法速查與完整檢核</h2>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>任務</th><th>可靠寫法</th><th>避免</th></tr></thead><tbody><tr><td>開檔</td><td>建構/open 後立即檢查串流</td><td>只檢查路徑字串</td></tr><tr><td>逐筆讀</td><td><code>while (in &gt;&gt; ...)</code></td><td><code>while(!eof())</code></td></tr><tr><td>逐行解析</td><td>getline + istringstream</td><td>一列壞資料卡死整檔</td></tr><tr><td>追加</td><td><code>ios::app</code></td><td>誤用預設截斷</td></tr><tr><td>資源釋放</td><td>小作用域 RAII</td><td>依賴每條路徑手寫 close</td></tr><tr><td>可恢復錯誤</td><td>具體 catch</td><td>空的 catch(...)</td></tr></tbody></table></div>
 <p>參考：<a href="https://en.cppreference.com/w/cpp/io/basic_fstream" target="_blank" rel="noopener">file streams</a>、<a href="https://en.cppreference.com/w/cpp/io/basic_ios/rdstate" target="_blank" rel="noopener">stream state</a>、<a href="https://en.cppreference.com/w/cpp/error/exception" target="_blank" rel="noopener">std::exception</a>。</p>
@@ -670,140 +685,150 @@ int main() {
 <p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：檔案與例外 <span class="sec-badge">隨堂自測 · 13 題</span></h2>
+  <h2>自我檢測：檔案與例外 <span class="sec-badge">隨堂自測 · 14 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>相對路徑 data/a.txt 以哪裡為起點？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="相對路徑由 working directory 解析。">程式執行時的 working directory</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。相對路徑由 working directory 解析。">原始碼檔所在處</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。相對路徑由 working directory 解析。">編譯器安裝處</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。相對路徑由 working directory 解析。">使用者家目錄固定</button>
+      <button class="sq-opt" data-c="1" data-fb="相對路徑由 working directory 解析。"><span class="opt-letter">(A)</span> 程式執行時的 working directory</button>
+      <button class="sq-opt" data-c="0" data-fb="原始碼位置只描述文字檔在哪裡，程序不會自動從該目錄啟動。"><span class="opt-letter">(B)</span> 原始碼檔所在處</button>
+      <button class="sq-opt" data-c="0" data-fb="編譯器安裝目錄只供建置時尋找工具，不決定已啟動程式的cwd。"><span class="opt-letter">(C)</span> 編譯器安裝處</button>
+      <button class="sq-opt" data-c="0" data-fb="家目錄只有在程序恰好從那裡啟動時才是cwd，並非固定規則。"><span class="opt-letter">(D)</span> 使用者家目錄固定</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>ofstream 預設重開既有檔案與 ios::app 的差別？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="寫日誌要明確用 app。">前者通常截斷；app 保留並從尾端追加</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。寫日誌要明確用 app。">兩者完全相同</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。寫日誌要明確用 app。">app 只允許讀</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。寫日誌要明確用 app。">預設一定追加</button>
+      <button class="sq-opt" data-c="1" data-fb="寫日誌要明確用 app。"><span class="opt-letter">(A)</span> 前者通常截斷；app 保留並從尾端追加</button>
+      <button class="sq-opt" data-c="0" data-fb="預設模式與app的寫入位置不同；前者截斷、後者保留原內容。"><span class="opt-letter">(B)</span> 兩者完全相同</button>
+      <button class="sq-opt" data-c="0" data-fb="ios::app是輸出位置模式，不是讀取權限；ofstream仍然用來寫。"><span class="opt-letter">(C)</span> app 只允許讀</button>
+      <button class="sq-opt" data-c="0" data-fb="普通ofstream預設會截斷既有檔案，不會保留後追加。"><span class="opt-letter">(D)</span> 預設一定追加</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q3.</span>可靠讀整數迴圈應寫？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="把讀取放在條件，成功才處理。">while (in &gt;&gt; x)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。把讀取放在條件，成功才處理。">while (!in.eof())</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。把讀取放在條件，成功才處理。">while (in.good()) { in &gt;&gt; x; use(x); }</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。把讀取放在條件，成功才處理。">while (x)</button>
+      <button class="sq-opt" data-c="1" data-fb="把讀取放在條件，成功才處理。"><span class="opt-letter">(A)</span> while (in &gt;&gt; x)</button>
+      <button class="sq-opt" data-c="0" data-fb="eof要在一次讀取碰到檔尾後才設定，!eof會讓最後失敗讀取前多進一圈。"><span class="opt-letter">(B)</span> while (!in.eof())</button>
+      <button class="sq-opt" data-c="0" data-fb="good是在讀取前檢查舊狀態；本體中的讀取仍可能失敗，卻繼續use舊x。"><span class="opt-letter">(C)</span> while (in.good()) { in &gt;&gt; x; use(x); }</button>
+      <button class="sq-opt" data-c="0" data-fb="x的數值不是串流可否再讀的狀態；x為0也可能仍有輸入。"><span class="opt-letter">(D)</span> while (x)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q4.</span>格式錯後呼叫 clear() 做了什麼？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="clear 不移動讀取位置。">清狀態旗標，但壞 token 仍需移除</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。clear 不移動讀取位置。">刪除整個檔案</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。clear 不移動讀取位置。">自動跳過壞 token</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。clear 不移動讀取位置。">關閉串流</button>
+      <button class="sq-opt" data-c="1" data-fb="clear 不移動讀取位置。"><span class="opt-letter">(A)</span> 清狀態旗標，但壞 token 仍需移除</button>
+      <button class="sq-opt" data-c="0" data-fb="clear只重設狀態位，不會刪檔案或改檔案內容。"><span class="opt-letter">(B)</span> 刪除整個檔案</button>
+      <button class="sq-opt" data-c="0" data-fb="造成格式錯的token仍停在輸入位置，clear不會自動略過它。"><span class="opt-letter">(C)</span> 自動跳過壞 token</button>
+      <button class="sq-opt" data-c="0" data-fb="clear不是close；串流仍連到原來源，只是允許再次嘗試操作。"><span class="opt-letter">(D)</span> 關閉串流</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>eof() 何時可靠變 true？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="因此不要用 !eof() 預測下一次讀取。">一次讀取嘗試碰到檔尾之後</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。因此不要用 !eof() 預測下一次讀取。">讀最後一筆之前</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。因此不要用 !eof() 預測下一次讀取。">開檔時</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。因此不要用 !eof() 預測下一次讀取。">每次 getline 前</button>
+      <button class="sq-opt" data-c="1" data-fb="因此不要用 !eof() 預測下一次讀取。"><span class="opt-letter">(A)</span> 一次讀取嘗試碰到檔尾之後</button>
+      <button class="sq-opt" data-c="0" data-fb="讀最後一筆之前尚未碰到尾端，不能預先知道eof。"><span class="opt-letter">(B)</span> 讀最後一筆之前</button>
+      <button class="sq-opt" data-c="0" data-fb="成功開檔不代表已讀到檔尾；eof由讀取操作設定。"><span class="opt-letter">(C)</span> 開檔時</button>
+      <button class="sq-opt" data-c="0" data-fb="getline開始前eof可能尚未設定，必須看這次讀取的結果。"><span class="opt-letter">(D)</span> 每次 getline 前</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>若 eofbit 單獨設定，fail() 一定為 true 嗎？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。">不一定；fail() 檢查 failbit 或 badbit</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。">一定</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。">只有輸出串流一定</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。">good() 一定為 true</button>
+      <button class="sq-opt" data-c="1" data-fb="成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"><span class="opt-letter">(A)</span> 不一定；fail() 檢查 failbit 或 badbit</button>
+      <button class="sq-opt" data-c="0" data-fb="fail只檢查failbit或badbit；只有eofbit時不必為true。"><span class="opt-letter">(B)</span> 一定</button>
+      <button class="sq-opt" data-c="0" data-fb="輸出串流也使用同一iostate定義，不存在「輸出時eof一定令fail」的特例。"><span class="opt-letter">(C)</span> 只有輸出串流一定</button>
+      <button class="sq-opt" data-c="0" data-fb="good要求所有狀態位都未設定；eofbit已存在時good必為false。"><span class="opt-letter">(D)</span> good() 一定為 true</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q7.</span>離開區域作用域後 ofstream 通常如何處理？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="這是 RAII。">解構並自動關檔</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這是 RAII。">永遠保持開啟</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這是 RAII。">必須 leak</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這是 RAII。">自動刪除檔案</button>
+      <button class="sq-opt" data-c="1" data-fb="這是 RAII。"><span class="opt-letter">(A)</span> 解構並自動關檔</button>
+      <button class="sq-opt" data-c="0" data-fb="ofstream是區域物件，離開作用域會解構，不會永遠保持開啟。"><span class="opt-letter">(B)</span> 永遠保持開啟</button>
+      <button class="sq-opt" data-c="0" data-fb="資源會由解構式釋放；leak不是語言要求，而是錯誤所有權結果。"><span class="opt-letter">(C)</span> 必須 leak</button>
+      <button class="sq-opt" data-c="0" data-fb="關閉串流只釋放檔案連結，不會把磁碟上的檔案刪除。"><span class="opt-letter">(D)</span> 自動刪除檔案</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q8.</span>對已 close 的 out 再寫，應如何確認失敗？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="close 成功本身可不 fail；後續無效寫入才設定狀態。">寫入後檢查 fail() 或串流條件</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。close 成功本身可不 fail；後續無效寫入才設定狀態。">只查 eof()</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。close 成功本身可不 fail；後續無效寫入才設定狀態。">檢查檔名長度</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。close 成功本身可不 fail；後續無效寫入才設定狀態。">close 一定先設 fail</button>
+      <button class="sq-opt" data-c="1" data-fb="close 成功本身可不 fail；後續無效寫入才設定狀態。"><span class="opt-letter">(A)</span> 寫入後檢查 fail() 或串流條件</button>
+      <button class="sq-opt" data-c="0" data-fb="eof描述輸入碰到檔尾，不能診斷對已關閉輸出串流的寫入。"><span class="opt-letter">(B)</span> 只查 eof()</button>
+      <button class="sq-opt" data-c="0" data-fb="檔名長度與串流是否仍開啟、寫入是否成功完全無關。"><span class="opt-letter">(C)</span> 檢查檔名長度</button>
+      <button class="sq-opt" data-c="0" data-fb="成功close本身不必設fail；應在其後無效寫入完成後檢查狀態。"><span class="opt-letter">(D)</span> close 一定先設 fail</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q9.</span>throw 發生後，控制流程去哪裡？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="沿途正常敘述不執行，區域物件會被銷毀。">沿呼叫鏈尋找型別相容的 catch</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。沿途正常敘述不執行，區域物件會被銷毀。">總是下一行</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。沿途正常敘述不執行，區域物件會被銷毀。">總是 main 第一行</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。沿途正常敘述不執行，區域物件會被銷毀。">自動回傳 0</button>
+      <button class="sq-opt" data-c="1" data-fb="沿途正常敘述不執行，區域物件會被銷毀。"><span class="opt-letter">(A)</span> 沿呼叫鏈尋找型別相容的 catch</button>
+      <button class="sq-opt" data-c="0" data-fb="throw會中止目前正常路徑，不會固定繼續執行下一行。"><span class="opt-letter">(B)</span> 總是下一行</button>
+      <button class="sq-opt" data-c="0" data-fb="搜尋依呼叫鏈與catch位置進行，不是無條件跳到main第一行。"><span class="opt-letter">(C)</span> 總是 main 第一行</button>
+      <button class="sq-opt" data-c="0" data-fb="例外不是函式回傳值，未捕捉時也不會自動替函式回傳0。"><span class="opt-letter">(D)</span> 自動回傳 0</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q10.</span>vector::at 越界與 operator[] 越界差別？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="[] 不做可靠界線檢查。">at 丟 out_of_range；[] 是未定義行為</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。[] 不做可靠界線檢查。">兩者都回 0</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。[] 不做可靠界線檢查。">[] 丟例外</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。[] 不做可靠界線檢查。">at 插入元素</button>
+      <button class="sq-opt" data-c="1" data-fb="[] 不做可靠界線檢查。"><span class="opt-letter">(A)</span> at 丟 out_of_range；[] 是未定義行為</button>
+      <button class="sq-opt" data-c="0" data-fb="at與[]都不承諾越界回0；把垃圾結果當0會掩蓋未定義行為。"><span class="opt-letter">(B)</span> 兩者都回 0</button>
+      <button class="sq-opt" data-c="0" data-fb="vector的[]不做範圍檢查，越界不保證丟任何例外。"><span class="opt-letter">(C)</span> [] 丟例外</button>
+      <button class="sq-opt" data-c="0" data-fb="at只檢查並回報out_of_range，不會擴張vector或插入元素。"><span class="opt-letter">(D)</span> at 插入元素</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q11.</span>const string s 的 s[s.size()] 與 s.at(s.size()) 差別？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。">前者可讀結尾 \0；後者丟 out_of_range</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。">兩者都越界未定義</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。">兩者都插入字元</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。">at 回 npos</button>
+      <button class="sq-opt" data-c="1" data-fb="string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"><span class="opt-letter">(A)</span> 前者可讀結尾 \0；後者丟 out_of_range</button>
+      <button class="sq-opt" data-c="0" data-fb="string在恰好size位置有唯讀結尾字元特例，不能把它與大於size的越界混為一談。"><span class="opt-letter">(B)</span> 兩者都越界未定義</button>
+      <button class="sq-opt" data-c="0" data-fb="讀取結尾字元不會插入；at(size)則直接丟例外，兩者都不增加size。"><span class="opt-letter">(C)</span> 兩者都插入字元</button>
+      <button class="sq-opt" data-c="0" data-fb="npos是find失敗值，不是at的越界回傳；at以out_of_range回報。"><span class="opt-letter">(D)</span> at 回 npos</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q12.</span>map::at 缺鍵與 map::operator[] 缺鍵差別？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="唯讀且要求存在時用 at 或 find。">at 丟 out_of_range；[] 插入預設值</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。唯讀且要求存在時用 at 或 find。">兩者都插入</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。唯讀且要求存在時用 at 或 find。">兩者都回 end</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。唯讀且要求存在時用 at 或 find。">[] 丟例外</button>
+      <button class="sq-opt" data-c="1" data-fb="唯讀且要求存在時用 at 或 find。"><span class="opt-letter">(A)</span> at 丟 out_of_range；[] 插入預設值</button>
+      <button class="sq-opt" data-c="0" data-fb="map::at缺鍵不插入，而operator[]才會建立預設mapped value。"><span class="opt-letter">(B)</span> 兩者都插入</button>
+      <button class="sq-opt" data-c="0" data-fb="find缺鍵才回end；at與[]回值/參考或丟例外，不回iterator哨兵。"><span class="opt-letter">(C)</span> 兩者都回 end</button>
+      <button class="sq-opt" data-c="0" data-fb="operator[]缺鍵不丟例外，它建立value-initialized值後回傳參考。"><span class="opt-letter">(D)</span> [] 丟例外</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q13.</span>例外一路沒有 catch 會怎樣？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="應在能採取行動的邊界捕捉。">呼叫 terminate，程式不繼續正常流程</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。應在能採取行動的邊界捕捉。">自動忽略</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。應在能採取行動的邊界捕捉。">自動重試</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。應在能採取行動的邊界捕捉。">轉為 failbit</button>
+      <button class="sq-opt" data-c="1" data-fb="應在能採取行動的邊界捕捉。"><span class="opt-letter">(A)</span> 呼叫 terminate，程式不繼續正常流程</button>
+      <button class="sq-opt" data-c="0" data-fb="沒有catch時例外不會被忽略，執行期會終止正常流程。"><span class="opt-letter">(B)</span> 自動忽略</button>
+      <button class="sq-opt" data-c="0" data-fb="例外機制不會自行重試throw前的操作；重試必須由程式明寫。"><span class="opt-letter">(C)</span> 自動重試</button>
+      <button class="sq-opt" data-c="0" data-fb="failbit屬串流狀態，不是任意未捕捉例外的自動轉換結果。"><span class="opt-letter">(D)</span> 轉為 failbit</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q14.</span>例外沿呼叫鏈尋找catch時，沿途區域串流物件如何處理？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="stack unwinding會銷毀已建立的區域物件。"><span class="opt-letter">(A)</span> 解構並依RAII關閉資源</button>
+      <button class="sq-opt" data-c="0" data-fb="stack unwinding會逐層銷毀區域物件，不會讓區域串流永久存活。"><span class="opt-letter">(B)</span> 全部永久留在記憶體</button>
+      <button class="sq-opt" data-c="0" data-fb="清理發生在throw到catch之間被離開的每個作用域，不只catch內。"><span class="opt-letter">(C)</span> 只有catch內物件解構</button>
+      <button class="sq-opt" data-c="0" data-fb="RAII解構不要求每層都有catch；例外穿過該層時照樣清理。"><span class="opt-letter">(D)</span> 必須每層catch才會關檔</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p6_map_set.html"><div class="nav-dir">上一頁</div><div class="nav-title">map、set 與迭代器</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p8_oop_basics.html"><div class="nav-dir">下一頁</div><div class="nav-title">類別與物件</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "ifstream / ofstream", "back": "檔案輸入／輸出串流；開啟後立即檢查狀態。"}, {"front": "working directory", "back": "相對路徑的起點，是程式啟動位置，不一定是原始碼位置。"}, {"front": "ios::app", "back": "從檔案尾端追加；ofstream 預設通常會截斷舊內容。"}, {"front": "while (in >> x)", "back": "讀取成功才進入迴圈，避免 eof 反模式。"}, {"front": "getline", "back": "讀到換行；適合保留完整一列。"}, {"front": "istringstream", "back": "把 string 當輸入串流解析，壞列不污染外層檔案串流。"}, {"front": "good / fail", "back": "good 表示無錯；fail 表示格式、開啟等操作失敗。"}, {"front": "eof / bad", "back": "eof 表示讀取碰到尾端；bad 表示較嚴重 I/O 錯誤。"}, {"front": "failbit / badbit", "back": "fail() 在 failbit 或 badbit 任一設定時為 true；eofbit 單獨存在不必使 fail() 為 true。"}, {"front": "clear()", "back": "清串流狀態旗標，不會移除造成格式錯的資料。"}, {"front": "RAII", "back": "資源生命週期綁在物件上；串流離開作用域自動關檔。"}, {"front": "throw", "back": "建立例外並中止目前正常流程，沿呼叫鏈尋找 catch。"}, {"front": "catch (const T& e)", "back": "依型別接例外，以 const reference 避免複製並可呼叫 what。"}, {"front": "invalid_argument", "back": "引數值違反函式前置條件。"}, {"front": "out_of_range", "back": "at 的索引或鍵無效時使用的標準例外。"}, {"front": "string 的 size 邊界", "back": "const string 可讀 s[s.size()] 得結尾 \\0；不可寫非零值，且 at(size()) 仍丟 out_of_range。"}, {"front": "runtime_error", "back": "執行環境使操作無法完成的通用標準例外。"}, {"front": "未捕捉例外", "back": "一路找不到相容 catch 時呼叫 terminate，程式不再走正常流程。"}];
+const FLASHCARDS = [{"front": "檔案輸入輸出串流（ifstream / ofstream）", "back": "檔案輸入／輸出串流；開啟後立即檢查狀態。"}, {"front": "工作目錄（working directory）", "back": "相對路徑的起點，是程式啟動位置，不一定是原始碼位置。"}, {"front": "追加模式（ios::app）", "back": "從檔案尾端追加；ofstream 預設通常會截斷舊內容。"}, {"front": "讀取作為條件（while (in >> x)）", "back": "讀取成功才進入迴圈，避免 eof 反模式。"}, {"front": "逐行讀取（getline）", "back": "讀到換行；適合保留完整一列。"}, {"front": "輸入字串串流（istringstream）", "back": "把 string 當輸入串流解析，壞列不污染外層檔案串流。"}, {"front": "串流正常與失敗（good / fail）", "back": "good 表示無錯；fail 表示格式、開啟等操作失敗。"}, {"front": "檔尾與嚴重錯誤（eof / bad）", "back": "eof 表示讀取碰到尾端；bad 表示較嚴重 I/O 錯誤。"}, {"front": "失敗狀態旗標（failbit / badbit）", "back": "fail() 在 failbit 或 badbit 任一設定時為 true；eofbit 單獨存在不必使 fail() 為 true。"}, {"front": "清除狀態（clear()）", "back": "清串流狀態旗標，不會移除造成格式錯的資料。"}, {"front": "資源取得即初始化（RAII）", "back": "資源生命週期綁在物件上；串流離開作用域自動關檔。"}, {"front": "拋出例外（throw）", "back": "建立例外並中止目前正常流程，沿呼叫鏈尋找 catch。"}, {"front": "捕捉例外（catch (const T& e)）", "back": "依型別接例外，以 const reference 避免複製並可呼叫 what。"}, {"front": "無效引數例外（invalid_argument）", "back": "引數值違反函式前置條件。"}, {"front": "超出範圍例外（out_of_range）", "back": "at 的索引或鍵無效時使用的標準例外。"}, {"front": "字串大小邊界（string size boundary）", "back": "const string 可讀 s[s.size()] 得結尾 \\0；不可寫非零值，且 at(size()) 仍丟 out_of_range。"}, {"front": "執行期錯誤（runtime_error）", "back": "執行環境使操作無法完成的通用標準例外。"}, {"front": "未捕捉例外（uncaught exception）", "back": "一路找不到相容 catch 時呼叫 terminate，程式不再走正常流程。"}, {"front": "例外堆疊展開（stack unwinding）", "back": "throw後沿呼叫鏈找catch，沿途已建立的區域物件會解構，讓RAII資源收回。"}, {"front": "配置失敗例外（bad_alloc）", "back": "一般throwing new配置失敗會丟bad_alloc；P4的nothrow版本改回nullptr。"}, {"front": "例外（Exception）", "back": "在正常結果無法產生時傳遞的錯誤值；執行期沿呼叫鏈尋找相容的handler。"}, {"front": "例外訊息（what()）", "back": "標準例外介面提供的說明文字；程式判斷類別通常依例外型別，而不是假設各平台訊息完全相同。"}, {"front": "界線檢查與下標（at / operator[]）", "back": "at以例外回報非法存取；[]依容器各自規則處理，vector和map的行為不同。"}, {"front": "全包捕捉（catch-all Handler, catch (...)）", "back": "可接住任意例外，但沒有具體參數可讀訊息；不應吞掉錯誤後假裝成功。"}];
 
 /* depth-runtime:start */
 (() => {

@@ -10,17 +10,17 @@
       {
         "answer": "衍生類別有一個基底物件",
         "correct": false,
-        "feedback": "不對。公開繼承代表可替代的 is-a 關係。"
+        "feedback": "「有一個基底物件」是has-a組合語意，不足以表示可替代的is-a。"
       },
       {
         "answer": "只是想少寫幾行",
         "correct": false,
-        "feedback": "不對。公開繼承代表可替代的 is-a 關係。"
+        "feedback": "少寫重複碼不是繼承契約；若無可替代關係應使用組合。"
       },
       {
         "answer": "兩類別名字相似",
         "correct": false,
-        "feedback": "不對。公開繼承代表可替代的 is-a 關係。"
+        "feedback": "名字相似不保證行為契約相容，不能據此建立公開繼承。"
       }
     ]
   },
@@ -35,17 +35,17 @@
       {
         "answer": "衍生、成員、基底",
         "correct": false,
-        "feedback": "不對。初始化列表順序不會改變真正建構順序。"
+        "feedback": "衍生建構式主體最後才執行，不可能在基底之前完成。"
       },
       {
         "answer": "初始化列表文字順序",
         "correct": false,
-        "feedback": "不對。初始化列表順序不會改變真正建構順序。"
+        "feedback": "成員依類別中的宣告順序建構，不依初始化列表排列。"
       },
       {
         "answer": "基底最後",
         "correct": false,
-        "feedback": "不對。初始化列表順序不會改變真正建構順序。"
+        "feedback": "基底子物件必須先存在，不能排到衍生主體之後。"
       }
     ]
   },
@@ -60,17 +60,17 @@
       {
         "answer": "只要同名函式",
         "correct": false,
-        "feedback": "不對。基底值會 slicing；沒有 virtual 則靜態選擇。"
+        "feedback": "同名函式若未在基底宣告virtual，透過基底介面仍採靜態選擇。"
       },
       {
         "answer": "只要 public",
         "correct": false,
-        "feedback": "不對。基底值會 slicing；沒有 virtual 則靜態選擇。"
+        "feedback": "public只控制可存取性，不會啟用動態dispatch。"
       },
       {
         "answer": "以基底值複製",
         "correct": false,
-        "feedback": "不對。基底值會 slicing；沒有 virtual 則靜態選擇。"
+        "feedback": "以基底值複製會造成slicing，衍生部分已不存在，無法保留多型。"
       }
     ]
   },
@@ -85,17 +85,17 @@
       {
         "answer": "讓建構更快",
         "correct": false,
-        "feedback": "不對。否則透過基底指標刪除衍生物件不安全。"
+        "feedback": "virtual destructor影響銷毀dispatch，不會加速任何建構步驟。"
       },
       {
         "answer": "自動建立 pure virtual",
         "correct": false,
-        "feedback": "不對。否則透過基底指標刪除衍生物件不安全。"
+        "feedback": "一般virtual destructor不是pure virtual，也不會替其他函式加上=0。"
       },
       {
         "answer": "避免 operator<",
         "correct": false,
-        "feedback": "不對。否則透過基底指標刪除衍生物件不安全。"
+        "feedback": "operator<是排序契約，與透過基底指標安全解構是兩件事。"
       }
     ]
   },
@@ -110,17 +110,17 @@
       {
         "answer": "回傳整數 0",
         "correct": false,
-        "feedback": "不對。衍生類別須覆寫才能成為具體類別。"
+        "feedback": "=0是pure virtual標記，不表示函式回傳數字0。"
       },
       {
         "answer": "函式一定沒有名稱",
         "correct": false,
-        "feedback": "不對。衍生類別須覆寫才能成為具體類別。"
+        "feedback": "純虛擬函式仍有名稱與簽章，否則衍生類別無從override。"
       },
       {
         "answer": "自動 catch",
         "correct": false,
-        "feedback": "不對。衍生類別須覆寫才能成為具體類別。"
+        "feedback": "=0不會建立catch；例外處理與抽象介面是獨立機制。"
       }
     ]
   },
@@ -135,17 +135,17 @@
       {
         "answer": "模板只能用 string",
         "correct": false,
-        "feedback": "不對。同一個 T 的各推導位置需一致。"
+        "feedback": "模板可用任何滿足所需操作的型別，不限string；此處失敗在推導衝突。"
       },
       {
         "answer": "3 不支援 <",
         "correct": false,
-        "feedback": "不對。同一個 T 的各推導位置需一致。"
+        "feedback": "整數3支援小於比較；問題是另一引數讓同一T又推成double。"
       },
       {
         "answer": "模板必須 virtual",
         "correct": false,
-        "feedback": "不對。同一個 T 的各推導位置需一致。"
+        "feedback": "函式模板不必是virtual；virtual也無法解決兩個T推導結果不一致。"
       }
     ]
   },
@@ -160,17 +160,17 @@
       {
         "answer": "header 執行較快",
         "correct": false,
-        "feedback": "不對。只有宣告常導致所需版本無法產生或連結。"
+        "feedback": "header不會讓程式在執行時較快；放置原因是編譯期定義可見性。"
       },
       {
         "answer": "cpp 不能寫 template",
         "correct": false,
-        "feedback": "不對。只有宣告常導致所需版本無法產生或連結。"
+        "feedback": "template可以寫在cpp，但若使用處看不到定義且未明確實例化，所需版本無法產生。"
       },
       {
         "answer": "為了 public 存取",
         "correct": false,
-        "feedback": "不對。只有宣告常導致所需版本無法產生或連結。"
+        "feedback": "public是類別存取控制，與模板實例化是否看得到定義無關。"
       }
     ]
   },
@@ -185,17 +185,17 @@
       {
         "answer": "hash 必為零",
         "correct": false,
-        "feedback": "不對。ordered 容器依賴嚴格弱序。"
+        "feedback": "hash是否為零不是strict weak ordering條件，且與operator<用<=無關。"
       },
       {
         "answer": "virtual destructor",
         "correct": false,
-        "feedback": "不對。ordered 容器依賴嚴格弱序。"
+        "feedback": "virtual destructor管理多型銷毀，不會修正x<x為真的比較錯誤。"
       },
       {
         "answer": "RAII",
         "correct": false,
-        "feedback": "不對。ordered 容器依賴嚴格弱序。"
+        "feedback": "RAII管理資源生命週期，不定義排序的反自反性。"
       }
     ]
   },
@@ -210,17 +210,17 @@
       {
         "answer": "不同鍵必須不同 hash",
         "correct": false,
-        "feedback": "不對。碰撞允許，但相等鍵不能散到不相容位置。"
+        "feedback": "不同鍵允許hash碰撞；要求全部不同既不必要也通常做不到。"
       },
       {
         "answer": "hash 相同必定相等",
         "correct": false,
-        "feedback": "不對。碰撞允許，但相等鍵不能散到不相容位置。"
+        "feedback": "同hash只代表同桶候選，仍須equality分辨，不能反推相等。"
       },
       {
         "answer": "operator< 必須存在",
         "correct": false,
-        "feedback": "不對。碰撞允許，但相等鍵不能散到不相容位置。"
+        "feedback": "unordered容器使用hash與equality，不要求operator<。"
       }
     ]
   },
@@ -235,17 +235,17 @@
       {
         "answer": "priority_queue<int>",
         "correct": false,
-        "feedback": "不對。三參數依序是值、底層容器、比較器。"
+        "feedback": "單參數priority_queue<int>使用預設less，top是最大值8而非最小值。"
       },
       {
         "answer": "queue<int,greater<int>>",
         "correct": false,
-        "feedback": "不對。三參數依序是值、底層容器、比較器。"
+        "feedback": "queue沒有priority_queue的三模板參數與heap比較器介面。"
       },
       {
         "answer": "priority_queue<greater<int>>",
         "correct": false,
-        "feedback": "不對。三參數依序是值、底層容器、比較器。"
+        "feedback": "第一模板參數應是元素int；把greater<int>放第一位會把比較器誤當元素。"
       }
     ]
   },
@@ -260,17 +260,17 @@
       {
         "answer": "push() 與 pop()",
         "correct": false,
-        "feedback": "不對。範圍 for 依 [begin,end) iterator 走訪。"
+        "feedback": "push/pop是修改端點的容器操作，不能提供範圍for所需iterator區間。"
       },
       {
         "answer": "hash()",
         "correct": false,
-        "feedback": "不對。範圍 for 依 [begin,end) iterator 走訪。"
+        "feedback": "hash用於unordered鍵定位，range-for不會尋找hash成員。"
       },
       {
         "answer": "virtual size()",
         "correct": false,
-        "feedback": "不對。範圍 for 依 [begin,end) iterator 走訪。"
+        "feedback": "size只給數量；沒有begin/end仍不知道第一項位置與如何前進。"
       }
     ]
   },
@@ -285,17 +285,17 @@
       {
         "answer": "public 繼承 vector",
         "correct": false,
-        "feedback": "不對。組合只公開領域需要的介面。"
+        "feedback": "public繼承vector會暴露clear、insert等不屬於Mailbox契約的操作。"
       },
       {
         "answer": "virtual 繼承 int",
         "correct": false,
-        "feedback": "不對。組合只公開領域需要的介面。"
+        "feedback": "int不是可被Mailbox合理替代的基底；virtual繼承也不表達儲存關係。"
       },
       {
         "answer": "特化 std::Mailbox",
         "correct": false,
-        "feedback": "不對。組合只公開領域需要的介面。"
+        "feedback": "標準namespace不能任意特化不存在的std::Mailbox，且特化不是物件組合。"
       }
     ]
   },
@@ -310,17 +310,17 @@
       {
         "answer": "自動深複製",
         "correct": false,
-        "feedback": "不對。需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。"
+        "feedback": "裸指標的預設成員複製只抄地址，不會配置獨立陣列。"
       },
       {
         "answer": "編譯器自動禁止",
         "correct": false,
-        "feedback": "不對。需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。"
+        "feedback": "編譯器不會因看到new[]就自動刪除copy constructor。"
       },
       {
         "answer": "vector 接管",
         "correct": false,
-        "feedback": "不對。需完整 Rule of Three，或優先改用 vector 遵循 Rule of Zero。"
+        "feedback": "vector只有在它本來就是資料成員時才管理資源，不會接管既有裸指標。"
       }
     ]
   },
@@ -335,17 +335,17 @@
       {
         "answer": "執行時刪物件",
         "correct": false,
-        "feedback": "不對。它宣告該函式不可使用。"
+        "feedback": "=delete在編譯期拒絕呼叫，不會等到執行時刪除物件。"
       },
       {
         "answer": "自動深複製",
         "correct": false,
-        "feedback": "不對。它宣告該函式不可使用。"
+        "feedback": "=delete明確禁止該函式，不會替它產生深複製實作。"
       },
       {
         "answer": "只刪資料成員",
         "correct": false,
-        "feedback": "不對。它宣告該函式不可使用。"
+        "feedback": "它刪除的是函式可用性，不會選擇性刪除某個資料成員。"
       }
     ]
   },
@@ -360,17 +360,67 @@
       {
         "answer": "自動忽略錯誤",
         "correct": false,
-        "feedback": "不對。is-a 關係讓標準例外介面與捕捉階層成立。"
+        "feedback": "繼承runtime_error不會吞掉throw；沒有適當catch時仍會向外傳。"
       },
       {
         "answer": "不必 throw",
         "correct": false,
-        "feedback": "不對。is-a 關係讓標準例外介面與捕捉階層成立。"
+        "feedback": "型別只描述例外種類，偵測錯誤後仍須throw物件才會轉移控制。"
       },
       {
         "answer": "變成模板",
         "correct": false,
-        "feedback": "不對。is-a 關係讓標準例外介面與捕捉階層成立。"
+        "feedback": "public繼承建立例外階層，不會把AddressError變成template。"
+      }
+    ]
+  },
+  {
+    "question": "自訂值的operator+通常採哪種值語意？",
+    "answers": [
+      {
+        "answer": "回傳新結果，不修改兩個運算元",
+        "correct": true,
+        "feedback": "這符合一般a+b的直覺；需要原地修改通常使用operator+=。"
+      },
+      {
+        "answer": "刪除右運算元",
+        "correct": false,
+        "feedback": "operator+處理值計算，不應刪除右運算元或改變其生命週期。"
+      },
+      {
+        "answer": "一定回傳void",
+        "correct": false,
+        "feedback": "a+b需要產生結果；回傳void會使表達式無法初始化total。"
+      },
+      {
+        "answer": "一定修改左運算元",
+        "correct": false,
+        "feedback": "修改左側符合operator+=語意；普通+通常讓a與b保持原值。"
+      }
+    ]
+  },
+  {
+    "question": "greater<pair<int,string>> 比較 {2,\"B\"} 與 {2,\"A\"} 時，哪個在最小priority_queue頂端？",
+    "answers": [
+      {
+        "answer": "{2,\"A\"}",
+        "correct": true,
+        "feedback": "pair先比first；同為2時再比second，A小於B。"
+      },
+      {
+        "answer": "{2,\"B\"}",
+        "correct": false,
+        "feedback": "first同為2時pair繼續比較second，A小於B，所以B不在最小top。"
+      },
+      {
+        "answer": "兩者永遠等價",
+        "correct": false,
+        "feedback": "pair在first等價時會以second打破平手，兩者不是永遠等價。"
+      },
+      {
+        "answer": "程式無法編譯",
+        "correct": false,
+        "feedback": "int、string與pair都已有比較，greater也已定義，因此宣告可編譯。"
       }
     ]
   }

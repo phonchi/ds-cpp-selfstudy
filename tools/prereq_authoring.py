@@ -69,7 +69,9 @@ RUNTIME=r'''
 })();
 /* depth-runtime:end */
 '''
-def write_page(number,subtitle,sections,cards=None,questions=None):
+def write_page(number,subtitle,sections,cards=None,questions=None,*,hero_svg):
+    if not isinstance(hero_svg, str) or '<svg' not in hero_svg or 'hero-graph' not in hero_svg:
+        raise ValueError('A page-specific hero-graph SVG is required; do not replace an existing page with a generic hero.')
     name=NAMES[number-1]; title=TITLES[number-1]
     # Use the existing main-chapter styling, not the former P1-P3 global overrides.
     head=subprocess.check_output(['git','show','05f490e:p4_pointers_memory.html'],cwd=ROOT,text=True).split('</head>')[0]
@@ -77,7 +79,7 @@ def write_page(number,subtitle,sections,cards=None,questions=None):
     head+='\n<style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>\n</head>'
     entries=[(s[0],s[1]) for s in sections]+[('bankquiz','自我檢測'),('cards','關鍵詞彙卡')]
     nav='<nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div>'+''.join(f'<a href="#{key}" data-target="{key}"><span class="fn-num">{i:02d}</span><span class="fn-name">{label}</span></a>' for i,(key,label) in enumerate(entries,1))+'<a href="#top" class="fn-top">↑ TOP</a></nav>'
-    hero=f'<div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P{number}</div><h1>{title}</h1><div class="subtitle">{subtitle}</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div>'
+    hero=f'<div class="hero" id="top"><div class="hero-grid"></div>{hero_svg}<div class="hero-content"><div class="chapter-tag">PREREQ P{number}</div><h1>{title}</h1><div class="subtitle">{subtitle}</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div>'
     guide='<div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div>'
     toc='<div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid">'+''.join(f'<a href="#{key}"><span class="toc-num">{i:02d}</span>{label}</a>' for i,(key,label) in enumerate(entries,1))+'</div></div>'
     body=''.join(f'<section id="{key}"><div class="section-number">PART {i:02d}</div><h2>{heading}</h2>\n{content}\n</section>\n' for i,(key,heading,content) in enumerate(sections,1))

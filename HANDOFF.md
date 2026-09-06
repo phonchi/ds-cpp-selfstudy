@@ -18,6 +18,16 @@
 正文、互動、自測與詞彙卡一起重寫，完整範例只依賴標準 C++17；不再以課程標頭與使用次數導讀。
 題卡數量以 `data/` 母檔為準。正課頁的課程標頭、notebook 與環境安裝契約維持不變。
 
+### 原稿逐項恢復（本次有效驗收）
+
+907190b未逐表、逐子節核對，雖通過程式與CSS檢查，仍有圖示、四選一、雙語字卡及實質內容缺漏。
+本次直接以b97fe81原HTML與兩組JSON對照，保留新稿正確內容並局部恢復，禁止整頁模板覆蓋。
+詳見[最終紀錄](docs/prereq-fidelity-review.md)及三份fidelity ledger。
+
+九張專屬hero、五張正文圖解、109道四選一、238張雙語卡已恢復／補足。
+驗證100個完整程式、1組多檔、22個trace；工具另保存106表／537段／14SVG的已讀快照，防止再次無聲縮減。
+題庫每項須有自己的錯因，不能用改選項引用的同句模板充數；未來更新快照必須重新閱讀，不能自動接受。
+
 ### 完整教材恢復與樣式對齊（2026-09-06）
 
 使用者指出前次簡化過度；本次以 `b97fe81` 原主題與深度為基準恢復，保留已修正的
@@ -48,7 +58,7 @@ computed style 比較。`check_prereq.py` 新增真正多檔分組編譯。HTML 
 - `tools/check_prereq.py` 擷取 `data-cpp` 範例，在暫存目錄編譯執行並精確比對 `data-expected`，
   同時檢查 JSON／HTML 一致性、每題單一正解、JS 語法、重複 ID 及跨頁錨點。
   片段與故意錯誤有各自標記，不能將它們當作成功執行的範例計數。
-- 改寫開始時已有首頁、HANDOFF 與九章正課的外部資源改動；此次發布只提交先備頁改寫與審查修正，既有改動保留在本地。
+- 改寫開始時已有首頁、HANDOFF 與九章正課的外部資源改動；使用者最後指示正課也一起發布，因此本次一併提交這批內容。
 - 驗收完成：`check_prereq.py` 通過 51 個完整程式的編譯／輸出比對、3 個預期編譯錯誤示例與
   27 段 inline JS 語法；19 個語法片段不計入完整程式。題庫 JSON 與生成 HTML 一致。
 - `check_prereq_browser.py` 在 Chromium 通過九頁的播放／暫停／單步／重設／完成／重播、
@@ -137,6 +147,7 @@ jupyter kernelspec list   # cpp17 應在 sys.prefix\share\jupyter\kernels；%APP
 ```
 
 姊妹站 `ds-python-selfstudy`：RISE 備註與 `ERR_FILE_NOT_FOUND` 兩則同樣適用其 setup 頁，尚未同步；libstdc++ 與標頭遷移不適用。
+- **外部資源（2026-09-05）**：`graphs.html` BFS 節加了 `info-box purple#secretsofmaps`（Google Maps Explained，真實路網上的 BFS／DFS／Greedy／A*／雙向搜尋，**沒有 Dijkstra**，別照 meta keywords 寫），學習路線建議第 5 點連過去；`index.html` 配套資源加第四張卡 Hello 演算法（zh-hant，CC BY-NC-SA），九章 `sg-links` 各加「📘 Hello 演算法（章）」pill 連到對應章（URL 由 krahets/hello-algo `zh-hant/docs/chapter_*/` 檔名推得，官網擋 bot 未逐一點開驗證）。兩項都適用姊妹站，尚未同步；描述裡刻意不出現 Python 一詞（check 腳本會掃）。
 - `assets/00c/` 的三張官方 VS Code 截圖需和 `README.md` attribution 同步保存；不得以熱連結替代。
 - `.github/workflows/check-00c-windows.yml` 是 Windows 真實工具鏈 gate：MSYS2 UCRT64、GCC、GDB、`-lgdi32` 與三種匿名專案模式都必須通過。
 

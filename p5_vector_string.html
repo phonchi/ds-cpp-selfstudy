@@ -464,8 +464,28 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </style>
 
 <style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
+<style>.diagram-scroll{overflow-x:auto;margin:1rem 0;}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#why" data-target="why"><span class="fn-num">01</span><span class="fn-name">從清單需求到 vector&lt;T&gt;</span></a><a href="#create" data-target="create"><span class="fn-num">02</span><span class="fn-name">初始化、索引與界線檢查</span></a><a href="#walk" data-target="walk"><span class="fn-num">03</span><span class="fn-name">三種走訪與 iterator 基礎</span></a><a href="#modify" data-target="modify"><span class="fn-num">04</span><span class="fn-name">五種增刪與搬移成本</span></a><a href="#capacity" data-target="capacity"><span class="fn-num">05</span><span class="fn-name">size、capacity、reserve 與攤還</span></a><a href="#invalidate" data-target="invalidate"><span class="fn-num">06</span><span class="fn-name">iterator 失效與安全 erase</span></a><a href="#twod" data-target="twod"><span class="fn-num">07</span><span class="fn-name">二維 vector：表格與不規則列</span></a><a href="#adaptors" data-target="adaptors"><span class="fn-num">08</span><span class="fn-name">stack、queue、deque 的生活模型</span></a><a href="#string" data-target="string"><span class="fn-num">09</span><span class="fn-name">string、字元陣列、npos 與 substr</span></a><a href="#io-cost" data-target="io-cost"><span class="fn-num">10</span><span class="fn-name">混合輸入與字串串接成本</span></a><a href="#reference" data-target="reference"><span class="fn-num">11</span><span class="fn-name">語法速查與章末整合</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">12</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">13</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P5</div><h1>vector 與 string</h1><div class="subtitle">從可變清單、iterator 到可靠的文字處理</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#why"><span class="toc-num">01</span>從清單需求到 vector&lt;T&gt;</a><a href="#create"><span class="toc-num">02</span>初始化、索引與界線檢查</a><a href="#walk"><span class="toc-num">03</span>三種走訪與 iterator 基礎</a><a href="#modify"><span class="toc-num">04</span>五種增刪與搬移成本</a><a href="#capacity"><span class="toc-num">05</span>size、capacity、reserve 與攤還</a><a href="#invalidate"><span class="toc-num">06</span>iterator 失效與安全 erase</a><a href="#twod"><span class="toc-num">07</span>二維 vector：表格與不規則列</a><a href="#adaptors"><span class="toc-num">08</span>stack、queue、deque 的生活模型</a><a href="#string"><span class="toc-num">09</span>string、字元陣列、npos 與 substr</a><a href="#io-cost"><span class="toc-num">10</span>混合輸入與字串串接成本</a><a href="#reference"><span class="toc-num">11</span>語法速查與章末整合</a><a href="#bankquiz"><span class="toc-num">12</span>自我檢測</a><a href="#cards"><span class="toc-num">13</span>關鍵詞彙卡</a></div></div><section id="why"><div class="section-number">PART 01</div><h2>從清單需求到 vector&lt;T&gt;</h2>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#why" data-target="why"><span class="fn-num">01</span><span class="fn-name">從清單需求到 vector&lt;T&gt;</span></a><a href="#create" data-target="create"><span class="fn-num">02</span><span class="fn-name">初始化、索引與界線檢查</span></a><a href="#walk" data-target="walk"><span class="fn-num">03</span><span class="fn-name">三種走訪與 iterator 基礎</span></a><a href="#modify" data-target="modify"><span class="fn-num">04</span><span class="fn-name">五種增刪與搬移成本</span></a><a href="#capacity" data-target="capacity"><span class="fn-num">05</span><span class="fn-name">size、capacity、reserve 與攤還</span></a><a href="#invalidate" data-target="invalidate"><span class="fn-num">06</span><span class="fn-name">iterator 失效與安全 erase</span></a><a href="#twod" data-target="twod"><span class="fn-num">07</span><span class="fn-name">二維 vector：表格與不規則列</span></a><a href="#adaptors" data-target="adaptors"><span class="fn-num">08</span><span class="fn-name">stack、queue、deque 的生活模型</span></a><a href="#string" data-target="string"><span class="fn-num">09</span><span class="fn-name">string、字元陣列、npos 與 substr</span></a><a href="#io-cost" data-target="io-cost"><span class="fn-num">10</span><span class="fn-name">混合輸入與字串串接成本</span></a><a href="#reference" data-target="reference"><span class="fn-num">11</span><span class="fn-name">語法速查與章末整合</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">12</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">13</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p5-range-bindings" data-target="restore-p5-range-bindings"><span class="fn-num">14</span><span class="fn-name">範圍 for 的值、參考與唯讀參考</span></a><a href="#restore-p5-array-vector" data-target="restore-p5-array-vector"><span class="fn-num">15</span><span class="fn-name">原生陣列與 vector：三個需求差異</span></a><a href="#restore-p5-constructors" data-target="restore-p5-constructors"><span class="fn-num">16</span><span class="fn-name">從型別、變數、引數讀懂完整建構式家族</span></a><a href="#restore-p5-invalidation" data-target="restore-p5-invalidation"><span class="fn-num">17</span><span class="fn-name">逐操作判斷 iterator、指標與參考是否失效</span></a><a href="#restore-p5-adaptors" data-target="restore-p5-adaptors"><span class="fn-num">18</span><span class="fn-name">stack、queue、deque 的完整介面矩陣</span></a><a href="#restore-p5-string-convert" data-target="restore-p5-string-convert"><span class="fn-num">19</span><span class="fn-name">char、單字元 string、字面值串接與數字轉換</span></a><a href="#restore-p5-costs" data-target="restore-p5-costs"><span class="fn-num">20</span><span class="fn-name">完整操作成本：成本是資料移動量，不是方法名稱</span></a><a href="#restore-p5-uses-resources" data-target="restore-p5-uses-resources"><span class="fn-num">21</span><span class="fn-name">六種用途與查閱入口</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="30" y="70" width="38" height="38" rx="5"/>
+    <rect x="68" y="70" width="38" height="38" rx="5"/>
+    <rect x="106" y="70" width="38" height="38" rx="5"/>
+    <rect x="144" y="70" width="38" height="38" rx="5" stroke-dasharray="4 4" opacity=".45"/>
+    <rect x="30" y="160" width="38" height="38" rx="5"/>
+    <rect x="68" y="160" width="38" height="38" rx="5"/>
+    <rect x="106" y="160" width="38" height="38" rx="5"/>
+    <rect x="144" y="160" width="38" height="38" rx="5"/>
+    <rect x="182" y="160" width="38" height="38" rx="5" stroke-dasharray="4 4" opacity=".45"/>
+    <rect x="220" y="160" width="38" height="38" rx="5" stroke-dasharray="4 4" opacity=".45"/>
+    <path d="M105 115 C 105 138, 130 145, 150 158" stroke-dasharray="5 4"/>
+  </g>
+  <g fill="#fff" opacity=".8" font-family="monospace" font-size="11">
+    <text x="30" y="60">capacity 4</text>
+    <text x="30" y="150">capacity 8</text>
+    <text x="112" y="140">搬家</text>
+  </g>
+</svg><div class="hero-content"><div class="chapter-tag">PREREQ P5</div><h1>vector 與 string</h1><div class="subtitle">從可變清單、iterator 到可靠的文字處理</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#why"><span class="toc-num">01</span>從清單需求到 vector&lt;T&gt;</a><a href="#create"><span class="toc-num">02</span>初始化、索引與界線檢查</a><a href="#walk"><span class="toc-num">03</span>三種走訪與 iterator 基礎</a><a href="#modify"><span class="toc-num">04</span>五種增刪與搬移成本</a><a href="#capacity"><span class="toc-num">05</span>size、capacity、reserve 與攤還</a><a href="#invalidate"><span class="toc-num">06</span>iterator 失效與安全 erase</a><a href="#twod"><span class="toc-num">07</span>二維 vector：表格與不規則列</a><a href="#adaptors"><span class="toc-num">08</span>stack、queue、deque 的生活模型</a><a href="#string"><span class="toc-num">09</span>string、字元陣列、npos 與 substr</a><a href="#io-cost"><span class="toc-num">10</span>混合輸入與字串串接成本</a><a href="#reference"><span class="toc-num">11</span>語法速查與章末整合</a><a href="#bankquiz"><span class="toc-num">12</span>自我檢測</a><a href="#cards"><span class="toc-num">13</span>關鍵詞彙卡</a><a href="#restore-p5-range-bindings"><span class="toc-num">補</span>範圍 for 的值、參考與唯讀參考</a><a href="#restore-p5-array-vector"><span class="toc-num">補</span>原生陣列與 vector：三個需求差異</a><a href="#restore-p5-constructors"><span class="toc-num">補</span>從型別、變數、引數讀懂完整建構式家族</a><a href="#restore-p5-invalidation"><span class="toc-num">補</span>逐操作判斷 iterator、指標與參考是否失效</a><a href="#restore-p5-adaptors"><span class="toc-num">補</span>stack、queue、deque 的完整介面矩陣</a><a href="#restore-p5-string-convert"><span class="toc-num">補</span>char、單字元 string、字面值串接與數字轉換</a><a href="#restore-p5-costs"><span class="toc-num">補</span>完整操作成本：成本是資料移動量，不是方法名稱</a><a href="#restore-p5-uses-resources"><span class="toc-num">補</span>六種用途與查閱入口</a></div></div><section id="why"><div class="section-number">PART 01</div><h2>從清單需求到 vector&lt;T&gt;</h2>
 <p>程式常要保存「數量到執行時才知道」的一串同型別資料，例如購物清單、每小時溫度或文字的每個字元。原生陣列的長度固定；<code>vector</code> 會自己記住元素數量，也能在執行中增減。<code>string</code> 則把字元序列包成文字專用型別。</p>
 <h3>先讀懂物件、點號與樣板參數</h3>
 <p><code>vector&lt;int&gt; scores;</code> 中，<code>vector</code> 是容器種類，角括號的 <code>int</code> 指定每一格能放的元素型別，<code>scores</code> 才是變數名稱。換成 <code>vector&lt;string&gt;</code>，語法不變，但每格改放一個 <code>string</code>。</p>
@@ -515,6 +535,9 @@ cout &lt;&lt; v.at(5); // 錯誤示例：執行時丟出 out_of_range；這是�
 <section id="walk"><div class="section-number">PART 03</div><h2>三種走訪與 iterator 基礎</h2>
 <p>「走訪」是依序看每個元素。三種寫法各有用途：需要索引用傳統 for；只關心值用範圍 for；要傳給 STL、表示位置或區間時用 iterator。</p>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>適合情境</th><th>易錯點</th></tr></thead><tbody><tr><td><code>for (size_t i=0; i&lt;v.size(); ++i)</code></td><td>同時需要 i</td><td>條件必須是 &lt;</td></tr><tr><td><code>for (const auto&amp; x : v)</code></td><td>只讀每個元素</td><td>省略 &amp; 會複製</td></tr><tr><td><code>for (auto it=v.begin(); it!=v.end(); ++it)</code></td><td>操作位置／區間</td><td>end 不可解參考</td></tr></tbody></table></div>
+<h3 id="restore-p5-range-bindings">範圍 for 的值、參考與唯讀參考</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>迴圈宣告</th><th>每輪 x 是什麼</th><th>能否改容器元素</th><th>是否複製元素</th><th>適用情況</th></tr></thead><tbody><tr><td><code>for (auto x : v)</code></td><td>目前元素的獨立副本</td><td>否；改 x 只改副本</td><td>是</td><td>小型值，或刻意需要副本</td></tr><tr><td><code>for (auto&amp; x : v)</code></td><td>目前元素的可修改別名</td><td>是</td><td>否</td><td>要就地更新每個元素</td></tr><tr><td><code>for (const auto&amp; x : v)</code></td><td>目前元素的唯讀別名</td><td>否</td><td>否</td><td>只讀大型物件，避免複製</td></tr></tbody></table></div>
+<p><code>auto</code> 只推導元素型別；是否複製由 <code>&amp;</code> 決定，是否允許經由 x 修改則由 <code>const</code> 決定。即使 x 是 const reference，容器仍可能經由其他非 const 名稱被修改，因此它不是資料快照。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="0:4 1:7 2:9 &#10;8 14 18 &#10;5 8 10 &#10;">#include &lt;iostream&gt;
 #include &lt;vector&gt;
 using namespace std;
@@ -689,6 +712,43 @@ for (const string&amp; p : parts) out = out + p; // 反例：每輪可能複製�
 <div class="info-box"><div class="info-label">動手練習</div><p>何時 <code>getline(cin &gt;&gt; ws,s)</code> 不是正確選擇？</p><details><summary>看解答與理由</summary><p>當行首空白是資料的一部分時。ws 會跳過所有前導空白，這時應保留原始行並明確處理前一個換行。</p></details></div>
 
 </section>
+<section id="restore-p5-depth"><div class="section-number">RESTORED DEPTH</div><h2>把容器選擇、建構、字元轉換與成本放回同一張圖</h2>
+<h3 id="restore-p5-array-vector">原生陣列與 vector：三個需求差異</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>問題</th><th>原生陣列</th><th><code>vector</code></th></tr></thead><tbody><tr><td>長度能否在執行中改變</td><td>宣告後固定</td><td>可用增刪操作改變 <code>size()</code></td></tr><tr><td>傳進一般函式後</td><td>常退化成指標，長度不隨附</td><td>物件仍記得 <code>size()</code>；通常以參考傳遞</td></tr><tr><td>是否自行記住元素數</td><td>不記得，需另帶長度</td><td>由 <code>size()</code> 回報</td></tr></tbody></table></div>
+<p>選擇不是「新的一定勝過舊的」。固定、很小且介面明確的資料可用陣列；數量在執行時才知道或需要增減時，vector 能把長度與儲存空間放在同一個物件中。</p>
+<h3 id="restore-p5-constructors">從型別、變數、引數讀懂完整建構式家族</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>片段</th><th>身分</th></tr></thead><tbody><tr><td><code>vector&lt;int&gt;</code></td><td>完整型別：元素型別是 int</td></tr><tr><td><code>left</code></td><td>新物件的變數名稱</td></tr><tr><td><code>(a.begin(), a.begin()+mid)</code></td><td>交給建構式的兩個 iterator 引數</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>語法</th><th>結果</th><th>用途／界線</th></tr></thead><tbody><tr><td><code>vector&lt;int&gt; a;</code></td><td>空容器</td><td>稍後逐筆加入</td></tr><tr><td><code>vector&lt;int&gt; a(5);</code></td><td>5 個值初始化的 int，也就是 0</td><td>數量已知</td></tr><tr><td><code>vector&lt;int&gt; a(5,-1);</code></td><td>5 個 -1</td><td>數量與共同初值</td></tr><tr><td><code>vector&lt;int&gt; a{5,-1};</code></td><td>兩項：5、-1</td><td>大括號列的是元素</td></tr><tr><td><code>vector&lt;int&gt; b(a);</code></td><td>獨立複製</td><td>修改 b 不改 a</td></tr><tr><td><code>vector&lt;int&gt; b(first,last);</code></td><td>複製 <code>[first,last)</code></td><td>last 指向不包含的尾後位置</td></tr></tbody></table></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="2 3 4 &#10;">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+int main(){ vector&lt;int&gt; all{1,2,3,4,5}; vector&lt;int&gt; middle(all.begin()+1,all.begin()+4); for(int x:middle) cout&lt;&lt;x&lt;&lt;' '; cout&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 3 4 &#10;</pre></div>
+<p>第一個 iterator 指到 2，第二個指到 5；右端不包含，因此只複製 2、3、4。這也是把一段 iterator 範圍交給清單函式或演算法時共同採用的半開區間。</p>
+<h3 id="restore-p5-invalidation">逐操作判斷 iterator、指標與參考是否失效</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>操作</th><th>失效範圍</th></tr></thead><tbody><tr><td><code>push_back</code>／<code>emplace_back</code></td><td>若重配置：全部與舊 past-the-end；否則只有舊 past-the-end</td></tr><tr><td><code>insert(pos,...)</code></td><td>若重配置：全部；否則 pos 與其後（包含舊 past-the-end）</td></tr><tr><td><code>erase(pos)</code></td><td>pos 與其後（包含舊 past-the-end）</td></tr><tr><td><code>pop_back()</code></td><td>被刪元素與舊 past-the-end</td></tr><tr><td><code>clear()</code></td><td>所有元素與舊 past-the-end</td></tr><tr><td><code>reserve(n)</code></td><td>容量增加即全部失效；未增加則不失效</td></tr><tr><td><code>resize(n)</code> 增長、未重配置</td><td>原有元素的 iterator/reference 仍有效；舊 past-the-end 失效</td></tr><tr><td><code>resize(n)</code> 增長、發生重配置</td><td>全部 iterator、pointer、reference 與舊 past-the-end 失效</td></tr><tr><td><code>resize(n)</code> 縮小</td><td>被刪除元素及其後位置（包含舊 past-the-end）失效；保留下來元素的位置仍有效</td></tr></tbody></table></div>
+<p>past-the-end 就是當時的 <code>end()</code>。即使沒有搬家，改變 size 的操作也可能使舊 end 不再代表新的尾後位置；不要保存它跨越增刪操作。</p>
+<h3 id="restore-p5-adaptors">stack、queue、deque 的完整介面矩陣</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>容器</th><th>加入</th><th>查看</th><th>移除</th><th>其他</th><th>典型用途</th></tr></thead><tbody><tr><td><code>stack&lt;T&gt;</code></td><td><code>push(x)</code></td><td><code>top()</code></td><td><code>pop()</code></td><td><code>empty() size()</code></td><td>undo、後進先出</td></tr><tr><td><code>queue&lt;T&gt;</code></td><td><code>push(x)</code></td><td><code>front() back()</code></td><td><code>pop()</code></td><td><code>empty() size()</code></td><td>先來先服務</td></tr><tr><td><code>deque&lt;T&gt;</code></td><td><code>push_front/back</code></td><td><code>front() back() []</code></td><td><code>pop_front/back</code></td><td><code>empty() size()</code></td><td>兩端工作列</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>錯誤期待</th><th>STL 正確寫法</th></tr></thead><tbody><tr><td>取得並移除 stack 頂端</td><td><code>int x=s.pop();</code></td><td><code>int x=s.top(); s.pop();</code></td></tr><tr><td>只移除</td><td>期待 pop 回傳值</td><td><code>s.pop();</code>，回傳型別是 void</td></tr></tbody></table></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="urgent normal later&#10;">#include &lt;deque&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+int main(){ deque&lt;string&gt; jobs; jobs.push_back("normal"); jobs.push_front("urgent"); jobs.push_back("later"); cout&lt;&lt;jobs.front()&lt;&lt;' '&lt;&lt;jobs[1]&lt;&lt;' '&lt;&lt;jobs.back()&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>urgent normal later&#10;</pre></div>
+<h3 id="restore-p5-string-convert">char、單字元 string、字面值串接與數字轉換</h3>
+<pre class="pseudo-code" data-cpp="run" data-expected="A! abcd 1454 2906&#10;">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+int main(){ char c='A'; string one(1,c); string joined=string("ab")+"cd"; int n=stoi("1453"); cout&lt;&lt;one+"!"&lt;&lt;' '&lt;&lt;joined&lt;&lt;' '&lt;&lt;n+1&lt;&lt;' '&lt;&lt;to_string(n*2)&lt;&lt;'\n'; }</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>A! abcd 1454 2906&#10;</pre></div>
+<p><code>'A'</code> 是 char；<code>string(1,c)</code> 建出含一個 c 的 string。<code>"ab"+"cd"</code> 的兩側都是字元陣列，沒有字串加法；先把一側變成 <code>string("ab")</code> 才能串接。<code>stoi</code> 把文字轉 int，無法轉換時會丟 <code>invalid_argument</code>；<code>to_string</code> 把數字轉文字。</p>
+<h3 id="restore-p5-costs">完整操作成本：成本是資料移動量，不是方法名稱</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>操作</th><th>典型複雜度</th><th>原因</th></tr></thead><tbody><tr><td><code>v[i]</code></td><td>O(1)</td><td>連續儲存直接定位</td></tr><tr><td><code>v.at(i)</code></td><td>O(1)</td><td>多一次界線檢查</td></tr><tr><td><code>v.size()</code></td><td>O(1)</td><td>讀取已保存的元素數量</td></tr><tr><td><code>v.empty()</code></td><td>O(1)</td><td>判斷是否為空，不需走訪</td></tr><tr><td><code>v.front()/v.back()</code></td><td>O(1)</td><td>直接讀取端點；先確認非空</td></tr><tr><td><code>v.capacity()</code></td><td>O(1)</td><td>容量是容器已保存的狀態</td></tr><tr><td><code>v.push_back(x)</code></td><td>攤還 O(1)，重配置當次 O(n)</td><td>偶爾搬移全部元素</td></tr><tr><td><code>v.pop_back()</code></td><td>O(1)</td><td>只銷毀尾端元素</td></tr><tr><td><code>v.insert(pos, x)</code></td><td>O(n)</td><td>後段向右搬移；若另有重配置，還要搬到新區塊。</td></tr><tr><td><code>v.erase(pos)</code></td><td>O(n)</td><td>銷毀被刪元素，後段向左搬移補洞。</td></tr><tr><td><code>v.clear()</code></td><td>O(n)</td><td>逐一銷毀元素</td></tr><tr><td><code>v.reserve(n)</code></td><td>若配置則 O(n)</td><td>搬到較大連續區塊</td></tr><tr><td><code>resize</code></td><td>與新增／刪除數及可能搬家成正比</td><td>建構或銷毀元素</td></tr><tr><td><code>s.length() / s.size()</code></td><td>O(1)</td><td>讀取已保存的 char 個數，不等於 UTF-8 可見字數。</td></tr><tr><td><code>s[i]</code></td><td>O(1)</td><td>按 char 位置讀取字元；存取界線見本頁與 P7。</td></tr><tr><td><code>s.find(x)</code></td><td>保守模型最壞 O(nm)</td><td>簡單逐位置比對時，長度 n 文字逐一比對長度 m 模式；實際標準庫策略依實作，不當成標準保證</td></tr><tr><td><code>s.substr(pos,k)</code></td><td>O(k)</td><td>建立並複製新字串</td></tr><tr><td><code>s += piece</code></td><td>攤還 O(piece.size())</td><td>至少要複製新增字元，偶爾重配置</td></tr><tr><td><code>s = s + piece</code></td><td>O(s.size()+piece.size())</td><td>建立新結果並複製兩側</td></tr><tr><td><code>stack/queue</code> 端點操作</td><td>通常 O(1)</td><td>由底層容器端點支援</td></tr><tr><td><code>deque</code> 兩端增刪</td><td>O(1)</td><td>分段儲存避免搬完整序列</td></tr><tr><td><code>deque[i]</code></td><td>O(1)</td><td>支援隨機存取</td></tr><tr><td>走訪 n 項</td><td>O(n)</td><td>每項處理一次</td></tr><tr><td>複製 n 項容器</td><td>O(n)</td><td>建立 n 個獨立元素</td></tr><tr><td><code>std::find(v.begin(), v.end(), x)</code></td><td>O(n)</td><td>最多逐項比較 n 個元素，找到時可提早結束；不是 map 的成員 find</td></tr></tbody></table></div>
+<div class="diagram-scroll"><svg style="width:800px;max-width:none;height:auto;display:block;margin:auto" viewBox="0 0 800 260" role="img" aria-label="vector 擴容四階段：舊區塊已滿、配置較大區塊、搬移元素、釋放舊區塊"><g font-family="sans-serif" font-size="16" text-anchor="middle"><text x="100" y="28">1 舊區塊已滿</text><text x="300" y="28">2 配置較大區塊</text><text x="500" y="28">3 搬移既有元素</text><text x="700" y="28">4 釋放舊區塊</text></g><g stroke="currentColor" fill="none" stroke-width="2"><path d="M35 55h130v45H35z M35 105h130v45H35z"/><path d="M215 55h130v45H215z M215 115h130v80H215z"/><path d="M415 55h130v45H415z M415 115h130v80H415z"/><path d="M615 55h130v45H615z" stroke-dasharray="6 4"/><path d="M615 115h130v80H615z"/><path d="M470 102v32"/><path d="M455 122l15 12 15-12"/><path d="M165 128h35 M190 120l10 8-10 8 M365 128h35 M390 120l10 8-10 8 M565 128h35 M590 120l10 8-10 8"/></g><g font-family="monospace" font-size="14" text-anchor="middle"><text x="100" y="83">size==capacity</text><text x="280" y="83">舊資料</text><text x="280" y="160">新容量（實作決定）</text><text x="480" y="83">舊資料</text><text x="480" y="160">搬入新區塊</text><text x="680" y="83">舊區塊失效</text><text x="680" y="160">新資料位置</text></g></svg></div>
+<div class="info-box green"><div class="info-label">擴容與 reserve 圖的讀法</div><p>四階段是「舊區塊已滿 → 配置較大連續區塊 → 搬移／複製既有元素 → 釋放舊區塊」。新容量的成長倍數由實作決定，標準不保證雙倍。</p></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>策略</th><th>size</th><th>搬家情形</th></tr></thead><tbody><tr><td>逐項 push，不預估</td><td>每次成功加入後增加</td><td>容量不足時可能多次重配置</td></tr><tr><td>先 <code>reserve(expected)</code></td><td>reserve 本身不改 size</td><td>expected 範圍內通常不需再次重配置</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>需求</th><th>C++ 寫法</th><th>邊界</th></tr></thead><tbody><tr><td>空清單</td><td><code>vector&lt;T&gt; v;</code></td><td>T 固定元素型別</td></tr><tr><td>n 個共同初值</td><td><code>vector&lt;T&gt; v(n,value);</code></td><td>勿與 <code>{n,value}</code> 混淆</td></tr><tr><td>尾端新增／刪除</td><td><code>push_back/pop_back</code></td><td>pop 不回值；push 可能使 iterator 失效</td></tr><tr><td>中段新增／刪除</td><td><code>insert/erase</code></td><td>位置用 iterator，後段搬移</td></tr><tr><td>安全索引</td><td><code>at(i)</code></td><td>錯誤丟 out_of_range</td></tr><tr><td>切 iterator 範圍</td><td><code>vector(first,last)</code></td><td>右端不包含</td></tr><tr><td>文字搜尋</td><td><code>find</code></td><td>找不到為 npos</td></tr><tr><td>文字切片</td><td><code>substr(pos,count)</code></td><td>char/byte 單位，不是 Unicode 字素</td></tr><tr><td>累積文字</td><td><code>+=</code>／<code>append</code></td><td>成本至少與新增片段長度成正比</td></tr><tr><td>讀整行</td><td><code>getline</code></td><td>混用 &gt;&gt; 時處理殘留換行</td></tr><tr><td>單字元變 string</td><td><code>string(1,c)</code></td><td><code>to_string(c)</code> 不是此用途</td></tr><tr><td>數字與文字互轉</td><td><code>stoi/to_string</code></td><td>stoi 可能丟例外</td></tr></tbody></table></div>
+<h3 id="restore-p5-uses-resources">六種用途與查閱入口</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>用途</th><th>常見型別／操作</th><th>為何適合</th></tr></thead><tbody><tr><td>逐筆收集輸入</td><td><code>vector&lt;T&gt; + push_back</code></td><td>筆數可在執行中成長</td></tr><tr><td>固定格數計數</td><td><code>vector&lt;int&gt;(n,0)</code></td><td>直接建立並初始化 n 格</td></tr><tr><td>複製子區間</td><td><code>vector(first,last)</code></td><td>沿用半開 iterator 範圍</td></tr><tr><td>排序資料輸入</td><td><code>vector&lt;T&gt;</code></td><td>連續且提供 random-access iterator</td></tr><tr><td>二維表格</td><td><code>vector&lt;vector&lt;T&gt;&gt;</code></td><td>每列可獨立管理長度</td></tr><tr><td>stack/queue底層序列</td><td>vector或deque</td><td>由轉接器限制公開操作</td></tr></tbody></table></div><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>資源</th><th>查閱重點</th></tr></thead><tbody><tr><td><a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">cppreference vector</a></td><td>成員函式、成本、iterator invalidation</td></tr><tr><td><a href="https://en.cppreference.com/w/cpp/string/basic_string" target="_blank" rel="noopener">cppreference string</a></td><td>find、substr、npos與轉換</td></tr><tr><td><a href="p4_pointers_memory.html">P4</a></td><td>連續記憶體、陣列退化與地址</td></tr><tr><td><a href="p6_map_set.html">P6</a></td><td>iterator範圍與標準演算法</td></tr><tr><td><a href="p7_files_exceptions.html">P7</a></td><td>at與stoi失敗時的例外處理</td></tr></tbody></table></div>
+</section>
 <section id="reference"><div class="section-number">PART 11</div><h2>語法速查與章末整合</h2>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>想做的事</th><th>首選語法</th><th>先檢查</th></tr></thead><tbody><tr><td>尾端加入</td><td><code>v.push_back(x)</code></td><td>可能重配置並使 iterator 失效</td></tr><tr><td>安全索引</td><td><code>v.at(i)</code></td><td>錯誤會丟 out_of_range</td></tr><tr><td>刪迴圈目前項</td><td><code>it=v.erase(it)</code></td><td>不要再使用舊 it</td></tr><tr><td>找子字串</td><td><code>s.find(x)</code></td><td>比較 string::npos</td></tr><tr><td>讀含空白整行</td><td><code>getline(cin&gt;&gt;ws,s)</code></td><td>行首空白是否有意義</td></tr></tbody></table></div>
 <p>延伸查閱：<a href="https://en.cppreference.com/w/cpp/container/vector" target="_blank" rel="noopener">std::vector</a>、<a href="https://en.cppreference.com/w/cpp/string/basic_string" target="_blank" rel="noopener">std::string</a>。這些是介面參考，不必一次背完。</p>
@@ -697,130 +757,150 @@ for (const string&amp; p : parts) out = out + p; // 反例：每輪可能複製�
 <p>補充教材：<a href="https://openhome.cc/Gossip/CppGossip/" target="_blank" rel="noopener">OpenHome C++ Gossip</a>。可依本頁主題查閱對應章節，再回來用自己的例子驗證。</p></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：vector 與 string <span class="sec-badge">隨堂自測 · 12 題</span></h2>
+  <h2>自我檢測：vector 與 string <span class="sec-badge">隨堂自測 · 14 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>vector&lt;int&gt; a(3,8) 與 vector&lt;int&gt; b{3,8} 的差別？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="括號選數量/初值建構式；大括號是元素清單。">a 有三個 8；b 有 3、8 兩項</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。括號選數量/初值建構式；大括號是元素清單。">兩者完全相同</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。括號選數量/初值建構式；大括號是元素清單。">a 只有兩項</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。括號選數量/初值建構式；大括號是元素清單。">b 有八個 3</button>
+      <button class="sq-opt" data-c="1" data-fb="括號選數量/初值建構式；大括號是元素清單。"><span class="opt-letter">(A)</span> a 有三個 8；b 有 3、8 兩項</button>
+      <button class="sq-opt" data-c="0" data-fb="括號的兩個引數是「數量3、初值8」，大括號則列出兩個元素；兩者的size已不同。"><span class="opt-letter">(B)</span> 兩者完全相同</button>
+      <button class="sq-opt" data-c="0" data-fb="把 a(3,8) 當成清單初始化了；小括號會建立三格，不是兩格。"><span class="opt-letter">(C)</span> a 只有兩項</button>
+      <button class="sq-opt" data-c="0" data-fb="把 b{3,8} 誤讀成 count/value，還顛倒成八個3；大括號只列出元素3與8。"><span class="opt-letter">(D)</span> b 有八個 3</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>reserve(100) 之後哪個敘述一定成立？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="reserve 預留容量而不建立元素；實際 capacity 可更大。">capacity() 至少為 100，size() 不因 reserve 增加</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。reserve 預留容量而不建立元素；實際 capacity 可更大。">size() 一定是 100</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。reserve 預留容量而不建立元素；實際 capacity 可更大。">capacity() 一定恰為 100</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。reserve 預留容量而不建立元素；實際 capacity 可更大。">已建立 100 個元素</button>
+      <button class="sq-opt" data-c="1" data-fb="reserve 預留容量而不建立元素；實際 capacity 可更大。"><span class="opt-letter">(A)</span> capacity() 至少為 100，size() 不因 reserve 增加</button>
+      <button class="sq-opt" data-c="0" data-fb="reserve只調整可容納空間，不建立元素，因此size仍是原值。"><span class="opt-letter">(B)</span> size() 一定是 100</button>
+      <button class="sq-opt" data-c="0" data-fb="標準只保證capacity至少100，實作可以配置更多，不能要求恰為100。"><span class="opt-letter">(C)</span> capacity() 一定恰為 100</button>
+      <button class="sq-opt" data-c="0" data-fb="預留一百格不等於建立一百個物件；要改元素數需使用resize。"><span class="opt-letter">(D)</span> 已建立 100 個元素</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q3.</span>vector 重配置後，先前保存的元素 iterator 怎麼了？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="元素搬到新區塊，所有舊 iterator、指標與參考失效。">全部失效，必須重新取得</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。元素搬到新區塊，所有舊 iterator、指標與參考失效。">仍然有效</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。元素搬到新區塊，所有舊 iterator、指標與參考失效。">只有 begin 失效</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。元素搬到新區塊，所有舊 iterator、指標與參考失效。">只有 end 失效</button>
+      <button class="sq-opt" data-c="1" data-fb="元素搬到新區塊，所有舊 iterator、指標與參考失效。"><span class="opt-letter">(A)</span> 全部失效，必須重新取得</button>
+      <button class="sq-opt" data-c="0" data-fb="重配置會把元素搬到新區塊，舊iterator保存的位置不再指向那些元素。"><span class="opt-letter">(B)</span> 仍然有效</button>
+      <button class="sq-opt" data-c="0" data-fb="失效範圍不限begin；所有指向舊區塊元素的位置都受影響。"><span class="opt-letter">(C)</span> 只有 begin 失效</button>
+      <button class="sq-opt" data-c="0" data-fb="end固然失效，但元素iterator也因整塊搬家而全部失效。"><span class="opt-letter">(D)</span> 只有 end 失效</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q4.</span>在迴圈中刪除 it 指向元素的安全核心寫法？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="erase 回傳下一個有效位置；舊 it 已失效。">it = v.erase(it)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效位置；舊 it 已失效。">v.erase(it); ++it</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效位置；舊 it 已失效。">v.erase(it); *it</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。erase 回傳下一個有效位置；舊 it 已失效。">++it; v.erase(it)</button>
+      <button class="sq-opt" data-c="1" data-fb="erase 回傳下一個有效位置；舊 it 已失效。"><span class="opt-letter">(A)</span> it = v.erase(it)</button>
+      <button class="sq-opt" data-c="0" data-fb="erase之後舊it已失效，不能先對它++；應接住erase回傳的新位置。"><span class="opt-letter">(B)</span> v.erase(it); ++it</button>
+      <button class="sq-opt" data-c="0" data-fb="刪除後立即解參考舊it仍是使用失效iterator，行為未定義。"><span class="opt-letter">(C)</span> v.erase(it); *it</button>
+      <button class="sq-opt" data-c="0" data-fb="先++會改成刪下一項，而且刪除後那個位置仍需使用erase回傳值繼續。"><span class="opt-letter">(D)</span> ++it; v.erase(it)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>哪個位置可以拿來比較、但不可解參考？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="end 是尾後哨兵，不代表元素。">v.end()</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。end 是尾後哨兵，不代表元素。">v.begin()</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。end 是尾後哨兵，不代表元素。">v.begin()+0</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。end 是尾後哨兵，不代表元素。">v.back()</button>
+      <button class="sq-opt" data-c="1" data-fb="end 是尾後哨兵，不代表元素。"><span class="opt-letter">(A)</span> v.end()</button>
+      <button class="sq-opt" data-c="0" data-fb="非空vector的begin指向第一個真實元素，可以解參考。"><span class="opt-letter">(B)</span> v.begin()</button>
+      <button class="sq-opt" data-c="0" data-fb="begin()+0與begin相同，仍指向第一項，不是尾後哨兵。"><span class="opt-letter">(C)</span> v.begin()+0</button>
+      <button class="sq-opt" data-c="0" data-fb="back()回傳最後元素的參考，不是用來和iterator比較的位置。"><span class="opt-letter">(D)</span> v.back()</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>範圍 for 的 auto x 與 auto&amp; x 差在哪裡？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="auto 只負責型別推導，&amp; 才決定是否為參考。">auto x 複製元素；auto&amp; x 綁定原元素</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。auto 只負責型別推導，&amp; 才決定是否為參考。">兩者都一定是指標</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。auto 只負責型別推導，&amp; 才決定是否為參考。">auto x 會刪除元素</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。auto 只負責型別推導，&amp; 才決定是否為參考。">auto&amp; x 是任意型別</button>
+      <button class="sq-opt" data-c="1" data-fb="auto 只負責型別推導，&amp; 才決定是否為參考。"><span class="opt-letter">(A)</span> auto x 複製元素；auto&amp; x 綁定原元素</button>
+      <button class="sq-opt" data-c="0" data-fb="auto推導的是元素型別，不會把迴圈變數自動變成指標。"><span class="opt-letter">(B)</span> 兩者都一定是指標</button>
+      <button class="sq-opt" data-c="0" data-fb="auto x只建立副本；離開一圈時副本銷毀，但不會刪容器元素。"><span class="opt-letter">(C)</span> auto x 會刪除元素</button>
+      <button class="sq-opt" data-c="0" data-fb="auto&amp;中的&amp;表示參考，不表示任意型別；實際型別仍由元素推導。"><span class="opt-letter">(D)</span> auto&amp; x 是任意型別</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q7.</span>vector&lt;vector&lt;int&gt;&gt; rows 中每列長度一定相同嗎？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="二維 vector 可以是不規則列。">不一定；每個內層 vector 可有自己的長度</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。二維 vector 可以是不規則列。">一定相同</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。二維 vector 可以是不規則列。">只有兩列時相同</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。二維 vector 可以是不規則列。">由 capacity 決定</button>
+      <button class="sq-opt" data-c="1" data-fb="二維 vector 可以是不規則列。"><span class="opt-letter">(A)</span> 不一定；每個內層 vector 可有自己的長度</button>
+      <button class="sq-opt" data-c="0" data-fb="外層vector只保存多個內層vector，沒有矩形限制，各列可有不同size。"><span class="opt-letter">(B)</span> 一定相同</button>
+      <button class="sq-opt" data-c="0" data-fb="列數是2不會替兩個內層vector強制相同長度。"><span class="opt-letter">(C)</span> 只有兩列時相同</button>
+      <button class="sq-opt" data-c="0" data-fb="capacity是單一vector的配置狀態，不會同步決定其他列的size。"><span class="opt-letter">(D)</span> 由 capacity 決定</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q8.</span>stack 的 top() 與 pop() 分工是？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="標準容器轉接器把查看與移除分成兩步。">top 查看；pop 移除且不回傳</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。標準容器轉接器把查看與移除分成兩步。">兩者都回傳並移除</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。標準容器轉接器把查看與移除分成兩步。">top 移除</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。標準容器轉接器把查看與移除分成兩步。">pop 只查看</button>
+      <button class="sq-opt" data-c="1" data-fb="標準容器轉接器把查看與移除分成兩步。"><span class="opt-letter">(A)</span> top 查看；pop 移除且不回傳</button>
+      <button class="sq-opt" data-c="0" data-fb="top只查看、pop只移除；標準stack沒有一個同時回傳並移除的操作。"><span class="opt-letter">(B)</span> 兩者都回傳並移除</button>
+      <button class="sq-opt" data-c="0" data-fb="top不改stack大小，它回傳目前頂端元素的參考。"><span class="opt-letter">(C)</span> top 移除</button>
+      <button class="sq-opt" data-c="0" data-fb="pop確實移除頂端且回傳void，不是只查看。"><span class="opt-letter">(D)</span> pop 只查看</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q9.</span>s.find(&quot;xy&quot;) == string::npos 表示？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="npos 是 string 搜尋失敗的特殊值。">沒有找到 xy</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。npos 是 string 搜尋失敗的特殊值。">在位置 0 找到</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。npos 是 string 搜尋失敗的特殊值。">字串是空的</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。npos 是 string 搜尋失敗的特殊值。">發生編譯錯誤</button>
+      <button class="sq-opt" data-c="1" data-fb="npos 是 string 搜尋失敗的特殊值。"><span class="opt-letter">(A)</span> 沒有找到 xy</button>
+      <button class="sq-opt" data-c="0" data-fb="找到位置0時find回傳0，不會等於npos。"><span class="opt-letter">(B)</span> 在位置 0 找到</button>
+      <button class="sq-opt" data-c="0" data-fb="空字串與搜尋失敗是不同狀態；非空字串也可能找不到xy。"><span class="opt-letter">(C)</span> 字串是空的</button>
+      <button class="sq-opt" data-c="0" data-fb="find與npos比較是合法string介面，不會造成編譯錯誤。"><span class="opt-letter">(D)</span> 發生編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q10.</span>UTF-8 中文字串可否用 substr(pos,1) 保證取一個可見中文字？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="一個可見中文字通常跨多個 UTF-8 byte。">不保證；string 以 char/byte 單位處理</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。一個可見中文字通常跨多個 UTF-8 byte。">可以</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。一個可見中文字通常跨多個 UTF-8 byte。">只有奇數位置可以</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。一個可見中文字通常跨多個 UTF-8 byte。">npos 時可以</button>
+      <button class="sq-opt" data-c="1" data-fb="一個可見中文字通常跨多個 UTF-8 byte。"><span class="opt-letter">(A)</span> 不保證；string 以 char/byte 單位處理</button>
+      <button class="sq-opt" data-c="0" data-fb="UTF-8中文字通常跨多個char byte，count=1可能只切出編碼的一部分。"><span class="opt-letter">(B)</span> 可以</button>
+      <button class="sq-opt" data-c="0" data-fb="byte位置的奇偶與Unicode字元邊界沒有固定關係。"><span class="opt-letter">(C)</span> 只有奇數位置可以</button>
+      <button class="sq-opt" data-c="0" data-fb="npos表示搜尋失敗，不會讓substr突然按可見字元切割。"><span class="opt-letter">(D)</span> npos 時可以</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q11.</span>cin &gt;&gt; n 後接 getline，想忽略殘留換行可用？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="ws 先略過前導空白與換行；行首空白有意義時要換策略。">getline(cin &gt;&gt; ws, text)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。ws 先略過前導空白與換行；行首空白有意義時要換策略。">getline(n,text)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。ws 先略過前導空白與換行；行首空白有意義時要換策略。">cin &lt;&lt; ws</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。ws 先略過前導空白與換行；行首空白有意義時要換策略。">text &gt;&gt; getline</button>
+      <button class="sq-opt" data-c="1" data-fb="ws 先略過前導空白與換行；行首空白有意義時要換策略。"><span class="opt-letter">(A)</span> getline(cin &gt;&gt; ws, text)</button>
+      <button class="sq-opt" data-c="0" data-fb="getline第一參數必須是輸入串流；整數n不能放在cin的位置。"><span class="opt-letter">(B)</span> getline(n,text)</button>
+      <button class="sq-opt" data-c="0" data-fb="&lt;&lt;是輸出方向，cin也不是輸出串流；清空前導空白要用&gt;&gt;ws。"><span class="opt-letter">(C)</span> cin &lt;&lt; ws</button>
+      <button class="sq-opt" data-c="0" data-fb="getline是函式而非可被text用&gt;&gt;讀出的值，資料方向與語法都相反。"><span class="opt-letter">(D)</span> text &gt;&gt; getline</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q12.</span>迴圈累積許多片段，通常哪個寫法較合適？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="+= 通常可重用容量，避免每輪複製整個舊前綴。">out += piece</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。+= 通常可重用容量，避免每輪複製整個舊前綴。">out = out + piece 永遠 O(1)</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。+= 通常可重用容量，避免每輪複製整個舊前綴。">每輪建立新的空 string</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。+= 通常可重用容量，避免每輪複製整個舊前綴。">用 substr 增加</button>
+      <button class="sq-opt" data-c="1" data-fb="+= 通常可重用容量，避免每輪複製整個舊前綴。"><span class="opt-letter">(A)</span> out += piece</button>
+      <button class="sq-opt" data-c="0" data-fb="每輪s=s+piece通常要複製舊前綴，成本不可能永遠O(1)。"><span class="opt-letter">(B)</span> out = out + piece 永遠 O(1)</button>
+      <button class="sq-opt" data-c="0" data-fb="每輪重建空string會丟掉先前累積內容，無法得到完整結果。"><span class="opt-letter">(C)</span> 每輪建立新的空 string</button>
+      <button class="sq-opt" data-c="0" data-fb="substr用來擷取既有文字，不會把piece附加到out。"><span class="opt-letter">(D)</span> 用 substr 增加</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q13.</span>vector&lt;int&gt; b(a.begin()+1, a.begin()+4) 會包含哪個範圍？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="範圍是左含右不含 [first,last)，所以不包含索引4。"><span class="opt-letter">(A)</span> 索引1、2、3</button>
+      <button class="sq-opt" data-c="0" data-fb="第二個iterator是右開界線，索引4不會被複製。"><span class="opt-letter">(B)</span> 索引1到4</button>
+      <button class="sq-opt" data-c="0" data-fb="兩個iterator界定連續區間，不是只複製first指向的一項。"><span class="opt-letter">(C)</span> 只含索引1</button>
+      <button class="sq-opt" data-c="0" data-fb="range constructor的[first,last)由標準介面確定，不由編譯器任意選。"><span class="opt-letter">(D)</span> 編譯器任意決定</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q14.</span>char c='A'; 要建立只含 A 的 string，哪個正確？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="第一個引數是數量1，第二個是要重複的char。"><span class="opt-letter">(A)</span> string one(1,c);</button>
+      <button class="sq-opt" data-c="0" data-fb="c+1先把char提升成整數再加一，結果不是string。"><span class="opt-letter">(B)</span> string one=c+1;</button>
+      <button class="sq-opt" data-c="0" data-fb="to_string(c)會把字元碼的數值轉成數字文字，不會得到字元A。"><span class="opt-letter">(C)</span> string one=to_string(c);</button>
+      <button class="sq-opt" data-c="0" data-fb="'A'+'B'是兩個char的整數加法，既不建立string也不只含A。"><span class="opt-letter">(D)</span> string one='A'+'B';</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p4_pointers_memory.html"><div class="nav-dir">上一頁</div><div class="nav-title">陣列、指標與動態記憶體</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p6_map_set.html"><div class="nav-dir">下一頁</div><div class="nav-title">map、set 與迭代器</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "vector<T>", "back": "可增減的同型別連續序列；T 是每個元素的型別。"}, {"front": "物件.方法()", "back": "要求特定物件執行方法；例如 v.size() 與 v.push_back(x)。"}, {"front": "括號初始化 vs 大括號", "back": "vector<int>(4,7) 是四個 7；vector<int>{4,7} 是兩個元素 4、7。"}, {"front": "at(i)", "back": "檢查界線；越界丟出 out_of_range。完整捕捉方式見 P7。"}, {"front": "size / capacity", "back": "size 是現有元素數；capacity 是免重配置可容納數。"}, {"front": "reserve(n)", "back": "讓容量至少為 n，不建立元素、不改 size。"}, {"front": "攤還 O(1)", "back": "少數重配置很貴，但分攤到多次 push_back 後每次平均為常數量級。成長倍數不受標準保證。"}, {"front": "[begin,end)", "back": "左含右不含；end 是尾後哨兵，不能解參考。"}, {"front": "iterator", "back": "表示容器位置；*it 取元素、++it 前進。"}, {"front": "vector iterator 失效", "back": "重配置使全部失效；erase 使刪除位置及其後位置失效。"}, {"front": "auto 型別推導", "back": "編譯器從右側決定固定型別；auto x 仍是複製，auto& x 才是原元素別名。"}, {"front": "erase 回傳值", "back": "回傳刪除後下一個有效位置，安全迴圈寫 it=v.erase(it)。"}, {"front": "二維 vector", "back": "vector<vector<T>>；每列可有不同長度。"}, {"front": "stack / queue", "back": "stack 後進先出用 top；queue 先進先出用 front。pop 都不回傳值。"}, {"front": "deque", "back": "雙端佇列，兩端都能有效率地加入與移除。"}, {"front": "string::npos", "back": "string 搜尋失敗的特殊值。"}, {"front": "substr(pos,count)", "back": "以 char/byte 單位切片；UTF-8 可見字可能跨多個 byte。"}, {"front": "getline(cin >> ws,s)", "back": "跳過前導空白再讀整行；若行首空白有意義便不適用。"}, {"front": "字串累積", "back": "迴圈優先 += 或 append；反覆 s=s+piece 可能重複複製前綴。"}];
+const FLASHCARDS = [{"front": "向量容器（vector<T>）", "back": "可增減的同型別連續序列；T 是每個元素的型別。"}, {"front": "成員呼叫（object.method()）", "back": "要求特定物件執行方法；例如 v.size() 與 v.push_back(x)。"}, {"front": "括號與清單初始化（parentheses vs braces）", "back": "vector<int>(4,7) 是四個 7；vector<int>{4,7} 是兩個元素 4、7。"}, {"front": "界線檢查存取（at(i)）", "back": "檢查界線；越界丟出 out_of_range。完整捕捉方式見 P7。"}, {"front": "大小與容量（size / capacity）", "back": "size 是現有元素數；capacity 是免重配置可容納數。"}, {"front": "預留容量（reserve(n)）", "back": "讓容量至少為 n，不建立元素、不改 size。"}, {"front": "攤還常數時間（amortized O(1)）", "back": "少數重配置很貴，但分攤到多次 push_back 後每次平均為常數量級。成長倍數不受標準保證。"}, {"front": "左閉右開區間（[begin,end)）", "back": "左含右不含；end 是尾後哨兵，不能解參考。"}, {"front": "迭代器（iterator）", "back": "表示容器位置；*it 取元素、++it 前進。"}, {"front": "向量迭代器失效（vector iterator invalidation）", "back": "重配置使全部失效；erase 使刪除位置及其後位置失效。"}, {"front": "自動型別推導（auto deduction）", "back": "編譯器從右側決定固定型別；auto x 仍是複製，auto& x 才是原元素別名。"}, {"front": "刪除回傳位置（erase return iterator）", "back": "回傳刪除後下一個有效位置，安全迴圈寫 it=v.erase(it)。"}, {"front": "二維向量（two-dimensional vector）", "back": "vector<vector<T>>；每列可有不同長度。"}, {"front": "堆疊與佇列（stack / queue）", "back": "stack 後進先出用 top；queue 先進先出用 front。pop 都不回傳值。"}, {"front": "雙端佇列（deque）", "back": "雙端佇列，兩端都能有效率地加入與移除。"}, {"front": "字串搜尋失敗值（string::npos）", "back": "string 搜尋失敗的特殊值。"}, {"front": "子字串（substr(pos,count)）", "back": "以 char/byte 單位切片；UTF-8 可見字可能跨多個 byte。"}, {"front": "整行輸入（getline(cin >> ws,s)）", "back": "跳過前導空白再讀整行；若行首空白有意義便不適用。"}, {"front": "字串累積（string accumulation）", "back": "迴圈優先 += 或 append；反覆 s=s+piece 可能重複複製前綴。"}, {"front": "範圍建構（range constructor）", "back": "vector(first,last) 複製 [first,last)；last 指向不包含的尾後位置。"}, {"front": "單字元字串（single-character string）", "back": "char c 要包成 string 可寫 string(1,c)；兩個字串字面值不能直接相加。"}, {"front": "字串數字轉換（stoi／to_string）", "back": "stoi 將文字轉 int 且失敗可能丟例外；to_string 將數字轉成 string。"}, {"front": "直接初始化（Direct Initialization）", "back": "以型別、名稱和初始化引數建立物件；vector的括號計數建構與大括號元素清單可能得到不同內容。"}, {"front": "大小（size）", "back": "目前已存在的元素數，不是預留格數；合法一般元素索引由0到size-1。"}, {"front": "容量（capacity）", "back": "不重新配置時可容納的元素數，至少等於size；reserve不會因此建立元素。"}, {"front": "尾端加入（push_back）", "back": "把元素加在序列尾端；vector若重配置會使既有元素位置失效。"}, {"front": "尾端移除（pop_back）", "back": "移除尾端元素但不回傳其值；要保留舊值必須先讀back，且須先確認非空。"}, {"front": "插入（insert）", "back": "在指定位置前加入元素；vector位置以迭代器表示，中間插入通常需搬移後段。"}, {"front": "刪除（erase）", "back": "移除指定元素或區間；使用操作回傳的有效位置繼續走訪，不再使用已失效的舊迭代器。"}, {"front": "清空（clear）", "back": "移除所有元素；vector的size變成0，capacity不因此縮小。"}, {"front": "範圍迴圈（Range-based for Loop）", "back": "逐一取得元素；值版本會取得副本，參考版本可代表原元素。"}, {"front": "參考迴圈變數（Reference Loop Variable）", "back": "T&或auto&讓每輪名稱代表原元素；const參考限制經由該名稱修改。"}, {"front": "字串（string）", "back": "管理char序列的標準型別；大小和索引以char為單位，不等同UTF-8中文字數。"}, {"front": "無號大小型別（size_t）", "back": "標準庫常用的無號整數型別，用於sizeof或容器大小；減到負數前應先做邊界檢查。"}];
 
 /* depth-runtime:start */
 (() => {

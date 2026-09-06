@@ -10,17 +10,17 @@
       {
         "answer": "原始碼檔所在處",
         "correct": false,
-        "feedback": "不對。相對路徑由 working directory 解析。"
+        "feedback": "原始碼位置只描述文字檔在哪裡，程序不會自動從該目錄啟動。"
       },
       {
         "answer": "編譯器安裝處",
         "correct": false,
-        "feedback": "不對。相對路徑由 working directory 解析。"
+        "feedback": "編譯器安裝目錄只供建置時尋找工具，不決定已啟動程式的cwd。"
       },
       {
         "answer": "使用者家目錄固定",
         "correct": false,
-        "feedback": "不對。相對路徑由 working directory 解析。"
+        "feedback": "家目錄只有在程序恰好從那裡啟動時才是cwd，並非固定規則。"
       }
     ]
   },
@@ -35,17 +35,17 @@
       {
         "answer": "兩者完全相同",
         "correct": false,
-        "feedback": "不對。寫日誌要明確用 app。"
+        "feedback": "預設模式與app的寫入位置不同；前者截斷、後者保留原內容。"
       },
       {
         "answer": "app 只允許讀",
         "correct": false,
-        "feedback": "不對。寫日誌要明確用 app。"
+        "feedback": "ios::app是輸出位置模式，不是讀取權限；ofstream仍然用來寫。"
       },
       {
         "answer": "預設一定追加",
         "correct": false,
-        "feedback": "不對。寫日誌要明確用 app。"
+        "feedback": "普通ofstream預設會截斷既有檔案，不會保留後追加。"
       }
     ]
   },
@@ -60,17 +60,17 @@
       {
         "answer": "while (!in.eof())",
         "correct": false,
-        "feedback": "不對。把讀取放在條件，成功才處理。"
+        "feedback": "eof要在一次讀取碰到檔尾後才設定，!eof會讓最後失敗讀取前多進一圈。"
       },
       {
         "answer": "while (in.good()) { in >> x; use(x); }",
         "correct": false,
-        "feedback": "不對。把讀取放在條件，成功才處理。"
+        "feedback": "good是在讀取前檢查舊狀態；本體中的讀取仍可能失敗，卻繼續use舊x。"
       },
       {
         "answer": "while (x)",
         "correct": false,
-        "feedback": "不對。把讀取放在條件，成功才處理。"
+        "feedback": "x的數值不是串流可否再讀的狀態；x為0也可能仍有輸入。"
       }
     ]
   },
@@ -85,17 +85,17 @@
       {
         "answer": "刪除整個檔案",
         "correct": false,
-        "feedback": "不對。clear 不移動讀取位置。"
+        "feedback": "clear只重設狀態位，不會刪檔案或改檔案內容。"
       },
       {
         "answer": "自動跳過壞 token",
         "correct": false,
-        "feedback": "不對。clear 不移動讀取位置。"
+        "feedback": "造成格式錯的token仍停在輸入位置，clear不會自動略過它。"
       },
       {
         "answer": "關閉串流",
         "correct": false,
-        "feedback": "不對。clear 不移動讀取位置。"
+        "feedback": "clear不是close；串流仍連到原來源，只是允許再次嘗試操作。"
       }
     ]
   },
@@ -110,17 +110,17 @@
       {
         "answer": "讀最後一筆之前",
         "correct": false,
-        "feedback": "不對。因此不要用 !eof() 預測下一次讀取。"
+        "feedback": "讀最後一筆之前尚未碰到尾端，不能預先知道eof。"
       },
       {
         "answer": "開檔時",
         "correct": false,
-        "feedback": "不對。因此不要用 !eof() 預測下一次讀取。"
+        "feedback": "成功開檔不代表已讀到檔尾；eof由讀取操作設定。"
       },
       {
         "answer": "每次 getline 前",
         "correct": false,
-        "feedback": "不對。因此不要用 !eof() 預測下一次讀取。"
+        "feedback": "getline開始前eof可能尚未設定，必須看這次讀取的結果。"
       }
     ]
   },
@@ -135,17 +135,17 @@
       {
         "answer": "一定",
         "correct": false,
-        "feedback": "不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+        "feedback": "fail只檢查failbit或badbit；只有eofbit時不必為true。"
       },
       {
         "answer": "只有輸出串流一定",
         "correct": false,
-        "feedback": "不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+        "feedback": "輸出串流也使用同一iostate定義，不存在「輸出時eof一定令fail」的特例。"
       },
       {
         "answer": "good() 一定為 true",
         "correct": false,
-        "feedback": "不對。成功讀到延伸至檔尾的最後一筆可能只設 eofbit；下一次再讀才失敗。"
+        "feedback": "good要求所有狀態位都未設定；eofbit已存在時good必為false。"
       }
     ]
   },
@@ -160,17 +160,17 @@
       {
         "answer": "永遠保持開啟",
         "correct": false,
-        "feedback": "不對。這是 RAII。"
+        "feedback": "ofstream是區域物件，離開作用域會解構，不會永遠保持開啟。"
       },
       {
         "answer": "必須 leak",
         "correct": false,
-        "feedback": "不對。這是 RAII。"
+        "feedback": "資源會由解構式釋放；leak不是語言要求，而是錯誤所有權結果。"
       },
       {
         "answer": "自動刪除檔案",
         "correct": false,
-        "feedback": "不對。這是 RAII。"
+        "feedback": "關閉串流只釋放檔案連結，不會把磁碟上的檔案刪除。"
       }
     ]
   },
@@ -185,17 +185,17 @@
       {
         "answer": "只查 eof()",
         "correct": false,
-        "feedback": "不對。close 成功本身可不 fail；後續無效寫入才設定狀態。"
+        "feedback": "eof描述輸入碰到檔尾，不能診斷對已關閉輸出串流的寫入。"
       },
       {
         "answer": "檢查檔名長度",
         "correct": false,
-        "feedback": "不對。close 成功本身可不 fail；後續無效寫入才設定狀態。"
+        "feedback": "檔名長度與串流是否仍開啟、寫入是否成功完全無關。"
       },
       {
         "answer": "close 一定先設 fail",
         "correct": false,
-        "feedback": "不對。close 成功本身可不 fail；後續無效寫入才設定狀態。"
+        "feedback": "成功close本身不必設fail；應在其後無效寫入完成後檢查狀態。"
       }
     ]
   },
@@ -210,17 +210,17 @@
       {
         "answer": "總是下一行",
         "correct": false,
-        "feedback": "不對。沿途正常敘述不執行，區域物件會被銷毀。"
+        "feedback": "throw會中止目前正常路徑，不會固定繼續執行下一行。"
       },
       {
         "answer": "總是 main 第一行",
         "correct": false,
-        "feedback": "不對。沿途正常敘述不執行，區域物件會被銷毀。"
+        "feedback": "搜尋依呼叫鏈與catch位置進行，不是無條件跳到main第一行。"
       },
       {
         "answer": "自動回傳 0",
         "correct": false,
-        "feedback": "不對。沿途正常敘述不執行，區域物件會被銷毀。"
+        "feedback": "例外不是函式回傳值，未捕捉時也不會自動替函式回傳0。"
       }
     ]
   },
@@ -235,17 +235,17 @@
       {
         "answer": "兩者都回 0",
         "correct": false,
-        "feedback": "不對。[] 不做可靠界線檢查。"
+        "feedback": "at與[]都不承諾越界回0；把垃圾結果當0會掩蓋未定義行為。"
       },
       {
         "answer": "[] 丟例外",
         "correct": false,
-        "feedback": "不對。[] 不做可靠界線檢查。"
+        "feedback": "vector的[]不做範圍檢查，越界不保證丟任何例外。"
       },
       {
         "answer": "at 插入元素",
         "correct": false,
-        "feedback": "不對。[] 不做可靠界線檢查。"
+        "feedback": "at只檢查並回報out_of_range，不會擴張vector或插入元素。"
       }
     ]
   },
@@ -260,17 +260,17 @@
       {
         "answer": "兩者都越界未定義",
         "correct": false,
-        "feedback": "不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
+        "feedback": "string在恰好size位置有唯讀結尾字元特例，不能把它與大於size的越界混為一談。"
       },
       {
         "answer": "兩者都插入字元",
         "correct": false,
-        "feedback": "不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
+        "feedback": "讀取結尾字元不會插入；at(size)則直接丟例外，兩者都不增加size。"
       },
       {
         "answer": "at 回 npos",
         "correct": false,
-        "feedback": "不對。string 對 size 位置有特別的唯讀結尾字元規則；不可寫非零值。"
+        "feedback": "npos是find失敗值，不是at的越界回傳；at以out_of_range回報。"
       }
     ]
   },
@@ -285,17 +285,17 @@
       {
         "answer": "兩者都插入",
         "correct": false,
-        "feedback": "不對。唯讀且要求存在時用 at 或 find。"
+        "feedback": "map::at缺鍵不插入，而operator[]才會建立預設mapped value。"
       },
       {
         "answer": "兩者都回 end",
         "correct": false,
-        "feedback": "不對。唯讀且要求存在時用 at 或 find。"
+        "feedback": "find缺鍵才回end；at與[]回值/參考或丟例外，不回iterator哨兵。"
       },
       {
         "answer": "[] 丟例外",
         "correct": false,
-        "feedback": "不對。唯讀且要求存在時用 at 或 find。"
+        "feedback": "operator[]缺鍵不丟例外，它建立value-initialized值後回傳參考。"
       }
     ]
   },
@@ -310,17 +310,42 @@
       {
         "answer": "自動忽略",
         "correct": false,
-        "feedback": "不對。應在能採取行動的邊界捕捉。"
+        "feedback": "沒有catch時例外不會被忽略，執行期會終止正常流程。"
       },
       {
         "answer": "自動重試",
         "correct": false,
-        "feedback": "不對。應在能採取行動的邊界捕捉。"
+        "feedback": "例外機制不會自行重試throw前的操作；重試必須由程式明寫。"
       },
       {
         "answer": "轉為 failbit",
         "correct": false,
-        "feedback": "不對。應在能採取行動的邊界捕捉。"
+        "feedback": "failbit屬串流狀態，不是任意未捕捉例外的自動轉換結果。"
+      }
+    ]
+  },
+  {
+    "question": "例外沿呼叫鏈尋找catch時，沿途區域串流物件如何處理？",
+    "answers": [
+      {
+        "answer": "解構並依RAII關閉資源",
+        "correct": true,
+        "feedback": "stack unwinding會銷毀已建立的區域物件。"
+      },
+      {
+        "answer": "全部永久留在記憶體",
+        "correct": false,
+        "feedback": "stack unwinding會逐層銷毀區域物件，不會讓區域串流永久存活。"
+      },
+      {
+        "answer": "只有catch內物件解構",
+        "correct": false,
+        "feedback": "清理發生在throw到catch之間被離開的每個作用域，不只catch內。"
+      },
+      {
+        "answer": "必須每層catch才會關檔",
+        "correct": false,
+        "feedback": "RAII解構不要求每層都有catch；例外穿過該層時照樣清理。"
       }
     ]
   }

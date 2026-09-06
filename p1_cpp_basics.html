@@ -465,7 +465,19 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#skeleton" data-target="skeleton"><span class="fn-num">01</span><span class="fn-name">最小完整程式與每一行的角色</span></a><a href="#pipeline" data-target="pipeline"><span class="fn-num">02</span><span class="fn-name">把編譯與執行指令拆開</span></a><a href="#prologue" data-target="prologue"><span class="fn-num">03</span><span class="fn-name">從原始碼到執行檔：四個階段</span></a><a href="#types" data-target="types"><span class="fn-num">04</span><span class="fn-name">型別、宣告、初始化與常數</span></a><a href="#charstring" data-target="charstring"><span class="fn-num">05</span><span class="fn-name">char、字串與 sizeof</span></a><a href="#io" data-target="io"><span class="fn-num">06</span><span class="fn-name">輸入、輸出與失敗狀態</span></a><a href="#operators" data-target="operators"><span class="fn-num">07</span><span class="fn-name">運算優先順序、整數除法與更新</span></a><a href="#convert" data-target="convert"><span class="fn-num">08</span><span class="fn-name">轉型時機與溢位</span></a><a href="#diagnostics" data-target="diagnostics"><span class="fn-num">09</span><span class="fn-name">從第一則診斷定位問題</span></a><a href="#trace" data-target="trace"><span class="fn-num">10</span><span class="fn-name">逐步追蹤：型別決定運算</span></a><a href="#reference" data-target="reference"><span class="fn-num">11</span><span class="fn-name">P1 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">12</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">13</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P1</div><h1>C++ 基礎與編譯流程</h1><div class="subtitle">從最小完整程式出發，學會建置、型別、輸入輸出與診斷。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#skeleton"><span class="toc-num">01</span>最小完整程式與每一行的角色</a><a href="#pipeline"><span class="toc-num">02</span>把編譯與執行指令拆開</a><a href="#prologue"><span class="toc-num">03</span>從原始碼到執行檔：四個階段</a><a href="#types"><span class="toc-num">04</span>型別、宣告、初始化與常數</a><a href="#charstring"><span class="toc-num">05</span>char、字串與 sizeof</a><a href="#io"><span class="toc-num">06</span>輸入、輸出與失敗狀態</a><a href="#operators"><span class="toc-num">07</span>運算優先順序、整數除法與更新</a><a href="#convert"><span class="toc-num">08</span>轉型時機與溢位</a><a href="#diagnostics"><span class="toc-num">09</span>從第一則診斷定位問題</a><a href="#trace"><span class="toc-num">10</span>逐步追蹤：型別決定運算</a><a href="#reference"><span class="toc-num">11</span>P1 語法速查</a><a href="#bankquiz"><span class="toc-num">12</span>自我檢測</a><a href="#cards"><span class="toc-num">13</span>關鍵詞彙卡</a></div></div><section id="skeleton"><div class="section-number">PART 01</div><h2>最小完整程式與每一行的角色</h2>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#skeleton" data-target="skeleton"><span class="fn-num">01</span><span class="fn-name">最小完整程式與每一行的角色</span></a><a href="#pipeline" data-target="pipeline"><span class="fn-num">02</span><span class="fn-name">把編譯與執行指令拆開</span></a><a href="#prologue" data-target="prologue"><span class="fn-num">03</span><span class="fn-name">從原始碼到執行檔：四個階段</span></a><a href="#types" data-target="types"><span class="fn-num">04</span><span class="fn-name">型別、宣告、初始化與常數</span></a><a href="#charstring" data-target="charstring"><span class="fn-num">05</span><span class="fn-name">char、字串與 sizeof</span></a><a href="#io" data-target="io"><span class="fn-num">06</span><span class="fn-name">輸入、輸出與失敗狀態</span></a><a href="#operators" data-target="operators"><span class="fn-num">07</span><span class="fn-name">運算優先順序、整數除法與更新</span></a><a href="#convert" data-target="convert"><span class="fn-num">08</span><span class="fn-name">轉型時機與溢位</span></a><a href="#diagnostics" data-target="diagnostics"><span class="fn-num">09</span><span class="fn-name">從第一則診斷定位問題</span></a><a href="#trace" data-target="trace"><span class="fn-num">10</span><span class="fn-name">逐步追蹤：型別決定運算</span></a><a href="#reference" data-target="reference"><span class="fn-num">11</span><span class="fn-name">P1 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">12</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">13</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p1-build" data-target="restore-p1-build"><span class="fn-num">14</span><span class="fn-name">編譯指令：每個零件與省略後果</span></a><a href="#restore-p1-skeleton" data-target="restore-p1-skeleton"><span class="fn-num">15</span><span class="fn-name">程式骨架與 include 的兩種搜尋方式</span></a><a href="#restore-p1-types" data-target="restore-p1-types"><span class="fn-num">16</span><span class="fn-name">靜態型別、大小與範圍</span></a><a href="#restore-p1-io" data-target="restore-p1-io"><span class="fn-num">17</span><span class="fn-name">輸入輸出、換行與 C 風格格式輸出</span></a><a href="#restore-p1-arithmetic" data-target="restore-p1-arithmetic"><span class="fn-num">18</span><span class="fn-name">整除、優先序與轉型時機</span></a><a href="#restore-p1-random-limits" data-target="restore-p1-random-limits"><span class="fn-num">19</span><span class="fn-name">舊式亂數與整數上限哨兵</span></a><a href="#restore-p1-diagnostics" data-target="restore-p1-diagnostics"><span class="fn-num">20</span><span class="fn-name">從症狀判斷錯誤層次</span></a><a href="#restore-p1-type-complete" data-target="restore-p1-type-complete"><span class="fn-num">21</span><span class="fn-name">基本型別完整比較</span></a><a href="#restore-p1-declarations" data-target="restore-p1-declarations"><span class="fn-num">22</span><span class="fn-name">一行宣告多個名稱：合法但容易誤讀</span></a><a href="#restore-p1-precedence-complete" data-target="restore-p1-precedence-complete"><span class="fn-num">23</span><span class="fn-name">較完整的運算子優先序地圖</span></a><a href="#restore-p1-conversion-complete" data-target="restore-p1-conversion-complete"><span class="fn-num">24</span><span class="fn-name">常見轉換逐式判斷</span></a><a href="#restore-p1-library-runs" data-target="restore-p1-library-runs"><span class="fn-num">25</span><span class="fn-name">printf、舊式亂數與上限哨兵：完整可跑例</span></a><a href="#restore-p1-diagnostic-anatomy" data-target="restore-p1-diagnostic-anatomy"><span class="fn-num">26</span><span class="fn-name">診斷訊息逐欄讀</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="40" y="30" width="86" height="34" rx="6"/>
+    <rect x="40" y="90" width="86" height="34" rx="6"/>
+    <rect x="40" y="150" width="86" height="34" rx="6"/>
+    <rect x="40" y="210" width="86" height="34" rx="6"/>
+    <path d="M83 64 L83 90"/><path d="M83 124 L83 150"/><path d="M83 184 L83 210"/>
+  </g>
+  <g fill="#fff" opacity=".78" font-family="monospace" font-size="11">
+    <text x="140" y="52">.cpp</text><text x="140" y="112">.i</text>
+    <text x="140" y="172">.s / .o</text><text x="140" y="232">a.out</text>
+  </g>
+</svg><div class="hero-content"><div class="chapter-tag">PREREQ P1</div><h1>C++ 基礎與編譯流程</h1><div class="subtitle">從最小完整程式出發，學會建置、型別、輸入輸出與診斷。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#skeleton"><span class="toc-num">01</span>最小完整程式與每一行的角色</a><a href="#pipeline"><span class="toc-num">02</span>把編譯與執行指令拆開</a><a href="#prologue"><span class="toc-num">03</span>從原始碼到執行檔：四個階段</a><a href="#types"><span class="toc-num">04</span>型別、宣告、初始化與常數</a><a href="#charstring"><span class="toc-num">05</span>char、字串與 sizeof</a><a href="#io"><span class="toc-num">06</span>輸入、輸出與失敗狀態</a><a href="#operators"><span class="toc-num">07</span>運算優先順序、整數除法與更新</a><a href="#convert"><span class="toc-num">08</span>轉型時機與溢位</a><a href="#diagnostics"><span class="toc-num">09</span>從第一則診斷定位問題</a><a href="#trace"><span class="toc-num">10</span>逐步追蹤：型別決定運算</a><a href="#reference"><span class="toc-num">11</span>P1 語法速查</a><a href="#bankquiz"><span class="toc-num">12</span>自我檢測</a><a href="#cards"><span class="toc-num">13</span>關鍵詞彙卡</a><a href="#restore-p1-build"><span class="toc-num">補</span>編譯指令：每個零件與省略後果</a><a href="#restore-p1-skeleton"><span class="toc-num">補</span>程式骨架與 include 的兩種搜尋方式</a><a href="#restore-p1-types"><span class="toc-num">補</span>靜態型別、大小與範圍</a><a href="#restore-p1-io"><span class="toc-num">補</span>輸入輸出、換行與 C 風格格式輸出</a><a href="#restore-p1-arithmetic"><span class="toc-num">補</span>整除、優先序與轉型時機</a><a href="#restore-p1-random-limits"><span class="toc-num">補</span>舊式亂數與整數上限哨兵</a><a href="#restore-p1-diagnostics"><span class="toc-num">補</span>從症狀判斷錯誤層次</a><a href="#restore-p1-type-complete"><span class="toc-num">補</span>基本型別完整比較</a><a href="#restore-p1-declarations"><span class="toc-num">補</span>一行宣告多個名稱：合法但容易誤讀</a><a href="#restore-p1-precedence-complete"><span class="toc-num">補</span>較完整的運算子優先序地圖</a><a href="#restore-p1-conversion-complete"><span class="toc-num">補</span>常見轉換逐式判斷</a><a href="#restore-p1-library-runs"><span class="toc-num">補</span>printf、舊式亂數與上限哨兵：完整可跑例</a><a href="#restore-p1-diagnostic-anatomy"><span class="toc-num">補</span>診斷訊息逐欄讀</a></div></div><section id="skeleton"><div class="section-number">PART 01</div><h2>最小完整程式與每一行的角色</h2>
 <pre class="pseudo-code" data-cpp="run" data-expected="Hello, C++!&#10;">#include &lt;iostream&gt;
 
 int main() {
@@ -494,7 +506,7 @@ main.exe               # Windows PowerShell / cmd</pre>
 <p>這四步通常由一個 <code>g++</code> 命令代辦。若編譯錯誤，執行檔根本不會更新；此時反覆執行舊檔，看到的仍可能是上一次成功建置的結果。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>若訊息是 <code>undefined reference to helper()</code>，應先檢查哪一階段？</p><details><summary>看解答與理由</summary><p>這是連結階段：呼叫處已經通過編譯，但連結器找不到 <code>helper</code> 的函式定義或含該定義的目的檔。</p></details></div>
 
-</section>
+<p>「編譯器（Compiler）」與「直譯器（Interpreter）」描述處理程式的角色：前者將程式翻譯成另一種形式，後者在執行時處理程式的操作。實際系統也可能混合編譯、虛擬機與即時編譯，不能一概說成逐行執行，也不能只看語言名稱就保證固定速度差。本頁聚焦先產生執行檔、再啟動它的 C++ 建置流程。</p></section>
 <section id="types"><div class="section-number">PART 04</div><h2>型別、宣告、初始化與常數</h2>
 <p>型別決定一段位元如何解讀、可做哪些運算，以及通常需要多少空間。宣告 <code>int count;</code> 會建立一個 int 物件並給它名稱 count；對區域基本型別而言，它沒有可靠初值，此時讀取會造成未定義行為。更安全的習慣是宣告時初始化。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="notebook: 37.5&#10;true, A, 10&#10;">#include &lt;iostream&gt;
@@ -596,6 +608,60 @@ int main() {
 <div class="info-box"><div class="info-label">動手練習</div><p>若把 <code>total</code> 改成 <code>int total = items * 12;</code>，最後會是多少？</p><details><summary>看解答與理由</summary><p><code>total</code> 為 36，<code>people</code> 為 2，整數除法得 18，再轉存成 <code>double</code> 的 18.0。</p></details></div>
 
 </section>
+<div id="restore-p1-build" class="deck-extra"><h3>編譯指令：每個零件與省略後果</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>零件</th><th>意思</th><th>省略或改錯的後果</th></tr></thead><tbody><tr><td><code>g++</code></td><td>啟動 C++ 編譯器驅動程式</td><td>沒有建置動作</td></tr><tr><td><code>-std=c++17</code></td><td>固定本頁使用的語言版本</td><td>落入編譯器預設版本，可能不支援所用語法</td></tr><tr><td><code>-Wall -Wextra</code></td><td>顯示常見可疑寫法</td><td>程式仍可能編譯，但少掉重要診斷</td></tr><tr><td><code>main.cpp</code></td><td>要編譯的來源檔</td><td>找不到輸入或編錯檔案</td></tr><tr><td><code>-o main</code></td><td>指定輸出執行檔</td><td>g++ 通常改產生預設名稱 <code>a.out</code>；Windows 工具鏈常加 <code>.exe</code></td></tr></tbody></table></div></div>
+<div id="restore-p1-skeleton" class="deck-extra"><h3>程式骨架與 include 的兩種搜尋方式</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>零件</th><th>作用</th><th>缺少時</th></tr></thead><tbody><tr><td><code>#include &lt;iostream&gt;</code></td><td>讓宣告 <code>std::cin</code>、<code>std::cout</code> 可見</td><td>名稱無法解析</td></tr><tr><td><code>int main()</code></td><td>程式入口與結束狀態型別</td><td>連結器找不到入口</td></tr><tr><td><code>{ ... }</code></td><td>界定函式本體與作用域</td><td>語法結構不完整</td></tr><tr><td><code>;</code></td><td>結束一個敘述</td><td>常在下一個 token 才報語法錯誤</td></tr><tr><td><code>return 0;</code></td><td>向環境回報成功</td><td>main 走到尾端仍等同 0，但其他非 void 函式不可照推</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>搜尋方式</th><th>用途</th></tr></thead><tbody><tr><td><code>#include &lt;name&gt;</code></td><td>從實作設定的系統 include 路徑尋找</td><td>標準庫與安裝好的函式庫</td></tr><tr><td><code>#include "name.hpp"</code></td><td>通常先從目前來源檔附近尋找，再查 include 路徑</td><td>專案自己的標頭；詳細多檔設計見 P8</td></tr></tbody></table></div></div>
+<div id="restore-p1-types" class="deck-extra"><h3>靜態型別、大小與範圍</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較問題</th><th>C++ 靜態型別的答案</th><th>實際影響</th></tr></thead><tbody><tr><td>型別何時決定</td><td>編譯期由宣告與運算式決定</td><td>許多不相容操作在執行前被拒絕</td></tr><tr><td>同一變數能否改放另一型別</td><td>不能改變變數本身的型別</td><td>指定時先依規則轉換，可能遺失資訊</td></tr><tr><td>錯誤何時發現</td><td>型別錯誤通常在編譯期</td><td>輸入格式與範圍問題仍須執行期檢查</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>型別</th><th>常見 64 位元環境的 <code>sizeof</code></th><th>標準可依賴的範圍／精度觀念</th><th>用途</th></tr></thead><tbody><tr><td><code>char</code></td><td>1 byte（保證）</td><td>至少 8 bits；確切範圍看實作</td><td>單一字元／byte</td></tr><tr><td><code>int</code></td><td>常見 4 bytes</td><td>至少 −32767 到 32767；用 <code>整數界線常數</code> 查本機</td><td>一般整數</td></tr><tr><td><code>long long</code></td><td>常見 8 bytes</td><td>至少 64 bits</td><td>較大整數</td></tr><tr><td><code>double</code></td><td>常見 8 bytes</td><td>浮點近似值，常見約 15 位十進位有效數字</td><td>含小數量</td></tr><tr><td><code>bool</code></td><td>依實作</td><td><code>true</code> 或 <code>false</code></td><td>條件狀態</td></tr></tbody></table></div><p>表中的 4、8 是常見實測，不是跨平台保證；可用 <code>sizeof</code> 與 <code>&lt;climits&gt;</code> 的整數界線常數 在目標環境查證。</p></div>
+<div id="restore-p1-io" class="deck-extra"><h3>輸入輸出、換行與 C 風格格式輸出</h3>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>寫法</th><th>資料邊界／副作用</th></tr></thead><tbody><tr><td>輸出值</td><td><code>std::cout &lt;&lt; value</code></td><td>可串接多個項目</td></tr><tr><td>讀 token</td><td><code>std::cin &gt;&gt; value</code></td><td>跳過前導空白，依型別解析一項</td></tr><tr><td>讀整行</td><td><code>std::getline(std::cin, text)</code></td><td>保留行內空白；與 <code>&gt;&gt;</code> 混用見 P5</td></tr><tr><td>錯誤訊息</td><td><code>std::cerr &lt;&lt; message</code></td><td>與一般結果分流</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th></th><th><code>std::endl</code></th><th><code>'\n'</code></th></tr></thead><tbody><tr><td>換行</td><td>會</td><td>會</td></tr><tr><td>強制 flush</td><td>會</td><td>不會</td></tr><tr><td>一般逐行輸出</td><td>只有確實要立即沖出時使用</td><td>通常優先，避免每行額外 flush</td></tr></tbody></table></div>
+<p><code>printf</code> 仍存在於 <code>&lt;cstdio&gt;</code>，格式字串必須和引數型別相符：</p><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>格式</th><th>對應引數</th><th>錯配風險</th></tr></thead><tbody><tr><td><code>%d</code></td><td><code>int</code></td><td>型別錯配屬未定義行為</td></tr><tr><td><code>%lld</code></td><td><code>long long</code></td><td>不能用 %d 代替</td></tr><tr><td><code>%f</code></td><td>可變引數中的 <code>double</code></td><td>精度另以 <code>%.2f</code> 等控制</td></tr><tr><td><code>%s</code></td><td>C 風格字串（細節見 P5）</td><td><code>std::string</code> 要明確用 <code>.c_str()</code></td></tr></tbody></table></div><div class="warn-box"><b>不要把 printf 與 cout 的同步、緩衝順序當成直覺。</b> 同一程式最好統一一套；確需混用時不要關閉同步，並明確 flush。</div></div>
+<div id="restore-p1-arithmetic" class="deck-extra"><h3>整除、優先序與轉型時機</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>式子</th><th>計算</th><th>結果</th></tr></thead><tbody><tr><td><code>7 / 2</code></td><td>兩邊為 int，朝 0 截斷</td><td>3</td></tr><tr><td><code>-7 / 2</code></td><td>朝 0 截斷</td><td>−3</td></tr><tr><td><code>-7 % 2</code></td><td>滿足 <code>(a/b)*b+a%b==a</code></td><td>−1</td></tr><tr><td><code>7.0 / 2</code></td><td>至少一邊為 double</td><td>3.5</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>由高到低</th><th>運算子</th><th>建議</th></tr></thead><tbody><tr><td>1</td><td><code>()</code></td><td>不確定時用括號表意</td></tr><tr><td>2</td><td><code>! ++ --</code> 與一元正負</td><td>複雜更新拆成獨立敘述</td></tr><tr><td>3</td><td><code>* / %</code></td><td>同層再依結合方向</td></tr><tr><td>4</td><td><code>+ -</code></td><td></td></tr><tr><td>5</td><td><code>&lt; &lt;= &gt; &gt;=</code></td><td></td></tr><tr><td>6</td><td><code>== !=</code></td><td></td></tr><tr><td>7</td><td><code>&amp;&amp;</code>，再 <code>||</code></td><td>短路詳見 P2</td></tr><tr><td>8</td><td><code>= += -= *= /=</code></td><td>指定不是比較</td></tr></tbody></table></div>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>式子</th><th>轉型發生時機</th><th>結果</th></tr></thead><tbody><tr><td><code>double x=7/2;</code></td><td>整除後才轉 double</td><td>3.0</td></tr><tr><td><code>double x=static_cast&lt;double&gt;(7)/2;</code></td><td>除法前先轉左側</td><td>3.5</td></tr><tr><td><code>int x=3.9;</code></td><td>指定時窄化</td><td>3；可能有警告</td></tr><tr><td><code>int x{3.9};</code></td><td>列表初始化拒絕窄化</td><td>編譯錯誤</td></tr></tbody></table></div></div>
+<div id="restore-p1-random-limits" class="deck-extra"><h3>舊式亂數與整數上限哨兵</h3><p><code>std::srand(seed)</code> 設定 C 亂數產生器的起始狀態，<code>std::rand()</code> 取下一值；<code>rand()%n</code> 只適合簡單示範，可能有模數偏差，不能用於安全用途。固定 seed 可重現除錯；以時間作 seed 每次可能不同，但同一秒啟動仍可能相同。新程式需要統計品質時用 <code>&lt;random&gt;</code>。</p><p><code>INT_MAX</code> 可代表本機 int 最大值。把它當「無限大」哨兵前，必須保證真實資料不會等於它，也不可直接對哨兵加權重，否則可能溢位；更穩妥的是另存「是否已有值」狀態或用較寬型別。</p></div>
+<div id="restore-p1-diagnostics" class="deck-extra"><h3>從症狀判斷錯誤層次</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>看到的症狀</th><th>多半屬於</th><th>先檢查</th></tr></thead><tbody><tr><td><code>expected ';'</code>、名稱未宣告</td><td>編譯錯誤</td><td>第一則 error 與前一行</td></tr><tr><td><code>undefined reference</code></td><td>連結錯誤</td><td>定義是否存在、所有 .cpp 是否參與建置</td></tr><tr><td>啟動後非零結束或例外</td><td>執行期錯誤</td><td>輸入、邊界與錯誤輸出</td></tr><tr><td>程式完成但答案錯</td><td>邏輯錯誤</td><td>用小例逐行記錄狀態與中間值</td></tr><tr><td>只有 warning</td><td>可疑但可能仍產生執行檔</td><td>理解警告原因，不用強轉硬壓掉</td></tr></tbody></table></div></div>
+<div id="restore-p1-type-complete" class="deck-extra"><h3>基本型別完整比較</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>型別</th><th>常見 64 位元 Linux 的 <code>sizeof</code></th><th>標準限制／本機查法</th><th>適用資料</th></tr></thead><tbody><tr><td><code>bool</code></td><td>常見 1</td><td>值只有 false/true；大小依實作</td><td>條件狀態</td></tr><tr><td><code>char</code></td><td>1（標準保證）</td><td>是否 signed 依實作；範圍看 <code>CHAR_MIN／CHAR_MAX</code></td><td>單一字元／byte</td></tr><tr><td><code>short</code></td><td>常見 2</td><td>至少 16 bits</td><td>確有範圍／儲存需求的較小整數</td></tr><tr><td><code>int</code></td><td>常見 4</td><td>至少 16 bits</td><td>一般整數</td></tr><tr><td><code>unsigned int</code></td><td>常與 int 相同</td><td>0 到 2<sup>N</sup>−1，算術按模數回繞</td><td>位元／模數語意；不要只為「非負」濫用</td></tr><tr><td><code>long long</code></td><td>常見 8</td><td>至少 64 bits</td><td>較大整數</td></tr><tr><td><code>float</code></td><td>常見 4</td><td>精度依實作，常約 6–7 位十進位數</td><td>可接受較低精度的浮點量</td></tr><tr><td><code>double</code></td><td>常見 8</td><td>精度依實作，常約 15 位十進位數</td><td>一般含小數量</td></tr><tr><td><code>int*</code></td><td>此環境常見 8</td><td>大小由資料模型／平台決定；指標語意見 <a href="p4_pointers_memory.html#addr">P4</a></td><td>保存 int 物件地址</td></tr><tr><td><code>std::string</code></td><td>物件大小依標準庫實作</td><td><code>sizeof(string)</code> 不是文字長度；長度用 <code>size()</code></td><td>可管理的字元序列，詳見 P5</td></tr></tbody></table></div><p><code>short ≤ int ≤ long ≤ long long</code> 指可表示範圍至少不縮小，不代表每相鄰型別大小必不同。跨平台程式應查 <code>sizeof</code>、<code>CHAR_BIT</code> 與 <code>&lt;climits&gt;</code> 的界線常數，不能把常見欄當保證。</p></div>
+<div id="restore-p1-declarations" class="deck-extra"><h3>一行宣告多個名稱：合法但容易誤讀</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>實際宣告</th><th>風險／建議</th></tr></thead><tbody><tr><td><code>int a=1, b=2;</code></td><td>兩個 int 物件</td><td>短且同用途時合法；分行較容易加註解</td></tr><tr><td><code>int* p, q;</code></td><td>p 是 int*，q 是 int</td><td><code>*</code> 綁在每個 declarator；最易誤讀，應分行</td></tr><tr><td><code>const int x=1, y=2;</code></td><td>兩個 const int</td><td>兩者都必須初始化</td></tr></tbody></table></div><p>語法必須看每一個逗號後的 declarator，而不是把第一個星號想成套用整行。教學與維護時優先一行一個名稱。</p></div>
+<div id="restore-p1-precedence-complete" class="deck-extra"><h3>較完整的運算子優先序地圖</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>由高到低</th><th>運算子／形式</th><th>本頁如何使用</th></tr></thead><tbody><tr><td>1</td><td><code>() [] . -&gt;</code></td><td>括號、索引；<code>[]</code> 見 P4/P5，<code>.-&gt;</code> 見 P8</td></tr><tr><td>2</td><td>後置 <code>x++ x--</code></td><td>先產生舊值再更新</td></tr><tr><td>3</td><td>前置 <code>++x --x ! + - * &amp; sizeof</code></td><td><code>*</code> 解參考、<code>&amp;</code> 取址見 P4</td></tr><tr><td>4</td><td><code>* / %</code></td><td>乘、整除與餘數</td></tr><tr><td>5</td><td><code>+ -</code></td><td>加減</td></tr><tr><td>6</td><td><code>&lt;&lt; &gt;&gt;</code></td><td>在算術是位移；與 stream 同符號但由型別決定意義</td></tr><tr><td>7</td><td><code>&lt; &lt;= &gt; &gt;=</code></td><td>關係比較</td></tr><tr><td>8</td><td><code>== !=</code></td><td>相等比較</td></tr><tr><td>9</td><td><code>&amp;&amp;</code></td><td>邏輯 AND 與短路，見 P2</td></tr><tr><td>10</td><td><code>||</code></td><td>邏輯 OR 與短路，見 P2</td></tr><tr><td>11</td><td><code>?:</code></td><td>條件運算式，見 P2</td></tr><tr><td>12</td><td><code>= += -= *= /= %=</code></td><td>由右向左指定；<code>x%=n</code> 等效更新餘數</td></tr></tbody></table></div><p>這張表用於讀碼，不鼓勵把多層優先序塞進同一行。當意圖需要查表才清楚，就加括號或拆敘述。</p></div>
+<div id="restore-p1-conversion-complete" class="deck-extra"><h3>常見轉換逐式判斷</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>式子</th><th>編譯器先做什麼</th><th>結果／限制</th></tr></thead><tbody><tr><td><code>7 / 2</code></td><td>int 除法</td><td>3</td></tr><tr><td><code>7 / 2.0</code></td><td>把 7 轉成 double</td><td>3.5</td></tr><tr><td><code>double x=7/2;</code></td><td>先得 int 3，再轉 double</td><td>3.0</td></tr><tr><td><code>static_cast&lt;double&gt;(7)/2</code></td><td>除法前明確轉左側</td><td>3.5</td></tr><tr><td><code>int x=true;</code></td><td>bool 轉成 int</td><td>true→1、false→0</td></tr><tr><td><code>if(−3)</code></td><td>數值轉 bool</td><td>0→false，任何非 0→true</td></tr><tr><td><code>int x='A';</code></td><td>char 整數提升</td><td>得到該執行字元集的編碼值；不可把特定數字當所有平台保證</td></tr><tr><td><code>char c=65;</code></td><td>整數轉 char</td><td>值是否可表示及對應字元依實作；要字元請寫字面值</td></tr></tbody></table></div></div>
+<div id="restore-p1-library-runs" class="deck-extra"><h3>printf、舊式亂數與上限哨兵：完整可跑例</h3><p>標準函式庫函式以「函式名稱(引數)」呼叫，例如 std::srand(12345)；沒有引數時仍寫括號，例如 std::rand()。P3 再介紹如何定義自己的函式。</p><pre class="pseudo-code" data-cpp="run" data-expected="item       count price&#10;pen            3  12.50&#10;">#include &lt;cstdio&gt;
+int main() {
+    int count{3};
+    double price{12.5};
+    std::printf("%-10s %5s %5s\n", "item", "count", "price");
+    std::printf("%-10s %5d %6.2f\n", "pen", count, price);
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>item       count price&#10;pen            3  12.50&#10;</pre></div><p>負寬度使文字靠左，正寬度靠右，<code>.2</code> 指定小數位。格式與引數型別必須相符；cout 的型別安全介面仍是一般首選。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="same=1 in-range=1&#10;">#include &lt;cstdlib&gt;
+#include &lt;iostream&gt;
+int main() {
+    std::srand(12345);
+    int first = std::rand();
+    std::srand(12345);
+    int again = std::rand();
+    int bucket = first % 6;
+    std::cout &lt;&lt; "same=" &lt;&lt; (first == again)
+              &lt;&lt; " in-range=" &lt;&lt; (bucket &gt;= 0 &amp;&amp; bucket &lt; 6) &lt;&lt; '\n';
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>same=1 in-range=1&#10;</pre></div><p>測試只依賴「同一實作重設相同 seed 會重現」與模數範圍，不固定跨平台 rand 數列。<code>%6</code> 可能有偏差，也不是安全亂數。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="unreached&#10;reachable=25&#10;">#include &lt;iostream&gt;
+#include &lt;climits&gt;
+int main() {
+    const int infinity = INT_MAX;
+    int distance = infinity;
+    if (distance == infinity) std::cout &lt;&lt; "unreached\n";
+    distance = 20;
+    int step{5};
+    if (distance &lt;= infinity - step) distance += step;
+    std::cout &lt;&lt; "reachable=" &lt;&lt; distance &lt;&lt; '\n';
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>unreached&#10;reachable=25&#10;</pre></div><p>此例使用 &lt;climits&gt; 的 INT_MAX 取得本機 int 上限；infinity 只是變數名稱，不是可任意運算的數學無限大。哨兵只在真實值排除最大 int 時才無歧義；加法前以減法形式檢查，避免對最大值直接相加造成帶號溢位。大型程式通常另存「是否可達」狀態。</p></div>
+<div id="restore-p1-diagnostic-anatomy" class="deck-extra"><h3>診斷訊息逐欄讀</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>欄位</th><th>範例</th><th>用途</th></tr></thead><tbody><tr><td>file</td><td><code>main.cpp</code></td><td>確認實際編譯的是哪個來源檔</td></tr><tr><td>line</td><td><code>5</code></td><td>跳到第 5 行，也檢查前一行</td></tr><tr><td>column</td><td><code>10</code></td><td>指出編譯器無法繼續解析附近的 token</td></tr><tr><td>severity</td><td><code>error</code>／<code>warning</code></td><td>error 阻止成功建置；warning 指出可疑處</td></tr><tr><td>message</td><td><code>expected ';' before '}'</code></td><td>描述編譯器當下期待，不保證就是根因</td></tr><tr><td>source/caret</td><td>來源行與 <code>^</code></td><td>提供上下文與偵測位置</td></tr></tbody></table></div><pre class="pseudo-code" data-cpp="fragment">main.cpp:5:10: error: expected ';' before '}'
+    5 |     return 0
+      |             ^
+      |             ;</pre><p>先修第一則真正的 error 再重編；一個漏號常造成後續連鎖訊息。</p></div>
 <section id="reference"><div class="section-number">PART 11</div><h2>P1 語法速查</h2>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>寫法</th><th>要點</th></tr></thead><tbody><tr><td>編譯</td><td>g++ -std=c++17 -Wall -Wextra a.cpp -o a</td><td>先修第一則 error</td></tr><tr><td>初始化</td><td>int n{0};</td><td>避免未初始化讀取</td></tr><tr><td>常數</td><td>const int cap{20};</td><td>之後不可指定</td></tr><tr><td>輸入／輸出</td><td>std::cin &gt;&gt; n; / std::cout &lt;&lt; n;</td><td>方向看資料流</td></tr><tr><td>保留除法小數</td><td>static_cast&lt;double&gt;(a) / b</td><td>在除法前轉型</td></tr><tr><td>大小</td><td>sizeof(T)</td><td>單位是 byte；依實作而異</td></tr></tbody></table></div>
 <div class="info-box"><div class="info-label">動手練習</div><p>寫出宣告一個不可修改、初值為 60 的整數。</p><details><summary>看解答與理由</summary><p><code>const int seconds{60};</code>。</p></details></div>
@@ -608,24 +674,30 @@ int main() {
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>四個建置階段的正確順序？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；g++ 通常一次代辦四步。">前置處理 → 編譯 → 組譯 → 連結</button>
-      <button class="sq-opt" data-c="0" data-fb="前置處理必須先展開來源，連結則在目的檔之後。">編譯 → 前置處理 → 連結 → 組譯</button>
+      <button class="sq-opt" data-c="1" data-fb="正確；g++ 通常一次代辦四步。"><span class="opt-letter">(A)</span> 前置處理 → 編譯 → 組譯 → 連結</button>
+      <button class="sq-opt" data-c="0" data-fb="前置處理必須先展開來源，連結則在目的檔之後。"><span class="opt-letter">(B)</span> 編譯 → 前置處理 → 連結 → 組譯</button>
+      <button class="sq-opt" data-c="0" data-fb="連結必須在目的檔產生之後。"><span class="opt-letter">(C)</span> 連結 → 編譯 → 組譯 → 前置處理</button>
+      <button class="sq-opt" data-c="0" data-fb="編譯先產生組合語言，才進行組譯。"><span class="opt-letter">(D)</span> 前置處理 → 組譯 → 編譯 → 連結</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>區域變數 int n; 尚未指定就讀取，應如何判斷？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；不要依賴碰巧結果。">屬未定義行為</button>
-      <button class="sq-opt" data-c="0" data-fb="自動儲存期的區域基本型別不保證零初始化。">保證是 0</button>
+      <button class="sq-opt" data-c="1" data-fb="正確；不要依賴碰巧結果。"><span class="opt-letter">(A)</span> 屬未定義行為</button>
+      <button class="sq-opt" data-c="0" data-fb="自動儲存期的區域基本型別不保證零初始化。"><span class="opt-letter">(B)</span> 保證是 0</button>
+      <button class="sq-opt" data-c="0" data-fb="未初始化物件沒有這項保證。"><span class="opt-letter">(C)</span> 保證沿用上次的值</button>
+      <button class="sq-opt" data-c="0" data-fb="編譯器不會替區域 int 選業務上有效的初值。"><span class="opt-letter">(D)</span> 由編譯器自動選一個有效整數</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q3.</span>哪個是單一字元？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，單引號是 char 字面值。">'Q'</button>
-      <button class="sq-opt" data-c="0" data-fb="雙引號形成字串字面值。">&quot;Q&quot;</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，單引號是 char 字面值。"><span class="opt-letter">(A)</span> 'Q'</button>
+      <button class="sq-opt" data-c="0" data-fb="雙引號形成字串字面值。"><span class="opt-letter">(B)</span> std::string{&quot;Q&quot;}</button>
+      <button class="sq-opt" data-c="0" data-fb="這會建立 string 物件，不是 char 字面值。"><span class="opt-letter">(C)</span> &quot;Q&quot;</button>
+      <button class="sq-opt" data-c="0" data-fb="原始碼字元字面值需要引號。"><span class="opt-letter">(D)</span> Q</button>
     </div>
     <div class="sq-fb"></div>
   </div>
@@ -633,45 +705,55 @@ int main() {
     <div class="sq-q"><span class="sq-num">Q4.</span>下列輸出為何？</div>
     <pre class="sq-code">double a=7/2; double b=static_cast&lt;double&gt;(7)/2; std::cout&lt;&lt;a&lt;&lt;&quot; &quot;&lt;&lt;b;</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；第一次先做整數除法。">3 3.5</button>
-      <button class="sq-opt" data-c="0" data-fb="指定到 double 不會回復已截斷小數。">3.5 3.5</button>
+      <button class="sq-opt" data-c="1" data-fb="正確；第一次先做整數除法。"><span class="opt-letter">(A)</span> 3 3.5</button>
+      <button class="sq-opt" data-c="0" data-fb="指定到 double 不會回復已截斷小數。"><span class="opt-letter">(B)</span> 3.5 3.5</button>
+      <button class="sq-opt" data-c="0" data-fb="第二次除法前已轉型，會保留 .5。"><span class="opt-letter">(C)</span> 3 3</button>
+      <button class="sq-opt" data-c="0" data-fb="第一次是整數除法，第二次才是浮點除法。"><span class="opt-letter">(D)</span> 3.5 3</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>sizeof(char) 由標準保證為何？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，單位是 byte。">1</button>
-      <button class="sq-opt" data-c="0" data-fb="char 的位元數未必是 8，但 sizeof(char) 定義為 1。">8</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，單位是 byte。"><span class="opt-letter">(A)</span> 1</button>
+      <button class="sq-opt" data-c="0" data-fb="char 的位元數未必是 8，但 sizeof(char) 定義為 1。"><span class="opt-letter">(B)</span> 8</button>
+      <button class="sq-opt" data-c="0" data-fb="標準明確定義 sizeof(char) 為 1。"><span class="opt-letter">(C)</span> 由平台任意決定</button>
+      <button class="sq-opt" data-c="0" data-fb="CHAR_BIT 是一個 byte 的 bit 數，不是 sizeof(char) 的結果。"><span class="opt-letter">(D)</span> CHAR_BIT</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>score=4；執行 cout &lt;&lt; score++ 後輸出與 score 各為何？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，後置遞增先產生舊值。">輸出 4，score 變 5</button>
-      <button class="sq-opt" data-c="0" data-fb="那是前置遞增的輸出。">輸出 5，score 變 5</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，後置遞增先產生舊值。"><span class="opt-letter">(A)</span> 輸出 4，score 變 5</button>
+      <button class="sq-opt" data-c="0" data-fb="那是前置遞增的輸出。"><span class="opt-letter">(B)</span> 輸出 5，score 變 5</button>
+      <button class="sq-opt" data-c="0" data-fb="後置 ++ 產生舊值後仍會遞增物件。"><span class="opt-letter">(C)</span> 輸出 4，score 仍為 4</button>
+      <button class="sq-opt" data-c="0" data-fb="後置遞增不會得到這組狀態。"><span class="opt-letter">(D)</span> 輸出 5，score 仍為 4</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q7.</span>帶號 int 超出可表示範圍時可以依賴它繞回嗎？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；帶號溢位是未定義行為。">不可以</button>
-      <button class="sq-opt" data-c="0" data-fb="模數回繞是 unsigned 的規則。">可以，必然繞回</button>
+      <button class="sq-opt" data-c="1" data-fb="正確；帶號溢位是未定義行為。"><span class="opt-letter">(A)</span> 不可以</button>
+      <button class="sq-opt" data-c="0" data-fb="模數回繞是 unsigned 的規則。"><span class="opt-letter">(B)</span> 可以，必然繞回</button>
+      <button class="sq-opt" data-c="0" data-fb="帶號溢位的語意不由警告有無決定。"><span class="opt-letter">(C)</span> 可以，只要編譯器沒有警告</button>
+      <button class="sq-opt" data-c="0" data-fb="平台位元數不把帶號溢位變成可依賴。"><span class="opt-letter">(D)</span> 只在 64 位元平台可以</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q8.</span>看到十多則編譯錯誤，第一步？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確；後續常是連鎖診斷。">先修第一則真正的 error 再重編</button>
-      <button class="sq-opt" data-c="0" data-fb="最後一則可能只是前方語法錯誤的後果。">從最後一則往回修</button>
+      <button class="sq-opt" data-c="1" data-fb="正確；後續常是連鎖診斷。"><span class="opt-letter">(A)</span> 先修第一則真正的 error 再重編</button>
+      <button class="sq-opt" data-c="0" data-fb="最後一則可能只是前方語法錯誤的後果。"><span class="opt-letter">(B)</span> 從最後一則往回修</button>
+      <button class="sq-opt" data-c="0" data-fb="關掉診斷沒有修正錯誤。"><span class="opt-letter">(C)</span> 先刪除所有警告選項</button>
+      <button class="sq-opt" data-c="0" data-fb="舊執行檔不能驗證目前來源是否已修好。"><span class="opt-letter">(D)</span> 直接執行舊的執行檔</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><span></span><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p2_flow_control.html"><div class="nav-dir">下一頁</div><div class="nav-title">流程控制</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "前置處理", "back": "展開 #include 等前置處理指令。"}, {"front": "編譯", "back": "檢查 C++ 語法與型別並轉成較低階表示。"}, {"front": "組譯", "back": "把組合語言轉成目的檔。"}, {"front": "連結", "back": "接合目的檔與函式庫成執行檔。"}, {"front": "初始化", "back": "宣告名稱時立即給初值。"}, {"front": "未定義行為", "back": "標準不規定結果；不可依賴某次碰巧的輸出。"}, {"front": "char / string", "back": "char 是單一字元；std::string 是字元序列。"}, {"front": "sizeof", "back": "回報型別或物件占用的 byte 數。"}, {"front": "整數除法", "back": "兩個整數相除得到朝 0 截斷的整數商。"}, {"front": "複合指定", "back": "x += y 以計算後結果更新 x。"}, {"front": "後置 ++", "back": "產生舊值後再遞增。"}, {"front": "static_cast", "back": "明確要求指定型別轉換。"}, {"front": "溢位", "back": "結果超出型別可表示範圍；帶號溢位不可依賴。"}, {"front": "編譯警告", "back": "建置可能成功，但程式有值得檢查的可疑處。"}];
+const FLASHCARDS = [{"front": "前置處理（preprocessing）", "back": "展開 #include 等前置處理指令。"}, {"front": "編譯（compilation）", "back": "檢查 C++ 語法與型別並轉成較低階表示。"}, {"front": "組譯（assembly）", "back": "把組合語言轉成目的檔。"}, {"front": "連結（linking）", "back": "接合目的檔與函式庫成執行檔。"}, {"front": "初始化（initialization）", "back": "宣告名稱時立即給初值。"}, {"front": "未定義行為（undefined behavior）", "back": "標準不規定結果；不可依賴某次碰巧的輸出。"}, {"front": "字元與字串（char / string）", "back": "char 是單一字元；std::string 是字元序列。"}, {"front": "物件大小（sizeof）", "back": "回報型別或物件占用的 byte 數。"}, {"front": "整數除法（integer division）", "back": "兩個整數相除得到朝 0 截斷的整數商。"}, {"front": "複合指定（compound assignment）", "back": "x += y 以計算後結果更新 x。"}, {"front": "後置遞增（postfix ++）", "back": "產生舊值後再遞增。"}, {"front": "明確轉型（static_cast）", "back": "明確要求指定型別轉換。"}, {"front": "溢位（overflow）", "back": "結果超出型別可表示範圍；帶號溢位不可依賴。"}, {"front": "編譯警告（compiler warning）", "back": "建置可能成功，但程式有值得檢查的可疑處。"}, {"front": "編譯器（Compiler）", "back": "檢查並翻譯程式的工具；g++ 還會協調前處理、組譯與連結，產生可執行檔。"}, {"front": "直譯器（Interpreter）", "back": "在執行階段處理程式的一種實作方式；實際系統也可能混合編譯、虛擬機與即時編譯，不宜一概說成每次只讀一行。"}, {"front": "標頭檔（Header File）", "back": "提供可被其他來源檔引入的宣告等內容。標準庫常用尖括號，自訂標頭常用雙引號。"}, {"front": "目的檔（Object File）", "back": "通常由組譯產生，包含機器碼與連結所需資訊；還需和其他目的檔、函式庫連結。"}, {"front": "連結器（Linker）", "back": "接合目的檔與函式庫，找出名稱對應的定義；找不到需要的定義會連結失敗。"}, {"front": "命名空間（Namespace）", "back": "用來組織名稱並避免衝突；std::cout 表示標準命名空間中的 cout。"}, {"front": "進入點（Entry Point）", "back": "本教材的一般獨立程式從 main 開始執行；函式定義寫在前面不代表會先被呼叫。"}, {"front": "結束碼（Exit Status）", "back": "main 的回傳值交給執行環境；0 表示正常完成，非零常用來回報失敗。"}, {"front": "靜態型別（Static Typing）", "back": "變數與運算式的型別在編譯期判定；對已宣告變數賦值不會改變變數本身的型別。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "一般區域基本型別未給初值時，不能假設是0或可靠舊值；應在讀取前初始化。"}, {"front": "取餘數（Remainder, %）", "back": "對整數求除法剩餘部分；在合法除法範圍內滿足(a/b)*b+a%b=a。除數不得為0。"}, {"front": "隱式轉換（Implicit Conversion）", "back": "編譯器依型別規則轉換值；例如整除先得到3，存入double後不會補回已截去的小數。"}, {"front": "輸出串流（Output Stream, cout）", "back": "把值送往輸出目的地；不會自動加空格或換行，endl另要求flush。"}, {"front": "格式化輸出（printf）", "back": "以格式字串指定欄寬、精度與轉換；格式必須和實際引數型別相符。"}, {"front": "亂數與種子（rand / srand）", "back": "srand重設產生器狀態；同一實作相同種子可重現序列。rand()%n提供簡單範圍映射，但可能有模數偏差。"}, {"front": "整數界線（Integer Limits, INT_MAX）", "back": "climits提供本機整數界線。把最大值當哨兵前，需排除與真實值碰撞，也不能任意對它相加。"}];
 
 /* depth-runtime:start */
 (() => {

@@ -491,7 +491,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；細節與完整程式請回講義 08 與 cppds 原文。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
   ④ 最後翻 <a href="#cards">關鍵詞彙卡（29 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標「官方選讀」的節屬 cppds 正文，但課程第一輪可略過。</p>
-  <div class="sg-links"><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/08_Graphs%20and%20Graphing%20Algorithms.pdf" target="_blank" rel="noopener">📑 講義 08 PDF</a><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/08_Graphs%20and%20Graphing%20Algorithms.html" target="_blank" rel="noopener">🖥 講義 08 HTML</a><a href="https://github.com/pearcej/cppds/tree/master/_sources/Graphs" target="_blank" rel="noopener">📖 cppds 原文（Graphs）</a><a href="index.html">🏠 章節總覽</a></div>
+  <div class="sg-links"><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/08_Graphs%20and%20Graphing%20Algorithms.pdf" target="_blank" rel="noopener">📑 講義 08 PDF</a><a href="https://github.com/phonchi/nsysu-math208/blob/main/static_files/presentations/08_Graphs%20and%20Graphing%20Algorithms.html" target="_blank" rel="noopener">🖥 講義 08 HTML</a><a href="https://github.com/pearcej/cppds/tree/master/_sources/Graphs" target="_blank" rel="noopener">📖 cppds 原文（Graphs）</a><a href="https://www.hello-algo.com/zh-hant/chapter_graph/" target="_blank" rel="noopener">📘 Hello 演算法（圖）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
 
@@ -796,6 +796,18 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <span class="info-label">BFS 的兩個重要性質</span>
     <strong>(1) 最短路徑樹：</strong>沿著 <code>previous</code> 指標往回走，可以重建從任何可達頂點回到起點的<strong>最少邊數路徑</strong>。<br>
     <strong>(2) 一次解多個問題：</strong>一次 BFS 同時得到起點到「所有可達頂點」的最短距離，不需要重新跑 $|V|$ 次！
+  </div>
+
+  <div class="info-box purple" id="secretsofmaps">
+    <span class="info-label">範例：在真實地圖上跑 BFS</span>
+    <a href="https://www.secretsofmaps.com/" target="_blank" rel="noopener"><strong>Google Maps Explained（secretsofmaps.com）</strong></a>
+    把本節的 BFS 搬到<strong>真實道路網</strong>上：地圖上左鍵點起點、右鍵點終點（或按 <code>Select 2 Random Points</code>），再按播放，就能看到 BFS 像<strong>水面漣漪一樣一圈一圈往外擴散</strong>，直到碰到終點。
+    網站的頂點是 OpenStreetMap 的路口、邊是路段，資料透過 Overpass API 即時抓取，和本頁的 <code>Graph</code>／<code>Vertex</code> 是同一套抽象。<br>
+    <strong>建議玩法：</strong>先跑 BFS，觀察它如何逐層搜尋，而不優先朝終點前進；接著依序解鎖 DFS（一頭鑽進去、找到的不一定最短）、Greedy（只看離終點多遠，遇到河就繞遠路）、A*（同時考慮已走成本與到終點的估計成本）、Bidirectional BFS／A*（從起點與終點兩側搜尋，實際縮減幅度依路網與位置而異）、最後的 A* + 查表（觀察預先整理路網資訊如何減少查詢工作）。
+    <strong>看完再回頭讀 PART 06：A* 在已走成本上加入到終點的啟發式估計，決定搜尋優先順序。</strong> 路段距離不同時，BFS 找到的最少邊數不一定是最短路程；這裡先比較搜尋方式。<br>
+    <span style="font-size:.85rem;color:var(--muted);">小提醒：介面為英文；地圖資料第一次載入可能要一、兩分鐘，Overpass 偶爾會限流，請稍等再試；廣告阻擋器可能讓地圖載不出來。演算法預設隨導覽角色 Geo 的對話逐一解鎖，想直接玩可按 <code>Unlock All Algorithms</code>。
+    作者 Adam Kulikowski，改作自 honzaap/Pathfinding，MIT 授權；
+    <a href="https://github.com/Adas4044/How-Google-Maps-Works-1" target="_blank" rel="noopener">原始碼</a>。</span>
   </div>
 
 <h3 id="dx-bfs">講義完整範例：Word Ladder 的實際執行</h3>
@@ -1633,7 +1645,8 @@ u x y z </pre></div>
     <strong>1.</strong> 先牢記三色語義（white/gray/black），這是 BFS 與 DFS 共通的骨架。<br>
     <strong>2.</strong> 動手追幾遍 BFS 與 DFS 的虛擬碼：它們<strong>程式碼幾乎一樣</strong>，差別只在 queue/stack。<br>
     <strong>3.</strong> Dijkstra 與 Prim 同樣是 PQ-based 演算法，只差在<strong>更新規則</strong>，一起記憶事半功倍。<br>
-    <strong>4.</strong> Knight's Tour 是欣賞「啟發式排序」威力的最佳範例：同樣的 DFS 骨架，加上 Warnsdorff 規則就能把 8x8 從「跑不完」變「秒解」。
+    <strong>4.</strong> Knight's Tour 是欣賞「啟發式排序」威力的最佳範例：同樣的 DFS 骨架，加上 Warnsdorff 規則就能把 8x8 從「跑不完」變「秒解」。<br>
+    <strong>5.</strong> 讀完本頁去 <a href="#secretsofmaps">Google Maps Explained</a> 把 BFS、DFS、A* 在真實地圖上各跑一次：觀察加入到終點的估計後，搜尋順序如何改變，再回頭對照本章的距離與優先佇列模型。
   </div>
 </section>
 

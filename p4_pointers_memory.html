@@ -464,8 +464,20 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </style>
 
 <style>.lesson-trace .trace-note{margin:1rem 0;}.lesson-trace .trace-output{white-space:pre-wrap;overflow-wrap:anywhere;}.lesson-trace .line{min-height:1.4em;}.lesson-trace pre{margin:1rem 0;}.lesson-trace pre[data-cpp]{white-space:normal;}.lesson-trace .cmp-table{margin-top:.7rem;}@media(max-width:760px){.float-nav{display:none;}}</style>
+<style>.diagram-scroll{overflow-x:auto;margin:1rem 0;}</style>
 </head>
-<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#array" data-target="array"><span class="fn-num">01</span><span class="fn-name">固定大小陣列：一段連續的同型別元素</span></a><a href="#addr" data-target="addr"><span class="fn-num">02</span><span class="fn-name">地址、取址與解參考：三個符號</span></a><a href="#null" data-target="null"><span class="fn-num">03</span><span class="fn-name">空指標與使用前檢查</span></a><a href="#arithmetic" data-target="arithmetic"><span class="fn-num">04</span><span class="fn-name">指標算術、索引與合法範圍</span></a><a href="#decay" data-target="decay"><span class="fn-num">05</span><span class="fn-name">陣列退化後，長度資訊不跟著走</span></a><a href="#params" data-target="params"><span class="fn-num">06</span><span class="fn-name">值參數、參考參數與指標參數</span></a><a href="#storage" data-target="storage"><span class="fn-num">07</span><span class="fn-name">stack 與 heap：差別在生命週期</span></a><a href="#newdelete" data-target="newdelete"><span class="fn-num">08</span><span class="fn-name">new/delete：單一物件與動態陣列</span></a><a href="#ownership" data-target="ownership"><span class="fn-num">09</span><span class="fn-name">ownership、alias 與四種典型錯誤</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">P4 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P4</div><h1>陣列、指標與動態記憶體</h1><div class="subtitle">從連續陣列走到地址、參數與動態生命週期，建立可檢查的 ownership 模型。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#array"><span class="toc-num">01</span>固定大小陣列：一段連續的同型別元素</a><a href="#addr"><span class="toc-num">02</span>地址、取址與解參考：三個符號</a><a href="#null"><span class="toc-num">03</span>空指標與使用前檢查</a><a href="#arithmetic"><span class="toc-num">04</span>指標算術、索引與合法範圍</a><a href="#decay"><span class="toc-num">05</span>陣列退化後，長度資訊不跟著走</a><a href="#params"><span class="toc-num">06</span>值參數、參考參數與指標參數</a><a href="#storage"><span class="toc-num">07</span>stack 與 heap：差別在生命週期</a><a href="#newdelete"><span class="toc-num">08</span>new/delete：單一物件與動態陣列</a><a href="#ownership"><span class="toc-num">09</span>ownership、alias 與四種典型錯誤</a><a href="#reference"><span class="toc-num">10</span>P4 語法速查</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a></div></div><section id="array"><div class="section-number">PART 01</div><h2>固定大小陣列：一段連續的同型別元素</h2>
+<body><nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div><a href="#array" data-target="array"><span class="fn-num">01</span><span class="fn-name">固定大小陣列：一段連續的同型別元素</span></a><a href="#addr" data-target="addr"><span class="fn-num">02</span><span class="fn-name">地址、取址與解參考：三個符號</span></a><a href="#null" data-target="null"><span class="fn-num">03</span><span class="fn-name">空指標與使用前檢查</span></a><a href="#arithmetic" data-target="arithmetic"><span class="fn-num">04</span><span class="fn-name">指標算術、索引與合法範圍</span></a><a href="#decay" data-target="decay"><span class="fn-num">05</span><span class="fn-name">陣列退化後，長度資訊不跟著走</span></a><a href="#params" data-target="params"><span class="fn-num">06</span><span class="fn-name">值參數、參考參數與指標參數</span></a><a href="#storage" data-target="storage"><span class="fn-num">07</span><span class="fn-name">stack 與 heap：差別在生命週期</span></a><a href="#newdelete" data-target="newdelete"><span class="fn-num">08</span><span class="fn-name">new/delete：單一物件與動態陣列</span></a><a href="#ownership" data-target="ownership"><span class="fn-num">09</span><span class="fn-name">ownership、alias 與四種典型錯誤</span></a><a href="#reference" data-target="reference"><span class="fn-num">10</span><span class="fn-name">P4 語法速查</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">11</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">12</span><span class="fn-name">關鍵詞彙卡</span></a><a href="#restore-p4-memory-picture" data-target="restore-p4-memory-picture"><span class="fn-num">13</span><span class="fn-name">兩個物件、兩格狀態</span></a><a href="#restore-p4-symbols" data-target="restore-p4-symbols"><span class="fn-num">14</span><span class="fn-name">同一符號在不同位置的角色</span></a><a href="#restore-p4-reference-pointer" data-target="restore-p4-reference-pointer"><span class="fn-num">15</span><span class="fn-name">值、參考與指標完整比較</span></a><a href="#restore-p4-stack-heap" data-target="restore-p4-stack-heap"><span class="fn-num">16</span><span class="fn-name">自動物件與動態配置再對照</span></a><a href="#restore-p4-lifetime-picture" data-target="restore-p4-lifetime-picture"><span class="fn-num">17</span><span class="fn-name">new、delete、nullptr 的三個時刻</span></a><a href="#restore-p4-failure-matrix" data-target="restore-p4-failure-matrix"><span class="fn-num">18</span><span class="fn-name">四種資源錯誤的症狀與原因</span></a><a href="#top" class="fn-top">↑ TOP</a></nav><div class="hero" id="top"><div class="hero-grid"></div><svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
+  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
+    <rect x="30" y="60" width="70" height="44" rx="6"/>
+    <rect x="130" y="60" width="70" height="44" rx="6"/>
+    <rect x="200" y="150" width="70" height="44" rx="6"/>
+    <path d="M100 82 L130 82" marker-end="url(#ar)"/>
+    <path d="M165 104 C 165 130, 200 140, 225 150"/>
+  </g>
+  <g fill="#fff" opacity=".75" font-family="monospace" font-size="11">
+    <text x="52" y="87">x=42</text><text x="152" y="87">p</text><text x="216" y="177">heap</text>
+  </g>
+</svg><div class="hero-content"><div class="chapter-tag">PREREQ P4</div><h1>陣列、指標與動態記憶體</h1><div class="subtitle">從連續陣列走到地址、參數與動態生命週期，建立可檢查的 ownership 模型。</div><div class="scroll-hint">逐節閱讀，先預測再操作<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">本頁讀法</div><p>先讀用途與語法，再逐行追蹤例子。每支含 main 的完整程式請分開編譯；標成片段的程式會交代放置位置。遇到不熟的符號，先回看前面的說明，再做練習。</p><div class="sg-links"><a href="index.html#prereq">先備頁總覽</a><a href="#reference">語法速查</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#array"><span class="toc-num">01</span>固定大小陣列：一段連續的同型別元素</a><a href="#addr"><span class="toc-num">02</span>地址、取址與解參考：三個符號</a><a href="#null"><span class="toc-num">03</span>空指標與使用前檢查</a><a href="#arithmetic"><span class="toc-num">04</span>指標算術、索引與合法範圍</a><a href="#decay"><span class="toc-num">05</span>陣列退化後，長度資訊不跟著走</a><a href="#params"><span class="toc-num">06</span>值參數、參考參數與指標參數</a><a href="#storage"><span class="toc-num">07</span>stack 與 heap：差別在生命週期</a><a href="#newdelete"><span class="toc-num">08</span>new/delete：單一物件與動態陣列</a><a href="#ownership"><span class="toc-num">09</span>ownership、alias 與四種典型錯誤</a><a href="#reference"><span class="toc-num">10</span>P4 語法速查</a><a href="#bankquiz"><span class="toc-num">11</span>自我檢測</a><a href="#cards"><span class="toc-num">12</span>關鍵詞彙卡</a><a href="#restore-p4-memory-picture"><span class="toc-num">補</span>兩個物件、兩格狀態</a><a href="#restore-p4-symbols"><span class="toc-num">補</span>同一符號在不同位置的角色</a><a href="#restore-p4-reference-pointer"><span class="toc-num">補</span>值、參考與指標完整比較</a><a href="#restore-p4-stack-heap"><span class="toc-num">補</span>自動物件與動態配置再對照</a><a href="#restore-p4-lifetime-picture"><span class="toc-num">補</span>new、delete、nullptr 的三個時刻</a><a href="#restore-p4-failure-matrix"><span class="toc-num">補</span>四種資源錯誤的症狀與原因</a></div></div><section id="array"><div class="section-number">PART 01</div><h2>固定大小陣列：一段連續的同型別元素</h2>
 <p>固定大小陣列適合保存數量在編譯時已知、型別相同的一組資料。宣告 <code>int scores[4]</code> 時，中括號內是元素個數，不是最後索引；四格依序編號 0、1、2、3。</p>
 <pre class="pseudo-code" data-cpp="run" data-expected="309&#10;">#include &lt;iostream&gt;
 int main() {
@@ -640,7 +652,13 @@ owner = nullptr;
 <p>把 owner 設 nullptr 只改這一個指標，alias 不會同步。真正的推理核心是物件生命週期，而不是「地址看起來還在」。實務上優先使用 <code>std::vector</code>、<code>std::string</code> 與智慧指標，把 ownership 寫進型別。</p>
 <div class="info-box"><div class="info-label">動手練習</div><p>delete owner; owner=nullptr; 後，alias 是否安全變成 nullptr？</p><details><summary>看解答與理由</summary><p>不會。alias 是另一個指標物件，仍保留舊地址但已懸空。不可解參考或 delete 它。</p></details></div>
 
-</section>
+<p id="restore-smart-pointer-intuition">智慧指標（smart pointer）是把 owner 責任交給一個管理物件。例如 <code>unique_ptr</code> 表達獨佔所有權；它生命結束時會依規則釋放仍由它管理的資源，也不允許一般複製成另一個 owner。這避免兩個 owner 都以為自己應該 delete 同一物件。本頁先理解所有權與自動收尾的觀念，具體型別語法需要 P8 的類別生命週期與 P9 的模板基礎。</p></section>
+<div id="restore-p4-memory-picture" class="deck-extra"><h3>兩個物件、兩格狀態</h3><div class="diagram-scroll"><svg style="width:720px;max-width:none;height:auto;display:block;margin:auto" viewBox="0 0 720 260" role="img" aria-label="整數物件與指標物件的記憶體關係"><defs><marker id="restore-p4-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><g fill="none" stroke="currentColor" stroke-width="2"><rect x="70" y="70" width="180" height="90" rx="8"/><rect x="470" y="70" width="180" height="90" rx="8"/><path d="M250 115H465" marker-end="url(#restore-p4-arrow)"/></g><g text-anchor="middle" font-family="sans-serif" fill="currentColor"><text x="160" y="48">指標物件 p</text><text x="160" y="108">保存 &amp;x</text><text x="160" y="138">改 p = 改地址</text><text x="560" y="48">目標物件 x</text><text x="560" y="108">保存值 95</text><text x="560" y="138">改 *p = 改 x</text><text x="360" y="105">解參考 *p</text></g></svg></div><p>p 與 x 各自有型別、生命週期與內容。箭頭只是「p 目前保存 x 的地址」，不會把兩個物件合併。</p></div>
+<div id="restore-p4-symbols" class="deck-extra"><h3>同一符號在不同位置的角色</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>寫法</th><th>出現位置</th><th>意思</th></tr></thead><tbody><tr><td><code>int* p</code></td><td>宣告</td><td>p 是指向 int 的指標</td></tr><tr><td><code>&amp;x</code></td><td>運算式</td><td>取得 x 的地址</td></tr><tr><td><code>*p</code></td><td>運算式</td><td>經有效地址存取目標</td></tr><tr><td><code>int&amp; r</code></td><td>宣告</td><td>r 是 int 物件的參考別名；不是取址</td></tr><tr><td><code>p-&gt;member</code></td><td>運算式</td><td>等同 <code>(*p).member</code>；物件語法在 P8</td></tr></tbody></table></div></div>
+<div id="restore-p4-reference-pointer" class="deck-extra"><h3>值、參考與指標完整比較</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>比較</th><th>值 <code>int x</code></th><th>參考 <code>int&amp; r=x</code></th><th>指標 <code>int* p=&amp;x</code></th></tr></thead><tbody><tr><td>代表什麼</td><td>一個 int 物件</td><td>既有 int 的另一個名稱</td><td>另一個保存地址的物件</td></tr><tr><td>初始化</td><td>應立即給值</td><td>必須綁到合適物件</td><td>應設有效地址或 nullptr</td></tr><tr><td>之後能否換目標</td><td>不適用</td><td>不能重新綁定；指定會改原物件</td><td>可以指定另一地址</td></tr><tr><td>可否表示沒有目標</td><td>不適用</td><td>一般參考不表達空值</td><td>可以用 nullptr</td></tr><tr><td>存取語法</td><td><code>x</code></td><td><code>r</code></td><td><code>*p</code>，先驗證有效</td></tr><tr><td>是否占獨立空間</td><td>物件有儲存</td><td>實作細節；語言只保證別名語意</td><td>指標物件有自己的儲存；大小依平台</td></tr><tr><td>函式參數語意</td><td>複製</td><td>目標必須存在</td><td>可空，呼叫端明寫地址</td></tr></tbody></table></div><div class="info-box"><div class="info-label">選擇準則</div><p>需要獨立副本用值；一定存在且要別名用參考；「可能沒有」或需要改指向／走訪陣列用指標。這是介面語意，不是個人偏好。</p></div></div>
+<div id="restore-p4-stack-heap" class="deck-extra"><h3>自動物件與動態配置再對照</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th></th><th>自動儲存期（常稱 stack）</th><th>動態儲存期（常稱 heap）</th></tr></thead><tbody><tr><td>建立</td><td>執行到區域宣告</td><td><code>new</code> / <code>new[]</code></td></tr><tr><td>結束生命</td><td>離開作用域自動發生</td><td>對 owner 執行相配 <code>delete</code> / <code>delete[]</code></td></tr><tr><td>大小決定</td><td>通常由宣告與作用域決定</td><td>可在執行期決定</td></tr><tr><td>主要風險</td><td>回傳區域位址造成懸空</td><td>洩漏、別名懸空、重複或錯配釋放</td></tr></tbody></table></div></div>
+<div id="restore-p4-lifetime-picture" class="deck-extra"><h3>new、delete、nullptr 的三個時刻</h3><div class="diagram-scroll"><svg style="width:900px;max-width:none;height:auto;display:block;margin:auto" viewBox="0 0 900 230" role="img" aria-label="動態物件從配置到釋放再清空指標"><defs><marker id="restore-p4-flow-arrow" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L6 3L0 6Z" fill="currentColor"/></marker></defs><g fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#restore-p4-flow-arrow)"><path d="M288 112H312"/><path d="M588 112H612"/></g><g fill="none" stroke="currentColor" stroke-width="2"><rect x="15" y="20" width="270" height="180" rx="10"/><rect x="315" y="20" width="270" height="180" rx="10"/><rect x="615" y="20" width="270" height="180" rx="10"/><rect x="45" y="90" width="75" height="45"/><rect x="180" y="90" width="75" height="45"/><path d="M120 112H175" marker-end="url(#restore-p4-flow-arrow)"/><rect x="345" y="90" width="75" height="45"/><rect x="480" y="90" width="75" height="45" stroke-dasharray="5 4"/><path d="M420 112H475" marker-end="url(#restore-p4-flow-arrow)" stroke-dasharray="5 4"/><rect x="645" y="90" width="100" height="45"/><rect x="780" y="90" width="75" height="45" stroke-dasharray="5 4"/></g><g text-anchor="middle" font-family="sans-serif" fill="currentColor"><text x="150" y="52">1 配置</text><text x="82" y="118">p</text><text x="217" y="118">42 存活</text><text x="450" y="52">2 delete</text><text x="382" y="118">p 懸空</text><text x="517" y="118">生命結束</text><text x="750" y="52">3 清空 owner</text><text x="695" y="118">nullptr</text><text x="817" y="118">無物件</text></g></svg></div><p><code>delete p</code> 結束目標生命，不會改寫 p 的位元，也不會清空其他 alias；接著 <code>p=nullptr</code> 只清這個 owner。圖中的位址與格子是概念示意，不假設指標為 8 bytes。</p></div>
+<div id="restore-p4-failure-matrix" class="deck-extra"><h3>四種資源錯誤的症狀與原因</h3><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>災難</th><th>程式形狀</th><th>可能症狀</th><th>真正原因</th></tr></thead><tbody><tr><td>洩漏</td><td>覆蓋最後一個 owner 前未 delete</td><td>記憶體持續成長</td><td>存活配置再也無法到達</td></tr><tr><td>懸空</td><td>delete 後仍解參考 alias</td><td>舊值、垃圾、崩潰皆可能</td><td>地址仍在，物件生命已結束</td></tr><tr><td>重複釋放</td><td>兩個 owner delete 同一配置</td><td>配置器錯誤或任意行為</td><td>一份資源被結束兩次</td></tr><tr><td>形式錯配</td><td><code>new[]</code> 配 <code>delete</code></td><td>未定義行為</td><td>配置與釋放協定不相配</td></tr></tbody></table></div></div>
 <section id="reference"><div class="section-number">PART 10</div><h2>P4 語法速查</h2>
 <div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>語法</th><th>必要條件</th></tr></thead><tbody><tr><td>取地址</td><td>&x</td><td>x 仍活著</td></tr><tr><td>解參考</td><td>*p</td><td>p 非空且指向有效物件</td></tr><tr><td>陣列索引</td><td>p[i] == *(p+i)</td><td>結果在同一陣列合法範圍</td></tr><tr><td>陣列長度</td><td>sizeof(a)/sizeof(a[0])</td><td>a 必須仍是實際陣列</td></tr><tr><td>可空參數</td><td>void f(int* p)</td><td>使用前檢查 nullptr</td></tr><tr><td>單一配置</td><td>new int{v} / delete p</td><td>恰好釋放一次</td></tr><tr><td>陣列配置</td><td>new int[n]{} / delete[] p</td><td>先驗證 n 與配置結果</td></tr></tbody></table></div>
 <div class="info-box"><div class="info-label">動手練習</div><p>一句話分清 p 與 *p。</p><details><summary>看解答與理由</summary><p>p 是保存地址的指標物件；*p 是該有效地址所指的目標物件。</p></details></div>
@@ -653,77 +671,95 @@ owner = nullptr;
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>int a[4] 的最後合法索引？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，索引從 0 開始。">3</button>
-      <button class="sq-opt" data-c="0" data-fb="a[4] 已越界。">4</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，索引從 0 開始。"><span class="opt-letter">(A)</span> 3</button>
+      <button class="sq-opt" data-c="0" data-fb="a[4] 已越界。"><span class="opt-letter">(B)</span> 4</button>
+      <button class="sq-opt" data-c="0" data-fb="元素個數 4 對應索引 0 到 3。"><span class="opt-letter">(C)</span> 5</button>
+      <button class="sq-opt" data-c="0" data-fb="索引範圍由元素個數決定，不由 byte 大小決定。"><span class="opt-letter">(D)</span> 取決於 sizeof(int)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>int* p=&amp;x；修改目標值的寫法？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，*p 是目標。">*p = 9;</button>
-      <button class="sq-opt" data-c="0" data-fb="p 要保存地址，且這也不是修改 x。">p = 9;</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，*p 是目標。"><span class="opt-letter">(A)</span> *p = 9;</button>
+      <button class="sq-opt" data-c="0" data-fb="p 要保存地址，且這也不是修改 x。"><span class="opt-letter">(B)</span> p = 9;</button>
+      <button class="sq-opt" data-c="0" data-fb="不能對整數字面值取可修改 int 地址。"><span class="opt-letter">(C)</span> p = &amp;9;</button>
+      <button class="sq-opt" data-c="0" data-fb="這會移動地址，不修改目標值。"><span class="opt-letter">(D)</span> p++;</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q3.</span>空指標應優先使用？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，nullptr 有專用型別。">nullptr</button>
-      <button class="sq-opt" data-c="0" data-fb="NULL 是舊式巨集，可能造成多載歧義。">NULL</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，nullptr 有專用型別。"><span class="opt-letter">(A)</span> nullptr</button>
+      <button class="sq-opt" data-c="0" data-fb="NULL 是舊式巨集，可能造成多載歧義。"><span class="opt-letter">(B)</span> NULL</button>
+      <button class="sq-opt" data-c="0" data-fb="整數 0 是舊式空指標常數，新程式應用專用 nullptr。"><span class="opt-letter">(C)</span> 0</button>
+      <button class="sq-opt" data-c="0" data-fb="它含不確定位元，並不可靠表示空。"><span class="opt-letter">(D)</span> 未初始化指標</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q4.</span>p[i] 等同？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。">*(p+i)</button>
-      <button class="sq-opt" data-c="0" data-fb="*p+i 是把第一個元素值加 i。">*p+i</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。"><span class="opt-letter">(A)</span> *(p+i)</button>
+      <button class="sq-opt" data-c="0" data-fb="*p+i 是把第一個元素值加 i。"><span class="opt-letter">(B)</span> *p+i</button>
+      <button class="sq-opt" data-c="0" data-fb="這是地址，尚未解參考成元素。"><span class="opt-letter">(C)</span> p+i</button>
+      <button class="sq-opt" data-c="0" data-fb="這是在指標物件周圍做索引，語意不同。"><span class="opt-letter">(D)</span> (&amp;p)[i]</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>函式參數 int data[] 內 sizeof(data) 量到？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，參數調整成指標。">指標大小</button>
-      <button class="sq-opt" data-c="0" data-fb="長度資訊沒有隨指標傳入。">原陣列總大小</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，參數調整成指標。"><span class="opt-letter">(A)</span> 指標大小</button>
+      <button class="sq-opt" data-c="0" data-fb="長度資訊沒有隨指標傳入。"><span class="opt-letter">(B)</span> 原陣列總大小</button>
+      <button class="sq-opt" data-c="0" data-fb="陣列參數已調整成指標，數量遺失。"><span class="opt-letter">(C)</span> 元素個數</button>
+      <button class="sq-opt" data-c="0" data-fb="sizeof(data) 量的是指標物件。"><span class="opt-letter">(D)</span> 第一個元素的大小</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>一定存在且要修改的單一 int，適合？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，參考表達非空別名。">int&amp;</button>
-      <button class="sq-opt" data-c="0" data-fb="可空指標若使用就應檢查。">int* 且不檢查</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，參考表達非空別名。"><span class="opt-letter">(A)</span> int&amp;</button>
+      <button class="sq-opt" data-c="0" data-fb="可空指標若使用就應檢查。"><span class="opt-letter">(B)</span> int* 且不檢查</button>
+      <button class="sq-opt" data-c="0" data-fb="傳值不能修改呼叫端原物件。"><span class="opt-letter">(C)</span> int</button>
+      <button class="sq-opt" data-c="0" data-fb="const 參考禁止透過參數修改。"><span class="opt-letter">(D)</span> const int&amp;</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q7.</span>new int[8] 如何釋放？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，new[] 與 delete[] 配對。">delete[] p;</button>
-      <button class="sq-opt" data-c="0" data-fb="形式錯配是未定義行為。">delete p;</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，new[] 與 delete[] 配對。"><span class="opt-letter">(A)</span> delete[] p;</button>
+      <button class="sq-opt" data-c="0" data-fb="形式錯配是未定義行為。"><span class="opt-letter">(B)</span> delete p;</button>
+      <button class="sq-opt" data-c="0" data-fb="new[] 必須配 delete[]，不能混用 C 配置 API。"><span class="opt-letter">(C)</span> free(p);</button>
+      <button class="sq-opt" data-c="0" data-fb="&amp;p 是指標物件自己的地址，不是動態陣列配置。"><span class="opt-letter">(D)</span> delete &amp;p;</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q8.</span>delete owner 後 alias 會自動變 nullptr？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，它仍保存失效地址。">不會</button>
-      <button class="sq-opt" data-c="0" data-fb="每個指標是獨立物件。">會</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，它仍保存失效地址。"><span class="opt-letter">(A)</span> 不會</button>
+      <button class="sq-opt" data-c="0" data-fb="每個指標是獨立物件。"><span class="opt-letter">(B)</span> 會</button>
+      <button class="sq-opt" data-c="0" data-fb="語言不會同步清空別名。"><span class="opt-letter">(C)</span> 會，但只有 debug 模式</button>
+      <button class="sq-opt" data-c="0" data-fb="任何保存已釋放目標地址的 alias 都會懸空。"><span class="opt-letter">(D)</span> 取決於 alias 型別</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q9.</span>遺失最後一個指向未釋放配置的地址稱為？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確，資源仍占用但無法釋放。">記憶體洩漏</button>
-      <button class="sq-opt" data-c="0" data-fb="空指標不指向配置。">空指標</button>
+      <button class="sq-opt" data-c="1" data-fb="正確，資源仍占用但無法釋放。"><span class="opt-letter">(A)</span> 記憶體洩漏</button>
+      <button class="sq-opt" data-c="0" data-fb="空指標不指向配置。"><span class="opt-letter">(B)</span> 空指標</button>
+      <button class="sq-opt" data-c="0" data-fb="懸空是仍有地址但物件已死亡；此題是地址已遺失。"><span class="opt-letter">(C)</span> 懸空指標</button>
+      <button class="sq-opt" data-c="0" data-fb="重複釋放需要同一配置被 delete 兩次。"><span class="opt-letter">(D)</span> 重複釋放</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section><section id="cards"><div class="section-number">CARDS</div><h2>關鍵詞彙卡</h2><p>先用自己的話解釋，再翻面核對；可點擊卡片或使用 Enter／空白鍵。</p><div class="fc-controls"><button id="fcShuffle">洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部正面</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p3_functions.html"><div class="nav-dir">上一頁</div><div class="nav-title">函式與參考</div></a><a class="home" href="index.html#prereq"><div class="nav-dir">INDEX</div><div class="nav-title">先備頁總覽</div></a><a class="next" href="p5_vector_string.html"><div class="nav-dir">下一頁</div><div class="nav-title">vector 與 string</div></a></div></div><footer>資料結構 × C++ 互動自學網站</footer><script>
-const FLASHCARDS = [{"front": "內建陣列", "back": "固定數量、連續排列的同型別元素；索引不自動檢查。"}, {"front": "取址 &", "back": "取得物件地址。"}, {"front": "指標 T*", "back": "保存 T 物件地址的型別。"}, {"front": "解參考 *p", "back": "經有效地址存取目標物件。"}, {"front": "nullptr", "back": "不指向任何物件的專用空指標字面值。"}, {"front": "指標算術", "back": "以元素大小為步距，且只能在同一陣列範圍推理。"}, {"front": "陣列退化", "back": "陣列在多數運算式及函式參數中轉成首元素指標。"}, {"front": "參考參數", "back": "既有物件的別名，適合一定存在的可修改目標。"}, {"front": "stack / 自動儲存期", "back": "區域自動物件離開作用域時銷毀。"}, {"front": "heap / 動態儲存期", "back": "new 建立，需以相符 delete 明確結束。"}, {"front": "ownership", "back": "負責讓動態資源恰好釋放一次的責任。"}, {"front": "alias", "back": "多個指標或參考指向同一物件。"}, {"front": "memory leak", "back": "動態配置仍存在，但已無法由 owner 釋放。"}, {"front": "dangling pointer", "back": "仍保存地址，但該處物件生命週期已結束。"}, {"front": "double delete", "back": "同一配置被釋放兩次，屬未定義行為。"}];
+const FLASHCARDS = [{"front": "內建陣列（built-in array）", "back": "固定數量、連續排列的同型別元素；索引不自動檢查。"}, {"front": "取址運算（address-of &）", "back": "取得物件地址。"}, {"front": "指標型別（pointer T*）", "back": "保存 T 物件地址的型別。"}, {"front": "解參考（dereference *p）", "back": "經有效地址存取目標物件。"}, {"front": "空指標字面值（nullptr）", "back": "不指向任何物件的專用空指標字面值。"}, {"front": "指標算術（pointer arithmetic）", "back": "以元素大小為步距，且只能在同一陣列範圍推理。"}, {"front": "陣列退化（array decay）", "back": "陣列在多數運算式及函式參數中轉成首元素指標。"}, {"front": "參考參數（reference parameter）", "back": "既有物件的別名，適合一定存在的可修改目標。"}, {"front": "自動儲存期（automatic storage）", "back": "區域自動物件離開作用域時銷毀。"}, {"front": "動態儲存期（dynamic storage）", "back": "new 建立，需以相符 delete 明確結束。"}, {"front": "所有權（ownership）", "back": "負責讓動態資源恰好釋放一次的責任。"}, {"front": "別名（alias）", "back": "多個指標或參考指向同一物件。"}, {"front": "記憶體洩漏（memory leak）", "back": "動態配置仍存在，但已無法由 owner 釋放。"}, {"front": "懸空指標（dangling pointer）", "back": "仍保存地址，但該處物件生命週期已結束。"}, {"front": "重複釋放（double delete）", "back": "同一配置被釋放兩次，屬未定義行為。"}, {"front": "位址（Address）", "back": "物件在記憶體中的位置；取到位址不保證它永遠有效，還要追蹤物件生命週期。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "建立動態儲存期物件並取得指標；單一物件與陣列的釋放形式必須配對。"}, {"front": "釋放（Deallocation, delete）", "back": "結束動態物件生命並釋放配置；不會自動把所有相關指標改為nullptr。"}, {"front": "智慧指標（Smart Pointer）", "back": "把owner責任交給管理物件，例如unique_ptr表達獨佔所有權，生命結束時清理仍由它管理的資源，且不可一般複製。具體型別語法需要類別生命週期與模板基礎。"}];
 
 /* depth-runtime:start */
 (() => {

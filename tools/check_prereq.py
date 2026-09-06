@@ -8,6 +8,7 @@ Executables and any files they create stay in a fresh temporary directory.
 Requires g++ and Node.js; the HTML parser uses only the Python standard library.
 """
 import argparse
+import hashlib
 from collections import Counter
 from html.parser import HTMLParser
 import json
@@ -77,6 +78,7 @@ def main():
     documents = {p.name: Page(p.read_text(encoding="utf-8")) for p in ROOT.glob("*.html")}
     errors = []
     counts = Counter()
+    hero_shapes = set()
     for chapter in selected:
         matches = list(ROOT.glob(f"{chapter}_*.html"))
         if len(matches) != 1:
@@ -85,6 +87,14 @@ def main():
         path = matches[0]
         source = path.read_text(encoding="utf-8")
         doc = documents[path.name]
+        heroes = re.findall(r'<svg\b[^>]*class="[^"]*\bhero-graph\b[^"]*"[^>]*>.*?</svg>', source, re.S)
+        if len(heroes) != 1:
+            errors.append(f"{path.name}: expected one page-specific hero SVG")
+        else:
+            fingerprint = hashlib.sha256(heroes[0].encode()).hexdigest()
+            if fingerprint in hero_shapes:
+                errors.append(f"{path.name}: hero duplicates another prerequisite page")
+            hero_shapes.add(fingerprint)
         if "/* quiz-shuffle v1 */" not in source:
             errors.append(f"{path.name}: missing quiz option shuffle")
         duplicate_ids = [key for key, n in Counter(doc.ids).items() if n > 1]
@@ -97,9 +107,11 @@ def main():
             for card in cards:
                 assert all(isinstance(card.get(k), str) and card[k].strip()
                            for k in ("front", "back")), "invalid flashcard"
+                assert re.search(r'[\u4e00-\u9fff]', card['front']) and re.search(r'（[^（）]*[A-Za-z][^（）]*）', card['front']), f"flashcard must have Chinese and parenthesized English: {card['front']}"
             for number, q in enumerate(questions, 1):
                 assert isinstance(q.get("question"), str) and q["question"].strip(), f"Q{number}: missing question"
-                assert len(q["answers"]) >= 2, f"Q{number}: too few options"
+                assert len(q["answers"]) == 4, f"Q{number}: expected exactly four options"
+                assert len({a.get('answer') for a in q['answers']}) == 4, f"Q{number}: duplicate options"
                 assert all(isinstance(a.get("correct"), bool) for a in q["answers"]), f"Q{number}: invalid correct flag"
                 assert sum(a["correct"] for a in q["answers"]) == 1, f"Q{number}: expected one correct answer"
                 assert all(isinstance(a.get(k), str) and a[k].strip()
@@ -191,13 +203,15 @@ def main():
                     if result.returncode:
                         errors.append(f"{label}: compile failed: {result.stderr}")
                         continue
-                    if "data-expected" not in attrs:
+                    if "data-expected" not in attrs and "data-expected-pattern" not in attrs:
                         errors.append(f"{label}: missing expected stdout")
                         continue
                     result = run([str(exe)], case, attrs.get("data-stdin", ""))
-                    if result.returncode or result.stdout != attrs["data-expected"]:
+                    pattern = attrs.get('data-expected-pattern')
+                    matches = re.fullmatch(pattern, result.stdout) is not None if pattern else result.stdout == attrs["data-expected"]
+                    if result.returncode or not matches:
                         errors.append(f"{label}: exit={result.returncode}, stdout={result.stdout!r}, "
-                                      f"expected={attrs['data-expected']!r}, stderr={result.stderr!r}")
+                                      f"expected={attrs.get('data-expected', pattern)!r}, stderr={result.stderr!r}")
                     counts["runs"] += 1
                     page_runs += 1
                 except subprocess.TimeoutExpired:

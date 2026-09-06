@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""把 data/ 的繁中母檔套進九頁 HTML：整段替換 FLASHCARDS 陣列與 bankquiz 區。
+"""把 data/ 的繁中母檔套進指定 HTML（預設全站）：整段替換 FLASHCARDS 陣列與 bankquiz 區。
 冪等：以區塊邊界整段重生，可重複執行。"""
+import argparse
 import json, re
 from pathlib import Path
 
@@ -15,13 +16,13 @@ FC = {  # page -> flashcards chapter
 BQ = {  # page -> (questions chapter, 註記)
     "p1_cpp_basics": ("p1", "C++ 基礎與編譯流程"),
     "p2_flow_control": ("p2", "流程控制"),
-    "p3_functions": ("p3", "函式"),
+    "p3_functions": ("p3", "函式與參考"),
     "p5_vector_string": ("p5", "vector 與 string"),
     "p7_files_exceptions": ("p7", "檔案與例外"),
-    "p9_oop_advanced": ("p9", "物件導向進階"),
+    "p9_oop_advanced": ("p9", "類別延伸與模板入門"),
     "p4_pointers_memory": ("p4", "陣列、指標與動態記憶體"),
-    "p6_map_set": ("p6", "map、set 與迭代器"),
-    "p8_oop_basics": ("p8", "物件導向基礎"),
+    "p6_map_set": ("p6", "map 與 set"),
+    "p8_oop_basics": ("p8", "類別與物件"),
     "searching_sorting": ("ch7", "搜尋、雜湊與排序"),
     "graphs": ("ch8", "圖演算法"),
     "trees": ("ch9", "樹結構"),
@@ -41,7 +42,7 @@ def esc_attr(s):
         s = s.replace(pat, rep)
     return s
 
-for page, ch in FC.items():
+def apply_page(page, ch):
     path = ROOT / f"{page}.html"
     s = path.read_text()
     cards = json.load(open(ROOT / f"data/flashcards_zh/{ch}.json"))
@@ -49,7 +50,7 @@ for page, ch in FC.items():
     # 1. FLASHCARDS 陣列整段換
     data = sanitize_js(json.dumps(cards, ensure_ascii=False))
     # 用 lambda 當替換字串：資料裡的 \uXXXX（sanitize_js 產生）不可被 re 當成模板跳脫
-    s, n = re.subn(r'const FLASHCARDS = \[.*?\];', lambda _m: f'const FLASHCARDS = {data};', s, count=1, flags=re.S)
+    s, n = re.subn(r'const\s+FLASHCARDS\s*=\s*\[.*?\];', lambda _m: f'const FLASHCARDS = {data};', s, count=1, flags=re.S)
     assert n == 1, f"{page}: FLASHCARDS not found"
 
     # 2. cards 區導語（英文原文 → 已譯繁中）
@@ -93,3 +94,29 @@ for page, ch in FC.items():
 
     path.write_text(s)
     print(f"ok {page}: {len(cards)} 卡" + (f" + {len(json.load(open(ROOT / f'data/questions_zh/{BQ[page][0]}.json')))} 題" if page in BQ else ""))
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--pages", nargs="+", metavar="PAGE",
+                        help="只更新指定頁面；接受 p1 或 p1_cpp_basics，逗號或空白分隔。預設全站。")
+    args = parser.parse_args()
+    selected = list(FC)
+    if args.pages:
+        aliases = {chapter: page for page, chapter in FC.items()}
+        selected = []
+        for group in args.pages:
+            for token in group.split(","):
+                token = token.removesuffix(".html")
+                page = aliases.get(token, token)
+                if page not in FC:
+                    parser.error(f"未知頁面：{token}")
+                if page not in selected:
+                    selected.append(page)
+    # Resolve every identifier before writing any page.
+    for page in selected:
+        apply_page(page, FC[page])
+
+
+if __name__ == "__main__":
+    main()

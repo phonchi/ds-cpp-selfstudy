@@ -459,1290 +459,231 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .vert-table th i{color:inherit;}
 </style>
 <!-- /contrast-fix -->
+<style>
+@media (max-width: 760px) { .float-nav { display: none; } }
+</style>
 </head>
 <body>
-
-<nav class="float-nav" id="floatNav" aria-label="章節導覽">
-  <div class="fn-title">章節導覽</div>
-  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">Python 藏起來的那層</span></a>
-  <a href="#addr" data-target="addr"><span class="fn-num">P01</span><span class="fn-name">記憶體與位址</span></a>
-  <a href="#ptr" data-target="ptr"><span class="fn-num">P02</span><span class="fn-name">指標是什麼</span></a>
-  <a href="#null" data-target="null"><span class="fn-num">P03</span><span class="fn-name">NULL 與走訪</span></a>
-  <a href="#array" data-target="array"><span class="fn-num">P04</span><span class="fn-name">陣列與指標</span></a>
-  <a href="#decay" data-target="decay"><span class="fn-num">P05</span><span class="fn-name">陣列退化</span></a>
-  <a href="#heap" data-target="heap"><span class="fn-num">P06</span><span class="fn-name">堆疊 vs 堆積</span></a>
-  <a href="#newdel" data-target="newdel"><span class="fn-num">P07</span><span class="fn-name">new 與 delete</span></a>
-  <a href="#disaster" data-target="disaster"><span class="fn-num">P08</span><span class="fn-name">三種災難</span></a>
-  <a href="#node" data-target="node"><span class="fn-num">P09</span><span class="fn-name">指向物件的指標</span></a>
-  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
-  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
-  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
-  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
-  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
-</nav>
-
-<div class="hero" id="top">
-  <div class="hero-grid"></div>
-  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
-  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
-    <rect x="30" y="60" width="70" height="44" rx="6"/>
-    <rect x="130" y="60" width="70" height="44" rx="6"/>
-    <rect x="200" y="150" width="70" height="44" rx="6"/>
-    <path d="M100 82 L130 82" marker-end="url(#ar)"/>
-    <path d="M165 104 C 165 130, 200 140, 225 150"/>
-  </g>
-  <g fill="#fff" opacity=".75" font-family="monospace" font-size="11">
-    <text x="52" y="87">x=42</text><text x="152" y="87">p</text><text x="216" y="177">heap</text>
-  </g>
-</svg>
-  <div class="hero-content">
-    <div class="chapter-tag">PREREQ P4</div>
-    <h1><span class="blue">陣列、指標</span>與<span class="orange">動態記憶體</span></h1>
-    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
-    <div class="big-formula">&amp;x｜*p｜&#78;ULL｜a[i] == *(a+i)｜new / delete｜堆疊 vs 堆積</div>
-    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
-  </div>
-</div>
-
+<nav class="float-nav" id="floatNav" aria-label="章節導覽"><div class="fn-title">章節導覽</div>
+<a href="#array" data-target="array"><span class="fn-num">01</span><span class="fn-name">固定陣列</span></a><a href="#address" data-target="address"><span class="fn-num">02</span><span class="fn-name">位址與指標</span></a><a href="#null" data-target="null"><span class="fn-num">03</span><span class="fn-name">nullptr</span></a><a href="#params" data-target="params"><span class="fn-num">04</span><span class="fn-name">函式參數</span></a><a href="#lifetime" data-target="lifetime"><span class="fn-num">05</span><span class="fn-name">生命週期</span></a><a href="#dynamic" data-target="dynamic"><span class="fn-num">06</span><span class="fn-name">new / delete</span></a><a href="#mistakes" data-target="mistakes"><span class="fn-num">07</span><span class="fn-name">常見錯誤</span></a><a href="#reference" data-target="reference">速查表</a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">詞彙卡</span></a><a href="#top" class="fn-top"><span class="fn-num">↑ TOP</span></a></nav>
+<div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P4</div><h1><span class="blue">陣列、指標</span>與<span class="orange">動態記憶體</span></h1><div class="subtitle">從一排測量值開始，學會安全地保存與使用位址</div><div class="big-formula">索引 → 位址 → 指標 → 動態配置</div><div class="scroll-hint">向下捲動開始學習<span>↓</span></div></div></div>
 <div class="container">
-<div class="study-guide">
-  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
-  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
-  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
-  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
-  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
-  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
-</div>
-
-
-<div class="toc">
-  <div class="toc-title">CONTENTS · 內容目錄</div>
-  <div class="toc-grid">
-    <a href="#prologue"><span class="toc-num">P00</span>Python 幫你藏起來的那一層</a>
-    <a href="#addr"><span class="toc-num">P01</span>記憶體與位址</a>
-    <a href="#ptr"><span class="toc-num">P02</span>指標是什麼</a>
-    <a href="#null"><span class="toc-num">P03</span>NULL：走訪的終點</a>
-    <a href="#array"><span class="toc-num">P04</span>陣列與指標的關係</a>
-    <a href="#decay"><span class="toc-num">P05</span>陣列傳進函式會退化</a>
-    <a href="#heap"><span class="toc-num">P06</span>堆疊 vs 堆積</a>
-    <a href="#newdel"><span class="toc-num">P07</span>new 與 delete</a>
-    <a href="#disaster"><span class="toc-num">P08</span>三種災難</a>
-    <a href="#node"><span class="toc-num">P09</span>指向物件的指標</a>
-    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
-    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
-    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
-  </div>
-</div>
-
-<section id="prologue">
-  <div class="section-number">PROLOGUE · 開場</div>
-  <h2>整套先備頁裡，這一頁最該讀</h2>
-  <p>如果 P1 到 P9 只能挑一頁，挑這頁。理由是數字：</p>
-
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th>課程講義</th><th><code>new</code></th><th><code>&#78;ULL</code></th><th>這一章在做什麼</th></tr></thead>
-    <tbody>
-      <tr><td>第 04 章 鏈結串列</td><td class="mono">31</td><td class="mono">33</td><td>每個節點都是 <code>new</code> 出來的，走訪走到 <code>&#78;ULL</code> 為止</td></tr>
-      <tr><td>第 05 章 堆疊與佇列</td><td class="mono">18</td><td class="mono">8</td><td>鏈結實作</td></tr>
-      <tr><td>第 08 章 圖</td><td class="mono">19</td><td class="mono">—</td><td>頂點與邊</td></tr>
-      <tr><td>第 09 章 樹</td><td class="mono" style="color:var(--accent);font-weight:700;">102</td><td class="mono" style="color:var(--accent);font-weight:700;">55</td><td>每插一個鍵就長一個節點</td></tr>
-      <tr><td><strong>全課合計</strong></td><td class="mono"><strong>218</strong></td><td class="mono"><strong>114</strong></td><td>另有 145 個指標宣告、57 個參考</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <p>Python 也有「參考」的概念，但它幫你把位址、配置、釋放全部藏起來了。C++ 把這一層攤開來給你 —— 多了控制權，也多了責任。這一頁就在補這一層。</p>
-
-  <div class="warn-box">
-    <div class="info-label">📌 本頁定位</div>
-    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但第 04 章第一行程式碼就是 <code>&#78;ode&lt;T&gt; *next;</code>，看不懂這一頁，那一章只能死背。</p>
-  </div>
-</section>
-
-<section id="addr">
-  <div class="section-number">PART 01 · 位址</div>
-  <h2>每個變數都住在一個門牌號碼</h2>
-  <p>變數不是憑空存在的，它佔一塊記憶體。<code>&amp;x</code> 就是問「x 住在哪」，<code>sizeof(x)</code> 是問「它佔幾格」。</p>
-
-<div class="deck-extra">
-  <div class="dx-label">每個變數的門牌與大小（真的跑出來的）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">42</span>;</span>
-<span class="line" data-l="6">    <span class="kw">double</span> d = <span class="num">3.14</span>;</span>
-<span class="line" data-l="7">    <span class="kw">char</span> c = <span class="str">'</span><span class="str">A</span><span class="str">'</span>;</span>
-<span class="line" data-l="8"> </span>
-<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">x  的值 = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str">，位址 = </span><span class="str">"</span> &lt;&lt; &amp;x &lt;&lt; <span class="str">"</span><span class="str">，佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(x) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">d  的值 = </span><span class="str">"</span> &lt;&lt; d &lt;&lt; <span class="str">"</span><span class="str">，位址 = </span><span class="str">"</span> &lt;&lt; &amp;d &lt;&lt; <span class="str">"</span><span class="str">，佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(d) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">c  的值 = </span><span class="str">"</span> &lt;&lt; c &lt;&lt; <span class="str">"</span><span class="str">，位址 = </span><span class="str">"</span> &lt;&lt; (<span class="kw">void</span>*)&amp;c &lt;&lt; <span class="str">"</span><span class="str">，佔 </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(c) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="12">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="13">}</span>
-<span class="line" data-l="14"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>x  的值 = 42，位址 = 0x7ffe91aff68c，佔 4 bytes
-d  的值 = 3.14，位址 = 0x7ffe91aff690，佔 8 bytes
-c  的值 = A，位址 = 0x7ffe91aff68b，佔 1 bytes</pre></div>
-  <p class="dx-note">三個觀察：① 位址是十六進位的一長串，每次執行都不一樣（作業系統每次配的位置不同）。② 不同型別佔的大小不同：<code>int</code> 4 bytes、<code>double</code> 8、<code>char</code> 1。③ <code>char</code> 的位址要轉成 <code>(void*)</code> 才印得出數字，否則 <code>cout</code> 會把它當字串開頭。</p>
-</div>
-
-  <div class="viz-layout">
-    <div>
-      <div class="viz-panel">
-        <div id="memStage" style="min-height:210px;"></div>
-        <div class="status-banner" id="memStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，一步一步看指標怎麼指到變數身上。</span></div>
-        <div class="controls-bar">
-          <button class="btn btn-play" onclick="memStart()">▶ 開始</button>
-          <button class="btn btn-step" onclick="memPlayer &amp;&amp; memPlayer.step()">→ 單步</button>
-          <button class="btn btn-reset" onclick="memReset()">⟲ 重設</button>
-          <button class="btn" onclick="memPlayer &amp;&amp; memPlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="memSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
-        </div>
-      </div>
-    </div>
-    <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" id="memCode" style="font-size:.78rem;"><span class="line" data-l="1"><span class="kw">int</span> x = <span class="num">42</span>;</span>
-<span class="line" data-l="2"><span class="kw">int</span> *p = &amp;x;</span>
-<span class="line" data-l="3">cout &lt;&lt; *p;</span>
-<span class="line" data-l="4">*p = <span class="num">99</span>;</span>
-<span class="line" data-l="5">cout &lt;&lt; x;</span>
-<span class="line" data-l="6"> </span></div>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">三個符號 <span class="ic-badge">KEY</span></div>
-        <p style="font-size:.86rem;margin-bottom:0;"><code>int *p</code>：宣告 p 是「指向 int 的指標」<br>
-        <code>&amp;x</code>：取出 x 的<strong>位址</strong><br>
-        <code>*p</code>：順著 p 存的位址<strong>走進去</strong></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="viz-panel" style="margin-top:1.4rem;">
-    <svg viewBox="0 0 720 350" style="max-width:100%;height:auto" role="img" aria-label="一般變數與指標的記憶體對照圖：p 存著 x 的位址，透過 *p 可以改到 x 本人">
-      <defs>
-        <marker id="p4f1ArrowBlue" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--accent2)"></path>
-        </marker>
-        <marker id="p4f1ArrowRed" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0,0 L10,5 L0,10 Z" fill="#c0392b"></path>
-        </marker>
-      </defs>
-
-      <!-- 第一排：宣告完的樣子 -->
-      <text x="14" y="24" font-size="15" font-weight="700" style="fill:var(--ink)">① 宣告之後</text>
-      <text x="122" y="24" font-size="13.5" font-family="'JetBrains Mono',monospace" style="fill:var(--accent2)">int x = 25;　int *p = &amp;x;</text>
-      <rect x="8" y="36" width="704" height="124" rx="10" fill="#fafafa" stroke="#ececec"></rect>
-      <text x="700" y="54" font-size="11.5" text-anchor="end" style="fill:var(--muted)">記憶體</text>
-
-      <text x="135" y="56" font-size="13.5" font-weight="700" text-anchor="middle" style="fill:var(--accent2)">x（一般變數）</text>
-      <rect x="70" y="64" width="130" height="60" rx="6" fill="#ffffff" stroke-width="2" style="stroke:var(--ink)"></rect>
-      <text x="135" y="103" font-size="26" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--ink)">25</text>
-      <text x="135" y="146" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1000</text>
-
-      <text x="551" y="56" font-size="13.5" font-weight="700" text-anchor="middle" style="fill:var(--accent2)">p（指標）</text>
-      <rect x="466" y="64" width="170" height="60" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
-      <text x="551" y="101" font-size="22" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">0x1000</text>
-      <text x="551" y="146" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1008</text>
-
-      <line x1="462" y1="94" x2="208" y2="94" stroke-width="2.5" marker-end="url(#p4f1ArrowBlue)" style="stroke:var(--accent2)"></line>
-      <text x="335" y="84" font-size="12.5" text-anchor="middle" style="fill:var(--accent2)">p 存的是 x 的門牌</text>
-      <text x="335" y="116" font-size="12" text-anchor="middle" style="fill:var(--muted)">箭頭＝「這串位址所指的地方」</text>
-
-      <!-- 第二排：透過指標改值 -->
-      <text x="14" y="192" font-size="15" font-weight="700" style="fill:var(--ink)">② 執行之後</text>
-      <text x="122" y="192" font-size="13.5" font-family="'JetBrains Mono',monospace" fill="#c0392b">*p = 50;</text>
-      <rect x="8" y="204" width="704" height="124" rx="10" fill="#fafafa" stroke="#ececec"></rect>
-      <text x="700" y="222" font-size="11.5" text-anchor="end" style="fill:var(--muted)">記憶體</text>
-
-      <text x="135" y="224" font-size="13.5" font-weight="700" text-anchor="middle" fill="#c0392b">x 被改了</text>
-      <rect x="70" y="232" width="130" height="60" rx="6" stroke="#c0392b" stroke-width="2.5" style="fill:var(--highlight)"></rect>
-      <text x="135" y="271" font-size="26" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#c0392b">50</text>
-      <text x="135" y="314" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1000（沒變）</text>
-
-      <text x="551" y="224" font-size="13.5" font-weight="700" text-anchor="middle" style="fill:var(--accent2)">p 本身沒變</text>
-      <rect x="466" y="232" width="170" height="60" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
-      <text x="551" y="269" font-size="22" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">0x1000</text>
-      <text x="551" y="314" font-size="12.5" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">位址 0x1008</text>
-
-      <line x1="462" y1="262" x2="208" y2="262" stroke="#c0392b" stroke-width="2.5" marker-end="url(#p4f1ArrowRed)"></line>
-      <text x="335" y="252" font-size="12.5" text-anchor="middle" fill="#c0392b">順著箭頭走進去</text>
-      <text x="335" y="284" font-size="12" text-anchor="middle" style="fill:var(--muted)">改到的是 x 本人，不是副本</text>
-    </svg>
-    <p class="mono" style="font-size:.8rem;color:var(--muted);margin:.7rem 0 0;text-align:center;line-height:1.7;">圖 1：<code>x</code> 盒裡裝的是值 25，<code>p</code> 盒裡裝的是「x 的位址」——所以 <code>*p = 50;</code> 改的是箭頭那一頭的 x，不是 p 自己。上面的動畫演逐步，這張圖給你前後對照。</p>
-  </div>
-</section>
-
-<section id="ptr">
-  <div class="section-number">PART 02 · 指標</div>
-  <h2><code>int *p = &amp;x;</code>：三個符號，三件事</h2>
-  <p>初學最容易混的是：<strong><code>*</code> 在宣告時和在使用時意思不一樣。</strong></p>
-
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th>寫法</th><th>出現在哪</th><th>意思</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">int *p;</td><td>宣告</td><td>p 是一個指標，指向 int</td></tr>
-      <tr><td class="mono">p = &amp;x;</td><td>使用</td><td>把 x 的位址存進 p</td></tr>
-      <tr><td class="mono">*p</td><td>使用</td><td>解參考：p 指向的那個東西（就是 x 本人）</td></tr>
-      <tr><td class="mono">*p = 99;</td><td>使用</td><td>透過 p 改動 x</td></tr>
-      <tr><td class="mono">p</td><td>使用</td><td>指標本身的值，也就是一個位址</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-<div class="deck-extra">
-  <div class="dx-label">同一段程式把五件事都做一遍</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">42</span>;</span>
-<span class="line" data-l="6">    <span class="kw">int</span> *p = &amp;x;          <span class="com">// p 存的是 x 的位址</span>
-<span class="line" data-l="7"></span></span>
-<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">x  = </span><span class="str">"</span> &lt;&lt; x  &lt;&lt; endl;</span>
-<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">&amp;x = </span><span class="str">"</span> &lt;&lt; &amp;x &lt;&lt; endl;</span>
-<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">p  = </span><span class="str">"</span> &lt;&lt; p  &lt;&lt; <span class="str">"</span><span class="str">   &lt;- p 存的就是 x 的位址</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">*p = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 順著位址走進去，看到 x 的值</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="12"> </span>
-<span class="line" data-l="13">    *p = <span class="num">99</span>;              <span class="com">// 透過指標改動 x</span>
-<span class="line" data-l="14"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">把 *p 改成 99 之後，x = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; endl;</span>
-<span class="line" data-l="15"> </span>
-<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">指標本身也佔空間: sizeof(p) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(p) &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="18">}</span>
-<span class="line" data-l="19"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>x  = 42
-&amp;x = 0x7ffeec7bfa4c
-p  = 0x7ffeec7bfa4c   &lt;- p 存的就是 x 的位址
-*p = 42   &lt;- 順著位址走進去，看到 x 的值
-把 *p 改成 99 之後，x = 99
-指標本身也佔空間: sizeof(p) = 8 bytes</pre></div>
-  <p class="dx-note">注意倒數第二行：<strong>透過 <code>*p</code> 改值，<code>x</code> 真的變了</strong>——因為它們是同一塊記憶體。最後一行也重要：<strong>指標本身佔 8 bytes</strong>（64 位元系統），不管它指向的是 <code>int</code> 還是一整棵樹。</p>
-</div>
-
-  <div class="info-box">
-    <div class="info-label">💡 為什麼要有指標</div>
-    <p style="margin-bottom:0;">兩個理由，這門課兩個都會用到：① <strong>不想複製</strong> —— 傳一個 8 bytes 的位址，比複製一整個物件便宜（見 <a href="p3_functions.html">P3</a>）。② <strong>結構要能長大</strong> —— 鏈結串列、樹、圖的節點數量在編譯時還不知道，只能執行時 <code>new</code> 出來，而 <code>new</code> 回傳的就是指標。</p>
-  </div>
-
-  <h3 style="margin-top:1.6rem;">參考：另一個名字，不是另一個變數 —— 跟指標分清楚</h3>
-  <p>C++ 還有一個長得像親戚的東西：<strong>參考</strong>（reference，有些書譯作「參照」）。
-  <code>int &amp;r = x;</code> 讀作「r 是 x 的參考」—— 它不配置新的記憶體、也不存位址，
-  它就是 <strong>x 的另一個名字</strong>。P3 實測過：<code>&amp;r == &amp;x</code>，連 <code>sizeof</code> 都一樣，
-  因為 r 根本沒有自己的身體。兩者常被混為一談，但個性完全不同：</p>
-
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th></th><th>參考 <span class="mono">int &amp;r = x;</span></th><th>指標 <span class="mono">int *p = &amp;x;</span></th></tr></thead>
-    <tbody>
-      <tr><td>它是什麼</td><td>x 的<strong>別名</strong>，編譯器層級的化名</td><td>一個<strong>存位址的變數</strong>，有自己的記憶體</td></tr>
-      <tr><td>宣告時可以不初始化嗎</td><td><strong>不行</strong>，宣告當下就得綁定對象</td><td>可以（但未初始化就是野指標，見下）</td></tr>
-      <tr><td>可以「不指向任何東西」嗎</td><td><strong>不行</strong>，沒有「空參考」這種東西</td><td>可以，<code>p = &#78;ULL;</code></td></tr>
-      <tr><td>可以中途換對象嗎</td><td><strong>不行</strong>，終身只認第一個</td><td>可以，<code>p = &amp;y;</code> 隨時改指</td></tr>
-      <tr><td>自己佔記憶體嗎</td><td>不佔（<code>sizeof(r)</code> 量到的是 x）</td><td>佔 8 bytes（64 位元系統）</td></tr>
-      <tr><td>取用時要加符號嗎</td><td>不用，寫 <code>r</code> 就是 x 本人</td><td>要，<code>*p</code> 才走得進去</td></tr>
-      <tr><td>這門課的典型用途</td><td>函式參數與回傳（<a href="p3_functions.html">P3</a>：<code>T&amp;</code>、<code>const T&amp;</code>）</td><td>鏈結結構的 <code>next</code>、走訪的 <code>current</code>、<code>new</code> 的回傳值</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <div class="info-box green">
-    <div class="info-label">✅ 怎麼選：用語意決定，不是用喜好</div>
-    <p style="margin-bottom:0;">只是想<strong>讓函式碰到本人、或省下複製</strong>：用參考，呼叫端乾淨、也不必防
-    <code>&#78;ULL</code>。需要<strong>「可能沒有對象」或「會換對象」</strong>的語意 —— 串列的
-    <code>next</code> 要能是 <code>&#78;ULL</code> 當終點、走訪的 <code>current</code> 要一路往下換人 ——
-    就非指標不可。這正是第 04 章起節點清一色用指標的原因。</p>
-  </div>
-
-  <div class="quiz-box">
-    <div class="quiz-label">隨堂 · 參考 vs 指標</div>
-    <p>下列哪件事是<strong>指標做得到、參考做不到</strong>的？</p>
-    <div class="quiz-options" id="qRefOptions">
-      <div class="quiz-opt" data-correct="false" data-fb="兩個都做得到：傳參考與傳指標都能改到呼叫端的變數（P3 的 byRef 與 byPtr）。" onclick="quizCheck('qRef', this)"><span class="opt-letter">(A)</span> 讓函式改到呼叫端的變數</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。參考宣告當下綁定、終身不換；指標隨時可以 p = &amp;y; 改指別人，也可以設成 NULL。走訪串列的 current 一路換對象，所以只能是指標。" onclick="quizCheck('qRef', this)"><span class="opt-letter">(B)</span> 中途改成指向另一個變數</div>
-      <div class="quiz-opt" data-correct="false" data-fb="兩個都做得到：const T&amp; 與 T* 傳的都只是 8 bytes 以內的東西，都不複製物件本體。" onclick="quizCheck('qRef', this)"><span class="opt-letter">(C)</span> 避免複製整個物件</div>
-    </div>
-    <div class="quiz-feedback" id="qRefFeedback"></div>
-  </div>
-</section>
-
-<section id="null">
-  <div class="section-number">PART 03 · 空指標</div>
-  <h2><code>&#78;ULL</code>：指向「哪裡都不是」 <span class="sec-badge">課程用 114 次</span></h2>
-  <p><code>&#78;ULL</code> 代表「這個指標目前沒有指向任何東西」。它在這門課有一個固定用途：<strong>當作結構的終點標記</strong>。</p>
-
-<div class="deck-extra">
-  <div class="dx-label">走到 &#78;ULL 為止——這就是第 04 章整章的骨幹</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">class</span> Node {</span>
-<span class="line" data-l="5">    <span class="kw">public</span>:</span>
-<span class="line" data-l="6">        <span class="kw">int</span> data;</span>
-<span class="line" data-l="7">        Node *next;</span>
-<span class="line" data-l="8">        Node(<span class="kw">int</span> d) { data = d; next = <span class="fn">NULL</span>; }</span>
-<span class="line" data-l="9">};</span>
-<span class="line" data-l="10"> </span>
-<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="12">    Node *a = <span class="kw">new</span> Node(<span class="num">31</span>);</span>
-<span class="line" data-l="13">    a-&gt;next = <span class="kw">new</span> Node(<span class="num">17</span>);</span>
-<span class="line" data-l="14">    a-&gt;next-&gt;next = <span class="kw">new</span> Node(<span class="num">93</span>);      <span class="com">// 最後一個的 next 是 NULL</span>
-<span class="line" data-l="15"></span></span>
-<span class="line" data-l="16">    <span class="com">// 走訪：一路走到 NULL 為止。這就是第 04 章整章的骨幹</span>
-<span class="line" data-l="17"></span>    Node *current = a;</span>
-<span class="line" data-l="18">    <span class="kw">while</span> (current != <span class="fn">NULL</span>) {</span>
-<span class="line" data-l="19">        cout &lt;&lt; current-&gt;data &lt;&lt; <span class="str">"</span><span class="str"> -&gt; </span><span class="str">"</span>;</span>
-<span class="line" data-l="20">        current = current-&gt;next;</span>
-<span class="line" data-l="21">    }</span>
-<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">NULL</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="23"> </span>
-<span class="line" data-l="24">    <span class="kw">delete</span> a-&gt;next-&gt;next;</span>
-<span class="line" data-l="25">    <span class="kw">delete</span> a-&gt;next;</span>
-<span class="line" data-l="26">    <span class="kw">delete</span> a;</span>
-<span class="line" data-l="27">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="28">}</span>
-<span class="line" data-l="29"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>31 -&gt; 17 -&gt; 93 -&gt; NULL</pre></div>
-  <p class="dx-note"><code>while (current != &#78;ULL)</code> 這一行，你在第 04、05、09 章會看到幾十次。它的意思是「只要還沒走到盡頭就繼續」。最後一個節點的 <code>next</code> 是 <code>&#78;ULL</code>，迴圈就停在那裡。</p>
-</div>
-
-  <div class="warn-box">
-    <div class="info-label">⚠️ 解參考 <code>&#78;ULL</code> 會當掉</div>
-    <p style="margin-bottom:0;"><code>current-&gt;data</code> 在 <code>current</code> 是 <code>&#78;ULL</code> 時是<strong>未定義行為</strong>，通常直接 segmentation fault。所以走訪的迴圈條件一定要<strong>先檢查再解參考</strong>。這也是為什麼 <code>while (current != &#78;ULL &amp;&amp; current-&gt;data != item)</code> 的順序不能顛倒 —— <code>&amp;&amp;</code> 有短路求值，左邊不成立就不會去碰右邊。</p>
-  </div>
-
-  <div class="info-box green">
-    <div class="info-label">✅ 現代 C++ 對照</div>
-    <p style="margin-bottom:0;">C++11 之後有了 <code>nullptr</code>，型別更安全，是現在的標準寫法。<strong>本課照 cppds 教科書用 <code>&#78;ULL</code></strong>，你看別人的程式碼時會遇到 <code>nullptr</code>，兩者在這門課的用途完全一樣。</p>
-  </div>
-
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、09 章</div><p style='margin-bottom:0;'>第 04 章的 <code>size()</code>、<code>search()</code>、<code>remove()</code> 全部是 <code>while (current != &#78;ULL)</code> 的變形；第 09 章的樹走訪則是「左邊不是 &#78;ULL 就往左走」的遞迴版。</p></div>
-</section>
-
-<section id="array">
-  <div class="section-number">PART 04 · 陣列</div>
-  <h2><code>a[i]</code> 其實就是 <code>*(a + i)</code></h2>
-  <p>這不是比喻，是<strong>定義</strong>。陣列名就是首元素的位址，中括號只是「往後跳 i 格再解參考」的簡寫。</p>
-
-<div class="deck-extra">
-  <div class="dx-label">三種寫法印出同一個東西</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="5">    <span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>};</span>
-<span class="line" data-l="6"> </span>
-<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">a       = </span><span class="str">"</span> &lt;&lt; a       &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 陣列名就是首元素的位址</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">&amp;a[0]   = </span><span class="str">"</span> &lt;&lt; &amp;a[<span class="num">0</span>]   &lt;&lt; <span class="str">"</span><span class="str">  &lt;- 一模一樣</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="9">    cout &lt;&lt; endl;</span>
-<span class="line" data-l="10">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">3</span>; i++) {</span>
-<span class="line" data-l="11">        cout &lt;&lt; <span class="str">"</span><span class="str">i=</span><span class="str">"</span> &lt;&lt; i</span>
-<span class="line" data-l="12">             &lt;&lt; <span class="str">"</span><span class="str">  a[i]=</span><span class="str">"</span> &lt;&lt; a[i]</span>
-<span class="line" data-l="13">             &lt;&lt; <span class="str">"</span><span class="str">  *(a+i)=</span><span class="str">"</span> &lt;&lt; *(a + i)</span>
-<span class="line" data-l="14">             &lt;&lt; <span class="str">"</span><span class="str">  位址=</span><span class="str">"</span> &lt;&lt; (a + i)</span>
-<span class="line" data-l="15">             &lt;&lt; <span class="str">"</span><span class="str">  距離首位 </span><span class="str">"</span> &lt;&lt; (<span class="kw">char</span>*)(a + i) - (<span class="kw">char</span>*)a &lt;&lt; <span class="str">"</span><span class="str"> bytes</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="16">    }</span>
-<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="18">}</span>
-<span class="line" data-l="19"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a       = 0x7ffef812b1b0  &lt;- 陣列名就是首元素的位址
-&amp;a[0]   = 0x7ffef812b1b0  &lt;- 一模一樣
-
-i=0  a[i]=10  *(a+i)=10  位址=0x7ffef812b1b0  距離首位 0 bytes
-i=1  a[i]=20  *(a+i)=20  位址=0x7ffef812b1b4  距離首位 4 bytes
-i=2  a[i]=30  *(a+i)=30  位址=0x7ffef812b1b8  距離首位 8 bytes</pre></div>
-  <p class="dx-note">看最後一欄：每跳一格，位址就前進 <strong>4 bytes</strong>——剛好是一個 <code>int</code> 的大小。指標算術會自動乘上型別大小，所以 <code>a + 1</code> 不是「位址加 1」，是「往後一個元素」。這也解釋了為什麼索引從 0 開始：<code>a[0]</code> 就是「往後跳 0 格」，也就是原地。</p>
-</div>
-
-  <div class="viz-layout">
-    <div>
-      <div class="viz-panel">
-        <div class="slider-row">
-          <span class="slider-label">索引 i</span>
-          <input id="idxSlider" type="range" min="0" max="4" value="0">
-          <span class="slider-val mono" id="idxVal">0</span>
-        </div>
-        <div id="arrStage" style="min-height:150px;"></div>
-        <div class="status-banner" id="arrStatus"><span class="status-icon">›</span><span class="status-text">拉動滑桿，看三種寫法永遠指向同一格。</span></div>
-      </div>
-    </div>
-    <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">為什麼要懂 <span class="ic-badge">WHY</span></div>
-        <p style="font-size:.88rem;margin-bottom:0;">第 03 章要你自己算二維陣列的位址：<code>student[i][j]</code> 在 row-major 佈局下是第 <code>i * 欄數 + j</code> 格。那個公式就是從這裡長出來的。</p>
-      </div>
-    </div>
-  </div>
-
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 03 章</div><p style='margin-bottom:0;'>〈陣列與稀疏矩陣〉整章都在算位址：低階陣列的位址計算、二維陣列的 row-major 佈局、自己動手寫 <code>ArrayList</code> 的容量加倍。</p></div>
-</section>
-
-<section id="decay">
-  <div class="section-number">PART 05 · 退化</div>
-  <h2>陣列一進函式，就變成一個指標</h2>
-
-<div class="deck-extra">
-  <div class="dx-label">同一個陣列，sizeof 卻不一樣</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">f</span>(<span class="kw">int</span> arr[]) {                       <span class="com">// 看起來像陣列，其實是 int*</span>
-<span class="line" data-l="5"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">在函式裡 sizeof(arr) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(arr) &lt;&lt; <span class="str">"</span><span class="str"> bytes（這是指標的大小）</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="6">}</span>
-<span class="line" data-l="7"> </span>
-<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="9">    <span class="kw">int</span> a[<span class="num">5</span>] = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>, <span class="num">50</span>};</span>
-<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">在 main 裡 sizeof(a) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(a) &lt;&lt; <span class="str">"</span><span class="str"> bytes（5 個 int）</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="11">    f(a);</span>
-<span class="line" data-l="12">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="13">}</span>
-<span class="line" data-l="14"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>在 main 裡 sizeof(a) = 20 bytes（5 個 int）
-在函式裡 sizeof(arr) = 8 bytes（這是指標的大小）</pre></div>
-  <p class="dx-note"><code>void f(int arr[])</code> 看起來收的是陣列，其實編譯器把它當成 <code>int*</code>。所以函式裡量到的是<strong>指標的大小</strong>（8 bytes），不是陣列的大小（20 bytes）。這叫<strong>陣列退化</strong>，是 C++ 初學最常踩的坑之一。</p>
-</div>
-
-  <div class="warn-box">
-    <div class="info-label">⚠️ 所以陣列傳進函式一定要另外傳長度</div>
-    <p style="margin-bottom:0;">因為函式根本無從得知長度。<code>void printAll(int arr[], int n)</code> 這種簽章不是囉嗦，是必要。<strong>用 <code>vector</code> 就沒這個問題</strong>——它自己記得 <code>size()</code>，這也是 <a href="p5_vector_string.html">P5</a> 要講的第一個好處。</p>
-  </div>
-
-  <details style="margin-top:1rem;"><summary><strong>備註：講義第 02 章那行 <code>void (*tests[])(int)</code> 是什麼</strong></summary>
-    <p style="margin-top:.7rem;font-size:.9rem;">效能測試那段有一行長得很兇的宣告：
-    <code>void (*tests[])(int) = {test1, test2, test3, test4};</code>。
-    讀法由內往外：<code>tests</code> 是一個<strong>陣列</strong>，每個元素是「收一個 <code>int</code>、不回傳東西的<strong>函式指標</strong>」。
-    之後 <code>tests[k](n)</code> 就是「呼叫第 k 個測試函式」——迴圈跑四種測試不用寫四段重複的碼。
-    能這樣塞是因為<strong>函式名跟陣列名一樣，會退化成指標</strong>（正是本節講的那件事）。
-    全課只出現這一次，看得懂就好，作業用不到。</p>
-  </details>
-</section>
-
-<section id="heap">
-  <div class="section-number">PART 06 · 兩塊記憶體</div>
-  <h2>堆疊與堆積：生命週期完全不同</h2>
-
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th></th><th>堆疊 stack</th><th>堆積 heap</th></tr></thead>
-    <tbody>
-      <tr><td>怎麼配置</td><td>宣告區域變數就有</td><td>要自己寫 <code>new</code></td></tr>
-      <tr><td>怎麼釋放</td><td><strong>離開範圍自動消失</strong></td><td><strong>要自己寫 <code>delete</code></strong></td></tr>
-      <tr><td>大小</td><td>小（通常幾 MB），會爆</td><td>大，受限於實體記憶體</td></tr>
-      <tr><td>編譯時要知道大小嗎</td><td>要</td><td>不用，執行時決定</td></tr>
-      <tr><td>這門課用在哪</td><td>迴圈變數、暫存值</td><td><strong>所有節點</strong>：串列、樹、圖</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <p>遞迴太深會爆的是<strong>堆疊</strong>（第 06 章的 <code>RecursionError</code> 就是這個）；<code>new</code> 出來沒還的是<strong>堆積</strong>。</p>
-</section>
-
-<section id="newdel">
-  <div class="section-number">PART 07 · 借與還</div>
-  <h2><code>new</code> 與 <code>delete</code> <span class="sec-badge">課程用 218 / 32 次</span></h2>
-
-<div class="deck-extra">
-  <div class="dx-label">借了要還，而且形式要配對</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="5">    <span class="kw">int</span> onStack = <span class="num">42</span>;                 <span class="com">// 堆疊：離開範圍自動消失</span>
-<span class="line" data-l="6"></span>    <span class="kw">int</span> *onHeap = <span class="kw">new</span> <span class="kw">int</span>(<span class="num">42</span>);        <span class="com">// 堆積：你不 delete 就一直在</span>
-<span class="line" data-l="7"></span></span>
-<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">堆疊變數位址 = </span><span class="str">"</span> &lt;&lt; &amp;onStack &lt;&lt; endl;</span>
-<span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">堆積變數位址 = </span><span class="str">"</span> &lt;&lt; onHeap   &lt;&lt; endl;</span>
-<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">兩者的值都是 </span><span class="str">"</span> &lt;&lt; onStack &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span> &lt;&lt; *onHeap &lt;&lt; endl;</span>
-<span class="line" data-l="11"> </span>
-<span class="line" data-l="12">    <span class="kw">int</span> *arr = <span class="kw">new</span> <span class="kw">int</span>[<span class="num">5</span>];            <span class="com">// 配一整排</span>
-<span class="line" data-l="13"></span>    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) arr[i] = i * i;</span>
-<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">arr = </span><span class="str">"</span>;</span>
-<span class="line" data-l="15">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; i++) cout &lt;&lt; arr[i] &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
-<span class="line" data-l="16">    cout &lt;&lt; endl;</span>
-<span class="line" data-l="17"> </span>
-<span class="line" data-l="18">    <span class="kw">delete</span> onHeap;                    <span class="com">// 單一個用 delete</span>
-<span class="line" data-l="19"></span>    <span class="kw">delete</span>[] arr;                     <span class="com">// 一整排用 delete[]</span>
-<span class="line" data-l="20"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">都還回去了。</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="22">}</span>
-<span class="line" data-l="23"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>堆疊變數位址 = 0x7fff825e572c
-堆積變數位址 = 0x6146265982b0
-兩者的值都是 42 / 42
-arr = 0 1 4 9 16 
-都還回去了。</pre></div>
-  <p class="dx-note">注意兩個位址差很多：堆疊那個是 <code>0x7fff…</code>，堆積那個是 <code>0x6146…</code>——它們住在記憶體的兩端。另外 <strong><code>new[]</code> 一定要配 <code>delete[]</code></strong>，配錯是未定義行為（g++ 加 -Wall 通常會警告，但別依賴它）。</p>
-</div>
-
-  <div class="viz-layout">
-    <div>
-      <div class="viz-panel">
-        <div id="heapStage" style="min-height:220px;"></div>
-        <div class="status-banner" id="heapStatus"><span class="status-icon">›</span><span class="status-text">選一個版本，看堆積上的東西怎麼長、怎麼消。</span></div>
-        <div class="controls-bar">
-          <button class="btn btn-play" onclick="heapStart('good')">▶ 有 delete 的版本</button>
-          <button class="btn btn-play" onclick="heapStart('leak')">▶ 忘記 delete 的版本</button>
-          <button class="btn btn-step" onclick="heapPlayer &amp;&amp; heapPlayer.step()">→ 單步</button>
-          <button class="btn btn-reset" onclick="heapReset()">⟲ 重設</button>
-          <button class="btn" onclick="heapPlayer &amp;&amp; heapPlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="heapSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
-          <span class="mono" style="font-size:.78rem;color:var(--muted);">堆積上還沒還的：<b id="heapLeak">0</b></span>
-        </div>
-      </div>
-    </div>
-    <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">程式碼 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" id="heapCode" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">build</span>() {</span>
-<span class="line" data-l="2">    Node *a = <span class="kw">new</span> Node(<span class="num">31</span>);</span>
-<span class="line" data-l="3">    a-&gt;next = <span class="kw">new</span> Node(<span class="num">17</span>);</span>
-<span class="line" data-l="4">    <span class="kw">delete</span> a-&gt;next;</span>
-<span class="line" data-l="5">    <span class="kw">delete</span> a;</span>
-<span class="line" data-l="6">}</span>
-<span class="line" data-l="7"> </span></div>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">重點 <span class="ic-badge">WHY</span></div>
-        <p style="font-size:.86rem;margin-bottom:0;">函式結束時，<strong>指標 <code>a</code> 本身</strong>（住在堆疊上）會自動消失，但<strong>它指向的那塊堆積記憶體不會</strong>。沒有 <code>delete</code>，那塊就永遠找不回來了。</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="viz-panel" style="margin-top:1.4rem;">
-    <svg viewBox="0 0 760 230" style="max-width:100%;height:auto" role="img" aria-label="new、delete 與懸空指標三格圖：配置、釋放後成為懸空指標、指回 NULL 收尾">
-      <defs>
-        <marker id="p4f2ArrowBlue" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0,0 L10,5 L0,10 Z" style="fill:var(--accent2)"></path>
-        </marker>
-        <marker id="p4f2ArrowRed" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0,0 L10,5 L0,10 Z" fill="#c0392b"></path>
-        </marker>
-      </defs>
-
-      <!-- ① 配置 -->
-      <rect x="8" y="8" width="236" height="206" rx="10" fill="#fafafa" stroke="#ececec"></rect>
-      <text x="22" y="32" font-size="13" font-family="'JetBrains Mono',monospace" style="fill:var(--accent2)">① int *p = new int(7);</text>
-      <text x="60" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆疊</text>
-      <text x="186" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆積</text>
-      <rect x="28" y="68" width="64" height="44" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
-      <text x="60" y="97" font-size="17" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">p</text>
-      <rect x="148" y="66" width="76" height="48" rx="6" fill="#ffffff" stroke-width="2" style="stroke:var(--ink)"></rect>
-      <text x="186" y="99" font-size="24" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--ink)">7</text>
-      <line x1="96" y1="90" x2="144" y2="90" stroke-width="2.5" marker-end="url(#p4f2ArrowBlue)" style="stroke:var(--accent2)"></line>
-      <text x="126" y="144" font-size="12.5" font-weight="700" text-anchor="middle" style="fill:var(--accent3)">正常使用</text>
-      <text x="126" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">p 指著堆積上那塊 7</text>
-      <text x="126" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">這時 *p 讀得到 7</text>
-
-      <!-- ② 釋放後 -->
-      <rect x="262" y="8" width="236" height="206" rx="10" fill="#fafafa" stroke="#ececec"></rect>
-      <text x="276" y="32" font-size="13" font-family="'JetBrains Mono',monospace" fill="#c0392b">② delete p;</text>
-      <text x="314" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆疊</text>
-      <text x="440" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆積</text>
-      <rect x="282" y="68" width="64" height="44" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
-      <text x="314" y="97" font-size="17" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffffff">p</text>
-      <rect x="402" y="66" width="76" height="48" rx="6" fill="#f0ece4" stroke="#b9b2a4" stroke-width="2" stroke-dasharray="5 4"></rect>
-      <text x="440" y="99" font-size="24" font-family="'JetBrains Mono',monospace" text-anchor="middle" style="fill:var(--muted)">?</text>
-      <line x1="402" y1="66" x2="478" y2="114" stroke="#c0392b" stroke-width="3"></line>
-      <line x1="478" y1="66" x2="402" y2="114" stroke="#c0392b" stroke-width="3"></line>
-      <line x1="350" y1="90" x2="398" y2="90" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#p4f2ArrowRed)"></line>
-      <text x="380" y="144" font-size="12.5" font-weight="700" text-anchor="middle" fill="#c0392b">懸空指標 dangling</text>
-      <text x="380" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">記憶體還回去了</text>
-      <text x="380" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">p 卻還指著，碰它就當掉</text>
-
-      <!-- ③ 收尾 -->
-      <rect x="516" y="8" width="236" height="206" rx="10" fill="#fafafa" stroke="#ececec"></rect>
-      <text x="530" y="32" font-size="13" font-family="'JetBrains Mono',monospace" style="fill:var(--accent3)">③ p = &#78;ULL;</text>
-      <text x="568" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆疊</text>
-      <text x="694" y="60" font-size="11.5" text-anchor="middle" style="fill:var(--muted)">堆積</text>
-      <rect x="530" y="68" width="76" height="44" rx="6" stroke-width="2" style="fill:var(--accent2);stroke:var(--accent2)"></rect>
-      <text x="568" y="96" font-size="15" font-family="'JetBrains Mono',monospace" text-anchor="middle" fill="#ffe9a8">&#78;ULL</text>
-      <rect x="656" y="66" width="76" height="48" rx="6" fill="none" stroke="#d8d2c6" stroke-width="2" stroke-dasharray="4 5"></rect>
-      <text x="694" y="95" font-size="12" text-anchor="middle" style="fill:var(--muted)">已還給</text>
-      <text x="694" y="109" font-size="12" text-anchor="middle" style="fill:var(--muted)">系統</text>
-      <text x="634" y="144" font-size="12.5" font-weight="700" text-anchor="middle" style="fill:var(--accent3)">安全的收尾</text>
-      <text x="634" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">箭頭斷乾淨</text>
-    </svg>
-    <p class="mono" style="font-size:.8rem;color:var(--muted);margin:.7rem 0 0;text-align:center;line-height:1.7;">圖 2：<code>delete</code> 還的是<strong>堆積上那塊記憶體</strong>，不是指標 <code>p</code> —— p 還留著舊門牌，就成了懸空指標。多寫一行 <code>p = &#78;ULL;</code>，箭頭才真的斷乾淨。</p>
-  </div>
-</section>
-
-<section id="disaster">
-  <div class="section-number">PART 08 · 三種災難</div>
-  <h2>指標出錯的三種典型死法</h2>
-  <p>共同點：<strong>編譯器都不會抱怨</strong>。這三個名字值得記起來，因為 debug 時你要先猜是哪一種。</p>
-
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th>災難</th><th>長什麼樣</th><th>症狀</th></tr></thead>
-    <tbody>
-      <tr><td><strong>記憶體洩漏</strong><br>memory leak</td><td class="mono" style="font-size:.8rem;">new 了沒 delete</td><td>程式跑越久吃越多記憶體，最後被系統砍掉。短程式看不出來</td></tr>
-      <tr><td><strong>懸空指標</strong><br>dangling pointer</td><td class="mono" style="font-size:.8rem;">delete 之後還在用</td><td>讀到垃圾值，或當掉。<strong>最難 debug</strong>，因為有時候「剛好」還是對的</td></tr>
-      <tr><td><strong>二次釋放</strong><br>double free</td><td class="mono" style="font-size:.8rem;">同一塊 delete 兩次</td><td>通常當場當掉，訊息像 <code>free(): double free detected</code></td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <div class="info-box purple">
-    <div class="info-label">🎯 一個習慣可以擋掉兩種</div>
-    <p style="margin-bottom:0;"><code>delete p;</code> 之後<strong>立刻</strong>寫 <code>p = &#78;ULL;</code>。這樣懸空指標會變成空指標（當掉得很明確、很好找），而 <code>delete</code> 一個 <code>&#78;ULL</code> 在 C++ 是<strong>合法的空操作</strong>，二次釋放也就不會發生。</p>
-  </div>
-
-  <div class="info-box green">
-    <div class="info-label">✅ 現代 C++ 對照</div>
-    <p style="margin-bottom:0;">現在的 C++ 會用 <code>std::unique_ptr</code>：它離開範圍時自動 <code>delete</code>，三種災難一次擋掉。<strong>本課照 cppds 用手動 <code>new</code>／<code>delete</code></strong>，因為要你先看懂記憶體是怎麼運作的 —— 這跟先學手排再開自排是一樣的道理。</p>
-  </div>
-
-  <div class="quiz-box">
-    <div class="quiz-label">隨堂 1 · 誰該負責還</div>
-    <p>一個函式裡 <code>new</code> 出一個節點、把指標回傳給呼叫端。這塊記憶體該誰 <code>delete</code>？</p>
-    <div class="quiz-options" id="qaOptions">
-      <div class="quiz-opt" data-correct="false" data-fb="函式一結束就 delete 的話，回傳的指標會立刻變成懸空指標，呼叫端一用就出事。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> 函式自己，在 <code>return</code> 之前</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。誰拿到指標誰負責。這叫「所有權」——C++ 沒有語法強制它，所以要靠註解與約定講清楚。第 04 章的串列就是這樣：節點由串列 new 出來，也由串列負責 delete。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> 呼叫端，用完之後</div>
-      <div class="quiz-opt" data-correct="false" data-fb="C++ 沒有垃圾回收。沒有人 delete，那塊記憶體就會一直佔著到程式結束。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 不用管，程式會自己回收</div>
-    </div>
-    <div class="quiz-feedback" id="qaFeedback"></div>
-  </div>
-</section>
-
-<section id="node">
-  <div class="section-number">PART 09 · 收尾</div>
-  <h2>從指標到 <code>&#78;ode</code>：把第 04 章的第一段程式碼看懂</h2>
-  <p>把前面九節接起來，就是課程 <code>pythonds3/cppds/linked_list.hpp</code> 的開頭：</p>
-
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
-<span class="line" data-l="2"><span class="kw">class</span> Node {</span>
-<span class="line" data-l="3">    <span class="kw">private</span>:</span>
-<span class="line" data-l="4">        T data;</span>
-<span class="line" data-l="5">        Node&lt;T&gt; *next;              <span class="com">// 指向「同型別的下一個節點」</span>
-<span class="line" data-l="6"></span>    <span class="kw">public</span>:</span>
-<span class="line" data-l="7">        Node(T initdata) {</span>
-<span class="line" data-l="8">            data = initdata;</span>
-<span class="line" data-l="9">            next = <span class="fn">NULL</span>;            <span class="com">// 一出生先不指向任何東西</span>
-<span class="line" data-l="10"></span>        }</span>
-<span class="line" data-l="11">        T getData() <span class="kw">const</span> { <span class="kw">return</span> data; }</span>
-<span class="line" data-l="12">        Node&lt;T&gt; *getNext() <span class="kw">const</span> { <span class="kw">return</span> next; }</span>
-<span class="line" data-l="13">        <span class="kw">void</span> setNext(Node&lt;T&gt; *newnext) { next = newnext; }</span>
-<span class="line" data-l="14">};</span>
-<span class="line" data-l="15"> </span></div>
-
-  <div class="info-box">
-    <div class="info-label">💡 三個「為什麼」，現在都答得出來了</div>
-    <p style="margin-bottom:0;"><strong>為什麼 <code>next</code> 是指標而不是物件？</strong>因為一個型別不可能包含一個自己（那會無限大）；存位址就沒這個問題。<br>
-    <strong>為什麼建構式把 <code>next</code> 設成 <code>&#78;ULL</code>？</strong>因為新節點還沒接到任何東西，而走訪的迴圈靠 <code>&#78;ULL</code> 判斷終點。<br>
-    <strong>為什麼要 <code>new</code>？</strong>因為串列有幾個節點是執行時才知道的，堆疊上配不出來。</p>
-  </div>
-
-  <div class="viz-layout">
-    <div>
-      <div class="viz-panel">
-        <div id="nodeStage" style="min-height:140px;"></div>
-        <div class="status-banner" id="nodeStatus"><span class="status-icon">›</span><span class="status-text">按 add 在頭部插入一個節點，看指標怎麼接。</span></div>
-        <div class="controls-bar">
-          <button class="btn btn-play" onclick="nodeAdd()">▶ add(下一個值)</button>
-          <button class="btn btn-play" onclick="nodeTraverseStart()">▶ 走訪一遍</button>
-          <button class="btn btn-step" onclick="nodePlayer &amp;&amp; nodePlayer.step()">→ 單步</button>
-          <button class="btn btn-reset" onclick="nodeReset()">⟲ 重設</button>
-          <button class="btn" onclick="nodePlayer &amp;&amp; nodePlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="nodeSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
-        </div>
-      </div>
-    </div>
-    <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">add 的兩行 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" id="nodeCode" style="font-size:.78rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">add</span>(T item) {</span>
-<span class="line" data-l="2">    Node&lt;T&gt; *temp = <span class="kw">new</span> Node&lt;T&gt;(item);</span>
-<span class="line" data-l="3">    temp-&gt;setNext(head);</span>
-<span class="line" data-l="4">    head = temp;</span>
-<span class="line" data-l="5">}</span>
-<span class="line" data-l="6"> </span></div>
-        <p style="font-size:.85rem;margin:.5rem 0 0;">順序不能反：<strong>先讓新節點接上舊的頭，再把頭換成新的</strong>。反過來寫，舊的那串就找不回來了。</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="quiz-box">
-    <div class="quiz-label">隨堂 2 · 順序反了會怎樣</div>
-    <p>如果把 <code>add()</code> 的兩行對調，先寫 <code>head = temp;</code> 再寫 <code>temp-&gt;setNext(head);</code>，會發生什麼？</p>
-    <div class="quiz-options" id="qbOptions">
-      <div class="quiz-opt" data-correct="false" data-fb="不會編譯錯——兩行都是合法的敘述。C++ 不會幫你檢查邏輯順序，這正是它危險的地方。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 編譯錯誤</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。head 已經被換成 temp 了，所以 temp->setNext(head) 等於讓新節點指向自己，形成一個環。原本那串節點再也沒有人指向它——整串洩漏，而且走訪會變成無窮迴圈。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 新節點指向自己，原本那串全部洩漏</div>
-      <div class="quiz-opt" data-correct="false" data-fb="順序真的有差。指標賦值是有先後的，改了 head 之後就拿不回舊值了。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 沒差，結果一樣</div>
-    </div>
-    <div class="quiz-feedback" id="qbFeedback"></div>
-  </div>
-
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、05、09 章</div><p style='margin-bottom:0;'>這段 <code>&#78;ode</code> 就是第 04 章的主角；第 05 章的鏈結版 Stack 與 Queue 用同一個 <code>&#78;ode</code>；第 09 章的樹只是把一個 <code>next</code> 換成 <code>leftChild</code> 與 <code>rightChild</code> 兩個指標。看懂這一段，那三章就都有底了。</p></div>
-</section>
-
-<section id="exercises">
-  <div class="section-number">EX · 隨堂練習</div>
-  <h2>再一題確認觀念</h2>
-
-  <div class="quiz-box">
-    <div class="quiz-label">EXERCISE · 這段程式漏了什麼</div>
-    <p><code>int *a = new int[10];</code> 用完之後寫 <code>delete a;</code>。問題在哪？</p>
-    <div class="quiz-options" id="qcOptions">
-      <div class="quiz-opt" data-correct="false" data-fb="沒有漏寫。問題出在 delete 的形式不對。" onclick="quizCheck('qc', this)"><span class="opt-letter">(A)</span> 沒問題</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。new[] 配的是一整排，必須用 delete[] 還。用 delete 是未定義行為：可能整塊還掉、可能只還一部分、對有解構式的型別還會漏掉解構；g++ 加 -Wall 通常會警告，但別依賴它。口訣：中括號要成對。" onclick="quizCheck('qc', this)"><span class="opt-letter">(B)</span> <code>new[]</code> 要配 <code>delete[]</code>，寫成 <code>delete</code> 是未定義行為</div>
-      <div class="quiz-opt" data-correct="false" data-fb="配置本身沒問題，new int[10] 是合法的。" onclick="quizCheck('qc', this)"><span class="opt-letter">(C)</span> 配置的語法就錯了</div>
-    </div>
-    <div class="quiz-feedback" id="qcFeedback"></div>
-  </div>
-</section>
-
-<section id="reference">
-  <div class="section-number">REFERENCE · 速查表</div>
-  <h2>P4 速查表</h2>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">語法</h3>
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th>寫法</th><th>意思</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">int *p;</td><td>宣告一個指向 int 的指標</td></tr>
-      <tr><td class="mono">&amp;x</td><td>x 的位址</td></tr>
-      <tr><td class="mono">*p</td><td>解參考：p 指向的那個東西</td></tr>
-      <tr><td class="mono">p-&gt;field</td><td>等同 <code>(*p).field</code>，指向物件時用這個</td></tr>
-      <tr><td class="mono">a[i]</td><td>等同 <code>*(a + i)</code></td></tr>
-      <tr><td class="mono">new T(v)</td><td>在堆積配一個 T，回傳指標</td></tr>
-      <tr><td class="mono">new T[n]</td><td>在堆積配 n 個 T</td></tr>
-      <tr><td class="mono">delete p;</td><td>還一個</td></tr>
-      <tr><td class="mono">delete[] p;</td><td>還一整排</td></tr>
-      <tr><td class="mono">sizeof(x)</td><td>x 佔幾個 byte（編譯期就決定）</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">四條記得住的規則</h3>
-  <div class="info-box green">
-    <p>① 每寫一個 <code>new</code>，當場想清楚它的 <code>delete</code> 在哪。<br>
-    ② <code>new[]</code> 配 <code>delete[]</code>，中括號要成對。<br>
-    ③ <code>delete</code> 之後立刻把指標設成 <code>&#78;ULL</code>。<br>
-    ④ 解參考之前先確認不是 <code>&#78;ULL</code>。</p>
-  </div>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
-  <table class="cmp-table">
-    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
-    <tbody>
-      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的每一段程式貼進去，一步一步看堆疊與堆積上的方框和箭頭。學指標最有效的工具。</td></tr>
-      <tr><td><a href="https://en.cppreference.com/w/cpp/language/new" target="_blank" rel="noopener">cppreference · new expression</a></td><td><code>new</code> 的完整語意，包含配置失敗時會發生什麼。</td></tr>
-      <tr><td><a href="https://github.com/pearcej/cppds/tree/master/_sources/LinearLinked" target="_blank" rel="noopener">cppds · LinearLinked</a></td><td>教科書的鏈結串列章節，本頁 PART 09 那段程式碼的出處。</td></tr>
-      <tr><td><a href="linked_lists.html">本站第 04 章 · 鏈結串列</a></td><td>把這一頁的東西實際用起來。</td></tr>
-    </tbody>
-  </table>
-</section>
-
+<div class="study-guide"><div class="sg-title">📌 本頁使用方式</div><p>先讀語法說明，再預測範例結果；操作互動後完成自我檢測。</p><p><strong>學習目標：</strong>你會使用固定陣列與指標、把陣列和長度傳入函式，並正確配對 <code>new</code>／<code>delete</code>。</p><div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="p3_functions.html">← P3 函式</a><a href="p5_vector_string.html">P5 vector 與 string →</a></div></div>
+<div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#array" data-target="array">固定陣列與索引</a><a href="#address" data-target="address">位址、指標、解參考</a><a href="#null" data-target="null">空指標</a><a href="#params" data-target="params">指標與陣列參數</a><a href="#lifetime" data-target="lifetime">生命週期</a><a href="#dynamic" data-target="dynamic">動態配置</a><a href="#mistakes" data-target="mistakes">錯誤整理</a><a href="#reference">速查表</a><a href="#bankquiz">自我檢測</a><a href="#cards">詞彙卡</a></div></div>
+
+<section id="array"><div class="section-number">PART 01 · 固定陣列</div><h2>把一組測量值排成有編號的一列</h2><p>已知資料筆數時，可以用固定陣列保存同型別資料。宣告中的 <code>5</code> 是元素個數；索引從 <code>0</code> 開始，因此最後一格是 <code>4</code>。</p>
+<div class="deck-extra"><div class="dx-label">語法拆解</div><pre class="pseudo-code" data-cpp="run" data-expected="第三筆 = 21&#10;總和 = 102">#include &lt;iostream&gt;
+using namespace std;  // 本例因此可省略 std:: 前綴
+
+int main() {
+    int temperature[5] = {18, 20, 21, 19, 24};
+    int total = 0;
+    for (int i = 0; i &lt; 5; i++) total += temperature[i];
+    cout &lt;&lt; "第三筆 = " &lt;&lt; temperature[2] &lt;&lt; "\n";
+    cout &lt;&lt; "總和 = " &lt;&lt; total;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>第三筆 = 21
+總和 = 102</pre></div><p class="dx-note"><code>temperature[i]</code> 取得第 <code>i</code> 格。C++ 不會替原生陣列檢查索引，使用者必須確保索引位於有效範圍。</p></div>
+<div class="info-box"><div class="info-label">陣列不是指標</div><p>陣列是包含多個元素的物件；指標則是保存位址的變數。陣列名稱在許多運算式中會轉成首元素位址，但兩者仍不是同一種東西。</p></div></section>
+
+<section id="address"><div class="section-number">PART 02 · 位址與指標</div><h2>指標保存「某個值放在哪裡」</h2><p><code>&amp;score</code> 取得 <code>score</code> 的位址；<code>int *p</code> 宣告可指向 <code>int</code> 的指標；<code>*p</code> 沿著位址找到原本的整數。位址每次執行可能不同，所以範例只比較位址，不預測實際數字。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="same address&#10;score = 85">#include &lt;iostream&gt;
+using namespace std;  // 本例因此可省略 std:: 前綴
+
+int main() {
+    int score = 72;
+    int *p = &amp;score;
+    if (p == &amp;score) {
+        cout &lt;&lt; "same address\n";
+    } else {
+        cout &lt;&lt; "different\n";
+    }
+    *p = 85;
+    cout &lt;&lt; "score = " &lt;&lt; score;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>same address
+score = 85</pre></div>
+<div class="info-box"><div class="info-label">同一個 <code>*</code>，兩個位置</div><p><code>int *p</code> 中的 <code>*</code> 是宣告的一部分；運算式 <code>*p</code> 則是解參考。只有指向仍有效物件的指標才能解參考。非空只表示位址數值不是空；懸空指標也可能非空，仍然無效。</p></div>
+
+<div class="deck-extra"><div class="dx-label">互動 · 指標的值與指向狀態</div><p>下面改用一個獨立小例子，不延續上方把 <code>score</code> 改成 <code>85</code> 的例子：</p><pre class="pseudo-code" data-cpp="fragment">int x = 42;
+int *p = &amp;x;
+*p = 75;</pre><p id="ptrNarration">按「播放」或「下一步」，觀察 p 從尚未建立到修改原值。</p><div id="ptrStage" style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0"></div><div class="player-controls"><button id="ptrPrev">◀ 上一步</button><button id="ptrPlay">▶ 播放</button><button id="ptrNext">下一步 ▶</button><button id="ptrReset">↺ 重設</button></div><div id="ptrProgress" class="player-status">步驟 1 / 5</div></div></section>
+
+<section id="null"><div class="section-number">PART 03 · 空指標</div><h2><code>nullptr</code> 明確表示「目前沒有指向任何物件」</h2><p>指標若暫時沒有目標，初始化為 <code>nullptr</code>。它可以拿來比較，但不能解參考。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="尚未指定測量值&#10;讀值 = 31">#include &lt;iostream&gt;
+using namespace std;  // 本例因此可省略 std:: 前綴
+
+int main() {
+    int *selected = nullptr;
+    if (selected == nullptr) cout &lt;&lt; "尚未指定測量值\n";
+    int reading = 31;
+    selected = &amp;reading;
+    if (selected != nullptr) cout &lt;&lt; "讀值 = " &lt;&lt; *selected;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>尚未指定測量值
+讀值 = 31</pre></div>
+<p class="dx-note">舊程式可能用 <code>NULL</code> 表示空指標；新程式優先使用型別更明確的 <code>nullptr</code>。不要執行 <code>*selected</code>，除非已確認它不是空指標。</p></section>
+
+<section id="params"><div class="section-number">PART 04 · 函式參數</div><h2>用指標讓函式修改呼叫端的值</h2><p>參數 <code>int *value</code> 接收整數位址。呼叫時傳入 <code>&amp;reading</code>，函式內以 <code>*value</code> 修改原值。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="校正後 = 27">#include &lt;iostream&gt;
+using namespace std;  // 本例因此可省略 std:: 前綴
+
+void calibrate(int *value) {
+    if (value != nullptr) *value += 2;
+}
+int main() {
+    int reading = 25;
+    calibrate(&amp;reading);
+    cout &lt;&lt; "校正後 = " &lt;&lt; reading;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>校正後 = 27</pre></div>
+<h3>陣列參數一定要另外帶長度</h3><p>以下 <code>average</code> 的前提是 <code>length &gt; 0</code>；呼叫端不可傳入空資料。<code>int data[]</code> 寫在參數列時，函式接到的是首元素位址，沒有元素個數。這是陣列作為函式引數時的轉換；不能因此說陣列本身就是指標。</p>
+<pre class="pseudo-code" data-cpp="run" data-expected="平均 = 18">#include &lt;iostream&gt;
+using namespace std;  // 本例因此可省略 std:: 前綴
+
+double average(const int data[], int length) {
+    int total = 0;
+    for (int i = 0; i &lt; length; i++) total += data[i];
+    return static_cast&lt;double&gt;(total) / length;
+}
+int main() {
+    int samples[4] = {12, 18, 20, 22};
+    cout &lt;&lt; "平均 = " &lt;&lt; average(samples, 4);
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>平均 = 18</pre></div>
+<div class="warn-box"><div class="info-label"><code>sizeof</code> 不等於元素個數</div><p><code>sizeof expression</code> 量出該物件或型別占用的儲存大小，單位是 byte。在陣列仍是陣列的範圍，可用 <code>sizeof samples / sizeof samples[0]</code> 計算元素數；這個式子不假設 <code>int</code> 一定是 4 bytes。傳進上述函式後，<code>data</code> 已是指標參數，不能再用同一招。</p></div></section>
+
+<section id="lifetime"><div class="section-number">PART 05 · 生命週期</div><h2>位址只有在原物件仍活著時才有用</h2><p>區域變數只活到所屬大括號結束。若指標保存了一個已離開範圍的物件位址，它就成為懸空指標。</p>
+<pre class="pseudo-code" data-cpp="fragment">// 錯誤示意：不可執行
+int *badAddress() {
+    int local = 42;
+    return &amp;local;  // local 在函式結束時失效
+}</pre>
+<p class="dx-note">這是用來辨識錯誤的片段，沒有 <code>main()</code>，也不應拿回傳值來解參考。安全做法是回傳數值，或在確實需要較長生命週期時使用動態配置。</p></section>
+
+<section id="dynamic"><div class="section-number">PART 06 · 動態配置</div><h2>用 <code>new[]</code> 練習動態配置</h2><p>P5 的 <code>vector</code> 能自動管理可變數量資料，日常程式優先使用它。本節手動配置是為了看懂配置與釋放的配對。<code>new int[count]{}</code> 配置一排整數並回傳首元素位址；使用完畢必須以 <code>delete[]</code> 配對。單一物件則是 <code>new int(值)</code> 配 <code>delete</code>。</p>
+<div class="expected-out"><span class="eo-tag">範例輸入</span><pre>3
+8 13 21
+</pre></div>
+<pre class="pseudo-code" data-cpp="run" data-stdin="3&#10;8 13 21&#10;" data-expected="總和 = 42">#include &lt;iostream&gt;
+using namespace std;  // 本例因此可省略 std:: 前綴
+
+int main() {
+    int count = 0;
+    if (!(cin &gt;&gt; count) || count &lt;= 0) return 1;
+    int *measurements = new int[count]{};
+    int total = 0;
+    for (int i = 0; i &lt; count; i++) {
+        if (!(cin &gt;&gt; measurements[i])) {
+            delete[] measurements;
+            return 1;
+        }
+        total += measurements[i];
+    }
+    cout &lt;&lt; "總和 = " &lt;&lt; total;
+    delete[] measurements;
+    measurements = nullptr;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>總和 = 42</pre></div>
+<pre class="pseudo-code" data-cpp="run" data-expected="值 = 15">#include &lt;iostream&gt;
+using namespace std;  // 本例因此可省略 std:: 前綴
+int main() {
+    int *value = new int(15);
+    cout &lt;&lt; "值 = " &lt;&lt; *value;
+    delete value;
+    value = nullptr;
+}</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>值 = 15</pre></div></section>
+
+<section id="mistakes"><div class="section-number">PART 07 · 常見錯誤</div><h2>三條安全界線</h2>
+<div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>錯誤</th><th>原因</th><th>正確習慣</th></tr></thead><tbody><tr><td>解參考空指標</td><td>沒有有效目標</td><td>解參考前確認非空</td></tr><tr><td><code>new[]</code> 配 <code>delete</code></td><td>配置與釋放形式不相配</td><td><code>new[]</code> 一律配 <code>delete[]</code></td></tr><tr><td>釋放後繼續使用別名</td><td>所有指向同處的指標都已懸空</td><td>先釐清誰負責釋放，釋放後不再使用任何別名</td></tr></tbody></table></div>
+<div class="warn-box"><div class="info-label">設成 nullptr 只會改到那一個指標</div><p>若 <code>p</code> 與 <code>alias</code> 指向同處，<code>delete p; p = nullptr;</code> 不會讓 <code>alias</code> 同步變空。<code>alias</code> 仍保存舊位址，但已不可解參考，也不可再次釋放。</p></div></section>
+
+<section id="reference"><div class="section-number">REF · 速查表</div><h2>P4 語法速查</h2><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>目的</th><th>語法</th></tr></thead><tbody><tr><td>固定陣列</td><td><code>int a[3] = {1, 2, 3};</code></td></tr><tr><td>取得位址／解參考</td><td><code>&amp;x</code> ／ <code>*p</code></td></tr><tr><td>空指標</td><td><code>int *p = nullptr;</code></td></tr><tr><td>陣列參數</td><td><code>void f(int a[], int n)</code></td></tr><tr><td>單一動態物件</td><td><code>new T</code> ／ <code>delete</code></td></tr><tr><td>動態陣列</td><td><code>new T[n]{}</code> ／ <code>delete[]</code></td></tr></tbody></table></div></section>
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：陣列、指標與動態記憶體 <span class="sec-badge">隨堂自測 · 7 題</span></h2>
+  <h2>自我檢測：陣列、指標與動態記憶體 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
-    <pre class="sq-code">int x = 42;
-int *p = &amp;x;
-*p = 99;
-cout &lt;&lt; x &lt;&lt; &quot; &quot; &lt;&lt; *p;</pre>
+    <div class="sq-q"><span class="sq-num">Q1.</span>int values[4] = {6, 12, 18, 24}; 中，values[2] 是多少？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。p 存的是 x 的位址，所以 *p 和 x 是同一塊記憶體的兩個名字。透過 *p 改值，x 就跟著變。">99 99</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。p 並沒有複製 x 的值，它存的是 x 的位址；透過 *p 寫入就是直接改 x 本人。">42 99</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。第三行已經把值改成 99 了。">42 42</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。int *p = &amp;x; 是合法的指標宣告與初始化。">編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。索引從 0 開始，所以索引 2 是第三個元素 18。">12</button>
+      <button class="sq-opt" data-c="1" data-fb="索引從 0 開始，所以索引 2 是第三個元素 18。">18</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。索引從 0 開始，所以索引 2 是第三個元素 18。">24</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。索引從 0 開始，所以索引 2 是第三個元素 18。">超出範圍</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q2.</span>以下程式印出什麼？</div>
-    <pre class="sq-code">int a[5] = {10, 20, 30, 40, 50};
-cout &lt;&lt; a[2] &lt;&lt; &quot; &quot; &lt;&lt; *(a + 2);</pre>
+    <pre class="sq-code">int score = 72;
+int *p = &amp;score;
+*p = 80;
+cout &lt;&lt; score;</pre>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。a[i] 在 C++ 裡就是 *(a + i) 的簡寫，兩者完全等價。指標加法會自動乘上型別大小，所以 a + 2 是往後兩個 int，也就是前進 8 bytes。">30 30</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。*(a + 2) 是解參考，取出的是那一格的值，不是位址。">30 12</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。兩個寫法指的是同一格。索引從 0 開始，a[2] 是第三個元素。">20 30</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。陣列名會退化成指向首元素的指標，指標可以做算術。">編譯錯誤，陣列不能做加法</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。p 指向 score；*p 代表 score 本身，因此 score 變成 80。">72</button>
+      <button class="sq-opt" data-c="1" data-fb="p 指向 score；*p 代表 score 本身，因此 score 變成 80。">80</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。p 指向 score；*p 代表 score 本身，因此 score 變成 80。">score 的位址</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。p 指向 score；*p 代表 score 本身，因此 score 變成 80。">編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>以下程式在 main 與函式裡分別印出什麼？</div>
-    <pre class="sq-code">void f(int arr[]) {
-    cout &lt;&lt; sizeof(arr) &lt;&lt; endl;
-}
-
-int main() {
-    int a[5];
-    cout &lt;&lt; sizeof(a) &lt;&lt; endl;
-    f(a);
-}</pre>
+    <div class="sq-q"><span class="sq-num">Q3.</span>指標 p 等於 nullptr 時，哪個敘述正確？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。這叫陣列退化：陣列傳進函式時會變成指向首元素的指標，所以函式裡量到的是指標大小 8 bytes，不是陣列的 20 bytes。這就是為什麼傳陣列一定要另外傳長度。">20 然後 8</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。函式的參數 int arr[] 其實是 int*，編譯器不會保留原本的長度資訊。">20 然後 20</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。sizeof 回傳的是位元組數，不是元素個數。五個 int 是 20 bytes。">5 然後 5</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。在 main 裡 a 還是真正的陣列，sizeof 量得到完整的 20 bytes。">8 然後 8</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。nullptr 表示沒有指向有效物件；不可解參考。">可以讀取 *p</button>
+      <button class="sq-opt" data-c="1" data-fb="nullptr 表示沒有指向有效物件；不可解參考。">p 不指向有效物件，不可解參考</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。nullptr 表示沒有指向有效物件；不可解參考。">p 一定指向數字 0</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。nullptr 表示沒有指向有效物件；不可解參考。">必須立刻 delete p</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>以下這段函式有什麼問題？</div>
-    <pre class="sq-code">void build() {
-    Node *a = new Node(31);
-    a-&gt;next = new Node(17);
-}</pre>
+    <div class="sq-q"><span class="sq-num">Q4.</span>函式 void doubleAll(int data[], int length) 為什麼需要 length？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。函式結束時，堆疊上的指標 a 會自動消失，但它指向的兩塊堆積記憶體不會，而且再也沒有人知道它們的位址。這就是記憶體洩漏。編譯器不會提醒你。">兩個節點都沒有 delete，每呼叫一次就洩漏兩塊記憶體</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。C++ 沒有垃圾回收。自動消失的只有堆疊上的指標本身，堆積上的東西要自己 delete。">沒問題，函式結束時系統會自動回收</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這是標準的動態配置寫法。">new Node(31) 的語法錯了</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。a 是指標，透過指標存取成員就是用箭號；a.next 才是錯的。">a-&gt;next 應該寫成 a.next</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。陣列參數接到首元素位址，元素個數不會一併傳入。">陣列沒有型別</button>
+      <button class="sq-opt" data-c="1" data-fb="陣列參數接到首元素位址，元素個數不會一併傳入。">函式內不能由 data 得知元素個數</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。陣列參數接到首元素位址，元素個數不會一併傳入。">length 存位址</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。陣列參數接到首元素位址，元素個數不會一併傳入。">索引從 1 開始</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>int *a = new int[10]; 用完之後寫 delete a; 有什麼問題？</div>
+    <div class="sq-q"><span class="sq-num">Q5.</span>哪一組配置與釋放方式正確？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。中括號要成對。new[] 配 delete 是未定義行為：可能整塊還掉、可能只還一部分、對有解構式的型別還會漏掉解構；g++ 加 -Wall 通常會警告，但別依賴它。">new[] 必須配 delete[]，寫成 delete 是未定義行為</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。兩者的行為不同：delete[] 會對每個元素呼叫解構式，delete 只處理一個。">沒問題，delete 和 delete[] 是一樣的</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。delete 接的是指標本身，不是解參考的結果。">應該寫 delete *a;</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。配置本身完全合法。">new int[10] 的配置語法就錯了</button>
+      <button class="sq-opt" data-c="1" data-fb="new 一個物件配 delete；new[] 配 delete[]。">int *p = new int(5); delete p;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。new 一個物件配 delete；new[] 配 delete[]。">int *p = new int[5]; delete p;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。new 一個物件配 delete；new[] 配 delete[]。">int *p = new int(5); delete[] p;</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。new 一個物件配 delete；new[] 配 delete[]。">int a[5]; delete[] a;</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>為什麼 delete 之後建議立刻把指標設成 NULL？</div>
+    <div class="sq-q"><span class="sq-num">Q6.</span>p 與 alias 指向同處。delete p; p = nullptr; 後 alias 會怎樣？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。設成 NULL 之後，誤用它會當得很明確而不是讀到垃圾值；而且 delete 一個 NULL 在 C++ 是合法的空操作，所以就算不小心再 delete 一次也不會出事。一行程式擋掉兩種災難。">可以同時擋掉懸空指標與二次釋放兩種錯誤</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。delete 確實會把記憶體還給系統，設 NULL 只是讓那個指標變數不再指向已經無效的位址。">因為 delete 不會真的釋放記憶體，設 NULL 才會</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這是正確性與可 debug 性的問題，跟效能無關。">為了讓程式跑得比較快</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這是慣例與良好習慣，不是語法要求。編譯器不會強制。">C++ 語法規定 delete 之後一定要這樣寫</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q7.</span>鏈結串列的 add() 寫成下面這樣。如果把兩行對調，先寫 head = temp 再寫 temp-&gt;setNext(head)，會發生什麼？</div>
-    <pre class="sq-code">void add(T item) {
-    Node&lt;T&gt; *temp = new Node&lt;T&gt;(item);
-    temp-&gt;setNext(head);
-    head = temp;
-}</pre>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。head 已經被換成 temp 了，所以 temp-&gt;setNext(head) 等於讓新節點指向自己。原本那串再也沒有人指向，整串洩漏，而且之後走訪會變成無窮迴圈。指標賦值有先後順序，改了就拿不回舊值。">新節點指向自己形成一個環，原本整串節點全部洩漏</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。兩行都是合法敘述，C++ 不會幫你檢查邏輯順序。這正是它危險的地方。">編譯錯誤</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。順序決定了 head 在被讀取時是舊值還是新值，結果完全不同。">沒差，結果一樣</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這個寫法從頭到尾都只操作 head，不會走到尾端。">新節點會被加到串列尾端</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。其他別名不會同步更新，alias 不可再解參考或 delete。">自動變 nullptr</button>
+      <button class="sq-opt" data-c="1" data-fb="其他別名不會同步更新，alias 不可再解參考或 delete。">仍保存舊位址，但已懸空</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。其他別名不會同步更新，alias 不可再解參考或 delete。">可安全解參考一次</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。其他別名不會同步更新，alias 不可再解參考或 delete。">指向新整數</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section>
-<section id="cards">
-  <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面</h2>
-  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
-  <div class="fc-controls">
-    <button id="fcShuffle">🔀 洗牌</button>
-    <button id="fcFlipAll">全部翻面</button>
-    <button id="fcUnflip">全部翻回</button>
-  </div>
-  <div class="fc-grid" id="fcGrid"></div>
-</section>
+<section id="cards"><div class="section-number">CARD · 關鍵詞彙</div><h2>點卡片翻面</h2><div class="fc-actions"><button id="fcShuffle">重新排列</button><button id="fcUnflip">全部正面</button><button id="fcFlipAll">全部翻面</button></div><div class="fc-grid" id="fcGrid"></div></section>
 <div class="chapter-nav"><a class="prev" href="p3_functions.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">函式</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p5_vector_string.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">vector 與 string</div></a></div>
 </div>
-
-<footer>
-  先備知識 P4 · 陣列、指標與動態記憶體 · 資料結構 × C++ 互動自學網站<br>
-  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
-</footer>
-
+<footer>先備知識 P4 · 陣列、指標與動態記憶體 · 資料結構 × C++ 互動自學網站</footer>
 <script>
-/* ============ shared utilities ============ */
-const $ = id => document.getElementById(id);
+const frames=[
+ {x:'尚未建立',p:'尚未建立',text:'尚未執行 int x = 42;'},
+ {x:'42',p:'尚未建立',text:'x 已建立，值是 42。'},
+ {x:'42',p:'指向 x',text:'宣告 int *p = &x；p 保存 x 的位址。'},
+ {x:'42',p:'*p 是 42',text:'解參考 *p 會取得 x。'},
+ {x:'75',p:'*p 是 75',text:'執行 *p = 75；被修改的是 x。'}
+]; let ptrIndex=0,ptrTimer=null;
+const $=id=>document.getElementById(id);
+function ptrDraw(){const f=frames[ptrIndex];$('ptrStage').innerHTML='<div class="info-box"><strong>x</strong><br>'+f.x+'</div><div class="info-box"><strong>p</strong><br>'+f.p+'</div>';$('ptrNarration').textContent=f.text;$('ptrProgress').textContent='步驟 '+(ptrIndex+1)+' / '+frames.length;$('ptrPlay').textContent=ptrTimer?'❚❚ 暫停':(ptrIndex===frames.length-1?'↻ 重播':'▶ 播放');}
+function ptrStop(){clearInterval(ptrTimer);ptrTimer=null;}
+function ptrPlay(){if(ptrTimer){ptrStop();ptrDraw();return;}if(ptrIndex===frames.length-1)ptrIndex=0;ptrTimer=setInterval(()=>{if(ptrIndex<frames.length-1){ptrIndex++;if(ptrIndex===frames.length-1)ptrStop();ptrDraw();}else{ptrStop();ptrDraw();}},850);ptrDraw();}
+$('ptrPrev').onclick=()=>{ptrStop();ptrIndex=Math.max(0,ptrIndex-1);ptrDraw();};$('ptrNext').onclick=()=>{ptrStop();ptrIndex=Math.min(frames.length-1,ptrIndex+1);ptrDraw();};$('ptrReset').onclick=()=>{ptrStop();ptrIndex=0;ptrDraw();};$('ptrPlay').onclick=ptrPlay;ptrDraw();
+const FLASHCARDS = [{"front": "固定長度陣列", "back": "同型別元素排成一列；例如 int a[3] = {4, 8, 12};，有效索引是 0 到 2。"}, {"front": "位址與 &", "back": "&x 取得 x 的位址。位址每次執行可能不同。"}, {"front": "指標", "back": "保存某種型別物件位址的變數。int *p 表示 p 可以指向 int。"}, {"front": "解參考 *", "back": "*p 代表 p 所指向的物件；指向有效物件時可讀也可改。"}, {"front": "nullptr", "back": "表示沒有指向有效物件。可以比較，絕對不能解參考；舊程式的 NULL 也是空指標寫法。"}, {"front": "陣列參數", "back": "函式接收陣列時也要接收長度，例如 f(int a[], int n)。"}, {"front": "生命週期", "back": "區域變數離開所屬區塊後失效；保存它位址的指標也不能再使用。"}, {"front": "new / delete", "back": "new T 配置一個 T；用完以 delete 釋放，之後不可再解參考。"}, {"front": "new[] / delete[]", "back": "new T[n] 配置 n 個 T；必須用 delete[] 釋放。"}, {"front": "懸空指標", "back": "仍保存已失效位址的指標。清空一個指標不會同步清除其他別名。"}];
+(function(){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),grid=$('fcGrid');const render=cards=>grid.innerHTML=cards.map(c=>'<div class="fc-card"><div class="fc-inner"><div class="fc-face fc-front"><div>'+esc(c.front)+'</div><div class="fc-hint">CLICK TO FLIP</div></div><div class="fc-face fc-back">'+esc(c.back)+'</div></div></div>').join('');render(FLASHCARDS);grid.onclick=e=>{const c=e.target.closest('.fc-card');if(c)c.classList.toggle('flipped');};$('fcShuffle').onclick=()=>render([...FLASHCARDS].sort(()=>Math.random()-.5));$('fcUnflip').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>c.classList.remove('flipped'));$('fcFlipAll').onclick=()=>grid.querySelectorAll('.fc-card').forEach(c=>c.classList.add('flipped'));})();
 
-function quizCheck(quizId, optEl) {
-  const isCorrect = optEl.dataset.correct === 'true';
-  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
-  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
-  const fb = $(quizId + 'Feedback');
-  fb.classList.remove('correct','wrong');
-  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
-  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
-}
-
-function hlLine(rootId, n) {
-  const root = $(rootId);
-  if (!root) return;
-  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
-  if (n != null) {
-    const line = root.querySelector(`.line[data-l="${n}"]`);
-    if (line) line.classList.add('active');
-  }
-}
-
-/* player-v2 */
-/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
-   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
-   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
-   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
-class Player {
-  constructor({frames, apply, delayInput, onDone}) {
-    this.frames = frames; this.apply = apply;
-    this.delayInput = delayInput; this.i = -1; this.timer = null;
-    this.playing = false; this._delay = null; this._done = false;
-    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
-    this.onDone = onDone || (()=>{});
-  }
-  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
-  _d() {
-    if (this._delay != null) return this._delay;
-    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
-  }
-  setDelay(ms) { this._delay = ms; }
-  _advance() {
-    if (this.i + 1 >= this.frames.length) {
-      this.pause();
-      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
-      return false;
-    }
-    this.i += 1; this.apply(this.frames[this.i]);
-    return true;
-  }
-  step() { this.pause(); this._advance(); }
-  play() {
-    this.pause(); this.playing = true;
-    const tick = () => {
-      if (!this.playing) return;
-      if (!this._advance()) return;
-      this.timer = setTimeout(tick, this._d());
-    };
-    tick();
-    this._sync();
-  }
-  pause() {
-    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
-    this.playing = false;
-    this._sync();
-  }
-  toggle(btn) {
-    if (btn) this._btn = btn;
-    if (this.playing) this.pause();
-    else {
-      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
-      this.play();
-    }
-  }
-  stop() { this.pause(); }
-  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
-}
-/* /player-v2 */
-
-function setStatus(id, html) {
-  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
-}
-
-/* vertical box stack renderer (DOM) */
-function renderBoxStack(containerId, items, opts={}) {
-  const el = $(containerId); if (!el) return;
-  const hl = opts.highlight ?? -1;   // index from top (0 = top)
-  el.innerHTML = '';
-  const label = document.createElement('div');
-  label.className = 'bs-toplabel';
-  label.textContent = items.length ? 'top ↓' : '(empty)';
-  el.appendChild(label);
-  items.slice().reverse().forEach((v, idx) => {
-    const d = document.createElement('div');
-    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
-    d.textContent = v;
-    el.appendChild(d);
-  });
-}
-
-/* horizontal queue renderer: front at left */
-function renderBoxQueue(containerId, items, opts={}) {
-  const el = $(containerId); if (!el) return;
-  el.innerHTML = '';
-  const front = document.createElement('div');
-  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
-  el.appendChild(front);
-  items.forEach((v, idx) => {
-    const d = document.createElement('div');
-    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
-    d.textContent = v;
-    el.appendChild(d);
-  });
-  const rear = document.createElement('div');
-  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
-  el.appendChild(rear);
-}
-
-/* floating nav scroll spy */
-(function setupNav() {
-  const nav = $('floatNav');
-  const links = nav.querySelectorAll('a[data-target]');
-  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
-  function update() {
-    const y = window.scrollY + window.innerHeight * 0.3;
-    let active = sections[0]?.id;
-    for (const s of sections) if (s.offsetTop <= y) active = s.id;
-    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
-  }
-  window.addEventListener('scroll', update, { passive: true });
-  update();
-})();
-
-/* ---------- 共用：記憶體格子 ---------- */
-function memCell(name, val, addr, opts = {}) {
-  const {tone = 'idle', note = ''} = opts;
-  const map = {
-    idle: ['var(--card-border)', 'var(--card)'],
-    hot:  ['var(--node-current)', 'rgba(243,156,18,.14)'],
-    ok:   ['var(--node-found)',   'rgba(22,160,133,.12)'],
-    ptr:  ['var(--accent2)',      'rgba(44,62,122,.08)'],
-    gone: ['var(--accent)',       'rgba(192,57,43,.08)'],
-  };
-  const [bd, bg] = map[tone] || map.idle;
-  return `<div style="border:2px solid ${bd};background:${bg};border-radius:9px;padding:.4rem .7rem;min-width:132px;">
-    <div style="font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${addr}</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;">${name}</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--accent2);">${val}</div>
-    ${note ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.15rem;">${note}</div>` : ''}
-  </div>`;
-}
-const memRow = html => `<div style="display:flex;gap:.7rem;flex-wrap:wrap;margin:.5rem 0;">${html}</div>`;
-
-/* ---------- P01 指標逐步器 ---------- */
-let memPlayer = null;
-const AX = '0x7ffd4c1a', PX = '0x7ffd4c20';
-
-function memFrames() {
-  const F = [];
-  F.push({line: 1, html: memRow(memCell('x', '42', AX, {tone: 'hot'})),
-          msg: '<code>int x = 42;</code> — 在堆疊上配一格，裡面放 42。'});
-  F.push({line: 2, html: memRow(memCell('x', '42', AX) + memCell('p', AX, PX, {tone: 'ptr', note: '存的是 x 的位址'})),
-          msg: '<code>int *p = &amp;x;</code> — p 也是一格，但它裡面放的是<strong>另一格的門牌號碼</strong>。'});
-  F.push({line: 3, html: memRow(memCell('x', '42', AX, {tone: 'ok'}) + memCell('p', AX, PX, {tone: 'ptr'})),
-          msg: '<code>*p</code> — 拿 p 裡的位址 <span class="mono">' + AX + '</span> 去找，找到 x，讀出 <strong>42</strong>。'});
-  F.push({line: 4, html: memRow(memCell('x', '99', AX, {tone: 'hot', note: '被 *p 改掉了'}) + memCell('p', AX, PX, {tone: 'ptr'})),
-          msg: '<code>*p = 99;</code> — 同一條路走進去，把裡面的值換掉。'});
-  F.push({line: 5, html: memRow(memCell('x', '99', AX, {tone: 'ok'}) + memCell('p', AX, PX, {tone: 'ptr'})),
-          msg: '所以 <code>x</code> 印出來是 <strong>99</strong>。<strong>p 和 x 從頭到尾都是同一塊記憶體的兩個名字。</strong>'});
-  return F;
-}
-function memStart() {
-  if (memPlayer) memPlayer.stop();
-  memPlayer = new Player({frames: memFrames(), delayInput: $('memSpeed'), apply: f => {
-    $('memStage').innerHTML = f.html; hlLine('memCode', f.line); setStatus('memStatus', f.msg);
-  }});
-  memPlayer.play();
-}
-function memReset() {
-  if (memPlayer) memPlayer.stop();
-  memPlayer = null;
-  $('memStage').innerHTML = memRow(memCell('（還沒宣告）', '—', '—'));
-  hlLine('memCode', null);
-  setStatus('memStatus', '按「開始」，一步一步看指標怎麼指到變數身上。');
-}
-
-/* ---------- P04 指標算術尺 ---------- */
-const ARR = [10, 20, 30, 40, 50], BASE = 0x5f2a10;
-function arrRender() {
-  const i = parseInt($('idxSlider').value, 10);
-  $('idxVal').textContent = i;
-  $('arrStage').innerHTML =
-    '<div style="display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin:.4rem 0 .8rem;">' +
-    ARR.map((v, k) => {
-      const hit = k === i;
-      return `<div style="border:2px solid ${hit ? 'var(--node-current)' : 'var(--card-border)'};` +
-             `background:${hit ? 'rgba(243,156,18,.16)' : 'var(--card)'};border-radius:8px;padding:.35rem .55rem;text-align:center;min-width:84px;">` +
-             `<div style="font-size:.64rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">0x${(BASE + k * 4).toString(16)}</div>` +
-             `<div class="mono" style="font-size:1.05rem;font-weight:700;">${v}</div>` +
-             `<div style="font-size:.66rem;color:var(--muted);">a[${k}]</div></div>`;
-    }).join('') + '</div>' +
-    `<table class="cmp-table" style="margin:0;"><tbody>
-       <tr><td class="mono">a[${i}]</td><td class="mono">${ARR[i]}</td><td style="font-size:.85rem;">中括號寫法</td></tr>
-       <tr><td class="mono">*(a + ${i})</td><td class="mono">${ARR[i]}</td><td style="font-size:.85rem;">指標算術，完全等價</td></tr>
-       <tr><td class="mono">a + ${i}</td><td class="mono">0x${(BASE + i * 4).toString(16)}</td><td style="font-size:.85rem;">位址：往後跳 ${i} × 4 = ${i * 4} bytes</td></tr>
-     </tbody></table>`;
-  setStatus('arrStatus', `<code>a + ${i}</code> 不是「位址加 ${i}」，是<strong>往後 ${i} 個元素</strong> —— 指標算術會自動乘上 <code>sizeof(int)</code> = 4。`);
-}
-
-/* ---------- P07 堆積逐步器 ---------- */
-let heapPlayer = null;
-function heapPanel(stack, heap) {
-  const box = (label, items, color) =>
-    `<div style="flex:1;min-width:150px;border:1px solid var(--card-border);border-radius:10px;padding:.5rem .7rem;background:var(--paper);">
-       <div style="font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:1px;color:${color};margin-bottom:.4rem;">${label}</div>
-       ${items.length ? items.join('') : '<div style="font-size:.8rem;color:var(--muted);">（空）</div>'}
-     </div>`;
-  return `<div style="display:flex;gap:.7rem;flex-wrap:wrap;">${box('STACK 堆疊', stack, 'var(--accent2)')}${box('HEAP 堆積', heap, 'var(--accent)')}</div>`;
-}
-function heapFrames(mode) {
-  const leak = mode === 'leak';
-  const cell = (n, v, a, t) => memCell(n, v, a, {tone: t});
-  const F = [];
-  F.push({line: 1, leak: 0, html: heapPanel([], []), msg: '進入 <code>build()</code>，兩塊記憶體都還是空的。'});
-  F.push({line: 2, leak: 1,
-    html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')], [cell('Node', 'data=31', '0x61a0', 'hot')]),
-    msg: '<code>new Node(31)</code> — 在<strong>堆積</strong>配一個節點，把它的位址存進<strong>堆疊</strong>上的指標 a。'});
-  F.push({line: 3, leak: 2,
-    html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')],
-                    [cell('Node', 'data=31', '0x61a0'), cell('Node', 'data=17', '0x61c8', 'hot')]),
-    msg: '再 <code>new</code> 一個接在後面。堆積上現在有兩個節點。'});
-  if (leak) {
-    F.push({line: null, leak: 2,
-      html: heapPanel([cell('a', '（已消失）', '堆疊', 'gone')],
-                      [cell('Node', 'data=31', '0x61a0', 'gone'), cell('Node', 'data=17', '0x61c8', 'gone')]),
-      msg: '函式結束。<strong>堆疊上的 a 自動消失了，但堆積上那兩個節點還在</strong> —— 而且再也沒有人知道它們的位址。'});
-    F.push({line: null, leak: 2,
-      html: heapPanel([], [cell('Node', 'data=31', '0x61a0', 'gone'), cell('Node', 'data=17', '0x61c8', 'gone')]),
-      msg: '這就是<strong>記憶體洩漏</strong>：借了沒還，而且連還的門路都弄丟了。每呼叫一次漏兩個。'});
-  } else {
-    F.push({line: 4, leak: 1,
-      html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')], [cell('Node', 'data=31', '0x61a0')]),
-      msg: '<code>delete a-&gt;next;</code> — 把第二個節點還回去。<strong>要先還後面的</strong>，否則就找不到它了。'});
-    F.push({line: 5, leak: 0,
-      html: heapPanel([cell('a', '0x61a0', '堆疊', 'ptr')], []),
-      msg: '<code>delete a;</code> — 再還第一個。堆積清空。'});
-    F.push({line: null, leak: 0,
-      html: heapPanel([], []),
-      msg: '函式結束，堆疊上的 a 也自動消失。<strong>借兩個、還兩個，收支平衡。</strong>'});
-  }
-  return F;
-}
-function heapStart(mode) {
-  if (heapPlayer) heapPlayer.stop();
-  heapPlayer = new Player({frames: heapFrames(mode), delayInput: $('heapSpeed'), apply: f => {
-    $('heapStage').innerHTML = f.html;
-    $('heapLeak').textContent = f.leak;
-    $('heapLeak').style.color = f.leak ? 'var(--accent)' : 'var(--accent3)';
-    hlLine('heapCode', f.line);
-    setStatus('heapStatus', f.msg);
-  }});
-  heapPlayer.play();
-}
-function heapReset() {
-  if (heapPlayer) heapPlayer.stop();
-  heapPlayer = null;
-  $('heapStage').innerHTML = heapPanel([], []);
-  $('heapLeak').textContent = '0';
-  $('heapLeak').style.color = '';
-  hlLine('heapCode', null);
-  setStatus('heapStatus', '選一個版本，看堆積上的東西怎麼長、怎麼消。');
-}
-
-/* ---------- P09 Node 串接器 ---------- */
-let nodeList = [];
-let nodePlayer = null;
-const NODE_VALUES = [31, 17, 93, 26, 54];
-function nodeRender(hi) {
-  const boxes = nodeList.map((v, i) => {
-    const on = i === hi;
-    return `<div style="display:flex;align-items:center;gap:.35rem;">
-      <div style="border:2px solid ${on ? 'var(--node-current)' : 'var(--card-border)'};background:${on ? 'rgba(243,156,18,.16)' : 'var(--card)'};border-radius:8px;padding:.35rem .6rem;text-align:center;">
-        <div class="mono" style="font-size:1rem;font-weight:700;">${v}</div>
-        <div style="font-size:.64rem;color:var(--muted);">next</div>
-      </div>
-      <span style="color:var(--muted);">→</span></div>`;
-  }).join('');
-  const tail = `<div class="mono" style="align-self:center;color:var(--accent);font-weight:700;">&#78;ULL</div>`;
-  $('nodeStage').innerHTML =
-    `<div style="display:flex;gap:.35rem;flex-wrap:wrap;align-items:center;margin:.5rem 0;">
-       <span class="mono" style="color:var(--accent2);font-weight:700;margin-right:.3rem;">head →</span>
-       ${nodeList.length ? boxes + tail : '<span class="mono" style="color:var(--accent);font-weight:700;">&#78;ULL</span>'}
-     </div>`;
-}
-function nodeAdd() {
-  if (nodePlayer) { nodePlayer.stop(); nodePlayer = null; }  // 走訪中插入會讓 frames 的快照與串列對不上
-  if (nodeList.length >= NODE_VALUES.length) {
-    setStatus('nodeStatus', '示範到五個就好。按「重設」再來一次。');
-    return;
-  }
-  const v = NODE_VALUES[nodeList.length];
-  nodeList.unshift(v);          // 在頭部插入
-  nodeRender(0);
-  hlLine('nodeCode', 2);
-  setStatus('nodeStatus',
-    `<code>add(${v})</code> — 新節點<strong>插在最前面</strong>，所以是 <code>O(1)</code>：不必走到尾巴。` +
-    `這也是為什麼串列印出來的順序跟加入順序相反。`);
-}
-function nodeTraverseFrames() {
-  const F = [];
-  for (let i = 0; i < nodeList.length; i++) {
-    F.push({hi: i,
-      msg: `<code>current != &#78;ULL</code> → 成立，讀出 <strong>${nodeList[i]}</strong>，接著 <code>current = current-&gt;getNext()</code>。`});
-  }
-  F.push({hi: -1,
-    msg: `走到 <code>&#78;ULL</code>，迴圈結束。共走訪 <strong>${nodeList.length}</strong> 個節點，這是 <code>O(n)</code>。`});
-  return F;
-}
-function nodeTraverseStart() {
-  if (!nodeList.length) { setStatus('nodeStatus', '先按 add 加幾個節點。'); return; }
-  if (nodePlayer) nodePlayer.stop();
-  hlLine('nodeCode', null);
-  nodePlayer = new Player({frames: nodeTraverseFrames(), delayInput: $('nodeSpeed'), apply: f => {
-    nodeRender(f.hi);
-    setStatus('nodeStatus', f.msg);
-  }});
-  nodePlayer.play();
-}
-function nodeReset() {
-  if (nodePlayer) nodePlayer.stop();
-  nodePlayer = null;
-  nodeList = [];
-  nodeRender(-1);
-  hlLine('nodeCode', null);
-  setStatus('nodeStatus', '按 add 在頭部插入一個節點，看指標怎麼接。');
-}
-
-(function () {
-  if ($('memStage')) memReset();
-  if ($('heapStage')) heapReset();
-  if ($('nodeStage')) nodeReset();
-  const sl = $('idxSlider');
-  if (sl) { sl.addEventListener('input', arrRender); arrRender(); }
-})();
-
-</script>
-<script>
-const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體裡的門牌號碼，用 &x 取得。每次執行程式時作業系統配的位置都不一樣，所以印出來的數字每次都不同。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間，在 64 位元系統上一律 8 bytes，不管它指向的是一個 int 還是一整棵樹。"}, {"front": "參考（Reference）", "back": "變數的別名，宣告成 int &r = x;。不佔自己的記憶體、宣告當下必須綁定、終身不能換對象、也沒有「空參考」。函式參數與回傳常用它；需要「可能沒有」或「會換對象」的語意（如串列的 next）就得用指標。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（NULL Pointer）", "back": "不指向任何東西的指標。這門課用 NULL（照 cppds 教科書），現代 C++ 用 nullptr。它在鏈結結構裡固定當作終點標記：走訪的迴圈條件就是 while (current != NULL)。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "對指標加減整數會自動乘上型別大小，所以 a + 1 是「往後一個元素」而不是「位址加 1」。這就是 a[i] 等同 *(a + i) 的原因，也解釋了索引為什麼從 0 開始。"}, {"front": "陣列退化（Array Decay）", "back": "陣列作為引數傳進函式時會退化成指向首元素的指標，因此函式裡的 sizeof 量到的是指標大小而非陣列大小。所以傳陣列一定要另外傳長度。"}, {"front": "堆疊（Stack）", "back": "存放區域變數與函式呼叫框的記憶體區域，離開範圍就自動釋放。空間小（通常幾 MB），遞迴太深會爆掉。"}, {"front": "堆積（Heap）", "back": "用 new 動態配置的記憶體區域，不會自動釋放，一定要自己 delete。空間大，而且大小可以在執行時才決定——鏈結串列、樹、圖的節點都住在這裡。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時向系統要一塊記憶體並回傳它的位址。new T(v) 配一個、new T[n] 配一整排。資料結構的節點數量在編譯時未知，只能靠它。"}, {"front": "釋放（Deallocation, delete）", "back": "把 new 來的記憶體還回去。delete 還一個、delete[] 還一整排，形式配錯是未定義行為。課程講義有 218 個 new、只有 32 個 delete，那是刻意的教學取捨。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "new 出來的記憶體沒有對應的 delete，那塊空間在程式結束前拿不回來。短程式看不出來，長時間執行的程式會越吃越多記憶體直到被系統砍掉。"}, {"front": "懸空指標（Dangling Pointer）", "back": "指向已經被 delete 或已經離開範圍的記憶體的指標。最難 debug 的一種錯誤，因為有時候「剛好」還讀得到正確的值。delete 之後立刻把指標設成 NULL 可以擋掉。"}, {"front": "二次釋放（Double Free）", "back": "同一塊記憶體被 delete 兩次，通常當場當掉。delete 之後把指標設成 NULL 就能避免，因為 delete 一個 NULL 在 C++ 是合法的空操作。"}, {"front": "所有權（Ownership）", "back": "「這塊記憶體該由誰負責 delete」的約定。C++ 沒有語法強制它，只能靠設計與註解講清楚。第 04 章的節點由串列 new 出來，也由串列負責 delete。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 NULL、讀取已釋放的記憶體、new[] 配 delete。它可能正常跑、可能當掉、也可能安靜地給出錯誤答案。"}, {"front": "智慧指標（Smart Pointer）", "back": "現代 C++ 用來自動管理記憶體的類別，例如 std::unique_ptr 會在離開範圍時自動 delete。本課照 cppds 用手動 new／delete，先看懂記憶體怎麼運作再談自動化。"}];
-/* ===== Flashcards engine ===== */
-(function(){
-  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const grid = document.getElementById('fcGrid');
-  if (!grid) return;
-  const render = cards => {
-    grid.innerHTML = cards.map(c =>
-      `<div class="fc-card"><div class="fc-inner">
-         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
-         <div class="fc-face fc-back">${esc(c.back)}</div>
-       </div></div>`).join('');
-  };
-  render(FLASHCARDS);
-  grid.addEventListener('click', e => {
-    const card = e.target.closest('.fc-card');
-    if (card) card.classList.toggle('flipped');
-  });
-  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
-  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
-  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
-})();
-(function(){
-  document.querySelectorAll('.sq-item').forEach(item => {
-    const fb = item.querySelector('.sq-fb');
-    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
-      const good = btn.dataset.c === '1';
-      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
-      btn.classList.add(good ? 'correct' : 'wrong');
-      fb.textContent = btn.dataset.fb;
-      fb.classList.add('show');
-      fb.classList.toggle('good', good);
-      fb.classList.toggle('bad', !good);
-    }));
-  });
-})();
-</script>
-<script>/* quiz-shuffle v1 */
+(function(){document.querySelectorAll('.sq-item').forEach(item=>{const fb=item.querySelector('.sq-fb');item.querySelectorAll('.sq-opt').forEach(btn=>btn.addEventListener('click',()=>{const good=btn.dataset.c==='1';item.querySelectorAll('.sq-opt').forEach(b=>b.classList.remove('correct','wrong'));btn.classList.add(good?'correct':'wrong');fb.textContent=btn.dataset.fb;fb.classList.add('show');fb.classList.toggle('good',good);fb.classList.toggle('bad',!good);}));});})();
+</script><script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {
     var h = 2166136261;
@@ -1776,5 +717,4 @@ const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 /* /quiz-shuffle v1 */</script>
-</body>
-</html>
+</body></html>

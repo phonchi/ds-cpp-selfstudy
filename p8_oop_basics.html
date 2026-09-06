@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>物件導向（基礎）— 先備 P8（C++）</title>
+<title>類別與物件 — 先備 P8（C++）</title>
 <script>
   MathJax = { tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] }, svg: { fontCache: 'global' } };
 </script>
@@ -459,1008 +459,143 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .vert-table th i{color:inherit;}
 </style>
 <!-- /contrast-fix -->
+<style>
+@media (max-width: 760px) { .float-nav { display: none; } }
+</style>
 </head>
 <body>
 
-<nav class="float-nav" id="floatNav" aria-label="章節導覽">
-  <div class="fn-title">章節導覽</div>
-  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">資料結構就是類別</span></a>
-  <a href="#classes" data-target="classes"><span class="fn-num">P01</span><span class="fn-name">類別與物件</span></a>
-  <a href="#ctor" data-target="ctor"><span class="fn-num">P02</span><span class="fn-name">建構式與 this</span></a>
-  <a href="#access" data-target="access"><span class="fn-num">P03</span><span class="fn-name">public 與 private</span></a>
-  <a href="#encap" data-target="encap"><span class="fn-num">P04</span><span class="fn-name">封裝：課程自己的矛盾</span></a>
-  <a href="#constfn" data-target="constfn"><span class="fn-num">P05</span><span class="fn-name">const 成員函式</span></a>
-  <a href="#overload" data-target="overload"><span class="fn-num">P06</span><span class="fn-name">建構式多載</span></a>
-  <a href="#stream" data-target="stream"><span class="fn-num">P07</span><span class="fn-name">operator<< 與 friend</span></a>
-  <a href="#compose" data-target="compose"><span class="fn-num">P08</span><span class="fn-name">組合：蓋出 Stack</span></a>
-  <a href="#header" data-target="header"><span class="fn-num">P09</span><span class="fn-name">標頭檔</span></a>
-  <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
-  <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
-  <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
-  <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
-  <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
-</nav>
-
-<div class="hero" id="top">
-  <div class="hero-grid"></div>
-  <svg class="hero-graph" width="300" height="260" viewBox="0 0 300 260">
-  <g stroke="#fff" stroke-width="2.5" fill="none" opacity=".85">
-    <rect x="90" y="26" width="120" height="52" rx="8"/>
-    <line x1="150" y1="78" x2="150" y2="104"/><line x1="60" y1="104" x2="240" y2="104"/>
-    <line x1="60" y1="104" x2="60" y2="130"/><line x1="150" y1="104" x2="150" y2="130"/>
-    <line x1="240" y1="104" x2="240" y2="130"/>
-    <rect x="20" y="130" width="80" height="44" rx="7"/>
-    <rect x="110" y="130" width="80" height="44" rx="7"/>
-    <rect x="200" y="130" width="80" height="44" rx="7"/>
-  </g>
-  <g fill="#fff" opacity=".75" font-family="monospace" font-size="12">
-    <text x="112" y="57">class</text>
-    <text x="43" y="157">obj</text><text x="133" y="157">obj</text><text x="223" y="157">obj</text>
-  </g>
-</svg>
-  <div class="hero-content">
-    <div class="chapter-tag">PREREQ P8</div>
-    <h1><span class="blue">物件導向</span>（基礎）：資料＋操作打包成一個東西</h1>
-    <div class="subtitle">先備知識複習 · 選讀，不列入作業與考試範圍</div>
-    <div class="big-formula">class｜建構式｜this｜public / private｜const｜operator&lt;&lt;｜組合</div>
-    <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
-  </div>
-</div>
-
-<div class="container">
-<div class="study-guide">
-  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
-  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
-  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
-  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
-  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
-  <div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">🔬 C++ Tutor</a><a href="https://cppreference.com/" target="_blank" rel="noopener">📖 cppreference</a></div>
-</div>
-
-
-<div class="toc">
-  <div class="toc-title">CONTENTS · 內容目錄</div>
-  <div class="toc-grid">
-    <a href="#prologue"><span class="toc-num">P00</span>一個資料結構就是一個類別</a>
-    <a href="#classes"><span class="toc-num">P01</span>類別與物件</a>
-    <a href="#ctor"><span class="toc-num">P02</span>建構式與 this</a>
-    <a href="#access"><span class="toc-num">P03</span>public 與 private</a>
-    <a href="#encap"><span class="toc-num">P04</span>封裝：課程自己的矛盾</a>
-    <a href="#constfn"><span class="toc-num">P05</span>const 成員函式</a>
-    <a href="#overload"><span class="toc-num">P06</span>建構式多載</a>
-    <a href="#stream"><span class="toc-num">P07</span>operator<< 與 friend</a>
-    <a href="#compose"><span class="toc-num">P08</span>組合：蓋出一個 Stack</a>
-    <a href="#header"><span class="toc-num">P09</span>標頭檔與 include guard</a>
-    <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
-    <a href="#reference"><span class="toc-num">REF</span>速查表</a>
-    <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡</a>
-  </div>
-</div>
-
-<section id="prologue">
-  <div class="section-number">PROLOGUE · 開場</div>
-  <h2>一個資料結構，就是一個類別</h2>
-  <p>先看本站首頁那段裝飾用的程式碼 —— 它不是隨便挑的，就是 <code>pythonds3/cppds/stack.hpp</code> 的本體。</p>
-  <p>這門課的形狀就是這樣：<strong>資料結構 = 資料（要存什麼）＋ 操作（能對它做什麼）</strong>，而 C++ 用來把這兩件事包在一起的工具就是 <code>class</code>。</p>
-
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th>抽象資料型別（ADT）的說法</th><th>C++ 的說法</th><th>例子</th></tr></thead>
-    <tbody>
-      <tr><td>這個結構「存什麼」</td><td>成員變數（member variable）</td><td class="mono">vector&lt;T&gt; items;</td></tr>
-      <tr><td>這個結構「能做什麼」</td><td>成員函式（member function）</td><td class="mono">push() / pop()</td></tr>
-      <tr><td>結構的規格（介面）</td><td><code>class</code> 定義</td><td class="mono">class Stack { … };</td></tr>
-      <tr><td>實際被建立出來的一個結構</td><td>物件／實例</td><td class="mono">Stack&lt;int&gt; s;</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <div class="info-box">
-    <div class="info-label">💡 這一頁的目標</div>
-    <p style="margin-bottom:0;">讀完你要能<strong>從空白檔案寫出一個 <code>&#78;ode</code> 和一個 <code>Stack</code></strong>，並且說得出建構式什麼時候被呼叫、<code>private</code> 到底擋住了誰、為什麼要寫 <code>operator&lt;&lt;</code>。這三件事撐起第 04 章之後的每一章。</p>
-  </div>
-
-  <div class="warn-box">
-    <div class="info-label">📌 本頁定位</div>
-    <p style="margin-bottom:0;">選讀的先備知識複習，不列入作業與考試範圍。但 P8 與 <a href="p9_oop_advanced.html">P9</a> 是整套先備頁裡除了 <a href="p4_pointers_memory.html">P4</a> 之外最該讀的兩頁。</p>
-  </div>
-</section>
-
-<section id="classes">
-  <div class="section-number">PART 01 · 類別與物件</div>
-  <h2>藍圖與成品 <span class="sec-badge">四個必背詞</span></h2>
-  <p><strong>類別是藍圖，物件是照著藍圖蓋出來的東西。</strong>藍圖只有一份，蓋出來的房子可以有很多間，每一間的門牌、住戶各自不同。</p>
-
-<div class="deck-extra">
-  <div class="dx-label">最小可用的 Node 類別（第 04 章鏈結串列的主角）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">class</span> Node {                       <span class="com">// 藍圖</span>
-<span class="line" data-l="5"></span>    <span class="kw">private</span>:</span>
-<span class="line" data-l="6">        <span class="kw">int</span> data;                  <span class="com">// 成員變數：每個物件各有一份</span>
-<span class="line" data-l="7"></span>        Node *next;</span>
-<span class="line" data-l="8">    <span class="kw">public</span>:</span>
-<span class="line" data-l="9">        Node(<span class="kw">int</span> initdata) {       <span class="com">// 建構式：建立物件時自動執行</span>
-<span class="line" data-l="10"></span>            data = initdata;</span>
-<span class="line" data-l="11">            next = <span class="fn">NULL</span>;</span>
-<span class="line" data-l="12">        }</span>
-<span class="line" data-l="13">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> data; }   <span class="com">// const：我保證不改動任何成員</span>
-<span class="line" data-l="14"></span>        Node *getNext() <span class="kw">const</span> { <span class="kw">return</span> next; }</span>
-<span class="line" data-l="15">        <span class="kw">void</span> setNext(Node *n) { next = n; }</span>
-<span class="line" data-l="16">};</span>
-<span class="line" data-l="17"> </span>
-<span class="line" data-l="18"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="19">    Node n(<span class="num">93</span>);                    <span class="com">// 一個物件（實例）</span>
-<span class="line" data-l="20"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">n.getData() = </span><span class="str">"</span> &lt;&lt; n.getData() &lt;&lt; endl;</span>
-<span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">n.getNext() = </span><span class="str">"</span> &lt;&lt; n.getNext() &lt;&lt; <span class="str">"</span><span class="str">   &lt;- NULL 印出來是 0</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">sizeof(Node) = </span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(Node) &lt;&lt; <span class="str">"</span><span class="str"> bytes（一個 int + 一個指標）</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="24">}</span>
-<span class="line" data-l="25"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>n.getData() = 93
-n.getNext() = 0   &lt;- NULL 印出來是 0
-sizeof(Node) = 16 bytes（一個 int + 一個指標）</pre></div>
-  <p class="dx-note">三個觀察：① <code>&#78;ode n(93);</code> 建立一個物件，會自動去跑建構式。② <code>next</code> 一開始是 <code>&#78;ULL</code>，代表後面還沒接東西。③ <code>sizeof(&#78;ode)</code> 是 16 bytes —— 一個 <code>int</code>（4）加一個指標（8），再加上對齊補的 4。物件的大小是它所有成員加起來。</p>
-</div>
-
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04 章</div><p style='margin-bottom:0;'><code>&#78;ode</code> 是鏈結串列的基本磚塊。整章都在做同一件事：<code>new</code> 一個 &#78;ode、改它的 <code>next</code>、沿著 <code>next</code> 走訪。看不懂 class，那一章就只能死背。</p></div>
-</section>
-
-<section id="ctor">
-  <div class="section-number">PART 02 · 建構式</div>
-  <h2>建構式與 <code>this</code></h2>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.3rem 0 .5rem;color:var(--accent2);">建構式：跟類別同名、沒有回傳型別</h3>
-  <p>你寫 <code>&#78;ode n(93);</code> 的時候，C++ 先配置一塊記憶體，然後<strong>自動</strong>呼叫 <code>&#78;ode(93)</code> 把它填好。所以建構式裡做的事就是「這個物件一出生要帶著哪些資料」。</p>
-  <p>它有兩個外觀特徵：<strong>名字跟類別一模一樣</strong>，而且<strong>沒有回傳型別</strong>（連 <code>void</code> 都不寫）。</p>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.3rem 0 .5rem;color:var(--accent2);"><code>this</code>：指向「是誰呼叫我」的指標</h3>
-  <p>成員函式被呼叫時，C++ 會偷偷傳一個 <code>this</code> 進來，它是<strong>指向呼叫者本人的指標</strong>。平常你不用寫它 —— 直接寫 <code>data</code> 就等於 <code>this-&gt;data</code>。</p>
-
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Node {</span>
-<span class="line" data-l="2">    <span class="kw">private</span>:</span>
-<span class="line" data-l="3">        <span class="kw">int</span> data;</span>
-<span class="line" data-l="4">    <span class="kw">public</span>:</span>
-<span class="line" data-l="5">        Node(<span class="kw">int</span> data) {</span>
-<span class="line" data-l="6">            <span class="kw">this</span>-&gt;data = data;     <span class="com">// 左邊是成員，右邊是參數，同名時要用 this 分辨</span>
-<span class="line" data-l="7"></span>        }</span>
-<span class="line" data-l="8">        <span class="kw">int</span> getData() <span class="kw">const</span> {</span>
-<span class="line" data-l="9">            <span class="kw">return</span> data;           <span class="com">// 等同 this-&gt;data，沒有同名問題就不用寫</span>
-<span class="line" data-l="10"></span>        }</span>
-<span class="line" data-l="11">};</span>
-<span class="line" data-l="12"> </span></div>
-
-  <div class="info-box">
-    <div class="info-label">💡 跟 Python 的 <code>self</code> 差在哪</div>
-    <p style="margin-bottom:0;">Python 的 <code>self</code> 是<strong>明寫在參數列裡的第一個參數</strong>；C++ 的 <code>this</code> 是<strong>編譯器偷偷傳進來的指標</strong>，不寫在參數列裡，而且因為是指標所以用 <code>-&gt;</code> 存取。兩者角色一樣，但 C++ 這邊你平常根本不會看到它。</p>
-  </div>
-</section>
-
-<section id="access">
-  <div class="section-number">PART 03 · 存取控制</div>
-  <h2><code>public</code> 與 <code>private</code>：C++ 靠編譯器擋，不靠約定</h2>
-
-<div class="deck-extra">
-  <div class="dx-label">private 成員從外面碰不到（真的編不過）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">class</span> Node {</span>
-<span class="line" data-l="5">    <span class="kw">private</span>:</span>
-<span class="line" data-l="6">        <span class="kw">int</span> data;</span>
-<span class="line" data-l="7">    <span class="kw">public</span>:</span>
-<span class="line" data-l="8">        Node(<span class="kw">int</span> d) { data = d; }</span>
-<span class="line" data-l="9">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> data; }</span>
-<span class="line" data-l="10">};</span>
-<span class="line" data-l="11"> </span>
-<span class="line" data-l="12"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="13">    Node n(<span class="num">93</span>);</span>
-<span class="line" data-l="14">    cout &lt;&lt; n.getData() &lt;&lt; endl;   <span class="com">// 可以：透過公開介面</span>
-<span class="line" data-l="15"></span>    cout &lt;&lt; n.data &lt;&lt; endl;        <span class="com">// 不行：data 是 private</span>
-<span class="line" data-l="16"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="17">}</span>
-<span class="line" data-l="18"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
-cell.cpp: In function ‘int main()’:
-cell.cpp:15:15: error: ‘int Node::data’ is private within this context
-   15 |     cout &lt;&lt; n.data &lt;&lt; endl;        // 不行：data 是 private</pre></div>
-  <p class="dx-note">這是 C++ 與 Python 一個很實際的差別：Python 的底線只是<strong>約定</strong>，你硬要碰還是碰得到；C++ 的 <code>private</code> 是<strong>編譯器強制</strong>的，碰了就編不過。訊息 <em>is private within this context</em> 值得認得。</p>
-</div>
-
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th>區段</th><th>誰能存取</th><th>通常放什麼</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">public:</td><td>任何人</td><td>建構式、對外的操作（介面）</td></tr>
-      <tr><td class="mono">private:</td><td>只有這個類別自己的成員函式</td><td>資料成員、內部輔助函式</td></tr>
-      <tr><td class="mono">protected:</td><td>自己 ＋ 子類別</td><td>要給子類別用的東西（見 <a href="p9_oop_advanced.html">P9</a>）</td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <div class="warn-box">
-    <div class="info-label">⚠️ <code>class</code> 預設是 private</div>
-    <p style="margin-bottom:0;">沒寫存取區段的話，<code>class</code> 裡的成員預設是 <code>private</code>（<code>struct</code> 則預設 <code>public</code>，這是兩者主要的差別）。所以建構式忘了放在 <code>public:</code> 底下，就會出現「明明有建構式卻說不能建立物件」的錯誤。另一個差別是預設繼承層級：<code>class</code> 預設 private 繼承、<code>struct</code> 預設 public，所以 <a href="p9_oop_advanced.html">P9</a> 一律寫 <code>: public</code>。</p>
-  </div>
-</section>
-
-<section id="encap">
-  <div class="section-number">PART 04 · 封裝</div>
-  <h2>課程自己就有兩套寫法 —— 而且兩套都對</h2>
-  <p>這一節值得慢慢看，因為它是真實世界的取捨，不是教科書的標準答案。</p>
-  <p>同一門課、同一套 <code>pythonds3/cppds/</code>，兩個類別的寫法完全相反：</p>
-
-  <div class="viz-layout">
-    <div>
-      <div class="info-card">
-        <div class="ic-title">pythonds3/cppds/linked_list.hpp <span class="ic-badge">全包起來</span></div>
-<div class="pseudo-code" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
-<span class="line" data-l="2"><span class="kw">class</span> Node {</span>
-<span class="line" data-l="3">    <span class="kw">private</span>:</span>
-<span class="line" data-l="4">        T data;</span>
-<span class="line" data-l="5">        Node&lt;T&gt; *next;</span>
-<span class="line" data-l="6">    <span class="kw">public</span>:</span>
-<span class="line" data-l="7">        T getData() <span class="kw">const</span> { <span class="kw">return</span> data; }</span>
-<span class="line" data-l="8">        Node&lt;T&gt; *getNext() <span class="kw">const</span> { <span class="kw">return</span> next; }</span>
-<span class="line" data-l="9">        <span class="kw">void</span> setData(T newData) { data = newData; }</span>
-<span class="line" data-l="10">        <span class="kw">void</span> setNext(Node&lt;T&gt; *n) { next = n; }</span>
-<span class="line" data-l="11">};</span>
-<span class="line" data-l="12"> </span></div>
-      </div>
-    </div>
-    <div>
-      <div class="info-card">
-        <div class="ic-title">pythonds3/cppds/binarytree.hpp <span class="ic-badge">全公開</span></div>
-<div class="pseudo-code" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">class</span> BinaryTree {</span>
-<span class="line" data-l="2">    <span class="kw">public</span>:</span>
-<span class="line" data-l="3">        string key;</span>
-<span class="line" data-l="4">        BinaryTree* leftChild;</span>
-<span class="line" data-l="5">        BinaryTree* rightChild;</span>
-<span class="line" data-l="6"> </span>
-<span class="line" data-l="7">        BinaryTree(string rootObj) {</span>
-<span class="line" data-l="8">            key = rootObj;</span>
-<span class="line" data-l="9">            leftChild = <span class="fn">NULL</span>;</span>
-<span class="line" data-l="10">            rightChild = <span class="fn">NULL</span>;</span>
-<span class="line" data-l="11">        }</span>
-<span class="line" data-l="12">};</span>
-<span class="line" data-l="13"> </span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="info-box">
-    <div class="info-label">💡 為什麼可以不一樣</div>
-    <p style="margin-bottom:0;"><code>&#78;ode</code> 是<strong>被 <code>UnorderedList</code> 包起來的內部零件</strong>，使用者根本不該直接碰它，所以把資料藏起來、只留 getter/setter 是合理的。<code>BinaryTree</code> 則是<strong>直接當公開結構用</strong>，走訪演算法要一直讀 <code>leftChild</code>／<code>rightChild</code>，全部包起來只會讓程式碼變長。<br>
-    封裝是<strong>手段</strong>不是<strong>目的</strong>：問「這個成員被外面亂改會出事嗎」，會就藏起來，不會就算了。</p>
-  </div>
-
-  <div class="quiz-box">
-    <div class="quiz-label">隨堂 1 · 該不該包起來</div>
-    <p>你要寫一個 <code>Stack</code>，內部用 <code>vector</code> 存元素。這個 <code>vector</code> 該放 <code>public</code> 還是 <code>private</code>？</p>
-    <div class="quiz-options" id="qaOptions">
-      <div class="quiz-opt" data-correct="true" data-fb="正確。放 public 的話，使用者可以對它呼叫 insert(3, x) 或 sort()，那就違反了「後進先出」的契約——你的 Stack 就不再是 Stack 了。藏起來只留 push/pop/peek，契約才守得住。" onclick="quizCheck('qa', this)"><span class="opt-letter">(A)</span> <code>private</code>，只留 push／pop／peek 對外</div>
-      <div class="quiz-opt" data-correct="false" data-fb="不對。public 會讓使用者繞過你的介面直接操作 vector，堆疊的「只能從一端進出」就守不住了。" onclick="quizCheck('qa', this)"><span class="opt-letter">(B)</span> <code>public</code>，這樣比較方便</div>
-      <div class="quiz-opt" data-correct="false" data-fb="不對。這裡有明確的判準：這個成員被外面亂改會不會破壞結構的契約？會，所以要藏。BinaryTree 的 leftChild 之所以能公開，是因為走訪本來就需要讀它。" onclick="quizCheck('qa', this)"><span class="opt-letter">(C)</span> 都可以，沒有差別</div>
-    </div>
-    <div class="quiz-feedback" id="qaFeedback"></div>
-  </div>
-
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 04、09 章</div><p style='margin-bottom:0;'>第 04 章的 <code>&#78;ode</code> 全部走 getter/setter；第 09 章的 <code>BinaryTree</code> 直接公開成員。讀原始碼時看到兩種風格不要以為自己看錯，那是刻意的取捨。</p></div>
-</section>
-
-<section id="constfn">
-  <div class="section-number">PART 05 · const 成員函式</div>
-  <h2><code>T getData() const</code>：括號後面那個 const 在承諾什麼</h2>
-  <p>寫在參數列<strong>後面</strong>的 <code>const</code> 是對編譯器的承諾：<strong>這個函式不會改動任何成員變數</strong>。改了就編不過。</p>
-
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Node {</span>
-<span class="line" data-l="2">    <span class="kw">private</span>:</span>
-<span class="line" data-l="3">        <span class="kw">int</span> data;</span>
-<span class="line" data-l="4">    <span class="kw">public</span>:</span>
-<span class="line" data-l="5">        <span class="kw">int</span> getData() <span class="kw">const</span> { <span class="kw">return</span> data; }      <span class="com">// 只讀，加 const</span>
-<span class="line" data-l="6"></span>        <span class="kw">void</span> setData(<span class="kw">int</span> d) { data = d; }         <span class="com">// 要改，不能加 const</span>
-<span class="line" data-l="7"></span>};</span>
-<span class="line" data-l="8"> </span>
-<span class="line" data-l="9"><span class="kw">void</span> <span class="fn">printIt</span>(<span class="kw">const</span> Node&amp; n) {      <span class="com">// 收到的是 const 參考</span>
-<span class="line" data-l="10"></span>    cout &lt;&lt; n.getData();           <span class="com">// 可以：getData 保證不改</span>
-<span class="line" data-l="11"></span>    <span class="com">// n.setData(5);               // 不行：setData 沒有 const 承諾</span>
-<span class="line" data-l="12"></span>}</span>
-<span class="line" data-l="13"> </span></div>
-
-  <div class="info-box green">
-    <div class="info-label">✅ 為什麼值得養成習慣</div>
-    <p style="margin-bottom:0;">因為 <strong><code>const</code> 物件只能呼叫 <code>const</code> 成員函式</strong>。傳大物件時用 <code>const T&amp;</code> 是標準做法（不複製又不讓改，見 <a href="p3_functions.html">P3</a>），而那時候所有的讀取函式都必須是 <code>const</code> 的，否則呼叫不了。<code>pythonds3/cppds/linked_list.hpp</code> 的每個 getter 都有加。</p>
-  </div>
-  <details style="margin-top:1rem;"><summary><strong>備註：課程標頭幾乎沒寫 <code>const</code></strong></summary>
-    <p style="margin-top:.7rem;margin-bottom:0;">20 個課程標頭裡只有四支（<code>linked_list</code>、<code>sparsematrix</code>、<code>bst</code>、<code>binaryheap</code>）有加，<code>Stack</code>、<code>Queue</code>、<code>BinaryTree</code> 的 <code>size()</code>、<code>peek()</code>、<code>isEmpty()</code> 全都沒有。教材程式不會把物件以 <code>const</code> 參考傳來傳去，所以沒事；你自己寫的時候，照本節的習慣：<strong>不改成員的函式就加 <code>const</code></strong>。</p>
-  </details>
-</section>
-
-<section id="overload">
-  <div class="section-number">PART 06 · 多載</div>
-  <h2>同名不同參數：<code>Fraction</code> 的三種建立方式</h2>
-  <p>C++ 允許同一個名字有多個版本，只要<strong>參數列不同</strong>就好。編譯器會依你傳的引數挑一個。這在 Python 只能靠預設參數繞，C++ 直接支援。</p>
-
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Fraction {</span>
-<span class="line" data-l="2">    <span class="kw">public</span>:</span>
-<span class="line" data-l="3">        Fraction(<span class="kw">int</span> top, <span class="kw">int</span> bottom) { num = top;  den = bottom; }   <span class="com">// 兩個引數</span>
-<span class="line" data-l="4"></span>        Fraction(<span class="kw">int</span> top)             { num = top;  den = <span class="num">1</span>; }        <span class="com">// 整數：top/1</span>
-<span class="line" data-l="5"></span>        Fraction()                    { num = <span class="num">1</span>;    den = <span class="num">1</span>; }        <span class="com">// 沒給：1/1</span>
-<span class="line" data-l="6"></span>    <span class="kw">private</span>:</span>
-<span class="line" data-l="7">        <span class="kw">int</span> num, den;</span>
-<span class="line" data-l="8">};</span>
-<span class="line" data-l="9"> </span></div>
-
-<div class="deck-extra">
-  <div class="dx-label">三個建構式各自被挑中（引用課程的 pythonds3/cppds/fraction.hpp 實跑）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/fraction.hpp"</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="4"> </span>
-<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="6">    Fraction a(<span class="num">3</span>, <span class="num">4</span>);      <span class="com">// 兩個引數 -&gt; Fraction(int, int)</span>
-<span class="line" data-l="7"></span>    Fraction b(<span class="num">5</span>);         <span class="com">// 一個引數 -&gt; Fraction(int)，也就是 5/1</span>
-<span class="line" data-l="8"></span>    Fraction c;            <span class="com">// 沒有引數 -&gt; Fraction()，也就是 1/1</span>
-<span class="line" data-l="9"></span></span>
-<span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">a = </span><span class="str">"</span> &lt;&lt; a &lt;&lt; endl;</span>
-<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; endl;</span>
-<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">c = </span><span class="str">"</span> &lt;&lt; c &lt;&lt; endl;</span>
-<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">a + b = </span><span class="str">"</span> &lt;&lt; (a + b) &lt;&lt; endl;</span>
-<span class="line" data-l="14">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="15">}</span>
-<span class="line" data-l="16"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a = 3/4
-b = 5/1
-c = 1/1
-a + b = 23/4</pre></div>
-  <p class="dx-note"><code>Fraction b(5)</code> 挑中單參數版本、<code>Fraction c</code> 挑中無參數版本。注意最後一行 <code>a + b</code> 也能用 —— 那是 <code>operator+</code> 的功勞，屬於 <a href='p9_oop_advanced.html'>P9</a> 的運算子多載。</p>
-</div>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">編譯器怎麼挑：一個一個比參數列</h3>
-  <p>「編譯器會依你傳的引數挑一個」這句話講得太快了。它實際上做三件事：<strong>先把同名的建構式全抓出來當候選</strong>，再<strong>逐一比對參數列，個數或型別對不上就淘汰</strong>，最後從活下來的裡面挑一個。下面的逐步器把這個過程放慢給你看。</p>
-  <p>候選名單裡多了一個你沒寫的 <code>Fraction(const Fraction &amp;other)</code> —— 那是<strong>複製建構式</strong>。你沒寫的話編譯器會自動幫你生一個，所以它永遠在名單上，也因此永遠參與比對。</p>
-
-  <div class="viz-layout">
-    <div>
-      <div class="viz-panel">
-        <div class="mono" id="ovlCall" style="font-size:.9rem;font-weight:600;color:var(--accent2);margin-bottom:.2rem;">呼叫端：（按下面任一顆按鈕開始）</div>
-        <div class="mono" id="ovlOut" style="font-size:.8rem;color:var(--muted);min-height:1.2rem;">&nbsp;</div>
-        <div class="bq-row" id="ovlArgs"></div>
-        <div class="pseudo-code" id="ovlCands" style="font-size:.78rem;"><span class="line" data-l="1">#1  Fraction()                      <span class="com">// 候選 A：不收引數</span></span>
-<span class="line" data-l="2">#2  Fraction(<span class="kw">int</span> top)               <span class="com">// 候選 B：1 個 int</span></span>
-<span class="line" data-l="3">#3  Fraction(<span class="kw">int</span> top, <span class="kw">int</span> bottom)   <span class="com">// 候選 C：2 個 int</span></span>
-<span class="line" data-l="4">#4  Fraction(<span class="kw">const</span> Fraction &amp;other) <span class="com">// 候選 D：複製建構式（自動生成）</span></span></div>
-        <div class="status-banner" id="ovlStatus"><span class="status-icon">›</span><span class="status-text">選一種呼叫寫法開始。四個候選的名字一模一樣，決勝負的只有括號裡那一段。</span></div>
-        <div class="controls-bar">
-          <button class="btn btn-play" onclick="ovlStart('none')">▶ Fraction f;</button>
-          <button class="btn btn-play" onclick="ovlStart('one')">▶ Fraction f(3);</button>
-          <button class="btn btn-play" onclick="ovlStart('two')">▶ Fraction f(3, 5);</button>
-          <button class="btn btn-play" onclick="ovlStart('copy')">▶ Fraction g = f;</button>
-          <button class="btn btn-step" onclick="ovlPlayer &amp;&amp; ovlPlayer.step()">→ 單步</button>
-          <button class="btn btn-reset" onclick="ovlReset()">⟲ 重設</button>
-          <button class="btn" onclick="ovlPlayer &amp;&amp; ovlPlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="ovlSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
-        </div>
-      </div>
-    </div>
-    <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">看簽名，不看名字 <span class="ic-badge">KEY</span></div>
-        <p style="font-size:.86rem;margin-bottom:.5rem;">能區分多載的只有<strong>參數列</strong>：型別、個數、順序。名字全部相同，回傳型別也<strong>不算</strong>在內 —— 兩個函式只差回傳型別的話，那不是多載，是重複定義，直接編不過。</p>
-        <p style="font-size:.86rem;margin-bottom:0;"><strong>複製建構式什麼時候被呼叫？</strong>用同型別的物件初始化另一個物件時（<code>Fraction g = f;</code>、<code>Fraction g(f);</code>）、物件<strong>以傳值方式</strong>當引數傳進函式時、以及函式<strong>以傳值回傳</strong>物件時。這也是 <a href="p3_functions.html">P3</a> 說「大物件請用 <code>const T&amp;</code>」的理由 —— 傳值會多跑一次複製。</p>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">預設參數 vs 多載 <span class="ic-badge">取捨</span></div>
-        <p style="font-size:.86rem;margin-bottom:.5rem;">前三個候選也可以用<strong>一個</strong>帶預設值的建構式取代：<code>Fraction(int top = 1, int bottom = 1);</code>。少寫兩份本體、少兩份要一起維護的程式碼，這是它的好處。</p>
-        <p style="font-size:.86rem;margin-bottom:0;">代價是<strong>兩者不能並存</strong>：留著預設參數版又留著 <code>Fraction()</code>，寫 <code>Fraction c;</code> 時兩個都可行、也分不出高下，編譯器會報 <em>call of overloaded … is ambiguous</em>。判準很簡單：各版本<strong>本體一樣、只差沒填的值</strong>就用預設參數；<strong>本體真的要做不同的事</strong>（例如收 <code>int</code> 跟收 <code>Fraction</code>）就寫成多載。</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="warn-box">
-    <div class="info-label">⚠️ <code>Fraction c;</code> 不要寫成 <code>Fraction c();</code></div>
-    <p style="margin-bottom:0;">加了括號，C++ 會把它當成「宣告一個回傳 <code>Fraction</code> 的函式 <code>c</code>」，而不是建立物件。這個坑有個名字叫 <em>most vexing parse</em>，錯誤訊息通常離現場很遠。要建立物件就不要加空括號。</p>
-  </div>
-</section>
-
-<section id="stream">
-  <div class="section-number">PART 07 · 印得出來</div>
-  <h2><code>operator&lt;&lt;</code> 與 <code>friend</code>：讓你的物件說人話</h2>
-
-<div class="deck-extra">
-  <div class="dx-label">沒有定義 operator<< 的下場</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">class</span> Point {</span>
-<span class="line" data-l="5">    <span class="kw">private</span>:</span>
-<span class="line" data-l="6">        <span class="kw">int</span> x, y;</span>
-<span class="line" data-l="7">    <span class="kw">public</span>:</span>
-<span class="line" data-l="8">        Point(<span class="kw">int</span> a, <span class="kw">int</span> b) { x = a; y = b; }</span>
-<span class="line" data-l="9">};</span>
-<span class="line" data-l="10"> </span>
-<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="12">    Point p(<span class="num">3</span>, <span class="num">4</span>);</span>
-<span class="line" data-l="13">    cout &lt;&lt; p &lt;&lt; endl;      <span class="com">// 沒有定義 operator&lt;&lt;，編譯器不知道怎麼印</span>
-<span class="line" data-l="14"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="15">}</span>
-<span class="line" data-l="16"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
-cell.cpp: In function ‘int main()’:
-cell.cpp:13:10: error: no match for ‘operator&lt;&lt;’ (operand types are ‘std::ostream’ {aka ‘std::basic_ostream&lt;char&gt;’} and ‘Point’)
-   13 |     cout &lt;&lt; p &lt;&lt; endl;      // 沒有定義 operator&lt;&lt;，編譯器不知道怎麼印</pre></div>
-  <p class="dx-note"><code>cout &lt;&lt; p</code> 編不過。C++ 不像 Python 有預設的字串表示 —— 沒教過它怎麼印你的類別，它就直接拒絕。訊息 <em>no match for 'operator&lt;&lt;'</em> 第一次看到會嚇一跳，其實意思很單純：找不到能印這個型別的版本。</p>
-</div>
-
-  <p>解法是自己定義一個。因為 <code>cout &lt;&lt; f</code> 的左邊是 <code>ostream</code> 而不是你的物件，這個函式<strong>不能寫成成員函式</strong>，只能寫在類別外面 —— 但它又需要讀 <code>private</code> 的成員，所以要用 <code>friend</code> 開一道門：</p>
-
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> Fraction {</span>
-<span class="line" data-l="2">    <span class="kw">public</span>:</span>
-<span class="line" data-l="3">        <span class="com">// …建構式…</span>
-<span class="line" data-l="4"></span>    <span class="kw">friend</span> ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp; stream, <span class="kw">const</span> Fraction&amp; fraction);</span>
-<span class="line" data-l="5">    <span class="kw">private</span>:</span>
-<span class="line" data-l="6">        <span class="kw">int</span> num, den;</span>
-<span class="line" data-l="7">};</span>
-<span class="line" data-l="8"> </span>
-<span class="line" data-l="9">ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp; stream, <span class="kw">const</span> Fraction&amp; fraction) {</span>
-<span class="line" data-l="10">    stream &lt;&lt; fraction.num &lt;&lt; <span class="str">"</span><span class="str">/</span><span class="str">"</span> &lt;&lt; fraction.den;    <span class="com">// 靠 friend 才碰得到 private</span>
-<span class="line" data-l="11"></span>    <span class="kw">return</span> stream;                                     <span class="com">// 回傳 stream 才能串接 &lt;&lt; &lt;&lt; &lt;&lt;</span>
-<span class="line" data-l="12"></span>}</span>
-<span class="line" data-l="13"> </span></div>
-
-  <div class="info-box">
-    <div class="info-label">💡 兩個容易漏的細節</div>
-    <p style="margin-bottom:0;">① <strong>一定要 <code>return stream;</code></strong>，否則 <code>cout &lt;&lt; a &lt;&lt; b</code> 這種串接就斷了。<br>
-    ② 參數用 <code>const Fraction&amp;</code>：參考避免複製、<code>const</code> 保證不改。這是傳物件的標準寫法。</p>
-  </div>
-
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 01、04、09 章</div><p style='margin-bottom:0;'>第 01 章的 <code>Fraction</code> 就是這個寫法的出處。到了第 04、09 章，沒有 <code>operator&lt;&lt;</code> 你就沒辦法把一條串列或一棵樹印出來看，debug 等於瞎子摸象。</p></div>
-</section>
-
-<section id="compose">
-  <div class="section-number">PART 08 · 組合</div>
-  <h2>用現成的東西蓋新的東西 <span class="sec-badge">has-a</span></h2>
-  <p>要做一個 <code>Stack</code>，不需要從零管理記憶體 —— 直接<strong>持有一個 <code>vector</code></strong> 就好。這種「A 擁有一個 B」的關係叫<strong>組合</strong>，是資料結構課裡最常見的蓋法。</p>
-
-<div class="deck-extra">
-  <div class="dx-label">完整的 Stack：這一份會在第 05 章反覆出現</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="4"> </span>
-<span class="line" data-l="5"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
-<span class="line" data-l="6"><span class="kw">class</span> Stack {</span>
-<span class="line" data-l="7">    <span class="kw">private</span>:</span>
-<span class="line" data-l="8">        vector&lt;T&gt; items;               <span class="com">// 組合：Stack「擁有」一個 vector</span>
-<span class="line" data-l="9"></span>    <span class="kw">public</span>:</span>
-<span class="line" data-l="10">        <span class="kw">bool</span> isEmpty() { <span class="kw">return</span> items.empty(); }</span>
-<span class="line" data-l="11">        <span class="kw">void</span> push(T item) { items.push_back(item); }</span>
-<span class="line" data-l="12">        T pop() { T top = items.back(); items.pop_back(); <span class="kw">return</span> top; }</span>
-<span class="line" data-l="13">        T peek() { <span class="kw">return</span> items.back(); }</span>
-<span class="line" data-l="14">        <span class="kw">int</span> size() { <span class="kw">return</span> items.size(); }</span>
-<span class="line" data-l="15">        <span class="kw">void</span> display() { <span class="kw">for</span> (T x : items) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>; cout &lt;&lt; endl; }</span>
-<span class="line" data-l="16">};</span>
-<span class="line" data-l="17"> </span>
-<span class="line" data-l="18"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="19">    Stack&lt;<span class="kw">char</span>&gt; s;</span>
-<span class="line" data-l="20">    <span class="kw">for</span> (<span class="kw">char</span> c : {<span class="str">'</span><span class="str">a</span><span class="str">'</span>, <span class="str">'</span><span class="str">b</span><span class="str">'</span>, <span class="str">'</span><span class="str">c</span><span class="str">'</span>}) s.push(c);</span>
-<span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">內容（底到頂）: </span><span class="str">"</span>; s.display();</span>
-<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">peek = </span><span class="str">"</span> &lt;&lt; s.peek() &lt;&lt; <span class="str">"</span><span class="str">，size = </span><span class="str">"</span> &lt;&lt; s.size() &lt;&lt; endl;</span>
-<span class="line" data-l="23">    cout &lt;&lt; <span class="str">"</span><span class="str">pop  = </span><span class="str">"</span> &lt;&lt; s.pop() &lt;&lt; <span class="str">"</span><span class="str">，剩下 </span><span class="str">"</span>; s.display();</span>
-<span class="line" data-l="24">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="25">}</span>
-<span class="line" data-l="26"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>內容（底到頂）: a b c 
-peek = c，size = 3
-pop  = c，剩下 a b </pre></div>
-  <p class="dx-note">重點在 <code>vector&lt;T&gt; items;</code> 這一行：Stack <strong>不是</strong>一個 vector，Stack <strong>有</strong>一個 vector。而且它是 <code>private</code> 的 —— 外面只看得到 push/pop/peek，看不到裡面是什麼。所以你哪天要把它換成鏈結串列，外面一行都不用改。</p>
-</div>
-
-  <div class="quiz-box">
-    <div class="quiz-label">隨堂 2 · 選對那一端</div>
-    <p>上面的 <code>Stack</code> 把 <code>vector</code> 的<strong>尾端</strong>當成堆疊頂端。課程的 <code>pythonds3/cppds/stack.hpp</code> 另外附了一個 <code>Stack2</code>，改成用<strong>前端</strong>。會發生什麼？</p>
-    <div class="quiz-options" id="qbOptions">
-      <div class="quiz-opt" data-correct="false" data-fb="結果會一樣正確沒錯，但成本完全不同——這正是課程把 Stack2 留在原始碼裡的原因。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 完全一樣，只是寫法不同</div>
-      <div class="quiz-opt" data-correct="true" data-fb="正確。在 vector 前端插入或刪除，要把後面所有元素整排搬移，是 O(n)；尾端則是 O(1)。實測 n=50000 時差了一百倍。同樣的 ADT、同樣的正確結果，效能差兩個數量級。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 行為一樣正確，但每個操作從 $O(1)$ 變成 $O(n)$</div>
-      <div class="quiz-opt" data-correct="false" data-fb="不會錯，vector 兩端都支援插入與刪除。問題不在對錯，在成本。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 會出錯，<code>vector</code> 不支援從前端刪除</div>
-    </div>
-    <div class="quiz-feedback" id="qbFeedback"></div>
-  </div>
-
-<div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 05 章</div><p style='margin-bottom:0;'><code>Stack</code>、<code>Queue</code>、<code>Deque</code> 三個 ADT 在課程標頭裡全部用同一招：持有一個 <code>vector</code>，只是選擇從哪一端操作。選錯端就是 $O(n)$。</p></div>
-</section>
-
-<section id="header">
-  <div class="section-number">PART 09 · 標頭檔</div>
-  <h2><code>.hpp</code> 與 include guard：課程的 <code>pythonds3/cppds/</code> 怎麼組起來的</h2>
-  <p>類別通常放在 <code>.hpp</code> 裡，讓別的檔案 <code>#include</code> 進來用。但 <code>#include</code> 就是<strong>把整個檔案的內容原地貼過來</strong>，同一個檔案被貼兩次，類別就重複定義了。</p>
-
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="com">// pythonds3/cppds/stack.hpp</span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">ifnde<span></span>f DSCPP_STACK_HPP      </span><span class="com">// 如果還沒定義過這個名字</span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">define DSCPP_STACK_HPP      </span><span class="com">// 就定義它，然後往下走</span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="6"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="7"> </span>
-<span class="line" data-l="8"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
-<span class="line" data-l="9"><span class="kw">class</span> Stack { <span class="com">/* … */</span> };</span>
-<span class="line" data-l="10"> </span>
-<span class="line" data-l="11"><span class="kw">#</span><span class="kw">endif                        </span><span class="com">// 第二次被 include 時，整段直接跳過</span>
-<span class="line" data-l="12"></span></span></div>
-
-  <div class="info-box">
-    <div class="info-label">💡 為什麼 template 類別整份都寫在 <code>.hpp</code> 裡</div>
-    <p style="margin-bottom:0;">template 的實作必須跟宣告放在一起（編譯器要看到完整實作才能替 <code>Stack&lt;int&gt;</code> 產生程式碼），所以 <code>pythonds3/cppds/</code> 的 20 支頂層標頭全是 <code>.hpp</code>、沒有對應的 <code>.cpp</code>。完整理由見 <a href="p9_oop_advanced.html#tmpl">P9</a>。</p>
-  </div>
-</section>
-
-<section id="exercises">
-  <div class="section-number">EX · 隨堂練習</div>
-  <h2>動手做：從空白檔案寫一個 <code>&#78;ode</code></h2>
-  <p>把網頁關掉，開一個空檔案，試著不看答案寫出來：</p>
-
-  <div class="info-card">
-    <div class="ic-title">練習規格 <span class="ic-badge">TRY IT</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">① 寫一個 <code>&#78;ode</code> 類別，<code>private</code> 放 <code>int data</code> 與 <code>&#78;ode *next</code>。<br>
-    ② 建構式吃一個值，把 <code>next</code> 設成 <code>&#78;ULL</code>。<br>
-    ③ 提供 <code>getData()</code>、<code>getNext()</code>、<code>setNext()</code>，讀取的那兩個加上 <code>const</code>。<br>
-    ④ 寫一個 <code>friend ostream&amp; operator&lt;&lt;</code>，印成 <code>&#78;ode(93)</code> 的樣子。<br>
-    ⑤ 在 <code>main()</code> 裡 <code>new</code> 三個節點串起來、印出來，最後<strong>記得 delete</strong>。</p>
-  </div>
-
-  <div class="info-box purple">
-    <div class="info-label">🎯 過關標準</div>
-    <p style="margin-bottom:0;">如果你能不看答案寫出來、而且五個 <code>delete</code> 都放對位置（提示：要<strong>從後面往前刪</strong>，先刪頭的話就找不到後面了），你已經準備好進第 04 章了。</p>
-  </div>
-</section>
-
-<section id="reference">
-  <div class="section-number">REFERENCE · 速查表</div>
-  <h2>P8 速查表</h2>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.2rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">class</span> 類別名稱 {</span>
-<span class="line" data-l="2">    <span class="kw">private</span>:</span>
-<span class="line" data-l="3">        型別 成員變數;                    <span class="com">// 預設就是 private</span>
-<span class="line" data-l="4"></span></span>
-<span class="line" data-l="5">    <span class="kw">public</span>:</span>
-<span class="line" data-l="6">        類別名稱(參數) { … }              <span class="com">// 建構式：同名、沒有回傳型別</span>
-<span class="line" data-l="7"></span>        類別名稱() { … }                  <span class="com">// 多載：參數列不同就是不同版本</span>
-<span class="line" data-l="8"></span></span>
-<span class="line" data-l="9">        回傳型別 成員函式(參數) <span class="kw">const</span> {    <span class="com">// const = 我保證不改成員</span>
-<span class="line" data-l="10"></span>            <span class="kw">return</span> 成員變數;</span>
-<span class="line" data-l="11">        }</span>
-<span class="line" data-l="12"> </span>
-<span class="line" data-l="13">    <span class="kw">friend</span> ostream&amp; <span class="kw">operator</span>&lt;&lt;(ostream&amp;, <span class="kw">const</span> 類別名稱&amp;);   <span class="com">// 開門給外部函式</span>
-<span class="line" data-l="14"></span>};</span>
-<span class="line" data-l="15"> </span>
-<span class="line" data-l="16">類別名稱 <span class="fn">物件</span>(引數);            <span class="com">// 建在堆疊上，離開範圍自動消失</span>
-<span class="line" data-l="17"></span>類別名稱 *p = <span class="kw">new</span> 類別名稱(引數);  <span class="com">// 建在堆積上，要自己 delete</span>
-<span class="line" data-l="18"></span></span></div>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">C++ ↔ Python 對照</h3>
-  <div class="cmp-table-wrap">
-  <table class="cmp-table">
-    <thead><tr><th>概念</th><th>C++</th><th>Python</th></tr></thead>
-    <tbody>
-      <tr><td>建構式</td><td class="mono">類別名稱(…)</td><td class="mono">__init__</td></tr>
-      <tr><td>指向自己</td><td class="mono">this（指標，隱含）</td><td class="mono">self（參數，要明寫）</td></tr>
-      <tr><td>藏起來</td><td class="mono">private（編譯器強制）</td><td>底線開頭（只是約定）</td></tr>
-      <tr><td>印出來</td><td class="mono">operator&lt;&lt;</td><td class="mono">__str__</td></tr>
-      <tr><td>唯讀承諾</td><td class="mono">函式後面加 const</td><td>沒有對應機制</td></tr>
-      <tr><td>同名多版本</td><td>參數列不同即可</td><td>只能靠預設參數</td></tr>
-    </tbody>
-  </table>
-  </div>
-  <p style="font-size:.9rem;color:var(--muted);">繼承、多型、<code>virtual</code>、運算子多載與 template，見 <a href="p9_oop_advanced.html"><strong>P9 · 物件導向（進階）</strong></a>。</p>
-
-  <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">延伸閱讀</h3>
-  <table class="cmp-table">
-    <thead><tr><th>資源</th><th>看什麼</th></tr></thead>
-    <tbody>
-      <tr><td><a href="https://github.com/pearcej/cppds/tree/master/_sources/Introduction" target="_blank" rel="noopener">cppds · Introduction</a></td><td>教科書用 <code>Fraction</code> 與邏輯閘介紹類別，本站<a href="introduction.html">第 01 章</a>有互動版。</td></tr>
-      <tr><td><a href="https://en.cppreference.com/w/cpp/language/classes" target="_blank" rel="noopener">cppreference · Classes</a></td><td>存取控制、建構式、成員函式的完整規則。</td></tr>
-      <tr><td><a href="https://pythontutor.com/cpp.html" target="_blank" rel="noopener">C++ Tutor</a></td><td>把本頁的 <code>&#78;ode</code> 貼進去，看物件的成員在記憶體裡怎麼排。</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section id="bankquiz">
+<nav class="float-nav" id="floatNav"><a href="#class" data-target="class"><span class="fn-num">1</span><span class="fn-name">最小 class 與物件</span></a><a href="#private" data-target="private"><span class="fn-num">2</span><span class="fn-name">public、private 與建構式</span></a><a href="#this" data-target="this"><span class="fn-num">3</span><span class="fn-name">this 與物件指標</span></a><a href="#state" data-target="state"><span class="fn-num">4</span><span class="fn-name">每個物件有自己的狀態</span></a><a href="#destructor" data-target="destructor"><span class="fn-num">5</span><span class="fn-name">解構式</span></a><a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a><a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a><a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">詞彙卡</span></a><a href="#top" class="fn-top"><span class="fn-num">↑ TOP</span></a></nav><div class="hero" id="top"><div class="hero-grid"></div><div class="hero-content"><div class="chapter-tag">PREREQ P8</div><h1>類別與物件入門</h1><div class="subtitle">從最小 class 開始，理解物件如何保存自己的狀態</div><div class="scroll-hint">向下捲動開始<span>↓</span></div></div></div><div class="container"><div class="study-guide"><div class="sg-title">📌 本頁使用方式</div><p>先讀語法說明，再預測範例結果；操作互動後完成自我檢測。</p><div class="sg-links"><a href="index.html">🏠 章節總覽</a><a href="index.html#prereq">📚 先備頁總覽</a></div></div><div class="toc"><div class="toc-title">CONTENTS · 內容目錄</div><div class="toc-grid"><a href="#class"><span class="toc-num">P01</span>最小 class 與物件</a><a href="#private"><span class="toc-num">P02</span>public、private 與建構式</a><a href="#this"><span class="toc-num">P03</span>this 與物件指標</a><a href="#state"><span class="toc-num">P04</span>每個物件有自己的狀態</a><a href="#destructor"><span class="toc-num">P05</span>解構式</a><a href="#reference"><span class="toc-num">REF</span>速查表</a><a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a><a href="#cards"><span class="toc-num">CARD</span>詞彙卡</a></div></div><section id="class"><div class="section-number">PART 01</div><h2>最小 class 與物件</h2><p><code>class</code> 把資料與操作寫在同一個型別中；定義結尾的分號不可省略。<code>public:</code> 是存取區段標籤，表示後面的成員可由類別外使用。<code>Counter</code> 是自訂型別名稱，<code>Counter c;</code> 建立名叫 <code>c</code> 的物件。<code>value</code> 是保存數值的資料成員；<code>increment()</code> 是操作資料的成員函式，沿用 P3 的函式語法。物件用 <code>.</code> 存取公開成員：讀資料寫 <code>c.value</code>，呼叫函式寫 <code>c.increment()</code>。</p><pre class="pseudo-code" data-cpp="run" data-expected="1
+">#include &lt;iostream&gt;
+class Counter {
+  public:
+  int value=0;
+  void increment(){
+    value++;
+  }
+};
+int main(){
+  Counter c;
+  c.increment();
+  std::cout&lt;&lt;c.value&lt;&lt;'\n';
+}
+</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1
+</pre></div><p>練習：再呼叫兩次 <code>increment()</code>，預測輸出。</p></section><section id="private"><div class="section-number">PART 02</div><h2>public、private 與建構式</h2><p><code>class</code> 若未寫存取區段，預設就是 <code>private</code>。<code>public:</code> 後面放外部可呼叫的操作；<code>private:</code> 後面放內部狀態。建構式與類別同名、沒有回傳型別，建立物件時自動執行。<code>Counter(int start) : value(start)</code> 的冒號部分是初始化串列：它在進入大括號前直接建立 value，而不是先建立再賦值。</p><pre class="pseudo-code" data-cpp="run" data-expected="3
+">#include &lt;iostream&gt;
+class Counter {
+  int value;
+  public:
+  Counter(int start):value(start){
+  }
+  void increment(){
+    value++;
+  }
+  int get() const{
+    return value;
+  }
+};
+int main(){
+  Counter c(2);
+  c.increment();
+  std::cout&lt;&lt;c.get()&lt;&lt;'\n';
+}
+</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3
+</pre></div><p><code>get() const</code> 的 <code>const</code> 寫在參數括號後，承諾這個成員函式不改物件。練習：嘗試從 main 直接讀 <code>c.value</code>，解釋編譯錯誤。</p></section><section id="this"><div class="section-number">PART 03</div><h2>this 與物件指標</h2><p><code>this</code> 指向目前物件。先用不同名字完成建構式 <code>Counter(int start) : value(start)</code>；到了 set，再刻意讓參數也叫 value，使用 <code>this-&gt;value = value</code> 區分「成員」與「參數」。物件指標用 <code>-&gt;</code>，等同先解參考再用點號。</p><pre class="pseudo-code" data-cpp="run" data-expected="7
+">#include &lt;iostream&gt;
+class Counter{
+  int value;
+  public:
+  Counter(int value):value(value){
+  }
+  void increment() {
+    value++;
+  }
+  void set(int value){
+    this-&gt;value=value;
+  }
+  int get()const{
+    return value;
+  }
+};
+int main(){
+  Counter c(1);
+  Counter* p=&amp;c;
+  p-&gt;set(7);
+  std::cout&lt;&lt;p-&gt;get()&lt;&lt;'\n';
+}
+</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>7
+</pre></div><p>練習：把最後一行改用物件 <code>c</code> 與點號。</p></section><section id="state"><div class="section-number">PART 04</div><h2>每個物件有自己的狀態</h2><p>同一個類別建立出的每個物件，都有各自的成員資料。沿用上一節的 <code>Counter</code>，把下列片段放在 <code>main</code> 內。初始值是 a=0、b=10；請先寫下兩個最終值。</p><pre class="pseudo-code" data-cpp="fragment">Counter a(0);
+Counter b(10);
+a.increment();
+b.increment();
+b.increment();</pre><p>兩個物件呼叫同一種操作，各自的數值會怎麼改變？</p><div class="player-controls"><button id="p8Play">▶ 播放</button><button id="p8Step">單步</button><button id="p8Reset">重設</button></div><div class="status-banner" id="p8Out"></div><p>練習：先預測兩個 Counter 最後的值。</p></section><section id="destructor"><div class="section-number">PART 05</div><h2>解構式</h2><p>解構式寫成 <code>~類別名()</code>，物件生命結束時自動呼叫，常用來做收尾。這個 Counter 沒有擁有動態記憶體，只示範呼叫時機。</p><pre class="pseudo-code" data-cpp="run" data-expected="建立 A
+使用 A
+結束 A
+">#include &lt;iostream&gt;
+#include &lt;string&gt;
+class Counter{
+  std::string name;
+  public:
+  Counter(std::string n):name(n){
+    std::cout&lt;&lt;"建立 "&lt;&lt;name&lt;&lt;'\n';
+  }
+  ~Counter(){
+    std::cout&lt;&lt;"結束 "&lt;&lt;name&lt;&lt;'\n';
+  }
+};
+int main(){
+  Counter c("A");
+  std::cout&lt;&lt;"使用 A\n";
+}
+</pre><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>建立 A
+使用 A
+結束 A
+</pre></div><p>練習：在內層大括號建立物件，觀察離開大括號時的輸出。</p></section><section id="reference"><div class="section-number">REF · 速查表</div><h2>語法速查</h2><div class="cmp-table-wrap"><table class="cmp-table"><thead><tr><th>語法</th><th>用途</th></tr></thead><tbody><tr><td><code>class Counter { ... };</code></td><td>定義自訂型別，最後的分號不可省略。</td></tr><tr><td><code>public: / private:</code></td><td>區分外部可用的介面與內部資料。class 預設為 private。</td></tr><tr><td><code>Counter c; / c.increment();</code></td><td>建立物件，再呼叫它的成員函式。</td></tr><tr><td><code>Counter(int start) : value(start) {}</code></td><td>建構式以初始化串列設定成員初值。</td></tr><tr><td><code>int get() const { return value; }</code></td><td>括號後的 const 表示不透過此函式修改物件。</td></tr><tr><td><code>this-&gt;value / p-&gt;get()</code></td><td>this 指向目前物件；物件指標以 -> 存取成員。</td></tr><tr><td><code>~Counter() { ... }</code></td><td>物件生命結束時自動執行的解構式。</td></tr></tbody></table></div></section><section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：物件導向基礎 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <h2>自我檢測：類別與物件 <span class="sec-badge">隨堂自測 · 4 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
-    <pre class="sq-code">class Node {
-    private:
-        int data;
-        Node *next;
-    public:
-        Node(int d) { data = d; next = NULL; }
-        int getData() const { return data; }
-};
-
-int main() {
-    Node n(93);
-    cout &lt;&lt; n.getData();
-}</pre>
+    <div class="sq-q"><span class="sq-num">Q1.</span>class 定義結尾需要什麼？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。Node n(93) 建立物件時會自動執行建構式，把 93 存進 data。getData 是公開的，所以外面讀得到。">93</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。建構式已經把 data 設成 93 了。未初始化才會是垃圾值。">0</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。程式並沒有從外面直接碰 data，而是透過公開的 getData。這正是封裝的用法。">編譯錯誤，data 是 private</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。getData 回傳的是 int，不是指標。">會印出記憶體位址</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。">分號</button>
+      <button class="sq-opt" data-c="0" data-fb="類別定義以分號結束。">逗號</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>以下程式為什麼編不過？</div>
-    <pre class="sq-code">class Node {
-    private:
-        int data;
-    public:
-        Node(int d) { data = d; }
-};
-
-int main() {
-    Node n(93);
-    cout &lt;&lt; n.data;
-}</pre>
+    <div class="sq-q"><span class="sq-num">Q2.</span>哪個區段只允許成員函式直接存取？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。C++ 的 private 是編譯器強制的，不像 Python 的底線只是約定。錯誤訊息會說 is private within this context。要讀它就得提供一個公開的 getter。">data 是 private，從類別外面不能存取</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。建構式與類別同名、沒有回傳型別，寫法完全正確。">建構式寫錯了</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。cout 印 int 完全沒問題，問題出在存取權限。">cout 不能印 int</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。main 可以省略 return 0，編譯器會自動補上。">少寫 return 0</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。">private</button>
+      <button class="sq-opt" data-c="0" data-fb="public 可由外部存取。">public</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>類別的成員如果沒有寫任何存取區段，預設是什麼？</div>
+    <div class="sq-q"><span class="sq-num">Q3.</span>const 成員函式承諾什麼？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。這是 class 與 struct 在 C++ 裡主要的差別。所以建構式忘了放在 public 底下就會出現「明明有建構式卻不能建立物件」的錯誤。另一個差別是預設繼承層級：class 預設 private 繼承、struct 預設 public，所以 P9 一律寫 : public。">class 預設 private，struct 預設 public</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。struct 是 public，但 class 是 private，這是它們主要的差異。">兩者都預設 public</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。struct 為了與 C 相容，預設是 public。">兩者都預設 private</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。可以省略，只是會套用各自的預設值。">C++ 規定一定要明寫，不能省略</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。">不修改物件成員</button>
+      <button class="sq-opt" data-c="0" data-fb="尾端 const 約束函式行為。">一定回傳常數</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>以下程式印出什麼？（Fraction 有兩參數、單參數、無參數三個建構式）</div>
-    <pre class="sq-code">Fraction a(3, 4);
-Fraction b(5);
-Fraction c;
-cout &lt;&lt; a &lt;&lt; &quot; &quot; &lt;&lt; b &lt;&lt; &quot; &quot; &lt;&lt; c;</pre>
+    <div class="sq-q"><span class="sq-num">Q4.</span>物件指標 p 呼叫方法的語法？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。編譯器依引數個數挑建構式：兩個引數挑第一個、一個引數挑第二個（分母補 1）、沒有引數挑第三個（預設 1/1）。這叫多載，Python 只能靠預設參數繞。">3/4 5/1 1/1</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。單參數與無參數版本都有明確設定分母，不會是 0。">3/4 5/0 0/0</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。只要參數列不同就是合法的多載，這正是 C++ 與 Python 的差別之一。">編譯錯誤，同名函式不能有三個版本</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。Fraction 有定義 operator&lt;&lt;，所以印得出人看得懂的內容。">3/4 然後兩個記憶體位址</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。">p-&gt;get()</button>
+      <button class="sq-opt" data-c="0" data-fb="點號用於物件本身。">p.get()</button>
     </div>
     <div class="sq-fb"></div>
   </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>為什麼 operator&lt;&lt; 不能寫成類別的成員函式，而要寫在外面加 friend？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。成員函式的左運算元一定是自己那個類別的物件，但這裡左邊是 cout。所以只能寫成外部函式；而它又要讀 private 成員，就用 friend 開一道門。">因為 cout &lt;&lt; f 的左運算元是 ostream 而不是你的物件</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。&lt;&lt; 是可以多載的，這正是本題在做的事。">因為 C++ 不允許多載 &lt;&lt; 運算子</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。成員函式當然可以回傳參考，這跟本題無關。">因為成員函式不能回傳參考</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。friend 與效能無關，它只影響存取權限。">因為 friend 比較快</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-  <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>把 Stack 內部的 vector 從 private 改成 public，會有什麼後果？</div>
-    <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。公開之後別人可以對它呼叫 insert(3, x) 或 sort()，那就不再是「後進先出」了。封裝的判準就是問：這個成員被外面亂改會不會破壞結構的契約。">使用者可以繞過 push／pop 直接操作 vector，堆疊的契約就守不住了</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。差別在你對介面還有沒有控制權。內部實作一旦公開，之後想換成鏈結串列就會影響到所有呼叫端。">沒有差別，只是寫法不同</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。public 成員完全合法，問題是設計上的而不是語法上的。">會編譯錯誤</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。存取控制是編譯期的檢查，對執行效能沒有影響。">效能會變差</button>
-    </div>
-    <div class="sq-fb"></div>
-  </div>
-</section>
-<section id="cards">
-  <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面</h2>
-  <p>先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
-  <div class="fc-controls">
-    <button id="fcShuffle">🔀 洗牌</button>
-    <button id="fcFlipAll">全部翻面</button>
-    <button id="fcUnflip">全部翻回</button>
-  </div>
-  <div class="fc-grid" id="fcGrid"></div>
-</section>
-<div class="chapter-nav"><a class="prev" href="p7_files_exceptions.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">檔案與例外</div></a><a class="home" href="index.html"><div class="nav-dir">INDEX</div><div class="nav-title">章節總覽</div></a><a class="next" href="p9_oop_advanced.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">物件導向（進階）</div></a></div>
+</section><section id="cards"><div class="section-number">CARDS · 關鍵詞彙卡</div><h2>關鍵詞彙卡</h2><p>先說出定義，再點卡片核對。</p><div class="fc-controls"><button id="fcShuffle">🔀 洗牌</button><button id="fcFlipAll">全部翻面</button><button id="fcUnflip">全部翻回</button></div><div class="fc-grid" id="fcGrid"></div></section><div class="chapter-nav"><a class="prev" href="p7_files_exceptions.html"><div class="nav-dir">◂ 上一頁</div><div class="nav-title">檔案與例外</div></a><a class="home" href="index.html"><div class="nav-title">章節總覽</div></a><a class="next" href="p9_oop_advanced.html"><div class="nav-dir">下一頁 ▸</div><div class="nav-title">類別延伸與模板入門</div></a></div><footer><p>資料結構 × C++ 互動自學網站</p></footer>
 </div>
-
-<footer>
-  先備知識 P8 · 物件導向（基礎）· 資料結構 × C++ 互動自學網站<br>
-  <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent3);">Designed for NSYSU · Interactive C++ self-study</span>
-</footer>
-
 <script>
-/* ============ shared utilities ============ */
-const $ = id => document.getElementById(id);
-
-function quizCheck(quizId, optEl) {
-  const isCorrect = optEl.dataset.correct === 'true';
-  optEl.parentElement.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('correct','wrong'));
-  optEl.classList.add(isCorrect ? 'correct' : 'wrong');
-  const fb = $(quizId + 'Feedback');
-  fb.classList.remove('correct','wrong');
-  fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
-  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
-}
-
-function hlLine(rootId, n) {
-  const root = $(rootId);
-  if (!root) return;
-  root.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
-  if (n != null) {
-    const line = root.querySelector(`.line[data-l="${n}"]`);
-    if (line) line.classList.add('active');
-  }
-}
-
-/* player-v2 */
-/* 逐步動畫播放器 v2：frames = [{...}]，apply(frame) 負責渲染。
-   與 v1 相容：建構子 {frames, apply, delayInput, onDone}、play/step/stop/reset。
-   新增：pause()、playing 狀態、toggle(btn)（▶/⏸ 按鈕一行接線）、setDelay(ms)。
-   每個 tick 重讀 delayInput.value，速度滑桿拖了即時生效。 */
-class Player {
-  constructor({frames, apply, delayInput, onDone}) {
-    this.frames = frames; this.apply = apply;
-    this.delayInput = delayInput; this.i = -1; this.timer = null;
-    this.playing = false; this._delay = null; this._done = false;
-    this._btn = null;  // toggle 按過的 ⏸/▶ 按鈕，之後狀態變化都同步文字
-    this.onDone = onDone || (()=>{});
-  }
-  _sync() { if (this._btn) this._btn.textContent = this.playing ? '⏸ 暫停' : '▶ 繼續'; }
-  _d() {
-    if (this._delay != null) return this._delay;
-    return this.delayInput ? parseInt(this.delayInput.value, 10) : 700;
-  }
-  setDelay(ms) { this._delay = ms; }
-  _advance() {
-    if (this.i + 1 >= this.frames.length) {
-      this.pause();
-      if (!this._done) { this._done = true; this.onDone(); }  // 播畢只通知一次
-      return false;
-    }
-    this.i += 1; this.apply(this.frames[this.i]);
-    return true;
-  }
-  step() { this.pause(); this._advance(); }
-  play() {
-    this.pause(); this.playing = true;
-    const tick = () => {
-      if (!this.playing) return;
-      if (!this._advance()) return;
-      this.timer = setTimeout(tick, this._d());
-    };
-    tick();
-    this._sync();
-  }
-  pause() {
-    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
-    this.playing = false;
-    this._sync();
-  }
-  toggle(btn) {
-    if (btn) this._btn = btn;
-    if (this.playing) this.pause();
-    else {
-      if (this._done && this.frames.length) { this.i = -1; this._done = false; }  // 播畢後再按＝重播
-      this.play();
-    }
-  }
-  stop() { this.pause(); }
-  reset() { this.stop(); this.i = -1; this._done = false; if (this.frames.length) this.apply(this.frames[0]); }
-}
-/* /player-v2 */
-
-function setStatus(id, html) {
-  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
-}
-
-/* vertical box stack renderer (DOM) */
-function renderBoxStack(containerId, items, opts={}) {
-  const el = $(containerId); if (!el) return;
-  const hl = opts.highlight ?? -1;   // index from top (0 = top)
-  el.innerHTML = '';
-  const label = document.createElement('div');
-  label.className = 'bs-toplabel';
-  label.textContent = items.length ? 'top ↓' : '(empty)';
-  el.appendChild(label);
-  items.slice().reverse().forEach((v, idx) => {
-    const d = document.createElement('div');
-    d.className = 'bs-item' + (idx === hl ? ' bs-hl' : '');
-    d.textContent = v;
-    el.appendChild(d);
-  });
-}
-
-/* horizontal queue renderer: front at left */
-function renderBoxQueue(containerId, items, opts={}) {
-  const el = $(containerId); if (!el) return;
-  el.innerHTML = '';
-  const front = document.createElement('div');
-  front.className = 'bq-label'; front.textContent = items.length ? 'front →' : '(empty)';
-  el.appendChild(front);
-  items.forEach((v, idx) => {
-    const d = document.createElement('div');
-    d.className = 'bq-item' + (idx === (opts.highlight ?? -1) ? ' bs-hl' : '');
-    d.textContent = v;
-    el.appendChild(d);
-  });
-  const rear = document.createElement('div');
-  rear.className = 'bq-label'; rear.textContent = items.length ? '← rear' : '';
-  el.appendChild(rear);
-}
-
-/* floating nav scroll spy */
-(function setupNav() {
-  const nav = $('floatNav');
-  const links = nav.querySelectorAll('a[data-target]');
-  const sections = Array.from(links).map(a => document.getElementById(a.dataset.target)).filter(Boolean);
-  function update() {
-    const y = window.scrollY + window.innerHeight * 0.3;
-    let active = sections[0]?.id;
-    for (const s of sections) if (s.offsetTop <= y) active = s.id;
-    links.forEach(a => a.classList.toggle('active', a.dataset.target === active));
-  }
-  window.addEventListener('scroll', update, { passive: true });
-  update();
-})();
-
-/* ---------- PART 06 · 建構式多載解析逐步器 ---------- */
-let ovlPlayer = null;
-
-const OVL_CASE = {
-  none: {
-    call: 'Fraction f;',
-    args: ['（無引數）'],
-    lead: '呼叫端寫 <code>Fraction f;</code>，引數 <b>0</b> 個。四個同名建構式全都進候選名單，接下來一個一個比參數列。',
-    verdict: [
-      {ok: true,  msg: '<b>#1</b> 收 0 個引數，你給 0 個 —— 個數吻合，留著。'},
-      {ok: false, msg: '<b>#2</b> 要 1 個 <code>int</code>，你一個都沒給 —— 個數就對不上，淘汰。'},
-      {ok: false, msg: '<b>#3</b> 要 2 個 <code>int</code>，同理 —— 淘汰。'},
-      {ok: false, msg: '<b>#4</b> 要 1 個 <code>Fraction</code>，你也沒給 —— 淘汰。'}
-    ],
-    done: '只有 <b>#1</b> 活下來，編譯器就挑它。它把 <code>num</code> 設 1、<code>den</code> 設 1。',
-    out: 'f = 1/1'
-  },
-  one: {
-    call: 'Fraction f(3);',
-    args: ['3 : int'],
-    lead: '呼叫端寫 <code>Fraction f(3);</code>，引數 <b>1</b> 個，型別是 <code>int</code>。比對從個數開始，個數過了才看型別。',
-    verdict: [
-      {ok: false, msg: '<b>#1</b> 收 0 個，你給 1 個 —— 個數不合，淘汰。'},
-      {ok: true,  msg: '<b>#2</b> 收 1 個 <code>int</code>：個數對、型別也完全吻合 —— 這是目前最好的一個。'},
-      {ok: false, msg: '<b>#3</b> 收 2 個，你只給 1 個 —— 淘汰。C++ 不會自己幫你補第二個引數，除非那個參數有預設值。'},
-      {ok: false, msg: '<b>#4</b> 個數對，但參數是 <code>Fraction</code>、你給的是 <code>int</code> —— 要先靠 #2 把 3 轉成 <code>Fraction</code> 才對得上，多繞一次的排名輸給完全吻合的 #2。'}
-    ],
-    done: '挑中 <b>#2</b>：<code>num</code> 設 3、<code>den</code> 補 1。這就是為什麼一個整數也能當分數用。',
-    out: 'f = 3/1'
-  },
-  two: {
-    call: 'Fraction f(3, 5);',
-    args: ['3 : int', '5 : int'],
-    lead: '呼叫端寫 <code>Fraction f(3, 5);</code>，引數 <b>2</b> 個，型別都是 <code>int</code>。注意編譯器比對的是型別與個數，參數叫 <code>top</code> 還是 <code>a</code> 完全不影響。',
-    verdict: [
-      {ok: false, msg: '<b>#1</b> 收 0 個，你給 2 個 —— 淘汰。'},
-      {ok: false, msg: '<b>#2</b> 收 1 個，你給 2 個 —— 淘汰。多給的引數沒地方放。'},
-      {ok: true,  msg: '<b>#3</b> 收 2 個 <code>int</code>：個數對、兩個型別也都對 —— 完全吻合。'},
-      {ok: false, msg: '<b>#4</b> 收 1 個 <code>Fraction</code>，你給 2 個 —— 淘汰。'}
-    ],
-    done: '挑中 <b>#3</b>：<code>num</code> 設 3、<code>den</code> 設 5。這是最常見的那一條路。',
-    out: 'f = 3/5'
-  },
-  copy: {
-    call: 'Fraction g = f;',
-    args: ['f : Fraction'],
-    lead: '接著上一步，假設已經有 <code>Fraction f(3, 5);</code>。這裡的 <code>=</code> 看起來像賦值，其實是<b>初始化</b> —— <code>g</code> 是新物件，這一行仍然在挑建構式，引數 <b>1</b> 個、型別 <code>Fraction</code>。',
-    verdict: [
-      {ok: false, msg: '<b>#1</b> 收 0 個，你給 1 個 —— 淘汰。'},
-      {ok: false, msg: '<b>#2</b> 個數對，但參數是 <code>int</code>、你給的是 <code>Fraction</code> —— 沒有任何路徑能把 <code>Fraction</code> 變成 <code>int</code>，淘汰。'},
-      {ok: false, msg: '<b>#3</b> 收 2 個，你給 1 個 —— 淘汰。'},
-      {ok: true,  msg: '<b>#4</b> 收 1 個 <code>const Fraction &amp;</code>：個數對、型別完全吻合 —— 這正是複製建構式該上場的時候。'}
-    ],
-    done: '挑中 <b>#4</b>，複製建構式把 <code>f</code> 的成員一個一個抄進 <code>g</code>。再說一次：這一行是<b>初始化</b>不是賦值，<code>g</code> 從頭到尾只被建構一次。',
-    out: 'g = 3/5   （f 仍然是 3/5，兩個物件各有一份成員）'
-  }
-};
-
-function ovlFrames(kind) {
-  const c = OVL_CASE[kind];
-  const F = [{scan: null, dead: [], out: '', msg: c.lead}];
-  const dead = [];
-  let win = null;
-  c.verdict.forEach((v, idx) => {
-    const n = idx + 1;
-    if (v.ok) win = n; else dead.push(n);   // 先定生死，這一幀的畫面才跟訊息同步
-    F.push({scan: n, dead: dead.slice(), out: '', msg: v.msg});
-  });
-  F.push({scan: win, dead: dead.slice(), out: c.out, msg: c.done});
-  return F;
-}
-
-function ovlPaint(f) {
-  const root = $('ovlCands');
-  if (root) {
-    root.querySelectorAll('.line').forEach(l => {
-      const gone = f.dead.indexOf(parseInt(l.dataset.l, 10)) >= 0;
-      l.style.opacity = gone ? '.32' : '';
-      l.style.textDecoration = gone ? 'line-through' : '';
-    });
-  }
-  hlLine('ovlCands', f.scan);
-  $('ovlOut').innerHTML = f.out ? '結果：' + f.out : '&nbsp;';
-}
-
-function ovlStart(kind) {
-  if (ovlPlayer) ovlPlayer.stop();
-  const c = OVL_CASE[kind];
-  $('ovlCall').textContent = '呼叫端：' + c.call;
-  $('ovlArgs').innerHTML = c.args.map(a => `<div class="bq-item">${a}</div>`).join('');
-  ovlPlayer = new Player({frames: ovlFrames(kind), apply: f => {
-    ovlPaint(f);
-    setStatus('ovlStatus', f.msg);
-  }, delayInput: $('ovlSpeed')});
-  ovlPlayer.play();
-}
-
-function ovlReset() {
-  if (ovlPlayer) ovlPlayer.stop();
-  ovlPlayer = null;
-  ovlPaint({scan: null, dead: [], out: ''});
-  $('ovlCall').textContent = '呼叫端：（按下面任一顆按鈕開始）';
-  $('ovlArgs').innerHTML = '';
-  setStatus('ovlStatus', '選一種呼叫寫法開始。四個候選的名字一模一樣，決勝負的只有括號裡那一段。');
-}
-
-
-</script>
-<script>
-const FLASHCARDS = [{"front": "類別（Class）", "back": "建立物件的藍圖：定義這一族物件會有哪些成員變數與成員函式。藍圖只有一份，照著它可以蓋出無數個物件。"}, {"front": "物件／實例（Object / Instance）", "back": "照著類別藍圖實際建立出來的東西。每個實例各自持有自己的成員變數，彼此互不影響。"}, {"front": "成員變數（Member Variable）", "back": "類別裡用來存放資料的變數，例如 Node 的 data 與 next。物件的大小就是所有成員加起來（再加上對齊補的位元組）。"}, {"front": "成員函式（Member Function）", "back": "定義在類別裡的函式，可以直接存取自己的成員變數。C++ 沒有像 Python 那樣把 self 寫在參數列，而是由編譯器偷偷傳一個 this 進來。"}, {"front": "建構式（Constructor）", "back": "與類別同名、沒有回傳型別的特殊成員函式，建立物件時自動執行，負責把初始狀態填好。你不會自己呼叫它。"}, {"front": "本體指標（this）", "back": "成員函式裡隱含可用的指標，指向呼叫這個函式的物件本人。平常不必寫，只有在參數與成員同名時才需要用 this->data 來分辨。"}, {"front": "存取控制（Access Specifier）", "back": "public 任何人都能存取、private 只有自己的成員函式能存取、protected 再加上子類別。class 沒寫的話預設是 private，struct 預設是 public。"}, {"front": "封裝（Encapsulation）", "back": "把內部實作細節藏起來、只暴露有意義操作的設計原則。判準是問「這個成員被外面亂改會不會破壞結構的契約」，會就藏起來。"}, {"front": "取值與設值函式（Getter / Setter）", "back": "用來讀寫 private 成員的公開函式。課程標頭的 Node 就有 getData／getNext／setData／setNext 四個。好處是之後想加檢查時，呼叫端一行都不用改。"}, {"front": "唯讀成員函式（const Member Function）", "back": "寫在參數列後面的 const，是對編譯器承諾這個函式不會改動任何成員。const 物件只能呼叫 const 成員函式，所以傳 const 參考時所有讀取函式都必須加。"}, {"front": "多載（Overloading）", "back": "同一個名字可以有多個版本，只要參數列不同就好，由編譯器依引數挑選。課程標頭的 Fraction 就有兩參數、單參數、無參數三個建構式。"}, {"front": "運算子多載（Operator Overloading）", "back": "讓內建運算子對自訂型別也有意義。Fraction 定義了 operator+ 與 operator== 之後就能直接寫 a + b。詳見 P9。"}, {"front": "串流輸出運算子（operator<<）", "back": "讓 cout << 你的物件 能運作的函式。因為左邊是 ostream 而不是你的物件，它不能寫成成員函式，只能寫在類別外面並用 friend 開門。記得要 return stream 才能串接。"}, {"front": "友誼宣告（friend）", "back": "允許某個外部函式或類別存取自己 private 成員的宣告。最常見的用途就是 operator<<，因為它必須寫在類別外面卻又要讀私有資料。"}, {"front": "組合（Composition）", "back": "「A 擁有一個 B」的設計關係，例如 Stack 內部持有一個 vector。資料結構課裡最常用的蓋法：外界只看得到你提供的操作，內部實作可以隨時抽換。"}, {"front": "標頭檔（Header File, .hpp）", "back": "放類別定義、讓別的檔案 #include 進來用的檔案。#include 的行為就是把整份內容原地貼過來，所以需要 include guard 防止重複定義。"}, {"front": "引入防護（Include Guard）", "back": "用 #ifndef／#define／#endif 包住整份標頭檔，確保同一個檔案被 include 第二次時整段跳過。課程標頭的每一支 .hpp 開頭都有。"}, {"front": "抽象資料型別（Abstract Data Type, ADT）", "back": "只描述「有哪些操作、各自代表什麼意思」而不指定如何實作的資料模型。堆疊、佇列、映射都是 ADT；class 則是把某個 ADT 具體實作出來的工具。"}];
-/* ===== Flashcards engine ===== */
-(function(){
-  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  const grid = document.getElementById('fcGrid');
-  if (!grid) return;
-  const render = cards => {
-    grid.innerHTML = cards.map(c =>
-      `<div class="fc-card"><div class="fc-inner">
-         <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
-         <div class="fc-face fc-back">${esc(c.back)}</div>
-       </div></div>`).join('');
-  };
-  render(FLASHCARDS);
-  grid.addEventListener('click', e => {
-    const card = e.target.closest('.fc-card');
-    if (card) card.classList.toggle('flipped');
-  });
-  document.getElementById('fcShuffle').addEventListener('click', () => render([...FLASHCARDS].sort(() => Math.random() - .5)));
-  document.getElementById('fcUnflip').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.remove('flipped')));
-  document.getElementById('fcFlipAll').addEventListener('click', () => grid.querySelectorAll('.fc-card').forEach(c => c.classList.add('flipped')));
-})();
-(function(){
-  document.querySelectorAll('.sq-item').forEach(item => {
-    const fb = item.querySelector('.sq-fb');
-    item.querySelectorAll('.sq-opt').forEach(btn => btn.addEventListener('click', () => {
-      const good = btn.dataset.c === '1';
-      item.querySelectorAll('.sq-opt').forEach(b => b.classList.remove('correct','wrong'));
-      btn.classList.add(good ? 'correct' : 'wrong');
-      fb.textContent = btn.dataset.fb;
-      fb.classList.add('show');
-      fb.classList.toggle('good', good);
-      fb.classList.toggle('bad', !good);
-    }));
-  });
-})();
-</script>
-<script>/* quiz-shuffle v1 */
+const $=id=>document.getElementById(id);
+function lesson(id,frames){let i=-1,t=null,done=false;const out=$(id+'Out'),btn=$(id+'Play');function show(){out.innerHTML=i<0?'準備好了。':frames[i];btn.textContent=done?'▶ 重播':t?'⏸ 暫停':'▶ 播放';}function step(){if(done){i=-1;done=false;}i++;if(i===frames.length-1){done=true;clearInterval(t);t=null;}show();}btn.onclick=()=>{if(done){i=-1;done=false;}if(t){clearInterval(t);t=null;show();return;}if (!done) t = setInterval(step, 900); step();};$(id+'Step').onclick=()=>{clearInterval(t);t=null;step();};$(id+'Reset').onclick=()=>{clearInterval(t);t=null;i=-1;done=false;show();};show();}
+const FLASHCARDS = [{"front": "類別（class）", "back": "定義一種物件擁有的資料與操作；結尾要有分號。"}, {"front": "物件（object）", "back": "依類別建立的實體，每個物件保存自己的狀態。"}, {"front": "public", "back": "類別外部可使用的介面。"}, {"front": "private", "back": "只允許類別成員函式直接存取。"}, {"front": "建構式", "back": "建立物件時自動執行、與類別同名且沒有回傳型別。"}, {"front": "初始化串列", "back": "建構式冒號後直接初始化成員。"}, {"front": "const 成員函式", "back": "參數列後加 const，承諾不修改物件狀態。"}, {"front": "this", "back": "指向目前物件的隱含指標。"}, {"front": "箭頭運算子（->）", "back": "透過物件指標存取成員。"}, {"front": "解構式", "back": "物件生命結束時自動執行的收尾函式。"}];
+(function(){const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');const g=$('fcGrid');const render=a=>g.innerHTML=a.map(c=>`<div class="fc-card"><div class="fc-inner"><div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div><div class="fc-face fc-back">${esc(c.back)}</div></div></div>`).join('');render(FLASHCARDS);g.onclick=e=>{const c=e.target.closest('.fc-card');if(c)c.classList.toggle('flipped')};$('fcShuffle').onclick=()=>render([...FLASHCARDS].sort(()=>Math.random()-.5));$('fcUnflip').onclick=()=>g.querySelectorAll('.fc-card').forEach(c=>c.classList.remove('flipped'));$('fcFlipAll').onclick=()=>g.querySelectorAll('.fc-card').forEach(c=>c.classList.add('flipped'));})();
+(function(){document.querySelectorAll('.sq-item').forEach(x=>x.querySelectorAll('.sq-opt').forEach(b=>b.onclick=()=>{const f=x.querySelector('.sq-fb'),ok=b.dataset.c==='1';x.querySelectorAll('.sq-opt').forEach(z=>z.classList.remove('correct','wrong'));b.classList.add(ok?'correct':'wrong');f.textContent=b.dataset.fb;f.className='sq-fb show '+(ok?'good':'bad')}))})();
+lesson('p8',['建立 a=0、b=10。','a.increment()：a=1，b=10。','b.increment()：a=1，b=11。','再增加 b：a=1，b=12。','完成：兩個物件的狀態彼此獨立。']);
+</script><script>/* quiz-shuffle v1 */
 (function () {
   function hash(str) {
     var h = 2166136261;
@@ -1494,5 +629,4 @@ const FLASHCARDS = [{"front": "類別（Class）", "back": "建立物件的藍�
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 /* /quiz-shuffle v1 */</script>
-</body>
-</html>
+</body></html>

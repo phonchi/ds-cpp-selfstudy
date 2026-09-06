@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""Verify P1–P9 examples and source data without changing the site.
+
+Full C++ examples use data-cpp="run", data-expected and optional data-stdin.
+Use data-cpp="compile-error" for intentional compiler errors and "fragment"
+for syntax skeletons / excerpts. Never execute undefined-behavior examples.
+Executables and any files they create stay in a fresh temporary directory.
+Requires g++ and Node.js; the HTML parser uses only the Python standard library.
+"""
+import argparse
+from collections import Counter
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import tempfile
+from urllib.parse import unquote, urlsplit
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+class Page(HTMLParser):
+    def __init__(self, source):
+        super().__init__(convert_charrefs=True)
+        self.ids = []
+        self.links = []
+        self.blocks = []
+        self.scripts = []
+        self.current = None
+        self.script = None
+        self.quiz_buttons = []
+        self.feed(source)
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if "id" in attrs:
+            self.ids.append(attrs["id"])
+        if tag == "a" and "href" in attrs:
+            self.links.append(attrs["href"])
+        if tag == "pre":
+            self.current = {"attrs": attrs, "text": "", "line": self.getpos()[0]}
+        if tag == "script" and not attrs.get("src"):
+            self.script = ""
+        if tag == "button" and "sq-opt" in attrs.get("class", "").split():
+            self.quiz_buttons.append(attrs)
+
+    def handle_data(self, text):
+        if self.current is not None:
+            self.current["text"] += text
+        if self.script is not None:
+            self.script += text
+
+    def handle_endtag(self, tag):
+        if tag == "pre" and self.current is not None:
+            self.blocks.append(self.current)
+            self.current = None
+        if tag == "script" and self.script is not None:
+            self.scripts.append(self.script)
+            self.script = None
+
+
+def run(command, cwd, stdin=None):
+    return subprocess.run(command, input=stdin, text=True, capture_output=True,
+                          cwd=cwd, timeout=20)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--pages", nargs="+", choices=[f"p{i}" for i in range(1, 10)])
+    args = parser.parse_args()
+    selected = args.pages or [f"p{i}" for i in range(1, 10)]
+    for tool in ("g++", "node"):
+        if not shutil.which(tool):
+            parser.error(f"required tool missing: {tool}")
+    documents = {p.name: Page(p.read_text(encoding="utf-8")) for p in ROOT.glob("*.html")}
+    errors = []
+    counts = Counter()
+    for chapter in selected:
+        matches = list(ROOT.glob(f"{chapter}_*.html"))
+        if len(matches) != 1:
+            errors.append(f"{chapter}: expected one HTML page, found {len(matches)}")
+            continue
+        path = matches[0]
+        source = path.read_text(encoding="utf-8")
+        doc = documents[path.name]
+        if "/* quiz-shuffle v1 */" not in source:
+            errors.append(f"{path.name}: missing quiz option shuffle")
+        duplicate_ids = [key for key, n in Counter(doc.ids).items() if n > 1]
+        if duplicate_ids:
+            errors.append(f"{path.name}: duplicate ids {duplicate_ids}")
+        try:
+            cards = json.loads((ROOT / f"data/flashcards_zh/{chapter}.json").read_text())
+            questions = json.loads((ROOT / f"data/questions_zh/{chapter}.json").read_text())
+            assert cards and questions, "empty learning data"
+            for card in cards:
+                assert all(isinstance(card.get(k), str) and card[k].strip()
+                           for k in ("front", "back")), "invalid flashcard"
+            for number, q in enumerate(questions, 1):
+                assert isinstance(q.get("question"), str) and q["question"].strip(), f"Q{number}: missing question"
+                assert len(q["answers"]) >= 2, f"Q{number}: too few options"
+                assert all(isinstance(a.get("correct"), bool) for a in q["answers"]), f"Q{number}: invalid correct flag"
+                assert sum(a["correct"] for a in q["answers"]) == 1, f"Q{number}: expected one correct answer"
+                assert all(isinstance(a.get(k), str) and a[k].strip()
+                           for a in q["answers"] for k in ("answer", "feedback")), f"Q{number}: missing feedback"
+            match = re.search(r"const FLASHCARDS = (\[.*?\]);", source, re.S)
+            assert match and json.loads(match[1]) == cards, "flashcards differ from data source"
+            expected = [(str(int(a["correct"])), a["feedback"])
+                        for q in questions for a in q["answers"]]
+            actual = [(a.get("data-c"), a.get("data-fb")) for a in doc.quiz_buttons]
+            assert actual == expected, "quiz options/feedback differ from data source; run apply_zh.py --pages"
+        except (AssertionError, KeyError, TypeError, ValueError) as exc:
+            errors.append(f"{path.name}: {exc}")
+        counts["pages"] += 1
+        page_runs = 0
+        with tempfile.TemporaryDirectory(prefix=f"cpp-prereq-{chapter}-") as temp:
+            folder = Path(temp)
+            for number, script in enumerate(doc.scripts, 1):
+                js = folder / f"script-{number}.js"
+                js.write_text(script, encoding="utf-8")
+                result = run(["node", "--check", str(js)], folder)
+                if result.returncode:
+                    errors.append(f"{path.name}: script {number}: {result.stderr}")
+                counts["scripts"] += 1
+            for number, block in enumerate(doc.blocks, 1):
+                attrs, code = block["attrs"], block["text"]
+                kind = attrs.get("data-cpp")
+                label = f"{path.name}:{block['line']}"
+                if kind is None:
+                    # Quiz programs can intentionally fail; their expected behavior
+                    # is explained by the answer, not by a standalone run contract.
+                    if "sq-code" in attrs.get("class", "").split():
+                        continue
+                    if re.search(r"#include\s*[<\"]|\bint\s+main\s*\(", code):
+                        errors.append(f"{label}: full C++ example missing data-cpp metadata")
+                    continue
+                if kind == "fragment":
+                    counts["fragments"] += 1
+                    continue
+                if kind not in ("run", "compile-error"):
+                    errors.append(f"{label}: unknown data-cpp value {kind}")
+                    continue
+                case = folder / str(number)
+                case.mkdir()
+                cpp, exe = case / "example.cpp", case / "example"
+                cpp.write_text(code, encoding="utf-8")
+                try:
+                    result = run(["g++", "-std=c++17", "-Wall", "-Wextra", "-pedantic",
+                                  str(cpp), "-o", str(exe)], case)
+                    if kind == "compile-error":
+                        if not result.returncode:
+                            errors.append(f"{label}: intentional compiler error compiled successfully")
+                        counts["compile-errors"] += 1
+                        continue
+                    if result.returncode:
+                        errors.append(f"{label}: compile failed: {result.stderr}")
+                        continue
+                    if "data-expected" not in attrs:
+                        errors.append(f"{label}: missing expected stdout")
+                        continue
+                    result = run([str(exe)], case, attrs.get("data-stdin", ""))
+                    if result.returncode or result.stdout != attrs["data-expected"]:
+                        errors.append(f"{label}: exit={result.returncode}, stdout={result.stdout!r}, "
+                                      f"expected={attrs['data-expected']!r}, stderr={result.stderr!r}")
+                    counts["runs"] += 1
+                    page_runs += 1
+                except subprocess.TimeoutExpired:
+                    errors.append(f"{label}: compiler/program timeout")
+        if not page_runs:
+            errors.append(f"{path.name}: no runnable examples verified")
+
+    # Also check existing pages that link into the rewritten prerequisite pages.
+    for name, doc in documents.items():
+        for href in doc.links:
+            url = urlsplit(href)
+            if url.scheme or url.netloc:
+                continue
+            target = unquote(url.path) or name
+            if not re.match(r"p[1-9]_.*\.html$", target):
+                continue
+            if target not in documents:
+                errors.append(f"{name}: missing page {target}")
+            elif url.fragment and unquote(url.fragment) not in documents[target].ids:
+                errors.append(f"{name}: missing anchor {href}")
+    print("Verified: " + ", ".join(f"{key}={value}" for key, value in sorted(counts.items())))
+    for error in errors:
+        print("FAIL", error)
+    print(f"{len(errors)} errors")
+    return bool(errors)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

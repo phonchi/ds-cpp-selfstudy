@@ -4,7 +4,7 @@
 `recursion.html` 的整個 `<head>`（1–332 行）除了 `<title>` 之外逐位元組一致。改動任一站之前，
 先看另一站有沒有已經解過同一個問題。
 
-## 現況（2026-09-02）
+## 現況（2026-09-06）
 
 站上共 22 頁：**三章課前準備 ＋ 九章正課 ＋ 九頁選讀先備知識**。
 
@@ -14,8 +14,40 @@
 | 正課 | `introduction` → `trees` 九章（本次未改內容，只動了 introduction 的一行導覽） |
 | 先備知識 | `p1_cpp_basics` … `p9_oop_advanced` |
 
-先備頁合計 61 題題庫、195 張詞彙卡、16 個互動元件。**所有程式碼範例都以
-`g++ -std=c++17` 實際編譯執行過**，並直接 `#include "pythonds3/cppds/…"` 引用課程的標頭檔（自 2026-09-02 起由 [phonchi/pythonds3](https://github.com/phonchi/pythonds3) 的 `cppds/*.hpp` 發布；notebook 用的複本內建在 kernel、學生不必 clone，終端機／VS Code 才要 clone；舊的 `dscpp/` 已全數移除）。
+先備頁已在 2026-09-06 全面改為「學過程式、初學 C++，讀課本之前可獨立學習」的教材。
+正文、互動、自測與詞彙卡一起重寫，完整範例只依賴標準 C++17；不再以課程標頭與使用次數導讀。
+題卡數量以 `data/` 母檔為準。正課頁的課程標頭、notebook 與環境安裝契約維持不變。
+
+### 先備頁改寫（2026-09-06）
+
+- P1–P9 網址與順序保留。P2 不再提前使用參考／指標；P3 先教函式骨架、呼叫與回傳，
+  再建立別名和參考參數；指標參數移 P4，範圍 for 移 P5，物件指標與 `->` 移 P8。
+- 刪去遞迴、容器底層與複雜度分析、課本 Node／Fraction／Stack 案例、運算子多載大全等超出入門主線的內容。
+  P9 保留基本繼承、多型與模板語法。
+- 自測與詞卡的 JSON 是唯一母檔。`tools/apply_zh.py --pages p1 p2 ... p9` 只重生指定頁面，
+  可用短碼、完整頁名、空白或逗號；省略參數維持原本整站行為。識別碼全部驗證後才開始寫入。
+- `tools/inject_prereq_cpp.py` 的 `SG_PQ`、頁名與導覽標籤已同步；既有 marker 後的導讀並不會重新注入，
+  改稿應直接同步現有 HTML，不能移除 marker 後整站重跑。
+- 首頁只留閱讀順序、學習目標與一次選讀政策；00A 只修正指向已移除 `#simplified` 的連結。
+- `tools/check_prereq.py` 擷取 `data-cpp` 範例，在暫存目錄編譯執行並精確比對 `data-expected`，
+  同時檢查 JSON／HTML 一致性、每題單一正解、JS 語法、重複 ID 及跨頁錨點。
+  片段與故意錯誤有各自標記，不能將它們當作成功執行的範例計數。
+- 改寫開始時已有首頁、HANDOFF 與九章正課的外部資源改動；此次發布只提交先備頁改寫與審查修正，既有改動保留在本地。
+- 驗收完成：`check_prereq.py` 通過 51 個完整程式的編譯／輸出比對、3 個預期編譯錯誤示例與
+  27 段 inline JS 語法；19 個語法片段不計入完整程式。題庫 JSON 與生成 HTML 一致。
+- `check_prereq_browser.py` 在 Chromium 通過九頁的播放／暫停／單步／重設／完成／重播、
+  P3 兩種傳參數模式、46 題正誤回饋與 78 張詞彙卡控制，以及 1440px／390px 版面。
+  手機隱藏浮動導覽，以頁首完整目錄導覽；長程式區塊在區塊內水平捲動。
+- 全站連結 0 錯誤／0 警告、對比 0 失敗、`git diff --check` 通過。
+  重跑限定 P1–P9 的生成器後全站 HTML 雜湊完全不變；九章正課與本輪前的工作樹逐位元組相同。
+
+
+### 獨立讀者審查與發布（2026-09-06）
+
+三個全新讀者 context 完整審查 P1–P9，修正語法跳步、getline 混用、字串單位、關檔檢查、
+throw 題幹、Counter 片段銜接與選項洗牌。詳細覆蓋、十項處理結果及驗證見
+[獨立讀者審查紀錄](docs/prereq-reader-review-20260906.md)。
+發布沿用 GitHub Pages 的 `main`／根目錄設定，推送後核對對應提交的 Pages build 與線上檔案。
 
 課程 notebook 需要打過 `-I.` patch 的 C++ kernel：
 [phonchi/jupyter-cpp-kernel @ nsysu-math208](https://github.com/phonchi/jupyter-cpp-kernel/tree/nsysu-math208)

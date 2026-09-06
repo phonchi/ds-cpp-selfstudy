@@ -74,14 +74,14 @@ PPAGES = [
     ("00b_setup",           "課前準備與環境安裝",     "00b", None, PRE, "00a_why_code",         "00c_vscode_windows",  "Windows VS Code 作業實戰"),
     ("00c_vscode_windows",  "Windows VS Code 作業實戰", "00c", None, PRE, "00b_setup",           "introduction",        "C++ 導論"),
     ("p1_cpp_basics",       "C++ 基礎與編譯流程",     "p1",  "p1", PQ,  None,                   "p2_flow_control",     "流程控制"),
-    ("p2_flow_control",     "流程控制",               "p2",  "p2", PQ,  "p1_cpp_basics",        "p3_functions",        "函式"),
-    ("p3_functions",        "函式",                   "p3",  "p3", PQ,  "p2_flow_control",      "p4_pointers_memory",  "陣列、指標與動態記憶體"),
+    ("p2_flow_control",     "流程控制",               "p2",  "p2", PQ,  "p1_cpp_basics",        "p3_functions",        "函式與參考"),
+    ("p3_functions",        "函式與參考",                   "p3",  "p3", PQ,  "p2_flow_control",      "p4_pointers_memory",  "陣列、指標與動態記憶體"),
     ("p4_pointers_memory",  "陣列、指標與動態記憶體", "p4",  "p4", PQ,  "p3_functions",         "p5_vector_string",    "vector 與 string"),
-    ("p5_vector_string",    "vector 與 string",       "p5",  "p5", PQ,  "p4_pointers_memory",   "p6_map_set",          "map、set 與迭代器"),
-    ("p6_map_set",          "map、set 與迭代器",      "p6",  "p6", PQ,  "p5_vector_string",     "p7_files_exceptions", "檔案與例外"),
-    ("p7_files_exceptions", "檔案與例外",             "p7",  "p7", PQ,  "p6_map_set",           "p8_oop_basics",       "物件導向（基礎）"),
-    ("p8_oop_basics",       "物件導向（基礎）",       "p8",  "p8", PQ,  "p7_files_exceptions",  "p9_oop_advanced",     "物件導向（進階）"),
-    ("p9_oop_advanced",     "物件導向（進階）",       "p9",  "p9", PQ,  "p8_oop_basics",        "introduction",        "回到主線：C++ 導論"),
+    ("p5_vector_string",    "vector 與 string",       "p5",  "p5", PQ,  "p4_pointers_memory",   "p6_map_set",          "map 與 set"),
+    ("p6_map_set",          "map 與 set",      "p6",  "p6", PQ,  "p5_vector_string",     "p7_files_exceptions", "檔案與例外"),
+    ("p7_files_exceptions", "檔案與例外",             "p7",  "p7", PQ,  "p6_map_set",           "p8_oop_basics",       "類別與物件"),
+    ("p8_oop_basics",       "類別與物件",       "p8",  "p8", PQ,  "p7_files_exceptions",  "p9_oop_advanced",     "類別延伸與模板入門"),
+    ("p9_oop_advanced",     "類別延伸與模板入門",       "p9",  "p9", PQ,  "p8_oop_basics",        "introduction",        "回到主線：C++ 導論"),
 ]
 
 PREV_LABEL = {p[0]: p[1] for p in PPAGES}
@@ -97,11 +97,9 @@ SG_PRE = """<div class="study-guide">
 """
 
 SG_PQ = """<div class="study-guide">
-  <div class="sg-title">📌 本頁使用方式（先備複習 · 選讀，不列入評分）</div>
-  <p>① 這頁複習資料結構課程<strong>預設你已經會</strong>的 C++。已經熟的可以直接跳過。
-  ② 每節都附一個<strong>「這在資料結構課哪裡會用到」</strong>的小方框——那才是你該記住的部分。
-  ③ 讀完做 <a href="#bankquiz">自我檢測</a>，再翻 <a href="#cards">關鍵詞彙卡</a>。
-  <br><strong>本頁屬補充先備知識，不列入作業與考試範圍。</strong></p>
+  <div class="sg-title">本頁讀法</div>
+  <p>先讀語法說明，再預測範例結果；操作互動後完成<a href="#bankquiz">自我檢測</a>。
+  忘記寫法時可回看速查表，再用<a href="#cards">關鍵詞彙卡</a>複習。</p>
   <div class="sg-links">{links}</div>
 </div>
 """

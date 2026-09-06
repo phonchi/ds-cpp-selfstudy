@@ -163,5 +163,24 @@ int main() {
 note="vector 的 find 是線性掃描：n 翻倍、時間翻倍。雜湊表的 count 平均 O(1)，最壞仍可能 O(n)。平均情況依賴 hash 分布；rehash 的偶發成本則用攤還分析描述，兩者不要混為一談。")}'''
 s, c4 = insert_end_of_section(s, "hash", hsh, 'id="dx-hash"')
 
+
+# Local measured benchmark figures (2026-09-06).
+if 'id="benchmark-pop-20260906"' not in s:
+    section_start = s.index('<section id="vectors">')
+    section_end = s.index('</section>', section_start)
+    s = s[:section_end] + '\n<figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <img src="assets/figures/pop_benchmark.png" alt="本機 C++ 實測：vector 前端刪除與尾端刪除的時間比較" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;">\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">2026-09-06 本機獨立實測，並非範例程式的示範輸出：每組 100 次操作，取 7 次執行的中位數；縱軸為微秒（µs）的對數刻度。pop_back 接近計時下限，包含迴圈與結果觀測的成本。準備工作排除於計時之外；量測結果不能單獨證明 Big-O。</figcaption>\n</figure>\n' + s[section_end:]
+if 'id="benchmark-lookup-20260906"' not in s:
+    section_start = s.index('<section id="hash">')
+    section_end = s.index('</section>', section_start)
+    s = s[:section_end] + '\n<figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <img src="assets/figures/dict_benchmark.png" alt="本機 C++ 實測：vector 線性搜尋與雜湊表成功查詢的時間比較" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;">\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">2026-09-06 本機獨立實測，並非範例程式的示範輸出：每組 100 次操作，取 7 次執行的中位數；縱軸為微秒（µs）的對數刻度。兩方法使用相同的預先產生查詢；快取與工作集會影響時間，雜湊查詢實測不一定水平。準備工作排除於計時之外；量測結果不能單獨證明 Big-O。</figcaption>\n</figure>\n' + s[section_end:]
+
+
+# Normalize builder image paths for the standalone selfstudy site.
+s = s.replace('src="imgs/pop_benchmark.png"', 'src="assets/figures/pop_benchmark.png"')
+s = s.replace('src="imgs/dict_benchmark.png"', 'src="assets/figures/dict_benchmark.png"')
+
+if 'id="analysis-mobile-navigation"' not in s:
+    s = s.replace('</head>', '<style id="analysis-mobile-navigation">\n@media (max-width: 768px) { .float-nav { display: none; } }\n</style>\n' + '</head>', 1)
+
 PAGE.write_text(s)
 print("inserted:", [n for n, ok in zip("pro bigo vec string hash".split(), [c1, c2, c3, c5, c4]) if ok])

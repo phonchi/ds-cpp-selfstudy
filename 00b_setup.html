@@ -557,7 +557,19 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="info-card">
     <div class="ic-title">電腦教室：每堂課重跑這三行 <span class="ic-badge">約 5 分鐘</span></div>
-    <p style="font-size:.9rem;margin-bottom:0;">教室電腦關機會整台重置，但 Anaconda 會留著——所以 <strong>JupyterLab 不用再裝</strong>，可是用 pip 裝的其他東西每次都會消失。每次上課在 Anaconda Prompt 跑三行：第 1 步改成精簡版 <code>pip install jupyterquiz jupytercards</code>（測驗與詞彙卡要用，這兩個不能省），再重跑上面的<strong>第 2、3 步</strong>。kernel 會自己把 GCC 12.1 抓到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>、註冊到 Jupyter、並寫進你的使用者 Path。不用碰 <a href="#windows">PART 04</a>。第 3 步負責把 kernel 註冊進 Jupyter（<code>pip install --user</code> 裝的 kernelspec，Jupyter 自己找不到），<strong>不可省</strong>——省掉它，kernel 選單裡根本不會有 C++；它只是順便先把 g++ 抓下來，g++ 的下載才可以延後到第一個 cell 執行時（進度會印在 cell 下面）。</p>
+    <ul style="font-size:.9rem;">
+      <li>教室電腦關機後會重置，但 Anaconda 會保留，<strong>JupyterLab 不用重裝</strong>。</li>
+      <li>用 pip 安裝的套件每次都會消失。每堂課請開啟 <strong>Anaconda Prompt</strong>，依序執行以下三行，等上一行完成再執行下一行。</li>
+    </ul>
+<div class="pseudo-code" style="font-size:.82rem;"><span class="line">pip install jupyterquiz jupytercards</span>
+<span class="line">pip install --user git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
+<span class="line">python -m jcppkernel.setup_cli</span></div>
+    <ul style="font-size:.9rem;margin-bottom:0;">
+      <li><strong>第 1 行不能省：</strong><code>jupyterquiz</code> 與 <code>jupytercards</code> 分別供測驗與詞彙卡使用。</li>
+      <li><strong>第 3 行不能省：</strong>它負責把 C++ kernel 註冊進 Jupyter。只執行 <code>pip install --user</code>，Jupyter 找不到安裝的 kernelspec，kernel 選單就不會出現 C++。</li>
+      <li>kernel 會自動把 GCC 12.1 下載到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>，並寫入使用者 Path；<strong>不必操作 <a href="#windows">PART 04</a></strong>。</li>
+      <li>第 3 行也會預先下載 g++。只有 <strong>g++ 的下載</strong>可以延後到第一個 cell 執行時，進度會顯示在 cell 下方；kernel 註冊仍須先完成。</li>
+    </ul>
   </div>
 
   <div class="info-box green">
@@ -626,7 +638,6 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
   <div class="warn-box">
     <div class="info-label">⚠️ 要用終端機／VS Code 自己編譯的同學：注意 Anaconda 的舊 libstdc++</div>
-    <p><em>2026-09 之後的課程 kernel 已自行把 g++ 的 bin 排到子行程 Path 最前面，notebook 不再受這個問題影響；下面的說明只在你要用<strong>終端機</strong>編譯時才需要。</em></p>
     <p>症狀：cell 一執行就跳出 Windows 對話框「<strong>無法找到程序輸入點 …seekpos… 在動態連結程式庫 …\Temp\tmp_xxxx.out</strong>」。原因是 conda 在 activate 時會把 <code>anaconda3\Library\mingw-w64\bin</code> 插到 Path <strong>最前面</strong>，裡面有一份舊的 <code>libstdc++-6.dll</code>，蓋掉你在 <a href="#windows">PART 04</a> 裝的那套。編譯用的是新 g++，執行時卻載到舊 DLL，所以對不上。這是執行期插隊，<strong>在「環境變數」設定裡把 bin 排到最前面也沒用</strong>。</p>
     <p>診斷：在啟動 Jupyter 的那個視窗執行 <code>where.exe libstdc++-6.dll</code>。第一筆必須是你在 PART 04 確認過的那個 <code>bin</code>；如果第一筆在 <code>anaconda3</code> 底下，就是這個問題。</p>
     <p style="margin-bottom:0;">解法擇一（下面的 <code>C:\mingw64\bin</code> 請換成你自己的 bin）：<br>

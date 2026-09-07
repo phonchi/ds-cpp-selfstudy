@@ -1220,6 +1220,91 @@ min/max : 3 / 8</pre></div>
   <h2>從 <code>it-&gt;first</code> 到 <code>auto&amp; [k, v]</code></h2>
   <p><code>map</code> 裡每一筆資料是一組 <code>pair&lt;const K, V&gt;</code>：<code>first</code> 是鍵、<code>second</code> 是值。走訪就是把這些 pair 一組一組拿出來。</p>
 
+
+  <h3 id="auto-range-sugar">auto 與範圍 for：各省下什麼？</h3>
+  <p><strong>語法糖（syntax sugar）</strong>讓常見操作有更簡潔的寫法。這裡分成兩件事：<code>auto</code> 讓編譯器從初值<strong>推導型別</strong>，省下型別名稱；範圍 for 則把 <code>begin()</code>、<code>end()</code>、前進與取元素的步驟包起來，省下走訪的迴圈控制。兩者可以分開使用。</p>
+<div class="deck-extra">
+  <div class="dx-label">① 完整 iterator：先看每一步在做什麼</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
+<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
+<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
+<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;utility&gt;</span><span class="kw"></span>
+<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="8">    map&lt;string, string&gt; capitals = {</span>
+<span class="line" data-l="9">        {<span class="str">"</span><span class="str">Iowa</span><span class="str">"</span>, <span class="str">"</span><span class="str">Des Moines</span><span class="str">"</span>}, {<span class="str">"</span><span class="str">Wisconsin</span><span class="str">"</span>, <span class="str">"</span><span class="str">Madison</span><span class="str">"</span>}</span>
+<span class="line" data-l="10">    };</span>
+<span class="line" data-l="11">    cout &lt;&lt; capitals[<span class="str">"</span><span class="str">Iowa</span><span class="str">"</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="12">    capitals[<span class="str">"</span><span class="str">Utah</span><span class="str">"</span>] = <span class="str">"</span><span class="str">Salt Lake City</span><span class="str">"</span>;</span>
+<span class="line" data-l="13">    capitals[<span class="str">"</span><span class="str">California</span><span class="str">"</span>] = <span class="str">"</span><span class="str">Sacramento</span><span class="str">"</span>;</span>
+<span class="line" data-l="14">    cout &lt;&lt; capitals.size() &lt;&lt; endl;</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16">    <span class="kw">for</span> (map&lt;string, string&gt;::iterator it = capitals.begin();</span>
+<span class="line" data-l="17">         it != capitals.end(); ++it) {</span>
+<span class="line" data-l="18">        cout &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> is the capital of </span><span class="str">"</span> &lt;&lt; it-&gt;first &lt;&lt; endl;</span>
+<span class="line" data-l="19">    }</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Des Moines
+4
+Sacramento is the capital of California
+Des Moines is the capital of Iowa
+Salt Lake City is the capital of Utah
+Madison is the capital of Wisconsin</pre></div>
+  <p class="dx-note">這份 map 以州名作為鍵，依鍵的順序走訪。<code>it</code> 指著目前的位置，<code>*it</code> 是該位置的鍵值對；<code>it-&gt;second</code> 就是 <code>(*it).second</code>。</p>
+</div>
+  <p>把上面程式的 for 迴圈換成以下寫法。<code>capitals.begin()</code> 回傳 <code>map&lt;string, string&gt;::iterator</code>，因此 <code>auto it</code> 的型別在編譯時就已確定。</p>
+<div class="deck-extra">
+  <div class="dx-label">② auto iterator：只省下型別名稱</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">for</span> (<span class="kw">auto</span> it = capitals.begin(); it != capitals.end(); ++it) {</span>
+<span class="line" data-l="2">    cout &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> is the capital of </span><span class="str">"</span> &lt;&lt; it-&gt;first &lt;&lt; endl;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span></div>
+</div>
+  <p>再改成範圍 for，直接為每個元素取名 <code>entry</code>。現在存取的是元素本身，使用 <code>entry.first</code> 與 <code>entry.second</code>。</p>
+<div class="deck-extra">
+  <div class="dx-label">③ 範圍 for：省下走訪步驟</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">for</span> (<span class="kw">auto</span>&amp; entry : capitals) {</span>
+<span class="line" data-l="2">    cout &lt;&lt; entry.second &lt;&lt; <span class="str">"</span><span class="str"> is the capital of </span><span class="str">"</span> &lt;&lt; entry.first &lt;&lt; endl;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span></div>
+</div>
+  <p>這三種走訪都會印出相同的州名與首府。<code>auto</code> 與範圍 for 從 C++11 就能使用；後面的 <code>auto&amp; [key, value]</code> 則再加上 C++17 的結構化繫結。</p>
+
+  <h3>auto 不會替你加上 &amp;</h3>
+  <p><code>map&lt;string, string&gt;</code> 的元素型別是 <code>pair&lt;const string, string&gt;</code>。決定「拿副本還是改原元素」的是宣告中的 <code>&amp;</code>：</p>
+  <div class="cmp-table-wrap"><div class="table-scroll" tabindex="0" aria-label="map 迴圈變數比較，可左右捲動">
+  <table class="cmp-table">
+    <thead><tr><th>範圍 for 裡的宣告</th><th>entry 的完整型別</th><th>修改 second 的結果</th></tr></thead>
+    <tbody>
+      <tr><td><code>auto entry</code></td><td><code>pair&lt;const string, string&gt;</code></td><td>複製一筆資料，只改到副本</td></tr>
+      <tr><td><code>pair&lt;const string, string&gt; entry</code></td><td><code>pair&lt;const string, string&gt;</code></td><td>同樣是副本；明寫型別不會省掉複製</td></tr>
+      <tr><td><code>auto&amp; entry</code></td><td><code>pair&lt;const string, string&gt;&amp;</code></td><td>參考原元素，修改會寫回 map</td></tr>
+      <tr><td><code>const auto&amp; entry</code></td><td><code>const pair&lt;const string, string&gt;&amp;</code></td><td>唯讀參考，不複製，也不能透過 entry 修改</td></tr>
+    </tbody>
+  </table></div></div>
+  <p>所以 <code>for (pair&lt;const string, string&gt; entry : capitals)</code> 能正常印出資料，但 <code>entry.second = "Unknown";</code> 只會改到副本。要改原本的首府，寫 <code>for (auto&amp; entry : capitals)</code>；完整寫法則是 <code>for (pair&lt;const string, string&gt;&amp; entry : capitals)</code>。只要印出資料時，可用 <code>const auto&amp;</code> 避免複製。</p>
+<div class="deck-extra">
+  <div class="dx-label">把所有首府改成 Unknown</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">for</span> (<span class="kw">auto</span>&amp; entry : capitals) {</span>
+<span class="line" data-l="2">    entry.second = <span class="str">"</span><span class="str">Unknown</span><span class="str">"</span>;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span></div>
+</div>
+  <p>對這個 map，上面的範圍 for 可對照成以下 iterator 寫法。關鍵是每一輪的 <code>auto&amp; entry = *it;</code>；拿掉 <code>&amp;</code>，就會複製目前的元素。</p>
+<div class="deck-extra">
+  <div class="dx-label">範圍 for 的走訪步驟</div>
+  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">for</span> (<span class="kw">auto</span> it = capitals.begin(), last = capitals.end(); it != last; ++it) {</span>
+<span class="line" data-l="2">    <span class="kw">auto</span>&amp; entry = *it;</span>
+<span class="line" data-l="3">    entry.second = <span class="str">"</span><span class="str">Unknown</span><span class="str">"</span>;</span>
+<span class="line" data-l="4">}</span>
+<span class="line" data-l="5"> </span></div>
+</div>
+  <p>元素中的 <code>first</code> 是 <code>const string</code>，即使使用 <code>auto&amp;</code>，也不能改鍵；<code>second</code> 才是可修改的值。程式裡把迴圈變數命名為 <code>entry</code>，可以清楚區分變數名稱與型別名稱 <code>pair</code>。</p>
+  <h3>再把鍵和值各取一個名字</h3>
+
 <div class="deck-extra">
   <div class="dx-label">走訪 map 的三種寫法，結果完全一樣</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>

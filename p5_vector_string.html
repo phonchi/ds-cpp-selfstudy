@@ -861,7 +861,7 @@ clear() 之後  size=0  capacity=[依實作而異，且不小於 4]  &lt;- 容�
   </div>
 
 <div class="deck-extra">
-  <div class="dx-label">使用相同數量的資料比較兩種寫法，保留計算結果以便核對。計時以標準 &lt;chrono&gt; 完成，不需外部標頭。實際時間會隨環境、資料量及最佳化而變，不能把一次比值當成固定保證。</div>
+  <div class="dx-label">比較 push_back 與前端插入</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
@@ -880,11 +880,10 @@ clear() 之後  size=0  capacity=[依實作而異，且不小於 4]  &lt;- 容�
 <span class="line" data-l="16">    printf(<span class="str">"</span><span class="str">兩份長度 %zu %zu</span><span class="str">\n</span><span class="str">"</span>, tail.size(), front.size());</span>
 <span class="line" data-l="17">}</span>
 <span class="line" data-l="18"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>尾端 push_back       0.10 ms
+  <div class="expected-out"><span class="eo-tag">耗時範例</span><pre>尾端 push_back       0.10 ms
 前端 insert          0.80 ms
-兩份長度 5000 5000
-（時間僅示例，依環境與最佳化而變）</pre></div>
-  <p>使用相同數量的資料比較兩種寫法，保留計算結果以便核對。計時以標準 &lt;chrono&gt; 完成，不需外部標頭。實際時間會隨環境、資料量及最佳化而變，不能把一次比值當成固定保證。</p>
+兩份長度 5000 5000</pre></div>
+  <p>push_back 將元素加在尾端；insert(begin(), x) 插在前端，需要搬移既有元素。觀察資料量增加時，兩種寫法的耗時如何變化。</p>
 </div>
 
   <div class="info-box">
@@ -1537,11 +1536,10 @@ after += : books!</pre></div>
 <span class="line" data-l="17">    printf(<span class="str">"</span><span class="str">內容相同 %d</span><span class="str">\n</span><span class="str">"</span>, a == b);</span>
 <span class="line" data-l="18">}</span>
 <span class="line" data-l="19"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>累積 +=         0.10 ms
+  <div class="expected-out"><span class="eo-tag">耗時範例</span><pre>累積 +=         0.10 ms
 重建 +          0.80 ms
-內容相同 1
-（時間僅示例，依環境與最佳化而變）</pre></div>
-  <p class="dx-note">這裡各累積一萬個字元。<code>+=</code> 那條走的是攤還 $O(1)$，總成本 $O(n)$；<code>s = s + 'x'</code> 每一輪都複製一次現有內容，總成本是 $O(n^2)$。絕對時間與比值會隨環境、最佳化及字串實作而變；重點是資料量增加時兩種總成本的成長方式不同。</p>
+內容相同 1</pre></div>
+  <p class="dx-note">這裡各累積一萬個字元。<code>+=</code> 那條走的是攤還 $O(1)$，總成本 $O(n)$；<code>s = s + 'x'</code> 每一輪都複製一次現有內容，總成本是 $O(n^2)$。增加字元數，觀察兩種累積方式的耗時如何成長。</p>
 </div>
 
   <div class="info-box purple">

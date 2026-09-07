@@ -566,10 +566,10 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>下面兩個都是真實常見的狀況：程式完全正確、測試全過、AI 也覺得沒問題，但效能是災難。而且這兩個坑，課程自己都準備好了教材。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.15rem;margin:1.4rem 0 .5rem;color:var(--accent2);">① 從容器的哪一端進出</h3>
-  <p>課程的 <code>pythonds3/cppds/stack.hpp</code> 裡放了兩個堆疊：<code>Stack</code> 把頂端放在 <code>vector</code> 的<strong>尾端</strong>，<code>Stack2</code> 放在<strong>前端</strong>。兩者行為完全一樣，都通過測試。</p>
+  <p>課程的 <code>pythonds3/cppds/stack.hpp</code> 裡放了兩個堆疊：<code>Stack</code> 把頂端放在 <code>vector</code> 的<strong>尾端</strong>，<code>Stack2</code> 放在<strong>前端</strong>。兩者都提供後進先出的堆疊操作。</p>
 
 <div class="deck-extra">
-  <div class="dx-label">兩個都對，成本差兩個數量級（n = 50000，實際編譯執行）</div>
+  <div class="dx-label">比較堆疊頂端放在 vector 前端與尾端的成本</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/stack.hpp"</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
@@ -595,9 +595,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="24">}</span>
 <span class="line" data-l="25"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Stack  (top 在尾端): 1.13921 ms
+  <div class="expected-out"><span class="eo-tag">耗時範例</span><pre>Stack  (top 在尾端): 1.13921 ms
 Stack2 (top 在前端): 122.423 ms</pre></div>
-  <p class="dx-note">在 <code>vector</code> 的前端插入或刪除，要把後面所有元素整排往後搬，所以是 $O(n)$；尾端則是 $O(1)$。同樣的 ADT、同樣的正確結果，差了<strong>一百倍</strong>。課程把 <code>Stack2</code> 留在原始碼裡就是要你自己量一次。</p>
+  <p class="dx-note">在 <code>vector</code> 的前端插入或刪除，都需要搬移後續元素，單次操作是 $O(n)$。尾端插入是攤還 $O(1)$，尾端刪除是 $O(1)$。執行 <code>Stack</code> 與 <code>Stack2</code>，比較相同堆疊操作在兩種實作中的耗時。</p>
 </div>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.15rem;margin:1.6rem 0 .5rem;color:var(--accent2);">② 用什麼結構做「在不在裡面」的檢查</h3>
@@ -634,14 +634,14 @@ Stack2 (top 在前端): 122.423 ms</pre></div>
 <span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="29">}</span>
 <span class="line" data-l="30"> </span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>vector        逐一比對: 102.673 ms
+  <div class="expected-out"><span class="eo-tag">耗時範例</span><pre>vector        逐一比對: 102.673 ms
 unordered_set 雜湊查表: 0.006698 ms</pre></div>
-  <p class="dx-note">一萬五千倍。你唯一要改的是換一個容器 —— 但你得先知道有 <code>unordered_set</code> 這種東西，以及它為什麼快。那正是第 07 章雜湊表整章在講的事。</p>
+  <p class="dx-note">vector 的搜尋逐一比對元素；<code>unordered_set</code> 利用雜湊值定位，在雜湊分布良好、負載因子受控時，平均查詢成本為 O(1)，最差為 O(n)。第 07 章會說明雜湊表如何完成查詢。</p>
 </div>
 
   <div class="warn-box">
     <div class="info-label">⚠️ 最危險的不是編譯錯誤，是「安靜的錯誤」</div>
-    <p style="margin-bottom:0;">編譯不過你至少知道要修。但「跑得出正確答案、只是慢一萬倍」不會噴任何訊息，它只會在你上線之後、資料長大之後才開始傷人。<strong>要抓到這種問題，你必須看得懂那段程式在做什麼。</strong></p>
+    <p style="margin-bottom:0;">編譯不過你至少知道要修。但「跑得出正確答案、資料增加後越跑越慢」不會噴任何訊息，它只會在你上線之後、資料長大之後才開始傷人。<strong>要抓到這種問題，你必須看得懂那段程式在做什麼。</strong></p>
   </div>
 
 <div class="ds-hook"><div class="dh-title">🔗 這在資料結構課哪裡會用到 · 第 02、05、07 章</div><p style="margin-bottom:0;">第 02 章教你怎麼估這些成本；第 05 章的 <code>Stack</code>、<code>Queue</code>、<code>Deque</code> 全部在做「選哪一端」的決定；第 07 章則是把 <code>unordered_set</code> 背後的雜湊表拆開來自己刻一遍。</p></div>
@@ -651,17 +651,16 @@ unordered_set 雜湊查表: 0.006698 ms</pre></div>
   <div class="section-number">PART 03 · C++ 額外的一層</div>
   <h2>記憶體是你的責任，AI 不會幫你記得還</h2>
   <p>這一節是 C++ 學生獨有的。用 Python 的人不會遇到，因為那邊有垃圾回收；在 C++，<code>new</code> 出來的東西<strong>你不還就永遠不會回來</strong>。</p>
-  <p>而這門課從第 04 章開始，滿滿都是 <code>new</code>。</p>
+  <p>從鏈結串列到樹，新增節點時都要安排它的生命週期：誰建立、誰持有，以及何時釋放。</p>
 
   <div class="cmp-table-wrap">
   <table class="cmp-table">
-    <thead><tr><th>課程講義</th><th><code>new</code> 出現次數</th><th>在做什麼</th></tr></thead>
+    <thead><tr><th>資料結構</th><th>建立什麼</th><th>何時釋放</th></tr></thead>
     <tbody>
-      <tr><td>第 04 章 鏈結串列</td><td class="mono">31</td><td>每加一個節點就 <code>new</code> 一次</td></tr>
-      <tr><td>第 05 章 堆疊與佇列</td><td class="mono">18</td><td>鏈結實作的節點</td></tr>
-      <tr><td>第 08 章 圖</td><td class="mono">19</td><td>頂點與邊</td></tr>
-      <tr><td>第 09 章 樹</td><td class="mono" style="color:var(--accent);font-weight:700;">102</td><td>每插入一個鍵就長一個節點</td></tr>
-      <tr><td><strong>全課合計</strong></td><td class="mono"><strong>218</strong></td><td>對應的 <code>delete</code> 只有 <strong>32</strong> 次</td></tr>
+      <tr><td>鏈結串列</td><td>儲存資料與連結的節點</td><td>刪除節點，或銷毀整條串列時</td></tr>
+      <tr><td>鏈結實作的堆疊與佇列</td><td>存放元素的節點</td><td>移除元素，或銷毀容器時</td></tr>
+      <tr><td>圖</td><td>頂點與邊的資料</td><td>由擁有這些資料的物件管理</td></tr>
+      <tr><td>樹</td><td>儲存鍵與子節點連結的節點</td><td>刪除節點，或銷毀整棵樹時</td></tr>
     </tbody>
   </table>
   </div>
@@ -716,8 +715,8 @@ buildAndForget 之後: 2  &lt;- 借兩個、沒還，永遠回不來了
 </div>
 
   <div class="info-box">
-    <div class="info-label">💡 那課程自己為什麼漏這麼多？</div>
-    <p style="margin-bottom:0;">218 個 <code>new</code> 配 32 個 <code>delete</code>，課程確實在漏。這是<strong>刻意的教學取捨</strong>：教材程式跑幾秒就結束，作業系統會把整塊記憶體收回去，不會出事。但你要知道這是取捨，不是正確做法 —— 真的要寫會長時間跑的程式時，這裡每一個漏掉的 <code>delete</code> 都是一顆定時炸彈。<a href="index.html#prereq">先備頁 P4</a> 會把這件事講完整。</p>
+    <div class="info-label">💡 讓資源的所有者負責釋放</div>
+    <p style="margin-bottom:0;">建立動態物件時，先決定<strong>誰負責管理它的生命週期</strong>。由容器擁有的節點，可在容器的解構子中釋放；使用智慧指標則可讓物件隨擁有者的生命週期自動釋放。<a href="index.html#prereq">先備頁 P4</a> 會把這件事講完整。</p>
     <p style="margin:.6rem 0 0;font-size:.92rem;">還不熟悉 C++ 的基本語法，可以先從<a href="p1_cpp_basics.html">P1 的最小程式</a>開始。</p>
   </div>
 
@@ -1060,7 +1059,7 @@ function bigOUpdate() {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "漸近複雜度（Asymptotic Complexity）", "back": "描述當輸入規模 n 趨近無限大時，執行成本如何成長的表示法。它刻意忽略常數與低次項，因為決定「n 很大時能不能跑」的是成長級數，不是常數倍率。"}, {"front": "大 O 記號（Big-O Notation）", "back": "成本成長的上界表示法。O(n log n) 的意思是：存在某個常數，使得 n 夠大以後執行成本不會超過該常數乘上 n log n。"}, {"front": "數量級（Order of Magnitude）", "back": "以 10 的次方為單位的規模差距。演算法的優劣通常差好幾個數量級：把 Stack 的頂端從 vector 尾端換到前端，n = 50000 時就慢了一百倍。"}, {"front": "安靜的錯誤（Silent Error）", "back": "編譯得過、跑得出正確答案、但成本或行為是錯的狀況。例如把 vector 當佇列用，或忘記 delete。編譯器不會抱怨，測試也抓不到，只能靠看得懂程式碼的人發現。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "用 new 配置的記憶體沒有對應的 delete，那塊空間在程式結束前再也拿不回來。課程講義有 218 個 new、只有 32 個 delete——那是刻意的教學取捨，不是正確做法。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如讀取已經 delete 的指標、陣列索引越界。它可能正常跑、可能當掉、也可能安靜地給出錯誤答案，換一台機器結果就不同。"}, {"front": "非決定性（Non-determinism）", "back": "同樣的輸入不保證得到同樣輸出的性質。生成式 AI 就是非決定性的：同一個問題問三次可能拿到三份不同實作，因此必須由人驗證與挑選。"}, {"front": "學習迴圈（Learning Loop）", "back": "想法 → 動手嘗試 → 觀察結果 → 修正理解的循環。理解真正發生在「卡住又想通」的瞬間；把題目整包外包出去，等於把迴圈砍到只剩觀察結果。"}, {"front": "攤還分析（Amortized Analysis）", "back": "把偶爾很貴的操作平均分攤到多次操作上的成本分析方式。例如 vector 的 push_back 偶爾要重新配置並搬移整排元素，但平均下來仍是 O(1)。"}, {"front": "抽象資料型別（Abstract Data Type, ADT）", "back": "只描述「有哪些操作、各自代表什麼意思」而不指定如何實作的資料模型。堆疊、佇列、映射都是 ADT；同一個 ADT 可以有多種實作，效能差很多。"}, {"front": "程式碼審查（Code Review）", "back": "由人逐行檢視程式碼、判斷正確性與取捨是否合理的過程。當產出程式碼變得便宜，能審查的能力就變貴：看一眼就指出「這個 new 沒有配對的 delete」。"}];
+const FLASHCARDS = [{"front": "漸近複雜度（Asymptotic Complexity）", "back": "描述當輸入規模 n 趨近無限大時，執行成本如何成長的表示法。它刻意忽略常數與低次項，因為決定「n 很大時能不能跑」的是成長級數，不是常數倍率。"}, {"front": "大 O 記號（Big-O Notation）", "back": "成本成長的上界表示法。O(n log n) 的意思是：存在某個常數，使得 n 夠大以後執行成本不會超過該常數乘上 n log n。"}, {"front": "數量級（Order of Magnitude）", "back": "以 10 的次方為單位的規模差距。例如 n = 1000 時，n 與 n² 分別是 10³ 和 10⁶，相差三個數量級。比較成長速度，可以看出資料量增加後的成本差異。"}, {"front": "安靜的錯誤（Silent Error）", "back": "編譯得過、跑得出正確答案、但成本或行為是錯的狀況。例如把 vector 當佇列用，或忘記 delete。編譯器不會抱怨，測試也抓不到，只能靠看得懂程式碼的人發現。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "動態配置的記憶體不再需要時，若未釋放且已無法取得它，就會形成記憶體洩漏。讓解構子或智慧指標管理資源的生命週期，可以把釋放責任交給擁有者。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如讀取已經 delete 的指標、陣列索引越界。它可能正常跑、可能當掉、也可能安靜地給出錯誤答案，換一台機器結果就不同。"}, {"front": "非決定性（Non-determinism）", "back": "同樣的輸入不保證得到同樣輸出的性質。生成式 AI 就是非決定性的：同一個問題問三次可能拿到三份不同實作，因此必須由人驗證與挑選。"}, {"front": "學習迴圈（Learning Loop）", "back": "想法 → 動手嘗試 → 觀察結果 → 修正理解的循環。理解真正發生在「卡住又想通」的瞬間；把題目整包外包出去，等於把迴圈砍到只剩觀察結果。"}, {"front": "攤還分析（Amortized Analysis）", "back": "把偶爾很貴的操作平均分攤到多次操作上的成本分析方式。例如 vector 的 push_back 偶爾要重新配置並搬移整排元素，但平均下來仍是 O(1)。"}, {"front": "抽象資料型別（Abstract Data Type, ADT）", "back": "只描述「有哪些操作、各自代表什麼意思」而不指定如何實作的資料模型。堆疊、佇列、映射都是 ADT；同一個 ADT 可以有多種實作，效能差很多。"}, {"front": "程式碼審查（Code Review）", "back": "由人逐行檢視程式碼、判斷正確性與取捨是否合理的過程。當產出程式碼變得便宜，能審查的能力就變貴：看一眼就指出「這個 new 沒有配對的 delete」。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

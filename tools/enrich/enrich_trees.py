@@ -68,8 +68,8 @@ int main() {{
     cout << endl;
     return 0;
 }}""".replace("{{","{").replace("}}","}"),
-"3 4 9 5 12 15 10 8 14 18\\n1 2 3 5 7 8 9 10 15", out_label="buildHeap 快照＋heapSort 完成後的輸出",
-note='<span id="dx-hp"></span>第一行是 buildHeap 後的陣列：不是排序！只保證每個節點 ≤ 兩個小孩。buildHeap 為 O(n)，逐一 insert 則是 O(n log n)；delMin 每次 O(log n)。舊名稱 heapify/delet 仍相容。')}'''
+"3 4 9 5 12 15 10 8 14 18\\n1 2 3 5 7 8 9 10 15", out_label="buildHeap 與 heapSort 的輸出",
+note='<span id="dx-hp"></span>第一行是 buildHeap 建立的最小堆積，每個父節點都小於或等於其子節點；第二行是 heapSort 排好的結果。buildHeap 為 O(n)，逐一 insert 建堆的最差成本為 O(n log n)；delMin 每次 O(log n)。')}'''
 s, c2 = insert_end_of_section(s, "heap", hp, 'id="dx-hp"')
 
 bst = f'''{card("講義 09 · BinarySearchTree 當 Map 用＋treeSort 練習", """#include <iostream>

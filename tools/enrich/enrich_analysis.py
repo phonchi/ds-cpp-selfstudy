@@ -100,7 +100,7 @@ int main() {
         printf("%-16s%9.2f ms\\n", names[k], t.millis());
     }
 }""",
-"insert at front   285.31 ms\\npush_back            6.42 ms\\nwith reserve         3.85 ms\\ndirect index         2.10 ms", out_label="示範執行（數字依機器而異，看量級）",
+"insert at front   285.31 ms\\npush_back            6.42 ms\\nwith reserve         3.85 ms\\ndirect index         2.10 ms", out_label="耗時比較範例",
 note="前端插入每次都要搬動整段資料，所以慢兩個量級。push_back 偶爾要搬家；容量加倍是課堂模型，C++ 標準不規定倍率，只保證攤還 O(1)。先 reserve 可避免這次建表過程中的重新配置。")}
 {card("講義 02 · erase(begin) vs pop_back：n 變大會怎樣", """#include <iostream>
 #include <vector>
@@ -120,8 +120,8 @@ int main() {
         printf("%-10d%14.5f%12.5f\\n", n, eraseT, tp.millis());
     }
 }""",
-"n           erase(begin)    pop_back\\n2500000        155.20031     0.00022\\n5000000        311.87542     0.00021\\n7500000        468.11289     0.00023\\n10000000       625.40067     0.00022", out_label="示範執行（數字依機器而異，看走勢）",
-note="重點在<strong>走勢</strong>：n 翻倍，erase(begin()) 的時間跟著翻倍（O(n)）；pop_back 文風不動（O(1)）。這就是「量測驗證 Big-O」的標準做法。")}'''
+"n           erase(begin)    pop_back\\n2500000        155.20031     0.00022\\n5000000        311.87542     0.00021\\n7500000        468.11289     0.00023\\n10000000       625.40067     0.00022", out_label="耗時比較範例",
+note="從<strong>需要做的工作</strong>看成本：erase(begin()) 要把後續元素往前搬，單次操作是 O(n)；pop_back() 只移除尾端元素，單次操作是 O(1)。下圖比較兩種操作隨資料量增加的耗時。")}'''
 s, c3 = insert_end_of_section(s, "vectors", vec, 'id="dx-vec"')
 
 strings = f'''{card("講義 02 · std::string 的成本實驗", """#include <iostream>
@@ -159,8 +159,8 @@ int main() {
         printf("%-10d%10.3f%12.3f\\n", n, vecT, tm.millis());
     }
 }""",
-"n             vector  hash table\\n250000         8.512       0.011\\n500000        17.204       0.012\\n1000000       35.917       0.012", out_label="示範執行（數字依機器而異，看走勢）",
-note="vector 的 find 是線性掃描：n 翻倍、時間翻倍。雜湊表的 count 平均 O(1)，最壞仍可能 O(n)。平均情況依賴 hash 分布；rehash 的偶發成本則用攤還分析描述，兩者不要混為一談。")}'''
+"n             vector  hash table\\n250000         8.512       0.011\\n500000        17.204       0.012\\n1000000       35.917       0.012", out_label="耗時比較範例",
+note="vector 的 find 逐一比對元素，搜尋成本隨資料量增加。雜湊表的 count 利用雜湊值定位；雜湊分布良好、負載因子受控時，平均查詢成本為 O(1)，最差為 O(n)。")}'''
 s, c4 = insert_end_of_section(s, "hash", hsh, 'id="dx-hash"')
 
 
@@ -168,11 +168,11 @@ s, c4 = insert_end_of_section(s, "hash", hsh, 'id="dx-hash"')
 if 'id="benchmark-pop-20260906"' not in s:
     section_start = s.index('<section id="vectors">')
     section_end = s.index('</section>', section_start)
-    s = s[:section_end] + '\n<figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <img src="assets/figures/pop_benchmark.png" alt="本機 C++ 實測：vector 前端刪除與尾端刪除的時間比較" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;">\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">2026-09-06 本機獨立實測，並非範例程式的示範輸出：每組 100 次操作，取 7 次執行的中位數；縱軸為微秒（µs）的對數刻度。pop_back 接近計時下限，包含迴圈與結果觀測的成本。準備工作排除於計時之外；量測結果不能單獨證明 Big-O。</figcaption>\n</figure>\n' + s[section_end:]
+    s = s[:section_end] + '\n<figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style="aspect-ratio:1800 / 1160;overflow:hidden;"><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，縱軸為微秒的對數刻度" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 從前端與尾端刪除元素的耗時。前端刪除需要搬移後續元素，尾端刪除則不需要。</figcaption>\n</figure>\n' + s[section_end:]
 if 'id="benchmark-lookup-20260906"' not in s:
     section_start = s.index('<section id="hash">')
     section_end = s.index('</section>', section_start)
-    s = s[:section_end] + '\n<figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <img src="assets/figures/dict_benchmark.png" alt="本機 C++ 實測：vector 線性搜尋與雜湊表成功查詢的時間比較" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;">\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">2026-09-06 本機獨立實測，並非範例程式的示範輸出：每組 100 次操作，取 7 次執行的中位數；縱軸為微秒（µs）的對數刻度。兩方法使用相同的預先產生查詢；快取與工作集會影響時間，雜湊查詢實測不一定水平。準備工作排除於計時之外；量測結果不能單獨證明 Big-O。</figcaption>\n</figure>\n' + s[section_end:]
+    s = s[:section_end] + '\n<figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style="aspect-ratio:1800 / 1160;overflow:hidden;"><img src="assets/figures/dict_benchmark.png" alt="vector 線性搜尋與雜湊表成功查詢的耗時比較；每組 100 次操作，縱軸為微秒的對數刻度" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 線性搜尋與雜湊表查詢的耗時。觀察資料量增加時，逐一比對與利用雜湊定位的成本差異。</figcaption>\n</figure>\n' + s[section_end:]
 
 
 # Normalize builder image paths for the standalone selfstudy site.

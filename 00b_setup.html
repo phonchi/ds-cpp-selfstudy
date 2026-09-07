@@ -833,13 +833,13 @@ cell.cpp:2:5: error: ‘cout’ was not declared in this scope
   <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:/" "/example.com"</code> 兩段接起來——重點是讓兩個斜線不相鄰。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "pythonds3/cppds/…"</code> 找不到檔案</h3>
-  <p>在 notebook 裡：課程標頭內建在 kernel 套件裡，會找不到幾乎只有一個原因——你裝的是 PyPI 原版、或 2026-09-02 之前的舊版 fork。照 <a href="#kernel">PART 01</a> 的指令加 <code>--force-reinstall</code> 重裝一次即可（<code>pip install --force-reinstall --no-deps "git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208"</code>），重啟 JupyterLab。<br>
+  <p>在 notebook 裡：課程標頭隨課程版 kernel 一起安裝。遇到找不到標頭的錯誤，先確認安裝來源是 <code>phonchi/jupyter-cpp-kernel</code> 的 <code>nsysu-math208</code> 分支，再依 <a href="#kernel">PART 01</a> 的方式重裝課程版 kernel（<code>pip install --force-reinstall --no-deps "git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208"</code>），重啟 JupyterLab。<br>
   在終端機用 <code>g++</code> 編譯：要先 <code>git clone https://github.com/phonchi/pythonds3</code> 到 .cpp 同一層，並加 <code>-I.</code>。測驗與詞彙卡的題目是從 GitHub 線上抓的，與目錄無關；沒出現時先確認有網路。</p>
 
-  <p style="margin-top:2rem;"><strong>下面兩個跟 kernel 無關</strong>，是 Windows 環境本身的問題，但回報頻率一樣高。</p>
+  <p style="margin-top:2rem;">接著檢查 Windows 的 DLL 載入路徑與 Jupyter 啟動網址。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑦ 跳出對話框「無法找到程序輸入點 …seekpos…」</h3>
-  <p>執行任何 cell 都跳出 Windows 錯誤對話框，訊息裡有一長串 <code>_ZNSt15basic_streambuf…seekpos…</code> 和 <code>Temp\tmp_xxxx.out</code>——這是執行時載到另一套較舊的 <code>libstdc++-6.dll</code>。診斷與處理方式見 <a href="#kernel">PART 01</a> 的「注意 Anaconda 的舊 libstdc++」警告框；若你的 kernel 是 2026-09 之後裝的，notebook 裡不會再發生這件事，還看到就先重裝 kernel。</p>
+  <p>執行任何 cell 都跳出 Windows 錯誤對話框，訊息裡有一長串 <code>_ZNSt15basic_streambuf…seekpos…</code> 和 <code>Temp\tmp_xxxx.out</code>——這是執行時載到另一套較舊的 <code>libstdc++-6.dll</code>。診斷與處理方式見 <a href="#kernel">PART 01</a> 的「注意 Anaconda 的舊 libstdc++」警告框。在 notebook 遇到時，先重裝課程版 kernel 並重啟 JupyterLab；若仍出現錯誤，再依該說明檢查 DLL 路徑。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑧ 瀏覽器說「無法存取你的檔案」ERR_FILE_NOT_FOUND</h3>
   <p>執行 <code>jupyter lab</code> 後瀏覽器自動開啟，卻顯示「無法存取你的檔案，檔案可能已遭到移動、編輯或刪除 ERR_FILE_NOT_FOUND」。先看網址列：正常應該是 <code>http://localhost:8888/lab</code>（Notebook 7 則是 <code>/tree</code>），如果是 <code>file:///C:/Users/…</code> 開頭就是這個問題 —— Jupyter 用來自動開頁的暫存 HTML 沒被瀏覽器正確接手，使用者名稱含中文、或從 Google Drive／OneDrive 同步資料夾啟動時特別常見。Jupyter 本身其實已經在跑：回到終端機，把它印出來的 <code>http://localhost:8888/lab?token=…</code> <strong>整行複製</strong>貼進瀏覽器網址列即可。</p>

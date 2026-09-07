@@ -593,8 +593,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <p class="dx-note" style="margin-bottom:0;">想在終端機或 VS Code 直接編譯用到課程標頭的 .cpp（notebook 以外），才需要 <code>git clone https://github.com/phonchi/pythonds3</code> 到 .cpp 同一層，並以 <code>g++ -std=c++17 -I. main.cpp</code> 編譯；標頭在 <code>pythonds3/cppds/*.hpp</code>，就是課程網站 Resources 指的那個 repo。</p>
   </div>
 
-  <div class="info-card">
-    <div class="ic-title">kernel 已經幫你 include 的標頭 <span class="ic-badge">gcpph.hpp</span></div>
+  <details class="info-card">
+    <summary style="cursor:pointer;font-weight:700;">kernel 已經幫你 include 的標頭 <span class="ic-badge">gcpph.hpp</span></summary>
     <p style="font-size:.9rem;">這個 kernel 在編譯<strong>每一個 cell</strong> 之前，都會自動先加上一份共用標頭
     <code>gcpph.hpp</code>。所以有些標準函式庫不寫 <code>#include</code> 也能用 —— 但不是全部，
     分清楚哪些有帶、哪些要自己寫：</p>
@@ -609,7 +609,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     </div>
     <p class="dx-note" style="margin-bottom:0;">講義的 cell 大多仍把 <code>#include</code> 寫好寫滿 —— 那是刻意的：同一段程式碼貼到 VS Code 或線上編譯器也要能動。<strong>自己寫作業時請比照辦理，不要依賴 kernel 的自動帶入。</strong>完整清單見
     <a href="https://github.com/phonchi/jupyter-cpp-kernel/blob/nsysu-math208/jcppkernel/resources/gcpph.hpp" target="_blank" rel="noopener">gcpph.hpp 原始碼</a>。</p>
-  </div>
+  </details>
 
   <div class="warn-box">
     <div class="info-label">⚠️ cell 裡寫了 <code>#include</code>，就要自己寫 <code>main()</code></div>
@@ -636,15 +636,15 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     ③ 開啟 <code>.ipynb</code>，右上角 kernel 選 <strong>C++ 17</strong>，按 <code>Shift + Enter</code> 執行第一格。</p>
   </div>
 
-  <div class="warn-box">
-    <div class="info-label">⚠️ 要用終端機／VS Code 自己編譯的同學：注意 Anaconda 的舊 libstdc++</div>
+  <details class="warn-box">
+    <summary style="cursor:pointer;font-weight:700;">⚠️ 要用終端機／VS Code 自己編譯的同學：注意 Anaconda 的舊 libstdc++</summary>
     <p>症狀：cell 一執行就跳出 Windows 對話框「<strong>無法找到程序輸入點 …seekpos… 在動態連結程式庫 …\Temp\tmp_xxxx.out</strong>」。原因是 conda 在 activate 時會把 <code>anaconda3\Library\mingw-w64\bin</code> 插到 Path <strong>最前面</strong>，裡面有一份舊的 <code>libstdc++-6.dll</code>，蓋掉你在 <a href="#windows">PART 04</a> 裝的那套。編譯用的是新 g++，執行時卻載到舊 DLL，所以對不上。這是執行期插隊，<strong>在「環境變數」設定裡把 bin 排到最前面也沒用</strong>。</p>
     <p>診斷：在啟動 Jupyter 的那個視窗執行 <code>where.exe libstdc++-6.dll</code>。第一筆必須是你在 PART 04 確認過的那個 <code>bin</code>；如果第一筆在 <code>anaconda3</code> 底下，就是這個問題。</p>
     <p style="margin-bottom:0;">解法擇一（下面的 <code>C:\mingw64\bin</code> 請換成你自己的 bin）：<br>
     ① 臨時：啟動前先 <code>set PATH=C:\mingw64\bin;%PATH%</code>，再執行 <code>jupyter lab</code>。<br>
     ② 永久：在 <code>&lt;conda 根目錄&gt;\etc\conda\activate.d\</code> 新增 <code>mingw64.bat</code>，內容一行 <code>@set PATH=C:\mingw64\bin;%PATH%</code>。根目錄用 <code>conda info --base</code> 查；若是用具名環境啟動 Jupyter，路徑改為 <code>envs\&lt;環境名&gt;\etc\conda\activate.d\</code>。重開 Anaconda Prompt 後再跑一次 <code>where.exe</code> 確認順序。<br>
     不要為了這件事移除 conda 的 mingw-w64 套件，它們是其他 conda 套件的相依。</p>
-  </div>
+  </details>
 
   <details style="margin-top:1rem;"><summary><strong>備註：想把講義當投影片放（RISE）的話</strong></summary>
     <p style="margin-top:.7rem;">一般同學不需要這一段，直接在 notebook 裡讀跟執行就好。若你想像上課那樣切成投影片模式，注意舊版 RISE（<code>pip install rise</code>）只支援 classic Notebook 6 以下，在 Notebook 7 與 JupyterLab 4 裡不會出現 <em>View → Cell Toolbar → Slideshow</em>，也沒有投影片按鈕 —— 不是你漏設定，是擴充套件架構換掉了。改裝新版：<code>pip uninstall rise</code> 再 <code>pip install jupyterlab_rise</code>（需 JupyterLab ≥ 4.1.2），然後重新啟動 Jupyter。新版的設定方式也不同：選取 cell 後在右側 <strong>Property Inspector</strong>（齒輪圖示）指定 slide / subslide / fragment，再按 <code>Ctrl+R</code>（Mac 是 <code>Option+R</code>）進入投影片模式。</p>

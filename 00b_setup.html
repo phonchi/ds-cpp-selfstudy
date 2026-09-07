@@ -546,8 +546,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line">#    電腦教室的 Anaconda 已內建 JupyterLab，只要裝後兩個 —— 見下方卡片）</span>
 <span class="line">pip install jupyterlab jupyterquiz jupytercards</span>
 <span class="line"> </span>
-<span class="line"># 2. 再裝打過 patch 的 C++ kernel（--user：裝進你自己的資料夾，不需要管理員）</span>
-<span class="line">pip install --user git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
+<span class="line"># 2. 直接下載並安裝課程版 C++ kernel（不需 Git；--user：不需要管理員）</span>
+<span class="line">pip install --user https://github.com/phonchi/jupyter-cpp-kernel/archive/refs/heads/nsysu-math208.zip</span>
 <span class="line"> </span>
 <span class="line"># 3. 註冊 kernel；Windows 沒有 g++ 的話這一步會自動下載（約 100 MB，多連線分段，有進度條）</span>
 <span class="line">python -m jcppkernel.setup_cli</span>
@@ -562,10 +562,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <li>用 pip 安裝的套件每次都會消失。每堂課請開啟 <strong>Anaconda Prompt</strong>，依序執行以下三行，等上一行完成再執行下一行。</li>
     </ul>
 <div class="pseudo-code" style="font-size:.82rem;"><span class="line">pip install jupyterquiz jupytercards</span>
-<span class="line">pip install --user git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208</span>
+<span class="line">pip install --user https://github.com/phonchi/jupyter-cpp-kernel/archive/refs/heads/nsysu-math208.zip</span>
 <span class="line">python -m jcppkernel.setup_cli</span></div>
     <ul style="font-size:.9rem;margin-bottom:0;">
       <li><strong>第 1 行不能省：</strong><code>jupyterquiz</code> 與 <code>jupytercards</code> 分別供測驗與詞彙卡使用。</li>
+      <li>第 2 行由 pip 直接下載並安裝課程版 kernel，<strong>不用另外安裝 Git</strong>。</li>
       <li><strong>第 3 行不能省：</strong>它負責把 C++ kernel 註冊進 Jupyter。只執行 <code>pip install --user</code>，Jupyter 找不到安裝的 kernelspec，kernel 選單就不會出現 C++。</li>
       <li>kernel 會自動把 GCC 12.1 下載到 <code>%LOCALAPPDATA%\jupyter-cpp-kernel\mingw64</code>，並寫入使用者 Path；<strong>不必操作 <a href="#windows">PART 04</a></strong>。</li>
       <li>第 3 行也會預先下載 g++。只有 <strong>g++ 的下載</strong>可以延後到第一個 cell 執行時，進度會顯示在 cell 下方；kernel 註冊仍須先完成。</li>
@@ -833,7 +834,7 @@ cell.cpp:2:5: error: ‘cout’ was not declared in this scope
   <p>kernel 在編譯前會用正規表示式把註解剝掉，而它<strong>看不出來 <code>//</code> 是在字串裡面</strong>，會從那裡整行切斷。所以別把網址寫進字串字面值。真的需要就拆成 <code>"https:/" "/example.com"</code> 兩段接起來——重點是讓兩個斜線不相鄰。</p>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.1rem;margin:1.4rem 0 .5rem;color:var(--accent2);">⑥ <code>#include "pythonds3/cppds/…"</code> 找不到檔案</h3>
-  <p>在 notebook 裡：課程標頭隨課程版 kernel 一起安裝。遇到找不到標頭的錯誤，先確認安裝來源是 <code>phonchi/jupyter-cpp-kernel</code> 的 <code>nsysu-math208</code> 分支，再依 <a href="#kernel">PART 01</a> 的方式重裝課程版 kernel（<code>pip install --force-reinstall --no-deps "git+https://github.com/phonchi/jupyter-cpp-kernel.git@nsysu-math208"</code>），重啟 JupyterLab。<br>
+  <p>在 notebook 裡：課程標頭隨課程版 kernel 一起安裝。遇到找不到標頭的錯誤，先確認安裝來源是 <code>phonchi/jupyter-cpp-kernel</code> 的 <code>nsysu-math208</code> 分支，再依 <a href="#kernel">PART 01</a> 的方式重裝課程版 kernel（<code>pip install --force-reinstall --no-deps "https://github.com/phonchi/jupyter-cpp-kernel/archive/refs/heads/nsysu-math208.zip"</code>），重啟 JupyterLab。<br>
   在終端機用 <code>g++</code> 編譯：要先 <code>git clone https://github.com/phonchi/pythonds3</code> 到 .cpp 同一層，並加 <code>-I.</code>。測驗與詞彙卡的題目是從 GitHub 線上抓的，與目錄無關；沒出現時先確認有網路。</p>
 
   <p style="margin-top:2rem;">接著檢查 Windows 的 DLL 載入路徑與 Jupyter 啟動網址。</p>

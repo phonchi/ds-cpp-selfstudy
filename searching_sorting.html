@@ -57,6 +57,8 @@ p{margin-bottom:1rem;}
 /* Viz layout */
 .viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+.viz-layout > *{min-width:0;}
+.table-scroll{max-width:100%;overflow-x:auto;}
 
 .viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
 
@@ -516,6 +518,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>每一節都採用相同的版面：左邊是「視覺化畫布」與「控制列」，右邊是「即時統計」、「對應虛擬碼（pseudo-code）」與「複雜度分析」。請大膽地按 <span class="pill pill-green">▶ 開始</span> 看完整動畫，或按 <span class="pill pill-blue">→ 單步</span> 一格一格觀察。</p>
 
 <h3 id="dx-srch">講義完整實作：三種搜尋的 C++ 全文</h3>
+<p><code>size_t</code> 是用來表示容器大小的無號整數型別，不能表示 −1；二分搜尋因此用 <code>int</code> 保存左右邊界。<code>static_cast&lt;int&gt;(aList.size())</code> 明確把大小轉成 int，空容器再減 1 得到 −1，表示沒有搜尋區間。這些範例假設元素數量可由 int 表示。<code>const vector&lt;int&gt;&amp;</code> 表示以唯讀參考傳入，不複製整份資料；排序函式則用不帶 const 的參考修改原容器。詳見 <a href="p1_cpp_basics.html#convert">P1 型別轉換</a>。</p>
 <div class="deck-extra">
   <div class="dx-label">講義 07 · sequentialSearch</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
@@ -665,14 +668,14 @@ false</pre></div>
   <div class="info-box green" style="margin-top:.8rem;">
     <span class="info-label">關鍵差異對比表</span>
     <div style="font-size:.86rem;line-height:1.65;margin-top:.4rem;">
-      <table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.78rem;">
+      <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.78rem;">
         <thead><tr><th style="text-align:left;padding:.3rem;">情境</th><th style="padding:.3rem;">最佳</th><th style="padding:.3rem;">最差</th><th style="padding:.3rem;">平均</th></tr></thead>
         <tbody>
           <tr><td style="padding:.3rem;">item 在 list 中（兩種版本）</td><td style="text-align:center;">$1$</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n/2$</td></tr>
           <tr style="background:#fef0e7;"><td style="padding:.3rem;">item <strong>不在</strong>（普通版）</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n$</td></tr>
           <tr style="background:#eafaf1;"><td style="padding:.3rem;">item <strong>不在</strong>（有序版）</td><td style="text-align:center;">$1$</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n/2$</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
     結論：兩種版本的<strong>大 $O$ 都是 $O(n)$</strong>，有序版只是<strong>常數變小</strong>。要真正快，得換演算法 → 二分搜尋。
   </div>
@@ -901,7 +904,7 @@ false</pre></div>
     <span class="info-label">用 hash 表實作 key-value 字典</span>
     Map ADT 是介面概念；<code>std::unordered_map</code> 是標準函式庫的具體 hash-table 容器。本頁的固定容量 <code>HashTable</code> 只實作 <code>put/get</code> 與顯示輔助，下面同時列出完整 ADT 常見操作作為對照：
     <div style="font-size:.84rem;line-height:1.7;margin:.5rem 0;">
-      <table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.78rem;border-collapse:collapse;">
+      <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.78rem;border-collapse:collapse;">
         <thead><tr style="background:var(--paper);border-bottom:2px solid var(--card-border);"><th style="text-align:left;padding:.35rem;">操作</th><th style="text-align:left;padding:.35rem;">語意</th></tr></thead>
         <tbody>
           <tr><td style="padding:.3rem;color:var(--accent2);font-weight:600;">HashTable(size)</td><td>建立固定容量的教學用 hash table</td></tr>
@@ -911,7 +914,7 @@ false</pre></div>
           <tr><td style="padding:.3rem;color:var(--accent2);font-weight:600;">size()</td><td>回傳目前儲存的 key–value 對總數</td></tr>
           <tr style="background:#fff;"><td style="padding:.3rem;color:var(--accent2);font-weight:600;">in</td><td><code>contains(key)</code> 回傳 <code>true</code>/<code>false</code></td></tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
     <div class="pseudo-code" style="margin-top:.4rem;">
 <span class="line"><span class="kw">class</span> <span class="fn">HashTable</span> {</span>
@@ -1798,7 +1801,7 @@ Merging 17 26 54 93 </pre></div>
   </div>
 
   <h3>核心對照表：每個演算法所需的資料結構</h3>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead>
       <tr>
         <th>演算法</th>
@@ -1880,7 +1883,7 @@ Merging 17 26 54 93 </pre></div>
         <td>partition 需要左右雙指標雙向走，singly-linked 無法</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
   <p style="font-size:.82rem;color:var(--muted);margin-top:.4rem;">
     <span class="pill" style="background:var(--accent3);color:#fff;">✓</span> 自然支援　
     <span class="pill" style="background:#f39c12;color:#fff;">△</span> 可以但效能下降　
@@ -1972,7 +1975,7 @@ Merging 17 26 54 93 </pre></div>
   <h2>九個演算法一次比較 <span class="sec-badge">總覽</span></h2>
 
   <h3>搜尋演算法</h3>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>演算法</th><th>最佳</th><th>平均</th><th>最差</th><th>前置條件</th><th>空間</th></tr></thead>
     <tbody>
       <tr><td>循序搜尋</td><td>$O(1)$</td><td>$O(n)$</td><td class="worst">$O(n)$</td><td>無</td><td>$O(1)$</td></tr>
@@ -1980,10 +1983,10 @@ Merging 17 26 54 93 </pre></div>
       <tr><td>二分搜尋</td><td class="best">$O(1)$</td><td class="best">$O(\log n)$</td><td class="best">$O(\log n)$</td><td>已排序</td><td>$O(1)$</td></tr>
       <tr><td>雜湊 (理想)</td><td class="best">$O(1)$</td><td class="best">$O(1)$</td><td class="worst">$O(n)$</td><td>有 hash 函數</td><td>$O(m)$</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h3>排序演算法</h3>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>演算法</th><th>最佳</th><th>平均</th><th>最差</th><th>空間</th><th>穩定</th><th>就地</th></tr></thead>
     <tbody>
       <tr><td>氣泡排序 Bubble</td><td>$O(n)$ ★</td><td>$O(n^2)$</td><td class="worst">$O(n^2)$</td><td>$O(1)$</td><td>✓</td><td>✓</td></tr>
@@ -1993,11 +1996,11 @@ Merging 17 26 54 93 </pre></div>
       <tr><td>合併排序 Merge</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="worst">$O(n)$</td><td>✓</td><td>✗</td></tr>
       <tr><td>快速排序 Quick</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="worst">$O(n^2)$</td><td>$O(\log n)$</td><td>✗</td><td>✓</td></tr>
     </tbody>
-  </table>
+  </table></div>
   <p style="font-size:.82rem;color:var(--muted);">★ 氣泡排序的 $O(n)$ 最佳情況需要使用<strong>「短路最佳化」</strong>（一輪沒交換就停）。</p>
 
   <h3>選擇指南</h3>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>情境</th><th>建議演算法</th><th>原因</th></tr></thead>
     <tbody>
       <tr><td>資料量小 (n &lt; 20)</td><td>插入排序</td><td>常數小、邏輯簡單</td></tr>
@@ -2008,7 +2011,7 @@ Merging 17 26 54 93 </pre></div>
       <tr><td>大量搜尋同份資料</td><td>排序後二分搜尋 / 雜湊表</td><td>建立成本攤提</td></tr>
       <tr><td>需要 $O(1)$ 平均搜尋</td><td>雜湊表</td><td>用空間換時間</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h3>關鍵概念複習</h3>
   <div class="info-box">
@@ -2045,7 +2048,7 @@ Merging 17 26 54 93 </pre></div>
   </div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">Step 1：前六筆都直接落空槽</h4>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>item</th><th>item % 11</th><th>落點 slot</th><th>狀況</th></tr></thead>
     <tbody>
       <tr><td>54</td><td>10</td><td>10</td><td>空 ✓</td></tr>
@@ -2055,21 +2058,21 @@ Merging 17 26 54 93 </pre></div>
       <tr><td>77</td><td>0</td><td>0</td><td>空 ✓</td></tr>
       <tr><td>31</td><td>9</td><td>9</td><td>空 ✓</td></tr>
     </tbody>
-  </table>
+  </table></div>
   <p>此時表的狀態：</p>
 <pre style="background:#2d2d3f;color:#e8e6df;font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.85rem 1rem;border-radius:10px;line-height:1.6;overflow-x:auto;">idx :  0    1    2    3    4    5    6    7    8    9    10
 val : 77    .    .    .   26   93   17    .    .   31    54</pre>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">Step 2：插 44（44 % 11 = 0，撞 77）</h4>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>嘗試</th><th>skip</th><th>計算位置</th><th>slot 內容</th><th>結果</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>$1^2 = 1$</td><td>(0+1) % 11 = <strong>1</strong></td><td>空</td><td><span class="pill pill-green">落 slot 1</span></td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">Step 3：插 55（55 % 11 = 0，撞 77；之後又連撞 4 次）</h4>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>嘗試</th><th>skip</th><th>計算位置</th><th>slot 內容</th><th>結果</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>$1^2 = 1$</td><td>(0+1) % 11 = 1</td><td>44</td><td>占用</td></tr>
@@ -2078,20 +2081,20 @@ val : 77    .    .    .   26   93   17    .    .   31    54</pre>
       <tr><td>4</td><td>$4^2 = 16$</td><td>(0+16) % 11 = <strong>5</strong></td><td>93</td><td>占用</td></tr>
       <tr><td>5</td><td>$5^2 = 25$</td><td>(0+25) % 11 = <strong>3</strong></td><td>空</td><td><span class="pill pill-green">落 slot 3</span></td></tr>
     </tbody>
-  </table>
+  </table></div>
   <div class="info-box warm">
     <span class="info-label">關鍵</span>
     skip 序列是「<strong>連續完全平方數本身</strong>」（$1, 4, 9, 16, 25$），<strong>不是累加</strong>。每次都從原始 hash 位置 $h$ 起算，所以第 4 次跳到 $(0+16) \bmod 11 = 5$、第 5 次跳到 $(0+25) \bmod 11 = 3$：兩次都「跨過」了表的另一端。這正是 quadratic probing 能打散 linear probing 那種連續聚集（clustering）的原因。
   </div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">Step 4：插 20（20 % 11 = 9，撞 31）</h4>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>嘗試</th><th>skip</th><th>計算位置</th><th>slot 內容</th><th>結果</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>$1^2 = 1$</td><td>(9+1) % 11 = 10</td><td>54</td><td>占用</td></tr>
       <tr><td>2</td><td>$2^2 = 4$</td><td>(9+4) % 11 = <strong>2</strong></td><td>空</td><td><span class="pill pill-green">落 slot 2</span></td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">最終表狀態</h4>
 <pre style="background:#2d2d3f;color:#e8e6df;font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.85rem 1rem;border-radius:10px;line-height:1.6;overflow-x:auto;">idx :  0    1    2    3    4    5    6    7    8    9    10
@@ -2106,14 +2109,14 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
     <strong style="display:block;font-size:1.05em;color:var(--accent);">Collision 的判準是「<u>hash 值</u>相同」，不是「key 相同」，千萬別搞反。</strong>
     <p style="margin-top:.5rem;">正式定義：<strong>兩個<u>不同的 item</u> 經過 <code>hashFunction</code> 後得到<u>同一個 hash 值</u></strong>（也就是 <code>hash(k₁) == hash(k₂)</code>，因此被映射到同一個 slot），這才叫 collision。判 collision 看的是「hash 值」這個運算結果，不是「key 本身」。</p>
     <p>同一個 key 重複 <code>put</code>（如 <code>h[77]="bird"</code> 然後 <code>h[77]="eagle"</code>）：hash 值當然會相同，<strong>但兩次塞的是同一個 item</strong>，只是更新同一個 entry，<strong>這不是 collision，也不會觸發任何 rehash</strong>。collision 必須是「兩個不同 item 撞到同一格」。</p>
-    <table class="cmp-table" style="margin-top:.8rem;">
+    <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table" style="margin-top:.8rem;">
       <thead><tr><th>狀況</th><th>兩個 item 的 hash 值</th><th>是同一個 key 嗎？</th><th>這算 collision 嗎？</th><th><code>put</code> 要做的事</th></tr></thead>
       <tbody>
         <tr><td>情況一</td><td>相同（必然）</td><td>是（同 key 重複 put）</td><td><span class="pill pill-green">不是</span></td><td>直接覆寫舊值（字典「同 key 重新賦值」的語意）</td></tr>
         <tr><td>情況二</td><td><strong>相同</strong>（hash 撞到了）</td><td><strong>否</strong>（不同 key）</td><td><span class="pill pill-orange">是</span></td><td>啟動 rehash 探查，找下一個位置</td></tr>
         <tr><td>情況三</td><td>不同</td><td>否</td><td><span class="pill pill-green">不是</span></td><td>各走各的 slot，互不相干</td></tr>
       </tbody>
-    </table>
+    </table></div>
     <p style="margin-top:.5rem;font-size:.92em;">情況一、二 在程式裡都會「<code>slots[hash]</code> 已經有東西」，但只有情況二才是真 collision：差別就在那個被佔的 slot 裡放的 key 跟我「是不是同一個 item」。</p>
   </div>
 
@@ -2136,18 +2139,18 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
   <p style="font-size:.9rem;color:var(--muted);">教科書的基本版若只寫「找到空槽或同 key 才停」，滿表時會無限繞圈。課程 header 用起點作哨兵：完整探查一圈後明確丟出 <code>overflow_error</code>。</p>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">把 4 個分支按「碰撞 / 探查」分類</h4>
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th></th><th>hash 第一次命中（無探查）</th><th>rehash 探查之後</th></tr></thead>
     <tbody>
       <tr><td><strong>新增 entry</strong>（slot 是空的）</td><td>① 起始槽直接插入</td><td>③ 探查後遇空槽<br><span style="color:var(--accent3);font-weight:700;">↑ 真正在「處理 collision」的路徑</span></td></tr>
       <tr><td><strong>覆寫已有同 key</strong>（不是 collision）</td><td>② 起始槽直接更新</td><td>④ 探查後遇同 key<br><span style="color:var(--muted);">沿探查路徑找回既有 key</span></td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">情境設定：4 步剛好走 4 個分支</h4>
   <p><code>h = HashTable(size=11)</code>，<code>hash = key % 11</code>，<code>rehash = (p+1) % 11</code>。依序執行下列 4 條 <code>h[key] = val</code>，每一條剛好觸發一個分支：</p>
 
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>步驟</th><th>操作</th><th>hash</th><th>slots[hash]</th><th>走哪條分支</th><th>是 collision 嗎？</th><th>為何</th></tr></thead>
     <tbody>
       <tr><td>1</td><td><code>h[77]="bird"</code></td><td>0</td><td><code>-1</code></td><td><strong>① 起始槽直接插入</strong></td><td>—</td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">slot 0 空，直接寫入，不必探查</td></tr>
@@ -2155,7 +2158,7 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
       <tr><td>3</td><td><code>h[44]="goat"</code></td><td>0</td><td><code>77</code> (≠ 44)</td><td><strong>③ 探查後遇空槽</strong></td><td><span class="pill pill-orange">是</span></td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">44 和 77 hash 值都是 0（不同 key、相同 hash） → collision → 探查到 slot 1 的空槽後插入</td></tr>
       <tr><td>4</td><td><code>h[44]="lamb"</code></td><td>0</td><td><code>77</code> (≠ 44)</td><td><strong>④ 探查後遇同 key</strong></td><td><span class="pill pill-green">不是新的 collision</span></td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">44 真正存於 slot 1；沿既有碰撞探查鏈找到同 key 後覆寫 value</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">每一步之後的表狀態（slots / data 同時看）</h4>
 <pre style="background:#2d2d3f;color:#e8e6df;font-family:'JetBrains Mono',monospace;font-size:.78rem;padding:.85rem 1rem;border-radius:10px;line-height:1.6;overflow-x:auto;">init     :  slots = [ . , . , . , . , . , . , . , . , . , . , . ]

@@ -638,7 +638,7 @@ cell.cpp:5:13: error: ‘square’ was not declared in this scope
 <span class="line" data-l="6">addOne(score);           <span class="com">// score 還是 60</span>
 <span class="line" data-l="7"></span></span></div>
 
-  <p>這個規則沒有例外，而且對<strong>物件</strong>也一樣。物件被複製時，編譯器會呼叫它的<strong>複製建構式</strong>（copy constructor）。下面這支程式把複製這件事印出來給你看。</p>
+  <p>值參數是獨立的參數物件，修改它不會直接改到呼叫端的變數。自訂類別從既有物件複製時會呼叫<strong>複製建構式</strong>（copy constructor）；傳入暫時物件時還可能省略複製，或改用移動（由型別決定如何接手來源資源）。類別若內含指標，複製指標也不代表複製它指向的資源。</p>
 
 <p>傳值複製自訂物件時，會由型別決定複製工作；完整複製建構式示範放在 <a href="p8_oop_basics.html#copy-from-functions">P8 類別與物件</a>，先理解本頁的副本與別名即可。</p>
 
@@ -728,7 +728,7 @@ sizeof(x)=4  sizeof(r)=4</pre></div>
 
   <div class="warn-box">
     <div class="info-label">⚠️ 呼叫端看不出來</div>
-    <p style="margin-bottom:0;"><code>f(x);</code> 這一行，無論 <code>f</code> 收的是值還是參考，寫法完全一樣。所以<strong>你必須去看函式簽章</strong>才知道自己的變數會不會被改掉。指標就沒這個問題：<code>f(&amp;x)</code> 那個 <code>&amp;</code> 明擺在呼叫端。這是下一節要談的取捨。</p>
+    <p style="margin-bottom:0;"><code>f(x);</code> 這一行，無論 <code>f</code> 收的是值還是參考，寫法完全一樣。所以<strong>你必須去看函式宣告的參數列</strong>才知道自己的變數會不會被改掉。指標就沒這個問題：<code>f(&amp;x)</code> 那個 <code>&amp;</code> 明擺在呼叫端。這是下一節要談的取捨。</p>
   </div>
 
   <div class="quiz-box">
@@ -965,7 +965,7 @@ cell.cpp:5:9: note: declared here
   <div class="deck-extra">
     <div class="dx-label">那它跑起來會怎樣？</div>
     <div class="expected-out"><span class="eo-tag">實際執行輸出</span><pre>錯誤示範：使用已失效的位址，行為未定義，沒有可依賴的執行輸出。</pre></div>
-    <p class="dx-note">這是不可執行的錯誤示範：local 的生命週期在函式返回時結束，p 無法合法指向可供讀取的 local。不同編譯器可能給出不同診斷及執行結果；不能依一次看到的位址、數值或終止訊號推論 C++ 的保證。</p>
+    <p class="dx-note">這是不能當作合法程式使用的錯誤示範：local 的生命週期在函式返回時結束，p 無法合法指向可供讀取的 local。不同編譯器可能給出不同診斷及執行結果；不能依一次看到的位址、數值或終止訊號推論 C++ 的保證。</p>
   </div>
 
   <p>如果只要把計算結果交給呼叫端，直接回傳值最清楚，也不需要管理額外的生命週期：</p>
@@ -1204,7 +1204,7 @@ cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report
     <div class="quiz-label">EXERCISE · 這個函式錯在哪</div>
     <p>有人寫一個函式，裡面宣告 <code>int n=31;</code>，然後回傳 <code>&amp;n</code>。呼叫端經由這個位址讀取整數。問題是什麼？</p>
     <div class="quiz-options" id="qbOptions">
-      <div class="quiz-opt" data-correct="false" data-fb="語法完全合法，g++ 會給一個 -Wreturn-local-addr 警告，但還是編得出執行檔。這正是最麻煩的地方：能編、能跑、結果隨機。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 語法錯誤，編不過</div>
+      <div class="quiz-opt" data-correct="false" data-fb="語法本身可被接受，g++ 通常會警告回傳區域物件位址；若仍產生執行檔，之後透過失效位址讀取物件是未定義行為，不保證有固定或隨機的輸出。" onclick="quizCheck('qb', this)"><span class="opt-letter">(A)</span> 語法錯誤，編不過</div>
       <div class="quiz-opt" data-correct="true" data-fb="正確。n 是區域變數，住在這個函式的堆疊框裡，函式一 return 框就被彈掉，交出去的位址立刻失效。這叫懸空指標，屬於未定義行為：輸出與是否終止都沒有保證。這裡只要回傳整數值即可；需要動態生命週期時，再依 P4 的所有權規則選擇做法。" onclick="quizCheck('qb', this)"><span class="opt-letter">(B)</span> 回傳了區域變數的位址，函式一結束那塊就失效了</div>
       <div class="quiz-opt" data-correct="false" data-fb="漏寫 delete 會造成記憶體洩漏，但這是另一類問題。這段程式沒有使用 new，問題在於區域變數的生命週期已經結束。" onclick="quizCheck('qb', this)"><span class="opt-letter">(C)</span> 忘了寫 delete，會記憶體洩漏</div>
       <div class="quiz-opt" data-correct="false" data-fb="回傳指標本身不一定有問題；例如串列實作可能回傳仍然有效的節點指標。關鍵是指標所指物件在呼叫端使用時是否仍然存活，詳細例子見串列頁。" onclick="quizCheck('qb', this)"><span class="opt-letter">(D)</span> 函式不該回傳指標</div>
@@ -1319,7 +1319,7 @@ int main() {
 }</pre>
     <div class="sq-opts">
       <button class="sq-opt" data-c="1" data-fb="正確。bump 的參數是 int n，屬於傳值，函式拿到的是一份副本，加 10 加在副本上。函式一結束副本就消失，main 裡的 n 從頭到尾都是 5。是否有警告取決於編譯器與設定。"><span class="opt-letter">(A)</span> 5</button>
-      <button class="sq-opt" data-c="0" data-fb="要印出 15，參數必須寫成 int &amp;n 或 int *p。目前的簽章是傳值，函式碰不到 main 裡的那一格。"><span class="opt-letter">(B)</span> 15</button>
+      <button class="sq-opt" data-c="0" data-fb="要直接修改 main 裡的 n，可把參數改成 int &amp;n。若改用 int *p，還必須一起改成 bump(&amp;n) 呼叫，並在函式內透過 *p 修改；不能只換參數宣告。"><span class="opt-letter">(B)</span> 15</button>
       <button class="sq-opt" data-c="0" data-fb="函式沒有回傳值，也沒有把結果寫回任何地方，main 裡的 n 完全沒被動過。"><span class="opt-letter">(C)</span> 10</button>
       <button class="sq-opt" data-c="0" data-fb="語法完全合法。傳值是最基本的傳法，語法合法，警告則依編譯器設定而定，這正是這個錯誤難抓的原因。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
     </div>
@@ -1788,7 +1788,7 @@ function csReset() {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "函式原型（Function Prototype）", "back": "只寫回傳型別、函式名稱與參數型別，並以分號結尾的宣告，例如 int square(int n);。一般函式需在呼叫處可見宣告；定義可放在後面或其他來源檔中。"}, {"front": "傳值（Pass by Value）", "back": "呼叫時把引數整個複製一份放進參數裡。函式改的是副本，呼叫端的變數完全不受影響。適合 int、double 這種小型別，用在大物件上會付出整份複製的成本。"}, {"front": "參數（Parameter）", "back": "函式宣告或定義中列出的接收端，例如 int deliveryFee(int count) 的 count。每個參數有自己的型別，決定如何接收呼叫端提供的值或參考。"}, {"front": "參考（Reference）", "back": "T& 是既有物件的別名，必須初始化，綁定後不能改綁；對參考取址得到被參考物件的位址。它是否占用實作上的儲存空間不由語言保證，且使用時須確保目標仍存活。"}, {"front": "傳參考（Pass by Reference）", "back": "參數寫成 T&，函式收到的是呼叫端那個變數本人，改動會直接反映到外面，而且完全不複製。"}, {"front": "傳指標（Pass by Pointer）", "back": "T* 參數本身以值傳遞，複製的是位址。f(&x) 可讓函式透過 *p 修改 x；在函式裡改 p 的指向不會改變呼叫端指標。解參考前須確認目標有效。"}, {"front": "空指標（nullptr）", "back": "nullptr 表達空指標值，代表沒有指向物件。函式若允許「未提供目標」可用它表示；解參考空指標是未定義行為，不能依賴固定的當機方式。"}, {"front": "常數參考（const Reference）", "back": "寫成 const T&，不複製也不允許函式改動內容，違反時編譯期就報 assignment of read-only reference。這是 C++ 傳遞大物件的標準做法，看到 const vector<int>& v 就是這個意思。"}, {"front": "引數（Argument）", "back": "呼叫函式時實際提供的運算式，例如 deliveryFee(3) 的 3。引數會依參數型別初始化對應的值參數或綁定參考，不能把呼叫端引數與函式內參數一律當成同一個物件。"}, {"front": "回傳參考（Return by Reference）", "back": "回傳型別寫成 T&，交出去的是那個東西本人，所以函式呼叫可以出現在等號左邊。前提是被指向的東西活得比函式久，通常是類別的成員，絕不能是區域變數。"}, {"front": "懸空指標（Dangling Pointer）", "back": "指標指向一塊已經失效的記憶體，最典型的成因就是回傳區域變數的位址。函式一 return，它的堆疊框連同區域變數一起被彈掉，交出去的位址立刻過期。"}, {"front": "未定義行為（Undefined Behavior）", "back": "標準不規定會發生什麼的操作，例如解參考懸空指標。結果不保證一致：同一支程式換個編譯器或最佳化等級，可能看似印出正確答案，也可能得到無法預測的值或異常終止，因此不能靠一次試跑證明它正確。"}, {"front": "函式多載（Function Overloading）", "back": "多個函式共用名稱，由參數型別、個數及轉換規則決定可用版本。只有回傳型別不同不能構成多載；若沒有唯一最佳版本，呼叫會有歧義。"}, {"front": "預設引數（Default Argument）", "back": "在參數列直接給參數一個預設值，呼叫時可以省略。因為呼叫端由左往右對位，有預設值的參數必須排在最後面而且一路排到底，否則編譯器直接報 default argument missing。"}, {"front": "呼叫堆疊（Call Stack）", "back": "常用來理解函式呼叫與回傳的模型：每次呼叫有自己的參數、區域狀態與返回位置。實際機器可能使用暫存器、內嵌等最佳化；可用堆疊容量依環境而異。"}, {"front": "堆疊框（Stack Frame）", "back": "一次函式呼叫在堆疊上佔的那一塊，裡面放這一次專屬的參數、區域變數，以及回去之後要從哪裡繼續執行。遞迴時每一層都有自己的框，所以各層的 n 互不干擾。"}, {"front": "基底情形（Base Case）", "back": "遞迴中小到不必再往下呼叫、可以直接給答案的情況，例如 sumTo 裡的 n <= 1。少了它，或問題沒有真的變小，遞迴就停不下來，最後可能耗盡堆疊資源。"}, {"front": "堆疊溢位（Stack Overflow）", "back": "呼叫過深可能耗盡執行環境可用的堆疊資源。C++ 不保證拋出特定例外、固定訊號或固定結束碼；遞迴需有可達的基底情形，必要時改為迴圈。"}];
+const FLASHCARDS = [{"front": "函式原型（Function Prototype）", "back": "只寫回傳型別、函式名稱與參數型別，並以分號結尾的宣告，例如 int square(int n);。一般函式需在呼叫處可見宣告；定義可放在後面或其他來源檔中。"}, {"front": "傳值（Pass by Value）", "back": "呼叫時把引數整個複製一份放進參數裡。函式改的是副本，呼叫端的變數完全不受影響。適合 int、double 這種小型別，用在大物件上會付出整份複製的成本。"}, {"front": "參數（Parameter）", "back": "函式宣告或定義中列出的接收端，例如 int deliveryFee(int count) 的 count。每個參數有自己的型別，決定如何接收呼叫端提供的值或參考。"}, {"front": "參考（Reference）", "back": "T& 是既有物件的別名，必須初始化，綁定後不能改綁；對參考取址得到被參考物件的位址。它是否占用實作上的儲存空間不由語言保證，且使用時須確保目標仍存活。"}, {"front": "傳參考（Pass by Reference）", "back": "參數寫成 T&，函式收到的是呼叫端那個變數本人，改動會直接反映到外面，而且完全不複製。"}, {"front": "傳指標（Pass by Pointer）", "back": "T* 參數本身以值傳遞，複製的是位址。f(&x) 可讓函式透過 *p 修改 x；在函式裡改 p 的指向不會改變呼叫端指標。解參考前須確認目標有效。"}, {"front": "空指標（nullptr）", "back": "nullptr 表達空指標值，代表沒有指向物件。函式若允許「未提供目標」可用它表示；解參考空指標是未定義行為，不能依賴固定的當機方式。"}, {"front": "常數參考（const Reference）", "back": "寫成 const T&，不複製所參考的物件，也不能透過這個參考修改它。嘗試賦值會造成編譯錯誤，診斷文字依編譯器而異。const vector<int>& v 就是以唯讀參考接收整個 vector。"}, {"front": "引數（Argument）", "back": "呼叫函式時實際提供的運算式，例如 deliveryFee(3) 的 3。引數會依參數型別初始化對應的值參數或綁定參考，不能把呼叫端引數與函式內參數一律當成同一個物件。"}, {"front": "回傳參考（Return by Reference）", "back": "回傳型別寫成 T&，回傳既有物件的別名，因此可透過非 const 參考修改原物件。目標必須活到呼叫端使用完畢；回傳一般區域變數的參考會在離開函式後懸空，透過它讀寫是未定義行為。"}, {"front": "懸空指標（Dangling Pointer）", "back": "所指物件生命週期已結束的指標，例如回傳一般區域變數的位址。離開函式後，該區域變數已不存在，即使原位址看似仍有數值，也不能再透過指標讀寫它。"}, {"front": "未定義行為（Undefined Behavior）", "back": "標準不規定會發生什麼的操作，例如解參考懸空指標。結果不保證一致：同一支程式換個編譯器或最佳化等級，可能看似印出正確答案，也可能得到無法預測的值或異常終止，因此不能靠一次試跑證明它正確。"}, {"front": "函式多載（Function Overloading）", "back": "多個函式共用名稱，由參數型別、個數及轉換規則決定可用版本。只有回傳型別不同不能構成多載；若沒有唯一最佳版本，呼叫會有歧義。"}, {"front": "預設引數（Default Argument）", "back": "在參數宣告中提供預設值，呼叫時可省略對應引數。一般函式中，從第一個有預設值的參數起，後續參數也須已有預設值；違反會造成編譯錯誤，診斷文字依編譯器而異。"}, {"front": "呼叫堆疊（Call Stack）", "back": "常用來理解函式呼叫與回傳的模型：每次呼叫有自己的參數、區域狀態與返回位置。實際機器可能使用暫存器、內嵌等最佳化；可用堆疊容量依環境而異。"}, {"front": "堆疊框（Stack Frame）", "back": "一次函式呼叫在堆疊上佔的那一塊，裡面放這一次專屬的參數、區域變數，以及回去之後要從哪裡繼續執行。遞迴時每一層都有自己的框，所以各層的 n 互不干擾。"}, {"front": "基底情形（Base Case）", "back": "遞迴中小到不必再往下呼叫、可以直接給答案的情況，例如 sumTo 裡的 n <= 1。少了它，或問題沒有真的變小，遞迴就停不下來，最後可能耗盡堆疊資源。"}, {"front": "堆疊溢位（Stack Overflow）", "back": "呼叫過深可能耗盡執行環境可用的堆疊資源。C++ 不保證拋出特定例外、固定訊號或固定結束碼；遞迴需有可達的基底情形，必要時改為迴圈。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

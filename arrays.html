@@ -64,6 +64,7 @@ strong{color:var(--ink);}
 /* Viz layout */
 .viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+.viz-layout > *{min-width:0;}
 
 .viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
 
@@ -758,23 +759,24 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </div>
 <div class="deck-extra">
   <div class="dx-label">講義 03 · 練習：用平面索引找 student[5][3]</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line">    <span class="kw">int</span> student[<span class="num">100</span>][<span class="num">4</span>];</span>
-<span class="line">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">100</span>; i++)</span>
-<span class="line">        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; <span class="num">4</span>; j++) student[i][j] = i * <span class="num">4</span> + j;</span>
-<span class="line">    <span class="kw">int</span>* s = &amp;student[<span class="num">0</span>][<span class="num">0</span>];   <span class="com">// 把二維陣列當一維看</span>
-<span class="line"></span>    <span class="com">// 把 ? 換成你的答案</span>
-<span class="line"></span>    assert(student[<span class="num">5</span>][<span class="num">3</span>] == s[?]);</span>
-<span class="line">    cout &lt;&lt; <span class="str">"</span><span class="str">Pass</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line">}</span>
-<span class="line"> </span></div>
-  <div class="expected-out"><span class="eo-tag">填對之後的輸出</span><pre>Pass</pre></div>
-  <p class="dx-note">row-major 公式 i*Cols + j = 5×4 + 3 = <strong>23</strong>。assert 是驗收利器：條件為假直接中止程式，考自己最誠實。</p>
+  <pre class="pseudo-code" data-cpp="run" data-expected="Pass">#include &lt;cassert&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    int student[100][4];
+    int flat[400];
+    for (int i = 0; i &lt; 100; ++i) {
+        for (int j = 0; j &lt; 4; ++j) {
+            student[i][j] = i * 4 + j;
+            flat[i * 4 + j] = student[i][j];
+        }
+    }
+    // 列索引 5、行索引 3 的平面索引：5 * 4 + 3
+    assert(student[5][3] == flat[23]);
+    std::cout &lt;&lt; &quot;Pass\n&quot;;
+}</pre>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Pass</pre></div>
+  <p class="dx-note">先自己計算索引，再對照程式：row-major 公式 i*Cols + j = 5×4 + 3 = <strong>23</strong>。這裡把資料明確複製到一維陣列 flat；不能拿指向 student 第一列的 int* 跨越該列存取其他列，否則是未定義行為。<code>assert(條件)</code> 來自 <code>&lt;cassert&gt;</code>，啟用斷言時，條件為假會輸出診斷並終止程式，不會拋出可由 catch 接住的 C++ 例外；定義 NDEBUG 時斷言會被停用。</p>
 </div>
 </section>
 
@@ -784,6 +786,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>推薦系統的「使用者×商品」矩陣 99.9% 是 0：整片存起來是浪費。
   <strong>COO</strong>（座標表：三條平行陣列 row/col/val）適合建構與批次運算；
   <strong>DOK</strong>（dictionary of keys：map 以 (r,c) 當 key）適合隨機讀寫。</p>
+  <p>讀程式前先認識符號：<code>size_t</code> 是表示大小與索引的無號整數型別；<code>pair</code> 把列、行組成一個鍵；<code>auto it</code> 讓編譯器推導查詢結果的迭代器型別。<code>it-&gt;second</code> 取得鍵值配對中的值；<code>條件 ? A : B</code> 在條件成立時取 A，否則取 B。<code>operator()</code> 讓物件可以寫成 <code>m(i,j)</code>；尾端的 <code>const</code> 表示不修改物件，回傳型別的 <code>&amp;</code> 則讓呼叫結果可以被指定新值。詳見 <a href="p6_map_set.html#mapbasic">P6 鍵值配對</a>與<a href="p6_map_set.html#iterator">迭代器</a>。</p>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
@@ -1271,7 +1274,7 @@ function spClear() { spData = {}; spRender(); }
 spRender();
 </script>
 <script>
-const FLASHCARDS = [{"front": "陣列（Array）", "back": "由一群元素組成、每個元素以索引（或鍵）識別的資料結構。陣列儲存同型別的元素，並配置在連續的記憶體區塊上。"}, {"front": "記憶體區段錯誤（Segmentation Fault）", "back": "程式存取到不被允許的記憶體時發生的錯誤，常導致程式當掉。常見原因之一是陣列索引越界。"}, {"front": "參考式陣列（Referential Array）", "back": "格子裡放的是物件的參考（指標）而不是物件本身的陣列。這讓陣列也能組出鏈結串列、樹這類更彈性的結構。"}, {"front": "緊湊陣列（Compact Array）", "back": "記憶體額外負擔最小的陣列：資料緊密存放、不經過指標間接層，大小恰好足以容納內容。"}, {"front": "多維陣列（Multidimensional Array）", "back": "元素本身也是陣列的陣列：資料以格狀（矩陣）組織，用多個索引存取，例如二維陣列的列與行。"}, {"front": "行優先（Column Major）", "back": "多維陣列在記憶體中「一行接一行」存放的方式，與列優先相反；會影響走訪與運算的效率最佳化方向。"}, {"front": "列優先（Row Major）", "back": "多維陣列在記憶體中「一列接一列」存放的方式。C++ 原生二維陣列採用此法，影響各種操作（尤其快取友善度）的效率。"}, {"front": "稀疏矩陣（Sparse Matrix）", "back": "絕大多數元素是零的矩陣。只儲存非零元素的資料結構能大幅節省空間與計算資源。"}, {"front": "座標格式（Coordinate Format, COO）", "back": "用三條清單（列、行、值）儲存稀疏矩陣的方式：每一組 (row, col, value) 描述一個非零元素及其位置。"}, {"front": "鍵值字典矩陣（Dictionary of Keys, DOK）", "back": "用鍵值對映容器（std::map 為平衡二元搜尋樹、std::unordered_map 為雜湊表）表示稀疏矩陣：以 (row, col) 配對當鍵、元素值當值。"}, {"front": "線性串列稀疏矩陣（Sparse Matrix as Linear List）", "back": "把非零元素串成一條線性串列（可依列、行索引排序）的稀疏矩陣表示法：對某些操作有利，但隨機存取比其他表示法慢。"}];
+const FLASHCARDS = [{"front": "陣列（Array）", "back": "由一群元素組成、每個元素以索引（或鍵）識別的資料結構。陣列儲存同型別的元素，並配置在連續的記憶體區塊上。"}, {"front": "記憶體區段錯誤（Segmentation Fault）", "back": "執行環境偵測到非法記憶體存取時可能回報的錯誤，常使程式終止。原生陣列越界可能觸發它，但越界是未定義行為，也可能沒有任何訊息；不能靠沒有當機判斷索引合法。"}, {"front": "參考式陣列（Referential Array）", "back": "格子裡放的是物件的參考（指標）而不是物件本身的陣列。這讓陣列也能組出鏈結串列、樹這類更彈性的結構。"}, {"front": "緊湊陣列（Compact Array）", "back": "記憶體額外負擔最小的陣列：資料緊密存放、不經過指標間接層，大小恰好足以容納內容。"}, {"front": "多維陣列（Multidimensional Array）", "back": "元素本身也是陣列的陣列：資料以格狀（矩陣）組織，用多個索引存取，例如二維陣列的列與行。"}, {"front": "行優先（Column Major）", "back": "多維陣列在記憶體中「一行接一行」存放的方式，與列優先相反；會影響走訪與運算的效率最佳化方向。"}, {"front": "列優先（Row Major）", "back": "多維陣列在記憶體中「一列接一列」存放的方式。C++ 原生二維陣列採用此法，影響各種操作（尤其快取友善度）的效率。"}, {"front": "稀疏矩陣（Sparse Matrix）", "back": "絕大多數元素是零的矩陣。只儲存非零元素的資料結構能大幅節省空間與計算資源。"}, {"front": "座標格式（Coordinate Format, COO）", "back": "用三條清單（列、行、值）儲存稀疏矩陣的方式：每一組 (row, col, value) 描述一個非零元素及其位置。"}, {"front": "鍵值字典矩陣（Dictionary of Keys, DOK）", "back": "用鍵值對映容器（std::map 為平衡二元搜尋樹、std::unordered_map 為雜湊表）表示稀疏矩陣：以 (row, col) 配對當鍵、元素值當值。"}, {"front": "線性串列稀疏矩陣（Sparse Matrix as Linear List）", "back": "把非零元素串成一條線性串列（可依列、行索引排序）的稀疏矩陣表示法：對某些操作有利，但隨機存取比其他表示法慢。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

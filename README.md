@@ -61,6 +61,8 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 
 ## 維護
 
+最近的全站修正：[三類錯誤、繁體用字與語法銜接](docs/error-teaching-review-20260913.md)，包含程式實跑與桌面／手機驗證紀錄。
+
 | 腳本 | 用途 |
 |------|------|
 | `tools/apply_zh.py` | 從 `data/` 重生詞彙卡與題庫自測區（冪等）；`--pages p1,p2` 限定頁面，省略則全站 |

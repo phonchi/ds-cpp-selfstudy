@@ -615,6 +615,7 @@ push_back 之後 v.size() = 6</pre></div>
 <section id="create">
   <div class="section-number">PART 01 · 建立與存取</div>
   <h2>四種建法，兩種存取</h2>
+  <p><code>vector&lt;int&gt;</code> 的尖括號指定元素型別，表示「裝整數的 vector」；<code>v.size()</code> 的點號表示呼叫 v 提供的成員函式。這裡先使用標準函式庫已寫好的型別，P8 再學自己定義類別，P9 再學模板。</p>
   <p><code>vector</code> 要先 <code>#include &lt;vector&gt;</code>。建立的四種寫法對應四種情境：</p>
 
   <div class="cmp-table-wrap">
@@ -662,7 +663,7 @@ push_back 之後 v.size() = 6</pre></div>
 c[1]    = 17      &lt;- 不檢查範圍，快
 c.at(1) = 17      &lt;- 檢查範圍
 c.at(5) 丟出 out_of_range：vector::_M_range_check: __n (which is 5) &gt;= this-&gt;size() (which is 3)</pre></div>
-  <p class="dx-note"><code>at(5)</code> 在只有 3 個元素的 vector 上會丟出 <code>out_of_range</code>，訊息裡連 5 和 3 都寫出來了，非常好 debug。換成 <code>c[5]</code> 就<strong>什麼檢查都不做</strong>：讀到隔壁那塊記憶體，印出一個看起來像亂數的值，或者直接當掉，而且當掉的位置常常離出錯的那一行很遠。</p>
+  <p class="dx-note"><code>at(5)</code> 在只有 3 個元素的 vector 上會丟出 <code>out_of_range</code> 例外，表示索引超出有效範圍；本次診斷包含索引與大小，其他標準函式庫的訊息格式可能不同。<code>c[5]</code> 則違反 <code>[]</code> 的有效索引前提，屬於<strong>未定義行為</strong>：可能出現錯值、崩潰或看似正常，沒有可依賴的固定輸出。</p>
 </div>
 
 <div class="deck-extra">
@@ -692,7 +693,7 @@ terminate called after throwing an instance of &#x27;std::out_of_range&#x27;
   </div>
 
   <h3 style="margin-top:1.6rem;"><code>Type 變數(引數);</code>：宣告變數與呼叫建構式，同一行發生</h3>
-  <p>取出測量資料的一段時，可以寫 <code>vector&lt;int&gt; left(aList.begin(), aList.begin() + midpoint);</code>。這一行宣告 left，同時把一對區間位置交給建構式。這稱為直接初始化，以下仍逐項拆開型別、名稱與引數。</p>
+  <p><code>begin()</code> 回傳指向第一個元素的迭代器，也就是可用來走訪容器的位置；空容器的 begin() 等於 end()，沒有元素可取。<code>end()</code> 是最後一個元素之後的位置，不能取值。對 vector，<code>begin() + k</code> 表示往後 k 格；一對位置代表含起點、不含終點的區間。取出測量資料的一段時，可以寫 <code>vector&lt;int&gt; left(aList.begin(), aList.begin() + midpoint);</code>。這一行宣告 left，同時把一對區間位置交給建構式。這稱為直接初始化，以下仍逐項拆開型別、名稱與引數。</p>
 
   <div class="cmp-table-wrap">
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
@@ -759,7 +760,7 @@ s=hello  t.size()=2</pre></div>
 
   <div class="warn-box">
     <div class="info-label">⚠️ 小括號與大括號不是同一件事</div>
-    <p style="margin-bottom:0;"><code>vector&lt;int&gt; a(3);</code> 是「<strong>3 個元素</strong>，各是 0」；<code>vector&lt;int&gt; b{3};</code> 卻是「<strong>1 個元素</strong>，值是 3」——大括號會優先配對 <code>initializer_list</code> 建構式。計數用小括號、列出元素用大括號，可讓意圖更清楚。</p>
+    <p style="margin-bottom:0;"><code>vector&lt;int&gt; a(3);</code> 是「<strong>3 個元素</strong>，各是 0」；<code>vector&lt;int&gt; b{3};</code> 卻是「<strong>1 個元素</strong>，值是 3」——大括號會優先配對 <code>initializer_list</code> 建構式，也就是接受「一串元素初值」的版本。計數用小括號、列出元素用大括號，可讓意圖更清楚。</p>
   </div>
 
   <p>為什麼初學會覺得亂？因為 C 和 Python 都沒有把「宣告」跟「建構」黏在同一行的寫法：</p>

@@ -59,6 +59,8 @@ code{background:#f0ebe0;padding:1px 6px;border-radius:4px;font-family:'JetBrains
 /* Viz layout */
 .viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+.viz-layout > *{min-width:0;}
+.table-scroll{max-width:100%;overflow-x:auto;}
 
 .viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
 
@@ -852,11 +854,11 @@ hello</pre></div>
 
   <div class="info-box warm">
     <span class="info-label">小實驗：對解析樹 (3+(4*5)) 做三種走訪</span>
-    <table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.86rem;margin-top:.4rem;">
+    <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.86rem;margin-top:.4rem;">
       <tr><td style="padding:.3rem;width:35%;"><strong>Preorder</strong></td><td>+ 3 * 4 5</td><td style="color:var(--muted);">前綴表達式</td></tr>
       <tr style="background:#fef0e7;"><td style="padding:.3rem;"><strong>Inorder</strong></td><td>3 + 4 * 5</td><td style="color:var(--muted);">中序（沒括號會失精度）</td></tr>
       <tr><td style="padding:.3rem;"><strong>Postorder</strong></td><td>3 4 5 * +</td><td style="color:var(--muted);">後綴表達式</td></tr>
-    </table>
+    </table></div>
     這也說明了為什麼<strong>後綴表達式（RPN）</strong>能用 stack 直接計算：postorder 的順序就是「邊計算邊累積」的最佳順序。
   </div>
 </section>
@@ -1369,14 +1371,14 @@ brown dog fox jumps lazy over quick the </pre></div>
     <div class="side-panel">
       <div class="info-card">
         <div class="ic-title">複雜度對照</div>
-        <table class="cmp-table" style="font-size:.78rem;">
+        <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table" style="font-size:.78rem;">
           <thead><tr><th>操作</th><th>平均</th><th>最差</th></tr></thead>
           <tbody>
             <tr><td>put</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
             <tr><td>get</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
             <tr><td>del</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </div>
       <div class="info-card">
         <div class="ic-title">應用：Tree Sort</div>
@@ -1471,6 +1473,7 @@ brown dog fox jumps lazy over quick the </pre></div>
   一發現 |bf| &gt; 1 就地 <code>rebalance()</code>。旋轉最多兩次、每次 O(1)，
   往上修正最多走 log n 層，所以 <strong>put 整體仍是 O(log n)</strong>。
   上面的動畫可以對照著看：四個按鈕（LL/RR/LR/RL）正是 rebalance 的四個分支。刪除後的重平衡，講義留作練習。</p>
+  <p>這段的 <code>TreeNode*&amp; slot</code> 是「指標的參考」，修改 slot 會一起改到呼叫端保存的指標；<code>auto*</code> 讓編譯器推導指向的型別。<code>static_cast&lt;AVLTreeNode*&gt;(slot)</code> 把基底類別指標轉成衍生類別指標，前提是本樹的節點確實都由 AVLTreeNode 建立；它不會在執行時檢查型別，不能拿來轉換任意 TreeNode。<code>override</code> 要求編譯器確認此函式覆寫基底類別的 virtual 函式。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.8rem;">
     <div class="info-card"><div class="ic-title">insertOrAssign() 的差異 ＋ updateBalance <span class="ic-badge">CODE</span></div>
       <div class="pseudo-code" style="font-size:.72rem;">
@@ -1562,7 +1565,7 @@ brown dog fox jumps lazy over quick the </pre></div>
   <h2>Map ADT 四種實作的對照表 <span class="sec-badge">cppds §8.18</span></h2>
   <p>過去兩章我們學了四種實作 map ADT 的方式。下表整理 worst-case 複雜度；注意 hash table 的 $O(1)$ 是<strong>平均</strong>，最差情況（全部碰撞）會退化到 $O(n)$。</p>
 
-  <table class="cmp-table">
+  <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead>
       <tr>
         <th>operation</th>
@@ -1609,7 +1612,7 @@ brown dog fox jumps lazy over quick the </pre></div>
         <td class="best">$O(n)$</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="info-box">
     <span class="info-label">什麼時候選什麼？</span>

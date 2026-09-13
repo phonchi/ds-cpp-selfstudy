@@ -136,9 +136,9 @@ cout << my_name << endl;
 int my_arr[] = {2, 1, 4};       // 原生陣列：大小永遠固定 3
 my_arr[1] = 99;
 cout << my_arr[1] << endl;
-cout << my_arr[3] << endl;       // 危險！沒有界限檢查，讀到垃圾值""",
-"1024 3 6 \\nXavid\\n99\\n32764   ← 未定義行為：每次執行都可能不同",
-note="最後一行是<strong>未定義行為</strong>（undefined behavior）：編譯過、跑得動、答案是垃圾。原生陣列不做界限檢查，這就是課程偏好 vector（配 .at()）的原因。")}
+// 錯誤反例（不要取消註解）：cout << my_arr[3] << endl; // 索引越界，未定義行為""",
+"1024 3 6 \\nXavid\\n99",
+note="最後一行以註解保留錯誤反例；若取消註解，my_arr[3] 會越界，整支程式的行為就不再有標準保證。原生陣列的有效索引是 0、1、2；vector 的 at() 會檢查範圍。")}
 {card("講義 01 · set：去重、查成員、集合運算", """#include <iostream>
 #include <set>
 #include <algorithm>

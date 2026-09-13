@@ -478,7 +478,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#io" data-target="io"><span class="fn-num">P04</span><span class="fn-name">輸入輸出</span></a>
   <a href="#operators" data-target="operators"><span class="fn-num">P05</span><span class="fn-name">運算子</span></a>
   <a href="#convert" data-target="convert"><span class="fn-num">P06</span><span class="fn-name">型別轉換</span></a>
-  <a href="#errors" data-target="errors"><span class="fn-num">P07</span><span class="fn-name">讀懂編譯錯誤</span></a>
+  <a href="#errors" data-target="errors"><span class="fn-num">P07</span><span class="fn-name">三類錯誤與診斷</span></a>
   <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">隨堂練習</span></a>
   <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">速查表</span></a>
   <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測</span></a>
@@ -528,7 +528,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#io"><span class="toc-num">P04</span>輸入輸出</a>
     <a href="#operators"><span class="toc-num">P05</span>運算子與整數除法</a>
     <a href="#convert"><span class="toc-num">P06</span>型別轉換與溢位</a>
-    <a href="#errors"><span class="toc-num">P07</span>讀懂 g++ 的錯誤訊息</a>
+    <a href="#errors"><span class="toc-num">P07</span>三類錯誤與 g++ 診斷</a>
     <a href="#exercises"><span class="toc-num">EX</span>隨堂練習</a>
     <a href="#reference"><span class="toc-num">REF</span>速查表</a>
     <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測</a>
@@ -691,7 +691,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <div class="deck-extra">
   <div class="dx-label">引用同一資料夾內的自訂標頭</div>
-  <p>先將以下內容另存為 <code>greeting.hpp</code>。這裡定義一個回傳固定文字的小函式；目前只需觀察自訂標頭如何被引入，函式語法會在 P3 展開。</p><div class="pseudo-code">#pragma once
+  <p>先將以下內容另存為 <code>greeting.hpp</code>。<code>std::string</code> 是標準函式庫的字串型別；<code>greeting()</code> 是不接收引數的函式，<code>return</code> 把文字交給呼叫它的程式。函式的宣告與呼叫會在 <a href="p3_functions.html#declare">P3</a> 展開。</p>
+  <p><code>#pragma</code> 是向編譯器傳達特定指示的前處理指令；<code>#pragma once</code> 告訴支援它的編譯器：處理同一個 <code>.cpp</code> 及其引入內容時，這份標頭只展開一次，避免重複定義。它不是函式，不加分號，也不是所有 C++ 編譯器都必須支援的標準指令；本教材使用的 g++ 支援它。標準寫法 <code>#ifndef</code>／<code>#define</code>／<code>#endif</code> 的標頭防護見 <a href="p8_oop_basics.html#header">P8 多檔程式</a>。</p>
+  <p><code>inline</code> 在這裡讓同一份函式定義可經標頭出現在不同 <code>.cpp</code> 中，只要各處符合相同定義等規則，就不會因為這樣違反單一定義規則；它不保證執行速度更快。<code>#pragma once</code> 處理單一編譯單元內的重複引入，<code>inline</code> 處理跨編譯單元的定義問題，兩者用途不同。</p><div class="pseudo-code">#pragma once
 #include &lt;string&gt;
 inline std::string greeting() { return &quot;Hello from a local header!&quot;; }</div><div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">"greeting.hpp"</span><span class="kw"></span>
@@ -765,6 +767,7 @@ char   c = A     sizeof = 1 bytes
 bool   b = 1     sizeof = 1 bytes
 string s = David sizeof = 32 bytes (物件本身大小)
 boolalpha 之後 b = true</pre></div>
+  <p><code>boolalpha</code> 是輸出格式設定：寫入 <code>cout</code> 後，布林值會顯示成 <code>true</code>／<code>false</code>，而不是 1／0；用 <code>noboolalpha</code> 可切回。它不會改變變數本身的值。</p>
   <p class="dx-note">sizeof(s) 計算 string 物件本身占用的位元組數，s.size() 計算字串中的字元數。物件大小與字元儲存方式由標準函式庫實作決定；短字串可直接存在物件內，較長的字串可另行配置空間。</p>
 </div>
 
@@ -834,6 +837,7 @@ boolalpha 之後 b = true</pre></div>
 <section id="io">
   <div class="section-number">PART 04 · 輸入輸出</div>
   <h2><code>cout &lt;&lt;</code> 與 <code>cin &gt;&gt;</code>：箭頭指著資料流的方向</h2>
+  <p>輸出格式也能設定：引入 <code>&lt;iomanip&gt;</code> 後，<code>cout &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; 3.5;</code> 會顯示 <code>3.50</code>。<code>fixed</code> 選用固定小數格式；此時 <code>setprecision(2)</code> 表示小數點後兩位。未搭配 <code>fixed</code> 的一般浮點格式，precision 控制的是有效數字位數。這些設定影響顯示，不改變儲存的數值。</p>
   <p>記法很直觀：<code>cout &lt;&lt; x</code> 是把 <code>x</code> 推<strong>進</strong>輸出串流，<code>cin &gt;&gt; x</code> 是把輸入串流的東西倒<strong>出來</strong>放進 <code>x</code>。箭頭指哪邊，資料就往哪邊跑。</p>
 
 <div class="deck-extra">
@@ -1204,7 +1208,7 @@ static_cast&lt;int&gt;(3.99)      = 3   &lt;- 轉 int 是截斷，不是四捨�
 
   <div class="info-box">
     <div class="info-label">💡 一個口訣</div>
-    <p style="margin-bottom:0;">要浮點的答案，<strong>轉型要放在除號的左邊、括號的裡面</strong>：<code class="mono">static_cast&lt;double&gt;(a) / b</code>。放錯位置的 <code class="mono">static_cast&lt;double&gt;(a / b)</code> 編得過、跑得動、答案錯，而且錯得很安靜。</p>
+    <p style="margin-bottom:0;">要浮點的答案，<strong>先轉型其中一個運算元，再做除法</strong>：<code class="mono">static_cast&lt;double&gt;(a) / b</code>。放錯位置的 <code class="mono">static_cast&lt;double&gt;(a / b)</code> 編得過、跑得動、答案錯，而且錯得很安靜。</p>
   </div>
 
   <div class="info-box">
@@ -1255,8 +1259,19 @@ unsigned 0 - 1 = 4294967295
 </section>
 
 <section id="errors">
-  <div class="section-number">PART 07 · 讀懂編譯錯誤</div>
-  <h2>g++ 的診斷訊息有常見格式，先看懂開頭幾行</h2>
+  <div class="section-number">PART 07 · 認識三類錯誤與診斷</div>
+  <h2>語法錯誤、語意／邏輯錯誤、執行期錯誤</h2>
+  <p>程式出問題時，先問：是編譯不過、答案不符原意，還是執行到某個操作才出問題？這三類錯誤的找法不同，不能只靠「有沒有印出錯誤訊息」判斷。</p>
+  <div class="table-scroll" tabindex="0" aria-label="三類錯誤比較，可左右捲動"><table class="cmp-table">
+    <thead><tr><th>類別</th><th>發生什麼事</th><th>例子與檢查方式</th></tr></thead>
+    <tbody>
+      <tr><td>語法錯誤（syntax error）</td><td>不符合 C++ 文法，編譯器無法接受。</td><td>漏寫分號或括號。從第一個診斷位置及前一行查起，修正後重新編譯。</td></tr>
+      <tr><td>語意／邏輯錯誤（logic error）</td><td>程式合法，也能執行，但計算或條件不符合原意。</td><td>想求小數平均，卻先做整數除法。用手算答案與測試輸入逐步比對。</td></tr>
+      <tr><td>執行期錯誤（runtime error）</td><td>執行到某個操作時才出問題；是否有訊息，要看操作與環境。</td><td>整數除以零、越界存取。追查當時的輸入、除數與索引；有些操作會拋例外，有些是未定義行為。</td></tr>
+    </tbody>
+  </table></div>
+  <p>這裡用「語意／邏輯錯誤」指<strong>寫出的意思不符合原意</strong>。編譯器理論中的「語意錯誤」也包括型別不合、名稱未宣告等編譯期問題，所以<strong>編譯失敗不一定是語法錯誤</strong>。另外，找不到函式定義屬於連結錯誤；下面會分別示範。</p>
+  <h3>先看語法錯誤：讀懂 g++ 的診斷</h3>
   <p>g++ 的訊息通常會列出檔名、行號、欄號與診斷內容。先修正第一個 <code>error:</code>，接著重新編譯，再檢查其餘訊息；後面的診斷有些會隨第一個錯誤一起消失，也可能仍有需要處理的獨立問題。</p>
 
 <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1">main.cpp: In function '<span class="kw">int</span> main()':</span>
@@ -1277,7 +1292,7 @@ unsigned 0 - 1 = 4294967295
   </table></div>
   </div>
 
-  <p>下面保留四類常見錯誤與對應程式，診斷的詳細措辭可能依 g++ 版本而不同。</p>
+  <p>下面保留四種編譯／連結問題與對應程式，診斷的詳細措辭可能依 g++ 版本而不同。</p>
 
 <div class="deck-extra">
   <div class="dx-label">① 漏了分號</div>
@@ -1294,7 +1309,7 @@ unsigned 0 - 1 = 4294967295
 cell.cpp: In function ‘int main()’:
 cell.cpp:6:5: error: expected ‘,’ or ‘;’ before ‘cout’
     6 |     cout &lt;&lt; x &lt;&lt; endl;</pre></div>
-  <p class="dx-note">注意它指向<strong>第 6 行</strong>，但本例漏掉的分號在<strong>第 5 行</strong>。編譯器到讀見下一個不合語法的 token 才能確定問題，因此診斷位置可能晚於真正原因。看到 <code>expected ';'</code> 時，可先檢查該位置及前一個敘述的結尾。</p>
+  <p class="dx-note">注意它指向<strong>第 6 行</strong>，但本例漏掉的分號在<strong>第 5 行</strong>。編譯器到讀見下一個不合文法的詞法單元（token，例如名稱、數字或符號）才確定問題，因此診斷位置可能晚於真正原因。看到 <code>expected ';'</code> 時，可先檢查該位置及前一個敘述的結尾。</p>
 </div>
 
 <div class="deck-extra">
@@ -1314,7 +1329,7 @@ cell.cpp:6:5: error: expected ‘,’ or ‘;’ before ‘cout’
 cell.cpp: In function ‘int main()’:
 cell.cpp:7:13: error: cannot convert ‘std::string’ {aka ‘std::__cxx11::basic_string&lt;char&gt;’} to ‘int’ in initialization
     7 |     int n = name;</pre></div>
-  <p class="dx-note"><code>cannot convert A to B</code> 是最好讀的一類：它明講了「有一個 A，但這裡要的是 B」。中間那串 <code>std::__cxx11::basic_string&lt;char&gt;</code> 是 <code>string</code> 的完整名字，看到 <code>aka</code> 後面才是人話。這一類錯誤在你開始用 <code>template &lt;typename T&gt;</code> 之後會變得又臭又長，訣竅一樣：<strong>只讀 cannot convert 那一句</strong>。</p>
+  <p class="dx-note"><code>cannot convert A to B</code> 表示「這裡需要 B 型別，卻給了不能自動轉成 B 的 A」。本例的 <code>name</code> 是字串，不能直接拿來初始化整數；若要文字就改用 <code>string n = name;</code>，若要數字就提供整數。<code>aka</code> 是「又稱」，後面的 <code>basic_string&lt;char&gt;</code> 是診斷中展開的型別名稱，目前先認出它對應 <code>string</code> 即可。這是型別檢查失敗，不是漏分號那種文法問題。</p>
 </div>
 
 <div class="deck-extra">
@@ -1333,7 +1348,7 @@ cell.cpp:7:13: error: cannot convert ‘std::string’ {aka ‘std::__cxx11::bas
 cell.cpp: In function ‘int main()’:
 cell.cpp:6:21: error: ‘conut’ was not declared in this scope; did you mean ‘const’?
     6 |     total = total + conut;</pre></div>
-  <p class="dx-note"><code>was not declared in this scope</code> 只有三種可能：<strong>打錯字</strong>（這裡是 <code>conut</code>）、<strong>忘了宣告</strong>、<strong>忘了 <code>#include</code></strong>。g++ 甚至會猜你想打什麼（<code>did you mean</code>），雖然這次猜錯了。如果訊息裡的名字是 <code>cout</code> 或 <code>sqrt</code> 這種標準函式庫的東西，那就是第三種。</p>
+  <p class="dx-note"><code>was not declared in this scope</code> 表示目前位置找不到這個名稱的宣告。常見原因是拼錯、尚未宣告、宣告只在另一個區塊內可見、缺少標頭，或漏寫 <code>std::</code>。本例沒有宣告 <code>conut</code>；若原意是累加計數，應先宣告並初始化 <code>int count = 3;</code>，再使用 <code>total = total + count;</code>。<code>did you mean</code> 只是編譯器的猜測，不一定正確。</p>
 </div>
 
   <p>還有一類長得完全不一樣，因為它發生在<strong>連結</strong>階段而不是編譯階段：</p>
@@ -1354,7 +1369,7 @@ cell.cpp:6:21: error: ‘conut’ was not declared in this scope; did you mean �
 /usr/bin/ld: main.o: in function `main&#x27;:
 main.cpp:(.text+0x13): undefined reference to `addUp(int, int)&#x27;
 collect2: error: ld returned 1 exit status</pre></div>
-  <p class="dx-note">認得出來的兩個特徵：開頭是 <code class='mono'>/usr/bin/ld:</code>（ld 是連結器），而且<strong>沒有指到你的哪一行</strong>。<code>undefined reference to</code> 的意思是「我知道有這個函式，但找不到它的身體」。常見原因是宣告了忘記實作、函式簽章打錯字，或多檔案專案只編了一個 <code>.cpp</code>。</p>
+  <p class="dx-note">認得出來的兩個特徵：開頭是 <code class='mono'>/usr/bin/ld:</code>（ld 是連結器），本次訊息<strong>列出函式與目的碼位置</strong>（其他環境也可能附原始碼行號）。<code>undefined reference to</code> 的意思是「我知道有這個函式，但找不到它的身體」。常見原因是宣告了忘記實作、函式簽章打錯字，或多檔案專案只編了一個 <code>.cpp</code>。</p>
 </div>
 
   <div class="cmp-table-wrap">
@@ -1381,8 +1396,55 @@ collect2: error: ld returned 1 exit status</pre></div>
 
 
 
+
+  <h3 id="logic-errors">語意／邏輯錯誤：能編譯，答案卻不符原意</h3>
+  <p>目標是算出 7 除以 2 的小數結果。下面兩行都合法，但第一行先做整數除法得到 3，才存成 <code>double</code>；第二行先把 <code>a</code> 轉成 <code>double</code>，才得到 3.5。<code>static_cast&lt;double&gt;(a)</code> 的寫法表示明確轉型，詳見上一節。</p>
+<pre class="sq-code" data-cpp="run" id="logic-error-comparison" data-expected="3
+3.5&#10;">#include &lt;iostream&gt;
+int main() {
+    int a = 7, b = 2;
+    double wrong = a / b;
+    double right = static_cast&lt;double&gt;(a) / b;
+    std::cout &lt;&lt; wrong &lt;&lt; &quot;\n&quot; &lt;&lt; right &lt;&lt; &quot;\n&quot;;
+}
+</pre>
+  <div class="expected-out"><span class="eo-tag">執行輸出：第一行不符合題目要求，第二行才正確</span><pre>3
+3.5</pre></div>
+  <p>這裡沒有當機，也不需要例外處理。排查方法是先手算答案，再檢查運算順序、型別與條件；<code>double</code> 變數不會補回已被整數除法捨去的小數。</p>
+  <h3 id="runtime-errors">執行期錯誤：除以零與越界</h3>
+  <p>在 C++17 中，整數 <code>12 / 0</code> 與 <code>12 % 0</code> 都是<strong>未定義行為</strong>，不是自動拋出的 C++ 例外。未定義行為表示標準不再保證結果；可能終止、產生異常結果，也可能看似正常。不能靠一次試跑，或包上 <code>try/catch</code>，讓這個操作變合法。浮點數的除法規則不同，這裡的例子限定整數。</p>
+  <p>錯誤寫法是先算 <code>total / count</code> 才檢查 <code>count</code>。正確順序是<strong>先確認除數不為零，再執行除法</strong>：</p>
+<pre class="sq-code" data-cpp="run" id="division-guard" data-expected="Cannot divide by zero&#10;">#include &lt;iostream&gt;
+int main() {
+    int total = 12, count = 0;
+    if (count == 0) {
+        std::cout &lt;&lt; &quot;Cannot divide by zero\n&quot;;
+        return 0;
+    }
+    std::cout &lt;&lt; total / count &lt;&lt; &quot;\n&quot;;
+}
+</pre>
+  <div class="expected-out"><span class="eo-tag">執行輸出</span><pre>Cannot divide by zero</pre></div>
+  <p><code>if (條件)</code> 只在條件為真時執行大括號內的程式；<code>==</code> 比較是否相等。這裡的 <code>return 0;</code> 結束 <code>main</code>，因此不會再執行後面的除法。把 <code>count</code> 改成 3，程式就會輸出 4；本例的 12 不涉及有號除法溢位。</p>
+  <p>陣列 <code>int scores[3]</code> 有三個元素，合法索引只有 0、1、2。<code>scores[3]</code> 已越界，存取它是未定義行為。先檢查索引是否小於零，或大於等於元素個數：</p>
+<pre class="sq-code" data-cpp="run" id="bounds-guard" data-expected="Index out of range&#10;">#include &lt;iostream&gt;
+int main() {
+    int scores[3] = {70, 80, 90};
+    int index = 3;
+    if (index &lt; 0 || index &gt;= 3) {
+        std::cout &lt;&lt; &quot;Index out of range\n&quot;;
+        return 0;
+    }
+    std::cout &lt;&lt; scores[index] &lt;&lt; &quot;\n&quot;;
+}
+</pre>
+  <div class="expected-out"><span class="eo-tag">執行輸出</span><pre>Index out of range</pre></div>
+  <p><code>||</code> 表示「或」，任一條件成立就進入錯誤處理；<code>&gt;=</code> 表示大於或等於。把 <code>index</code> 改成 2，會輸出 90；改成 −1 或 3，則顯示越界訊息。分支語法在 <a href="p2_flow_control.html">P2</a> 展開，陣列與指標見 <a href="p4_pointers_memory.html">P4</a>。</p>
+  <p><strong>例外只是處理部分執行期問題的機制。</strong><code>vector</code> 是可調整大小的序列容器；在 C++17 中，<code>v.at(i)</code> 會檢查索引，越界時拋出 <code>std::out_of_range</code>（超出範圍的例外型別），可用相符的 <code>catch</code> 處理；<code>v[i]</code> 越界則是未定義行為。容器寫法見 <a href="p5_vector_string.html">P5</a>，<code>try</code>／<code>throw</code>／<code>catch</code> 的完整範例見 <a href="p7_files_exceptions.html#exception">P7</a>。</p>
+  <p>實際排查時：編譯失敗先讀診斷；輸出不對就與手算結果比對；執行到特定資料才出問題，就檢查當時的除數、索引與物件是否仍有效。不同錯誤可能有相同表象，所以找到出錯操作比只記住錯誤名稱更重要。</p>
+
   <details style="margin-top:1rem;"><summary><strong>備註：<code>assert</code>，另一種比編譯錯誤更晚一步的檢查</strong></summary>
-    <p style="margin-top:.7rem;">上面講的都是<strong>編譯期</strong>的錯誤；<code>assert(條件)</code> 抓的是<strong>執行期</strong>的錯誤。條件不成立時，程式立刻中止並印出發生問題的那一行，比讓錯誤值繼續傳遞、到後面才失敗容易追查。</p>
+    <p style="margin-top:.7rem;"><code>assert(條件)</code> 是來自 <code>&lt;cassert&gt;</code> 的斷言：在執行時檢查程式設計者認為必須成立的條件。斷言啟用且條件為假時，會印出診斷並終止程式；它不是可被 <code>catch</code> 接住的 C++ 例外。</p>
 <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
@@ -1398,10 +1460,10 @@ collect2: error: ld returned 1 exit status</pre></div>
 <span class="line" data-l="13"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="14">}</span>
 <span class="line" data-l="15"> </span></div>
-    <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5
+    <div class="expected-out"><span class="eo-tag">某次 Linux 執行的診斷示例（格式及結束碼依環境而異）</span><pre>5
 [執行結束碼 -6]
 main: main.cpp:6: int half(int): Assertion `n % 2 == 0' failed.</pre></div>
-    <p style="margin-bottom:0;">未定義 NDEBUG 時，half(10) 通過斷言；half(7) 的條件為假，assert 會輸出診斷並呼叫 abort 終止程式，結束碼表示依平台及執行工具而異。若編譯時定義 NDEBUG，assert 會被停用，因此不可用它取代必要的使用者輸入檢查。</p>
+    <p style="margin-bottom:0;"><code>NDEBUG</code> 是控制斷言的前處理巨集名稱；巨集是前處理階段辨識的名稱，不是執行時變數。以 <code>g++ -DNDEBUG main.cpp -o main</code> 建置會定義它並停用斷言。未定義 NDEBUG 時，half(10) 通過斷言；half(7) 的條件為假，assert 會輸出診斷並呼叫 abort 終止程式，結束碼表示依平台及執行工具而異。若編譯時定義 NDEBUG，assert 會被停用，因此不可用它取代必要的使用者輸入檢查。</p>
   </details>
 </section>
 
@@ -1535,7 +1597,7 @@ main: main.cpp:6: int half(int): Assertion `n % 2 == 0' failed.</pre></div>
 
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：C++ 基礎與編譯流程 <span class="sec-badge">隨堂自測 · 6 題</span></h2>
+  <h2>自我檢測：C++ 基礎與編譯流程 <span class="sec-badge">隨堂自測 · 9 題</span></h2>
   <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q1.</span>以下程式印出什麼？</div>
@@ -1569,7 +1631,7 @@ cout &lt;&lt; y &lt;&lt; endl;</pre>
       <button class="sq-opt" data-c="1" data-fb="正確。C++ 從左邊算起：10 &lt; 5 得到 false，也就是 0；接著算 0 &lt; 3，成立，所以是 true。要表達範圍檢查一定要寫成 (5 &lt; x) &amp;&amp; (x &lt; 10)。"><span class="opt-letter">(A)</span> true</button>
       <button class="sq-opt" data-c="0" data-fb="不對。C++ 不會把連續比較自動展開成兩個條件，只會從左到右兩兩比較。"><span class="opt-letter">(B)</span> false</button>
       <button class="sq-opt" data-c="0" data-fb="值確實是真，但這行先丟了 boolalpha 進 cout，之後的 bool 就會印成 true 或 false 而不是 1 或 0。"><span class="opt-letter">(C)</span> 1</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。這行完全合法，因此編譯器不會提醒你。它只看到兩個合法的比較運算，不會知道你想寫的是範圍檢查。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這行語法合法，但編譯器可能警告連續比較不符合數學慣例。即使沒有警告，也要確認是否符合原意；C++ 不會自動改寫成範圍檢查。"><span class="opt-letter">(D)</span> 編譯錯誤</button>
     </div>
     <div class="sq-fb"></div>
   </div>
@@ -1593,7 +1655,7 @@ cout &lt;&lt; sizeof(int) &lt;&lt; &quot; &quot; &lt;&lt; sizeof(a) &lt;&lt; &qu
     <div class="sq-opts">
       <button class="sq-opt" data-c="1" data-fb="正確。在題設環境中每個 int 佔 4 bytes，五個共 20 bytes，陣列總大小除以元素大小得到 5；其他環境的 int 大小可能不同。"><span class="opt-letter">(A)</span> 4 20 5</button>
       <button class="sq-opt" data-c="0" data-fb="不對。sizeof(a) 量的是整個陣列佔的位元組數 20，不是元素個數。元素個數要自己用 sizeof(a) / sizeof(int) 算出來。"><span class="opt-letter">(B)</span> 4 5 1</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。8 是指標與 double 的大小，int 在主流平台上是 4 bytes。要問大小就寫 sizeof，不要用機器位元數去猜。"><span class="opt-letter">(C)</span> 8 40 5</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。題目已指定 sizeof(int) 為 4，所以陣列共 20 bytes。指標、double 與 int 的大小各依型別和平台而定，不能互相推定。"><span class="opt-letter">(C)</span> 8 40 5</button>
       <button class="sq-opt" data-c="0" data-fb="不對。20 除以 4 是 5，剛好等於元素個數。這個除法在陣列傳進函式之後就失效了，因為那時 sizeof 量到的是指標。"><span class="opt-letter">(D)</span> 4 20 4</button>
     </div>
     <div class="sq-fb"></div>
@@ -1601,10 +1663,48 @@ cout &lt;&lt; sizeof(int) &lt;&lt; &quot; &quot; &lt;&lt; sizeof(a) &lt;&lt; &qu
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q6.</span>編譯時出現 undefined reference to addUp(int, int)，這個錯誤發生在哪一個階段？該往哪裡找？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。這類訊息開頭通常是 /usr/bin/ld，而且不會指到你的哪一行，因為連結器看的是整個程式而不是單一檔案。前面三個階段都已經順利通過了。"><span class="opt-letter">(A)</span> 連結階段。某個函式只有宣告沒有定義，或編譯指令少放了一個原始檔</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。連結器找不到與 addUp(int, int) 宣告相符的定義。檢查函式名稱、參數型別及是否把實作檔一起編譯；訊息可能附檔名或行號，實際格式依工具與除錯資訊而異。"><span class="opt-letter">(A)</span> 連結階段。某個函式只有宣告沒有定義，或編譯指令少放了一個原始檔</button>
       <button class="sq-opt" data-c="0" data-fb="不對。前處理找不到檔案的訊息是 fatal error 加上 No such file or directory，那是另一種錯。"><span class="opt-letter">(B)</span> 前處理階段。include 的路徑寫錯了</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。參數型別對不上是編譯階段的錯，訊息會是 no matching function for call to，而且會指到你呼叫的那一行。"><span class="opt-letter">(C)</span> 編譯階段。函式的參數型別打錯了</button>
+      <button class="sq-opt" data-c="0" data-fb="若呼叫時找不到可用的宣告，可能在編譯階段出現 no matching function 等訊息；本題的 undefined reference 是連結錯誤。宣告與另檔的定義型別不一致，也可能導致本題的連結錯誤。"><span class="opt-letter">(C)</span> 編譯階段。函式的參數型別打錯了</button>
       <button class="sq-opt" data-c="0" data-fb="不對。C++ 在產生執行檔之前就必須把每個名字接上實作，接不上就根本產不出執行檔，程式一次都沒跑過。"><span class="opt-letter">(D)</span> 執行階段。程式跑到那一行才發現函式不存在</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q7.</span>這段程式少了一個分號，屬於哪一類錯誤？應如何處理？</div>
+    <pre class="sq-code">int main() {
+    int count = 3
+    return 0;
+}</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。變數宣告後需要分號。編譯器可能把位置指到下一行的 return，應回頭檢查前一行。"><span class="opt-letter">(A)</span> 語法錯誤；補上分號後重新編譯</button>
+      <button class="sq-opt" data-c="0" data-fb="漏分號違反 C++ 文法，編譯無法成功，不能把舊執行檔的結果當成本次程式的結果。"><span class="opt-letter">(B)</span> 邏輯錯誤；程式會照常執行</button>
+      <button class="sq-opt" data-c="0" data-fb="語法問題在編譯時就需要修正，不會等到程式跑到 return 才發現。"><span class="opt-letter">(C)</span> 執行期錯誤；執行到 return 才出問題</button>
+      <button class="sq-opt" data-c="0" data-fb="這裡不是找不到函式定義；需要修正的是宣告結尾的語法。"><span class="opt-letter">(D)</span> 連結錯誤；加入另一個 .cpp 就能解決</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q8.</span>原本想算出 3 與 5 的平均值 4，卻得到 5.5。這屬於哪一類錯誤？</div>
+    <pre class="sq-code">double average = 3 + 5 / 2.0;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。除法先算，所以原式得到 3 + 2.5。程式語法合法且可執行，但公式未表達原意。"><span class="opt-letter">(A)</span> 語意／邏輯錯誤；應改成 (3 + 5) / 2.0</button>
+      <button class="sq-opt" data-c="0" data-fb="加法與除法可以組合；問題是原式的運算順序不符合平均值公式。"><span class="opt-letter">(B)</span> 語法錯誤；加法與除法不能出現在同一行</button>
+      <button class="sq-opt" data-c="0" data-fb="浮點除以 2.0 是合法操作，此例也沒有除以零；問題是括號位置。"><span class="opt-letter">(C)</span> 執行期錯誤；除數為 2.0 不合法</button>
+      <button class="sq-opt" data-c="0" data-fb="這行只使用內建算術，沒有呼叫平均值函式，無須額外連結實作。"><span class="opt-letter">(D)</span> 連結錯誤；找不到平均值函式</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+  <div class="sq-item">
+    <div class="sq-q"><span class="sq-num">Q9.</span>假設使用者輸入的整數 divisor 為 0，接著執行 10 / divisor。下列何者正確？</div>
+    <pre class="sq-code">int numerator = 10;
+// divisor 已讀入整數 0
+int result = numerator / divisor;</pre>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確。這是執行期問題，不保證當機或顯示特定訊息。C++ 不會自動把它轉成例外；先排除零除數才能安全執行這個例子。"><span class="opt-letter">(A)</span> 整數除以零是未定義行為；要在除法前檢查 divisor</button>
+      <button class="sq-opt" data-c="0" data-fb="try/catch 處理的是 C++ 例外。內建整數除以零不保證拋出例外，不能把 catch 當成零除數檢查。"><span class="opt-letter">(B)</span> 只要包在 try/catch 裡，就一定能接住除以零</button>
+      <button class="sq-opt" data-c="0" data-fb="未定義行為沒有保證結果，不能依某次試跑猜測值，更不能繼續依賴它。"><span class="opt-letter">(C)</span> 一定回傳 0，程式可以繼續使用結果</button>
+      <button class="sq-opt" data-c="0" data-fb="整數除法運算式本身語法合法；本題的問題是執行時除數為零，應先檢查輸入。"><span class="opt-letter">(D)</span> 這是語法錯誤，所以任何輸入都無法通過編譯</button>
     </div>
     <div class="sq-fb"></div>
   </div>
@@ -1919,7 +2019,7 @@ function typePick(k) { typeIdx = k; typeRender(); }
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "將 C++ 原始碼翻譯成目的碼的工具，例如 g++。語法與許多型別錯誤會在程式執行前被檢查出來；執行期仍可能發生輸入錯誤或未定義行為。"}, {"front": "直譯器（Interpreter）", "back": "在執行時處理程式的實作方式。常見 Python 實作先編譯成位元碼再執行，不能簡化成純粹逐行翻譯；錯誤何時被發現與效能取決於實作和程式內容。"}, {"front": "前處理（Preprocessing）", "back": "在編譯前處理 #include、巨集與條件編譯。引入標準標頭可能展開大量內容，實際行數取決於編譯器與標準函式庫版本。"}, {"front": "標頭檔（Header File）", "back": "放宣告用的檔案，副檔名通常是 .h 或 .hpp。用 #include 引進來之後編譯器才認得裡面的名字；專案自己的標頭通常用雙引號引用。"}, {"front": "目的檔（Object File）", "back": "通常由組譯階段產生，常見副檔名 .o。包含機器碼與符號等資訊，通常須連結其他目的檔和函式庫，才能成為可執行程式。"}, {"front": "連結器（Linker）", "back": "把目的檔與需要的函式庫組合，解析外部符號並產生執行檔。找不到定義時可能出現 undefined reference；訊息格式與是否附行號依工具而定。"}, {"front": "命名空間（Namespace）", "back": "用來組織名稱、降低名稱衝突的機制。標準函式庫的 cout 位於 std 命名空間，完整名稱是 std::cout；using namespace std; 會讓其中的名稱參與未限定名稱查找。"}, {"front": "進入點（Entry Point）", "back": "程式開始執行的地方。C++ 規定入口函式叫 int main()，執行環境會從這裡開始，一支程式只能有一個。"}, {"front": "結束碼（Exit Status）", "back": "main 的 return 值，回報給作業系統看程式跑得順不順。0 代表正常結束，非 0 代表出錯。shell 腳本會用這個值決定要不要繼續往下做。"}, {"front": "靜態型別（Static Typing）", "back": "變數的型別在編譯時就決定、之後不能換。型別錯誤能在編譯階段被抓到，宣告時也必須明確指定型別或使用 auto 推導。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "例如未給初值的區域 int x;。在本頁採用的 C++17 中讀取其不確定值會造成未定義行為，不能把結果當成固定的殘值；應在使用前初始化或賦值。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準不規定結果的操作，例如讀未初始化的變數、有號整數溢位、解參考空指標。程式可能看起來剛好正確，也可能出現其他結果，因此不能用一次試跑判定程式正確。"}, {"front": "大小運算子（sizeof）", "back": "取得型別或物件的大小，單位是 C++ byte。sizeof(char) 保證為 1，int、double 與指標的大小依實作而定；陣列的 sizeof(a) / sizeof(a[0]) 可計算其元素個數。"}, {"front": "整數除法（Integer Division）", "back": "C++ 的 / 只要兩邊都是整數就截掉小數，7 / 2 得到 3。截斷方向是往零，所以 -7 / 2 是 -3。要浮點結果得先把一邊轉成 double。"}, {"front": "取餘數運算子（Modulo, %）", "back": "% 取得整數除法的餘數，例如 17 % 5 得到 2，可用來判斷是否整除或分組後剩下幾個。除數不能是 0；負數的餘數可能是負的。"}, {"front": "後置遞增（Post-increment）", "back": "i++ 先把舊值交出去、之後才加一；++i 則是先加再交出新值。單獨當一行敘述時兩者沒差別，差別只出現在把它塞進別的式子裡的時候。"}, {"front": "隱式型別轉換（Implicit Conversion）", "back": "在特定語境自動進行的型別轉換，並不只限於由窄轉寬。例如 7 / 2.0 先把 7 轉成 double；double avg = 7 / 2; 則先做整數除法，再把 3 轉成 3.0。"}, {"front": "靜態轉型（static_cast）", "back": "明確指定轉型，例如 static_cast<double>(a) / b 可先將 a 轉成浮點數。若寫 static_cast<double>(a / b)，整數除法已經完成，失去的小數無法恢復。"}, {"front": "整數溢位（Integer Overflow）", "back": "運算結果超出型別的表示範圍。有號整數溢位是未定義行為，不能保證翻成負數；無號整數則依其位數作模數運算。使用較寬型別前仍須確認結果能容納，並在運算前轉型。"}, {"front": "輸出串流（Output Stream, cout）", "back": "標準輸出的物件，用 << 把資料推進去，可以一直串下去。它不會自動加空格，要空格自己寫。endl 除了換行還會清空緩衝區，輸出量大時改用 '\\n' 會快很多。"}, {"front": "C 風格輸出（printf）", "back": "格式字串輸出：%d 對應 int、%s 對應 C 字串、%f 對應 double、%lld 對應 long long；std::string 要用 .c_str()。格式與引數型別必須一致，並引入 <cstdio>。"}, {"front": "亂數（rand / srand）", "back": "rand() 產生 0 到 RAND_MAX 的偽亂數，srand(seed) 設定種子。同一實作使用相同種子會重現相同序列；rand() % 6 + 1 落在 1 到 6，但通常有取餘數偏差，不保證均勻。time(0) 在同一秒可能給相同種子。"}];
+const FLASHCARDS = [{"front": "編譯器（Compiler）", "back": "將 C++ 原始碼翻譯成目的碼的工具，例如 g++。語法與許多型別錯誤會在程式執行前被檢查出來；執行期仍可能發生輸入錯誤或未定義行為。"}, {"front": "直譯器（Interpreter）", "back": "在執行時處理程式的實作方式。常見 Python 實作先編譯成位元碼再執行，不能簡化成純粹逐行翻譯；錯誤何時被發現與效能取決於實作和程式內容。"}, {"front": "前處理（Preprocessing）", "back": "在編譯前處理 #include、巨集與條件編譯。引入標準標頭可能展開大量內容，實際行數取決於編譯器與標準函式庫版本。"}, {"front": "標頭檔（Header File）", "back": "放宣告用的檔案，副檔名通常是 .h 或 .hpp。用 #include 引進來之後編譯器才認得裡面的名字；專案自己的標頭通常用雙引號引用。"}, {"front": "目的檔（Object File）", "back": "通常由組譯階段產生，常見副檔名 .o。包含機器碼與符號等資訊，通常須連結其他目的檔和函式庫，才能成為可執行程式。"}, {"front": "連結器（Linker）", "back": "把目的檔與需要的函式庫組合，解析外部符號並產生執行檔。找不到定義時可能出現 undefined reference；訊息格式與是否附行號依工具而定。"}, {"front": "命名空間（Namespace）", "back": "用來組織名稱、降低名稱衝突的機制。標準函式庫的 cout 位於 std 命名空間，完整名稱是 std::cout；using namespace std; 會讓其中的名稱參與未限定名稱查找。"}, {"front": "進入點（Entry Point）", "back": "程式開始執行的地方。C++ 規定入口函式叫 int main()，執行環境會從這裡開始，一支程式只能有一個。"}, {"front": "結束碼（Exit Status）", "back": "main 的 return 值，回報給作業系統看程式跑得順不順。0 代表正常結束，非 0 代表出錯。shell 腳本會用這個值決定要不要繼續往下做。"}, {"front": "靜態型別（Static Typing）", "back": "變數的型別在編譯時就決定、之後不能換。型別錯誤能在編譯階段被抓到，宣告時也必須明確指定型別或使用 auto 推導。"}, {"front": "未初始化變數（Uninitialized Variable）", "back": "例如未給初值的區域 int x;。在本頁採用的 C++17 中讀取其不確定值會造成未定義行為，不能把結果當成固定的殘值；應在使用前初始化或賦值。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準不規定結果的操作，例如讀未初始化的變數、有號整數溢位、解參考空指標。程式可能看起來剛好正確，也可能出現其他結果，因此不能用一次試跑判定程式正確。"}, {"front": "大小運算子（sizeof）", "back": "取得型別或物件的大小，單位是 C++ byte。sizeof(char) 保證為 1，int、double 與指標的大小依實作而定；陣列的 sizeof(a) / sizeof(a[0]) 可計算其元素個數。"}, {"front": "整數除法（Integer Division）", "back": "C++ 的 / 只要兩邊都是整數就截掉小數，7 / 2 得到 3。截斷方向是往零，所以 -7 / 2 是 -3。要浮點結果得先把一邊轉成 double。"}, {"front": "取餘數運算子（Modulo, %）", "back": "% 取得整數除法的餘數，例如 17 % 5 得到 2，可用來判斷是否整除或分組後剩下幾個。除數不能是 0；負數的餘數可能是負的。"}, {"front": "後置遞增（Post-increment）", "back": "i++ 先把舊值交出去、之後才加一；++i 則是先加再交出新值。單獨當一行敘述時兩者沒差別，差別只出現在把它塞進別的式子裡的時候。"}, {"front": "隱式型別轉換（Implicit Conversion）", "back": "在特定語境自動進行的型別轉換，並不只限於由窄轉寬。例如 7 / 2.0 先把 7 轉成 double；double avg = 7 / 2; 則先做整數除法，再把 3 轉成 3.0。"}, {"front": "靜態轉型（static_cast）", "back": "明確指定轉型，例如 static_cast<double>(a) / b 可先將 a 轉成浮點數。若寫 static_cast<double>(a / b)，整數除法已經完成，失去的小數無法恢復。"}, {"front": "整數溢位（Integer Overflow）", "back": "運算結果超出型別的表示範圍。有號整數溢位是未定義行為，不能保證翻成負數；無號整數則依其位數作模數運算。使用較寬型別前仍須確認結果能容納，並在運算前轉型。"}, {"front": "輸出串流（Output Stream, cout）", "back": "標準輸出的物件，用 << 把資料推進去，可以一直串下去。它不會自動加空格，要空格自己寫。endl 除了換行還會清空緩衝區，輸出量大時改用 '\\n' 會快很多。"}, {"front": "C 風格輸出（printf）", "back": "格式字串輸出：%d 對應 int、%s 對應 C 字串、%f 對應 double、%lld 對應 long long；std::string 要用 .c_str()。格式與引數型別必須一致，並引入 <cstdio>。"}, {"front": "亂數（rand / srand）", "back": "rand() 產生 0 到 RAND_MAX 的偽亂數，srand(seed) 設定種子。同一實作使用相同種子會重現相同序列；rand() % 6 + 1 落在 1 到 6，但通常有取餘數偏差，不保證均勻。time(0) 在同一秒可能給相同種子。"}, {"front": "語法錯誤（Syntax Error）", "back": "程式不符合 C++ 文法，例如 int count = 3 後漏寫分號。編譯時會出現診斷，修正後再重新編譯；訊息指到的位置可能在漏寫處的下一行。編譯失敗時，不要誤執行先前留下的舊執行檔。"}, {"front": "語意／邏輯錯誤（Semantic / Logic Error）", "back": "本教材指程式能編譯、執行，卻沒有表達原本意圖。例如想求 3 與 5 的平均，卻寫成 3 + 5 / 2.0，結果是 5.5 而非 4；應改為 (3 + 5) / 2.0。用已知答案檢查公式、條件與運算順序。"}, {"front": "執行期錯誤（Runtime Error）", "back": "程式執行到某項操作時才出現的問題，例如整數除數為零、原生陣列越界。C++ 中這兩者會造成未定義行為，不保證當機或顯示訊息；應先檢查除數及索引。部分操作會拋出 C++ 例外，可用相符的 catch 處理，但 catch 不會自動接住所有執行期錯誤。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

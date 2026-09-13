@@ -68,20 +68,23 @@ cout << endl;""",
 "1 2 1 2 ",
 note="row-major 的攤平公式是 i*Cols + j；column-major 換成 j*Rows + i，一行一行直著放。輸出 1 2 1 2 就是「第 0 行、第 1 行」依序排開。")}
 {card("講義 03 · 練習：用平面索引找 student[5][3]", """#include <cassert>
-using namespace std;
+#include <iostream>
 
 int main() {
     int student[100][4];
-    for (int i = 0; i < 100; i++)
-        for (int j = 0; j < 4; j++) student[i][j] = i * 4 + j;
-    int* s = &student[0][0];   // 把二維陣列當一維看
-    // 把 ? 換成你的答案
-    assert(student[5][3] == s[?]);
-    cout << "Pass" << endl;
-    return 0;
+    int flat[400];
+    for (int i = 0; i < 100; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            student[i][j] = i * 4 + j;
+            flat[i * 4 + j] = student[i][j];
+        }
+    }
+    // 列索引 5、行索引 3 的平面索引：5 * 4 + 3
+    assert(student[5][3] == flat[23]);
+    std::cout << "Pass\\n";
 }""",
-"Pass", out_label="填對之後的輸出",
-note="row-major 公式 i*Cols + j = 5×4 + 3 = <strong>23</strong>。assert 是驗收利器：條件為假直接中止程式，考自己最誠實。")}'''
+"Pass", out_label="預期輸出",
+note="row-major 公式 i*Cols + j = 5×4 + 3 = <strong>23</strong>。資料明確複製到一維陣列 flat，不用指向第一列的 int* 跨列存取。assert 來自 &lt;cassert&gt;；啟用斷言時，條件為假會輸出診斷並終止程式，不是可由 catch 接住的例外。定義 NDEBUG 時斷言會被停用。")}'''
 s, c3 = insert_end_of_section(s, "multidim" if "multidim" in secs else secs[2], multi, 'id="dx-multi"')
 
 sp = f'''{card("講義 03 · SparseMatrix 使用畫面：加減乘一次看", """#include <iostream>

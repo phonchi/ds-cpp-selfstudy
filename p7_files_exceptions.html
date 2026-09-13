@@ -625,7 +625,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>is_open() = 0
 檔案不存在時 ifstream 不會丟例外，只是進入失敗狀態。
 所以開檔之後一定要自己檢查。</pre></div>
-  <p class="dx-note"><strong>它不丟例外、不終止、什麼都不說</strong>，只是把串流設成失敗狀態。你如果不檢查就直接讀，會讀到零筆資料然後難以判斷原因。所以 <code>ifstream</code> 開完<strong>一定要接一句 <code>if (!in.is_open())</code></strong>。</p>
+  <p class="dx-note">在串流的預設設定下，它<strong>不主動拋出串流例外，也不終止程式</strong>，只是把串流設成失敗狀態。你如果不檢查就直接讀，會讀到零筆資料然後難以判斷原因。所以 <code>ifstream</code> 開完<strong>一定要接一句 <code>if (!in.is_open())</code></strong>。</p>
 </div>
 
   <div class="info-box green">
@@ -637,7 +637,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="exception">
   <div class="section-number">PART 03 · 例外</div>
   <h2>例外不是「壞掉」，是「這條路走不通，換你決定」</h2>
-  <p>例外處理的骨架只有兩個關鍵字：<code>try</code> 圈出可能失敗的程式，<code>catch</code> 接住失敗。</p>
+  <p>例外處理先看三個動作：<code>try</code> 圈出要處理例外的程式，<code>throw</code> 拋出例外物件，<code>catch</code> 依型別接住它。<code>catch (const SpecificError&amp; e)</code> 中，SpecificError 是例外型別，e 是本次例外的唯讀參考，<code>e.what()</code> 取得說明文字。</p>
 
 <p>下面先看語法骨架：<code>risky()</code> 代表可能失敗的函式，<code>SpecificError</code> 代表要捕捉的例外型別，兩者都是占位名稱，不是標準函式或可直接執行的程式。後面的完整範例會換成 readAge 與 invalid_argument。</p><div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">try</span> {</span>
 <span class="line" data-l="2">    <span class="com">// 可能失敗的那幾行，範圍越小越好找錯</span>
@@ -656,14 +656,14 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <tr><td class="mono">try { } catch (…) { }</td><td class="mono">try: / except:</td><td>概念相同</td></tr>
       <tr><td class="mono">throw X();</td><td class="mono">raise X()</td><td>主動拋出</td></tr>
       <tr><td class="mono">e.what()</td><td class="mono">str(e)</td><td>取得訊息</td></tr>
-      <tr><td>沒有對應</td><td class="mono">finally:</td><td>把資源綁定到物件生命週期，由解構式收尾：RAII（Resource Acquisition Is Initialization）</td></tr>
+      <tr><td>沒有對應</td><td class="mono">finally:</td><td>RAII（Resource Acquisition Is Initialization）：物件取得並管理資源，在解構時釋放。例如區域 ifstream 物件離開作用域時會關檔；找到相符 catch 的例外傳遞途中也會清理這類物件</td></tr>
       <tr><td>沒有對應</td><td class="mono">else:</td><td>C++ 沒有這個區塊</td></tr>
     </tbody>
   </table></div>
   </div>
 
   <div class="warn-box">
-    <div class="info-label">⚠️ 不要寫 <code>catch (...)</code> 把所有東西一起接住</div>
+    <div class="info-label">⚠️ <code>catch (...)</code> 接得住哪些問題</div>
     <p style="margin-bottom:0;">catch (...) 接住所有傳到此處的 C++ 例外，但不能處理一般的未定義行為或記憶體存取錯誤。它可用於清理後重新拋出，或在程式邊界統一回報；若接住後不記錄、不處理，就可能掩蓋問題。</p>
   </div>
 
@@ -712,7 +712,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       </div>
       <div class="info-card">
         <div class="ic-title">型別要對得上 <span class="ic-badge">MATCH</span></div>
-        <p style="margin:0;font-size:.85rem;"><code>catch</code> 只接住型別相符的例外。丟 <code>invalid_argument</code>、只寫 <code>catch (const out_of_range&amp; e)</code>，例外就會穿過去繼續往上飛；一路到 <code>main</code> 外面都沒人接，程式直接 <code>terminate</code> 終止。父類別接得住子類別，所以 <code>catch (const exception&amp; e)</code> 是最寬的那一層，要放最後面。</p>
+        <p style="margin:0;font-size:.85rem;"><code>catch</code> 只接住型別相符的例外。丟 <code>invalid_argument</code>、只寫 <code>catch (const out_of_range&amp; e)</code>，例外就會穿過去繼續往上飛；一路到 <code>main</code> 外面都沒人接，程式直接 <code>terminate</code> 終止。標準例外型別繼承自 <code>std::exception</code>，所以 <code>catch (const exception&amp; e)</code> 應放在各種較具體的標準例外之後；它不會接住 <code>throw 3;</code> 這種不屬於該類別家族的例外。最後的 <code>catch (...)</code> 才能接住其他 C++ 例外。繼承關係的語法見 P9。</p>
       </div>
     </div>
   </div>
@@ -1205,7 +1205,7 @@ excRender([]);
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "輸入檔案串流（ifstream）", "back": "ifstream 用來讀取檔案，需 <fstream>。在預設例外遮罩下，開檔失敗會設定狀態而不主動拋出串流例外；可檢查 is_open() 或串流狀態，明確設定 exceptions() 後行為會不同。"}, {"front": "輸出檔案串流（ofstream）", "back": "開檔寫入用的型別，用法跟 cout 一樣。預設會清空原檔案內容；要附加到結尾得傳 ios::app。"}, {"front": "逐行讀取（getline）", "back": "std::getline(stream, line) 將一行讀入 string，移除分隔換行但不存入 line。它回傳串流參考，轉成條件時反映讀取是否成功；最後一行沒有換行也可能成功讀到，不能只看是否到檔尾。"}, {"front": "自動收尾（RAII）", "back": "RAII 把資源綁定到物件生命週期，在正常離開作用域或有處理程序的例外堆疊展開時由解構式釋放。程式被強制終止等情況不保證解構；檔案串流一般不需手動 close。"}, {"front": "例外（Exception）", "back": "程式執行中發生無法繼續的狀況時被拋出的物件。它不代表壞掉，而是「這條路走不通，交給呼叫我的人決定怎麼辦」。"}, {"front": "例外處理（try / catch）", "back": "把可能失敗的程式放進 try，失敗時跳到對應的 catch 處理。try 區塊應該只包含真正可能失敗的那幾行，範圍越小越好找錯。"}, {"front": "主動拋出（throw）", "back": "throw 拋出例外並尋找相符的處理程序，例如拒絕負數數量。例外與狀態回傳各有適用情況；拋出後的正常路徑不會繼續執行，呼叫端應按契約處理。"}, {"front": "例外訊息（what()）", "back": "std::exception 介面提供的成員函式，回傳描述錯誤的 C 字串；內容可用來報告問題，但確切文字通常依例外物件與實作而異。"}, {"front": "越界例外（out_of_range）", "back": "vector 或 string 的 at() 在索引不合法時丟出 std::out_of_range。例外型別可依賴，what() 的詳細文字則依實作而異。"}, {"front": "檢查與不檢查的下標（at() vs operator[]）", "back": "vector 的 at(i) 檢查範圍，operator[](i) 要求 i < size()。string 的 at 也要求 i < size()，但其 operator[](size()) 可讀到結尾空字元；不得把這個特例推廣到 vector。"}, {"front": "自訂例外（Custom Exception）", "back": "為錯誤建立獨立型別，讓 catch 能精準區分情況。通常繼承 std::runtime_error 並傳入訊息；類別與繼承的完整寫法放在 P9，先在 P7 練習標準例外。"}, {"front": "未接住的例外（Uncaught Exception）", "back": "例外若找不到對應處理程序，會呼叫 std::terminate。預設處理最終會終止程式；診斷文字、訊號及結束碼不能當成跨平台固定值。"}, {"front": "貪心捕捉（catch 全包）", "back": "catch (...) 能接住任何 C++ 例外，不代表一定錯誤。可用於清理後再 throw; 或在邊界統一處理；若無聲忽略所有例外，就容易掩蓋真正問題。"}, {"front": "工作目錄（Working Directory）", "back": "相對檔案路徑以程式當下的工作目錄解析，並非自動相對於原始碼所在資料夾。編譯時的 -I. 也是相對於編譯行程工作目錄；兩者可以不同。"}, {"front": "字串串流（stringstream）", "back": "<sstream> 提供字串串流，例如 istringstream input(text); 可用 >> 從文字讀取數字與詞，並像檔案串流一樣檢查失敗狀態。它不會憑空讀檔，資料來源是所提供的字串。"}];
+const FLASHCARDS = [{"front": "輸入檔案串流（ifstream）", "back": "ifstream 用來讀取檔案，需 <fstream>。在預設例外遮罩下，開檔失敗會設定狀態而不主動拋出串流例外；可檢查 is_open() 或串流狀態，明確設定 exceptions() 後行為會不同。"}, {"front": "輸出檔案串流（ofstream）", "back": "開檔寫入用的型別，用法跟 cout 一樣。預設會清空原檔案內容；要附加到結尾得傳 ios::app。"}, {"front": "逐行讀取（getline）", "back": "std::getline(stream, line) 將一行讀入 string，移除分隔換行但不存入 line。它回傳串流參考，轉成條件時反映讀取是否成功；最後一行沒有換行也可能成功讀到，不能只看是否到檔尾。"}, {"front": "自動收尾（RAII）", "back": "RAII 把資源綁定到物件生命週期，在正常離開作用域或有處理程序的例外堆疊展開時由解構式釋放。程式被強制終止等情況不保證解構；檔案串流一般不需手動 close。"}, {"front": "例外（Exception）", "back": "由 throw 等 C++ 例外機制拋出的物件，用來中斷目前的正常流程並交給相符的 catch 處理。例如 at() 越界會拋出 out_of_range；不是任何失敗都會自動拋出例外。"}, {"front": "例外處理（try / catch）", "back": "把需要一同處理例外的操作放進 try；只有拋出相符的 C++ 例外時，才會轉入對應 catch。整數除以零或越界使用 vector 的 [] 是未定義行為，不能靠 try/catch 保護，須在操作前檢查。"}, {"front": "主動拋出（throw）", "back": "throw 拋出例外並尋找相符的處理程序，例如拒絕負數數量。例外與狀態回傳各有適用情況；拋出後的正常路徑不會繼續執行，呼叫端應按契約處理。"}, {"front": "例外訊息（what()）", "back": "std::exception 介面提供的成員函式，回傳描述錯誤的 C 字串；內容可用來報告問題，但確切文字通常依例外物件與實作而異。"}, {"front": "越界例外（out_of_range）", "back": "vector 或 string 的 at() 在索引不合法時丟出 std::out_of_range。例外型別可依賴，what() 的詳細文字則依實作而異。"}, {"front": "檢查與不檢查的下標（at() vs operator[]）", "back": "vector 的 at(i) 檢查範圍，operator[](i) 要求 i < size()。string 的 at 也要求 i < size()，但其 operator[](size()) 可讀到結尾空字元；不得把這個特例推廣到 vector。"}, {"front": "自訂例外（Custom Exception）", "back": "為錯誤建立獨立型別，讓 catch 能精準區分情況。通常繼承 std::runtime_error 並傳入訊息；類別與繼承的完整寫法放在 P9，先在 P7 練習標準例外。"}, {"front": "未接住的例外（Uncaught Exception）", "back": "例外若找不到對應處理程序，會呼叫 std::terminate。預設處理最終會終止程式；診斷文字、訊號及結束碼不能當成跨平台固定值。"}, {"front": "貪心捕捉（catch 全包）", "back": "catch (...) 能接住任何 C++ 例外，不代表一定錯誤。可用於清理後再 throw; 或在邊界統一處理；若無聲忽略所有例外，就容易掩蓋真正問題。"}, {"front": "工作目錄（Working Directory）", "back": "相對檔案路徑以程式當下的工作目錄解析，並非自動相對於原始碼所在資料夾。編譯時的 -I. 也是相對於編譯行程工作目錄；兩者可以不同。"}, {"front": "字串串流（stringstream）", "back": "<sstream> 提供字串串流，例如 istringstream input(text); 可用 >> 從文字讀取數字與詞，並像檔案串流一樣檢查失敗狀態。它不會憑空讀檔，資料來源是所提供的字串。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

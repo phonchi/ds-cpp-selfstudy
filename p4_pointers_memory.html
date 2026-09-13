@@ -598,7 +598,7 @@ int main() {
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>x  的值 = 42，位址 = 0x7ffe91aff68c，佔 4 bytes
 d  的值 = 3.14，位址 = 0x7ffe91aff690，佔 8 bytes
 c  的值 = A，位址 = 0x7ffe91aff68b，佔 1 bytes</pre></div>
-  <p class="dx-note">三個觀察：① 位址是十六進位的一長串，每次執行都不一樣（作業系統每次配的位置不同）。② 不同型別佔的大小不同：<code>int</code> 4 bytes、<code>double</code> 8、<code>char</code> 1。③ <code>char</code> 的位址要轉成 <code>(void*)</code> 才印得出數字，否則 <code>cout</code> 會把它當字串開頭。</p>
+  <p class="dx-note">三個觀察：① 這次的位址以十六進位顯示；重新執行時可能不同，不需背下數字。② <code>sizeof</code> 以 C++ 的 byte 為單位；這個範例的 <code>int</code> 為 4、<code>double</code> 為 8，實際大小依平台而定，<code>sizeof(char)</code> 則一定為 1。③ <code>(void*)&amp;c</code> 是把字元指標轉成 <code>void*</code> 的 C 風格轉型：<code>void*</code> 表示未指定目標型別的物件指標，讓 <code>cout</code> 顯示位址，而不把字元指標當成字串開頭。</p>
 </div>
 
   <div class="viz-layout">
@@ -744,9 +744,7 @@ p  = 0x7ffeec7bfa4c   &lt;- p 存的就是 x 的位址
 
   <h3 style="margin-top:1.6rem;">參考：另一個名字，不是另一個變數 —— 跟指標分清楚</h3>
   <p>C++ 還有一個長得像親戚的東西：<strong>參考</strong>（reference，有些書譯作「參照」）。
-  <code>int &amp;r = x;</code> 讀作「r 是 x 的參考」—— 它不配置新的記憶體、也不存位址，
-  它就是 <strong>x 的另一個名字</strong>。若印出 <code>&amp;r == &amp;x</code>，會看到兩者位址相同；<code>sizeof(r)</code> 也會得到所指型別的大小，
-  因為 r 根本沒有自己的身體。兩者常被混為一談，但個性完全不同：</p>
+  <code>int &amp;r = x;</code> 讀作「r 是 x 的參考」，也就是 <strong>x 的另一個名字</strong>。<code>&amp;r == &amp;x</code> 為真，因為兩者取的都是 x 的位址；<code>sizeof(r)</code> 也等同 <code>sizeof(x)</code>。這些規則不代表參考的實作一定不占空間；標準未規定是否需要額外儲存。參考與指標的差別在於如何綁定及使用目標：</p>
 
   <div class="cmp-table-wrap">
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
@@ -974,7 +972,7 @@ i=2  a[i]=30  *(a+i)=30  位址=0x7ffef812b1b8  距離首位 8 bytes</pre></div>
 兩者的值都是 42 / 42
 arr = 0 1 4 9 16
 都還回去了。</pre></div>
-  <p class="dx-note">注意兩個位址差很多：堆疊那個是 <code>0x7fff…</code>，堆積那個是 <code>0x6146…</code>——它們住在記憶體的兩端。另外 <strong><code>new[]</code> 一定要配 <code>delete[]</code></strong>，配錯是未定義行為（g++ 加 -Wall 通常會警告，但別依賴它）。</p>
+  <p class="dx-note">這次輸出中，區域物件與動態物件的位址不同；實際配置位置由執行環境決定，不能用位址前綴判定生命週期。另外 <strong><code>new[]</code> 一定要配 <code>delete[]</code></strong>，配錯是未定義行為（g++ 加 -Wall 通常會警告，但別依賴它）。</p>
 </div>
 
   <div class="viz-layout">
@@ -1050,7 +1048,7 @@ arr = 0 1 4 9 16
       <line x1="350" y1="90" x2="398" y2="90" stroke="#c0392b" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#p4f2ArrowRed)"></line>
       <text x="380" y="144" font-size="12.5" font-weight="700" text-anchor="middle" fill="#c0392b">懸空指標 dangling</text>
       <text x="380" y="172" font-size="12" text-anchor="middle" style="fill:var(--ink)">記憶體還回去了</text>
-      <text x="380" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">p 卻還指著，碰它就當掉</text>
+      <text x="380" y="192" font-size="12" text-anchor="middle" style="fill:var(--muted)">目標已失效，不可再解參考</text>
 
       <!-- ③ 收尾 -->
       <rect x="516" y="8" width="236" height="206" rx="10" fill="#fafafa" stroke="#ececec"></rect>
@@ -1079,15 +1077,15 @@ arr = 0 1 4 9 16
     <thead><tr><th>錯誤</th><th>常見寫法</th><th>症狀</th></tr></thead>
     <tbody>
       <tr><td><strong>記憶體洩漏</strong><br>memory leak</td><td class="mono" style="font-size:.8rem;">new 了沒 delete</td><td>程式跑越久占用越多記憶體，最後可能因資源不足而終止。短程式通常看不出來</td></tr>
-      <tr><td><strong>懸空指標</strong><br>dangling pointer</td><td class="mono" style="font-size:.8rem;">delete 之後還在用</td><td>讀到垃圾值，或當掉。<strong>最難 debug</strong>，因為有時候「剛好」還是對的</td></tr>
+      <tr><td><strong>懸空指標</strong><br>dangling pointer</td><td class="mono" style="font-size:.8rem;">delete 之後還在用</td><td>解參考已失效的目標屬未定義行為；可能得到錯值、崩潰或看似正常，不能靠輸出判定安全</td></tr>
       <tr><td><strong>二次釋放</strong><br>double free</td><td class="mono" style="font-size:.8rem;">同一塊 delete 兩次</td><td>屬於未定義行為；可能崩潰，也可能出現難以追蹤的錯誤</td></tr>
     </tbody>
   </table></div>
   </div>
 
   <div class="info-box purple">
-    <div class="info-label">🎯 一個習慣可以擋掉兩種</div>
-    <p style="margin-bottom:0;"><code>delete p;</code> 之後<strong>立刻</strong>寫 <code>p = nullptr;</code>。這樣懸空指標會變成空指標（當掉得很明確、很好找），而 <code>delete</code> 一個 <code>nullptr</code> 在 C++ 是<strong>合法的空操作</strong>，二次釋放也就不會發生。</p>
+    <div class="info-label">🎯 清除失效位址，並檢查所有別名</div>
+    <p style="margin-bottom:0;"><code>delete p;</code> 之後<strong>立刻</strong>寫 <code>p = nullptr;</code>。這讓 p 不再保存失效位址；再次 <code>delete p;</code> 是<strong>合法的空操作</strong>。但解參考空指標仍是未定義行為，不保證當機；其他指向同一資源的指標也不會一起變空，必須停止使用。</p>
   </div>
 
   <div class="info-box green">
@@ -1310,8 +1308,8 @@ void build() {
   <div class="sq-item">
     <div class="sq-q"><span class="sq-num">Q5.</span>int *a = new int[10]; 用完之後寫 delete a; 有什麼問題？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確。中括號要成對。new[] 配 delete 是未定義行為：可能整塊還掉、可能只還一部分、對有解構式的型別還會漏掉解構；g++ 加 -Wall 通常會警告，但別依賴它。"><span class="opt-letter">(A)</span> new[] 必須配 delete[]，寫成 delete 是未定義行為</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。兩者的行為不同：delete[] 會對每個元素呼叫解構式，delete 只處理一個。"><span class="opt-letter">(B)</span> 沒問題，delete 和 delete[] 是一樣的</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。new[] 必須配 delete[]。形式不配屬未定義行為，不能推斷會釋放多少元素或呼叫幾次解構式，也不保證編譯器會警告。請改成 delete[] a;。"><span class="opt-letter">(A)</span> new[] 必須配 delete[]，寫成 delete 是未定義行為</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。delete 對應單一物件，delete[] 對應陣列。只有正確配對時才能依規則推理釋放與解構；把陣列交給 delete 不是合法地只釋放第一個元素。"><span class="opt-letter">(B)</span> 沒問題，delete 和 delete[] 是一樣的</button>
       <button class="sq-opt" data-c="0" data-fb="不對。delete 接的是指標本身，不是解參考的結果。"><span class="opt-letter">(C)</span> 應該寫 delete *a;</button>
       <button class="sq-opt" data-c="0" data-fb="不對。配置本身完全合法。"><span class="opt-letter">(D)</span> new int[10] 的配置語法就錯了</button>
     </div>
@@ -1710,7 +1708,7 @@ function stepReset() {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "位址（Address）", "back": "變數在記憶體裡的門牌號碼，用 &x 取得。每次執行程式時作業系統配的位置都不一樣，所以印出來的數字每次都不同。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間；大小由平台決定，可用 sizeof(p) 查詢。"}, {"front": "參考（Reference）", "back": "變數的別名，宣告成 int &r = x;。宣告當下必須綁定，之後不能改綁另一個物件，也沒有一般語法可建立空參考；實作是否占用儲存空間由編譯器決定。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（Null Pointer）", "back": "不指向任何物件的指標。新程式優先使用 nullptr；可用來表示某項可選關聯或目前結果不存在，解參考前必須先檢查。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "對指標加減整數會自動乘上型別大小，所以 a + 1 是「往後一個元素」而不是「位址加 1」。這就是 a[i] 等同 *(a + i) 的原因，也解釋了索引為什麼從 0 開始。"}, {"front": "陣列退化（Array Decay）", "back": "陣列作為引數傳進函式時會退化成指向首元素的指標，因此函式裡的 sizeof 量到的是指標大小而非陣列大小。所以傳陣列一定要另外傳長度。"}, {"front": "堆疊（Stack）", "back": "存放區域物件與函式呼叫狀態的記憶體區域；區域物件離開範圍時會自動結束生命週期。可用空間由執行環境決定。"}, {"front": "堆積（Heap）", "back": "用 new 建立的物件具有動態儲存期，必須由明確的 owner 以相符 delete 結束生命週期。數量可在執行時決定。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時配置物件並回傳它的位址。new T(v) 建立一個物件，new T[n] 建立陣列；兩者必須分別用 delete 與 delete[] 配對。"}, {"front": "釋放（Deallocation, delete）", "back": "結束 new 建立之物件的生命週期並釋放配置。delete 對應單一物件，delete[] 對應陣列；形式不配屬未定義行為。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "new 出來的記憶體沒有對應的 delete，那塊空間在程式結束前拿不回來。短程式通常看不出來，長時間執行的程式會占用越來越多記憶體，最後可能因資源不足而終止。"}, {"front": "懸空指標（Dangling Pointer）", "back": "仍保存位址，但所指物件已被 delete 或離開範圍。把某一個指標設為 nullptr 可避免再次誤用該變數，卻不會同步修正其他別名。"}, {"front": "二次釋放（Double Free）", "back": "同一配置被釋放兩次，屬未定義行為。將唯一 owner 在 delete 後設為 nullptr 可降低重複釋放風險，但其他別名仍須停止使用。"}, {"front": "所有權（Ownership）", "back": "負責讓動態資源恰好釋放一次的責任。介面應說清楚誰建立、是否轉移所有權，以及誰負責釋放。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 nullptr、讀取已失效物件或讓 new[] 與 delete 配錯。它可能看似正常、崩潰或產生錯誤結果。"}, {"front": "智慧指標（Smart Pointer）", "back": "自動管理動態物件生命週期的類別，例如 std::unique_ptr 表達獨佔所有權，離開範圍時會清理仍由它管理的資源。"}];
+const FLASHCARDS = [{"front": "位址（Address）", "back": "物件在記憶體中的位置，可用 &x 取得 x 的位址。配置位置可能隨執行環境與每次執行改變，也可能相同；不要把某次印出的數字當成固定值。"}, {"front": "指標（Pointer）", "back": "專門存放位址的變數，宣告成 int *p。指標本身也佔空間；大小由平台決定，可用 sizeof(p) 查詢。"}, {"front": "參考（Reference）", "back": "變數的別名，宣告成 int &r = x;。宣告當下必須綁定，之後不能改綁另一個物件，也沒有一般語法可建立空參考；實作是否占用儲存空間由編譯器決定。"}, {"front": "取址運算子（Address-of, &）", "back": "寫在變數前面取得它的位址，例如 &x。注意 & 出現在型別後面（int&）時意思完全不同，那是參考。"}, {"front": "解參考（Dereference, *）", "back": "寫在指標前面，順著它存的位址走進去取得那個東西，例如 *p。* 在宣告時代表「這是指標」，在使用時代表「走進去」，兩者意思不同。"}, {"front": "空指標（Null Pointer）", "back": "不指向任何物件的指標。新程式優先使用 nullptr；可用來表示某項可選關聯或目前結果不存在，解參考前必須先檢查。"}, {"front": "箭號運算子（Arrow, ->）", "back": "透過指標存取成員，p->data 等同 (*p).data。因為指向物件的指標太常見，C++ 給了這個簡寫。"}, {"front": "指標算術（Pointer Arithmetic）", "back": "在同一陣列的合法範圍內，a + 1 前進一個元素，位元組距離為 sizeof(*a)，所以 a[i] 等同 *(a + i)。可以形成尾端後一格的指標供比較，但不可解參考它；不可任意跨越其他物件做加減。"}, {"front": "陣列退化（Array Decay）", "back": "一般陣列傳給 int arr[] 或 int* 參數時，參數實際是指標，sizeof(arr) 得到指標大小。這類介面若要走訪陣列，通常需另傳長度；用陣列參考接收則能保留長度，不能把兩種傳法混為一談。"}, {"front": "堆疊（Stack）", "back": "存放區域物件與函式呼叫狀態的記憶體區域；區域物件離開範圍時會自動結束生命週期。可用空間由執行環境決定。"}, {"front": "堆積（Heap）", "back": "用 new 建立的物件具有動態儲存期，必須由明確的 owner 以相符 delete 結束生命週期。數量可在執行時決定。"}, {"front": "動態配置（Dynamic Allocation, new）", "back": "執行時配置物件並回傳它的位址。new T(v) 建立一個物件，new T[n] 建立陣列；兩者必須分別用 delete 與 delete[] 配對。"}, {"front": "釋放（Deallocation, delete）", "back": "結束 new 建立之物件的生命週期並釋放配置。delete 對應單一物件，delete[] 對應陣列；形式不配屬未定義行為。"}, {"front": "記憶體洩漏（Memory Leak）", "back": "不再使用的動態配置未被釋放，且程式失去回收它的方式，例如唯一指標被新位址覆蓋。若反覆洩漏，長時間執行可能耗盡記憶體；應確保每塊配置有明確負責釋放的擁有者。"}, {"front": "懸空指標（Dangling Pointer）", "back": "仍保存位址，但所指物件已被 delete 或離開範圍。把某一個指標設為 nullptr 可避免再次誤用該變數，卻不會同步修正其他別名。"}, {"front": "二次釋放（Double Free）", "back": "同一配置被釋放兩次，屬未定義行為。將唯一 owner 在 delete 後設為 nullptr 可降低重複釋放風險，但其他別名仍須停止使用。"}, {"front": "所有權（Ownership）", "back": "負責讓動態資源恰好釋放一次的責任。介面應說清楚誰建立、是否轉移所有權，以及誰負責釋放。"}, {"front": "未定義行為（Undefined Behavior）", "back": "C++ 標準沒有規定結果的操作，例如解參考 nullptr、讀取已失效物件或讓 new[] 與 delete 配錯。它可能看似正常、崩潰或產生錯誤結果。"}, {"front": "智慧指標（Smart Pointer）", "back": "自動管理動態物件生命週期的類別，例如 std::unique_ptr 表達獨佔所有權，離開範圍時會清理仍由它管理的資源。"}];
 /* ===== Flashcards engine ===== */
 (function(){
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

@@ -64,6 +64,7 @@ strong{color:var(--ink);}
 /* Viz layout */
 .viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+.viz-layout > *{min-width:0;}
 
 .viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
 
@@ -549,11 +550,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div style="font-size:.8rem;color:var(--muted);">五種常見型別的大小、範圍與地雷，整學期都會回頭查：</div>
+        <div style="font-size:.8rem;color:var(--muted);">以下大小與範圍以常見 8-bit byte、32-bit int、64-bit long long／double 環境示範；實際型別大小可用 sizeof 查詢：</div>
         <div style="overflow-x:auto;margin-top:.4rem;"><table class="cmp-table" style="width:100%;">
           <thead><tr><th>型別</th><th>大小</th><th>範圍／說明</th><th>地雷提醒</th></tr></thead>
           <tbody>
-            <tr><td>int</td><td class="mono">4 byte</td><td class="mono">−2,147,483,648 到 2,147,483,647</td><td>溢位不報錯，直接繞回負數。</td></tr>
+            <tr><td>int</td><td class="mono">4 byte</td><td class="mono">−2,147,483,648 到 2,147,483,647</td><td>有號整數溢位是未定義行為，不保證報錯或繞回。</td></tr>
             <tr><td>long long</td><td class="mono">8 byte</td><td class="mono">約 ±9.2×10¹⁸</td><td>int 不夠用時的第一選擇。</td></tr>
             <tr><td>double</td><td class="mono">8 byte</td><td class="mono">約 ±1.7×10³⁰⁸，15～16 位有效數字</td><td>0.1 + 0.2 != 0.3，浮點誤差是常態。</td></tr>
             <tr><td>char</td><td class="mono">1 byte</td><td class="mono">'a' 其實是整數 97（ASCII）</td><td>ch − 'a' 可算出字母序，第 2 章 anagram 會用到。</td></tr>
@@ -565,9 +566,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <div class="side-panel">
       <div class="info-card">
         <div class="ic-title">int 是固定大小的</div>
-        <div style="font-size:.86rem;line-height:1.9;">C++ 的
-        <code>int</code> 通常 32 位元，上限 2,147,483,647。所以 <code>pow(2, 100)</code>
-        只能給你 double 近似值。超過上限不會報錯，直接繞回負數，這種溢位是經典 bug 來源。</div>
+        <div style="font-size:.86rem;line-height:1.9;">C++ 的 <code>int</code> 在同一實作中大小固定，常見是 32 位元，上限 2,147,483,647。有號整數運算超過範圍是未定義行為，不保證繞回負數，也不保證會被診斷；應先確認運算範圍，必要時在運算前轉成能容納結果的型別。</div>
       </div>
       <div class="info-card">
         <div class="ic-title">整數除法</div>
@@ -709,12 +708,12 @@ true</pre></div>
 <span class="line" data-l="3">cout &lt;&lt; ptrN;          <span class="com">// 印出位址（如 0x7ffe...）</span></span>
 <span class="line" data-l="4">cout &lt;&lt; *ptrN;         <span class="com">// 解參考：沿位址取值，得到 100</span></span>
 <span class="line" data-l="5">*ptrN = <span class="num">50</span>;            <span class="com">// 透過指標改 varN 本人</span></span>
-<span class="line" data-l="6">ptrN = <span class="num">NULL</span>;           <span class="com">// 指向「無」；解參考 NULL 會當機</span></span></div></div>
+<span class="line" data-l="6">ptrN = <span class="num">NULL</span>;           <span class="com">// 指向「無」；透過空指標存取物件是未定義行為</span></span></div></div>
       <div class="info-card">
         <div class="ic-title">為什麼現在就要學指標？</div>
         <div style="font-size:.86rem;line-height:1.9;">第 4 章的鏈結串列、第 8 章的樹、第 9 章的圖，
         全部用「節點＋指標」蓋出來。<code>NULL</code> 扮演「這裡沒有東西」的哨兵：
-        解參考 NULL 的下場是 segfault，程式當場倒地。</div>
+        透過空指標存取物件是未定義行為；可能出現記憶體存取錯誤（segmentation fault），也可能有其他結果。<code>NULL</code> 是舊式空指標常數，現代 C++ 可用專門表示空指標的 <code>nullptr</code>。</div>
       </div>
     </div>
   </div>
@@ -734,7 +733,7 @@ true</pre></div>
   <p><code>int *p; cout &lt;&lt; *p;</code> 這兩行的問題是？</p>
   
   <div class="quiz-options" id="qPtr2Options">
-    <div class="quiz-opt" data-correct="true" data-fb="p 還沒指向任何有效位址（野指標）。可能印垃圾、可能當機。好習慣：宣告就初始化，暫時沒目標就設 NULL。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(A)</span> 解參考未初始化的指標，行為未定義</div><div class="quiz-opt" data-correct="false" data-fb="語法完全合法。合法但爆炸，是 C++ 給新手的第一份見面禮。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(B)</span> 語法錯誤</div><div class="quiz-opt" data-correct="false" data-fb="「未定義行為」的意思是：什麼都可能發生，包括看起來正常。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(C)</span> 一定印出 0</div>
+    <div class="quiz-opt" data-correct="true" data-fb="p 還沒指向任何有效位址（野指標）。可能印垃圾、可能當機。好習慣：宣告就初始化，暫時沒目標就設 NULL。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(A)</span> 解參考未初始化的指標，行為未定義</div><div class="quiz-opt" data-correct="false" data-fb="語法本身可被接受，但讀取未初始化指標並解參考是未定義行為；編譯器也可能提出警告。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(B)</span> 語法錯誤</div><div class="quiz-opt" data-correct="false" data-fb="「未定義行為」的意思是：什麼都可能發生，包括看起來正常。" onclick="quizCheck('qPtr2', this)"><span class="opt-letter">(C)</span> 一定印出 0</div>
   </div>
   <div class="quiz-feedback" id="qPtr2Feedback"></div>
 </div>
@@ -974,13 +973,12 @@ David Ranum</pre></div>
 <span class="line"><span class="kw">int</span> my_arr[] = {<span class="num">2</span>, <span class="num">1</span>, <span class="num">4</span>};       <span class="com">// 原生陣列：大小永遠固定 3</span>
 <span class="line"></span>my_arr[<span class="num">1</span>] = <span class="num">99</span>;</span>
 <span class="line">cout &lt;&lt; my_arr[<span class="num">1</span>] &lt;&lt; endl;</span>
-<span class="line">cout &lt;&lt; my_arr[<span class="num">3</span>] &lt;&lt; endl;       <span class="com">// 危險！沒有界限檢查，讀到垃圾值</span>
+<span class="line"><span class="com">// 錯誤反例（不要取消註解）：cout &lt;&lt; my_arr[3] &lt;&lt; endl; // 索引越界，未定義行為</span>
 <span class="line"></span></span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1024 3 6 
 Xavid
-99
-32764   ← 未定義行為：每次執行都可能不同</pre></div>
-  <p class="dx-note">最後一行是<strong>未定義行為</strong>（undefined behavior）：編譯過、跑得動、答案是垃圾。原生陣列不做界限檢查，這就是課程偏好 vector（配 .at()）的原因。</p>
+99</pre></div>
+  <p class="dx-note">最後一行以註解保留錯誤反例；若取消註解，<code>my_arr[3]</code> 會越界，整支程式的行為就不再有標準保證，連前面的輸出也不能承諾。原生陣列的有效索引是 0、1、2；使用 vector 時可選會檢查範圍的 <code>at()</code>。</p>
 </div>
 <div class="deck-extra">
   <div class="dx-label">講義 01 · set：去重、查成員、集合運算</div>
@@ -1253,9 +1251,10 @@ fail (Average: 53.7)</pre></div>
 <section id="exceptions">
   <div class="section-number">PART 06 · 講義補充</div>
   <h2>例外處理：錯誤發生時給程式一條活路 <span class="sec-badge">講義補充</span></h2>
-  <p>錯誤分兩種。<strong>語法錯誤</strong>是句子寫壞了，編譯器直接拒收，程式根本生不出來，
-  這其實是 C++ 對你最溫柔的時刻。<strong>邏輯錯誤</strong>是程式會跑但答案不對；
-  其中最糟的一類會直接把程式弄死，像除以零、用越界的索引，這種執行期錯誤叫<strong>例外</strong>。</p>
+  <p>先區分三類問題：<strong>語法錯誤</strong>是漏分號等不符合文法的寫法，編譯器會拒絕；<strong>語意／邏輯錯誤</strong>是程式能執行，但公式或條件不符合原意；<strong>執行期錯誤</strong>是執行到某個操作時才出問題，例如整數除以零或越界存取。<a href="p1_cpp_basics.html#errors">P1 三類錯誤</a> 提供完整對照與修正程式。</p>
+  <p><strong>執行期錯誤不等於例外。</strong>在本教材採用的 C++17 中，整數除以零與 <code>vector::operator[]</code> 越界都是未定義行為，沒有保證的輸出或診斷，也不會自動變成可被 <code>catch</code> 接住的 C++ 例外。<code>at()</code> 則會檢查索引，越界時拋出 <code>std::out_of_range</code>，讓程式有機會處理。</p>
+  <p>下面是放在函式內的片段，需引入 <code>&lt;vector&gt;</code>、<code>&lt;iostream&gt;</code> 與 <code>&lt;stdexcept&gt;</code>，並使用 <code>std::</code> 或本頁既有的 <code>using namespace std;</code>。<code>try</code> 是受保護區塊；<code>catch (const out_of_range&amp; e)</code> 以唯讀參考 <code>e</code> 接收範圍例外，避免複製例外物件。<code>v.back()</code> 取最後一個元素，本例 v 有三個元素才可這樣用。</p>
+  <p><code>throw</code> 主動拋出例外；<code>runtime_error("訊息")</code> 建立帶有說明文字的例外物件。右邊的 <code>aNumber</code> 是已宣告的數值變數；<code>sqrt</code> 是 <code>&lt;cmath&gt;</code> 中計算平方根的函式。若要一份完整可執行的 try/catch 範例，見 <a href="p7_files_exceptions.html#exception">P7</a>。</p>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
@@ -1267,7 +1266,7 @@ fail (Average: 53.7)</pre></div>
 <span class="line">    cout &lt;&lt; <span class="str">&quot;Bad index for the vector&quot;</span>;</span>
 <span class="line">    cout &lt;&lt; v.<span class="fn">back</span>();            <span class="com">// 改用最後一個元素頂著</span></span>
 <span class="line">}</span></div>
-        <div class="status-banner"><span class="status-icon">›</span><span class="status-text">try 圈住可能爆炸的程式碼，catch 接住爆炸後決定怎麼辦。沒接住的例外會讓程式當場終止。</span></div>
+        <div class="status-banner"><span class="status-icon">›</span><span class="status-text">try 包住可能拋出例外的程式碼，catch 處理相符型別的例外。沒有相符處理器的例外會使程式終止；catch 不會替未定義行為補上保護。</span></div>
       </div>
     </div>
     <div class="side-panel">
@@ -1283,18 +1282,17 @@ fail (Average: 53.7)</pre></div>
       </div>
       <div class="info-card">
         <div class="ic-title">[] 與 at() 的分工</div>
-        <div style="font-size:.86rem;line-height:1.9;"><code>v[10]</code> 越界是未定義行為，安靜地读垃圾；
-        <code>v.at(10)</code> 越界丟例外，吵但誠實。開發期用 at() 抓 bug，效能關鍵處確定安全後再用 []。</div>
+        <div style="font-size:.86rem;line-height:1.9;"><code>v[10]</code> 越界是未定義行為，可能看似正常、產生錯誤結果或終止，不能依賴其中任何一種結果；<code>v.at(10)</code> 越界會拋出 <code>std::out_of_range</code>。使用 <code>[]</code> 前，必須確定索引在有效範圍內。</div>
       </div>
     </div>
   </div>
   
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · 例外基本功</div>
-  <p>下列哪個「不會」被 try/catch 接住？</p>
+  <p>設 <code>vector&lt;int&gt; v = {1, 2, 3};</code>，下列哪個不能靠相符的 <code>try/catch</code> 處理？</p>
   
   <div class="quiz-options" id="qExcOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="[] 不做檢查也不丟例外，它是未定義行為，可能安靜讀垃圾也可能 segfault。catch 只接得住有人 throw 的東西。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(A)</span> <code>v[10]</code> 的越界存取</div><div class="quiz-opt" data-correct="false" data-fb="at() 會丟 out_of_range，接得住。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(B)</span> <code>v.at(10)</code> 的越界存取</div><div class="quiz-opt" data-correct="false" data-fb="自己丟的當然接得住，這正是 throw 的用途。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(C)</span> 自己 <code>throw runtime_error(...)</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="C++17 的 vector [] 越界是未定義行為，不會自動拋出 out_of_range；catch 處理的是 C++ 例外，不能讓越界操作變合法。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(A)</span> <code>v[10]</code> 的越界存取</div><div class="quiz-opt" data-correct="false" data-fb="at() 會丟 out_of_range，接得住。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(B)</span> <code>v.at(10)</code> 的越界存取</div><div class="quiz-opt" data-correct="false" data-fb="自己丟的當然接得住，這正是 throw 的用途。" onclick="quizCheck('qExc', this)"><span class="opt-letter">(C)</span> 自己 <code>throw runtime_error(...)</code></div>
   </div>
   <div class="quiz-feedback" id="qExcFeedback"></div>
 </div>
@@ -1754,10 +1752,13 @@ Enter pin B input for gate gand2: 0
   
 <div class="quiz-box">
   <div class="quiz-label">EXERCISE 1 · 溢位</div>
-  <p><code>int big = 2147483647; big = big + 1;</code> 之後 big 是？</p>
+  <p>假設 <code>int</code> 的上限是 2147483647，執行 <code>int big = 2147483647; big = big + 1;</code>，C++ 保證什麼？</p>
   
   <div class="quiz-options" id="ex1Options">
-    <div class="quiz-opt" data-correct="true" data-fb="32 位元 int 到頂之後繞回最小的負數。C++ 不會警告、不會丟例外，帳就這樣默默錯下去。需要大範圍就用 long long。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(A)</span> <code>-2147483648</code></div><div class="quiz-opt" data-correct="false" data-fb="這個數已經超出 32 位元 int 能表示的範圍了。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(B)</span> <code>2147483648</code></div><div class="quiz-opt" data-correct="false" data-fb="有號整數溢位是未定義行為，實務上最常見的結果就是繞回負數，不是報錯。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(C)</span> 執行期錯誤</div>
+    <div class="quiz-opt" data-correct="false" data-fb="不保證。即使某次試跑看到這個值，有號整數溢位也不是標準規定的繞回運算。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(A)</span> 一定得到 <code>-2147483648</code></div>
+    <div class="quiz-opt" data-correct="false" data-fb="此值超過題設 int 上限；運算不會自動改用較寬型別。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(B)</span> 一定得到 <code>2147483648</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="正確。有號整數溢位是未定義行為，沒有可依賴的結果或診斷；應在加法前檢查範圍，或先轉成足夠寬的型別。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(C)</span> 未定義行為，沒有保證的結果</div>
+    <div class="quiz-opt" data-correct="false" data-fb="整數溢位不會自動拋出 C++ 例外，包上 try/catch 也不能使這個操作合法。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(D)</span> 一定拋出能被 <code>catch</code> 接住的例外</div>
   </div>
   <div class="quiz-feedback" id="ex1Feedback"></div>
 </div>
@@ -1823,8 +1824,8 @@ Enter pin B input for gate gand2: 0
       <strong>指標</strong>／<strong>&amp;</strong> 取址／<strong>*</strong> 解參考。<br>
       <strong>namespace</strong>：標準函式庫都住在 std 裡。<br><strong>標頭檔</strong>：#include 拉進來的宣告。</div></div>
     <div class="info-card"><div class="ic-title">錯誤三兄弟</div><div style="font-size:.84rem;line-height:1.9;">
-      <strong>語法錯誤</strong>：編譯期被擋。<br><strong>邏輯錯誤</strong>：會跑但答案錯。<br>
-      <strong>例外</strong>：執行期被打斷，可 try/catch 接住。</div></div>
+      <strong>語法錯誤</strong>：編譯期被擋。<br><strong>語意／邏輯錯誤</strong>：會跑但答案不符原意。<br>
+      <strong>執行期錯誤</strong>：執行到某個操作才出問題。<br><strong>例外</strong>：部分操作以 throw 回報問題，可由相符的 catch 處理；未定義行為不在此保證內。</div></div>
     <div class="info-card"><div class="ic-title">物件導向</div><div style="font-size:.84rem;line-height:1.9;">
       <strong>建構子</strong>：與類別同名、無回傳型別。<br><strong>多載</strong>：同名不同參數列。<br>
       <strong>覆寫</strong>：子類換掉父類的實作。<br><strong>多型</strong>：同一介面、各自表述（virtual）。<br>
@@ -2000,10 +2001,10 @@ function ptrRender(varVal, ptrVal, msg, line) {
   setStatus('ptrStatus', msg); hlLine('ptrCode', line);
 }
 function ptrStep(s) {
-  if (s === 1) ptrRender('100', '?', 'varN 拿到一格 4 byte 的記憶體（位址 0x1000），放入 100。ptrN 還沒登場。', 1);
+  if (s === 1) ptrRender('100', '?', '本圖假設 int 佔 4 byte，varN 的示意位址是 0x1000，放入 100。ptrN 還沒登場。', 1);
   if (s === 2) ptrRender('100', '0x1000', 'ptrN 的「值」是 varN 的位址。此時 *ptrN 讀出 100。', 2);
   if (s === 3) ptrRender('50', '0x1000', '*ptrN = 50：沿位址把 varN 本人改成 50。一塊記憶體、兩個名字。', 5);
-  if (s === 4) ptrRender('50', 'NULL', 'ptrN = NULL：不再指向任何東西。這時解參考就當機，先檢查再用。', 6);
+  if (s === 4) ptrRender('50', 'NULL', 'ptrN = NULL：不再指向任何東西。這時透過它存取物件是未定義行為，必須先確認指標有效。', 6);
 }
 ptrStep(1);
 
@@ -2055,7 +2056,7 @@ function gateRun() {
 gateRun();
 </script>
 <script>
-const FLASHCARDS = [{"front": "演算法（Algorithm）", "back": "解決問題或完成任務的逐步程序或公式：一組精確定義操作順序的規則，每一步都明確、可執行，且在有限步驟內結束。"}, {"front": "可計算（Computable）", "back": "指一個問題可以由計算過程解決：存在一個演算法，對任何合法輸入都能在有限時間內產生答案。"}, {"front": "抽象化（Abstraction）", "back": "隱藏複雜的實作細節、只露出必要部分的過程。這是電腦科學的核心概念：藉由減少與隱藏細節來管理複雜度。"}, {"front": "介面（Interface）", "back": "兩個以上元件交換資訊的共同邊界。可以指讓兩支程式互相溝通的軟體介面，也可以指使用者與電腦互動的使用者介面。"}, {"front": "程序抽象化（Procedure Abstraction）", "back": "抽象化的一種：把特定任務包成程序（函式）供人呼叫，使用者只需知道「做什麼」，不必知道「怎麼做」的實作細節。"}, {"front": "程式設計（Programming）", "back": "建立一組指令告訴電腦如何完成任務的過程：用程式語言撰寫程式碼，解決特定問題或打造應用程式與軟體。"}, {"front": "控制結構（Control Constructs）", "back": "程式語言中控制執行流程的元素，例如迴圈（for、while）、條件判斷（if、switch）與分支敘述（break、continue）。"}, {"front": "資料型別（Data Types）", "back": "告訴編譯器程式設計者打算如何使用資料的類別。常見的有整數、浮點數、字元與布林值。"}, {"front": "抽象資料型別（ADT, Abstract Data Type）", "back": "從使用者觀點、以「行為」定義的資料型別數學模型：規定可能的值、可用的操作，以及這些操作的行為，但不規定實作方式。"}, {"front": "封裝（Encapsulation）", "back": "物件導向的原則之一：把資料（屬性）和操作資料的方法綁進同一個類別，並限制外界直接存取物件的部分成員。"}, {"front": "資料結構（Data Structure）", "back": "在電腦中組織與儲存資料的特定方式，讓資料能被有效率地存取與修改。例子：陣列、鏈結串列、樹、圖。"}, {"front": "識別字（Identifiers）", "back": "程式碼中用來命名變數、函式、類別、模組等實體的名稱，讓不同實體得以區分。"}, {"front": "變數（Variables）", "back": "用來儲存資料值的符號。在 C++ 裡變數有固定的資料型別，程式執行過程中可以存放不同的值。"}, {"front": "指定敘述（Assignment Statement）", "back": "把值指定給變數的敘述，通常用指定運算子（=）：把右邊運算式的結果存進左邊的變數。"}, {"front": "序列（Sequence）", "back": "元素有次序的集合。指陣列、串列這類元素按特定順序儲存的資料結構。"}, {"front": "無序集合（Unordered Collections）", "back": "元素不按特定順序儲存與存取的資料結構，例如 set 與某些語言的字典（雜湊式容器）。這裡的「無序」指沒有位置索引，不是沒有排序；C++ 的 set／map 內部仍照 key 排序，雜湊版才是 unordered_*。"}, {"front": "格式化字串（Formatted String）", "back": "把變數值插進文字並控制排版的輸出。C++ 用 << 把值串進輸出串流，並用操縱子（manipulator）控制版面。"}, {"front": "可變（Mutable）", "back": "指物件建立後狀態或值仍可改變：方法或運算可以就地修改物件持有的資料，不必另建新物件。"}, {"front": "串流操縱子（Stream Manipulator）", "back": "像 fixed、setprecision、setw、endl 這類用 << 插進 C++ 串流的小工具，控制後續值的格式（小數位數、欄寬、換行）。多數宣告在 <iomanip> 標頭裡。"}, {"front": "格式修飾（Format Modifier）", "back": "格式化輸出時控制插入值外觀的指示，例如指定浮點數的小數位數，或為對齊而補空白。"}, {"front": "選擇敘述（Selection Statements）", "back": "讓程式依條件執行不同程式碼區塊的敘述，最常見的是 if 敘述。"}, {"front": "語法錯誤（Syntax Error）", "back": "程式碼文法上的錯誤，編譯器在程式執行前就會抓到。C++ 中語法錯誤會讓編譯失敗，修好之前不會產生執行檔。"}, {"front": "邏輯錯誤（Logic Error）", "back": "程式能跑但行為不正確的 bug：不會阻止程式執行，卻會產生非預期或錯誤的輸出與行為。"}, {"front": "例外（Exceptions）", "back": "程式執行期間打斷正常指令流程的事件，通常用例外處理機制（如 try/catch）接住並處理。"}, {"front": "標頭檔（Header File）", "back": "含宣告的檔案（如 <iostream> 或 \"myclass.h\"），C++ 程式用 #include 引入。標頭檔讓程式碼能跨多個原始檔組織與重用，扮演其他語言中模組的角色。"}, {"front": "函式（Functions）", "back": "執行特定任務、可被呼叫的程式碼區塊。函式可以接收輸入（引數）並回傳輸出（回傳值）。"}, {"front": "引數（Argument）", "back": "呼叫函式時實際傳入的值。函式定義裡接收這些值的變數則叫參數（parameter）。"}, {"front": "關鍵字（Keyword）", "back": "被語言保留、具有特殊意義的字（如 int、return、class），不能拿來當識別字使用。"}, {"front": "物件導向程式設計（OOP）", "back": "以「物件」（類別的實體）為中心的程式設計典範：物件封裝資料與函式，強調封裝、繼承與多型三大原則。"}, {"front": "類別（Class）", "back": "物件導向中建立物件的藍圖：定義一組屬性（資料成員）與方法，凡由這個類別實體化出的物件都具備這些特徵。"}, {"front": "物件（Object）", "back": "類別的實體（instance）：程式中代表某個具體事物的實體，由方法（行為）與屬性（狀態）刻劃。"}, {"front": "屬性（Attribute）", "back": "類別中具名的性質，有型別、通常用來存資料。物件的狀態就由它所有屬性的值決定。"}, {"front": "方法（Methods）", "back": "隸屬於物件或類別的函式，可以操作物件內部的資料（屬性）。C++ 裡也叫成員函式（member function）。"}, {"front": "建構子（Constructor）", "back": "類別中的特殊方法，主要工作是初始化新物件：與類別同名、沒有回傳型別，物件實體化時自動被呼叫。"}, {"front": "多型（Polymorphism）", "back": "「同一個介面、不同的底層形式」：一個介面可以代表多種不同型別的實作，呼叫端不必知道實際是哪一種。"}, {"front": "覆寫（Overrides）", "back": "子類別對父類別已提供的方法給出自己的實作版本，物件實際執行時用的是子類別的版本。"}, {"front": "多載（Overloading）", "back": "在同一個範疇裡定義多個同名但參數列不同（signature 不同）的函式或方法，編譯器依引數自動挑選正確版本。"}, {"front": "淺複製（Shallow Copies）", "back": "複製物件時只複製「參考」：副本和原本指向同一批內部物件，改副本的內容會影響原本，反之亦然。"}, {"front": "深複製（Deep Copies）", "back": "複製物件時遞迴複製它包含的所有物件：副本與原本完全獨立，改副本的內容不會影響原本。"}, {"front": "繼承（Inheritance）", "back": "物件導向原則之一：從既有類別衍生新類別，衍生類別繼承既有類別的屬性與方法，達到程式碼重用。"}, {"front": "編譯器（Compiler）", "back": "在執行前把整份原始碼翻譯成機器碼的程式。C++ 是編譯式語言：g++ 把 .cpp 檔變成執行檔，型別與語法錯誤在編譯期就被抓出來。"}, {"front": "指標（Pointer）", "back": "儲存另一個變數記憶體位址的變數，宣告時用 *，例如 int *p = &x;。指標讓動態記憶體管理與鏈結資料結構成為可能，是 C++ 的核心。"}, {"front": "參考與取址運算子（&）", "back": "在宣告中，& 建立參考（既有變數的別名）；在運算式中，& 取得變數的位址，例如 p = &x;。"}, {"front": "解參考運算子（*）", "back": "在運算式中套在指標上，存取指標所存位址上的值，例如 cout << *p; 會印出 p 指向的值。"}, {"front": "命名空間（Namespace）", "back": "把識別字分組以避免名稱衝突的具名範疇。C++ 標準函式庫都住在 std 裡，所以要寫 std::cout，或加上 using namespace std;。"}];
+const FLASHCARDS = [{"front": "演算法（Algorithm）", "back": "解決問題或完成任務的逐步程序或公式：一組精確定義操作順序的規則，每一步都明確、可執行，且在有限步驟內結束。"}, {"front": "可計算（Computable）", "back": "指一個問題可以由計算過程解決：存在一個演算法，對任何合法輸入都能在有限時間內產生答案。"}, {"front": "抽象化（Abstraction）", "back": "隱藏複雜的實作細節、只露出必要部分的過程。這是電腦科學的核心概念：藉由減少與隱藏細節來管理複雜度。"}, {"front": "介面（Interface）", "back": "兩個以上元件交換資訊的共同邊界。可以指讓兩支程式互相溝通的軟體介面，也可以指使用者與電腦互動的使用者介面。"}, {"front": "程序抽象化（Procedure Abstraction）", "back": "抽象化的一種：把特定任務包成程序（函式）供人呼叫，使用者只需知道「做什麼」，不必知道「怎麼做」的實作細節。"}, {"front": "程式設計（Programming）", "back": "建立一組指令告訴電腦如何完成任務的過程：用程式語言撰寫程式碼，解決特定問題或打造應用程式與軟體。"}, {"front": "控制結構（Control Constructs）", "back": "程式語言中控制執行流程的元素，例如迴圈（for、while）、條件判斷（if、switch）與分支敘述（break、continue）。"}, {"front": "資料型別（Data Types）", "back": "告訴編譯器程式設計者打算如何使用資料的類別。常見的有整數、浮點數、字元與布林值。"}, {"front": "抽象資料型別（ADT, Abstract Data Type）", "back": "從使用者觀點、以「行為」定義的資料型別數學模型：規定可能的值、可用的操作，以及這些操作的行為，但不規定實作方式。"}, {"front": "封裝（Encapsulation）", "back": "物件導向的原則之一：把資料（屬性）和操作資料的方法綁進同一個類別，並限制外界直接存取物件的部分成員。"}, {"front": "資料結構（Data Structure）", "back": "在電腦中組織與儲存資料的特定方式，讓資料能被有效率地存取與修改。例子：陣列、鏈結串列、樹、圖。"}, {"front": "識別字（Identifiers）", "back": "程式碼中用來命名變數、函式、類別、模組等實體的名稱，讓不同實體得以區分。"}, {"front": "變數（Variables）", "back": "用來儲存資料值的符號。在 C++ 裡變數有固定的資料型別，程式執行過程中可以存放不同的值。"}, {"front": "指定敘述（Assignment Statement）", "back": "把值指定給變數的敘述，通常用指定運算子（=）：把右邊運算式的結果存進左邊的變數。"}, {"front": "序列（Sequence）", "back": "元素有次序的集合。指陣列、串列這類元素按特定順序儲存的資料結構。"}, {"front": "無序集合（Unordered Collections）", "back": "元素不按特定順序儲存與存取的資料結構，例如 set 與某些語言的字典（雜湊式容器）。這裡的「無序」指沒有位置索引，不是沒有排序；C++ 的 set／map 內部仍照 key 排序，雜湊版才是 unordered_*。"}, {"front": "格式化字串（Formatted String）", "back": "把變數值插進文字並控制排版的輸出。C++ 用 << 把值串進輸出串流，並用操縱子（manipulator）控制版面。"}, {"front": "可變（Mutable）", "back": "指物件建立後狀態或值仍可改變：方法或運算可以就地修改物件持有的資料，不必另建新物件。"}, {"front": "串流操縱子（Stream Manipulator）", "back": "像 fixed、setprecision、setw、endl 這類用 << 插進 C++ 串流的小工具，控制後續值的格式（小數位數、欄寬、換行）。多數宣告在 <iomanip> 標頭裡。"}, {"front": "格式修飾（Format Modifier）", "back": "格式化輸出時控制插入值外觀的指示，例如指定浮點數的小數位數，或為對齊而補空白。"}, {"front": "選擇敘述（Selection Statements）", "back": "讓程式依條件執行不同程式碼區塊的敘述，最常見的是 if 敘述。"}, {"front": "語法錯誤（Syntax Error）", "back": "程式不符合 C++ 文法，例如 int count = 3 後漏寫分號。編譯時會出現診斷，修正後再重新編譯；訊息指到的位置可能在漏寫處的下一行。編譯失敗時，不要誤執行先前留下的舊執行檔。"}, {"front": "語意／邏輯錯誤（Semantic / Logic Error）", "back": "本教材指程式能編譯、執行，卻沒有表達原本意圖。例如想求 3 與 5 的平均，卻寫成 3 + 5 / 2.0，結果是 5.5 而非 4；應改為 (3 + 5) / 2.0。用已知答案檢查公式、條件與運算順序。"}, {"front": "例外（Exceptions）", "back": "C++ 以 throw 拋出例外物件，並尋找相符的 catch 處理，例如 vector::at() 越界時拋出 out_of_range。例外是回報問題的機制，不等於所有執行期錯誤；整數除以零及原生陣列越界不會自動變成可捕捉的 C++ 例外。"}, {"front": "標頭檔（Header File）", "back": "含宣告的檔案（如 <iostream> 或 \"myclass.h\"），C++ 程式用 #include 引入。標頭檔讓程式碼能跨多個原始檔組織與重用，扮演其他語言中模組的角色。"}, {"front": "函式（Functions）", "back": "執行特定任務、可被呼叫的程式碼區塊。函式可以接收輸入（引數）並回傳輸出（回傳值）。"}, {"front": "引數（Argument）", "back": "呼叫函式時實際傳入的值。函式定義裡接收這些值的變數則叫參數（parameter）。"}, {"front": "關鍵字（Keyword）", "back": "被語言保留、具有特殊意義的字（如 int、return、class），不能拿來當識別字使用。"}, {"front": "物件導向程式設計（OOP）", "back": "以「物件」（類別的實體）為中心的程式設計典範：物件封裝資料與函式，強調封裝、繼承與多型三大原則。"}, {"front": "類別（Class）", "back": "物件導向中建立物件的藍圖：定義一組屬性（資料成員）與方法，凡由這個類別實體化出的物件都具備這些特徵。"}, {"front": "物件（Object）", "back": "類別的實體（instance）：程式中代表某個具體事物的實體，由方法（行為）與屬性（狀態）刻劃。"}, {"front": "屬性（Attribute）", "back": "類別中具名的性質，有型別、通常用來存資料。物件的狀態就由它所有屬性的值決定。"}, {"front": "方法（Methods）", "back": "隸屬於物件或類別的函式，可以操作物件內部的資料（屬性）。C++ 裡也叫成員函式（member function）。"}, {"front": "建構子（Constructor）", "back": "類別中的特殊方法，主要工作是初始化新物件：與類別同名、沒有回傳型別，物件實體化時自動被呼叫。"}, {"front": "多型（Polymorphism）", "back": "「同一個介面、不同的底層形式」：一個介面可以代表多種不同型別的實作，呼叫端不必知道實際是哪一種。"}, {"front": "覆寫（Overrides）", "back": "子類別對父類別已提供的方法給出自己的實作版本，物件實際執行時用的是子類別的版本。"}, {"front": "多載（Overloading）", "back": "在同一個範疇裡定義多個同名但參數列不同（signature 不同）的函式或方法，編譯器依引數自動挑選正確版本。"}, {"front": "淺複製（Shallow Copies）", "back": "複製物件成員時，若指標成員只複製位址，兩份物件就會共用同一個目標。透過任一指標修改目標，另一方也看得到；一般數值成員仍是各自的副本。若雙方都負責 delete 同一目標，還會造成重複釋放。"}, {"front": "深複製（Deep Copies）", "back": "複製物件時遞迴複製它包含的所有物件：副本與原本完全獨立，改副本的內容不會影響原本。"}, {"front": "繼承（Inheritance）", "back": "物件導向原則之一：從既有類別衍生新類別，衍生類別繼承既有類別的屬性與方法，達到程式碼重用。"}, {"front": "編譯器（Compiler）", "back": "在執行前把整份原始碼翻譯成機器碼的程式。C++ 是編譯式語言：g++ 把 .cpp 檔變成執行檔，型別與語法錯誤在編譯期就被抓出來。"}, {"front": "指標（Pointer）", "back": "儲存另一個變數記憶體位址的變數，宣告時用 *，例如 int *p = &x;。指標讓動態記憶體管理與鏈結資料結構成為可能，是 C++ 的核心。"}, {"front": "參考與取址運算子（&）", "back": "在宣告中，& 建立參考（既有變數的別名）；在運算式中，& 取得變數的位址，例如 p = &x;。"}, {"front": "解參考運算子（*）", "back": "在運算式中套在指標上，存取指標所存位址上的值，例如 cout << *p; 會印出 p 指向的值。"}, {"front": "命名空間（Namespace）", "back": "把識別字分組以避免名稱衝突的具名範疇。C++ 標準函式庫都住在 std 裡，所以要寫 std::cout，或加上 using namespace std;。"}, {"front": "執行期錯誤（Runtime Error）", "back": "程式執行到某項操作時才出現的問題，例如整數除數為零、原生陣列越界。C++ 中這兩者會造成未定義行為，不保證當機或顯示訊息；應先檢查除數及索引。部分操作會拋出 C++ 例外，可用相符的 catch 處理，但 catch 不會自動接住所有執行期錯誤。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

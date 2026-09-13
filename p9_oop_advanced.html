@@ -530,7 +530,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#prologue"><span class="toc-num">P00</span>從一個類別到一整族</a>
     <a href="#inherit"><span class="toc-num">P01</span>繼承</a>
     <a href="#ctororder"><span class="toc-num">P02</span>建構順序</a>
-    <a href="#virtual"><span class="toc-num">P03</span>virtual：沒有它就沒有多型</a>
+    <a href="#virtual"><span class="toc-num">P03</span>virtual：依實際型別選擇版本</a>
     <a href="#pure"><span class="toc-num">P04</span>純虛擬函式</a><a href="#tmpl"><span class="toc-num">P05</span>template</a>
     <a href="#eqop"><span class="toc-num">P06</span>operator==：什麼叫一樣</a>
     <a href="#ltop"><span class="toc-num">P07</span>operator<：排序的關鍵</a>
@@ -576,7 +576,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="inherit">
   <div class="section-number">PART 01 · 繼承</div>
   <h2>is-a：以基底介面建立衍生類別</h2><p>下例的 <code>Dog(string n) : Animal(n)</code> 使用 P8 的建構式初始化列表；這次冒號後指定的是基底 Animal 的建構式。它與 <code>class Dog : public Animal</code> 宣告繼承關係的冒號不同。下一節再整理執行順序。</p>
-  <p>「有序串列<strong>是一種</strong>串列」—— 這種 is-a 關係就用繼承。子類別自動擁有父類別所有的成員，只需要寫「不一樣的那部分」。</p>
+  <p>「有序串列<strong>是一種</strong>串列」—— 這種 is-a 關係就用繼承。衍生物件包含基底類別的部分，可以延伸既有操作；基底的 private 成員仍不能由衍生類別直接存取。</p>
 
 <div class="deck-extra">
   <div class="dx-label">繼承與覆寫</div>
@@ -593,22 +593,22 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="11">        <span class="kw">void</span> speak() { cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> 發出聲音</span><span class="str">"</span> &lt;&lt; endl; }</span>
 <span class="line" data-l="12">};</span>
 <span class="line" data-l="13"> </span>
-<span class="line" data-l="14"><span class="kw">class</span> Dog : <span class="kw">public</span> Animal {          <span class="com">// 子類別，繼承 Animal 的一切</span>
+<span class="line" data-l="14"><span class="kw">class</span> Dog : <span class="kw">public</span> Animal {          <span class="com">// 子類別，包含 Animal 的基底部分</span>
 <span class="line" data-l="15"></span>    <span class="kw">public</span>:</span>
 <span class="line" data-l="16">        Dog(string n) : Animal(n) { }   <span class="com">// 成員初始化列表：先蓋好父類別的部分</span>
-<span class="line" data-l="17"></span>        <span class="kw">void</span> speak() { cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> 汪汪叫</span><span class="str">"</span> &lt;&lt; endl; }   <span class="com">// 覆寫</span>
+<span class="line" data-l="17"></span>        <span class="kw">void</span> speak() { cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> 汪汪叫</span><span class="str">"</span> &lt;&lt; endl; }   <span class="com">// 遮蔽同名的非虛擬函式</span>
 <span class="line" data-l="18"></span>};</span>
 <span class="line" data-l="19"> </span>
 <span class="line" data-l="20"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="21">    Dog d(<span class="str">"</span><span class="str">小黑</span><span class="str">"</span>);</span>
 <span class="line" data-l="22">    d.eat();      <span class="com">// 繼承來的，不用重寫</span>
-<span class="line" data-l="23"></span>    d.speak();    <span class="com">// 用自己覆寫的版本</span>
+<span class="line" data-l="23"></span>    d.speak();    <span class="com">// 用 Dog 自己的版本</span>
 <span class="line" data-l="24"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="25">}</span>
 <span class="line" data-l="26"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>小黑 在吃東西
 小黑 汪汪叫</pre></div>
-  <p class="dx-note"><code>Dog</code> 沒有自己寫 <code>eat()</code>，直接用繼承來的；但它寫了自己的 <code>speak()</code>，蓋掉父類別的版本，這叫<strong>覆寫</strong>。另外注意 <code>protected</code>：它讓子類別碰得到 <code>name</code>，但外人還是碰不到。</p>
+  <p class="dx-note"><code>Dog</code> 沒有自己寫 <code>eat()</code>，直接用繼承來的；但它寫了自己的 <code>speak()</code>，使直接以 Dog 呼叫時選到自己的版本。這裡的基底函式沒有 <code>virtual</code>，屬於<strong>名稱遮蔽（name hiding）</strong>；下一節加上 virtual 後才介紹虛擬函式的<strong>覆寫（override）</strong>。另外注意 <code>protected</code>：它讓子類別碰得到 <code>name</code>，但外人還是碰不到。</p>
 </div>
 
   <div class="cmp-table-wrap">
@@ -618,7 +618,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <tr><td class="mono">class Dog : public Animal</td><td>Dog 繼承 Animal，父類別的 public 仍是 public</td></tr>
       <tr><td class="mono">protected:</td><td>自己與子類別看得到，外人看不到</td></tr>
       <tr><td class="mono">Dog(string n) : Animal(n)</td><td>成員初始化列表：先把父類別的部分蓋好</td></tr>
-      <tr><td class="mono">void speak() override</td><td>明說「我是在覆寫」，名字打錯編譯器會抓出來</td></tr>
+      <tr><td class="mono">void speak() override</td><td>要求此函式覆寫基底的虛擬函式；本節 Animal::speak 尚未加 virtual，不能直接套用，詳見 PART 03</td></tr>
     </tbody>
   </table></div>
   </div>
@@ -704,13 +704,12 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="18">}</span>
 <span class="line" data-l="19"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>我是 Derived</pre></div>
-  <p class="dx-note">加了 <code>virtual</code>，C++ 會在執行期查一張表（虛擬函式表）找出物件真正的型別。這就是<strong>動態繫結</strong>，也是多型能運作的機制。子類別那邊建議加 <code>override</code>：名字或簽章打錯時編譯器會直接抓出來。</p>
+  <p class="dx-note">加了 <code>virtual</code>，一般成員呼叫會依物件的實際型別選擇最終覆寫版本，稱為<strong>動態繫結</strong>；虛擬函式表是常見實作方式，標準不要求一定查表。<code>override</code> 放在衍生類別的函式參數列後，要求編譯器確認它確實覆寫基底虛擬函式；名字、參數型別或末尾 const 寫錯都可能使檢查失敗。</p>
 </div>
 
   <div class="info-box">
-    <div class="info-label">💡 兩個條件缺一不可</div>
-    <p style="margin-bottom:0;">① 方法要標 <code>virtual</code>；② 要<strong>透過基底類別的指標或參考</strong>呼叫。<br>
-    少了第二點，多型也不會發生 —— 而且如果你是<strong>用值傳遞</strong>子類別物件給一個吃父類別的函式，子類別多出來的部分會被直接切掉（叫做 object slicing）。所以多型場合一律傳指標或參考。</p>
+    <div class="info-label">💡 用共同介面保留原物件的型別</div>
+    <p style="margin-bottom:0;">以 <code>Base*</code> 或 <code>Base&amp;</code> 操作不同衍生物件時，基底函式應為 <code>virtual</code>，才能選到實際物件的覆寫版本。若<strong>把衍生物件複製成 Base 值</strong>，只會留下基底部分，稱為<strong>物件切割（object slicing）</strong>，因此要保留原物件就傳指標或參考。直接以物件呼叫虛擬函式也遵循虛擬呼叫規則，並非只有基底指標才能呼叫。</p>
   </div>
 </section>
 
@@ -740,7 +739,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </section><section id="tmpl">
   <div class="section-number">PART 05 · template</div>
   <h2>一份模板，供符合需求的型別使用</h2>
-  <p>模板讓型別成為編譯期參數。<code>template &lt;typename T&gt;</code> 宣告一個型別參數 T，<code>Box&lt;int&gt;</code> 就是以 int 替換 T 的具體型別。先讀下面完整的 Box，再用同一套尖括號讀後續容器與比較器的型別。</p>
+  <p>模板讓型別成為編譯期參數。<code>template &lt;typename T&gt;</code> 宣告一個型別參數 T：template 表示接下來是模板，typename 表示 T 代表型別名稱，T 是自己取的占位名稱。<code>Box&lt;int&gt;</code> 就是以 int 替換 T 的具體型別。先讀下面完整的 Box，再用同一套尖括號讀後續容器與比較器的型別。</p>
 
 <div class="deck-extra">
   <div class="dx-label">同一個 Box，兩種型別各產生一份</div>
@@ -1069,7 +1068,7 @@ found = 1</pre></div>
 <span class="line" data-l="22"> </span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>收到的順序: 20 10
 外部任意改動後: 10 99 20 </pre></div>
-  <p class="dx-note">問題不在它不能動，而在它<strong>能做的事太多了</strong>：使用者可以對 <code>Inbox</code> 呼叫 <code>sort()</code> 或 <code>insert(begin()+1, x)</code>，任意改變收件順序，破壞類別只允許依序收件與取件的承諾。</p>
+  <p class="dx-note">問題不在它不能動，而在它<strong>能做的事太多了</strong>：使用者可以以 <code>sort(box.begin(), box.end())</code> 重排 Inbox，或以 <code>box.insert(box.begin()+1, x)</code> 在有效位置插入，任意改變收件順序，破壞類別只允許依序收件與取件的承諾。</p>
 </div>
 
   <div class="cmp-table-wrap">
@@ -1183,7 +1182,7 @@ found = 1</pre></div>
     <div class="quiz-options" id="q2Options">
       <div class="quiz-opt" data-correct="true" data-fb="正確。沒有 virtual 時，編譯器在編譯期就照指標的宣告型別決定呼叫誰，跟物件實際是什麼型別無關。加上 virtual 就會改成執行期查表。" onclick="quizCheck('q2', this)"><span class="opt-letter">(A)</span> <code>who()</code> 沒有標 <code>virtual</code></div>
       <div class="quiz-opt" data-correct="false" data-fb="指標寫法沒問題，透過基底指標呼叫正是多型的標準用法——前提是方法有 virtual。" onclick="quizCheck('q2', this)"><span class="opt-letter">(B)</span> 不能用基底類別的指標指向子類別物件</div>
-      <div class="quiz-opt" data-correct="false" data-fb="子類別確實覆寫了，問題在於沒有 virtual 的話那個覆寫在基底指標上不會被選中。" onclick="quizCheck('q2', this)"><span class="opt-letter">(C)</span> 子類別沒有真的覆寫</div>
+      <div class="quiz-opt" data-correct="false" data-fb="Derived 有宣告自己的 who()。但 Base 的 who() 不是 virtual，這裡是同名遮蔽，不是虛擬函式覆寫；透過 Base* 呼叫時選用 Base::who()。" onclick="quizCheck('q2', this)"><span class="opt-letter">(C)</span> Derived 沒有宣告 who()</div>
     <div class="quiz-opt" onclick="quizCheck('q2', this)" data-correct="false" data-fb="基底類別的指標和參考都可以觸發虛擬函式的動態派送，關鍵是 virtual。"><span class="opt-letter">(D)</span> 指標必須改成參考才有多型</div>
 </div>
     <div class="quiz-feedback" id="q2Feedback"></div>
@@ -1193,7 +1192,7 @@ found = 1</pre></div>
     <div class="quiz-label">EXERCISE 3 · 該繼承還是該持有</div>
     <p>你要實作一個保留收件順序、只允許依序接收與取件的 <code>Inbox</code>。哪個設計比較好？</p>
     <div class="quiz-options" id="q3Options">
-      <div class="quiz-opt" data-correct="false" data-fb="這樣使用者可以對你的 Inbox 呼叫 sort()、insert(begin()+1, x)，直接違反收件順序的契約，而你擋不住。" onclick="quizCheck('q3', this)"><span class="opt-letter">(A)</span> <code>class Inbox : public vector&lt;int&gt;</code></div>
+      <div class="quiz-opt" data-correct="false" data-fb="這樣使用者可以使用 sort(box.begin(), box.end()) 排序，或以 box.insert(box.begin()+1, x) 插入中間，直接違反收件順序的契約，而你擋不住。" onclick="quizCheck('q3', this)"><span class="opt-letter">(A)</span> <code>class Inbox : public vector&lt;int&gt;</code></div>
       <div class="quiz-opt" data-correct="true" data-fb="正確。組合讓你只暴露 receive 與 take 等收件箱操作；內部若改用其他容器，呼叫端仍可維持相同介面。" onclick="quizCheck('q3', this)"><span class="opt-letter">(B)</span> 內部持有一個 <code>vector</code>，只提供收件與取件操作</div>
       <div class="quiz-opt" data-correct="false" data-fb="兩者差很多。差別不在能不能動，而在你對介面還有沒有控制權。" onclick="quizCheck('q3', this)"><span class="opt-letter">(C)</span> 兩者完全等價</div>
     <div class="quiz-opt" onclick="quizCheck('q3', this)" data-correct="false" data-fb="公開底層容器仍允許任意中途插入與排序，無法維持類別自己的操作限制。"><span class="opt-letter">(D)</span> 把 vector 設為 public 資料成員</div>
@@ -1223,7 +1222,7 @@ found = 1</pre></div>
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">五條記得住的規則</h3>
   <div class="info-box green">
     <p>① 子類別的建構式用成員初始化列表呼叫父類別的版本。<br>
-    ② 要多型就要 <code>virtual</code>，而且要透過指標或參考呼叫。<br>
+    ② 以共同基底介面使用執行期多型時，使用 <code>virtual</code>，並傳指標或參考以避免物件切割。<br>
     ③ 想被排序、想進 <code>set</code>／<code>priority_queue</code>，給 <code>operator&lt;</code>。<br>
     ④ 想當 <code>unordered_map</code> 的鍵，給 <code>operator==</code> 加 <code>std::hash</code> 特化。<br>
     ⑤ 不確定該繼承還是組合時，<strong>選組合</strong>。</p>
@@ -1293,7 +1292,7 @@ sort(v.begin(), v.end());
       <button class="sq-opt" data-c="1" data-fb="正確。本例的 sort 使用預設比較，Task 沒有可用的 operator&lt;。可提供符合嚴格弱序的 operator&lt;，或改傳入自訂比較器。"><span class="opt-letter">(A)</span> Task 沒有定義 operator&lt;，sort 不知道怎麼比大小</button>
       <button class="sq-opt" data-c="0" data-fb="不對，那是 C++11 之後的標準寫法，完全合法。"><span class="opt-letter">(B)</span> vector 不能用初始化列表建立</button>
       <button class="sq-opt" data-c="0" data-fb="不對。這裡沒有需要預設建構的地方。"><span class="opt-letter">(C)</span> Task 缺少無參數建構式</button>
-      <button class="sq-opt" data-c="0" data-fb="sort 可處理符合移動、交換及比较需求的自訂型別，本例欠缺的是可用的比較方式。"><span class="opt-letter">(D)</span> sort 只能用在內建型別上</button>
+      <button class="sq-opt" data-c="0" data-fb="sort 可處理符合移動、交換及比較需求的自訂型別，本例欠缺的是可用的比較方式。"><span class="opt-letter">(D)</span> sort 只能用在內建型別上</button>
     </div>
     <div class="sq-fb"></div>
   </div>

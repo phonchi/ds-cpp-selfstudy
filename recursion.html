@@ -64,6 +64,8 @@ strong{color:var(--ink);}
 /* Viz layout */
 .viz-layout{display:grid;grid-template-columns:1fr 320px;gap:1.3rem;margin:1.2rem 0;align-items:start;}
 @media(max-width:900px){.viz-layout{grid-template-columns:1fr;}}
+.viz-layout > *{min-width:0;}
+#hanoiVis{overflow-x:auto;justify-content:flex-start !important;}
 
 .viz-panel{background:linear-gradient(160deg,#fffdf7 0%,#f4efe3 100%);border:1px solid var(--card-border);border-radius:12px;padding:1rem;box-shadow:0 4px 18px rgba(0,0,0,.06);position:relative;}
 
@@ -529,6 +531,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="5"><span class="kw">int</span> <span class="fn">listSum</span>(const vector&lt;<span class="kw">int</span>&gt;&amp; a) {</span>
 <span class="line" data-l="6">    <span class="kw">return</span> <span class="fn">listSumFrom</span>(a, <span class="num">0</span>);</span>
 <span class="line" data-l="7">}</span></div></div>
+      <p><code>const vector&lt;int&gt;&amp; a</code> 以唯讀參考傳入，避免每次呼叫複製整個容器；<code>size_t i</code> 是無號索引，從 0 開始，到 <code>a.size()</code> 時先回傳，避免越界。詳見 <a href="p3_functions.html#constref">P3 傳參方式</a>。</p>
       <div class="info-card">
         <div class="ic-title">遞迴 vs 迴圈</div>
         <div style="font-size:.86rem;line-height:1.9;">凡是遞迴能算的，迴圈都能算（反之亦然）。
@@ -1104,7 +1107,7 @@ OOOOOO+OOO  ++++++++++
   <p>迷宮遞迴少寫「走過的格子直接 return false」會怎樣？</p>
   
   <div class="quiz-options" id="ex3Options">
-    <div class="quiz-opt" data-correct="true" data-fb="A 問 B、B 又問 A：沒有「走過」標記就沒有前進性，違反法則 2。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(A)</span> 相鄰兩格互相呼叫，無窮遞迴</div><div class="quiz-opt" data-correct="false" data-fb="不會停，這是最典型的無窮遞迴來源。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(B)</span> 答案錯但會停</div><div class="quiz-opt" data-correct="false" data-fb="不是慢，是 stack overflow 當機。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(C)</span> 只是變慢</div>
+    <div class="quiz-opt" data-correct="true" data-fb="A 問 B、B 又問 A：沒有「走過」標記就沒有前進性，違反法則 2。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(A)</span> 相鄰兩格互相呼叫，無窮遞迴</div><div class="quiz-opt" data-correct="false" data-fb="不會停，這是最典型的無窮遞迴來源。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(B)</span> 答案錯但會停</div><div class="quiz-opt" data-correct="false" data-fb="沒有終止條件會持續遞迴，通常耗盡呼叫堆疊而終止；不能把它當成只是變慢。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(C)</span> 只是變慢</div>
   </div>
   <div class="quiz-feedback" id="ex3Feedback"></div>
 </div>

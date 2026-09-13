@@ -700,6 +700,7 @@ true 印成數字是 1，false 是 0
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">短路求值：<code>&amp;&amp;</code> 的右邊不一定會被執行</h3>
   <p>這是本頁最該記住的一件事。<code>a &amp;&amp; b</code> 求值時，C++ 會先算 <code>a</code>；如果 <code>a</code> 已經是假，整個式子不可能為真，<strong><code>b</code> 就完全不會被求值</strong>。<code>||</code> 反過來：左邊為真就直接收工。</p>
 
+<p>下例先用兩個小函式觀察求值順序：<code>bool lhs(bool v)</code> 宣告回傳 bool 的 lhs，參數 v 接收傳入的真假值；大括號內先印字，再以 <code>return v;</code> 把值交回。<code>lhs(false)</code> 就是傳入 false 並執行它。rhs 的讀法相同；函式的完整語法見 <a href="p3_functions.html">P3</a>。</p>
 <div class="deck-extra">
   <div class="dx-label">誰被求值了，讓程式自己說</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
@@ -1262,6 +1263,7 @@ i 更新到 3，條件不成立，結束</pre></div>
 <span class="line" data-l="5"><span class="kw">double</span> secs = duration&lt;<span class="kw">double</span>&gt;(steady_clock::now() - start).count();</span>
 <span class="line" data-l="6"> </span></div>
 
+  <p><code>std::chrono</code> 是標準函式庫內管理時間工具的命名空間；<code>::</code> 指定名稱屬於哪個範圍。<code>steady_clock::now()</code> 呼叫時鐘提供的 now 函式，<code>duration&lt;double&gt;</code> 的尖括號指定以 double 儲存時間數值，<code>.count()</code> 則取出數值。</p>
   <p>三個地方值得逐行看懂：</p>
   <p>① <code>auto</code>：這是本頁第一次正面介紹它，意思是「型別交給編譯器自己推算，我不寫」。<code>steady_clock::now()</code> 回傳的型別全名是 <code>std::chrono::time_point&lt;std::chrono::steady_clock&gt;</code>，沒有人會想每次計時都手打這一長串，<code>auto start = …</code> 讓編譯器自己看右邊的值決定 <code>start</code> 的型別——<strong>這裡不是偷懶，是這個型別名字長到非用不可</strong>。② <code>steady_clock::now()</code>：拿「現在」這一刻的時間點，呼叫兩次、中間夾著要量的程式，前後兩個時間點相減就是經過的時間。③ <code>duration&lt;double&gt;(…).count()</code>：兩個時間點相減得到的是一個 <code>duration</code> 物件，單位不是秒；<code>duration&lt;double&gt;(...)</code> 把它轉成「以 <code>double</code> 表示的秒數」，<code>.count()</code> 再把數字取出來變成一個普通的 <code>double</code>。</p>
 
@@ -1594,7 +1596,7 @@ break 只跳出「最內層」那一圈：
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">五條記得住的規則</h3>
   <div class="info-box green">
-    <p>① 條件裡「先檢查指標、再解參考」，順序不能顛倒，靠的是 <code>&amp;&amp;</code> 的短路求值。<br>
+    <p>① 除法前先檢查除數不為 0，再計算除法，靠的是 <code>&amp;&amp;</code> 的短路求值。<br>
     ② 永遠寫大括號，即使主體只有一行。<br>
     ③ 每個 <code>case</code> 寫完就問一次：這裡要不要 <code>break</code>。<br>
     ④ 迴圈寫完就問一次：主體有沒有把條件推向不成立。<br>

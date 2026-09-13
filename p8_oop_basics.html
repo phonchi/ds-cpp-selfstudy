@@ -875,7 +875,7 @@ int main() {
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">編譯器怎麼挑：一個一個比參數列</h3>
   <p>「編譯器會依你傳的引數挑一個」這句話講得太快了。它實際上做三件事：<strong>先把同名的建構式全抓出來當候選</strong>，再<strong>逐一比對參數列，個數或型別對不上就排除</strong>，最後從符合條件的裡面挑一個。下面的逐步器把這個過程放慢給你看。</p>
-  <p>本例的 Timer 可使用編譯器隱式宣告的複製建構式，將兩個 int 成員複製到新物件。這不表示所有類別都永遠能複製：某些成員或其他特殊成員函式的宣告，會讓隱式複製建構式被定義為 deleted。</p>
+  <p>本例的 Timer 可使用編譯器隱式宣告的複製建構式，將兩個 int 成員複製到新物件。這不表示所有類別都永遠能複製：某些成員或其他特殊成員函式的宣告，會讓隱式複製建構式被定義為 deleted，也就是該操作被禁止使用；嘗試複製時會收到編譯錯誤。</p>
 
   <div class="viz-layout">
     <div>
@@ -1030,6 +1030,7 @@ average = 20</pre></div>
   <h2><code>.hpp</code> 與 include guard：避免類別重複定義</h2>
   <p>類別通常放在 <code>.hpp</code> 裡，讓別的檔案 <code>#include</code> 進來用。但 <code>#include</code> 就是<strong>把整個檔案的內容原地貼過來</strong>，同一個檔案被貼兩次，類別就重複定義了。</p>
 
+<p><strong>include guard（標頭防護）</strong>使用三個前置處理指令：<code>#ifndef READING_HPP</code> 檢查名稱是否尚未定義，<code>#define READING_HPP</code> 記下已讀過，<code>#endif</code> 結束條件區塊。第一次引入時保留類別內容；同一來源檔後續再引入時就跳過。READING_HPP 是自行選擇的巨集名稱，應避免與其他標頭撞名；它不是 C++ 變數。</p>
 <p>標頭中的 <code>explicit</code> 表示這個單參數建構式不供一般隱式轉換使用：<code>Reading r(18);</code> 可以明確建立物件，<code>Reading r = 18;</code> 則不接受。這與 include guard 是不同功能；guard 處理重複引入，explicit 限制建立物件時的轉換。</p><div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="com">// reading.hpp</span>
 <span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">ifnde<span></span>f READING_HPP</span><span class="kw"></span>
 <span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">define READING_HPP</span><span class="kw"></span>

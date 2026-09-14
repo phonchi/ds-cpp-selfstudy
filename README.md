@@ -5,7 +5,7 @@ NSYSU 資料結構課程（MATH208）的互動自學配套網站：三章課前�
 
 - 線上閱讀：https://phonchi.github.io/ds-cpp-selfstudy/
 - 教科書：[cppds — Problem Solving with Algorithms and Data Structures using C++](https://github.com/pearcej/cppds)
-- 課程講義：[nsysu-math208](https://github.com/phonchi/nsysu-math208)（各頁「講義 PDF」連結來源）
+- 課程講義：[nsysu-math208](https://github.com/phonchi/nsysu-math208)（各章提供 GitHub Pages 講義 HTML／PDF 線上閱讀與 PDF 下載）
 
 ## 課前準備（先讀）
 

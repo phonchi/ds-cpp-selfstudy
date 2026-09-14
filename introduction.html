@@ -1648,13 +1648,13 @@ true</pre></div>
         這讓它成為抽象類別，沒有人能直接 new 一個 LogicGate。<br>
         <strong>protected</strong>：介於 public 與 private 之間，子類碰得到、外人碰不到。label、pin 都放這層。<br>
         <strong>: LogicGate(n)</strong>：初始化列，呼叫父類建構子把 n 交上去。<br>
-        <strong>HAS-A 與 composition（組合）</strong>：IS-A 是「是一種」，用繼承表達；HAS-A 是「有一個」，透過組合既有物件來建立新物件的功能。例如「汽車有一具引擎」，不是「汽車是一種引擎」。
+        <strong>HAS-A 與 composition（組合）</strong>：IS-A 是「是一種」，用繼承表達；HAS-A 是「有一個」，透過組合既有物件來建立新物件的功能。本節的 AndGate 是一種 BinaryGate；Connector 則透過成員連到邏輯閘，並不是一種 LogicGate。
       </div>
       <div class="info-box" id="composition" style="margin-top:.9rem;">
         <div class="info-label">COMPOSITION（組合）：用成員表達 HAS-A</div>
-        <p><strong>把另一種型別的物件當成自己的成員，再使用它提供的功能，就是物件組合。</strong>例如 <code>ReadingLog</code> 內宣告 <code>vector&lt;int&gt; values;</code>，表示「記錄簿有一個 vector」。記錄簿可透過 <code>values.push_back(value)</code> 加入資料，對外只提供自己的操作；它不需要繼承 vector，也不會因此變成一種 vector。</p>
-        <p>在這個例子中，<code>values</code> 是記錄簿的一部分：建立 <code>ReadingLog</code> 時會建立這個成員；記錄簿解構時，成員 vector 也會解構並清理自己管理的儲存空間。這種由整體擁有部分、管理其生命週期的關係，就是<strong>狹義的 composition</strong>。完整程式見 <a href="p8_oop_basics.html#compose">P8：組合與 ReadingLog</a>。</p>
-        <p style="margin-bottom:0;">回到本節的 <code>Connector</code>：它的 <code>fromGate</code>、<code>toGate</code> 保存指向既有邏輯閘的指標，讓物件彼此合作，可用廣義的 HAS-A 關係理解；但它並未擁有那兩個閘，銷毀 Connector 不會自動銷毀閘。因此，<strong>用成員組合功能，不代表每個成員指標都擁有所指物件</strong>；使用連接器時，相關邏輯閘必須仍然有效。</p>
+        <p><strong>IS-A 用繼承表達「是一種」；HAS-A 用 composition（物件組合）表達「有什麼成員、透過哪些物件完成工作」。</strong>沿用本節的電路來看：<code>AndGate</code> 繼承 <code>BinaryGate</code>，表示 AND 閘是一種雙輸入閘；<code>Connector</code> 不繼承 <code>LogicGate</code>，而是保存 <code>fromGate</code>、<code>toGate</code>，把來源閘與目的閘接起來。</p>
+        <p>例如上圖的 <code>Connector c1(&amp;g1, &amp;g3);</code>，把來源 <code>g1</code> 和目的 <code>g3</code> 的位址交給連接器。建構子將它們存入成員，再呼叫 <code>tgate-&gt;setNextPin(this)</code>，讓目的閘記住這條連線。這裡靠的是<strong>組合不同物件的功能</strong>：閘負責計算，連接器負責連接；連接器不需要變成另一種閘。</p>
+        <p style="margin-bottom:0;">組合功能時，還要分清楚誰擁有物件。旁邊 <code>LogicGate</code> 的 <code>string label;</code> 是直接包含的字串物件，隨閘建立、隨閘解構，這是<strong>狹義 composition 的整體與部分關係</strong>。相對地，Connector 的兩個成員只是指向外部閘的指標；銷毀連接器不會自動銷毀那些閘。因此，本節以廣義的物件組合說明 HAS-A，但不能把「持有指標」當成「擁有所指物件」。</p>
       </div>
     </div>
     <div class="side-panel">

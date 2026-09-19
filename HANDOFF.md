@@ -184,6 +184,7 @@ jupyter kernelspec list   # cpp17 應在 sys.prefix\share\jupyter\kernels；%APP
 | `tools/check_00c.py` | 00C JSON／圖片／未發布內容守門，並以 g++ 編譯三種匿名專案模式 | — |
 | `tools/enrich/enrich_lib.py` | `hl()` C++ 上色、`card()` 範例卡、`run_cpp()` 編譯實跑 | — |
 | `tools/enrich/enrich_*.py` | 九章正課頁的一次性充實，已全部注入完畢。**不要重跑**：2026-09-05 審閱時刪掉了部分 dx 卡內容、只留 `dx-*` 標記，重跑會把冗餘塞回來 | `dx-*` 標記 |
+| `tools/enrich/enrich_analysis.py` | **例外，可重跑**（2026-09-19 改）。卡片包在 `<!-- gen:name -->` … `<!-- /gen:name -->` 之間，重跑只替換註解之間的內容，手寫章節／內文／quiz 不受影響；首次注入位置由頁面裡的 `<!-- slot:name -->` 決定。範例輸出用 `run_cpp()` 實跑取得（benchmark 例外）。重跑鏈：`enrich_analysis.py` → `fix_bare_include.py` → `shuffle_quiz.py` → `apply_zh.py` | `gen:*` 成對註解 |
 | `tools/fix_bare_include.py` | 講義範例卡裸檔名 `#include "X.hpp"` → `"pythonds3/cppds/X.hpp"`（只改課程標頭目錄裡存在的檔名） | 改過就不再命中 |
 | `tools/shuffle_quiz.py` | 頁內自測題選項固定種子洗牌 JS（`quiz-shuffle v1`），`inject_prereq_cpp.py` 會呼叫 `ensure()` | 成對 JS 註解標記 |
 | `~/ds_cpp/Slides/tools/check_selfstudy.py` | 外部 gate：掃 Python 殘留、quiz 單一正解、錨點 | — |

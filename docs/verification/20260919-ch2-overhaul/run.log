@@ -1,0 +1,206 @@
+# 第二章（演算法分析）全面改寫 — 驗證紀錄
+
+日期：2026-09-19
+範圍：`analysis.html` 內容全面加廣與版面修正、全站 cppds 連結改 Runestone、生成器改為可重跑
+環境：Ubuntu 24.04 on WSL2、g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1)、Python 3.13、Playwright chromium
+
+---
+
+## 1. 結構檢查
+
+```
+$ python3 tools/check_links_cpp.py
+檢查 22 頁
+0 個錯誤 / 0 個警告
+```
+
+涵蓋：頁內錨點都有對應 id、float-nav 的 `data-target` 與 `href` 一致、float-nav 項數與 TOC 項數相符、
+站內頁面連結指向存在的檔案、`data-fb` 與 `FLASHCARDS` 無未逃逸殘留。
+
+第二章新增一節（`counting`）後，float-nav / TOC / section 三處同步無誤。
+
+## 2. 對比度檢查
+
+```
+$ python3 tools/check_contrast.py
+0 個失敗
+```
+
+新增的 `.quiz-code` 類名本來就在 contrast-fix 的三站聯集白名單裡（`analysis.html` 的 contrast-fix 區塊），
+所以沒有產生未列選擇器。
+
+## 3. 程式碼行結構（縮排塌陷）
+
+改版前 `enrich_lib.hl()` 把 Pygments token 先包 `<span>` 再依 `\n` 切行，
+而註解與 `#include` 的 token 自帶換行，導致部分行的內容落在 `.line` 之外。
+`white-space:pre` 只掛在 `.line` 上（`.pseudo-code` 本身沒有 `white-space`），
+那些行的縮排會整個塌掉，看起來就像沒寫完的虛擬碼。
+
+| 檔案 | 改版前 | 改版後 |
+|---|---|---|
+| `analysis.html` | 183 行中 18 行落在 `.line` 之外 | **309 行全部正確**（開合平衡、每行自成一個 `.line`） |
+| `introduction.html` | 375 行中 74 行結構不正確 | 未處理（同一個 bug，列為 follow-up，需重跑第一章） |
+
+## 4. C++ 範例編譯與輸出比對
+
+生成器 `enrich_analysis.py` 的 `live()` 會在產生卡片時用
+`g++ -std=c++17 -I ~/ds_cpp/Slides/pythonds3/cppds` 實際編譯執行，取真實 stdout 當「預期輸出」；
+編譯或執行失敗會直接中止注入。計時類 benchmark 例外，輸出硬寫（數字本來就跟機器有關）。
+
+另以獨立流程從 HTML 還原程式碼再驗一次（`interactive_and_compile.log`）：
+
+- `.pseudo-code` 區塊 17 個 → 完整程式 14 個、片段 3 個（函式原型、`<chrono>` 片段、註解式四解法總覽）
+- **編譯成功 14 / 失敗 0；執行成功 14 / 失敗或逾時 0**
+- 10 個非計時程式的 stdout 與緊鄰的 `.expected-out` **逐行完全相符**
+- 4 個計時類依約定只驗可編譯可執行
+
+## 5. 互動元件驗收（Playwright，file://）
+
+見 `interactive_and_compile.log`。
+
+| 項目 | 結果 |
+|---|---|
+| quiz | 10 個 `.quiz-box` / 30 個選項，全部點擊後都有非空回饋；`quizCheck` 的 10 個 id 與 10 個 `*Feedback` 一一對應，無孤兒 id |
+| `details.deep` | 8 個全部可展開，內容 195–784 字，無空殼 |
+| 詞彙卡 | `FLASHCARDS` 24 筆 → DOM 渲染 24 張，點擊翻面正常 |
+| MathJax | 3.2.2，111 個 `mjx-container`；靜態統計 `$$…$$` 5 + `$…$` 106 = 111，1:1 吻合，無落單的裸 `$`；`mjx-merror` = 0、`[data-mjx-error]` = 0、空容器 = 0 |
+| Console | error 0、warning 0、pageerror 0、requestfailed 0 |
+
+## 6. 版面量測（Playwright，1440px / 390px，所有 `<details>` 展開）
+
+見 `visual_report.json` 與 `screenshots/`（每節一張，1440 與 390 各一套，共 22 張）。
+全頁截圖各 6 MB，超出本 repo 既有驗證截圖的慣例（最大 725 KB），改存分段圖。
+
+| | 改版前 | 改版後 |
+|---|---|---|
+| `.pseudo-code` 字級 | `.71 / .72 / .74 / .76 / .78 / .8rem` 混用 | **全部 13.12px（`.82rem`）一致** |
+| 1440px 有橫捲的區塊 | 1（`#anaCode` 卡在 286px 側欄，超出 262px） | **0** |
+| 1440px 頁面橫向溢出 | 0 | **0** |
+| 390px 頁面橫向溢出 | 105px（長 inline `<code>` 撐破版面） | **0** |
+
+對照組：`introduction.html` 的 `.pseudo-code` 字級是 11.84–12.8px 混用，
+第二章改版後一律 13.12px，比第一章**大且一致**。
+
+390px 下仍有 16 個程式區塊會自己橫向捲動，這是 code 區塊在手機上的正常行為
+（第一章 35 個裡有 33 個同樣如此），重點是**頁面本身不再破版**。
+
+修法：
+1. `#anaCode`（四解法總覽，動畫逐行高亮的目標）從 286px 側欄搬到全寬，`data-l` 編號未動，動畫照常。
+2. `code{…;overflow-wrap:anywhere;}`：長識別字（如 `std::chrono::time_point<std::chrono::steady_clock>`）在窄螢幕可斷行。
+3. `mjx-container[display]{overflow-x:auto;…}`：display 數學式自己捲動，不撐破頁面。
+4. 新寫的程式碼行長控制在 68 字以內（僅 2 行 70 字，分別是 `dstimer.hpp` 原始碼與講義原文，維持原樣）。
+
+## 7. 生成器重跑冪等性
+
+```
+$ 完整鏈：enrich_analysis.py → fix_bare_include.py → shuffle_quiz.py → apply_zh.py
+$ diff <重跑前> analysis.html
+（無差異）
+```
+
+`git status` 只有預期檔案異動。潤稿改動全部落在手寫區，重跑不會被生成器蓋掉（已實測）。
+
+## 8. Runestone 連結
+
+見 `runestone_links.log`。
+
+**11 條全部確認可開（HTTP 200，且頁面標題正確）**，0 條連結異常、0 條因阻擋無法確認。
+
+`curl` 與一般 headless 請求一律被 Cloudflare 擋成 403「Just a moment...」；
+Playwright chromium 搭配真實 User-Agent 可以通過，但**連續請求會觸發更強的挑戰甚至整個 IP 被限速**，
+必須每條之間間隔 45–90 秒、失敗再退避重試才驗得完。
+
+目錄名的正確性另有一份不依賴 Cloudflare 的證據：
+`https://raw.githubusercontent.com/pearcej/cppds/master/_sources/index.rst` 的官方 toctree 列出
+`Introduction / AlgorithmAnalysis / LinearBasic / LinearLinked / Recursion / SearchHash / Sort / Trees / Graphs`
+共九章（`LinearBasic3` 不在正式章節內）。本次改的 8 章導讀列即依此對映，
+並補上原本漏連的 `Sort`（`searching_sorting.html`）。
+
+## 9. 用字潤飾（speak-human-tw）
+
+授權：使用者當次明確指示「你直接全部第二章一起潤不用給我看」，走「跳過確認、事後摘要」模式。
+
+- 中國用語：0 處（「函數」兩處都是數學函數，台灣用法正確）
+- 中文句中的半形標點：0 處
+- 破折號密度：29 次 / 7957 字（每 274 字一次，過密）→ **12 次 / 7964 字（每 663 字一次）**
+- 術語一致性：「hash 函數、載入因子」→「雜湊函式、負載因子」（與本章其他段落一致）
+- 一處漏空格：「容器就rehash」→「容器就會 `rehash`」
+
+## 10. 學生視角通讀審閱
+
+見 `reading_review.md`。以「第一次學資料結構的大二學生」視角通讀全文，
+剝標籤還原純文字（含 `.pseudo-code`、`<details>` 內容、`data-fb` 回饋字串），
+交叉引用逐一對照 `index.html`／`introduction.html`／`p6_map_set.html`／`searching_sorting.html`／`recursion.html`。
+
+**結果：嚴重 4 項、中等 10 項、輕微 9 項，全部已修。**
+
+### 嚴重（4/4 已修）
+
+1. **REF 章節對照表整欄用改版前的舊節次，全部少一號**，且 P03 整列消失。
+   學生想回頭複習 vector 會照表跳到 Anagram。→ 改成 P01–P07 完整七列。
+2. **P02「逐行數一次 T(n)」是殘句，且提前洩題**。原文留著編輯自言自語
+   「（3n²… 這裡照講義的例子）」，且「拿一段真的程式來數」但程式在 80 行之後；
+   更糟的是該卡片註解要學生「先自己數完再看解說」，答案卻已印在節首。→ 整段改寫成不含答案的導引。
+3. **Ω/Θ 進階區把 O／Ω／Θ 當成最差／最好／平均情況的同義詞**——這是複雜度教學最經典的誤解，
+   且與同頁詞彙卡「Big-O 本身不等於最壞情況」直接矛盾。
+   → 表格「對應的情況」欄換成「說的是什麼」，另補一個警示框說明
+   「情況（best/worst/average）與記號（O/Ω/Θ）是兩個互相獨立的維度」。
+4. **「第 6 章雜湊專章」指錯章（3 處）**。核實：`index.html` 的 06 是 RECURSION
+   （`recursion.html` 全文 0 次「雜湊」），雜湊在 07 SEARCH & SORT（`searching_sorting.html`，25 次）。
+   「第 6 章」是沿用 cppds 原書編號沒換成本站編號。→ 三處都改成「第 7 章」並加站內連結。
+
+### 中等（10/10 已修）
+
+- `amortized` 兩種譯名並存（攤銷 5 處 / 攤還 12 處），同一塊側欄上下兩張卡片還並排出現 → 全頁統一「攤還」（含詞彙卡）
+- P05 收合標題「平均下來還是 O(1)」與 P02「不是平均 O(1)」的警示框打架 → 改成「攤下來還是 O(1)」
+- P01 表格在「攤還／平均／n log n」定義之前就用了它們 → 表下補一句前向說明
+- P00 對 `<chrono>` 的角色前後說反（先說實測都會用到、50 行後說實測都用 DSTimer）→ 改寫成「實測用 DSTimer，而 DSTimer 裡面就是這三個零件」
+- 練習題編號亂序 1→2→4→5→3，且選讀題排在必做題前面 → 重新編號並把選讀題整塊搬到最後
+- EXERCISE 1 回饋數字算錯：把 n² 項的**數值** 10⁹ 誤當成**倍數**。實算 $0.001n^2/(100\log_2 n)$ 在 $n=10^6$ 時是 5×10⁵ → 改成「n² 項是 10⁹，log 項只有約 2000，差了五十萬倍」
+- 等比級數只在收合區出現，但 EXERCISE 3 的正解整個靠它 → 回饋補上指向
+- P05／P07 標題自己問的問題，答案卻鎖在收合區（「負載因子」這個詞正文從未定義，REF 卻把它列為必記概念）→ 兩節各把一句結論提到正文，收合區留推導
+- Anagram 動畫用的 `#anaCode` 與下方「完整程式」寫法不同（range-for vs 索引迴圈），註解卻說是同一支 → 對齊寫法（`data-l` 編號不動），並標明總覽卡是精簡版
+- 同一組計數公式在 P01 收合區與 P02 正文重講，連「anagram 解法 1」這個例子都重複 → 刪掉 P01 收合區那份
+
+### 輕微（9/9 已修）
+
+最差/最壞混用、函式/函數與雜湊/hash 混用、`order of magnitude` 沒給中文、
+「三角形數」全章只出現一次且沒解釋、P00 提前用 O 記號、
+P04「每一支都是完整程式」下一句自我否定、P00 二十行內兩次預告同一件事、
+`binary search` 沒說哪一章會講、先備頁 P6 與本頁 P06 撞號、
+P03 成長曲線實驗室沒有任何引言（H2 之後直接接 canvas）。
+
+### 審閱確認無誤的項目
+
+內文 P0x 交叉引用、站內連結與錨點、10 個 quiz 的 id 唯一性與正解唯一性、
+quiz 問的內容內文都教過、quiz 的算術（qCount／qDef／ex2／ex3 的計算全部正確）、
+T(n) 數法全章一致（沒有出現第三套慣例）、容量成長倍率說法一致、
+Anagram 解法 1 的計數自洽、詞彙卡數量正確、P06 與 P07 各自內部自洽。
+
+---
+
+## 11. 修正後複驗
+
+| 項目 | 結果 |
+|---|---|
+| `check_links_cpp.py` | 0 錯誤 / 0 警告 |
+| `check_contrast.py` | 0 失敗 |
+| 程式碼行結構 | 324 行，結構不正確 **0** |
+| 生成器重跑冪等 | 無差異 |
+| 1440px 橫捲區塊／頁面溢出 | **0 / 0** |
+| 390px 頁面溢出 | **0** |
+| `.pseudo-code` 字級 | 全部 13.12px |
+| 術語殘留（攤銷／載入因子／第 6 章／三角形數） | 各 **0** |
+| 破折號密度 | 11 次 / 8565 字（每 778 字一次） |
+
+「最壞」僅剩 1 處口語用法（「不去問『最壞的那一次多貴』」），語感上保留。
+
+---
+
+## 已知未處理（follow-up）
+
+- `introduction.html` 有 74 行程式碼結構不正確（同一個 `hl()` bug）。生成器已修好，第一章重跑即可修復，但會動到 2124 行的頁面，另案處理。
+- ch3–9 共 6 頁手機版 `float-nav` 沒有隱藏規則。
+- `00a_why_code.html` 用 `high_resolution_clock`，與全站 `steady_clock` 不一致。
+- `introduction.html` 三處文案寫詞彙卡 45 張，實際 46 張。
+- `tools/fix_bare_include.py:12` 硬寫 `~/ds_cpp/Slides/pythonds3/cppds`，換機器會直接 `sys.exit`。

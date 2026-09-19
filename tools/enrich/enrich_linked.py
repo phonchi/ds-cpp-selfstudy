@@ -102,7 +102,7 @@ exx = f'''<div class="deck-extra" id="dx-exx">
     <li><strong>用繼承減少重複</strong>：OrderedList 與 UnorderedList 大量方法相同。設計繼承階層，讓共同的部分只寫一次。</li>
     <li><strong>串列版 Stack／Queue／Deque</strong>：用鏈結串列各實作一次，跟第 3 章的 vector 版比效能。哪些操作變快、哪些變慢？</li>
   </ol>
-  <p class="dx-note">完整題目在 <a href="https://github.com/pearcej/cppds/blob/master/_sources/LinearLinked/ProgrammingExercises.rst" target="_blank" rel="noopener">cppds ProgrammingExercises</a>；第 1、2 題是課本的自我檢測熱身，第 5 題會逼你把兩個類別的差異想透。</p>
+  <p class="dx-note">完整題目在 <a href="https://runestone.academy/ns/books/published/cppds/LinearLinked/ProgrammingExercises.html" target="_blank" rel="noopener">cppds ProgrammingExercises</a>；第 1、2 題是課本的自我檢測熱身，第 5 題會逼你把兩個類別的差異想透。</p>
 </div>'''
 s, c4 = insert_end_of_section(s, "exercises", exx, 'id="dx-exx"')
 

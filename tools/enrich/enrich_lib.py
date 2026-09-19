@@ -22,8 +22,16 @@ def hl(code):
             cls = "kw"
         elif tok in Name.Function or tok in Name.Builtin:
             cls = "fn"
-        esc = _html.escape(val, quote=False)
-        out.append(f'<span class="{cls}">{esc}</span>' if cls else esc)
+        # token 可能自帶換行（註解、#include 行都會），若整段包成一個 span，
+        # 下面按 \n 切行時 span 會跨行，結果是該行的內容掉到 .line 之外——
+        # 而 white-space:pre 只掛在 .line 上，縮排就整個塌掉。先切行再各自包。
+        for k, seg in enumerate(val.split("\n")):
+            if k:
+                out.append("\n")
+            if not seg:
+                continue
+            esc = _html.escape(seg, quote=False)
+            out.append(f'<span class="{cls}">{esc}</span>' if cls else esc)
     lines = "".join(out).split("\n")
     # 帶上 data-l（1-based）：頁面的 hlLine(rootId, n) 是用 .line[data-l="n"] 找行的，
     # 少了這個屬性高亮會靜默失效（既有九章是手寫 data-l，所以看不出來）
@@ -36,11 +44,16 @@ def hl(code):
         res = res.replace(pat, rep)
     return res
 
-def card(label, code, output=None, note=None, out_label="預期輸出"):
-    """講義範例卡：標籤＋上色碼＋預期輸出＋解說。"""
+def card(label, code, output=None, note=None, out_label="預期輸出", size=".8rem"):
+    """講義範例卡：標籤＋上色碼＋預期輸出＋解說。
+
+    size=None 時不輸出 inline font-size，讓區塊吃頁面 .pseudo-code 的 base
+    （analysis.html 已把 base 提到 .82rem，再蓋一層 inline 只會互相打架）。
+    """
+    style = f' style="font-size:{size};"' if size else ""
     parts = [f'<div class="deck-extra">',
              f'  <div class="dx-label">{label}</div>',
-             f'  <div class="pseudo-code" style="font-size:.8rem;">{hl(code)}</div>']
+             f'  <div class="pseudo-code"{style}>{hl(code)}</div>']
     if output is not None:
         output = output.replace("\\n", "\n")  # 呼叫端可用字面 \n 表示換行
         parts.append(f'  <div class="expected-out"><span class="eo-tag">{out_label}</span><pre>{_html.escape(output)}</pre></div>')
@@ -66,16 +79,48 @@ def ensure_style(s):
         return s
     return s.replace("</head>", f"<style>{STYLE}</style>\n</head>", 1)
 
-def insert_end_of_section(s, sid, html_block, marker):
-    """把 html_block 插到 <section id=sid> 的 </section> 之前。marker 用於冪等判斷。"""
-    if marker in s:
+# ===== 可重寫區塊 =====
+# 預設行為是「看到 marker 就整段跳過」，所以改了生成器內容重跑也不會更新。
+# 給 name 時改走可重寫模式：產出的區塊包在 <!-- gen:name --> … <!-- /gen:name -->
+# 之間，重跑只替換這對註解「之間」的內容。手寫內容放在標記外就不會被蓋掉。
+def _wrap(name, block):
+    return f'<!-- gen:{name} -->\n{block}\n<!-- /gen:{name} -->'
+
+def _gen_re(name):
+    return re.compile(rf'<!-- gen:{re.escape(name)} -->.*?<!-- /gen:{re.escape(name)} -->', re.S)
+
+def _replace_gen(s, name, html_block):
+    """區塊已存在就替換，回傳 (新字串, True)；不存在回傳 (原字串, False)。"""
+    pat = _gen_re(name)
+    if not pat.search(s):
+        return s, False
+    # 用 lambda 當 repl：內容裡的 \\ 與 \\1 才不會被 re 當成跳脫序列
+    return pat.sub(lambda _m: _wrap(name, html_block), s, count=1), True
+
+
+def insert_end_of_section(s, sid, html_block, marker, name=None):
+    """把 html_block 插到 <section id=sid> 的 </section> 之前。
+
+    marker 用於冪等判斷；另給 name 時改用可重寫模式（見上方說明）。
+    """
+    if name:
+        s2, done = _replace_gen(s, name, html_block)
+        if done:
+            return s2, True
+        html_block = _wrap(name, html_block)
+    elif marker in s:
         return s, False
     m = re.search(rf'(<section id="{sid}".*?)(</section>)', s, re.S)
     assert m, f"section {sid} not found"
     return s[:m.end(1)] + "\n" + html_block + "\n" + s[m.start(2):], True
 
-def insert_before(s, anchor, html_block, marker):
-    if marker in s:
+def insert_before(s, anchor, html_block, marker, name=None):
+    if name:
+        s2, done = _replace_gen(s, name, html_block)
+        if done:
+            return s2, True
+        html_block = _wrap(name, html_block)
+    elif marker in s:
         return s, False
     assert s.count(anchor) >= 1, f"anchor not found: {anchor[:60]}"
     i = s.find(anchor)

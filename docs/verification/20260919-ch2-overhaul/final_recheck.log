@@ -2,20 +2,24 @@
 analysis.html（第二章）最終複驗記錄
 （練習題重新編號 + EXERCISE 5 搬到最後 + 通讀審閱 23 項修正之後的回歸驗收）
 ================================================================================
-執行時間      : 2026-09-19 23:32
+執行時間      : 2026-09-19 23:37:53
 受測檔案      : /home/phonchi/ds-cpp-selfstudy/analysis.html
-檔案 sha256   : ecd6a93c9fd5ddc0fcd7d3d0f24d2616affc26c859dc3960663b945869a2e465
-                （上一輪驗收時為 172df9f84d42ecf6abb458d8c8e382abf044826762c174df94d471afb41a93e6）
-Git HEAD      : 52ed37748abde2d7f52025fbb2ac23ac92a7f009
+檔案 sha256   : 13b7f8fffdeecc2a8d4d1864ae4d657c0f2b1461273d49a6f0136d77813b543d
+                （互動驗收跑完後再算一次 = 13b7f8fffdeecc2a8d4d1864ae4d657c0f2b1461273d49a6f0136d77813b543d；兩者相同表示測的是同一份快照）
+                （C++ 編譯驗收讀到的 sha256 = 13b7f8fffdeecc2a8d4d1864ae4d657c0f2b1461273d49a6f0136d77813b543d）
+                上一輪驗收時為 172df9f84d42ecf6abb458d8c8e382abf044826762c174df94d471afb41a93e6
+Git HEAD      : 1677f1ff55d204addedde147b9eadf060cb5d36b
                 analysis.html 在工作目錄中為未 commit 的修改狀態；本次為唯讀驗收，
-                除本檔外未改動 repo 內任何檔案。
+                除本記錄檔外未改動 repo 內任何檔案。
 瀏覽器        : Playwright chromium（headless），以 Path(...).as_uri() 的 file:// URI 開啟
 編譯器        : g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
 編譯指令      : g++ -std=c++17 -I /home/phonchi/ds_cpp/Slides \
                               -I /home/phonchi/ds_cpp/Slides/pythonds3/cppds -o <exe> <tmp.cpp>
-腳本          : scratchpad/verify_a2.py（互動元件，含本輪新增的 quiz id 孤兒/重複掃描、
-                MathJax 錯誤統計、anagram 動畫檢查）、scratchpad/verify_b.py（C++ 編譯）
-還原出的 .cpp : scratchpad/cpp/
+腳本          : /tmp/claude-1000/-home-phonchi-ds-cpp-selfstudy/6b5ee4b8-00c1-4255-8d89-926b3f414834/scratchpad/verify_a2.py（互動元件；在上一輪 verify_a.py 之上新增
+                quiz id 全域孤兒/重複掃描、EXERCISE 標號順序、MathJax 錯誤統計、
+                anagram 動畫檢查、驗收前後 sha256 比對）
+                /tmp/claude-1000/-home-phonchi-ds-cpp-selfstudy/6b5ee4b8-00c1-4255-8d89-926b3f414834/scratchpad/verify_b.py（C++ 抽取／編譯／執行／比對）
+還原出的 .cpp : /tmp/claude-1000/-home-phonchi-ds-cpp-selfstudy/6b5ee4b8-00c1-4255-8d89-926b3f414834/scratchpad/cpp/
 
 ================================================================================
 結論：七項檢查全部通過，沒有發現任何回歸
@@ -28,165 +32,127 @@ Git HEAD      : 52ed37748abde2d7f52025fbb2ac23ac92a7f009
 [6] Anagram 動畫            PASS
 [7] C++ 編譯／執行／比對    PASS
 
-另有 1 項非阻斷觀察（不影響功能，見下方「觀察事項」）。
+互動驗收（verify_a2.py）回報的失敗項目數 = 0
 
 ================================================================================
 各項檢查摘要
 ================================================================================
-[1] Quiz — PASS
-    .quiz-box = 10（與上一輪相同），共 30 個 .quiz-opt，逐一點擊後：
-      · 30/30 對應的 #<id>Feedback 都出現非空文字（長度 16～126 字），
-        並取得 show + correct/wrong class；
-      · 30/30 被點的選項本身都取得 correct 或 wrong class。
-      · 0 個選項沒反應。
+[1] Quiz
+    .quiz-box = 10（期望 10）。逐一點擊共 30 個 .quiz-opt：
+      · 每次點擊後對應的 #<id>Feedback 都出現非空文字，並取得 show + correct/wrong class；
+      · 被點的選項本身都取得 correct 或 wrong class；0 個選項沒反應。
     重新編號 + 搬動 EXERCISE 5 之後的 id 完整性（本輪新增的檢查）：
-      · quizCheck() 用到的 10 個 id = ex1 ex2 ex3 ex4 ex5 qAna qBigo qCost qCount qDef
-      · 頁面 *Feedback 容器 10 個、*Options 容器 10 個，三者完全一一對應。
-      · quizCheck id 找不到對應 *Feedback 容器 = 0
-      · quizCheck id 找不到對應 *Options 容器 = 0
-      · 孤兒 *Feedback（沒有任何 quiz-opt 指向）= 0
-      · 孤兒 *Options = 0
-      · 全頁（不限 quiz）重複 id 掃描 = 0 筆重複。
+      · quizCheck() 用到的 id = ['ex1', 'ex2', 'ex3', 'ex4', 'ex5', 'qAna', 'qBigo', 'qCost', 'qCount', 'qDef']
+      · 頁面 *Feedback 容器、*Options 容器與上列 id 完全一一對應。
+      · quizCheck id 找不到對應 *Feedback / *Options 容器 = 0
+      · 孤兒 *Feedback / 孤兒 *Options（沒有任何 quiz-opt 指向）= 0
+      · 全頁（不限 quiz）重複 id 掃描 = 無
     EXERCISE 標號與位置：
-      · DOM 順序的 EXERCISE 標號 = [1, 2, 3, 4, 5]，遞增且無跳號。
-      · EXERCISE 5「講義補充練習（課堂跳過）：第 k 小」確實是頁面上
-        最後一個 .quiz-box（index 9/9），搬動到位。
+      · DOM 順序的 EXERCISE 標號 = [1, 2, 3, 4, 5]
+      · EXERCISE 5「講義補充練習（課堂跳過）：第 k 小」確實是頁面上最後一個
+        .quiz-box，搬動到位。
     註：頁面 quiz-shuffle v1 會依「檔名 + 選項群組的 DOM 索引」固定種子重排選項，
-        本次驗收是以重排後的實際 DOM 順序逐一點擊，等同真實使用者所見。
-        該腳本以群組索引（gi）定位，不依賴 quiz id，故重新編號不影響它。
+        本次驗收以重排後的實際 DOM 順序逐一點擊，等同真實使用者所見；該腳本以
+        群組索引定位、不依賴 quiz id，故重新編號不影響它。
 
-[2] <details class="deep"> — PASS
-    數量 = 8（與上一輪相同，未變動）。
-    8/8 設 open=true 後內容區高度 126～530px、文字長度 195～817 字，無空殼。
-    逐一列表（summary / 內容高度 / 文字長度）：
-      #0 <chrono> 的三個角色                       bodyH=358  textLen=770
-      #1 一個函式想「回傳兩個值」：double& seconds bodyH=498  textLen=610
-      #2 補充：∑ 記號怎麼讀…                       bodyH=212  textLen=291
-      #3 拿定義實際驗一次：T(n)=5n²+27n+1005…      bodyH=189  textLen=308
-      #4 Ω 與 Θ：下界與緊界                         bodyH=530  textLen=817
-      #5 那為什麼課本和論文幾乎只看到 O？           bodyH=126  textLen=195
-      #6 為什麼偶爾 O(n) 的搬家，攤下來還是 O(1)？  bodyH=331  textLen=489
-      #7 「平均 O(1)」的條件：負載因子與 rehash     bodyH=390  textLen=624
+[2] <details class="deep">
+    數量 = 8（上一輪為 8）。
+    全部設 open=true 後內容區高度與文字長度皆大於 0，無空殼。逐一明細見下方詳細輸出。
 
-[3] 詞彙卡 — PASS
-    FLASHCARDS 常數 = 24 筆；#fcGrid 實際渲染 .fc-card = 24 張。
-    空 front = 0、空 back = 0。第一張 front =「可讀性（Readability）」。
-    點擊第一張：class 由 "fc-card" → "fc-card flipped"，翻面正常。
+[3] 詞彙卡
+    FLASHCARDS 常數 = 24 筆（期望 24）；#fcGrid 實際渲染 .fc-card = 24 張。
+    空 front = 0、空 back = 0。點擊第一張 class 由 "fc-card" → "fc-card flipped"，翻面正常。
     #fcFlipAll / #fcUnflip / #fcShuffle 三個控制按鈕都在。
-    （與上一輪一致，24 筆未變動。）
 
-[4] MathJax — PASS
-    MathJax 3.2.2。
-      · mjx-container      = 132（上一輪 111，本輪新增 21 個式子）
-      · mjx-merror         = 0
-      · [data-mjx-error]   = 0
+[4] MathJax
+    MathJax 3.2.2。mjx-container = 132（上一輪 111）
+      · mjx-merror        = 0
+      · [data-mjx-error]  = 0
       · 空容器（無 mjx-math 子節點）= 0
-      · 寬度為 0 的容器     = 0
-    原始碼靜態交叉比對（去掉 <script>/<style> 後）：
-      $$...$$ 5 個 + $...$ 127 個 = 132 個，與渲染容器數 132 完全 1:1 吻合；
-      配對後落單的裸 $ = 0。
+      · 寬度為 0 的容器   = 0
+    原始碼靜態交叉比對（去掉 <script>/<style> 後）：$$..$$ = 5，$..$ = 127，合計 132；配對後落單的裸 $ = 0
+      與渲染容器數 132 比對：完全 1:1 吻合。
     本輪新增 $\Omega$ / $\Theta$ / $c$ / $n_0$ 等句子的專項確認：
-      掃描全頁 DOM 文字節點（排除 script/style），找不到任何
-      「$\Omega」「$\Theta」「$c$」「$n_0$」「\le」「\cdot」的原始 TeX 文字，
-      表示這些新句子都已被 MathJax 吃掉並渲染成數學，沒有殘留裸 $ 式子。
-    DOM 殘留掃描（載入後與互動後各一次）：
-      散文中 0 處殘留；唯一命中的文字節點 parent 是 <script>（頁面 JS 以 $ 當
-      getElementById 別名、並大量使用 `${...}` 樣板字串），MathJax 本來就不處理
-      <script>，屬已知誤報，非未渲染數學式。
-    互動後（30 次 quiz 回饋 innerHTML 寫入、卡片翻面、8 個 details 全展開、
-    anagram 動畫跑完）mjx-container 仍為 132，未掉式子也未產生新的裸 $。
+      掃描全頁 DOM 文字節點（排除 script/style），找不到任何「$\Omega」「$\Theta」
+      「$c$」「$n_0$」「\le」「\cdot」的原始 TeX 文字，表示這些新句子都已被 MathJax
+      吃掉並渲染成數學，沒有殘留未渲染的裸 $ 數學式。
+    DOM 殘留掃描（載入後與互動後各一次）：散文中 0 處殘留；唯一命中的文字節點 parent
+      是 <script>（頁面 JS 以 $ 當 getElementById 別名、並大量使用 `${...}` 樣板字串），
+      MathJax 本來就不處理 <script>，屬已知誤報，非未渲染數學式。
+    互動後（全部 quiz 回饋 innerHTML 寫入、卡片翻面、details 全展開、anagram 動畫跑完）
+      mjx-container = 132，與載入後相同，未掉式子也未產生新的裸 $。
 
-[5] Console — PASS
-    整個 session（載入 + 全部互動）console 一則訊息都沒有：
-      · console error        = 0
-      · console warning      = 0
-      · pageerror            = 0
-      · requestfailed        = 0
+[5] Console
+    整個 session（載入 + 全部互動）：
+      · console error   = 0
+      · console warning = 0
+      · pageerror       = 0
+      · requestfailed   = 0
     file:// 下 MathJax CDN 載入正常。
 
-[6] Anagram 逐行高亮動畫 — PASS
-    #anaCode 內 .line 的 data-l 清單 = 1,2,3,4,5,6,7,8,9,10,11（11 行，無缺號）。
-    本輪改寫的第 7、8、9 行三個元素都還在：
-      data-l="7"  →  for (unsigned i = 0; i < s1.length(); i++) c1[s1[i] - 'a']++;
-      data-l="8"  →  for (unsigned i = 0; i < s2.length(); i++) c2[s2[i] - 'a']++;
-      data-l="9"  →  for (int i = 0; i < 26; i++) if (c1[i] != c2[i]) return false;
-    結構性交叉比對（本輪新增）：
-      實際呼叫 anaFrames('earth','heart') 取出所有 frame 的 line 值 = [7, 8, 9]，
-      全部都能在 #anaCode 找到對應的 .line[data-l]；動畫要求但頁面缺少的 = 0。
-    逐一 hlLine 驗證：
-      hlLine('anaCode', 7) → #anaCode .line.active 恰好 1 個，data-l="7"  ✓
-      hlLine('anaCode', 8) → 恰好 1 個，data-l="8"  ✓
-      hlLine('anaCode', 9) → 恰好 1 個，data-l="9"  ✓
-    實跑動畫：呼叫 anaStart() 後連續取樣約 3.6 秒，
-      期間取得過 active class 的 data-l = ['7', '8', '9']（三行都亮過）；
-      收尾狀態 anaStatus =「26 格計數全等 → 是變位詞 ✓（總工作量 2n + 26 → O(n)）」，
-      anaCount = c1 = { a:1 e:1 h:1 r:1 t:1 } / c2 = { a:1 e:1 h:1 r:1 t:1 }，
-      #anaStrip1 渲染 5 個字元格；動畫期間 pageerror = 0。
+[6] Anagram 逐行高亮動畫
+    #anaCode 內 .line 的 data-l 清單 = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+    本輪改寫的第 7、8、9 行三個元素都還在（實際高亮內容見詳細輸出）。
+    結構性交叉比對（本輪新增）：實際呼叫 anaFrames() 取出所有 frame 的 line 值 =
+      [7, 8, 9]；動畫要求但 #anaCode 缺少的 data-l = 無
+    逐一 hlLine('anaCode', 7/8/9) → #anaCode .line.active 各恰好 1 個，data-l 相符。
+    實跑動畫：呼叫 anaStart() 後連續取樣約 3.6 秒，期間取得過 active class 的
+      data-l = ['7', '8', '9']；動畫期間 pageerror = 0。
 
-[7] C++ 範例編譯／執行／比對 — PASS
+[7] C++ 範例編譯／執行／比對
     從 .pseudo-code 去標籤 + html.unescape 還原：
-      · .pseudo-code 區塊總數   = 17（與上一輪相同）
-      · 含 int main( 的完整程式 = 14（與上一輪相同）
+      · .pseudo-code 區塊總數   = 17（上一輪 17）
+      · 含 int main( 的完整程式 = 14（上一輪 14）
       · 片段（無 main，略過）   = 3（函式原型／include 片段／四解法註解總覽）
     結果：
       · 編譯成功 = 14   編譯失敗 = 0
       · 執行成功 = 14   執行失敗或逾時 = 0
-      · 與緊鄰 .expected-out 逐行比對不符 = 0
-        （10 支非計時程式的 stdout 與 .expected-out 完全相符，含 tab 對齊的
-          size/capacity 表；4 支計時類 #3@L611、#11@L1390、#12@L1432、#14@L1611
-          依約定只驗「可編譯可執行」，不比數字。）
+      · 與緊鄰 .expected-out 逐行比對不符 = 無
+      · 實際完成逐行比對且完全相符的程式 = 10 支
+      · 找不到緊鄰 .expected-out 而未比對的程式 = 0 支
+      · 計時類（只驗可編譯可執行、不比數字）= ['#3@L611', '#11@L1390', '#12@L1432', '#14@L1611']
       · g++ 預設警告等級下無 warning（本次未加 -Wall，故不宣稱通過 -Wall 檢查）。
-    註：程式行號相對上一輪往後位移約 3～14 行（例如計時類由 L608/L1380/L1422/L1597
-        變成 L611/L1390/L1432/L1611），是本輪新增敘述造成的位移，程式本身未變。
 
 ================================================================================
 與上一輪（sha 172df9f8…）的數字對照
 ================================================================================
-  項目                          上一輪      本輪        判定
-  .quiz-box                     10          10          不變
-  quiz 選項總數／有回饋          30 / 30     30 / 30     不變
-  孤兒或重複 quiz id            0           0           不變
-  details.deep                  8           8           不變
-  FLASHCARDS / 渲染卡片          24 / 24     24 / 24     不變
-  mjx-container                 111         132         +21（本輪新增數學式）
-  mjx-merror / data-mjx-error   0 / 0       0 / 0       不變
-  空 mjx-container              0           0           不變
-  散文殘留裸 $ 數學式            0           0           不變
-  console error/warn/pageerror  0/0/0       0/0/0       不變
-  requestfailed                 0           0           不變
-  .pseudo-code 區塊              17          17          不變
-  完整程式／編譯成功／執行成功    14/14/14    14/14/14    不變
-  與 .expected-out 不符          0           0           不變
+  項目                          上一輪      本輪
+  .quiz-box                     10          10
+  逐一點擊的 quiz 選項           30          30
+  孤兒或重複 quiz id            0           0
+  details.deep                  8           8
+  FLASHCARDS / 渲染卡片          24 / 24     24 / 24
+  mjx-container                 111         132
+  mjx-merror / data-mjx-error   0 / 0       0 / 0
+  空 mjx-container              0           0
+  散文殘留裸 $ 數學式            0           0
+  console error/warn/pageerror  0/0/0       0/0/0
+  requestfailed                 0           0
+  .pseudo-code 區塊              17          17
+  完整程式／編譯成功／執行成功    14/14/14    14/14/14
+  與 .expected-out 不符          0           無
 
 ================================================================================
 觀察事項（非阻斷，不列為失敗）
 ================================================================================
-  ◆ 練習題「顯示編號」與「內部 id」在第 3、4 題上互換：
-      analysis.html:1691  顯示「EXERCISE 3 · 講義練習：翻倍迴圈」，內部用
-                          id="ex4Options" / quizCheck('ex4') / id="ex4Feedback"
-      analysis.html:1675  顯示「EXERCISE 4 · 容器選擇」，內部用
-                          id="ex3Options" / quizCheck('ex3') / id="ex3Feedback"
-    （行號為原始檔中 .quiz-box 的起始行：L1675 是 DOM 上第 8 個 quiz-box，
-      L1691 是第 9 個；兩者的顯示標號與內部 id 剛好交叉。）
-    影響評估：無功能影響。quizCheck() 只用「點到的那個選項自己 onclick 帶的 id」
-    去拼 id + 'Feedback'，每個 .quiz-box 內部三者（options / onclick / feedback）
-    都自洽；quiz-shuffle v1 以群組 DOM 索引定位，不看 id；全檔 grep 也找不到
-    其他地方引用 ex3 / ex4。所以這只是重新編號時內部 id 沒有跟著改名，
-    純屬命名不整齊，不是 bug；若在意可擇日重新命名（需同時改三處）。
+  ◆ 無。每題的顯示標號 EXERCISE n 與內部 id exN 數字一致，
+    重新編號與搬動 EXERCISE 5 之後沒有留下命名交叉。
+
+  ◆ 驗收期間 analysis.html 曾被並行修改，本記錄的所有數字都來自同一份穩定快照：
+    · 23:28 前後的版本（sha ecd6a93c…）存在「顯示標號與內部 id 交叉」的情況：
+      顯示 EXERCISE 3 的題目用 id=ex4、顯示 EXERCISE 4 的題目用 id=ex3。
+      該版本的第一次試跑同樣七項全過（那個交叉僅屬命名不整齊，quizCheck 以選項
+      自帶的 id 拼 Feedback，每個 quiz-box 內部自洽，不影響功能）。
+    · 23:34 檔案再次被改為 sha 13b7f8ff…，交叉已修正為 EXERCISE n ↔ exN 一致。
+    · 本記錄是在確認檔案連續 60 秒未變動之後，對 sha 13b7f8ff… 重跑兩支腳本的結果；
+      互動驗收開啟前與跑完後、以及 C++ 驗收讀檔時的 sha256 三者相同，確認同一份快照。
 
 ================================================================================
-判定
+詳細輸出（一）互動元件：verify_a2.py
 ================================================================================
-  七項檢查全部通過。與上一輪相比，只有 mjx-container 由 111 增為 132（本輪新增
-  數學式所致，且 132 與原始碼式子數 1:1 吻合、0 個渲染錯誤），其餘所有數字完全
-  不變：quiz 沒有孤兒或重複 id、EXERCISE 標號 1～5 遞增且第 5 題確實在最後、
-  8 個 details.deep 都能展開、24 張詞彙卡正常翻面、anagram 動畫的 data-l 7/8/9
-  都還在且實跑時三行都亮過、console 全清、14 支 C++ 程式全部可編譯可執行且
-  輸出比對零不符。沒有發現任何被改壞的地方。
-
-================================================================================
-詳細輸出（一）互動元件：scratchpad/verify_a2.py
-================================================================================
+==============================================================================
+受測檔案 = /home/phonchi/ds-cpp-selfstudy/analysis.html
+開啟前 sha256 = 13b7f8fffdeecc2a8d4d1864ae4d657c0f2b1461273d49a6f0136d77813b543d
 ==============================================================================
 [4] MathJax
   MathJax.version   = 3.2.2
@@ -216,11 +182,12 @@ Git HEAD      : 52ed37748abde2d7f52025fbb2ac23ac92a7f009
     #4  「QUIZ · 解法 2 的陷阱」  id=qAna  feedback=qAnaFeedback
     #5  「EXERCISE 1 · 主導項」  id=ex1  feedback=ex1Feedback
     #6  「EXERCISE 2 · 巢狀但不滿」  id=ex2  feedback=ex2Feedback
-    #7  「EXERCISE 3 · 講義練習：翻倍迴圈」  id=ex4  feedback=ex4Feedback
-    #8  「EXERCISE 4 · 容器選擇」  id=ex3  feedback=ex3Feedback
+    #7  「EXERCISE 3 · 講義練習：翻倍迴圈」  id=ex3  feedback=ex3Feedback
+    #8  「EXERCISE 4 · 容器選擇」  id=ex4  feedback=ex4Feedback
     #9  「EXERCISE 5 · 講義補充練習（課堂跳過）：第 k 小」  id=ex5  feedback=ex5Feedback
   EXERCISE 區塊（DOM 順序）標號 = [1, 2, 3, 4, 5]
   OK：EXERCISE 5（課堂跳過的選讀題）確實是 DOM 中最後一個 .quiz-box
+  OK：每題的顯示標號 EXERCISE n 與內部 id exN 數字一致
   quiz#0 「QUIZ · 這樣算幾次」 fbId=qCountFeedback onclick=['qCount'] options=3
     [OK ] opt0 «(A) 化簡後是 10n，O(10n)» feedbackLen=34 fbCls=quiz-feedback show wrong optCls=quiz-opt wrong
     [OK ] opt1 «(B) 化簡後是 n，O(n)» feedbackLen=54 fbCls=quiz-feedback show correct optCls=quiz-opt correct
@@ -249,11 +216,11 @@ Git HEAD      : 52ed37748abde2d7f52025fbb2ac23ac92a7f009
     [OK ] opt0 «(A) n²/2 次；O(n)» feedbackLen=29 fbCls=quiz-feedback show wrong optCls=quiz-opt wrong
     [OK ] opt1 «(B) n(n+1)/2 次；O(n²)» feedbackLen=42 fbCls=quiz-feedback show correct optCls=quiz-opt correct
     [OK ] opt2 «(C) n log n 次；O(n log n)» feedbackLen=29 fbCls=quiz-feedback show wrong optCls=quiz-opt wrong
-  quiz#7 「EXERCISE 3 · 講義練習：翻倍迴圈」 fbId=ex4Feedback onclick=['ex4'] options=3
+  quiz#7 「EXERCISE 3 · 講義練習：翻倍迴圈」 fbId=ex3Feedback onclick=['ex3'] options=3
     [OK ] opt0 «(A) O(n)» feedbackLen=126 fbCls=quiz-feedback show correct optCls=quiz-opt correct
     [OK ] opt1 «(B) O(n log n)» feedbackLen=50 fbCls=quiz-feedback show wrong optCls=quiz-opt wrong
     [OK ] opt2 «(C) O(log n)» feedbackLen=38 fbCls=quiz-feedback show wrong optCls=quiz-opt wrong
-  quiz#8 「EXERCISE 4 · 容器選擇」 fbId=ex3Feedback onclick=['ex3'] options=3
+  quiz#8 「EXERCISE 4 · 容器選擇」 fbId=ex4Feedback onclick=['ex4'] options=3
     [OK ] opt0 «(A) 每次插入後重新排序 + binary search» feedbackLen=29 fbCls=quiz-feedback show wrong optCls=quiz-opt wrong
     [OK ] opt1 «(B) unordered_set» feedbackLen=51 fbCls=quiz-feedback show correct optCls=quiz-opt correct
     [OK ] opt2 «(C) vector + 每次 find» feedbackLen=32 fbCls=quiz-feedback show wrong optCls=quiz-opt wrong
@@ -267,12 +234,12 @@ Git HEAD      : 52ed37748abde2d7f52025fbb2ac23ac92a7f009
   details.deep 數量 = 8（上一輪 8）
   [OK ] deep#0 «<chrono> 的三個角色：時鐘、時間點、時間長度 展開看懂» open=True bodyH=358 scrollH=424 textLen=770 children=1
   [OK ] deep#1 «一個函式想「回傳兩個值」：double& seconds 的慣用手法 展開看懂» open=True bodyH=498 scrollH=561 textLen=610 children=1
-  [OK ] deep#2 «補充：∑ 記號怎麼讀，以及 1+2+⋯+n 為什麼等於 n(n+1)2 進階» open=True bodyH=212 scrollH=284 textLen=291 children=1
-  [OK ] deep#3 «拿定義實際驗一次：T(n)=5n2+27n+1005 是不是 O(n2) 進階» open=True bodyH=189 scrollH=261 textLen=308 children=1
+  [OK ] deep#2 «補充：∑ 記號怎麼讀，以及 1+2+⋯+n 為什麼等於 n(n+1)2 進階» open=True bodyH=214 scrollH=287 textLen=291 children=1
+  [OK ] deep#3 «拿定義實際驗一次：T(n)=5n2+27n+1005 是不是 O(n2) 進階» open=True bodyH=191 scrollH=263 textLen=308 children=1
   [OK ] deep#4 «Ω 與 Θ：下界與緊界 進階» open=True bodyH=530 scrollH=602 textLen=817 children=1
   [OK ] deep#5 «那為什麼課本和論文幾乎只看到 O？ 進階» open=True bodyH=126 scrollH=198 textLen=195 children=1
-  [OK ] deep#6 «為什麼偶爾 O(n) 的搬家，攤下來還是 O(1)？ 進階» open=True bodyH=331 scrollH=403 textLen=489 children=1
-  [OK ] deep#7 «「平均 O(1)」的條件：負載因子與 rehash 進階» open=True bodyH=390 scrollH=462 textLen=624 children=1
+  [OK ] deep#6 «為什麼偶爾 O(n) 的搬家，攤下來還是 O(1)？ 進階» open=True bodyH=333 scrollH=405 textLen=489 children=1
+  [OK ] deep#7 «「平均 O(1)」的條件：負載因子與 rehash 進階» open=True bodyH=392 scrollH=464 textLen=624 children=1
 ==============================================================================
 [3] 詞彙卡
   #cards 存在=True  #fcGrid 存在=True
@@ -325,12 +292,15 @@ function quizCheck(quizId, optEl) {
   pageerror = 0
   requestfailed = 0
 ==============================================================================
+跑完後 sha256 = 13b7f8fffdeecc2a8d4d1864ae4d657c0f2b1461273d49a6f0136d77813b543d  （與開啟前相同，測的是同一份）
 驗收 A 失敗項目總數 = 0
   （無）
 
 ================================================================================
-詳細輸出（二）C++ 編譯與執行：scratchpad/verify_b.py
+詳細輸出（二）C++ 編譯與執行：verify_b.py
 ================================================================================
+受測檔案 = /home/phonchi/ds-cpp-selfstudy/analysis.html
+sha256 = 13b7f8fffdeecc2a8d4d1864ae4d657c0f2b1461273d49a6f0136d77813b543d
 抽出 .pseudo-code 區塊 = 17，.expected-out 區塊 = 14
 看起來是完整程式（含 int main(）= 14；片段（略過編譯）= 3
   [snippet, skipped] 行 664: long long sumOfN2(long long n, double& seconds);
@@ -490,10 +460,10 @@ function quizCheck(quizId, optEl) {
   [編譯成功]
   [執行成功] exit=0
   實際 stdout:
-    > insert at front     62.72 ms
-    > push_back            3.78 ms
-    > with reserve         3.14 ms
-    > direct index         1.31 ms
+    > insert at front     62.60 ms
+    > push_back            3.92 ms
+    > with reserve         3.04 ms
+    > direct index         1.27 ms
   緊鄰 .expected-out  tag=「耗時比較範例」
     ~ insert at front   285.31 ms
     ~ push_back            6.42 ms
@@ -508,10 +478,10 @@ function quizCheck(quizId, optEl) {
   [執行成功] exit=0
   實際 stdout:
     > n           erase(begin)    pop_back
-    > 2500000         21.75120     0.00021
-    > 5000000         48.84130     0.00020
-    > 7500000        122.65600     0.00029
-    > 10000000       170.23122     0.00035
+    > 2500000         21.85937     0.00026
+    > 5000000         47.11580     0.00022
+    > 7500000         97.00510     0.00031
+    > 10000000       166.27521     0.00029
   緊鄰 .expected-out  tag=「耗時比較範例」
     ~ n           erase(begin)    pop_back
     ~ 2500000        155.20031     0.00022
@@ -538,9 +508,9 @@ function quizCheck(quizId, optEl) {
   [執行成功] exit=0
   實際 stdout:
     > n             vector  hash table
-    > 250000        40.298       0.036
-    > 500000        77.129       0.039
-    > 1000000      132.278       0.049
+    > 250000        40.143       0.038
+    > 500000        77.697       0.039
+    > 1000000      129.575       0.044
   緊鄰 .expected-out  tag=「耗時比較範例」
     ~ n             vector  hash table
     ~ 250000         8.512       0.011

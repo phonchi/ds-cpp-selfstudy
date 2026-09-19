@@ -33,6 +33,9 @@ def hl(code):
             esc = _html.escape(seg, quote=False)
             out.append(f'<span class="{cls}">{esc}</span>' if cls else esc)
     lines = "".join(out).split("\n")
+    # lex() 會在結尾多補一個換行，去掉尾端的空行（區塊中間的空行要留）
+    while lines and not lines[-1].strip():
+        lines.pop()
     # 帶上 data-l（1-based）：頁面的 hlLine(rootId, n) 是用 .line[data-l="n"] 找行的，
     # 少了這個屬性高亮會靜默失效（既有九章是手寫 data-l，所以看不出來）
     res = "\n".join(f'<span class="line" data-l="{i}">{l if l.strip() else " "}</span>'
@@ -131,7 +134,8 @@ def insert_before(s, anchor, html_block, marker, name=None):
 import subprocess, tempfile, os
 from pathlib import Path
 
-DSCPP = Path.home() / "ds_cpp/Slides/pythonds3/cppds"
+# 標頭目錄可用 DSCPP_HEADERS 覆寫（沒設就是原本的 ~/ds_cpp/Slides/pythonds3/cppds）
+DSCPP = Path(os.environ.get("DSCPP_HEADERS") or Path.home() / "ds_cpp/Slides/pythonds3/cppds").expanduser()
 
 def run_cpp(code, timeout=30, include=DSCPP, std="c++17", err_head=0):
     """用 g++ 編譯執行 C++ 片段，回傳真實 stdout。

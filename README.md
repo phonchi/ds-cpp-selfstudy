@@ -5,6 +5,7 @@ NSYSU 資料結構課程（MATH208）的互動自學配套網站：三章課前�
 
 - 線上閱讀：https://phonchi.github.io/ds-cpp-selfstudy/
 - 教科書：[cppds — Problem Solving with Algorithms and Data Structures using C++](https://runestone.academy/ns/books/published/cppds/index.html)（[原始碼](https://github.com/pearcej/cppds)）
+- 課程標頭：[pythonds3/cppds](https://github.com/phonchi/pythonds3/tree/master/cppds)（範例裡 `#include "pythonds3/cppds/…"` 引用的那些 `.hpp`）
 - 課程講義：[nsysu-math208](https://github.com/phonchi/nsysu-math208)（各章提供 GitHub Pages 講義 HTML／PDF 線上閱讀與 PDF 下載）
 
 ## 課前準備（先讀）
@@ -76,7 +77,7 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 | `tools/check_00c.py` | 解析 00C 三份 JSON、核對圖片與範圍，並編譯三種匿名專案模式 |
 | `tools/enrich/enrich_lib.py` | 頁面同格式 C++ 上色、講義範例卡、插入器，以及 `run_cpp()`（編譯執行取真實輸出） |
 | `tools/enrich/enrich_*.py` | 九章正課頁的充實腳本，靠 `dx-*` 標記冪等（已注入完畢，**不要重跑**）。例外：`enrich_analysis.py` 自 2026-09-19 起改為可重跑，區塊包在 `<!-- gen:name -->` 註解之間，重跑只替換註解內的內容 |
-| `tools/fix_bare_include.py` | 講義範例卡裸檔名 include 補 `pythonds3/cppds/` 前綴（冪等） |
+| `tools/fix_bare_include.py` | 講義範例卡裸檔名 include 補 `pythonds3/cppds/` 前綴（冪等）；標頭目錄可用 `DSCPP_HEADERS` 覆寫，預設目錄不存在時警告略過（exit 0） |
 | `tools/shuffle_quiz.py` | 頁內自測題選項固定種子洗牌 JS 注入（冪等，`inject_prereq_cpp.py` 會呼叫） |
 
 新增一頁的流程：撰寫頁面本體 → 在 `inject_prereq_cpp.py` 的 `PPAGES` 登記 → 跑該腳本 →

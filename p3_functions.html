@@ -290,7 +290,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .tok-new{outline:3px solid #f39c12;}
 .mono{font-family:'JetBrains Mono',monospace;}
 
-@media(max-width:700px){.float-nav{display:none;}}
+@media(max-width:768px){.float-nav{display:none;}}
 /* Preserve original diagrams; contain wide code, tables and controls locally. */
 .viz-layout > *{min-width:0;}
 .viz-panel{min-width:0;max-width:100%;overflow-x:auto;}
@@ -546,15 +546,15 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <h2>先看懂函式的定義與呼叫</h2>
   <p>函式把一段工作取名字，呼叫時交給它輸入，完成後可把結果交回。先認識每個語法位置，再比較後面的傳值、參考與指標。</p>
   <p><code>int deliveryFee(int count)</code> 中，第一個 <code>int</code> 是回傳型別，<code>deliveryFee</code> 是名稱，<code>int count</code> 是參數。大括號是本體；<code>return</code> 結束呼叫並回傳值。呼叫 <code>deliveryFee(3)</code> 時，引數 3 交給 count；函式不會因定義寫在 main 前面就先執行。</p>
-  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count) {</span>
+  <div class="pseudo-code">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count) {</span>
 <span class="line" data-l="3">    <span class="kw">return</span> count * <span class="num">12</span>;</span>
 <span class="line" data-l="4">}</span>
 <span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="6">    <span class="kw">int</span> fee = deliveryFee(<span class="num">3</span>);</span>
 <span class="line" data-l="7">    std::cout &lt;&lt; fee &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
-<span class="line" data-l="8">}</span>
-<span class="line" data-l="9"> </span></div>
+<span class="line" data-l="8">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>36</pre></div>
   <p>呼叫回來後，fee 取得 36，main 再顯示它。<code>void</code> 表示不回傳值；<code>cout</code> 顯示文字與 <code>return</code> 交出結果是不同動作。下一節再看宣告與定義如何安排。</p>
 </section>
@@ -566,18 +566,18 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <div class="deck-extra">
   <div class="dx-label">定義寫在 main 後面，直接編不過</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="5">    cout &lt;&lt; square(<span class="num">5</span>) &lt;&lt; endl;   <span class="com">// 編譯器讀到這裡時還沒見過 square</span>
-<span class="line" data-l="6"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="5">    cout &lt;&lt; square(<span class="num">5</span>) &lt;&lt; endl;   <span class="com">// 編譯器讀到這裡時還沒見過 square</span></span>
+<span class="line" data-l="6">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="7">}</span>
 <span class="line" data-l="8"> </span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
 <span class="line" data-l="10">    <span class="kw">return</span> n * n;</span>
-<span class="line" data-l="11">}</span>
-<span class="line" data-l="12"> </span></div>
+<span class="line" data-l="11">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
 cell.cpp: In function ‘int main()’:
 cell.cpp:5:13: error: ‘square’ was not declared in this scope
@@ -589,20 +589,20 @@ cell.cpp:5:13: error: ‘square’ was not declared in this scope
 
 <div class="deck-extra">
   <div class="dx-label">加一行宣告就過了</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);               <span class="com">// 宣告（函式原型）：先告訴編譯器它長什麼樣</span>
-<span class="line" data-l="5"></span></span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);               <span class="com">// 宣告（函式原型）：先告訴編譯器它長什麼樣</span></span>
+<span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">square(5) = </span><span class="str">"</span> &lt;&lt; square(<span class="num">5</span>) &lt;&lt; endl;</span>
 <span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="9">}</span>
 <span class="line" data-l="10"> </span>
-<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {              <span class="com">// 定義：實際的程式碼可以擺在後面</span>
-<span class="line" data-l="12"></span>    <span class="kw">return</span> n * n;</span>
-<span class="line" data-l="13">}</span>
-<span class="line" data-l="14"> </span></div>
+<span class="line" data-l="11"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {              <span class="com">// 定義：實際的程式碼可以擺在後面</span></span>
+<span class="line" data-l="12">    <span class="kw">return</span> n * n;</span>
+<span class="line" data-l="13">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>square(5) = 25</pre></div>
   <p class="dx-note">宣告只需要<strong>型別</strong>，參數名可以省略：<code>int square(int);</code> 一樣合法。編譯器需要函式名稱、參數型別與回傳型別來檢查呼叫；參數名稱不影響函式型別。</p>
 </div>
@@ -630,13 +630,13 @@ cell.cpp:5:13: error: ‘square’ was not declared in this scope
   <h2>傳值：函式拿到的是<strong>副本</strong></h2>
   <p><code>void f(int n)</code> 這種寫法叫傳值（pass by value）。呼叫的瞬間，編譯器把你給的東西<strong>整個抄一份</strong>放進函式的參數裡。函式接下來怎麼折騰那份副本，外面那個都不會知道。</p>
 
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">addOne</span>(<span class="kw">int</span> v) {     <span class="com">// v 是一份全新的副本</span>
-<span class="line" data-l="2"></span>    v = v + <span class="num">1</span>;           <span class="com">// 改的是副本</span>
-<span class="line" data-l="3"></span>}                        <span class="com">// 函式結束，副本消失</span>
-<span class="line" data-l="4"></span></span>
+<div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">addOne</span>(<span class="kw">int</span> v) {     <span class="com">// v 是一份全新的副本</span></span>
+<span class="line" data-l="2">    v = v + <span class="num">1</span>;           <span class="com">// 改的是副本</span></span>
+<span class="line" data-l="3">}                        <span class="com">// 函式結束，副本消失</span></span>
+<span class="line" data-l="4"> </span>
 <span class="line" data-l="5"><span class="kw">int</span> score = <span class="num">60</span>;</span>
-<span class="line" data-l="6">addOne(score);           <span class="com">// score 還是 60</span>
-<span class="line" data-l="7"></span></span></div>
+<span class="line" data-l="6">addOne(score);           <span class="com">// score 還是 60</span></span></div>
 
   <p>值參數是獨立的參數物件，修改它不會直接改到呼叫端的變數。自訂類別從既有物件複製時會呼叫<strong>複製建構式</strong>（copy constructor）；傳入暫時物件時還可能省略複製，或改用移動（由型別決定如何接手來源資源）。類別若內含指標，複製指標也不代表複製它指向的資源。</p>
 
@@ -666,13 +666,14 @@ cell.cpp:5:13: error: ‘square’ was not declared in this scope
 
 <div class="deck-extra">
   <div class="dx-label">參考與本尊住同一個門牌</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="5">    <span class="kw">int</span> x = <span class="num">10</span>;</span>
-<span class="line" data-l="6">    <span class="kw">int</span> &amp;r = x;              <span class="com">// r 不是新變數，它就是 x 的另一個名字</span>
-<span class="line" data-l="7"></span></span>
+<span class="line" data-l="6">    <span class="kw">int</span> &amp;r = x;              <span class="com">// r 不是新變數，它就是 x 的另一個名字</span></span>
+<span class="line" data-l="7"> </span>
 <span class="line" data-l="8">    r = <span class="num">99</span>;</span>
 <span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">改了 r 之後 x = </span><span class="str">"</span> &lt;&lt; x &lt;&lt; endl;</span>
 <span class="line" data-l="10"> </span>
@@ -680,8 +681,7 @@ cell.cpp:5:13: error: ‘square’ was not declared in this scope
 <span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">r 的位址 = </span><span class="str">"</span> &lt;&lt; &amp;r &lt;&lt; <span class="str">"</span><span class="str">   &lt;- 完全一樣</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">sizeof(x)=</span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(x) &lt;&lt; <span class="str">"</span><span class="str">  sizeof(r)=</span><span class="str">"</span> &lt;&lt; <span class="kw">sizeof</span>(r) &lt;&lt; endl;</span>
 <span class="line" data-l="14">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="15">}</span>
-<span class="line" data-l="16"> </span></div>
+<span class="line" data-l="15">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>改了 r 之後 x = 99
 x 的位址 = 0x7ffe931b930c
 r 的位址 = 0x7ffe931b930c   &lt;- 完全一樣
@@ -693,12 +693,13 @@ sizeof(x)=4  sizeof(r)=4</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">一個 &amp; 的差別</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
-<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">addOneWrong</span>(<span class="kw">int</span> v)  { v = v + <span class="num">1</span>; }     <span class="com">// 漏了 &amp;</span>
-<span class="line" data-l="5"></span><span class="kw">void</span> <span class="fn">addOneRight</span>(<span class="kw">int</span> &amp;v) { v = v + <span class="num">1</span>; }     <span class="com">// 有 &amp;</span>
-<span class="line" data-l="6"></span></span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">addOneWrong</span>(<span class="kw">int</span> v)  { v = v + <span class="num">1</span>; }     <span class="com">// 漏了 &amp;</span></span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">addOneRight</span>(<span class="kw">int</span> &amp;v) { v = v + <span class="num">1</span>; }     <span class="com">// 有 &amp;</span></span>
+<span class="line" data-l="6"> </span>
 <span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="8">    <span class="kw">int</span> score = <span class="num">60</span>;</span>
 <span class="line" data-l="9">    addOneWrong(score);</span>
@@ -706,8 +707,7 @@ sizeof(x)=4  sizeof(r)=4</pre></div>
 <span class="line" data-l="11">    addOneRight(score);</span>
 <span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">呼叫 addOneRight 之後: </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
 <span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="14">}</span>
-<span class="line" data-l="15"> </span></div>
+<span class="line" data-l="14">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>呼叫 addOneWrong 之後: 60
 呼叫 addOneRight 之後: 61</pre></div>
   <p class="dx-note">兩個函式的本體完全相同，只有參數列差一個 <code>&amp;</code>，結果一個做白工、一個真的加到了。編譯這支程式時 g++ 一個字都不會抱怨——<code>addOneWrong</code> 在語法上完全合法，它只是沒有用。</p>
@@ -753,36 +753,36 @@ sizeof(x)=4  sizeof(r)=4</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">指標做得到、參考做不到的兩件事</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">void</span> <span class="fn">tryFill</span>(<span class="kw">int</span> *p) {</span>
-<span class="line" data-l="5">    <span class="kw">if</span> (p == <span class="fn">nullptr</span>) {              <span class="com">// 指標可以為空，所以要檢查</span>
-<span class="line" data-l="6"></span>        cout &lt;&lt; <span class="str">"</span><span class="str">  收到 nullptr，什麼都不做</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (p == <span class="kw">nullptr</span>) {              <span class="com">// 指標可以為空，所以要檢查</span></span>
+<span class="line" data-l="6">        cout &lt;&lt; <span class="str">"</span><span class="str">  收到 nullptr，什麼都不做</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="7">        <span class="kw">return</span>;</span>
 <span class="line" data-l="8">    }</span>
 <span class="line" data-l="9">    *p = <span class="num">42</span>;</span>
 <span class="line" data-l="10">}</span>
 <span class="line" data-l="11"> </span>
-<span class="line" data-l="12"><span class="kw">void</span> <span class="fn">mustFill</span>(<span class="kw">int</span> &amp;r) {              <span class="com">// 參考保證後面有東西，不用檢查</span>
-<span class="line" data-l="13"></span>    r = <span class="num">42</span>;</span>
+<span class="line" data-l="12"><span class="kw">void</span> <span class="fn">mustFill</span>(<span class="kw">int</span> &amp;r) {              <span class="com">// 參考保證後面有東西，不用檢查</span></span>
+<span class="line" data-l="13">    r = <span class="num">42</span>;</span>
 <span class="line" data-l="14">}</span>
 <span class="line" data-l="15"> </span>
 <span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="17">    <span class="kw">int</span> a = <span class="num">0</span>;</span>
 <span class="line" data-l="18">    tryFill(&amp;a);   cout &lt;&lt; <span class="str">"</span><span class="str">tryFill(&amp;a)  之後 a = </span><span class="str">"</span> &lt;&lt; a &lt;&lt; endl;</span>
-<span class="line" data-l="19">    tryFill(<span class="fn">nullptr</span>); cout &lt;&lt; <span class="str">"</span><span class="str">傳 nullptr 進去會安全返回</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="19">    tryFill(<span class="kw">nullptr</span>); cout &lt;&lt; <span class="str">"</span><span class="str">傳 nullptr 進去會安全返回</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="20"> </span>
 <span class="line" data-l="21">    <span class="kw">int</span> b = <span class="num">0</span>;</span>
 <span class="line" data-l="22">    mustFill(b);   cout &lt;&lt; <span class="str">"</span><span class="str">mustFill(b)  之後 b = </span><span class="str">"</span> &lt;&lt; b &lt;&lt; endl;</span>
 <span class="line" data-l="23"> </span>
 <span class="line" data-l="24">    <span class="kw">int</span> c = <span class="num">1</span>, d = <span class="num">2</span>;</span>
 <span class="line" data-l="25">    <span class="kw">int</span> *p = &amp;c;</span>
-<span class="line" data-l="26">    p = &amp;d;                          <span class="com">// 指標可以改指向別的東西</span>
-<span class="line" data-l="27"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">p 改指向 d 之後 *p = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
+<span class="line" data-l="26">    p = &amp;d;                          <span class="com">// 指標可以改指向別的東西</span></span>
+<span class="line" data-l="27">    cout &lt;&lt; <span class="str">"</span><span class="str">p 改指向 d 之後 *p = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
 <span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="29">}</span>
-<span class="line" data-l="30"> </span></div>
+<span class="line" data-l="29">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>tryFill(&amp;a)  之後 a = 42
   收到 nullptr，什麼都不做
 傳 nullptr 進去會安全返回
@@ -863,27 +863,27 @@ p 改指向 d 之後 *p = 2</pre></div>
   <h2><code>const T&amp;</code>：不複製，也不讓你改</h2>
   <p>前面兩節各有一項限制：傳值可能產生複製成本，傳參考則允許函式改動呼叫端資料。<code>const T&amp;</code> 結合兩者需要的特性：參數不複製，而且編譯器禁止函式透過它修改資料。</p>
 
-<div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">print</span>(<span class="kw">const</span> string &amp;s) {   <span class="com">// 不複製、不能改</span>
-<span class="line" data-l="2"></span>    cout &lt;&lt; s &lt;&lt; endl;</span>
-<span class="line" data-l="3">    <span class="com">// s = "x";                    // 這行會編譯錯</span>
-<span class="line" data-l="4"></span>}</span>
-<span class="line" data-l="5"> </span></div>
+<div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">print</span>(<span class="kw">const</span> string &amp;s) {   <span class="com">// 不複製、不能改</span></span>
+<span class="line" data-l="2">    cout &lt;&lt; s &lt;&lt; endl;</span>
+<span class="line" data-l="3">    <span class="com">// s = "x";                    // 這行會編譯錯</span></span>
+<span class="line" data-l="4">}</span></div>
 
 <div class="deck-extra">
   <div class="dx-label">試著改一個 const 參考</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">void</span> <span class="fn">peek</span>(<span class="kw">const</span> <span class="kw">int</span> &amp;v) {</span>
-<span class="line" data-l="5">    v = <span class="num">99</span>;                 <span class="com">// const 參考不准改</span>
-<span class="line" data-l="6"></span>}</span>
+<span class="line" data-l="5">    v = <span class="num">99</span>;                 <span class="com">// const 參考不准改</span></span>
+<span class="line" data-l="6">}</span>
 <span class="line" data-l="7"> </span>
 <span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="9">    <span class="kw">int</span> x = <span class="num">3</span>;</span>
 <span class="line" data-l="10">    peek(x);</span>
 <span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="12">}</span>
-<span class="line" data-l="13"> </span></div>
+<span class="line" data-l="12">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
 cell.cpp: In function ‘void peek(const int&amp;)’:
 cell.cpp:5:7: error: assignment of read-only reference ‘v’
@@ -917,8 +917,9 @@ cell.cpp:5:7: error: assignment of read-only reference ‘v’
 
 <div class="deck-extra">
   <div class="dx-label">回傳參考的正當用法：目標是仍存活的呼叫端變數</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"><span class="kw">int</span>&amp; <span class="fn">currentValue</span>(<span class="kw">int</span>&amp; value) { <span class="kw">return</span> value; }</span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="5">    <span class="kw">int</span> count = <span class="num">0</span>;</span>
@@ -926,8 +927,7 @@ cell.cpp:5:7: error: assignment of read-only reference ‘v’
 <span class="line" data-l="7">    currentValue(count) += <span class="num">3</span>;</span>
 <span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">count = </span><span class="str">"</span> &lt;&lt; count &lt;&lt; endl;</span>
 <span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="10">}</span>
-<span class="line" data-l="11"> </span></div>
+<span class="line" data-l="10">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>count = 8</pre></div>
   <p>currentValue 回傳 main 中 count 的參考，原物件在呼叫結束後仍存在，所以呼叫結果可作為賦值左側。不能把它改成回傳函式內區域變數的參考。</p>
 </div>
@@ -937,21 +937,21 @@ cell.cpp:5:7: error: assignment of read-only reference ‘v’
 
 <div class="deck-extra">
   <div class="dx-label">g++ 有警告，而且是預設就開的</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> *<span class="fn">makeNumber</span>() {</span>
-<span class="line" data-l="5">    <span class="kw">int</span> local = <span class="num">1234</span>;        <span class="com">// 住在堆疊上，函式一結束就沒了</span>
-<span class="line" data-l="6"></span>    <span class="kw">return</span> &amp;local;           <span class="com">// 回傳一個馬上要失效的位址</span>
-<span class="line" data-l="7"></span>}</span>
+<span class="line" data-l="5">    <span class="kw">int</span> local = <span class="num">1234</span>;        <span class="com">// 住在堆疊上，函式一結束就沒了</span></span>
+<span class="line" data-l="6">    <span class="kw">return</span> &amp;local;           <span class="com">// 回傳一個馬上要失效的位址</span></span>
+<span class="line" data-l="7">}</span>
 <span class="line" data-l="8"> </span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="10">    <span class="kw">int</span> *p = makeNumber();</span>
 <span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">p 拿到的位址 = </span><span class="str">"</span> &lt;&lt; p &lt;&lt; endl;</span>
 <span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">順著它讀出來 = </span><span class="str">"</span> &lt;&lt; *p &lt;&lt; endl;</span>
 <span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="14">}</span>
-<span class="line" data-l="15"> </span></div>
+<span class="line" data-l="14">}</span></div>
   <div class="expected-out"><span class="eo-tag">g++ 的警告</span><pre>cell.cpp: In function ‘int* makeNumber()’:
 cell.cpp:6:12: warning: address of local variable ‘local’ returned [-Wreturn-local-addr]
     6 |     return &amp;local;           // 回傳一個馬上要失效的位址
@@ -972,20 +972,20 @@ cell.cpp:5:9: note: declared here
 
 <div class="deck-extra">
   <div class="dx-label">直接回傳值，由呼叫端接收</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">makeNumberOK</span>() {</span>
 <span class="line" data-l="5">    <span class="kw">int</span> value = <span class="num">1234</span>;</span>
-<span class="line" data-l="6">    <span class="kw">return</span> value;          <span class="com">// 回傳值，不回傳區域變數的位址</span>
+<span class="line" data-l="6">    <span class="kw">return</span> value;          <span class="com">// 回傳值，不回傳區域變數的位址</span></span>
 <span class="line" data-l="7">}</span>
 <span class="line" data-l="8"> </span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="10">    <span class="kw">int</span> n = makeNumberOK();</span>
 <span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">讀出來 = </span><span class="str">"</span> &lt;&lt; n &lt;&lt; endl;</span>
 <span class="line" data-l="12">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="13">}</span>
-<span class="line" data-l="14"> </span></div>
+<span class="line" data-l="13">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>讀出來 = 1234</pre></div>
   <p>區域變數 <code>value</code> 會在函式結束時消失，但它的值已用 <code>return</code> 交給呼叫端，因此 <code>n</code> 可安全取得 1234。只有確實需要動態生命週期時，才要另外安排所有權；<code>new</code>／<code>delete</code> 與自動管理資源的觀念見 <a href="p4_pointers_memory.html#newdel">P4</a>。</p>
 </div>
@@ -1007,16 +1007,16 @@ cell.cpp:5:9: note: declared here
 
 <div class="deck-extra">
   <div class="dx-label">同名 deliveryFee 依參數個數選擇版本；三個呼叫各自選中兩參數、一參數與無參數版本，不需要外部標頭。</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"><span class="kw">int</span> <span class="fn">deliveryFee</span>() { <span class="kw">return</span> <span class="num">12</span>; }</span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count) { <span class="kw">return</span> count * <span class="num">12</span>; }</span>
 <span class="line" data-l="5"><span class="kw">int</span> <span class="fn">deliveryFee</span>(<span class="kw">int</span> count, <span class="kw">int</span> rate) { <span class="kw">return</span> count * rate; }</span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    cout &lt;&lt; deliveryFee(<span class="num">3</span>, <span class="num">10</span>) &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; deliveryFee(<span class="num">5</span>) &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span> &lt;&lt; deliveryFee() &lt;&lt; endl;</span>
 <span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="9">}</span>
-<span class="line" data-l="10"> </span></div>
+<span class="line" data-l="9">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>30  60  12</pre></div>
   <p class="dx-note">同名 deliveryFee 依參數個數選擇版本；三個呼叫各自選中兩參數、一參數與無參數版本，不需要外部標頭。</p>
 </div>
@@ -1026,9 +1026,10 @@ cell.cpp:5:9: note: declared here
 
 <div class="deck-extra">
   <div class="dx-label">省略的參數自動吃預設值</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="4"> </span>
 <span class="line" data-l="5"><span class="kw">void</span> <span class="fn">report</span>(string name, <span class="kw">int</span> score = <span class="num">60</span>, <span class="kw">bool</span> pass = <span class="fn">true</span>) {</span>
 <span class="line" data-l="6">    cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; score &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; (pass ? <span class="str">"</span><span class="str">通過</span><span class="str">"</span> : <span class="str">"</span><span class="str">未通過</span><span class="str">"</span>) &lt;&lt; endl;</span>
@@ -1036,11 +1037,10 @@ cell.cpp:5:9: note: declared here
 <span class="line" data-l="8"> </span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="10">    report(<span class="str">"</span><span class="str">小明</span><span class="str">"</span>, <span class="num">92</span>, <span class="fn">true</span>);</span>
-<span class="line" data-l="11">    report(<span class="str">"</span><span class="str">小華</span><span class="str">"</span>, <span class="num">55</span>);          <span class="com">// pass 用預設值 true</span>
-<span class="line" data-l="12"></span>    report(<span class="str">"</span><span class="str">小美</span><span class="str">"</span>);              <span class="com">// score 與 pass 都用預設值</span>
-<span class="line" data-l="13"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="14">}</span>
-<span class="line" data-l="15"> </span></div>
+<span class="line" data-l="11">    report(<span class="str">"</span><span class="str">小華</span><span class="str">"</span>, <span class="num">55</span>);          <span class="com">// pass 用預設值 true</span></span>
+<span class="line" data-l="12">    report(<span class="str">"</span><span class="str">小美</span><span class="str">"</span>);              <span class="com">// score 與 pass 都用預設值</span></span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="14">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>小明 92 通過
 小華 55 通過
 小美 60 通過</pre></div>
@@ -1054,19 +1054,19 @@ cell.cpp:5:9: note: declared here
 
 <div class="deck-extra">
   <div class="dx-label">把有預設值的參數放前面，編譯器直接擋下</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="4"> </span>
-<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">report</span>(<span class="kw">int</span> score = <span class="num">60</span>, string name) {   <span class="com">// 有預設值的參數放前面</span>
-<span class="line" data-l="6"></span>    cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">report</span>(<span class="kw">int</span> score = <span class="num">60</span>, string name) {   <span class="com">// 有預設值的參數放前面</span></span>
+<span class="line" data-l="6">    cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; score &lt;&lt; endl;</span>
 <span class="line" data-l="7">}</span>
 <span class="line" data-l="8"> </span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="10">    report(<span class="num">90</span>, <span class="str">"</span><span class="str">小明</span><span class="str">"</span>);</span>
 <span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="12">}</span>
-<span class="line" data-l="13"> </span></div>
+<span class="line" data-l="12">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>[編譯失敗]
 cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report(int, std::string)’
     5 | void report(int score = 60, string name) {   // 有預設值的參數放前面
@@ -1087,8 +1087,9 @@ cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report
 
 <div class="deck-extra">
   <div class="dx-label">把進出的順序印出來</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> depth = <span class="num">0</span>;</span>
 <span class="line" data-l="5"> </span>
@@ -1099,10 +1100,10 @@ cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report
 <span class="line" data-l="10"> </span>
 <span class="line" data-l="11">    <span class="kw">int</span> result;</span>
 <span class="line" data-l="12">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) {</span>
-<span class="line" data-l="13">        result = n;                   <span class="com">// 基底情形：不再往下叫</span>
-<span class="line" data-l="14"></span>    } <span class="kw">else</span> {</span>
-<span class="line" data-l="15">        result = n + sumTo(n - <span class="num">1</span>);    <span class="com">// 遞迴情形：問題變小一號</span>
-<span class="line" data-l="16"></span>    }</span>
+<span class="line" data-l="13">        result = n;                   <span class="com">// 基底情形：不再往下叫</span></span>
+<span class="line" data-l="14">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="15">        result = n + sumTo(n - <span class="num">1</span>);    <span class="com">// 遞迴情形：問題變小一號</span></span>
+<span class="line" data-l="16">    }</span>
 <span class="line" data-l="17"> </span>
 <span class="line" data-l="18">    depth--;</span>
 <span class="line" data-l="19">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; depth; i++) cout &lt;&lt; <span class="str">"</span><span class="str">  </span><span class="str">"</span>;</span>
@@ -1114,8 +1115,7 @@ cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report
 <span class="line" data-l="25">    <span class="kw">int</span> answer = sumTo(<span class="num">4</span>);</span>
 <span class="line" data-l="26">    cout &lt;&lt; <span class="str">"</span><span class="str">答案 = </span><span class="str">"</span> &lt;&lt; answer &lt;&lt; endl;</span>
 <span class="line" data-l="27">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="28">}</span>
-<span class="line" data-l="29"> </span></div>
+<span class="line" data-l="28">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>進入 sumTo(4)
   進入 sumTo(3)
     進入 sumTo(2)
@@ -1170,8 +1170,9 @@ cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report
 
 <div class="deck-extra">
   <div class="dx-label">錯誤風險示範：過深遞迴與數值範圍</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
 <span class="line" data-l="5">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) <span class="kw">return</span> n;</span>
@@ -1180,10 +1181,9 @@ cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report
 <span class="line" data-l="8"> </span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="10">    cout &lt;&lt; <span class="str">"</span><span class="str">sumTo(1000)    = </span><span class="str">"</span> &lt;&lt; sumTo(<span class="num">1000</span>) &lt;&lt; endl;</span>
-<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">sumTo(1000000) = </span><span class="str">"</span> &lt;&lt; sumTo(<span class="num">1000000</span>) &lt;&lt; endl;   <span class="com">// 堆疊撐不住</span>
-<span class="line" data-l="12"></span>    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="13">}</span>
-<span class="line" data-l="14"> </span></div>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">sumTo(1000000) = </span><span class="str">"</span> &lt;&lt; sumTo(<span class="num">1000000</span>) &lt;&lt; endl;   <span class="com">// 堆疊撐不住</span></span>
+<span class="line" data-l="12">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="13">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>風險示範，不提供固定輸出：過深遞迴可能耗盡堆疊，總和也可能使 int 溢位。</pre></div>
   <p class="dx-note">在可容納結果且堆疊足夠的環境中，sumTo(1000) 得到 500500。sumTo(1000000) 除了可能耗盡堆疊，結果 500000500000 也超出常見 32 位元 int。此例不作為可執行範本；只換較寬型別仍不能解決過深呼叫，應選擇適合的迴圈或其他做法。</p>
 </div>
@@ -1236,30 +1236,30 @@ cell.cpp:5:36: error: default argument missing for parameter 2 of ‘void report
   </div>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">語法骨架</h3>
-<div class="pseudo-code" style="font-size:.78rem;"><span class="line" data-l="1"><span class="com">// 宣告（原型）：結尾要有分號</span>
-<span class="line" data-l="2"></span><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);</span>
-<span class="line" data-l="3"><span class="kw">void</span> <span class="fn">addOne</span>(<span class="kw">int</span>&amp; n);              <span class="com">// 可修改呼叫端的值</span>
-<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> <span class="kw">int</span>&amp; n);          <span class="com">// 唯讀參考</span>
-<span class="line" data-l="5"><span class="kw">int</span> *<span class="fn">findValue</span>(<span class="kw">int</span> *p);          <span class="com">// 指標參數與指標回傳值</span>
+<div class="pseudo-code" style="font-size:.78rem;">
+<span class="line" data-l="1"><span class="com">// 宣告（原型）：結尾要有分號</span></span>
+<span class="line" data-l="2"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n);</span>
+<span class="line" data-l="3"><span class="kw">void</span> <span class="fn">addOne</span>(<span class="kw">int</span>&amp; n);              <span class="com">// 可修改呼叫端的值</span></span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> <span class="kw">int</span>&amp; n);          <span class="com">// 唯讀參考</span></span>
+<span class="line" data-l="5"><span class="kw">int</span> *<span class="fn">findValue</span>(<span class="kw">int</span> *p);          <span class="com">// 指標參數與指標回傳值</span></span>
 <span class="line" data-l="6"> </span>
-<span class="line" data-l="7"><span class="com">// 定義：大括號內是函式本體</span>
-<span class="line" data-l="8"></span><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
-<span class="line" data-l="9">    <span class="kw">return</span> n * n;                 <span class="com">// 安全地回傳區域變數的值</span>
+<span class="line" data-l="7"><span class="com">// 定義：大括號內是函式本體</span></span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">square</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="9">    <span class="kw">return</span> n * n;                 <span class="com">// 安全地回傳區域變數的值</span></span>
 <span class="line" data-l="10">}</span>
 <span class="line" data-l="11"> </span>
-<span class="line" data-l="12"><span class="com">// 多載：參數列不同，回傳型別不參與選擇</span>
-<span class="line" data-l="13"></span><span class="kw">int</span> <span class="fn">area</span>(<span class="kw">int</span> side);</span>
+<span class="line" data-l="12"><span class="com">// 多載：參數列不同，回傳型別不參與選擇</span></span>
+<span class="line" data-l="13"><span class="kw">int</span> <span class="fn">area</span>(<span class="kw">int</span> side);</span>
 <span class="line" data-l="14"><span class="kw">int</span> <span class="fn">area</span>(<span class="kw">int</span> width, <span class="kw">int</span> height);</span>
 <span class="line" data-l="15"> </span>
-<span class="line" data-l="16"><span class="com">// 預設引數：有預設值的參數排在右側</span>
-<span class="line" data-l="17"></span><span class="kw">void</span> <span class="fn">report</span>(string name, <span class="kw">int</span> score = <span class="num">60</span>, <span class="kw">bool</span> pass = <span class="fn">true</span>);</span>
+<span class="line" data-l="16"><span class="com">// 預設引數：有預設值的參數排在右側</span></span>
+<span class="line" data-l="17"><span class="kw">void</span> <span class="fn">report</span>(string name, <span class="kw">int</span> score = <span class="num">60</span>, <span class="kw">bool</span> pass = <span class="fn">true</span>);</span>
 <span class="line" data-l="18"> </span>
-<span class="line" data-l="19"><span class="com">// 遞迴：先處理基底情形，再縮小問題</span>
-<span class="line" data-l="20"></span><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="19"><span class="com">// 遞迴：先處理基底情形，再縮小問題</span></span>
+<span class="line" data-l="20"><span class="kw">int</span> <span class="fn">sumTo</span>(<span class="kw">int</span> n) {</span>
 <span class="line" data-l="21">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) <span class="kw">return</span> n;</span>
 <span class="line" data-l="22">    <span class="kw">return</span> n + sumTo(n - <span class="num">1</span>);</span>
-<span class="line" data-l="23">}</span>
-<span class="line" data-l="24"> </span></div>
+<span class="line" data-l="23">}</span></div>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python ↔ C++ 對照</h3>
   <div class="cmp-table-wrap">

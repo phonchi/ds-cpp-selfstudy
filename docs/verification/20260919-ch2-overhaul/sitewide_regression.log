@@ -1,0 +1,302 @@
+================================================================================
+全站回歸驗收 — 程式碼區塊結構修復 + 手機導覽 + 00a 計時範例
+日期：2026-09-20   範圍：/home/phonchi/ds-cpp-selfstudy 全部 22 個 *.html
+基準：git HEAD 1677f1f（工作區為未 commit 的 22 頁修改）
+方法：Playwright(Chromium 148) 以 file:// 逐頁開啟 + 靜態比對 + g++ 13.3.0 實際編譯執行
+唯讀：本次只寫出本檔；驗收前後 `git status --short` 逐字相同（已 diff 確認）
+================================================================================
+
+結論：全部通過，只有 1 項既有缺陷（非本次回歸）——
+      linear_structures.html 的 palCode 動畫要求第 8、9 行，該容器只有 7 行。
+      已用 HEAD 版本逐行比對確認：容器與 JS 兩邊都與修改前完全相同，是本次修改前就存在的問題。
+
+--------------------------------------------------------------------------------
+逐頁總表
+--------------------------------------------------------------------------------
+頁面                           區塊 有.line   橫捲 stray   巢狀 ws≠pre console   390   760   1440     高亮容器     行號請求    缺行
+----------------------------------------------------------------------------------------------------------------
+00a_why_code.html             3      3    0     0    0      0       0  none  none   flex        0        0     0
+00b_setup.html               10     10    0     0    0      0       0  none  none   flex        0        0     0
+00c_vscode_windows.html       6      6    0     0    0      0       0  none  none   flex        0        0     0
+analysis.html                17     17    0     0    0      0       0  none  none   flex        1        3     0
+arrays.html                  12     12    4     0    0      0       0  none  none   flex        0        0     0
+graphs.html                  12     12    5     0    0      0       0  none  none   flex        0        0     0
+index.html                    0      0    0     0    0      0       0   無元素   無元素    無元素        0        0     0
+introduction.html            35     35    6     0    0      0       0  none  none   flex        1        4     0
+linear_structures.html       22     22   13     0    0      0       0  none  none   flex        6       26     2
+linked_lists.html            10     10    3     0    0      0       0  none  none   flex        2        9     0
+p1_cpp_basics.html           25     25    1     0    0      0       0  none  none   flex        1        4     0
+p2_flow_control.html         29     29    2     0    0      0       0  none  none   flex        1        4     0
+p3_functions.html            23     23    0     0    0      0       0  none  none   flex        4       23     0
+p4_pointers_memory.html      11     11    1     0    0      0       0  none  none   flex        3       11     0
+p5_vector_string.html        18     18    1     0    0      0       0  none  none   flex        0        0     0
+p6_map_set.html              21     21    0     0    0      0       0  none  none   flex        0        0     0
+p7_files_exceptions.html      9      9    0     0    0      0       0  none  none   flex        1       10     0
+p8_oop_basics.html           17     17    1     0    0      0       0  none  none   flex        1        4     0
+p9_oop_advanced.html         14     14    1     0    0      0       0  none  none   flex        0        0     0
+recursion.html               15     15   10     0    0      0       0  none  none   flex        5       16     0
+searching_sorting.html       33     33   10     0    0      0       0  none  none   flex        0        0     0
+trees.html                   19     19    9     0    0      0       0  none  none   flex        3       10     0
+----------------------------------------------------------------------------------------------------------------
+合計 22 頁                     361    361   67     0    0      0       0                          29      124     2
+
+註：index.html 沒有 .pseudo-code 也沒有 .float-nav 元素（僅 CSS 選擇器殘留），屬正常。
+
+================================================================================
+A. 逐行高亮動畫（最高優先）
+================================================================================
+掃描方式：原始碼掃出 hlLine 目標（兩種簽章：hlLine('id',n) 與 trees.html 的
+hlLine(元素,n)），共 29 個容器 / 13 個頁面。
+
+A-1 動態驗證（實際觸發動畫）
+  作法：頁面載入後攔截 hlLine，記錄每次 (容器, 行號, 是否找得到 .line[data-l], 之後
+  容器內 .line.active 數)；並把 Player.prototype.play/step（兩套 player 實作：
+  frames 版與 trees.html 的 steps 版）換成同步跑完所有 frame，再點擊頁面上全部
+  按鈕（3 輪，逐步型按鈕額外各 25 次）、切換所有 select/radio，讓各動畫真的跑起來。
+  共觸發 player 實例數十個（例：trees.html 記錄到 steps 長度 15/15/25/25/8/7/7/10/5/15）。
+
+  結果：124 次帶行號的 hlLine 請求
+        122 次 → 找到對應 .line[data-l]，且該容器確實有元素拿到 active class
+          2 次 → 找不到（皆為 linear_structures.html / palCode 的第 8、9 行）
+        另有數十次 hlLine(id, null)（清除高亮）正常。
+
+  逐容器明細（要求行號數 / 行號範圍 / 容器 data-l 數 / 缺行）：
+    analysis.html            anaCode      3  7..9    11  —
+    introduction.html        ptrCode      4  1..6     6  —
+    linear_structures.html   baseCode     5  1..10   10  —
+    linear_structures.html   hpCode       4  3..8     9  —
+    linear_structures.html   i2pCode      4  1..12   12  —
+    linear_structures.html   palCode      4  3..9     7  缺 8、9   ← 唯一問題
+    linear_structures.html   parCode      5  1..9     9  —
+    linear_structures.html   pevalCode    4  1..9     9  —
+    linked_lists.html        ollCode      3  3..9    11  —
+    linked_lists.html        ullCode      6  2..17   18  —
+    p1_cpp_basics.html       pipeCode     4  1..4     5  —
+    p2_flow_control.html     forCode      4  1..4     5  —
+    p3_functions.html        csCode       5  1..8     9  —
+    p3_functions.html        swapCodePtr  6  2..8     9  —
+    p3_functions.html        swapCodeRef  6  2..8     9  —
+    p3_functions.html        swapCodeVal  6  2..8     9  —（三種傳遞模式都切過）
+    p4_pointers_memory.html  heapCode     5  1..5     7  —
+    p4_pointers_memory.html  memCode      5  1..5     6  —
+    p4_pointers_memory.html  stepCode     1  2        6  —
+    p7_files_exceptions.html excCode     10  6..20   22  —
+    p8_oop_basics.html       ovlCands     4  1..4     4  —（f.scan；f.dead 索引同一組 ≤4）
+    recursion.html           dpCode       3  2..8     9  —
+    recursion.html           hanoiCode    3  1..5     6  —
+    recursion.html           mazeCode     5  1..9    12  —
+    recursion.html           sumCode      3  2..6     7  —
+    recursion.html           tostrCode    2  4..6     7  —
+    trees.html               nrCode       1  1        9  —
+    trees.html               heapCode     3  1,4,5    9  —
+    trees.html               bstCode      6  3..11   20  —
+
+A-2 靜態行號覆蓋（補動態沒走到的分支）
+  從各動畫的 frame 產生函式抽出 line:/scan:/dead: 的字面值，與容器實際 data-l 比對：
+    trees.html   nrCode   需要 1..6            → 9 行，全部存在
+    trees.html   heapCode 需要 1,4,5           → 9 行，全部存在
+    trees.html   bstCode  需要 2,3,4,5,6,7,8,9,11（put 與 get 兩張 lineMap 的聯集）
+                                               → 20 行，全部存在
+    p3 swapFrames 需要 2,3,4,5,7,8            → 9 行，全部存在
+    其餘 24 個容器靜態抽出的行號亦全部落在容器 data-l 範圍內
+  唯一例外同上：palCode 的 palFrames() 用 line:8（不是迴文）與 line:9（是迴文），
+  palCode 只有 data-l 1..7。
+
+A-3 關鍵對照：這次的 data-l 重新連號有沒有動到動畫容器？
+  把 29 個目標容器在 HEAD 版與工作區版各自解析出 {data-l → 該行純文字} 後逐行比對：
+    29 / 29 個容器：行數相同、每一行的 data-l 與文字完全相同（零差異）。
+  也就是說本次重新產生 HTML 完全沒有碰到任何高亮動畫的容器，
+  不存在「元素還在但行內容位移一格」這種會靜默錯高亮的情況。
+  palCode 的 8/9 行問題在 HEAD 版一模一樣（容器 7 行、palFrames 仍寫 line:8/9），
+  且 `git diff linear_structures.html` 在 palFrames 附近沒有任何改動 → 既有缺陷。
+  症狀：迴文動畫最後一格（成功/失敗結論那格）不會亮任何一行，其餘各格正常。
+
+判定：A 通過（本次修改沒有弄壞任何逐行高亮）。
+
+================================================================================
+B. Console 乾淨
+================================================================================
+22 頁逐一以 file:// 開啟，載入階段與互動階段（點完所有按鈕之後）都掛著監聽：
+  console.error     0 筆
+  console.warning   0 筆
+  pageerror         0 筆
+  requestfailed     0 筆
+  合計              0 筆（22 / 22 頁全乾淨）
+互動過程中由注入層另外捕捉的 JS 例外（hlLine/apply/click 拋出）：0 筆。
+監聽器正控制：在監聽器掛好之後對頁面注入一次 console.error('__PROBE__')，
+    8 / 8 頁都確實收到（probe_ok=True），確認「0 筆」不是監聽器沒接上造成的假陰性。
+註：4 個頁面（00c、graphs、index、searching_sorting）沒有全域 hlLine 函式，
+    因為它們本來就沒有逐行高亮動畫，不是錯誤。
+全站沒有任何 fetch()（grep 過 22 頁）；Google Fonts 等外部 <link> 請求存在，
+    但 requestfailed 為 0 筆，所以 file:// 下沒有 CORS／離線造成的假陽性或假陰性。
+
+判定：B 通過。
+
+================================================================================
+C. 手機版浮動導覽
+================================================================================
+每頁在 390px、760px、1440px 三種寬度量 .float-nav 的 computed display，
+並在 1440px 捲動 3000px 後再量一次（排除 JS 依捲動切換的可能）：
+  390px    21 / 21 頁有該元素者皆為 none
+  760px    21 / 21 頁皆為 none
+  1440px   21 / 21 頁皆為 flex（捲動後仍為 flex）
+  index.html 沒有 .float-nav 元素（查詢結果 0 個），符合預期。
+斷點統一確認：p1–p9 原本的 700px 斷點已改為 768px，所以 760px 這一欄才會是 none。
+
+判定：C 通過。
+
+================================================================================
+D. 程式碼區塊渲染
+================================================================================
+全站 .pseudo-code 共 361 個（356 個 <div> + 5 個 <pre>），與 HEAD 版數量相同。
+
+D-1 沒有程式碼掉到 .line 之外
+  容器直接子節點中的非空白文字節點：0 / 361
+  .line 內再巢狀 .line：0 / 361
+  .line 的 textContent 內含換行字元：0 / 361
+  把容器複製一份、刪掉所有 .line 之後剩餘文字：全部為空（15 個以嚴格空白比對法
+    被標出的區塊逐一檢查過，差異來源是原始碼中相鄰 .line 之間沒有換行，
+    純屬排版寫法，且與 HEAD 版逐字相同，不是內容外漏）
+  沒有 .line 的區塊：0 / 361
+  對照 HEAD 版：舊版有 6 個區塊確實存在漏在 .line 外的文字節點
+    （arrays 1、p1_cpp_basics 2、p4_pointers_memory 2、p8_oop_basics 1），現已全部歸位。
+
+D-2 純文字內容有沒有被改掉
+  用瀏覽器自己的 HTML parser 取每個區塊的 textContent，與 HEAD 版逐一比對
+  （空白折疊後比對，因為重新包裝 span 會改變原始碼中的換行位置）：
+    361 個區塊中，2 個不同 —— 都在 00a_why_code.html，內容差異只有
+    high_resolution_clock → steady_clock（本次刻意的第 3 項修改）。
+    其餘 359 個區塊文字完全相同。→「程式碼純文字沒變」這項確認無誤。
+
+D-3 縮排
+  .line 的 computed white-space：361 / 361 個區塊全部是 pre（無一例外）。
+
+D-4 data-l 編號
+  1..n 連號：265 個區塊
+  完全沒有 data-l：70 個（純文字/示意區塊，本來就不需要）
+  部分有 data-l：6 個（graphs 4、searching_sorting 2 — 註解行刻意不編號）
+  有重複 data-l：1 個（p5_vector_string 第 13 個區塊，出現兩次 data-l="26"）
+  上述 7 個異常區塊全部逐一與 HEAD 版比對，data-l 序列逐格相同 → 皆為既有寫法，
+  非本次產生，且都不是任何 hlLine 動畫的目標容器。
+
+D-5 橫向捲軸（僅供參考，不是錯誤）
+  1440×900 視窗下 scrollWidth > clientWidth 的區塊：67 / 361
+  註：位於 display:none 容器裡的區塊（例如 p3 的三個 swapCode* 只顯示一個）
+      scrollWidth 會是 0，因此 67 是 1440px 下的下限值。
+  分佈：linear_structures 13、recursion 10、searching_sorting 10、trees 9、
+        introduction 6、graphs 5、arrays 4、linked_lists 3、p2 2、
+        p1/p4/p5/p8/p9 各 1，其餘 0。
+
+判定：D 通過。
+
+================================================================================
+E. 可執行範例（data-cpp）
+================================================================================
+編譯指令：g++ -std=c++17 -I /home/phonchi/ds_cpp/Slides
+                          -I /home/phonchi/ds_cpp/Slides/pythonds3/cppds
+全站 data-cpp 區塊共 10 個：run 7 個、compile-error 1 個、fragment 2 個。
+（註：這些區塊的 class 是 sq-code 或 pseudo-code 混用，其中 3 個 run 區塊
+  在 p1_cpp_basics.html 上是 class="sq-code"，不在 .pseudo-code 集合裡。）
+
+  頁面                        區塊  data-expected  編譯  執行  輸出比對
+  arrays.html                 #0    在            OK    OK    相符
+  p1_cpp_basics.html #0 (logic-error-comparison)  在  OK  OK  相符
+  p1_cpp_basics.html #1 (division-guard)          在  OK  OK  相符
+  p1_cpp_basics.html #2 (bounds-guard)            在  OK  OK  相符
+  p4_pointers_memory.html     #0    在            OK    OK    相符
+  p8_oop_basics.html          #1    在            OK    OK    相符
+  p8_oop_basics.html          #3    在            OK    OK    相符（多行中文輸出全對）
+  p8_oop_basics.html #2 (compile-error)  無        預期編譯失敗，確實失敗  ← 教學意圖保持
+  p8_oop_basics.html #0、#4 (fragment)   無        依設計略過
+
+  7 / 7 個 run 區塊：data-expected 屬性都還在、內容沒有被破壞
+  （含 &#10; 轉義與多行中文），還原出來的程式碼實際輸出與 data-expected 逐字相符。
+
+判定：E 通過。
+
+================================================================================
+F. 00a_why_code.html 的計時 / 記憶體範例
+================================================================================
+00a 共 3 個 pseudo-code 範例、3 個 .expected-out，全部還原編譯執行：
+
+  ① Stack vs Stack2（vector 前端/尾端操作）24 行  編譯 OK
+     實測：Stack  (top 在尾端): 1.15014 ms / Stack2 (top 在前端): 121.633 ms
+     頁面：Stack  (top 在尾端): 1.13921 ms / Stack2 (top 在前端): 122.423 ms
+     → 格式相同、兩個數量級（~1 ms vs ~120 ms）完全吻合
+
+  ② vector 逐一比對 vs unordered_set 雜湊查表  29 行  編譯 OK
+     實測：vector 逐一比對: 112.23 ms / unordered_set 雜湊查表: 0.008003 ms
+     頁面：vector 逐一比對: 102.673 ms / unordered_set 雜湊查表: 0.006698 ms
+     → 格式相同、數量級吻合（~10^2 ms vs ~10^-3 ms）
+
+  ③ Node::alive 記憶體洩漏示範  39 行  編譯 OK
+     實測輸出與頁面 .expected-out 四行逐字完全相同（0 / 0 / 2 / 8）
+
+  clock 型別檢查：00a 內 high_resolution_clock 出現 0 次、steady_clock 出現 7 次
+  （6 處程式碼 + 1 處新增的說明文字），與第 3 項修改描述一致。
+
+判定：F 通過。
+
+================================================================================
+附帶檢查（順手確認，未要求）
+================================================================================
+1. 詞彙卡張數：data/flashcards_zh/ch1.json 實際 46 張；
+   introduction.html 3 處、index.html 1 處都寫 46 張 → 數字與資料一致。
+2. tools/fix_bare_include.py 的 PAT 依賴上色 span 的排版，hl() 改寫後仍然命中
+   （全站命中 2 次，皆為 p1 的 greeting.hpp；它是課程教學用的本機標頭、
+   不在 20 個課程標頭清單內，維持裸檔名是正確的）。
+   全站掃描：沒有任何「該加 pythonds3/cppds/ 前綴卻沒加」的 include；
+   帶前綴的 include 共 61 處。
+3. DSCPP_HEADERS 覆寫（兩條不寫檔的分支實測）：
+   DSCPP_HEADERS=/nonexistent → 報錯結束，exit 1（設定錯誤）
+   未設環境變數且預設目錄不存在（HOME 改指不存在路徑）→ 印警告、exit 0，不中斷重生鏈
+4. 全站 id 唯一性：22 頁都沒有重複 id（高亮容器不會取錯元素）。
+
+================================================================================
+未通過 / 待處理清單
+================================================================================
+[既有缺陷，非本次回歸]
+  linear_structures.html · 容器 #palCode · 缺第 8、9 行
+  palFrames() 的兩個結論 frame 用 line:8 / line:9，但 #palCode 只有 data-l 1..7
+  （第 7 行是 "} return true; }"）。動畫跑到最後一格時不會亮任何一行。
+  HEAD 版完全相同 → 本次修改沒有造成也沒有修好它。
+  建議：把 palFrames 的 line:8 與 line:9 都改成 7，或把 palCode 第 7 行拆成三行。
+
+[本次修改造成的回歸] 無。
+
+================================================================================
+附註：驗收期間 repo 被另一個程序改過（已重驗）
+================================================================================
+驗收進行中（2026-09-20 00:05:43–00:06:00）有另一個程序改寫了 9 個 HTML：
+  analysis、graphs、index、introduction、linear_structures、linked_lists、
+  recursion、searching_sorting、trees
+（git diff --stat 由 2248 insertions / 2256 deletions 變成 2258 / 2264）。
+
+處理：
+  * trees.html 的量測本來就在 00:24 才做，落在改動之後，不受影響。
+  * 其餘 8 頁全部重跑一次 A/B/C/D 完整量測（harness_report2.json），
+    與第一次的結果逐項比對：區塊數、橫捲數、stray／巢狀／換行／white-space、
+    console 筆數、三種寬度的 .float-nav display、hlLine 行號請求數與缺行清單
+    —— 8 / 8 頁完全一致（含 palCode 仍然缺第 8、9 行）。
+  * A-3 的 HEAD 逐行比對、D-2 的 361 區塊文字比對、靜態行號檢查都在 00:06:32
+    之後執行，用的已經是改動後的檔案。
+  * E（data-cpp 編譯執行）涵蓋 arrays／p1／p4／p8，F 涵蓋 00a，
+    這 5 個檔案的 mtime 都是 23:47:40，早於改動，未受影響；
+    附帶檢查（46 張詞彙卡、裸檔名 include、steady_clock 數量）在改動後重跑一次，
+    結果相同。
+  * 收尾時 git diff --stat 穩定在 27 files / 2258 / 2264，沒有再變動。
+結論：這次 repo 中途被改動沒有影響任何一項驗收結論。
+
+================================================================================
+證據檔（工作階段暫存，不在 repo 內）
+/tmp/claude-1000/-home-phonchi-ds-cpp-selfstudy/6b5ee4b8-00c1-4255-8d89-926b3f414834/scratchpad/
+  harness.py / harness_report.json      21 頁的 A/B/C/D 原始量測
+  harness_report_run1.json / harness_report2.json  被改動 8 頁的前後兩次量測
+  trees.py  / trees_report.json         trees.html（自有 Player 實作）單獨量測
+  baseline_diff.py / baseline_diff.json 29 個高亮容器 vs HEAD 的逐行比對
+  browsertext.py / browsertext.json     361 個區塊文字 vs HEAD 的權威比對
+  staticlines.py, treesstatic.py        靜態行號覆蓋檢查
+  runnable.py / runnable_report.json    E：data-cpp 區塊編譯執行
+  run00a.py                             F：00a 三個範例編譯執行
+  cpp/, cpp00a/                         還原出來的 .cpp 與執行檔
+================================================================================

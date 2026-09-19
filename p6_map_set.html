@@ -290,7 +290,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .tok-new{outline:3px solid #f39c12;}
 .mono{font-family:'JetBrains Mono',monospace;}
 
-@media(max-width:700px){.float-nav{display:none;}}
+@media(max-width:768px){.float-nav{display:none;}}
 /* Preserve original diagrams; contain wide code, tables and controls locally. */
 .viz-layout > *{min-width:0;}
 .viz-panel{min-width:0;max-width:100%;overflow-x:auto;}
@@ -546,11 +546,12 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 
 <div class="deck-extra">
   <div class="dx-label">同樣一組 10 萬筆資料，查 1000 次（真的跑出來的）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_set&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_set&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;chrono&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="6"> </span>
 <span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="8">    <span class="kw">const</span> <span class="kw">int</span> N = <span class="num">100000</span>, Q = <span class="num">1000</span>;</span>
@@ -558,15 +559,15 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="10">    unordered_set&lt;<span class="kw">int</span>&gt; s;</span>
 <span class="line" data-l="11">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++) { v.push_back(i * <span class="num">2</span>); s.insert(i * <span class="num">2</span>); }</span>
 <span class="line" data-l="12">    <span class="kw">int</span> linearHits = <span class="num">0</span>, hashedHits = <span class="num">0</span>;</span>
-<span class="line" data-l="13">    <span class="com">// 一：用 vector 從頭找到尾，查 Q 個不存在的鍵</span>
-<span class="line" data-l="14"></span>    <span class="kw">auto</span> t0 = chrono::steady_clock::now();</span>
+<span class="line" data-l="13">    <span class="com">// 一：用 vector 從頭找到尾，查 Q 個不存在的鍵</span></span>
+<span class="line" data-l="14">    <span class="kw">auto</span> t0 = chrono::steady_clock::now();</span>
 <span class="line" data-l="15">    <span class="kw">for</span> (<span class="kw">int</span> q = <span class="num">0</span>; q &lt; Q; q++)</span>
 <span class="line" data-l="16">        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; N; i++)</span>
 <span class="line" data-l="17">            <span class="kw">if</span> (v[i] == q * <span class="num">2</span> + <span class="num">1</span>) { ++linearHits; <span class="kw">break</span>; }</span>
 <span class="line" data-l="18">    <span class="kw">auto</span> t1 = chrono::steady_clock::now();</span>
 <span class="line" data-l="19"> </span>
-<span class="line" data-l="20">    <span class="com">// 二：用 unordered_set 查表，查同樣那 Q 個鍵</span>
-<span class="line" data-l="21"></span>    <span class="kw">for</span> (<span class="kw">int</span> q = <span class="num">0</span>; q &lt; Q; q++)</span>
+<span class="line" data-l="20">    <span class="com">// 二：用 unordered_set 查表，查同樣那 Q 個鍵</span></span>
+<span class="line" data-l="21">    <span class="kw">for</span> (<span class="kw">int</span> q = <span class="num">0</span>; q &lt; Q; q++)</span>
 <span class="line" data-l="22">        hashedHits += s.count(q * <span class="num">2</span> + <span class="num">1</span>);</span>
 <span class="line" data-l="23">    <span class="kw">auto</span> t2 = chrono::steady_clock::now();</span>
 <span class="line" data-l="24"> </span>
@@ -576,9 +577,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="28">    cout &lt;&lt; <span class="str">"</span><span class="str">vector：命中 </span><span class="str">"</span> &lt;&lt; linearHits &lt;&lt; <span class="str">"</span><span class="str">，耗時 </span><span class="str">"</span> &lt;&lt; a &lt;&lt; <span class="str">"</span><span class="str"> us</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="29">    cout &lt;&lt; <span class="str">"</span><span class="str">unordered_set：命中 </span><span class="str">"</span> &lt;&lt; hashedHits &lt;&lt; <span class="str">"</span><span class="str">，耗時 </span><span class="str">"</span> &lt;&lt; b &lt;&lt; <span class="str">"</span><span class="str"> us</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="30">    cout &lt;&lt; <span class="str">"</span><span class="str">本次耗時比： </span><span class="str">"</span> &lt;&lt; a / (b ? b : <span class="num">1</span>) &lt;&lt; <span class="str">"</span><span class="str"> 倍</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="30">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="31">}</span>
-<span class="line" data-l="32"> </span></div>
+<span class="line" data-l="31">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="32">}</span></div>
   <div class="expected-out"><span class="eo-tag">輸出形式</span><pre>N=100000，查詢 Q=1000，預期命中 0
 vector：命中 0，耗時 [依環境而異] us
 unordered_set：命中 0，耗時 [依環境而異] us
@@ -604,16 +604,16 @@ unordered_set：命中 0，耗時 [依環境而異] us
 
 <div class="deck-extra">
   <div class="dx-label">忘記 #include &lt;map&gt; 時的編譯訊息（前三行）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="3"> </span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="5">    map&lt;string, <span class="kw">int</span>&gt; price;      <span class="com">// 忘了 #include &lt;map&gt;</span>
-<span class="line" data-l="6"></span>    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;</span>
+<span class="line" data-l="5">    map&lt;string, <span class="kw">int</span>&gt; price;      <span class="com">// 忘了 #include &lt;map&gt;</span></span>
+<span class="line" data-l="6">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;</span>
 <span class="line" data-l="7">    cout &lt;&lt; price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] &lt;&lt; endl;</span>
 <span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="9">}</span>
-<span class="line" data-l="10"> </span></div>
+<span class="line" data-l="9">}</span></div>
   <div class="expected-out"><span class="eo-tag">編譯訊息</span><pre>[編譯失敗]
 cell.cpp: In function ‘int main()’:
 cell.cpp:5:5: error: ‘map’ was not declared in this scope
@@ -634,32 +634,32 @@ cell.cpp:5:5: error: ‘map’ was not declared in this scope
 
 <div class="deck-extra">
   <div class="dx-label">map 的六個基本動作</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;utility&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="5"> </span>
-<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="7">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
-<span class="line" data-l="8"> </span>
-<span class="line" data-l="9">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;                       <span class="com">// 用 [] 放進去</span>
-<span class="line" data-l="10"></span>    price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>;</span>
-<span class="line" data-l="11">    price.insert(make_pair(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>, <span class="num">60</span>));      <span class="com">// 用 insert 放進去</span>
-<span class="line" data-l="12"></span></span>
-<span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
-<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">apple 賣 </span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] &lt;&lt; endl;</span>
-<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">有沒有 kiwi？ </span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>) &lt;&lt; endl;</span>
-<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">有沒有 mango？ </span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">mango</span><span class="str">"</span>) &lt;&lt; endl;</span>
-<span class="line" data-l="17"> </span>
-<span class="line" data-l="18">    price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">50</span>;                      <span class="com">// 同一個鍵再指派＝覆蓋</span>
-<span class="line" data-l="19"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">改價後 apple 賣 </span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] &lt;&lt; <span class="str">"</span><span class="str">，size 還是 </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
-<span class="line" data-l="20"> </span>
-<span class="line" data-l="21">    price.erase(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
-<span class="line" data-l="22">    cout &lt;&lt; <span class="str">"</span><span class="str">刪掉 pear 後 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
-<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="24">}</span>
-<span class="line" data-l="25"> </span></div>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;utility&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="8">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;                       <span class="com">// 用 [] 放進去</span></span>
+<span class="line" data-l="11">    price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>;</span>
+<span class="line" data-l="12">    price.insert(make_pair(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>, <span class="num">60</span>));      <span class="com">// 用 insert 放進去</span></span>
+<span class="line" data-l="13"> </span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">apple 賣 </span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">有沒有 kiwi？ </span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">有沒有 mango？ </span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">mango</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="18"> </span>
+<span class="line" data-l="19">    price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">50</span>;                      <span class="com">// 同一個鍵再指派＝覆蓋</span></span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">改價後 apple 賣 </span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] &lt;&lt; <span class="str">"</span><span class="str">，size 還是 </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line" data-l="21"> </span>
+<span class="line" data-l="22">    price.erase(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
+<span class="line" data-l="23">    cout &lt;&lt; <span class="str">"</span><span class="str">刪掉 pear 後 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
+<span class="line" data-l="24">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="25">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>size = 3
 apple 賣 45
 有沒有 kiwi？ 1
@@ -687,20 +687,21 @@ apple 賣 45
 <div class="deck-extra">
   <div class="dx-label">count 與 find 的分工</div>
   <p><code>find</code> 回傳的不是值，而是一個表示容器位置的<strong>迭代器</strong>。找到時它指向一組 <code>pair</code>，其中 <code>first</code> 是鍵、<code>second</code> 是值；找不到時則等於尾後哨兵 <code>end()</code>，不可解參考。PART 05 會再系統整理迭代器的走訪語法。</p>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
 <span class="line" data-l="8">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;</span>
 <span class="line" data-l="9"> </span>
-<span class="line" data-l="10">    <span class="com">// count：只想知道在不在</span>
-<span class="line" data-l="11"></span>    <span class="kw">if</span> (price.count(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>)) cout &lt;&lt; <span class="str">"</span><span class="str">count 說 pear 在</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="10">    <span class="com">// count：只想知道在不在</span></span>
+<span class="line" data-l="11">    <span class="kw">if</span> (price.count(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>)) cout &lt;&lt; <span class="str">"</span><span class="str">count 說 pear 在</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="12"> </span>
-<span class="line" data-l="13">    <span class="com">// find：想知道在不在，順便把值拿出來</span>
-<span class="line" data-l="14"></span>    map&lt;string, <span class="kw">int</span>&gt;::iterator it = price.find(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
+<span class="line" data-l="13">    <span class="com">// find：想知道在不在，順便把值拿出來</span></span>
+<span class="line" data-l="14">    map&lt;string, <span class="kw">int</span>&gt;::iterator it = price.find(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
 <span class="line" data-l="15">    <span class="kw">if</span> (it != price.end())</span>
 <span class="line" data-l="16">        cout &lt;&lt; <span class="str">"</span><span class="str">find 找到 </span><span class="str">"</span> &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str"> = </span><span class="str">"</span> &lt;&lt; it-&gt;second &lt;&lt; endl;</span>
 <span class="line" data-l="17"> </span>
@@ -708,8 +709,7 @@ apple 賣 45
 <span class="line" data-l="19">    <span class="kw">if</span> (miss == price.end())</span>
 <span class="line" data-l="20">        cout &lt;&lt; <span class="str">"</span><span class="str">find 找不到 mango，回傳的是 end()</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="22">}</span>
-<span class="line" data-l="23"> </span></div>
+<span class="line" data-l="22">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>count 說 pear 在
 find 找到 pear = 30
 find 找不到 mango，回傳的是 end()</pre></div>
@@ -728,30 +728,30 @@ find 找不到 mango，回傳的是 end()</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">只是查一下，size 卻自己長大了</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
 <span class="line" data-l="8">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;</span>
 <span class="line" data-l="9">    cout &lt;&lt; <span class="str">"</span><span class="str">一開始 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
 <span class="line" data-l="10"> </span>
-<span class="line" data-l="11">    <span class="com">// 只是「查」一個不存在的鍵而已</span>
-<span class="line" data-l="12"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">查 mango：</span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">mango</span><span class="str">"</span>] &lt;&lt; endl;</span>
+<span class="line" data-l="11">    <span class="com">// 只是「查」一個不存在的鍵而已</span></span>
+<span class="line" data-l="12">    cout &lt;&lt; <span class="str">"</span><span class="str">查 mango：</span><span class="str">"</span> &lt;&lt; price[<span class="str">"</span><span class="str">mango</span><span class="str">"</span>] &lt;&lt; endl;</span>
 <span class="line" data-l="13">    cout &lt;&lt; <span class="str">"</span><span class="str">查完 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
 <span class="line" data-l="14"> </span>
-<span class="line" data-l="15">    <span class="com">// 再查兩個不存在的</span>
-<span class="line" data-l="16"></span>    price[<span class="str">"</span><span class="str">mango</span><span class="str">"</span>]; price[<span class="str">"</span><span class="str">guava</span><span class="str">"</span>]; price[<span class="str">"</span><span class="str">lychee</span><span class="str">"</span>];</span>
+<span class="line" data-l="15">    <span class="com">// 再查兩個不存在的</span></span>
+<span class="line" data-l="16">    price[<span class="str">"</span><span class="str">mango</span><span class="str">"</span>]; price[<span class="str">"</span><span class="str">guava</span><span class="str">"</span>]; price[<span class="str">"</span><span class="str">lychee</span><span class="str">"</span>];</span>
 <span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">又查三個之後 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
 <span class="line" data-l="18"> </span>
-<span class="line" data-l="19">    <span class="com">// 正確的查法：count 或 find，不會動到容器</span>
-<span class="line" data-l="20"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">count 查 durian：</span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">durian</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="19">    <span class="com">// 正確的查法：count 或 find，不會動到容器</span></span>
+<span class="line" data-l="20">    cout &lt;&lt; <span class="str">"</span><span class="str">count 查 durian：</span><span class="str">"</span> &lt;&lt; price.count(<span class="str">"</span><span class="str">durian</span><span class="str">"</span>) &lt;&lt; endl;</span>
 <span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">用 count 查完 size = </span><span class="str">"</span> &lt;&lt; price.size() &lt;&lt; endl;</span>
 <span class="line" data-l="22">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="23">}</span>
-<span class="line" data-l="24"> </span></div>
+<span class="line" data-l="23">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>一開始 size = 1
 查 mango：0
 查完 size = 2
@@ -776,9 +776,9 @@ count 查 durian：0
     <div class="side-panel">
       <div class="info-card">
         <div class="ic-title">兩種查法 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" id="brkCode" style="font-size:.76rem;"><span class="line" data-l="1"><span class="kw">if</span> (m[k] != <span class="num">0</span>) { ... }        <span class="com">// 會建鍵</span>
-<span class="line" data-l="2"></span><span class="kw">if</span> (m.count(k)) { ... }       <span class="com">// 不會建鍵</span>
-<span class="line" data-l="3"></span></span></div>
+        <div class="pseudo-code" id="brkCode" style="font-size:.76rem;">
+<span class="line" data-l="1"><span class="kw">if</span> (m[k] != <span class="num">0</span>) { ... }        <span class="com">// 會建鍵</span></span>
+<span class="line" data-l="2"><span class="kw">if</span> (m.count(k)) { ... }       <span class="com">// 不會建鍵</span></span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">什麼時候該用哪個 <span class="ic-badge">KEY</span></div>
@@ -811,10 +811,11 @@ count 查 durian：0
 
 <div class="deck-extra">
   <div class="dx-label">丟了五次 apple，裡面只留一個</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    set&lt;string&gt; seen;</span>
@@ -822,8 +823,8 @@ count 查 durian：0
 <span class="line" data-l="9">    seen.insert(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);</span>
 <span class="line" data-l="10">    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);</span>
 <span class="line" data-l="11">    seen.insert(<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>);</span>
-<span class="line" data-l="12">    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);            <span class="com">// 重複的，直接被吃掉</span>
-<span class="line" data-l="13"></span>    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);            <span class="com">// 重複的，直接被吃掉</span></span>
+<span class="line" data-l="13">    seen.insert(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);</span>
 <span class="line" data-l="14"> </span>
 <span class="line" data-l="15">    cout &lt;&lt; <span class="str">"</span><span class="str">丟了 5 次，size = </span><span class="str">"</span> &lt;&lt; seen.size() &lt;&lt; endl;</span>
 <span class="line" data-l="16"> </span>
@@ -836,8 +837,7 @@ count 查 durian：0
 <span class="line" data-l="23">    seen.erase(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>);</span>
 <span class="line" data-l="24">    cout &lt;&lt; <span class="str">"</span><span class="str">erase 之後還在嗎？ </span><span class="str">"</span> &lt;&lt; seen.count(<span class="str">"</span><span class="str">apple</span><span class="str">"</span>) &lt;&lt; <span class="str">"</span><span class="str">，size = </span><span class="str">"</span> &lt;&lt; seen.size() &lt;&lt; endl;</span>
 <span class="line" data-l="25">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="26">}</span>
-<span class="line" data-l="27"> </span></div>
+<span class="line" data-l="26">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>丟了 5 次，size = 3
 走訪：apple kiwi pear
 apple 在嗎？ 1
@@ -874,11 +874,12 @@ erase 之後還在嗎？ 0，size = 2</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">同一組鍵，兩種容器走訪出來的順序（真的跑出來的）</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="6"> </span>
 <span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="8">    string keys[<span class="num">8</span>] = {<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>, <span class="str">"</span><span class="str">apple</span><span class="str">"</span>, <span class="str">"</span><span class="str">durian</span><span class="str">"</span>, <span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">mango</span><span class="str">"</span>, <span class="str">"</span><span class="str">guava</span><span class="str">"</span>, <span class="str">"</span><span class="str">lychee</span><span class="str">"</span>, <span class="str">"</span><span class="str">fig</span><span class="str">"</span>};</span>
@@ -903,8 +904,7 @@ erase 之後還在嗎？ 0，size = 2</pre></div>
 <span class="line" data-l="27"> </span>
 <span class="line" data-l="28">    cout &lt;&lt; <span class="str">"</span><span class="str">桶數 bucket_count = </span><span class="str">"</span> &lt;&lt; hashed.bucket_count() &lt;&lt; endl;</span>
 <span class="line" data-l="29">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="30">}</span>
-<span class="line" data-l="31"> </span></div>
+<span class="line" data-l="30">}</span></div>
   <div class="expected-out"><span class="eo-tag">輸出形式</span><pre>插入順序      ： kiwi apple durian pear mango guava lychee fig
 map 走訪      ： apple durian fig guava kiwi lychee mango pear
 unordered_map ： [順序未指定]
@@ -938,27 +938,27 @@ unordered_map ： [順序未指定]
 
 <div class="deck-extra">
   <div class="dx-label">有序才做得到的三件事</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    map&lt;<span class="kw">int</span>, string&gt; score;</span>
 <span class="line" data-l="8">    score[<span class="num">91</span>] = <span class="str">"</span><span class="str">Ann</span><span class="str">"</span>; score[<span class="num">58</span>] = <span class="str">"</span><span class="str">Bob</span><span class="str">"</span>; score[<span class="num">77</span>] = <span class="str">"</span><span class="str">Cid</span><span class="str">"</span>; score[<span class="num">64</span>] = <span class="str">"</span><span class="str">Dee</span><span class="str">"</span>;</span>
 <span class="line" data-l="9"> </span>
-<span class="line" data-l="10">    <span class="com">// 插入順序是 91 58 77 64，走訪出來卻是排好的</span>
-<span class="line" data-l="11"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">走訪： </span><span class="str">"</span>;</span>
+<span class="line" data-l="10">    <span class="com">// 插入順序是 91 58 77 64，走訪出來卻是排好的</span></span>
+<span class="line" data-l="11">    cout &lt;&lt; <span class="str">"</span><span class="str">走訪： </span><span class="str">"</span>;</span>
 <span class="line" data-l="12">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [s, name] : score) cout &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str">:</span><span class="str">"</span> &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="13">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="14"> </span>
-<span class="line" data-l="15">    <span class="com">// 有序才做得到的事：最小、最大、第一個 &gt;= 70 的</span>
-<span class="line" data-l="16"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">最低分 </span><span class="str">"</span> &lt;&lt; score.begin()-&gt;first &lt;&lt; endl;</span>
+<span class="line" data-l="15">    <span class="com">// 有序才做得到的事：最小、最大、第一個 &gt;= 70 的</span></span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">最低分 </span><span class="str">"</span> &lt;&lt; score.begin()-&gt;first &lt;&lt; endl;</span>
 <span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">最高分 </span><span class="str">"</span> &lt;&lt; score.rbegin()-&gt;first &lt;&lt; endl;</span>
 <span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">第一個不低於 70 的： </span><span class="str">"</span> &lt;&lt; score.lower_bound(<span class="num">70</span>)-&gt;first &lt;&lt; endl;</span>
 <span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="20">}</span>
-<span class="line" data-l="21"> </span></div>
+<span class="line" data-l="20">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>走訪： 58:Bob 64:Dee 77:Cid 91:Ann
 最低分 58
 最高分 91
@@ -1045,10 +1045,11 @@ unordered_map ： [順序未指定]
 
 <div class="deck-extra">
   <div class="dx-label">解參考、往後跳、範圍建構，一次驗證</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;list&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;list&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>};</span>
@@ -1064,8 +1065,7 @@ unordered_map ： [順序未指定]
 <span class="line" data-l="17">    ++lit;                                <span class="com">// list 只能一步一步走；L.begin() + 1 編譯不過</span></span>
 <span class="line" data-l="18">    cout &lt;&lt; <span class="str">"</span><span class="str">list ++lit   = </span><span class="str">"</span> &lt;&lt; *lit &lt;&lt; endl;</span>
 <span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="20">}</span>
-<span class="line" data-l="21"> </span></div>
+<span class="line" data-l="20">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>*it          = 10
 *(begin()+2) = 30
 sub          = 20 30
@@ -1087,12 +1087,13 @@ list ++lit   = 20</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">三種容器，同一套走訪語法</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="6"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="6"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="7"> </span>
 <span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="9">    vector&lt;<span class="kw">int</span>&gt; v;</span>
@@ -1102,8 +1103,8 @@ list ++lit   = 20</pre></div>
 <span class="line" data-l="13">    map&lt;string, <span class="kw">int</span>&gt; m;</span>
 <span class="line" data-l="14">    m[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>; m[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>;</span>
 <span class="line" data-l="15"> </span>
-<span class="line" data-l="16">    <span class="com">// 同一套語法：begin() / end() / ++it / *it</span>
-<span class="line" data-l="17"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">vector： </span><span class="str">"</span>;</span>
+<span class="line" data-l="16">    <span class="com">// 同一套語法：begin() / end() / ++it / *it</span></span>
+<span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">vector： </span><span class="str">"</span>;</span>
 <span class="line" data-l="18">    <span class="kw">for</span> (vector&lt;<span class="kw">int</span>&gt;::iterator it = v.begin(); it != v.end(); ++it) cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="19">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="20"> </span>
@@ -1111,14 +1112,13 @@ list ++lit   = 20</pre></div>
 <span class="line" data-l="22">    <span class="kw">for</span> (set&lt;<span class="kw">int</span>&gt;::iterator it = s.begin(); it != s.end(); ++it) cout &lt;&lt; *it &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="23">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="24"> </span>
-<span class="line" data-l="25">    <span class="com">// map 的 *it 是一組 pair，所以改用 it-&gt;first / it-&gt;second</span>
-<span class="line" data-l="26"></span>    cout &lt;&lt; <span class="str">"</span><span class="str">map   ： </span><span class="str">"</span>;</span>
+<span class="line" data-l="25">    <span class="com">// map 的 *it 是一組 pair，所以改用 it-&gt;first / it-&gt;second</span></span>
+<span class="line" data-l="26">    cout &lt;&lt; <span class="str">"</span><span class="str">map   ： </span><span class="str">"</span>;</span>
 <span class="line" data-l="27">    <span class="kw">for</span> (map&lt;string, <span class="kw">int</span>&gt;::iterator it = m.begin(); it != m.end(); ++it)</span>
 <span class="line" data-l="28">        cout &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str">=</span><span class="str">"</span> &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="29">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="30">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="31">}</span>
-<span class="line" data-l="32"> </span></div>
+<span class="line" data-l="31">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>vector： 31 17 93
 set   ： 17 31 93
 map   ： apple=45 pear=30 </pre></div>
@@ -1161,10 +1161,11 @@ map   ： apple=45 pear=30 </pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">sort → find → reverse → count，一段 vector 全跑一遍</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; v = {<span class="num">31</span>, <span class="num">17</span>, <span class="num">93</span>, <span class="num">17</span>, <span class="num">55</span>};</span>
@@ -1190,8 +1191,7 @@ map   ： apple=45 pear=30 </pre></div>
 <span class="line" data-l="27">    cout &lt;&lt; <span class="str">"</span><span class="str">count 17: </span><span class="str">"</span> &lt;&lt; count(v.begin(), v.end(), <span class="num">17</span>) &lt;&lt; <span class="str">"</span><span class="str"> 次</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="28">    cout &lt;&lt; <span class="str">"</span><span class="str">min/max : </span><span class="str">"</span> &lt;&lt; min(<span class="num">3</span>, <span class="num">8</span>) &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span> &lt;&lt; max(<span class="num">3</span>, <span class="num">8</span>) &lt;&lt; endl;</span>
 <span class="line" data-l="29">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="30">}</span>
-<span class="line" data-l="31"> </span></div>
+<span class="line" data-l="30">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>sorted  : 17 17 31 55 93
 find 55 : *it = 55，索引 3
 find 99 : 找不到，回傳的就是 end()
@@ -1225,11 +1225,12 @@ min/max : 3 / 8</pre></div>
   <p><strong>語法糖（syntax sugar）</strong>讓常見操作有更簡潔的寫法。這裡分成兩件事：<code>auto</code> 讓編譯器從初值<strong>推導型別</strong>，省下型別名稱；範圍 for 則把 <code>begin()</code>、<code>end()</code>、前進與取元素的步驟包起來，省下走訪的迴圈控制。兩者可以分開使用。</p>
 <div class="deck-extra">
   <div class="dx-label">① 完整 iterator：先看每一步在做什麼</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;utility&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;utility&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="6"> </span>
 <span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="8">    map&lt;string, string&gt; capitals = {</span>
@@ -1245,8 +1246,7 @@ min/max : 3 / 8</pre></div>
 <span class="line" data-l="18">        cout &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> is the capital of </span><span class="str">"</span> &lt;&lt; it-&gt;first &lt;&lt; endl;</span>
 <span class="line" data-l="19">    }</span>
 <span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="21">}</span>
-<span class="line" data-l="22"> </span></div>
+<span class="line" data-l="21">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Des Moines
 4
 Sacramento is the capital of California
@@ -1307,38 +1307,38 @@ Madison is the capital of Wisconsin</pre></div>
 
 <div class="deck-extra">
   <div class="dx-label">走訪 map 的三種寫法，結果完全一樣</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    map&lt;string, <span class="kw">int</span>&gt; price;</span>
 <span class="line" data-l="8">    price[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>; price[<span class="str">"</span><span class="str">apple</span><span class="str">"</span>] = <span class="num">45</span>; price[<span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>] = <span class="num">60</span>;</span>
 <span class="line" data-l="9"> </span>
-<span class="line" data-l="10">    <span class="com">// 寫法一：迭代器</span>
-<span class="line" data-l="11"></span>    <span class="kw">for</span> (map&lt;string, <span class="kw">int</span>&gt;::iterator it = price.begin(); it != price.end(); ++it)</span>
+<span class="line" data-l="10">    <span class="com">// 寫法一：迭代器</span></span>
+<span class="line" data-l="11">    <span class="kw">for</span> (map&lt;string, <span class="kw">int</span>&gt;::iterator it = price.begin(); it != price.end(); ++it)</span>
 <span class="line" data-l="12">        cout &lt;&lt; it-&gt;first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; it-&gt;second &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span>;</span>
 <span class="line" data-l="13">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="14"> </span>
-<span class="line" data-l="15">    <span class="com">// 寫法二：range-for，p 是一組 pair</span>
-<span class="line" data-l="16"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : price)</span>
+<span class="line" data-l="15">    <span class="com">// 寫法二：range-for，p 是一組 pair</span></span>
+<span class="line" data-l="16">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : price)</span>
 <span class="line" data-l="17">        cout &lt;&lt; p.first &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; p.second &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span>;</span>
 <span class="line" data-l="18">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="19"> </span>
-<span class="line" data-l="20">    <span class="com">// 寫法三：C++17 結構化繫結，直接拆成兩個名字</span>
-<span class="line" data-l="21"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price)</span>
+<span class="line" data-l="20">    <span class="com">// 寫法三：C++17 結構化繫結，直接拆成兩個名字</span></span>
+<span class="line" data-l="21">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price)</span>
 <span class="line" data-l="22">        cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; dollars &lt;&lt; <span class="str">"</span><span class="str"> / </span><span class="str">"</span>;</span>
 <span class="line" data-l="23">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="24"> </span>
-<span class="line" data-l="25">    <span class="com">// 加上 &amp; 才改得動；沒有 &amp; 就是複製一份</span>
-<span class="line" data-l="26"></span>    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price) dollars += <span class="num">5</span>;</span>
+<span class="line" data-l="25">    <span class="com">// 加上 &amp; 才改得動；沒有 &amp; 就是複製一份</span></span>
+<span class="line" data-l="26">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price) dollars += <span class="num">5</span>;</span>
 <span class="line" data-l="27">    cout &lt;&lt; <span class="str">"</span><span class="str">全部漲五元後：</span><span class="str">"</span>;</span>
 <span class="line" data-l="28">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [name, dollars] : price) cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str">=</span><span class="str">"</span> &lt;&lt; dollars &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="29">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="30">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="31">}</span>
-<span class="line" data-l="32"> </span></div>
+<span class="line" data-l="31">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>apple 45 / kiwi 60 / pear 30 /
 apple 45 / kiwi 60 / pear 30 /
 apple 45 / kiwi 60 / pear 30 /
@@ -1371,32 +1371,33 @@ apple 45 / kiwi 60 / pear 30 /
 
 <div class="deck-extra">
   <div class="dx-label">計數、去重、分組：一段程式跑完三個</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="6"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="6"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="7"> </span>
 <span class="line" data-l="8"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="9">    string words[<span class="num">8</span>] = {<span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">apple</span><span class="str">"</span>, <span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>, <span class="str">"</span><span class="str">apple</span><span class="str">"</span>, <span class="str">"</span><span class="str">pear</span><span class="str">"</span>, <span class="str">"</span><span class="str">fig</span><span class="str">"</span>, <span class="str">"</span><span class="str">kiwi</span><span class="str">"</span>};</span>
 <span class="line" data-l="10"> </span>
-<span class="line" data-l="11">    <span class="com">// 組合一：計數</span>
-<span class="line" data-l="12"></span>    map&lt;string, <span class="kw">int</span>&gt; freq;</span>
+<span class="line" data-l="11">    <span class="com">// 組合一：計數</span></span>
+<span class="line" data-l="12">    map&lt;string, <span class="kw">int</span>&gt; freq;</span>
 <span class="line" data-l="13">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) freq[words[i]]++;</span>
 <span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">計數： </span><span class="str">"</span>;</span>
 <span class="line" data-l="15">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [w, n] : freq) cout &lt;&lt; w &lt;&lt; <span class="str">"</span><span class="str">x</span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="16">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="17"> </span>
-<span class="line" data-l="18">    <span class="com">// 組合二：去重</span>
-<span class="line" data-l="19"></span>    set&lt;string&gt; uniq;</span>
+<span class="line" data-l="18">    <span class="com">// 組合二：去重</span></span>
+<span class="line" data-l="19">    set&lt;string&gt; uniq;</span>
 <span class="line" data-l="20">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) uniq.insert(words[i]);</span>
 <span class="line" data-l="21">    cout &lt;&lt; <span class="str">"</span><span class="str">去重： </span><span class="str">"</span> &lt;&lt; uniq.size() &lt;&lt; <span class="str">"</span><span class="str"> 種 → </span><span class="str">"</span>;</span>
 <span class="line" data-l="22">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; w : uniq) cout &lt;&lt; w &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="23">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="24"> </span>
-<span class="line" data-l="25">    <span class="com">// 組合三：分組（一個鍵對應多個值）</span>
-<span class="line" data-l="26"></span>    map&lt;<span class="kw">int</span>, vector&lt;string&gt;&gt; byLength;</span>
+<span class="line" data-l="25">    <span class="com">// 組合三：分組（一個鍵對應多個值）</span></span>
+<span class="line" data-l="26">    map&lt;<span class="kw">int</span>, vector&lt;string&gt;&gt; byLength;</span>
 <span class="line" data-l="27">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">8</span>; i++) byLength[words[i].size()].push_back(words[i]);</span>
 <span class="line" data-l="28">    cout &lt;&lt; <span class="str">"</span><span class="str">依長度分組：</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="29">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [len, group] : byLength) {</span>
@@ -1405,8 +1406,7 @@ apple 45 / kiwi 60 / pear 30 /
 <span class="line" data-l="32">        cout &lt;&lt; endl;</span>
 <span class="line" data-l="33">    }</span>
 <span class="line" data-l="34">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="35">}</span>
-<span class="line" data-l="36"> </span></div>
+<span class="line" data-l="35">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>計數： applex2 figx1 kiwix2 pearx3
 去重： 4 種 → apple fig kiwi pear
 依長度分組：
@@ -1430,25 +1430,25 @@ apple 45 / kiwi 60 / pear 30 /
 
 <div class="deck-extra">
   <div class="dx-label">一個分類對應多個項目：部門聯絡名單</div>
-  <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+  <div class="pseudo-code" style="font-size:.8rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="7">    map&lt;string, vector&lt;string&gt;&gt; members;</span>
 <span class="line" data-l="8">    members[<span class="str">"</span><span class="str">Design</span><span class="str">"</span>].push_back(<span class="str">"</span><span class="str">Ada</span><span class="str">"</span>);</span>
 <span class="line" data-l="9">    members[<span class="str">"</span><span class="str">Design</span><span class="str">"</span>].push_back(<span class="str">"</span><span class="str">Ben</span><span class="str">"</span>);</span>
 <span class="line" data-l="10">    members[<span class="str">"</span><span class="str">Support</span><span class="str">"</span>].push_back(<span class="str">"</span><span class="str">Cora</span><span class="str">"</span>);</span>
-<span class="line" data-l="11">    members[<span class="str">"</span><span class="str">Training</span><span class="str">"</span>]; <span class="com">// 建立空名單</span>
-<span class="line" data-l="12"></span>    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [department, names] : members) {</span>
+<span class="line" data-l="11">    members[<span class="str">"</span><span class="str">Training</span><span class="str">"</span>]; <span class="com">// 建立空名單</span></span>
+<span class="line" data-l="12">    <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; [department, names] : members) {</span>
 <span class="line" data-l="13">        cout &lt;&lt; department &lt;&lt; <span class="str">"</span><span class="str">: </span><span class="str">"</span>;</span>
 <span class="line" data-l="14">        <span class="kw">for</span> (<span class="kw">const</span> <span class="kw">auto</span>&amp; name : names) cout &lt;&lt; name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
 <span class="line" data-l="15">        cout &lt;&lt; <span class="str">"</span><span class="str">(</span><span class="str">"</span> &lt;&lt; names.size() &lt;&lt; <span class="str">"</span><span class="str"> people)</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="16">    }</span>
 <span class="line" data-l="17">    cout &lt;&lt; <span class="str">"</span><span class="str">departments = </span><span class="str">"</span> &lt;&lt; members.size() &lt;&lt; endl;</span>
-<span class="line" data-l="18">}</span>
-<span class="line" data-l="19"> </span></div>
+<span class="line" data-l="18">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Design: Ada Ben (2 people)
 Support: Cora (1 people)
 Training: (0 people)
@@ -1508,28 +1508,28 @@ departments = 3</pre></div>
   </div>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">語法骨架（整段可以直接貼進 notebook）</h3>
-<div class="pseudo-code" style="font-size:.78rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span><span class="kw"></span>
-<span class="line" data-l="2"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span><span class="kw"></span>
-<span class="line" data-l="3"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span><span class="kw"></span>
-<span class="line" data-l="4"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span><span class="kw"></span>
-<span class="line" data-l="5"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span><span class="kw"></span>
-<span class="line" data-l="6"></span><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span><span class="kw"></span>
-<span class="line" data-l="7"></span><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<div class="pseudo-code" style="font-size:.78rem;">
+<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;set&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="6"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="7"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="8"> </span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="10">    map&lt;string, <span class="kw">int</span>&gt; m;</span>
-<span class="line" data-l="11">    m[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;                       <span class="com">// 放進去（沒有就新增）</span>
-<span class="line" data-l="12"></span>    <span class="kw">if</span> (m.count(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>)) { <span class="com">/* 有 */</span> }     <span class="com">// 查在不在，不會建鍵</span>
-<span class="line" data-l="13"></span>    m.erase(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);                      <span class="com">// 刪掉</span>
-<span class="line" data-l="14"></span></span>
+<span class="line" data-l="11">    m[<span class="str">"</span><span class="str">pear</span><span class="str">"</span>] = <span class="num">30</span>;                       <span class="com">// 放進去（沒有就新增）</span></span>
+<span class="line" data-l="12">    <span class="kw">if</span> (m.count(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>)) { <span class="com">/* 有 */</span> }     <span class="com">// 查在不在，不會建鍵</span></span>
+<span class="line" data-l="13">    m.erase(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);                      <span class="com">// 刪掉</span></span>
+<span class="line" data-l="14"> </span>
 <span class="line" data-l="15">    set&lt;string&gt; s;</span>
-<span class="line" data-l="16">    s.insert(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);                     <span class="com">// 重複丟不會變多</span>
-<span class="line" data-l="17"></span></span>
-<span class="line" data-l="18">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [k, v] : m)                <span class="com">// C++17 走訪</span>
-<span class="line" data-l="19"></span>        cout &lt;&lt; k &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; v &lt;&lt; endl;</span>
+<span class="line" data-l="16">    s.insert(<span class="str">"</span><span class="str">pear</span><span class="str">"</span>);                     <span class="com">// 重複丟不會變多</span></span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18">    <span class="kw">for</span> (<span class="kw">auto</span>&amp; [k, v] : m)                <span class="com">// C++17 走訪</span></span>
+<span class="line" data-l="19">        cout &lt;&lt; k &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; v &lt;&lt; endl;</span>
 <span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="21">}</span>
-<span class="line" data-l="22"> </span></div>
+<span class="line" data-l="21">}</span></div>
 
   <h3 style="font-family:'Noto Serif TC',serif;font-size:1.12rem;margin:1.4rem 0 .5rem;color:var(--accent2);">Python ↔ C++ 對照</h3>
   <div class="cmp-table-wrap">

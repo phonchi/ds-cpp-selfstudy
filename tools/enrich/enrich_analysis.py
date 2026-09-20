@@ -319,8 +319,8 @@ int main() {
     }
 }""",
 'insert at front     61.33 ms\npush_back            4.83 ms\nwith reserve         3.43 ms\ndirect index         1.37 ms',
-out_label='講義執行範例',
-note='前端插入每次都要搬動已有元素；由 n−1 遞減插入，最後得到 0 到 n−1，與其他三種寫法相同。這組數字沿用講義的執行結果，實際耗時會隨機器與編譯設定改變。') + '\n'
+out_label='輸出範例',
+note='前端插入每次都要搬動已有元素；由 n−1 遞減插入，最後得到 0 到 n−1，與其他三種寫法相同。') + '\n'
 vec += fixed('講義 02 · erase(begin) vs pop_back：n 變大會怎樣', r"""#include <iomanip>
 #include <iostream>
 #include <vector>
@@ -342,8 +342,8 @@ int main() {
     }
 }""",
 'n           erase(begin)    pop_back\n2500000         20.52029     0.00028\n5000000         48.93541     0.00032\n7500000        104.64115     0.00030\n10000000       188.86044     0.00022',
-out_label='本機實測：7 次中位數，單位 ms（GCC -O0）',
-note='前端刪除要搬移後續元素，單次 O(n)；尾端刪除不必搬移，單次 O(1)。下方數字與圖片來自同一批 7 次實測的中位數，耗時也受快取與計時誤差影響，不必恰好按 n 的比例增加。')
+out_label='執行時間（毫秒）',
+note='前端刪除要搬移後續元素，單次 O(n)；尾端刪除不必搬移，單次 O(1)。觀察資料量增加時，兩種刪除方式的耗時如何變化。')
 done.append(put("vec", "dx-vec", vec))
 
 # ═══════════════════ PART 06 · string ═══════════════════
@@ -394,17 +394,17 @@ int main() {
              << setw(12) << tv << setw(12) << t2.millis() << endl;}
 }""",
 '         n      vector        hash\n    100000      25.908       0.004\n    200000      37.796       0.004\n    400000      26.646       0.004\n    800000     232.638       0.003',
-out_label='本機實測：7 次中位數，單位 ms（GCC -O0）',
-note='每個 n 先用 <code>rand() % (2 * n)</code> 選一個目標，兩個容器都重複查它 100 次。<code>std::find</code> 逐一比對；<code>m.find(target)</code> 利用雜湊找 key，最後都用 <code>!= end()</code> 判斷是否找到。目標可能不存在，命中位置也會不同，所以 n 加倍時耗時不一定加倍。雜湊查詢平均 O(1)、最差 O(n)。這裡的數字是下圖 7 次量測的中位數，不是固定答案。')
+out_label='執行時間（毫秒）',
+note='每個 n 先用 <code>rand() % (2 * n)</code> 選一個目標，兩個容器都重複查它 100 次。<code>std::find</code> 逐一比對；<code>m.find(target)</code> 利用雜湊找 key，最後都用 <code>!= end()</code> 判斷是否找到。目標可能不存在，命中位置也會不同，所以 n 加倍時耗時不一定加倍。雜湊查詢平均 O(1)、最差 O(n)。')
 done.append(put("hash", "dx-hash", hsh))
 
 # ═══════════════════ 實測圖（本機量測，2026-09-20；保留既有 figure id）═══════════════════
 if 'id="benchmark-pop-20260906"' not in s:
     i = s.index('</section>', s.index('<section id="vectors">'))
-    s = s[:i] + '\n<figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style=""><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，7 次實測中位數，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 前端刪除與尾端刪除，每組各做 100 次；點為 7 次實測中位數，誤差棒為最小值到最大值。前端刪除需要搬移後續元素，尾端刪除則不需要。</figcaption>\n</figure>\n' + s[i:]
+    s = s[:i] + '\n<figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style=""><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">前端刪除需要搬移後續元素，資料越多，耗時通常越長；尾端刪除不需要搬移，耗時較不受資料量影響。</figcaption>\n</figure>\n' + s[i:]
 if 'id="benchmark-lookup-20260906"' not in s:
     i = s.index('</section>', s.index('<section id="hash">'))
-    s = s[:i] + '\n<figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style=""><img src="assets/figures/dict_benchmark.png" alt="std::find 與 unordered_map::find 的耗時比較；10、20、40、80 萬元素，每組同一目標查 100 次，包含命中與未命中，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">與新版講義相同：10、20、40、80 萬元素，各用同一目標查 100 次。點為 7 次實測中位數，誤差棒為最小值到最大值。本機前三組命中、最後一組未命中；隨機目標與耗時可能因平台不同而改變。</figcaption>\n</figure>\n' + s[i:]
+    s = s[:i] + '\n<figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style=""><img src="assets/figures/dict_benchmark.png" alt="std::find 與 unordered_map::find 的耗時比較；10、20、40、80 萬元素，每組同一目標查 100 次，包含命中與未命中，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 10、20、40、80 萬個元素的查找時間，每組用同一目標查 100 次。線性搜尋遇到目標就停止，找不到時必須掃完整個 vector；因此除了資料量，目標的位置與是否存在也會影響耗時。</figcaption>\n</figure>\n' + s[i:]
 
 s = s.replace('src="imgs/pop_benchmark.png"', 'src="assets/figures/pop_benchmark.png"')
 s = s.replace('src="imgs/dict_benchmark.png"', 'src="assets/figures/dict_benchmark.png"')

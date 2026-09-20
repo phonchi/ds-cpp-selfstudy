@@ -1573,11 +1573,11 @@ libstdc++（Linux 的 g++、以及本課 Windows 用的 winlibs 工具鏈）每�
 <span class="line" data-l="21">             &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
 <span class="line" data-l="22">    }</span>
 <span class="line" data-l="23">}</span></div>
-  <div class="expected-out"><span class="eo-tag">講義執行範例</span><pre>insert at front     61.33 ms
+  <div class="expected-out"><span class="eo-tag">輸出範例</span><pre>insert at front     61.33 ms
 push_back            4.83 ms
 with reserve         3.43 ms
 direct index         1.37 ms</pre></div>
-  <p class="dx-note">前端插入每次都要搬動已有元素；由 n−1 遞減插入，最後得到 0 到 n−1，與其他三種寫法相同。這組數字沿用講義的執行結果，實際耗時會隨機器與編譯設定改變。</p>
+  <p class="dx-note">前端插入每次都要搬動已有元素；由 n−1 遞減插入，最後得到 0 到 n−1，與其他三種寫法相同。</p>
 </div>
 <div class="deck-extra">
   <div class="dx-label">講義 02 · erase(begin) vs pop_back：n 變大會怎樣</div>
@@ -1601,19 +1601,19 @@ direct index         1.37 ms</pre></div>
 <span class="line" data-l="18">             &lt;&lt; setw(<span class="num">14</span>) &lt;&lt; eraseT &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; tp.millis() &lt;&lt; endl;</span>
 <span class="line" data-l="19">    }</span>
 <span class="line" data-l="20">}</span></div>
-  <div class="expected-out"><span class="eo-tag">本機實測：7 次中位數，單位 ms（GCC -O0）</span><pre>n           erase(begin)    pop_back
+  <div class="expected-out"><span class="eo-tag">執行時間（毫秒）</span><pre>n           erase(begin)    pop_back
 2500000         20.52029     0.00028
 5000000         48.93541     0.00032
 7500000        104.64115     0.00030
 10000000       188.86044     0.00022</pre></div>
-  <p class="dx-note">前端刪除要搬移後續元素，單次 O(n)；尾端刪除不必搬移，單次 O(1)。下方數字與圖片來自同一批 7 次實測的中位數，耗時也受快取與計時誤差影響，不必恰好按 n 的比例增加。</p>
+  <p class="dx-note">前端刪除要搬移後續元素，單次 O(n)；尾端刪除不必搬移，單次 O(1)。觀察資料量增加時，兩種刪除方式的耗時如何變化。</p>
 </div>
 <!-- /gen:dx-vec -->
 <!-- slot:vec -->
 
 <figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">
-  <div class="benchmark-chart" style=""><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，7 次實測中位數，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>
-  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 前端刪除與尾端刪除，每組各做 100 次；點為 7 次實測中位數，誤差棒為最小值到最大值。前端刪除需要搬移後續元素，尾端刪除則不需要。</figcaption>
+  <div class="benchmark-chart" style=""><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>
+  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">前端刪除需要搬移後續元素，資料越多，耗時通常越長；尾端刪除不需要搬移，耗時較不受資料量影響。</figcaption>
 </figure>
 </section>
 
@@ -1717,8 +1717,7 @@ direct index         1.37 ms</pre></div>
     量的是「把資料建起來」要多久。而 <code>number in container</code> 是 Python 的寫法，
     「第 7 行、第 9 行」對得上的是課本附在下面的那份 Python，不是上面的 C++。</p>
     <p>所以照課本的 C++ 抄下來跑，是跑不出那組數字的 —— 不是你抄錯。</p>
-    <p>本頁下方那支實測程式是真的在量查找（<code>std::find</code> 對 <code>unordered_map::find</code>），
-    附的數字也是在這台機器上實際跑出來的。<strong>結論跟課本一樣</strong>：
+    <p>下方範例比較 <code>std::find</code> 與 <code>unordered_map::find</code> 的查找時間。
     線性搜尋最差要掃過 n 個元素，雜湊查詢平均 O(1)。不過這個例子每組目標的位置與命中情況不同，不能要求每個量測點都隨 n 成比例增加。</p>
   </div>
 </details>
@@ -1836,21 +1835,20 @@ direct index         1.37 ms</pre></div>
 <span class="line" data-l="24">        cout &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; n &lt;&lt; fixed &lt;&lt; setprecision(<span class="num">3</span>)</span>
 <span class="line" data-l="25">             &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; tv &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; t2.millis() &lt;&lt; endl;}</span>
 <span class="line" data-l="26">}</span></div>
-  <div class="expected-out"><span class="eo-tag">本機實測：7 次中位數，單位 ms（GCC -O0）</span><pre>         n      vector        hash
+  <div class="expected-out"><span class="eo-tag">執行時間（毫秒）</span><pre>         n      vector        hash
     100000      25.908       0.004
     200000      37.796       0.004
     400000      26.646       0.004
     800000     232.638       0.003</pre></div>
-  <p class="dx-note">每個 n 先用 <code>rand() % (2 * n)</code> 選一個目標，兩個容器都重複查它 100 次。<code>std::find</code> 逐一比對；<code>m.find(target)</code> 利用雜湊找 key，最後都用 <code>!= end()</code> 判斷是否找到。目標可能不存在，命中位置也會不同，所以 n 加倍時耗時不一定加倍。雜湊查詢平均 O(1)、最差 O(n)。這裡的數字是下圖 7 次量測的中位數，不是固定答案。</p>
+  <p class="dx-note">每個 n 先用 <code>rand() % (2 * n)</code> 選一個目標，兩個容器都重複查它 100 次。<code>std::find</code> 逐一比對；<code>m.find(target)</code> 利用雜湊找 key，最後都用 <code>!= end()</code> 判斷是否找到。目標可能不存在，命中位置也會不同，所以 n 加倍時耗時不一定加倍。雜湊查詢平均 O(1)、最差 O(n)。</p>
 </div>
 <!-- /gen:dx-hash -->
 <!-- slot:hash -->
 
 <figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">
   <div class="benchmark-chart" style=""><img src="assets/figures/dict_benchmark.png" alt="std::find 與 unordered_map::find 的耗時比較；10、20、40、80 萬元素，每組同一目標查 100 次，包含命中與未命中，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>
-  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">與新版講義相同：10、20、40、80 萬元素，各用同一目標查 100 次。點為 7 次實測中位數，誤差棒為最小值到最大值。本機前三組命中、最後一組未命中；隨機目標與耗時可能因平台不同而改變。</figcaption>
+  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 10、20、40、80 萬個元素的查找時間，每組用同一目標查 100 次。線性搜尋遇到目標就停止，找不到時必須掃完整個 vector；因此除了資料量，目標的位置與是否存在也會影響耗時。</figcaption>
 </figure>
-<details class="deep"><summary>重現這兩張實測圖 <span class="dp-tag">實測條件</span></summary><div class="dp-body"><p>本次使用 GCC 13.3、C++17、<code>-O0</code>，每組量 7 次、每次 100 個操作；容器建置不計時。查找的每輪從 <code>srand(1)</code> 開始，計時結束後檢查 <code>hits</code>；刪除後檢查大小與內容。以其他最佳化設定編譯這份簡短示範時，未使用的查詢結果可能被消除，不能直接拿零耗時比較。</p><p><a href="docs/experiments/20260920-analysis-find/README.md">量測方法與重現命令</a> · <a href="docs/experiments/20260920-analysis-find/raw.csv">原始數據</a></p></div></details>
 </section>
 
 <section id="exercises">

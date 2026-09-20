@@ -8,7 +8,7 @@
 要先把頁面裡那對 <!-- gen:name --> … <!-- /gen:name --> 整段刪掉，再重跑。
 
 範例輸出一律用 run_cpp() 實際編譯執行取得（需要 ~/ds_cpp/Slides/pythonds3/cppds）；
-只有量時間的 benchmark 例外——那種數字每台機器都不同，硬寫一份代表性的即可。
+量時間的 benchmark 使用講義輸出或具備原始數據的實測結果，不捏造代表值。
 
 注意：這個檔刻意不用 f-string 包 card(...)。C++ 的大括號寫在 f-string 的
 replacement field 裡時，Python 不會還原 {{ -> {，會把字面的雙大括號印到頁面上。
@@ -34,7 +34,7 @@ def live(label, code, note=None, out_label="預期輸出"):
 
 
 def fixed(label, code, output, note=None, out_label="預期輸出"):
-    """輸出硬寫的範例卡（量時間的 benchmark 用，數字本來就跟機器有關）。"""
+    """輸出取自講義或實測的範例卡（量時間的 benchmark 用）。"""
     return card(label, code, output, note=note, out_label=out_label, size=SIZE)
 
 
@@ -295,54 +295,41 @@ note="搬家只發生在 capacity 跳動的那幾次，而且愈來愈稀疏—�
 done.append(put("cap", "dx-cap", cap))
 
 vec = '<h3>講義完整範例：把四種寫法真的量一次</h3>\n'
-
-vec += fixed("講義 02 · 四種填滿 vector 的方式", """#include <iostream>
+vec += fixed('講義 02 · 四種填滿 vector 的方式', r"""#include <iomanip>
+#include <iostream>
 #include <vector>
-#include "dstimer.hpp"
+#include "pythonds3/cppds/dstimer.hpp"
 using namespace std;
 
-void test1(int n) {                 // 每次都從前端插入
-    vector<int> v;
-    for (int i = 0; i < n; i++) v.insert(v.begin(), i);
-}
-void test2(int n) {                 // 尾端 push_back
-    vector<int> v;
-    for (int i = 0; i < n; i++) v.push_back(i);
-}
-void test3(int n) {                 // 先 reserve 再 push_back
-    vector<int> v;
-    v.reserve(n);
-    for (int i = 0; i < n; i++) v.push_back(i);
-}
-void test4(int n) {                 // 開好大小直接填
-    vector<int> v(n);
-    for (int i = 0; i < n; i++) v[i] = i;
-}
+void test1(int n) { vector<int> v; for (int i = n - 1; i >= 0; i--) v.insert(v.begin(), i); }
+void test2(int n) { vector<int> v; for (int i = 0; i < n; i++) v.push_back(i); }
+void test3(int n) { vector<int> v; v.reserve(n);
+                    for (int i = 0; i < n; i++) v.push_back(i); }
+void test4(int n) { vector<int> v(n); for (int i = 0; i < n; i++) v[i] = i; }
 
 int main() {
     void (*tests[])(int) = {test1, test2, test3, test4};
-    const char* names[] = {"insert at front", "push_back",
-                           "with reserve", "direct index"};
+    const char* names[] = {"insert at front", "push_back", "with reserve", "direct index"};
     for (int k = 0; k < 4; k++) {
         DSTimer t;
         for (int r = 0; r < 1000; r++) tests[k](1000);
-        printf("%-16s%9.2f ms\\n", names[k], t.millis());
+        cout << left << setw(16) << names[k] << right << setw(9)
+             << fixed << setprecision(2) << t.millis()
+             << " ms" << endl;
     }
 }""",
-"insert at front   285.31 ms\\npush_back            6.42 ms\\nwith reserve         3.85 ms\\ndirect index         2.10 ms",
-out_label="耗時比較範例",
-note="前端插入每次都要搬動整段資料，所以慢兩個量級。<code>push_back</code> 偶爾要搬家；"
-     "先 <code>reserve</code> 可以讓這次建表過程中一次重新配置都不發生，所以又快一截。"
-     "數字跟機器有關，要看的是彼此的<strong>倍數關係</strong>。") + "\n"
-
-vec += fixed("講義 02 · erase(begin) vs pop_back：n 變大會怎樣", """#include <iostream>
+'insert at front     61.33 ms\npush_back            4.83 ms\nwith reserve         3.43 ms\ndirect index         1.37 ms',
+out_label='講義執行範例',
+note='前端插入每次都要搬動已有元素；由 n−1 遞減插入，最後得到 0 到 n−1，與其他三種寫法相同。這組數字沿用講義的執行結果，實際耗時會隨機器與編譯設定改變。') + '\n'
+vec += fixed('講義 02 · erase(begin) vs pop_back：n 變大會怎樣', r"""#include <iomanip>
+#include <iostream>
 #include <vector>
-#include "dstimer.hpp"
+#include "pythonds3/cppds/dstimer.hpp"
 using namespace std;
 
 int main() {
-    printf("%-10s%14s%12s\\n", "n", "erase(begin)", "pop_back");
-    for (int n = 2500000; n <= 10000000; n += 2500000) {
+    cout << left << setw(10) << "n" << right << setw(14) << "erase(begin)"  << setw(12) << "pop_back" << endl;
+    for (int n = 2'500'000; n <= 10'000'000; n += 2'500'000) {
         vector<int> x(n);
         DSTimer te;
         for (int r = 0; r < 100; r++) x.erase(x.begin());
@@ -350,14 +337,13 @@ int main() {
         vector<int> y(n);
         DSTimer tp;
         for (int r = 0; r < 100; r++) y.pop_back();
-        printf("%-10d%14.5f%12.5f\\n", n, eraseT, tp.millis());
+        cout << left << setw(10) << n << right << fixed << setprecision(5)
+             << setw(14) << eraseT << setw(12) << tp.millis() << endl;
     }
 }""",
-"n           erase(begin)    pop_back\\n2500000        155.20031     0.00022\\n5000000        311.87542     0.00021\\n7500000        468.11289     0.00023\\n10000000       625.40067     0.00022",
-out_label="耗時比較範例",
-note="從<strong>需要做的工作</strong>看成本：<code>erase(begin())</code> 要把後續元素往前搬，單次 O(n)，"
-     "所以 n 加倍、時間也加倍；<code>pop_back()</code> 只移除尾端，單次 O(1)，n 怎麼變都是平的。"
-     "這就是「把 n 加倍再量一次」那招的實際樣子。")
+'n           erase(begin)    pop_back\n2500000         20.52029     0.00028\n5000000         48.93541     0.00032\n7500000        104.64115     0.00030\n10000000       188.86044     0.00022',
+out_label='本機實測：7 次中位數，單位 ms（GCC -O0）',
+note='前端刪除要搬移後續元素，單次 O(n)；尾端刪除不必搬移，單次 O(1)。下方數字與圖片來自同一批 7 次實測的中位數，耗時也受快取與計時誤差影響，不必恰好按 n 的比例增加。')
 done.append(put("vec", "dx-vec", vec))
 
 # ═══════════════════ PART 06 · string ═══════════════════
@@ -380,46 +366,45 @@ note="C++11 起 <code>string</code> 的字元連續儲存，成本模型幾乎�
 done.append(put("string", "dx-string", strings))
 
 # ═══════════════════ PART 07 · unordered_map ═══════════════════
-hsh = '<h3>講義完整範例：contains 的兩個世界</h3>\n'
-
-hsh += fixed("講義 02 · vector 線性掃描 vs unordered_map 雜湊", """#include <unordered_map>
+hsh = '<h3>講義完整範例：兩種 find 的查找成本</h3>\n'
+hsh += fixed('講義 02 · std::find vs unordered_map::find', r"""#include <iostream>
+#include <iomanip>
 #include <vector>
 #include <algorithm>
-#include <cstdio>
 #include <cstdlib>
-#include "dstimer.hpp"
+#include <unordered_map>
+#include "pythonds3/cppds/dstimer.hpp"
 using namespace std;
-
 int main() {
-    printf("%-10s%10s%12s\\n", "n", "vector", "hash table");
-    for (int n : {250000, 500000, 1000000}) {
-        vector<int> x(n);
+    cout << setw(10) << "n" << setw(12) << "vector" << setw(12) << "hash" << endl;
+    for (int n : {100'000, 200'000, 400'000, 800'000}) {
+        vector<int> v(n);
         unordered_map<int, int> m;
-        for (int j = 0; j < n; j++) { x[j] = j; m[j] = 0; }
-        int hits = 0;
-        DSTimer tv;
+        for (int i = 0; i < n; i++) { v[i] = i; m[i] = 0; }
+        int target = rand() % (2 * n), hits = 0;
+
+        DSTimer t1;
         for (int r = 0; r < 100; r++)
-            hits += (find(x.begin(), x.end(), rand() % n) != x.end());
-        double vecT = tv.millis();
-        DSTimer tm;
-        for (int r = 0; r < 100; r++) hits += m.count(rand() % n);
-        printf("%-10d%10.3f%12.3f\\n", n, vecT, tm.millis());
-    }
+            hits += (find(v.begin(), v.end(), target) != v.end());
+        double tv = t1.millis();
+        DSTimer t2;
+        for (int r = 0; r < 100; r++)
+            hits += (m.find(target) != m.end());
+        cout << setw(10) << n << fixed << setprecision(3)
+             << setw(12) << tv << setw(12) << t2.millis() << endl;}
 }""",
-"n             vector  hash table\\n250000         8.512       0.011\\n500000        17.204       0.012\\n1000000       35.917       0.012",
-out_label="耗時比較範例",
-note="<code>vector</code> 的 <code>find</code> 逐一比對，n 加倍、時間跟著加倍。"
-     "雜湊表的 <code>count</code> 直接用雜湊值定位；雜湊分布良好、負載因子受控時，"
-     "平均查詢成本是 O(1)，所以那一欄怎麼加 n 都不動。最差情況仍是 O(n)。")
+'         n      vector        hash\n    100000      25.908       0.004\n    200000      37.796       0.004\n    400000      26.646       0.004\n    800000     232.638       0.003',
+out_label='本機實測：7 次中位數，單位 ms（GCC -O0）',
+note='每個 n 先用 <code>rand() % (2 * n)</code> 選一個目標，兩個容器都重複查它 100 次。<code>std::find</code> 逐一比對；<code>m.find(target)</code> 利用雜湊找 key，最後都用 <code>!= end()</code> 判斷是否找到。目標可能不存在，命中位置也會不同，所以 n 加倍時耗時不一定加倍。雜湊查詢平均 O(1)、最差 O(n)。這裡的數字是下圖 7 次量測的中位數，不是固定答案。')
 done.append(put("hash", "dx-hash", hsh))
 
-# ═══════════════════ 實測圖（本機量測，2026-09-06）═══════════════════
+# ═══════════════════ 實測圖（本機量測，2026-09-20；保留既有 figure id）═══════════════════
 if 'id="benchmark-pop-20260906"' not in s:
     i = s.index('</section>', s.index('<section id="vectors">'))
-    s = s[:i] + '\n<figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style="aspect-ratio:1800 / 1160;overflow:hidden;"><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，縱軸為微秒的對數刻度" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 從前端與尾端刪除元素的耗時。前端刪除需要搬移後續元素，尾端刪除則不需要。</figcaption>\n</figure>\n' + s[i:]
+    s = s[:i] + '\n<figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style=""><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，7 次實測中位數，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 前端刪除與尾端刪除，每組各做 100 次；點為 7 次實測中位數，誤差棒為最小值到最大值。前端刪除需要搬移後續元素，尾端刪除則不需要。</figcaption>\n</figure>\n' + s[i:]
 if 'id="benchmark-lookup-20260906"' not in s:
     i = s.index('</section>', s.index('<section id="hash">'))
-    s = s[:i] + '\n<figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style="aspect-ratio:1800 / 1160;overflow:hidden;"><img src="assets/figures/dict_benchmark.png" alt="vector 線性搜尋與雜湊表成功查詢的耗時比較；每組 100 次操作，縱軸為微秒的對數刻度" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 線性搜尋與雜湊表查詢的耗時。觀察資料量增加時，逐一比對與利用雜湊定位的成本差異。</figcaption>\n</figure>\n' + s[i:]
+    s = s[:i] + '\n<figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">\n  <div class="benchmark-chart" style=""><img src="assets/figures/dict_benchmark.png" alt="std::find 與 unordered_map::find 的耗時比較；10、20、40、80 萬元素，每組同一目標查 100 次，包含命中與未命中，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>\n  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">與新版講義相同：10、20、40、80 萬元素，各用同一目標查 100 次。點為 7 次實測中位數，誤差棒為最小值到最大值。本機前三組命中、最後一組未命中；隨機目標與耗時可能因平台不同而改變。</figcaption>\n</figure>\n' + s[i:]
 
 s = s.replace('src="imgs/pop_benchmark.png"', 'src="assets/figures/pop_benchmark.png"')
 s = s.replace('src="imgs/dict_benchmark.png"', 'src="assets/figures/dict_benchmark.png"')

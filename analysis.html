@@ -1445,6 +1445,27 @@ false</pre></div>
   </div>
 </details>
 
+<h3 style="margin-top:1.5rem;">vector 操作一覽 <span class="sec-badge">cppds Table 2</span></h3>
+<div style="overflow-x:auto;">
+<table class="cmp-table" style="width:100%;">
+  <thead><tr><th>操作</th><th>Big-O</th><th>備註</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">v[i]</td><td class="best">O(1)</td><td>連續儲存，位址直接算得出來</td></tr>
+    <tr><td class="mono">v[i] = x</td><td class="best">O(1)</td><td>同上</td></tr>
+    <tr><td class="mono">v.push_back(x)</td><td>攤還 O(1)</td><td>偶爾滿了要搬到更大的緩衝區</td></tr>
+    <tr><td class="mono">v.pop_back()</td><td class="best">O(1)</td><td>移除尾端，不會觸發搬家</td></tr>
+    <tr><td class="mono">v.erase(it)</td><td class="worst">O(n)</td><td>後面的元素要往前搬</td></tr>
+    <tr><td class="mono">v.insert(it, x)</td><td class="worst">O(n)</td><td>後面的元素要往後搬</td></tr>
+    <tr><td class="mono">find(v.begin(), v.end(), x)</td><td class="worst">O(n)</td><td>逐一比對；<strong>排序過也一樣</strong></td></tr>
+    <tr><td class="mono">binary_search / lower_bound</td><td>O(log n)</td><td>只在<strong>已排序</strong>的 vector 上成立</td></tr>
+    <tr><td class="mono">sort(v.begin(), v.end())</td><td>O(n log n)</td><td>—</td></tr>
+    <tr><td class="mono">v.reserve(n)</td><td>O(n)</td><td>配置並搬移既有元素</td></tr>
+    <tr><td class="mono">v.size() / v.capacity()</td><td class="best">O(1)</td><td>兩個數字都是存好的</td></tr>
+    <tr><td class="mono">v.begin() / v.end()</td><td class="best">O(1)</td><td>取迭代器，不走訪</td></tr>
+  </tbody>
+</table>
+</div>
+
 <h3 style="margin-top:1.5rem;">size 與 capacity：兩個不一樣的數字</h3>
 <p><code>vector</code> 是「可以變長的陣列」，但底層那塊記憶體其實是固定大小的。它同時記著兩個數字：</p>
 <ul style="line-height:1.95;">
@@ -1529,78 +1550,70 @@ libstdc++（Linux 的 g++、以及本課 Windows 用的 winlibs 工具鏈）每�
 <h3>講義完整範例：把四種寫法真的量一次</h3>
 <div class="deck-extra">
   <div class="dx-label">講義 02 · 四種填滿 vector 的方式</div>
-  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
-<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/dstimer.hpp"</span></span>
-<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="5"> </span>
-<span class="line" data-l="6"><span class="kw">void</span> <span class="fn">test1</span>(<span class="kw">int</span> n) {                 <span class="com">// 每次都從前端插入</span></span>
-<span class="line" data-l="7">    vector&lt;<span class="kw">int</span>&gt; v;</span>
-<span class="line" data-l="8">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) v.insert(v.begin(), i);</span>
-<span class="line" data-l="9">}</span>
-<span class="line" data-l="10"><span class="kw">void</span> <span class="fn">test2</span>(<span class="kw">int</span> n) {                 <span class="com">// 尾端 push_back</span></span>
-<span class="line" data-l="11">    vector&lt;<span class="kw">int</span>&gt; v;</span>
-<span class="line" data-l="12">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) v.push_back(i);</span>
-<span class="line" data-l="13">}</span>
-<span class="line" data-l="14"><span class="kw">void</span> <span class="fn">test3</span>(<span class="kw">int</span> n) {                 <span class="com">// 先 reserve 再 push_back</span></span>
-<span class="line" data-l="15">    vector&lt;<span class="kw">int</span>&gt; v;</span>
-<span class="line" data-l="16">    v.reserve(n);</span>
-<span class="line" data-l="17">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) v.push_back(i);</span>
-<span class="line" data-l="18">}</span>
-<span class="line" data-l="19"><span class="kw">void</span> <span class="fn">test4</span>(<span class="kw">int</span> n) {                 <span class="com">// 開好大小直接填</span></span>
-<span class="line" data-l="20">    vector&lt;<span class="kw">int</span>&gt; v(n);</span>
-<span class="line" data-l="21">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) v[i] = i;</span>
-<span class="line" data-l="22">}</span>
-<span class="line" data-l="23"> </span>
-<span class="line" data-l="24"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="25">    <span class="kw">void</span> (*tests[])(<span class="kw">int</span>) = {test1, test2, test3, test4};</span>
-<span class="line" data-l="26">    <span class="kw">const</span> <span class="kw">char</span>* names[] = {<span class="str">"</span><span class="str">insert at front</span><span class="str">"</span>, <span class="str">"</span><span class="str">push_back</span><span class="str">"</span>,</span>
-<span class="line" data-l="27">                           <span class="str">"</span><span class="str">with reserve</span><span class="str">"</span>, <span class="str">"</span><span class="str">direct index</span><span class="str">"</span>};</span>
-<span class="line" data-l="28">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; <span class="num">4</span>; k++) {</span>
-<span class="line" data-l="29">        DSTimer t;</span>
-<span class="line" data-l="30">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">1000</span>; r++) tests[k](<span class="num">1000</span>);</span>
-<span class="line" data-l="31">        printf(<span class="str">"</span><span class="str">%-16s%9.2f ms</span><span class="str">\n</span><span class="str">"</span>, names[k], t.millis());</span>
-<span class="line" data-l="32">    }</span>
-<span class="line" data-l="33">}</span></div>
-  <div class="expected-out"><span class="eo-tag">耗時比較範例</span><pre>insert at front   285.31 ms
-push_back            6.42 ms
-with reserve         3.85 ms
-direct index         2.10 ms</pre></div>
-  <p class="dx-note">前端插入每次都要搬動整段資料，所以慢兩個量級。<code>push_back</code> 偶爾要搬家；先 <code>reserve</code> 可以讓這次建表過程中一次重新配置都不發生，所以又快一截。數字跟機器有關，要看的是彼此的<strong>倍數關係</strong>。</p>
+  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iomanip&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/dstimer.hpp"</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">void</span> <span class="fn">test1</span>(<span class="kw">int</span> n) { vector&lt;<span class="kw">int</span>&gt; v; <span class="kw">for</span> (<span class="kw">int</span> i = n - <span class="num">1</span>; i &gt;= <span class="num">0</span>; i--) v.insert(v.begin(), i); }</span>
+<span class="line" data-l="8"><span class="kw">void</span> <span class="fn">test2</span>(<span class="kw">int</span> n) { vector&lt;<span class="kw">int</span>&gt; v; <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) v.push_back(i); }</span>
+<span class="line" data-l="9"><span class="kw">void</span> <span class="fn">test3</span>(<span class="kw">int</span> n) { vector&lt;<span class="kw">int</span>&gt; v; v.reserve(n);</span>
+<span class="line" data-l="10">                    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) v.push_back(i); }</span>
+<span class="line" data-l="11"><span class="kw">void</span> <span class="fn">test4</span>(<span class="kw">int</span> n) { vector&lt;<span class="kw">int</span>&gt; v(n); <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) v[i] = i; }</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="14">    <span class="kw">void</span> (*tests[])(<span class="kw">int</span>) = {test1, test2, test3, test4};</span>
+<span class="line" data-l="15">    <span class="kw">const</span> <span class="kw">char</span>* names[] = {<span class="str">"</span><span class="str">insert at front</span><span class="str">"</span>, <span class="str">"</span><span class="str">push_back</span><span class="str">"</span>, <span class="str">"</span><span class="str">with reserve</span><span class="str">"</span>, <span class="str">"</span><span class="str">direct index</span><span class="str">"</span>};</span>
+<span class="line" data-l="16">    <span class="kw">for</span> (<span class="kw">int</span> k = <span class="num">0</span>; k &lt; <span class="num">4</span>; k++) {</span>
+<span class="line" data-l="17">        DSTimer t;</span>
+<span class="line" data-l="18">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">1000</span>; r++) tests[k](<span class="num">1000</span>);</span>
+<span class="line" data-l="19">        cout &lt;&lt; left &lt;&lt; setw(<span class="num">16</span>) &lt;&lt; names[k] &lt;&lt; right &lt;&lt; setw(<span class="num">9</span>)</span>
+<span class="line" data-l="20">             &lt;&lt; fixed &lt;&lt; setprecision(<span class="num">2</span>) &lt;&lt; t.millis()</span>
+<span class="line" data-l="21">             &lt;&lt; <span class="str">"</span><span class="str"> ms</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="22">    }</span>
+<span class="line" data-l="23">}</span></div>
+  <div class="expected-out"><span class="eo-tag">講義執行範例</span><pre>insert at front     61.33 ms
+push_back            4.83 ms
+with reserve         3.43 ms
+direct index         1.37 ms</pre></div>
+  <p class="dx-note">前端插入每次都要搬動已有元素；由 n−1 遞減插入，最後得到 0 到 n−1，與其他三種寫法相同。這組數字沿用講義的執行結果，實際耗時會隨機器與編譯設定改變。</p>
 </div>
 <div class="deck-extra">
   <div class="dx-label">講義 02 · erase(begin) vs pop_back：n 變大會怎樣</div>
-  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
-<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/dstimer.hpp"</span></span>
-<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="5"> </span>
-<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="7">    printf(<span class="str">"</span><span class="str">%-10s%14s%12s</span><span class="str">\n</span><span class="str">"</span>, <span class="str">"</span><span class="str">n</span><span class="str">"</span>, <span class="str">"</span><span class="str">erase(begin)</span><span class="str">"</span>, <span class="str">"</span><span class="str">pop_back</span><span class="str">"</span>);</span>
-<span class="line" data-l="8">    <span class="kw">for</span> (<span class="kw">int</span> n = <span class="num">2500000</span>; n &lt;= <span class="num">10000000</span>; n += <span class="num">2500000</span>) {</span>
-<span class="line" data-l="9">        vector&lt;<span class="kw">int</span>&gt; x(n);</span>
-<span class="line" data-l="10">        DSTimer te;</span>
-<span class="line" data-l="11">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++) x.erase(x.begin());</span>
-<span class="line" data-l="12">        <span class="kw">double</span> eraseT = te.millis();</span>
-<span class="line" data-l="13">        vector&lt;<span class="kw">int</span>&gt; y(n);</span>
-<span class="line" data-l="14">        DSTimer tp;</span>
-<span class="line" data-l="15">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++) y.pop_back();</span>
-<span class="line" data-l="16">        printf(<span class="str">"</span><span class="str">%-10d%14.5f%12.5f</span><span class="str">\n</span><span class="str">"</span>, n, eraseT, tp.millis());</span>
-<span class="line" data-l="17">    }</span>
-<span class="line" data-l="18">}</span></div>
-  <div class="expected-out"><span class="eo-tag">耗時比較範例</span><pre>n           erase(begin)    pop_back
-2500000        155.20031     0.00022
-5000000        311.87542     0.00021
-7500000        468.11289     0.00023
-10000000       625.40067     0.00022</pre></div>
-  <p class="dx-note">從<strong>需要做的工作</strong>看成本：<code>erase(begin())</code> 要把後續元素往前搬，單次 O(n)，所以 n 加倍、時間也加倍；<code>pop_back()</code> 只移除尾端，單次 O(1)，n 怎麼變都是平的。這就是「把 n 加倍再量一次」那招的實際樣子。</p>
+  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iomanip&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/dstimer.hpp"</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="8">    cout &lt;&lt; left &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; <span class="str">"</span><span class="str">n</span><span class="str">"</span> &lt;&lt; right &lt;&lt; setw(<span class="num">14</span>) &lt;&lt; <span class="str">"</span><span class="str">erase(begin)</span><span class="str">"</span>  &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; <span class="str">"</span><span class="str">pop_back</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">int</span> n = <span class="num">2'500'000</span>; n &lt;= <span class="num">10'000'000</span>; n += <span class="num">2'500'000</span>) {</span>
+<span class="line" data-l="10">        vector&lt;<span class="kw">int</span>&gt; x(n);</span>
+<span class="line" data-l="11">        DSTimer te;</span>
+<span class="line" data-l="12">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++) x.erase(x.begin());</span>
+<span class="line" data-l="13">        <span class="kw">double</span> eraseT = te.millis();</span>
+<span class="line" data-l="14">        vector&lt;<span class="kw">int</span>&gt; y(n);</span>
+<span class="line" data-l="15">        DSTimer tp;</span>
+<span class="line" data-l="16">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++) y.pop_back();</span>
+<span class="line" data-l="17">        cout &lt;&lt; left &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; n &lt;&lt; right &lt;&lt; fixed &lt;&lt; setprecision(<span class="num">5</span>)</span>
+<span class="line" data-l="18">             &lt;&lt; setw(<span class="num">14</span>) &lt;&lt; eraseT &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; tp.millis() &lt;&lt; endl;</span>
+<span class="line" data-l="19">    }</span>
+<span class="line" data-l="20">}</span></div>
+  <div class="expected-out"><span class="eo-tag">本機實測：7 次中位數，單位 ms（GCC -O0）</span><pre>n           erase(begin)    pop_back
+2500000         20.52029     0.00028
+5000000         48.93541     0.00032
+7500000        104.64115     0.00030
+10000000       188.86044     0.00022</pre></div>
+  <p class="dx-note">前端刪除要搬移後續元素，單次 O(n)；尾端刪除不必搬移，單次 O(1)。下方數字與圖片來自同一批 7 次實測的中位數，耗時也受快取與計時誤差影響，不必恰好按 n 的比例增加。</p>
 </div>
 <!-- /gen:dx-vec -->
 <!-- slot:vec -->
 
 <figure id="benchmark-pop-20260906" style="max-width:900px;margin:1.5rem auto;">
-  <div class="benchmark-chart" style="aspect-ratio:1800 / 1160;overflow:hidden;"><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，縱軸為微秒的對數刻度" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>
-  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 從前端與尾端刪除元素的耗時。前端刪除需要搬移後續元素，尾端刪除則不需要。</figcaption>
+  <div class="benchmark-chart" style=""><img src="assets/figures/pop_benchmark.png" alt="vector 前端刪除與尾端刪除的耗時比較；每組 100 次操作，7 次實測中位數，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>
+  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 前端刪除與尾端刪除，每組各做 100 次；點為 7 次實測中位數，誤差棒為最小值到最大值。前端刪除需要搬移後續元素，尾端刪除則不需要。</figcaption>
 </figure>
 </section>
 
@@ -1610,11 +1623,20 @@ direct index         2.10 ms</pre></div>
   <p>C++11 起，<code>std::string</code> 的字元連續儲存。索引與 <code>size()</code> 是 O(1)，
   尾端加入是攤還 O(1)；中間插入或刪除最差 O(n)，因為後續字元需要搬移。</p>
   <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.88rem;">
-    <thead><tr><th>操作</th><th>複雜度</th><th>原因</th></tr></thead>
+    <thead><tr><th>操作</th><th>Big-O</th><th>備註</th></tr></thead>
     <tbody>
-      <tr><td class="mono">s[i] / s.size()</td><td>O(1)</td><td>連續儲存與直接位址計算</td></tr>
+      <tr><td class="mono">s[i]</td><td class="best">O(1)</td><td>連續儲存與直接位址計算</td></tr>
+      <tr><td class="mono">s[i] = ch</td><td class="best">O(1)</td><td>同上</td></tr>
       <tr><td class="mono">s.push_back(ch)</td><td>攤還 O(1)</td><td>偶爾重新配置並搬移整串</td></tr>
-      <tr><td class="mono">s.insert / s.erase</td><td>最差 O(n)</td><td>搬移操作位置後方的字元</td></tr>
+      <tr><td class="mono">s.pop_back()</td><td class="best">O(1)</td><td>移除尾端字元</td></tr>
+      <tr><td class="mono">s += t / s.append(t)</td><td>攤還 O(m)</td><td>m 是接上去的字串長度</td></tr>
+      <tr><td class="mono">s.insert(i, t)</td><td class="worst">O(n)</td><td>搬移插入點後方的字元</td></tr>
+      <tr><td class="mono">s.erase(i, k)</td><td class="worst">O(n)</td><td>搬移刪除點後方的字元</td></tr>
+      <tr><td class="mono">s.find(sub)</td><td class="worst">最差 O(n·m)</td><td>從每個位置試著比對長度 m 的子字串</td></tr>
+      <tr><td class="mono">s.substr(i, k)</td><td>O(k)</td><td>複製出 k 個字元</td></tr>
+      <tr><td class="mono">s.reserve(n)</td><td>O(n)</td><td>配置並搬移既有字元</td></tr>
+      <tr><td class="mono">s.size()</td><td class="best">O(1)</td><td>長度是存好的</td></tr>
+      <tr><td class="mono">s.begin() / s.end()</td><td class="best">O(1)</td><td>取迭代器，不走訪</td></tr>
     </tbody>
   </table></div>
   <div class="info-box warm" style="margin-top:.9rem;"><span class="info-label">不要過度推論</span>
@@ -1643,7 +1665,7 @@ direct index         2.10 ms</pre></div>
 
 <section id="hash">
   <div class="section-number">PART 07 · 雜湊容器</div>
-  <h2>unordered_map / set：平均 O(1) 的代價與條件 <span class="sec-badge">cppds §2.8</span></h2>
+  <h2>unordered_map / set：為什麼是「平均」O(1) <span class="sec-badge">cppds §2.8</span></h2>
   <p><code>unordered_map</code>（雜湊表）讓「查 key」平均 O(1)：不用排序、不用走訪。
   細節（雜湊函式、碰撞、負載因子）留到<a href="searching_sorting.html">第 7 章（搜尋與排序）</a>展開；本章先記住成本表與<strong>「平均」兩個字的份量</strong>。</p>
   <div class="viz-layout">
@@ -1680,7 +1702,7 @@ direct index         2.10 ms</pre></div>
         <div style="font-size:.9rem;line-height:1.9;">
         上表是三種容器的成本對照，下表把它換算成「10 萬元素查 1000 次」要做幾次比對，
         差距有四個數量級。<br>
-        至於 <code>map</code> 與 <code>unordered_map</code> 該選哪個，往下捲有完整對照。</div>
+        至於 <code>map</code> 與 <code>unordered_map</code> 該選哪個，往下有一個收合區專門講。</div>
       </div>
     </div>
   </div>
@@ -1695,13 +1717,34 @@ direct index         2.10 ms</pre></div>
     量的是「把資料建起來」要多久。而 <code>number in container</code> 是 Python 的寫法，
     「第 7 行、第 9 行」對得上的是課本附在下面的那份 Python，不是上面的 C++。</p>
     <p>所以照課本的 C++ 抄下來跑，是跑不出那組數字的 —— 不是你抄錯。</p>
-    <p>本頁下方那支實測程式是真的在量查找（<code>find</code> 對 <code>count</code>），
+    <p>本頁下方那支實測程式是真的在量查找（<code>std::find</code> 對 <code>unordered_map::find</code>），
     附的數字也是在這台機器上實際跑出來的。<strong>結論跟課本一樣</strong>：
-    線性搜尋的時間隨 n 成長，雜湊查詢幾乎不動。只是這裡的程式對得上這裡的數字。</p>
+    線性搜尋最差要掃過 n 個元素，雜湊查詢平均 O(1)。不過這個例子每組目標的位置與命中情況不同，不能要求每個量測點都隨 n 成比例增加。</p>
   </div>
 </details>
 
-<h3 style="margin-top:1.5rem;">等一下 —— 第一章教的是 <code>map</code>，這裡為什麼變成 <code>unordered_map</code>？</h3>
+<h3 style="margin-top:1.5rem;">unordered_map / unordered_set 操作一覽 <span class="sec-badge">cppds Table 4</span></h3>
+<div style="overflow-x:auto;">
+<table class="cmp-table" style="width:100%;">
+  <thead><tr><th>操作</th><th>Big-O（平均）</th><th>Big-O（最差）</th><th>備註</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">m.find(k)</td><td class="best">O(1)</td><td class="worst">O(n)</td><td>算雜湊值定位到桶，再在桶內比對</td></tr>
+    <tr><td class="mono">m.count(k)</td><td class="best">O(1)</td><td class="worst">O(n)</td><td>回傳 key 是否存在（0 或 1）；下方範例改用 find</td></tr>
+    <tr><td class="mono">m[k] / m.at(k)</td><td class="best">O(1)</td><td class="worst">O(n)</td><td><code>m[k]</code> 找不到時會插入一個預設值</td></tr>
+    <tr><td class="mono">m.insert({k, v})</td><td class="best">O(1)</td><td class="worst">O(n)</td><td>負載因子超標時會觸發 rehash</td></tr>
+    <tr><td class="mono">m.erase(k)</td><td class="best">O(1)</td><td class="worst">O(n)</td><td>—</td></tr>
+    <tr><td class="mono">走訪整張表</td><td>O(n)</td><td>O(n)</td><td>順序未定義；雜湊表不是為走訪設計的</td></tr>
+    <tr><td class="mono">m.size()</td><td class="best">O(1)</td><td class="best">O(1)</td><td>元素數是存好的</td></tr>
+    <tr><td class="mono">m.reserve(n)</td><td>O(n)</td><td>O(n)</td><td>預先配置桶，省掉建表途中的 rehash</td></tr>
+  </tbody>
+</table>
+</div>
+<p style="font-size:.92rem;color:var(--muted);">課本只列了單一欄「Big-O Efficiency」，五項全寫 O(1)／O(n)，
+沒有標明那是<strong>平均</strong>值。這裡拆成平均與最差兩欄，因為「平均」兩個字正是這一節的重點。</p>
+
+<details class="deep">
+  <summary>第一章教的是 <code>map</code>，這裡為什麼變成 <code>unordered_map</code>？ <span class="dp-tag">展開看懂</span></summary>
+  <div class="dp-body">
 <p>這兩個名字只差一個字，行為卻是兩種東西。<a href="introduction.html#collections">第一章</a>介紹的
 <code>map</code> 是<strong>有序</strong>關聯容器，這一節談的 <code>unordered_map</code> 是<strong>雜湊表</strong>。
 先看它們各自是怎麼做到的：</p>
@@ -1737,6 +1780,9 @@ direct index         2.10 ms</pre></div>
 <strong>負載因子（load factor）＝ 元素數 ÷ 桶數</strong>，也就是每個桶平均裝幾個元素。
 這個數字維持在小常數（C++ 預設上限 1.0），平均每次查找才只要比對一兩個元素，O(1) 才成立；
 放任它長大，整張表會退化成一條鏈，查找變 O(n)。C++ 會自動維護，作法與代價在下面的進階收合區。</div>
+  </div>
+</details>
+
 <p style="font-size:.92rem;color:var(--muted);">先備頁《<a href="p6_map_set.html">P6 map、set 與迭代器</a>》有兩者並排的實測程式與更多 API 用法；
 雜湊函式、碰撞處理這些機制，<a href="searching_sorting.html">第 7 章</a>會從頭實作一次。</p>
 
@@ -1761,46 +1807,50 @@ direct index         2.10 ms</pre></div>
 </details>
 
 <!-- gen:dx-hash -->
-<h3>講義完整範例：contains 的兩個世界</h3>
+<h3>講義完整範例：兩種 find 的查找成本</h3>
 <div class="deck-extra">
-  <div class="dx-label">講義 02 · vector 線性掃描 vs unordered_map 雜湊</div>
-  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
-<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
-<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span></span>
+  <div class="dx-label">講義 02 · std::find vs unordered_map::find</div>
+  <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iomanip&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
 <span class="line" data-l="5"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdlib&gt;</span></span>
-<span class="line" data-l="6"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/dstimer.hpp"</span></span>
-<span class="line" data-l="7"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="8"> </span>
+<span class="line" data-l="6"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;unordered_map&gt;</span></span>
+<span class="line" data-l="7"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/dstimer.hpp"</span></span>
+<span class="line" data-l="8"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="9"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="10">    printf(<span class="str">"</span><span class="str">%-10s%10s%12s</span><span class="str">\n</span><span class="str">"</span>, <span class="str">"</span><span class="str">n</span><span class="str">"</span>, <span class="str">"</span><span class="str">vector</span><span class="str">"</span>, <span class="str">"</span><span class="str">hash table</span><span class="str">"</span>);</span>
-<span class="line" data-l="11">    <span class="kw">for</span> (<span class="kw">int</span> n : {<span class="num">250000</span>, <span class="num">500000</span>, <span class="num">1000000</span>}) {</span>
-<span class="line" data-l="12">        vector&lt;<span class="kw">int</span>&gt; x(n);</span>
+<span class="line" data-l="10">    cout &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; <span class="str">"</span><span class="str">n</span><span class="str">"</span> &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; <span class="str">"</span><span class="str">vector</span><span class="str">"</span> &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; <span class="str">"</span><span class="str">hash</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="11">    <span class="kw">for</span> (<span class="kw">int</span> n : {<span class="num">100'000</span>, <span class="num">200'000</span>, <span class="num">400'000</span>, <span class="num">800'000</span>}) {</span>
+<span class="line" data-l="12">        vector&lt;<span class="kw">int</span>&gt; v(n);</span>
 <span class="line" data-l="13">        unordered_map&lt;<span class="kw">int</span>, <span class="kw">int</span>&gt; m;</span>
-<span class="line" data-l="14">        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; n; j++) { x[j] = j; m[j] = <span class="num">0</span>; }</span>
-<span class="line" data-l="15">        <span class="kw">int</span> hits = <span class="num">0</span>;</span>
-<span class="line" data-l="16">        DSTimer tv;</span>
-<span class="line" data-l="17">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++)</span>
-<span class="line" data-l="18">            hits += (find(x.begin(), x.end(), rand() % n) != x.end());</span>
-<span class="line" data-l="19">        <span class="kw">double</span> vecT = tv.millis();</span>
-<span class="line" data-l="20">        DSTimer tm;</span>
-<span class="line" data-l="21">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++) hits += m.count(rand() % n);</span>
-<span class="line" data-l="22">        printf(<span class="str">"</span><span class="str">%-10d%10.3f%12.3f</span><span class="str">\n</span><span class="str">"</span>, n, vecT, tm.millis());</span>
-<span class="line" data-l="23">    }</span>
-<span class="line" data-l="24">}</span></div>
-  <div class="expected-out"><span class="eo-tag">耗時比較範例</span><pre>n             vector  hash table
-250000         8.512       0.011
-500000        17.204       0.012
-1000000       35.917       0.012</pre></div>
-  <p class="dx-note"><code>vector</code> 的 <code>find</code> 逐一比對，n 加倍、時間跟著加倍。雜湊表的 <code>count</code> 直接用雜湊值定位；雜湊分布良好、負載因子受控時，平均查詢成本是 O(1)，所以那一欄怎麼加 n 都不動。最差情況仍是 O(n)。</p>
+<span class="line" data-l="14">        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; n; i++) { v[i] = i; m[i] = <span class="num">0</span>; }</span>
+<span class="line" data-l="15">        <span class="kw">int</span> target = rand() % (<span class="num">2</span> * n), hits = <span class="num">0</span>;</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">        DSTimer t1;</span>
+<span class="line" data-l="18">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++)</span>
+<span class="line" data-l="19">            hits += (find(v.begin(), v.end(), target) != v.end());</span>
+<span class="line" data-l="20">        <span class="kw">double</span> tv = t1.millis();</span>
+<span class="line" data-l="21">        DSTimer t2;</span>
+<span class="line" data-l="22">        <span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; <span class="num">100</span>; r++)</span>
+<span class="line" data-l="23">            hits += (m.find(target) != m.end());</span>
+<span class="line" data-l="24">        cout &lt;&lt; setw(<span class="num">10</span>) &lt;&lt; n &lt;&lt; fixed &lt;&lt; setprecision(<span class="num">3</span>)</span>
+<span class="line" data-l="25">             &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; tv &lt;&lt; setw(<span class="num">12</span>) &lt;&lt; t2.millis() &lt;&lt; endl;}</span>
+<span class="line" data-l="26">}</span></div>
+  <div class="expected-out"><span class="eo-tag">本機實測：7 次中位數，單位 ms（GCC -O0）</span><pre>         n      vector        hash
+    100000      25.908       0.004
+    200000      37.796       0.004
+    400000      26.646       0.004
+    800000     232.638       0.003</pre></div>
+  <p class="dx-note">每個 n 先用 <code>rand() % (2 * n)</code> 選一個目標，兩個容器都重複查它 100 次。<code>std::find</code> 逐一比對；<code>m.find(target)</code> 利用雜湊找 key，最後都用 <code>!= end()</code> 判斷是否找到。目標可能不存在，命中位置也會不同，所以 n 加倍時耗時不一定加倍。雜湊查詢平均 O(1)、最差 O(n)。這裡的數字是下圖 7 次量測的中位數，不是固定答案。</p>
 </div>
 <!-- /gen:dx-hash -->
 <!-- slot:hash -->
 
 <figure id="benchmark-lookup-20260906" style="max-width:900px;margin:1.5rem auto;">
-  <div class="benchmark-chart" style="aspect-ratio:1800 / 1160;overflow:hidden;"><img src="assets/figures/dict_benchmark.png" alt="vector 線性搜尋與雜湊表成功查詢的耗時比較；每組 100 次操作，縱軸為微秒的對數刻度" width="1800" height="1350" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>
-  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">比較 vector 線性搜尋與雜湊表查詢的耗時。觀察資料量增加時，逐一比對與利用雜湊定位的成本差異。</figcaption>
+  <div class="benchmark-chart" style=""><img src="assets/figures/dict_benchmark.png" alt="std::find 與 unordered_map::find 的耗時比較；10、20、40、80 萬元素，每組同一目標查 100 次，包含命中與未命中，縱軸為毫秒的對數刻度" width="1800" height="1159" loading="lazy" style="display:block;width:100%;max-width:100%;height:auto;background:#fff;"></div>
+  <figcaption style="font-size:.9rem;line-height:1.7;margin-top:.6rem;">與新版講義相同：10、20、40、80 萬元素，各用同一目標查 100 次。點為 7 次實測中位數，誤差棒為最小值到最大值。本機前三組命中、最後一組未命中；隨機目標與耗時可能因平台不同而改變。</figcaption>
 </figure>
+<details class="deep"><summary>重現這兩張實測圖 <span class="dp-tag">實測條件</span></summary><div class="dp-body"><p>本次使用 GCC 13.3、C++17、<code>-O0</code>，每組量 7 次、每次 100 個操作；容器建置不計時。查找的每輪從 <code>srand(1)</code> 開始，計時結束後檢查 <code>hits</code>；刪除後檢查大小與內容。以其他最佳化設定編譯這份簡短示範時，未使用的查詢結果可能被消除，不能直接拿零耗時比較。</p><p><a href="docs/experiments/20260920-analysis-find/README.md">量測方法與重現命令</a> · <a href="docs/experiments/20260920-analysis-find/raw.csv">原始數據</a></p></div></details>
 </section>
 
 <section id="exercises">

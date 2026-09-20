@@ -206,6 +206,9 @@ details.deep[open]>summary::before{content:"\25BE  ";}
 details.deep>summary .dp-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;color:var(--muted);border:1px solid var(--card-border);border-radius:999px;padding:1px 8px;margin-left:.5rem;vertical-align:middle;}
 details.deep .dp-body{font-size:.94rem;line-height:1.95;margin-top:.75rem;}
 details.deep .dp-body p{margin:.55rem 0;}
+/* 課本對照：與 cppds 原文不同的地方，用紫色跟「進階」區分 */
+details.deep.book{border-left-color:#8e44ad;}
+details.deep.book>summary{color:#8e44ad;}
 .info-box.green{background:#eafaf1;border-color:var(--accent3);}
 .info-box.green .info-label{background:var(--accent3);}
 .info-box.purple{background:#f4ecf7;border-color:#8e44ad;}
@@ -497,7 +500,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
   ④ <strong>標「進階」的灰色收合區可以先跳過</strong>：裡面是數學推導（$\Omega$／$\Theta$、攤還分析、負載因子），
   正文不展開也讀得懂；第二輪複習再回來看。
-  ⑤ 最後翻 <a href="#cards">關鍵詞彙卡（24 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。</p>
+  ⑤ 最後翻 <a href="#cards">關鍵詞彙卡（26 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。</p>
   <div class="sg-links"><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/02_Analysis.html#/" target="_blank" rel="noopener">🖥 講義 02 線上閱讀 HTML</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/02_Analysis.pdf" target="_blank" rel="noopener">📑 講義 02 閱讀 PDF</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/02_Analysis.pdf" download="02_Analysis.pdf">⬇ 講義 02 下載 PDF</a><a href="https://runestone.academy/ns/books/published/cppds/AlgorithmAnalysis/toctree.html" target="_blank" rel="noopener">📖 課本 cppds（AlgorithmAnalysis）</a><a href="https://github.com/phonchi/pythonds3/tree/master/cppds" target="_blank" rel="noopener">💾 課程標頭 pythonds3/cppds</a><a href="https://www.hello-algo.com/zh-hant/chapter_computational_complexity/" target="_blank" rel="noopener">📘 Hello 演算法（複雜度分析）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
@@ -514,7 +517,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#hash"><span class="toc-num">P07</span>unordered_map 成本</a>
     <a href="#exercises"><span class="toc-num">EX</span>練習題</a>
     <a href="#reference"><span class="toc-num">REF</span>總覽比較</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（24 張）</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（26 張）</a>
   </div>
 </div>
 
@@ -524,6 +527,18 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>同一個問題有很多寫法。「哪個好？」不能只用碼表量：機器快慢、資料大小都會干擾。
   演算法分析問的是：<strong>當輸入規模 n 變大，工作量怎麼成長？</strong>
   我們數「基本操作次數」T(n)，只留下<strong>成長最快的主導項</strong>。</p>
+
+  <div class="info-box"><span class="info-label">先分清楚兩個詞</span>
+  <p style="margin:.2rem 0 .5rem;"><strong>演算法（algorithm）</strong>是解一類問題的一般性步驟清單，
+  跟用什麼語言寫無關；<strong>程式（program）</strong>是把某個演算法用某種程式語言寫出來的成品。
+  同一個演算法可以有很多支程式，寫法、變數名、可讀性都可以差很多，
+  但它們的<strong>成長率是一樣的</strong>——下面 <code>sumOfN</code> 和 <code>foo</code> 就是現成的例子。</p>
+  <p style="margin:0;">這一章分析的是<strong>演算法</strong>，不是某一支程式寫得漂不漂亮。</p>
+  </div>
+
+  <p>還有一件事要先講：所謂「花掉多少資源」其實有<strong>兩種</strong>——
+  <strong>時間</strong>（要做多少工作）與<strong>空間</strong>（要佔多少記憶體）。
+  本章絕大部分在談時間，但兩者常常可以互換，P04 的 anagram 解法 4 就是典型的「多用一點記憶體、換掉一整個量級的時間」。</p>
   <div class="viz-layout">
     <div>
       <div class="viz-panel">
@@ -649,7 +664,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <p>串起來就是一句話：<code>duration&lt;double&gt;(steady_clock::now() - start).count()</code>，也就是「拿現在減開始，當成以秒為單位的 double，取出數值」。</p>
     <div class="info-box warm" style="margin:.9rem 0 .2rem;"><span class="info-label">別靠間接引入</span>
     用到 <code>steady_clock</code> 或 <code>duration</code> 就要自己寫 <code>#include &lt;chrono&gt;</code>。
-    有時候不寫也能編譯，那是因為別的標頭剛好把它帶進來了，換個編譯器就壞掉。</div>
+    有時候不寫也能編譯，那是因為別的標頭剛好把它帶進來了，換個編譯器就壞掉。
+    課本 §2.6 有三段計時程式就犯了這個毛病：只 include 了 <code>&lt;iostream&gt;</code> 與 <code>&lt;vector&gt;</code>，
+    卻直接用 <code>clock()</code>。</div>
   </div>
 </details>
 
@@ -719,6 +736,34 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 要自訂單位（微秒、奈秒）、要用別的時鐘，也只有直接寫 <code>chrono</code> 才做得到。
 說到底 <code>DSTimer</code> 就是 <code>&lt;chrono&gt;</code> 的一層薄封裝，換過去不會有任何行為差異。</p>
 </div>
+
+<details class="deep book">
+  <summary>課本的計時程式長得不一樣，為什麼？ <span class="dp-tag">課本對照</span></summary>
+  <div class="dp-body">
+    <p>翻到 cppds 第二章你會發現，課本的計時程式跟這裡完全不同 —— 它用的是比較舊的 C 風格寫法
+    <code>&lt;ctime&gt;</code>：</p>
+    <div class="pseudo-code"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;ctime&gt;</span></span>
+<span class="line"> </span>
+<span class="line">clock_t begin = <span class="fn">clock</span>();</span>
+<span class="line"><span class="com">// ... 要計時的程式 ...</span></span>
+<span class="line">clock_t end = <span class="fn">clock</span>();</span>
+<span class="line"><span class="kw">double</span> elapsed_secs = <span class="kw">double</span>(end - begin) / CLOCKS_PER_SEC;</span></div>
+    <p><strong>差在量的東西不一樣。</strong><code>clock()</code> 量的是「程式用掉多少 <strong>CPU</strong>」，
+    <code>steady_clock</code> 量的是「<strong>實際過了多久</strong>」。
+    本章的實驗都是一直在算數的迴圈，CPU 從頭忙到尾，兩種量法的結果差不多 ——
+    <strong>所以課本那些實驗的結論完全成立</strong>，不用擔心。
+    要等到程式會停下來等使用者輸入、等讀檔的時候，兩者才會差很多。</p>
+    <div class="info-box warm" style="margin:.9rem 0 .2rem;"><span class="info-label">對照課本時的兩個提醒</span>
+    <p style="margin:.2rem 0 .4rem;">① 課本 §2.6 那兩支 <code>push_back</code> 的程式，算出來的是<strong>秒</strong>，
+    卻印成 <code>milliseconds</code>。數字對不上不是你的問題。</p>
+    <p style="margin:0;">② 課本有一組輸出是 <code>0.000000 seconds</code>——那是單次操作太快、量不出來。
+    本頁所有實測都把動作重複幾百次再平均，就是在繞開這件事。</p>
+    </div>
+    <p style="margin-top:.6rem;">想看 <code>clock()</code> 的原始定義，可以查
+    <a href="https://en.cppreference.com/w/cpp/chrono/c/clock" target="_blank" rel="noopener">cppreference</a>。
+    第一輪讀不用管，知道「課本用另一支碼表」就夠了。</p>
+  </div>
+</details>
 
 <div class="info-box warm"><span class="info-label">量出來的數字要怎麼看</span>
 碼表量到的秒數會隨機器、編譯選項、當下有沒有別的程式在跑而變動，<strong>不要拿絕對值下結論</strong>。
@@ -814,6 +859,19 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>差別是一個常數項與一個常數倍，而下一節的 Big-O 正好把這兩樣都丟掉。
   這不是含糊，是這套工具刻意的設計：它要回答的是「n 變大時會怎樣」，不是「跑幾微秒」。</p>
 
+  <details class="deep book">
+    <summary>課本的 <code>sumOfN</code> 其實跑了 n+1 輪 <span class="dp-tag">課本對照</span></summary>
+    <div class="dp-body">
+      <p>課本的迴圈寫成 <code>for (int i = 0; i &lt; n+1; i++)</code>，i 從 0 跑到 n，<strong>總共 n+1 輪</strong>
+      （課本自己有一題填空，n=1000 的答案就是 1001）。可是課本數 T(n) 的時候寫的是
+      「1 個賦值，加上 n 次迴圈內的賦值」，得到 $T(n) = 1 + n$ —— <strong>這兩處對不上</strong>，差了一輪。</p>
+      <p>本頁把迴圈統一寫成 <code>for (i = 1; i &lt;= n; i++)</code>，i 從 1 跑到 n，剛好 n 輪，
+      $T(n) = 1 + n$ 才真的成立。答案一樣是 55，只是少加了沒有作用的 <code>i = 0</code> 那一輪。</p>
+      <p>這種「迴圈到底跑幾輪」的 off-by-one，是數 T(n) 時最容易出錯的地方。
+      數之前先把邊界條件看清楚，比背公式重要。</p>
+    </div>
+  </details>
+
   <h3>三條數數的技巧</h3>
   <p>知道係數與常數最後都會被丟掉，數的時候就可以直接省事：</p>
   <ol style="line-height:1.95;">
@@ -898,6 +956,7 @@ for (int i = 0; i &lt; 5 * n + 1; i++)
         <tr><td class="mono">n</td><td>線性</td><td>10</td><td>1,000</td><td>10⁶</td><td>走訪、sequential search</td></tr>
         <tr><td class="mono">n log n</td><td>線性對數</td><td>33</td><td>10⁴</td><td>2×10⁷</td><td>merge sort</td></tr>
         <tr><td class="mono">n²</td><td>平方</td><td>100</td><td>10⁶</td><td>10¹²</td><td>雙層迴圈、bubble sort</td></tr>
+        <tr><td class="mono">n³</td><td>立方</td><td>1,000</td><td>10⁹</td><td>10¹⁸</td><td>三層巢狀迴圈、樸素矩陣相乘</td></tr>
         <tr><td class="mono">2ⁿ</td><td>指數</td><td>1,024</td><td>10³⁰¹</td><td>—</td><td>天真費波那契、河內塔</td></tr>
       </tbody>
     </table>
@@ -912,6 +971,25 @@ for (int i = 0; i &lt; 5 * n + 1; i++)
   <p>本節最後放了一段講義的自我檢測程式，讀完這一節之後回去自己數一次，再看卡片下方的解說對答案。</p>
   <p>常用計數公式：$\sum_{i=1}^n 1=n$，而 $\sum_{i=1}^n i=\frac{n(n+1)}{2}$，也就是 $O(n^2)$。
   前者對應單層固定工作，後者常出現在逐輪縮短的巢狀迴圈（anagram 解法 1 就是）。</p>
+  <h3 style="margin-top:1.3rem;">一個本章就看得懂的 log n</h3>
+  <p>上面那張表裡，$\log n$ 的例子寫的是 binary search，但那要第 7 章才講。
+  其實有個更簡單的樣子：<strong>每一輪把 n 砍一半</strong>。</p>
+  <div class="deck-extra">
+    <div class="dx-label">每輪砍一半的迴圈</div>
+    <div class="pseudo-code"><span class="line" data-l="1"><span class="kw">int</span> i = n;</span>
+<span class="line" data-l="2"><span class="kw">int</span> count = <span class="num">0</span>;</span>
+<span class="line" data-l="3"><span class="kw">while</span> (i &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="4">    count = count + <span class="num">1</span>;</span>
+<span class="line" data-l="5">    i = i / <span class="num">2</span>;          <span class="com">// 整數除法，每輪砍一半</span></span>
+<span class="line" data-l="6">}</span></div>
+    <div class="expected-out"><span class="eo-tag">n = 1000 時</span><pre>迴圈跑了 10 輪</pre></div>
+    <p class="dx-note">1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1 → 0，剛好 10 輪。
+    問題規模每次砍半，要砍幾次才會到 1？答案就是 $\log_2 n$——
+    $\log_2 1000 \approx 9.97$，所以是 10 輪。</p>
+  </div>
+  <p>只要看到「每一輪把剩下的東西<strong>砍掉一個固定比例</strong>」，就是 $O(\log n)$。
+  砍一半、砍三分之一都一樣——底數只差一個常數倍，Big-O 把它丟掉了，所以寫 $\log n$ 時不用標底數。</p>
+
   <h3 style="margin-top:1.3rem;">最好、最差、平均</h3>
   <p>有些演算法的表現不只看 n，還看<strong>資料長什麼樣</strong>。在一個長度 n 的陣列裡找某個值：</p>
   <ul style="line-height:1.95;">
@@ -1039,7 +1117,11 @@ for (int i = 0; i &lt; n; i++)
           <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="n" checked> n</label>
           <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="nlogn" checked> n log n</label>
           <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="n2" checked> n²</label>
+          <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="n3"> n³</label>
           <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="exp2"> 2ⁿ</label>
+          <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="one"> 1（常數）</label>
+          <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="alg1"> 100n+1</label>
+          <label class="mono" style="font-size:.8rem;"><input type="checkbox" class="gcb" value="alg2"> n²+n+1</label>
           <label class="mono" style="font-size:.8rem;">n 上限 <input id="growthMax" type="range" min="16" max="256" value="64" style="vertical-align:middle;"></label>
         </div>
       </div>
@@ -1053,6 +1135,31 @@ for (int i = 0; i &lt; n; i++)
       </div>
     </div>
   </div>
+<h3 style="margin-top:1.5rem;">交叉點：Big-O 沒說的那一段</h3>
+<p>「$O(n)$ 比 $O(n^2)$ 快」這句話要加一個前提：<strong>n 夠大的時候</strong>。
+n 還小的時候，係數與常數項可能完全蓋過成長率的差距。</p>
+<p>把上面的 <code>100n+1</code> 和 <code>n²+n+1</code> 兩條都勾起來，再把「n 上限」慢慢往右拉。
+你會看到 <code>n²+n+1</code> 一開始<strong>在下面</strong>（比較快），
+一直要到 $n = 99$ 才追上 —— 你可以自己代進去驗：
+$99^2 + 99 + 1 = 100 \times 99 + 1 = 9901$，兩邊剛好相等，$n = 100$ 起才正式超過。
+兩條線相交的地方就叫<strong>交叉點（crossover point）</strong>。</p>
+<p>換句話說，如果你的資料永遠只有幾十筆，那個「比較慢」的 $O(n^2)$ 演算法其實跑得比較快。
+這不是 Big-O 錯了，而是 Big-O 從一開始就只承諾「n 夠大之後」—— 回頭看 P02 的定義，
+那個 $n_0$ 就是在講這件事：<strong>界從 $n_0$ 之後才保證成立，$n_0$ 之前不算數</strong>。
+交叉點就是 $n_0$ 長什麼樣子的具體例子。</p>
+<div class="info-box warm"><span class="info-label">實務上真的有人吃這一套</span>
+標準函式庫的排序（introsort）在遞迴到小片段時會<strong>切回插入排序</strong>——
+插入排序是 $O(n^2)$，但在十幾個元素的規模下它就是比 $O(n \log n)$ 的快。
+挑演算法時先問一句「我的 n 大概多大」，比背複雜度表有用。</div>
+
+<div class="quiz-box">
+  <div class="quiz-label">QUIZ · 量測時間比</div>
+  <p>某個演算法是 $O(n^3)$。處理 1,000 筆資料要 2 秒，那麼處理 <strong>2,000 筆</strong>大約要多久？</p>
+  <div class="quiz-options" id="qRatioOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="n 變成 2 倍，n³ 就變成 2³ = 8 倍，所以 2 秒 × 8 = 16 秒。這就是「把 n 加倍再量一次」那一招反過來用。" onclick="quizCheck('qRatio', this)"><span class="opt-letter">(A)</span> 約 16 秒</div><div class="quiz-opt" data-correct="false" data-fb="這是把 O(n) 的算法套上去了。立方階要把倍數取三次方：2³ = 8，不是 2。" onclick="quizCheck('qRatio', this)"><span class="opt-letter">(B)</span> 約 4 秒</div><div class="quiz-opt" data-correct="false" data-fb="這是 O(n²) 的答案（2² = 4 倍）。題目是 n³，要再多乘一次 2。" onclick="quizCheck('qRatio', this)"><span class="opt-letter">(C)</span> 約 8 秒</div>
+  </div>
+  <div class="quiz-feedback" id="qRatioFeedback"></div>
+</div>
 </section>
 
 <section id="anagram">
@@ -1099,7 +1206,7 @@ for (int i = 0; i &lt; n; i++)
 <span class="line" data-l="11">}</span></div></div>
   <h3 style="margin-top:1.4rem;">四個解法攤開看</h3>
   <p>解法 1、2、4 各是一支可以直接複製去編譯的完整程式，取自課程標頭
-  <code>pythonds3/cppds/anagram.hpp</code>，跟課本一致；解法 3 只要算一下就知道不必寫，所以只給推導。</p>
+  <code>pythonds3/cppds/anagram.hpp</code>，與課本同一個思路（細部寫法有一點差異，見解法 1 下方的課本對照）；解法 3 只要算一下就知道不必寫，所以只給推導。</p>
   <p>讀的時候不要只看「答案對不對」，要看<strong>最內層那一行被執行了幾次</strong> —— 那才是成長率的來源。</p>
 <!-- gen:dx-ana12 -->
 <div class="deck-extra">
@@ -1138,7 +1245,7 @@ for (int i = 0; i &lt; n; i++)
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>true
 true
 false</pre></div>
-  <p class="dx-note">外圈每跑一輪，內圈最多要看過 aList 剩下的所有字元。第一輪看 n 個、第二輪 n−1 個……總比較次數是 $1+2+\dots+n=\frac{n(n+1)}{2}$，主導項 $n^2/2$，所以是 <strong>O(n²)</strong>。這支就是課程標頭 <code>pythonds3/cppds/anagram.hpp</code> 裡的版本。</p>
+  <p class="dx-note">外圈每跑一輪，內圈最多要看過 aList 剩下的所有字元。第一輪看 n 個、第二輪 n−1 個……總比較次數是 $1+2+\dots+n=\frac{n(n+1)}{2}$，主導項 $n^2/2$，所以是 <strong>O(n²)</strong>。這支是課程標頭 <code>pythonds3/cppds/anagram.hpp</code> 裡的版本，劃掉的作法與課本略有不同——下面說明。</p>
 </div>
 <div class="deck-extra">
   <div class="dx-label">解法 2：Sort and Compare — O(n log n)</div>
@@ -1172,6 +1279,26 @@ false</pre></div>
   <p class="dx-note">函式本體只有一個迴圈，看起來像 O(n)——但 <code>sort</code> 那兩行才是最貴的。整體由最貴的步驟主導，所以是 <strong>O(n log n)</strong>。這是「一行不等於一次」最經典的例子。（照課本原版，這支假設兩個字串等長，實際使用前應先檢查長度。）</p>
 </div>
 <!-- /gen:dx-ana12 -->
+  <details class="deep book">
+    <summary>解法 1 的「劃掉」，課本跟這裡做法不同 <span class="dp-tag">課本對照</span></summary>
+    <div class="dp-body">
+      <p>找到配對的字元之後要把它劃掉，兩邊的手法不一樣：</p>
+      <ul style="line-height:1.95;">
+        <li><strong>課本</strong>：複製一份 <code>string</code>，劃掉就是把那一格<strong>覆蓋成
+        <code>'\0'</code></strong>（<code>locals2[pos2] = '\0';</code>）。字串長度不變，
+        單次劃掉是 O(1)，但內圈每一輪都還是要掃過完整的 n 格。</li>
+        <li><strong>這裡</strong>：用 <code>vector&lt;char&gt;</code>，劃掉是真的
+        <strong>把那一格刪掉</strong>（<code>aList.erase(...)</code>）。後面的元素要往前搬，
+        單次是 O(n)，但容器會愈來愈短，內圈要掃的格數跟著遞減。</li>
+      </ul>
+      <p><strong>兩種都是 O(n²)，結論一樣</strong>，只是每一輪做的工作不同。
+      上面那段「第一輪看 n 個、第二輪 n−1 個」的推導講的是這裡這個版本；
+      課本那版內圈長度不變，總比較次數是 n×n，同樣落在 n²。</p>
+      <p>順帶一提，<code>'\0'</code> 那招在 C++ 裡有個陷阱：它只是把某一格改成空字元，
+      <code>string</code> 的 <code>length()</code> 不會跟著變，所以那一格<strong>還在</strong>、
+      還會被掃到，只是不會再配對成功。看課本程式時別誤以為字串真的變短了。</p>
+    </div>
+  </details>
 <!-- slot:ana12 -->
 
   <div class="info-box warm">
@@ -1269,11 +1396,19 @@ false</pre></div>
       <div class="info-card">
         <div class="ic-title">vector 成本表（背這張）</div>
         <div class="ic-row"><span class="ic-label">v[i] 讀寫</span><span class="ic-value">O(1)</span></div>
-        <div class="ic-row"><span class="ic-label">push_back / pop_back</span><span class="ic-value">O(1) 攤還</span></div>
+        <div class="ic-row"><span class="ic-label">push_back</span><span class="ic-value">O(1) 攤還</span></div>
+        <div class="ic-row"><span class="ic-label">pop_back</span><span class="ic-value">O(1)</span></div>
         <div class="ic-row"><span class="ic-label">insert / erase（前端或中間）</span><span class="ic-value highlight">O(n)</span></div>
-        <div class="ic-row"><span class="ic-label">走訪 / find（無序）</span><span class="ic-value">O(n)</span></div>
+        <div class="ic-row"><span class="ic-label">走訪 / find</span><span class="ic-value">O(n)</span></div>
+        <div class="ic-row"><span class="ic-label">reserve(n)</span><span class="ic-value">O(n)</span></div>
         <div class="ic-row"><span class="ic-label">切一段（k 個元素）</span><span class="ic-value">O(k)</span></div>
         <div class="ic-row"><span class="ic-label">sort</span><span class="ic-value">O(n log n)</span></div>
+        <div style="font-size:.86rem;line-height:1.8;color:var(--muted);margin-top:.5rem;">
+        <code>pop_back</code> 是真的 O(1)，不像 <code>push_back</code> 要講攤還——移除尾端不會觸發搬家。<br>
+        <code>reserve(n)</code> 自己是 O(n)（要配置並搬移既有元素），但它換掉的是之後 n 次
+        <code>push_back</code> 途中的<strong>全部</strong>重新配置。<br>
+        <code>find</code> 是逐一比對，<strong>排序過也不會變快</strong>；要靠排序省時間得改用
+        <code>binary_search</code>／<code>lower_bound</code>。</div>
       </div>
       <div class="info-card">
         <div class="ic-title">四種把 0..n−1 塞進 vector 的寫法</div>
@@ -1292,6 +1427,23 @@ false</pre></div>
       </div>
     </div>
   </div>
+
+<details class="deep book">
+  <summary>課本這張表有兩處要留意 <span class="dp-tag">課本對照</span></summary>
+  <div class="dp-body">
+    <p><strong>① 課本寫 <code>push_back()</code> 是 "typically O(1)"。</strong>
+    它講的就是這裡說的<strong>攤還 O(1)</strong>，意思一樣。只是 typically（通常）這個詞讀起來像
+    「運氣好的時候」，而攤還的重點恰恰相反 —— 它<strong>不靠運氣</strong>，
+    不管你怎麼餵資料，n 次 <code>push_back</code> 的總工作量就是小於 2n。</p>
+    <p><strong>② 課本說 vector 排序過之後 <code>find</code> 就是 O(log n)。</strong>
+    這句話不對。<code>std::find</code> 永遠是從頭掃到尾，排不排序都一樣是 O(n)；
+    要拿到 O(log n) 得改用 <code>std::binary_search</code> 或 <code>std::lower_bound</code>。
+    （而且 <code>std::vector</code> 本身沒有叫 <code>find</code> 的成員函式，
+    <code>std::find</code> 是 <code>&lt;algorithm&gt;</code> 裡的泛用演算法。）</p>
+    <p>「排序後查找比較快」這個直覺是對的，但要換演算法才拿得到，不是資料排好就自動發生。
+    P07 的對照表把「排序 vector + binary search」單獨列成一項，就是這個原因。</p>
+  </div>
+</details>
 
 <h3 style="margin-top:1.5rem;">size 與 capacity：兩個不一樣的數字</h3>
 <p><code>vector</code> 是「可以變長的陣列」，但底層那塊記憶體其實是固定大小的。它同時記著兩個數字：</p>
@@ -1504,6 +1656,7 @@ direct index         2.10 ms</pre></div>
             <tr><td>查找 contains(x)</td><td>O(n)</td><td>O(log n)</td><td><strong>O(1) 平均</strong>／O(n) 最差</td></tr>
             <tr><td>插入</td><td>O(1) 尾端</td><td>O(n)（挪位）</td><td><strong>O(1) 平均</strong></td></tr>
             <tr><td>刪除</td><td>O(n)</td><td>O(n)</td><td><strong>O(1) 平均</strong></td></tr>
+            <tr><td>走訪全部元素</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr>
             <tr><td>依序輸出</td><td>需先排序</td><td>O(n)</td><td>—（無序！）</td></tr>
           </tbody>
         </table>
@@ -1531,6 +1684,22 @@ direct index         2.10 ms</pre></div>
       </div>
     </div>
   </div>
+
+<details class="deep book">
+  <summary>課本那組「89.4 倍 / 11,603 倍」的數字對不上它自己的程式 <span class="dp-tag">課本對照</span></summary>
+  <div class="dp-body">
+    <p>課本 §2.8 說「我們做的是完全相同的操作 <code>number in container</code>，
+    差別只在第 7 行 x 是 vector、第 9 行 x 是雜湊表」，然後給出 89.4 倍、11,603 倍這種對比。</p>
+    <p>但你把它的 C++ 程式讀一遍會發現，那支程式<strong>從頭到尾沒有做任何查找</strong>——
+    它只有兩個迴圈，一個一直 <code>push_back</code>、一個一直塞 <code>y[j]</code>，
+    量的是「把資料建起來」要多久。而 <code>number in container</code> 是 Python 的寫法，
+    「第 7 行、第 9 行」對得上的是課本附在下面的那份 Python，不是上面的 C++。</p>
+    <p>所以照課本的 C++ 抄下來跑，是跑不出那組數字的 —— 不是你抄錯。</p>
+    <p>本頁下方那支實測程式是真的在量查找（<code>find</code> 對 <code>count</code>），
+    附的數字也是在這台機器上實際跑出來的。<strong>結論跟課本一樣</strong>：
+    線性搜尋的時間隨 n 成長，雜湊查詢幾乎不動。只是這裡的程式對得上這裡的數字。</p>
+  </div>
+</details>
 
 <h3 style="margin-top:1.5rem;">等一下 —— 第一章教的是 <code>map</code>，這裡為什麼變成 <code>unordered_map</code>？</h3>
 <p>這兩個名字只差一個字，行為卻是兩種東西。<a href="introduction.html#collections">第一章</a>介紹的
@@ -1752,7 +1921,7 @@ while (i &lt;= n) {
   </div>
 </section><section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch2.json · 24 張</span></h2>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch2.json · 26 張</span></h2>
   <p>詞彙卡取自本章課程題庫，已譯為繁體中文，正面附英文原名。先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>
@@ -1909,7 +2078,12 @@ const GFUNCS = {
   n:     {f: n => n,                        color: '#2c3e7a', label: 'n'},
   nlogn: {f: n => n * Math.log2(Math.max(n,1)), color: '#e67e22', label: 'n log n'},
   n2:    {f: n => n * n,                    color: '#c0392b', label: 'n²'},
+  n3:    {f: n => n * n * n,                color: '#d81b60', label: 'n³'},
   exp2:  {f: n => Math.pow(2, n),           color: '#8e44ad', label: '2ⁿ'},
+  one:   {f: n => 1,                        color: '#7f8c8d', label: '1'},
+  // 課本的交叉點例子：兩個演算法，係數大的那個在小 n 時反而比較慢
+  alg1:  {f: n => 100 * n + 1,              color: '#00838f', label: '100n+1'},
+  alg2:  {f: n => n * n + n + 1,            color: '#6d4c41', label: 'n²+n+1'},
 };
 function growthDraw() {
   const cv = $('growthCanvas'), ctx = cv.getContext('2d');
@@ -1918,8 +2092,10 @@ function growthDraw() {
   const maxN = parseInt($('growthMax').value, 10);
   const active = Array.from(document.querySelectorAll('.gcb:checked')).map(c => c.value);
   let maxY = 10;
-  active.forEach(k => { const v = GFUNCS[k].f(maxN); if (v < 1e6 && v > maxY) maxY = v; });
-  maxY = Math.min(maxY, 1e6);
+  // 上限是為了不讓 2ⁿ 壓扁其他曲線；1e6 會剛好卡掉 n³(100)=1,000,000，所以放寬到 1e8
+  // （n³ 在滑桿最大值 256 時是 1.68e7，仍在界內；2ⁿ 超過 n=26 就會被排除）
+  active.forEach(k => { const v = GFUNCS[k].f(maxN); if (v <= 1e8 && v > maxY) maxY = v; });
+  maxY = Math.min(maxY, 1e8);
   // axes
   ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad, 10); ctx.lineTo(pad, H-pad); ctx.lineTo(W-10, H-pad); ctx.stroke();
@@ -2028,7 +2204,7 @@ vecReset();
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "可讀性（Readability）", "back": "人類讀者理解原始碼的目的、控制流程與運作方式的容易程度，衡量程式碼好不好懂、好不好維護。"}, {"front": "演算法分析（Algorithm Analysis）", "back": "判定演算法計算複雜度的過程：衡量一個演算法用掉多少計算資源（時間與空間）。"}, {"front": "基準測試（Benchmark Analysis）", "back": "用一系列標準測試實際執行程式來評估效能，比較不同實作之間的相對表現。"}, {"front": "空間複雜度（Space Complexity）", "back": "演算法執行所需的記憶體空間量，表示成輸入長度的函數。"}, {"front": "時間複雜度（Time Complexity）", "back": "描述演算法執行所需時間的計算複雜度，通常表示成輸入大小的函數。"}, {"front": "Big-O 記號（Big-O）", "back": "成本函數的漸近上界記號。Big-O 本身不等於最差情況；應先說明分析的是哪種情況或操作序列，再寫它的界。"}, {"front": "平均情況效能（Average-Case Performance）", "back": "在明確指定的輸入機率分布下，對大小為 n 的輸入取期望成本；沒有分布假設，平均情況的主張就不完整。"}, {"front": "最差情況效能（Worst-Case Performance）", "back": "演算法在所有可能輸入中最大的時間或空間複雜度，代表最不利條件下的效率保證。"}, {"front": "暴力法（Brute-Force）", "back": "把所有可能的解全部試過一遍來找答案的演算法策略：實作簡單，但通常效率不佳。"}, {"front": "時間與空間取捨（Time and Space Trade-offs）", "back": "「用空間換時間」或「用時間換空間」的概念：多用一些記憶體可能讓演算法更快，省記憶體則可能付出變慢的代價。"}, {"front": "索引存取（Indexing）", "back": "用數字位置存取元素。std::vector 與 std::string 採連續儲存，因此 operator[] 是 O(1)。"}, {"front": "包含檢查（Contains Operator）", "back": "檢查元素是否存在：無序 vector 的線性搜尋是 O(n)，unordered_map 平均 O(1)、最差 O(n)。"}, {"front": "攤還分析（Amortized Analysis）", "back": "不假設輸入隨機，把一串操作的總成本攤到每次操作。vector::push_back 雖有單次 O(n) 的重新配置，攤還仍是 O(1)。"}, {"front": "std::string 成本模型", "back": "C++11 起字元連續儲存：索引與 size 是 O(1)，push_back 是攤還 O(1)，靠近前端的插入或刪除可能是 O(n)。"}, {"front": "基本操作（Basic Operation）", "back": "執行時間不隨輸入規模 n 改變的單一動作，例如一次整數加法、一次比較、一次賦值、讀寫陣列的某一格。演算法分析數的就是這種操作的次數。"}, {"front": "操作次數函式 T(n)", "back": "把演算法要做的基本操作次數寫成輸入規模 n 的函式。不同教材數的東西略有差異，但只差常數項與常數倍，化成 Big-O 後結果相同。"}, {"front": "漸近上界（Asymptotic Upper Bound）", "back": "Big-O 的正式定義：存在正實數 c 與實數 n₀，使所有 n > n₀ 都有 T(n) ≤ c·f(n)。c 吸收係數，n₀ 讓小 n 的例外不算數。"}, {"front": "數量級／主導項（Order of Magnitude）", "back": "T(n) 裡成長最快的那一項。n 夠大時它壓過其餘所有項，所以 Big-O 只留它並丟掉係數：3n² + 2n + 4 的數量級是 n²。"}, {"front": "最佳情況效能（Best-Case Performance）", "back": "演算法遇到特別有利的輸入時的表現，例如線性搜尋第一格就命中。很少單獨用來評估，因為發生機率低、容易誤導。"}, {"front": "size 與 capacity", "back": "size() 是現在放了幾個元素，capacity() 是不用重新配置記憶體最多還能放幾個。兩者相等時再 push_back 就得配置更大的記憶體並搬移全部元素。"}, {"front": "reserve()", "back": "預先配置足夠容量的方法。事先知道大概要放多少筆就先呼叫，整個建表過程中不會發生重新配置。只改 capacity 不改 size，所以不會放進任何元素。"}, {"front": "雜湊表（Hash Table）", "back": "由鍵值對組成的集合，搭配把鍵映射到儲存位置的雜湊函式。不必比較也不必走訪，平均 O(1) 查找；雜湊分布不佳時退化成 O(n)。"}, {"front": "map 與 unordered_map 的差別", "back": "map 是平衡二元搜尋樹，保證 O(log n)、鍵有序、可範圍查詢。unordered_map 是雜湊表，平均 O(1)、最差 O(n)、走訪無序。"}, {"front": "DSTimer 與 steady_clock", "back": "steady_clock 是 <chrono> 的單調時鐘，只往前走、不受校時影響，適合量耗時。DSTimer 是課程標頭提供的薄封裝，內部就是 steady_clock。"}];
+const FLASHCARDS = [{"front": "可讀性（Readability）", "back": "人類讀者理解原始碼的目的、控制流程與運作方式的容易程度，衡量程式碼好不好懂、好不好維護。"}, {"front": "演算法分析（Algorithm Analysis）", "back": "判定演算法計算複雜度的過程：衡量一個演算法用掉多少計算資源（時間與空間）。"}, {"front": "基準測試（Benchmark Analysis）", "back": "用一系列標準測試實際執行程式來評估效能，比較不同實作之間的相對表現。"}, {"front": "空間複雜度（Space Complexity）", "back": "演算法執行所需的記憶體空間量，表示成輸入長度的函數。"}, {"front": "時間複雜度（Time Complexity）", "back": "描述演算法執行所需時間的計算複雜度，通常表示成輸入大小的函數。"}, {"front": "Big-O 記號（Big-O）", "back": "成本函數的漸近上界記號。Big-O 本身不等於最差情況；應先說明分析的是哪種情況或操作序列，再寫它的界。"}, {"front": "平均情況效能（Average-Case Performance）", "back": "在明確指定的輸入機率分布下，對大小為 n 的輸入取期望成本；沒有分布假設，平均情況的主張就不完整。"}, {"front": "最差情況效能（Worst-Case Performance）", "back": "演算法在所有可能輸入中最大的時間或空間複雜度，代表最不利條件下的效率保證。"}, {"front": "暴力法（Brute-Force）", "back": "把所有可能的解全部試過一遍來找答案的演算法策略：實作簡單，但通常效率不佳。"}, {"front": "時間與空間取捨（Time and Space Trade-offs）", "back": "「用空間換時間」或「用時間換空間」的概念：多用一些記憶體可能讓演算法更快，省記憶體則可能付出變慢的代價。"}, {"front": "索引存取（Indexing）", "back": "用數字位置存取元素。std::vector 與 std::string 採連續儲存，因此 operator[] 是 O(1)。"}, {"front": "包含檢查（Contains Operator）", "back": "檢查元素是否存在：無序 vector 的線性搜尋是 O(n)，unordered_map 平均 O(1)、最差 O(n)。"}, {"front": "攤還分析（Amortized Analysis）", "back": "不假設輸入隨機，把一串操作的總成本攤到每次操作。vector::push_back 雖有單次 O(n) 的重新配置，攤還仍是 O(1)。"}, {"front": "std::string 成本模型", "back": "C++11 起字元連續儲存：索引與 size 是 O(1)，push_back 是攤還 O(1)，靠近前端的插入或刪除可能是 O(n)。"}, {"front": "基本操作（Basic Operation）", "back": "執行時間不隨輸入規模 n 改變的單一動作，例如一次整數加法、一次比較、一次賦值、讀寫陣列的某一格。演算法分析數的就是這種操作的次數。"}, {"front": "操作次數函式 T(n)", "back": "把演算法要做的基本操作次數寫成輸入規模 n 的函式。不同教材數的東西略有差異，但只差常數項與常數倍，化成 Big-O 後結果相同。"}, {"front": "漸近上界（Asymptotic Upper Bound）", "back": "Big-O 的正式定義：存在正實數 c 與實數 n₀，使所有 n > n₀ 都有 T(n) ≤ c·f(n)。c 吸收係數，n₀ 讓小 n 的例外不算數。"}, {"front": "數量級／主導項（Order of Magnitude）", "back": "T(n) 裡成長最快的那一項。n 夠大時它壓過其餘所有項，所以 Big-O 只留它並丟掉係數：3n² + 2n + 4 的數量級是 n²。"}, {"front": "最佳情況效能（Best-Case Performance）", "back": "演算法遇到特別有利的輸入時的表現，例如線性搜尋第一格就命中。很少單獨用來評估，因為發生機率低、容易誤導。"}, {"front": "size 與 capacity", "back": "size() 是現在放了幾個元素，capacity() 是不用重新配置記憶體最多還能放幾個。兩者相等時再 push_back 就得配置更大的記憶體並搬移全部元素。"}, {"front": "reserve()", "back": "預先配置足夠容量的方法。事先知道大概要放多少筆就先呼叫，整個建表過程中不會發生重新配置。只改 capacity 不改 size，所以不會放進任何元素。"}, {"front": "雜湊表（Hash Table）", "back": "由鍵值對組成的集合，搭配把鍵映射到儲存位置的雜湊函式。不必比較也不必走訪，平均 O(1) 查找；雜湊分布不佳時退化成 O(n)。"}, {"front": "map 與 unordered_map 的差別", "back": "map 是平衡二元搜尋樹，保證 O(log n)、鍵有序、可範圍查詢。unordered_map 是雜湊表，平均 O(1)、最差 O(n)、走訪無序。"}, {"front": "DSTimer 與 steady_clock", "back": "steady_clock 是 <chrono> 的單調時鐘，只往前走、不受校時影響，適合量耗時。DSTimer 是課程標頭提供的薄封裝，內部就是 steady_clock。"}, {"front": "演算法（Algorithm）", "back": "解一類問題的一般性步驟清單，與用什麼程式語言無關。同一個演算法可以寫成很多支程式；程式是演算法被編碼成某種語言後的成品。演算法分析比的是演算法，不是某一支程式寫得漂不漂亮。"}, {"front": "連續儲存與動態大小（Contiguous / Dynamic Size）", "back": "連續儲存＝元素在記憶體裡一個接一個排好，所以位址可以直接算出來，索引才會是 O(1)。動態大小＝容器能自動變長變短。vector 與 C++11 之後的 string 兩者兼具，代價是插入刪除要搬移元素。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

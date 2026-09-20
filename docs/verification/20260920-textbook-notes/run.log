@@ -1,0 +1,124 @@
+# 第二章補上「課本對照」與課本有而本站缺的概念 — 驗證紀錄
+
+日期：2026-09-20
+環境：Ubuntu 24.04 on WSL2、g++ 13.3.0、Python 3.13、Playwright chromium
+逐項驗收明細見同目錄 `verify.log`（540 行）。
+
+---
+
+## 1. 做了什麼
+
+**5 個「課本對照」收合區**（新增 `details.deep.book` 樣式，紫色左框 `#8e44ad`，
+沿用頁面既有的 `.info-box.purple` 用色，不引進新顏色）：
+
+| 位置 | 內容 | 課本出處 |
+|---|---|---|
+| P00 | 課本用 `<ctime>` 的 `clock()`；差別是「量 CPU 用掉多少」vs「量實際過了多久」 | `WhatIsAlgorithmAnalysis.rst:194`、`VectorAnalysis.rst:108,155,164`、`:410` |
+| P01 | 課本迴圈 `i < n+1` 跑 n+1 輪，但同書數成 `T(n)=1+n` | `WhatIsAlgorithmAnalysis.rst:48`、`BigONotation.rst:23` |
+| P04 | 解法 1 的「劃掉」：課本用 `locals2[pos2]='\0'`，本站用 `erase` | `AnAnagramDetectionExample.rst:72` |
+| P05 | 課本 "typically O(1)" 就是攤還 O(1)；課本說排序後 `find` 是 O(log n) 是錯的 | `VectorAnalysis.rst:195,211` |
+| P07 | 課本那組「89.4 / 11,603 倍」對不上它自己的 C++ | `HashTableAnalysis.rst:71,134` |
+
+另有 1 處直接寫進既有框：P00「別靠間接引入」補上課本三段計時程式漏 `#include <ctime>` 的實例
+（`VectorAnalysis.rst:87,125,244`）。
+
+**修掉本站自己寫錯的兩處**
+- P04 原本寫解法 1「跟課本一致」——實際不一致（課本 `'\0'` 覆蓋、本站 `erase` 刪除），已改措辭
+- P05 成本表把 `push_back` / `pop_back` 併列成「O(1) 攤還」不精確（`pop_back` 是真 O(1)），已拆開
+
+**補課本有而本站缺的概念**
+n³ 這一階（P02 表 + P03 曲線）、交叉點 crossover（P03）、砍半迴圈 → log n（P02）、
+演算法 vs 程式（P00）、時間與空間兩種資源（P00）、`reserve() O(n)`（P05 表）、
+雜湊走訪 O(n)（P07 表）。詞彙卡 24 → 26（新增「演算法」「連續儲存與動態大小」）。
+
+**quiz 只加一題**：P03 的 `qRatio`（O(n³)，1000 筆 2 秒 → 2000 筆 16 秒）。
+P03 原本是全頁唯一沒有 quiz 的內容節，而「把 n 加倍再量一次」是本站從 P00 到 P05
+反覆教卻從未考過的主線工具。quiz 10 → 11 題。
+
+---
+
+## 2. 課本出處逐行回對
+
+頁面上每一個引用課本的說法，都回到
+`scratchpad/cppds/*.rst` 原文比對過，**14 項全部命中**，包含：
+
+- 課本填空題的正解是 1001、錯誤回饋寫「Look carefully at the loop condition i<n+1」
+  （`WhatIsAlgorithmAnalysis.rst:269`）——這是「課本自己知道跑 n+1 輪」的直接證據
+- 課本解法 1 的內圈是 `while (pos2 < n && !found)`，`n = s1.length()` 固定不變
+  （`AnAnagramDetectionExample.rst:56`）——所以「課本那版內圈長度不變」的說法成立
+- 「89.4 times faster」「11,603 times faster」確實在 `HashTableAnalysis.rst:134-135`
+
+### P07 那一項查得比原先更實
+
+初步結論是「課本的敘述描述的是下面那份 Python」。細查後更精確：
+
+- 課本標為 **Listing 6 的就是那支 C++**（`HashTableAnalysis.rst:76-78`），不是 Python
+- 但那支 C++ **從頭到尾沒有任何查找**，只有兩個建表迴圈
+  （`avector.push_back(i)` 與 `y[j] = NULL`），量的是建表時間
+- 敘述裡的 `number in container` 是 **Python 語法**；「第 7 行 x 是 vector、第 9 行 x 是雜湊表」
+  對得上的是附在下面、標了 `:linenos:` 的那份 Python（第 7 行 `x = list(range(i))`、
+  第 9 行 `x = {j:None for j in range(i)}`）
+
+頁面已改寫成這個學生可以自己翻書驗證的版本。
+
+---
+
+## 3. 驗收中發現並修掉的 bug
+
+**`n³` 曲線在滑桿 ≥ 100 時只畫得出 3 個點。**
+
+`growthDraw()` 原本的 `if (v < 1e6 && v > maxY) maxY = v;` 用 1e6 當上限（為了不讓 2ⁿ 壓扁其他曲線），
+而 `n³(100) = 1,000,000` 剛好**不小於** 1e6，被排除在 `maxY` 之外，`maxY` 退回 10，
+下一行 `if (y > maxY) break` 就在 n≈1.87 立刻中斷，畫面只剩一個 "n³" 標籤。
+預設滑桿是 64 所以本來看不出來，但使用者一拉就壞。
+
+修法：上限放寬到 1e8。`n³` 在滑桿最大值 256 時是 1.68e7 仍在界內；
+`2ⁿ` 超過 n=26 一樣會被排除，既有行為不變。
+
+修正後實測（只勾 n³，量 canvas 非空白像素）：
+
+```
+滑桿  64：4332
+滑桿 100：4383   （修正前：3）
+滑桿 150：4373
+滑桿 256：4379
+```
+
+**交叉點改成精確值。** 頁面原本寫「$n \approx 100$」，驗收算出精確交叉點是 **n = 99**
+（$99^2+99+1 = 100 \times 99+1 = 9901$，兩邊完全相等；$n(n-99)=0$）。
+已改成給出 n = 99 並附可自行代入驗算的式子——學生查得動的數字比約略值有價值。
+瀏覽器端重新掃 n=1..300 確認唯一相等點就是 99。
+
+---
+
+## 4. 驗收數字
+
+| 項目 | 結果 |
+|---|---|
+| Quiz | 11 個 `.quiz-box` / 33 個選項全部點過，回饋皆非空且開頭正確；全頁 58 個 id 全相異；`quizCheck` 的 11 個 id 與容器一一對應，孤兒 0 |
+| 收合區 | 13 個 `details.deep`（5 個 `.book` + 8 個一般），全部可展開，內容 189–944 字，無空殼；`.book` 的 `border-left-color` = `rgb(142,68,173)`，一般 = `rgb(44,62,122)` |
+| 成長曲線 | `GFUNCS` 9 個 key 與 9 個 checkbox 完全對應，無孤兒；0 exception、0 pageerror |
+| 表格數字 | n³ 列（10³／10⁹／10¹⁸）、`qRatio`（2³=8 → 16 秒）、砍半迴圈（10 輪、序列逐字相同）三項皆獨立重算確認 |
+| 程式碼渲染 | 19 個區塊，`.line` 的 computed `white-space` 全為 `pre`，0 個程式碼落在 `.line` 之外；縮排實際生效（4 空白=36px、8 空白=68px） |
+| C++ 編譯 | 14 支完整程式全部編譯執行通過，11 支輸出逐字相符、3 支計時類只驗可跑；5 個片段正確歸類（含新增的課本 `<ctime>` 範例與砍半迴圈） |
+| MathJax | 150 個容器，`mjx-merror` 0、空容器 0、散文殘留裸 `$` 0 |
+| 詞彙卡 | `FLASHCARDS` 26 筆 → DOM 26 張，與 `ch2.json` 逐字相同；頁面殘留「24 張」0 次 |
+| 版面 | 1440px 與 390px 皆無文件級橫向溢出 |
+
+## 5. 檢查器與測試
+
+```
+$ python3 tools/check_links_cpp.py            檢查 22 頁    0 個錯誤 / 0 個警告
+$ python3 tools/check_contrast.py                            0 個失敗
+$ PYTHONPATH=. python3 tools/check_prereq.py                 0 errors
+$ PYTHONPATH=. python3 tests/test_prereq_fidelity.py         OK
+$ PYTHONPATH=. python3 tests/test_prereq_format.py           OK
+```
+
+重生鏈（`enrich_analysis.py` → `fix_bare_include.py` → `shuffle_quiz.py` → `apply_zh.py`）
+跑完再跑一次，`analysis.html` 無差異，冪等。新增內容全在 `<!-- gen:* -->` 標記之外，未被蓋掉。
+
+## 6. 用字
+
+新增中文約 1900 字。中國用語 0 處、中文句中半形標點 0 處、
+破折號密度每 421 字一次（建議 300–500 之內）。

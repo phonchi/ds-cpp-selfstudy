@@ -211,7 +211,7 @@ int main() {
 }""",
 note="外圈每跑一輪，內圈最多要看過 aList 剩下的所有字元。第一輪看 n 個、第二輪 n−1 個……"
      "總比較次數是 $1+2+\\dots+n=\\frac{n(n+1)}{2}$，主導項 $n^2/2$，所以是 <strong>O(n²)</strong>。"
-     "這支就是課程標頭 <code>pythonds3/cppds/anagram.hpp</code> 裡的版本。") + "\n"
+     "這支是課程標頭 <code>pythonds3/cppds/anagram.hpp</code> 裡的版本，劃掉的作法與課本略有不同——下面說明。") + "\n"
 
 ana12 += live("解法 2：Sort and Compare — O(n log n)", """#include <iostream>
 #include <string>

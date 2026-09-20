@@ -1,0 +1,540 @@
+================================================================================
+analysis.html「課本對照」這一輪 驗收報告
+================================================================================
+日期          : 2026-09-20
+受測檔案      : /home/phonchi/ds-cpp-selfstudy/analysis.html
+檔案 sha256   : 91577987104097e3aa2fb742cb0b6da0cc56dcb2080f58d8fef46563731a48d9
+Git           : branch main / HEAD afbf32d（改動尚未 commit，以工作目錄現況驗收）
+驗收性質      : 唯讀。除本 log 外未修改 repo 內任何檔案。
+                驗收前 git status --short：
+                   M analysis.html
+                   M data/flashcards_zh/ch2.json
+                   M index.html
+                   M tools/enrich/enrich_analysis.py
+                驗收後 git status --short：見本檔最末「唯讀確認」一節。
+
+工具          : Playwright / Chromium（file:// 載入，1440x900 與 390x844 兩種 viewport）
+                g++ -std=c++17 -I /home/phonchi/ds_cpp/Slides
+                             -I /home/phonchi/ds_cpp/Slides/pythonds3/cppds
+腳本（暫存）  : /tmp/claude-1000/.../scratchpad/
+                  verify_c_static.py   D 項算術、E2 編譯執行、E4 題庫一致性
+                  verify_c_browser.py  A/B/C/E1/E3/E4/E5
+                  c2probe.py           C2 逐色像素計數
+                  c2stub.py            C2 繪圖迴圈實際畫出的點數
+                  e1fix2.out           E1 縮排實際渲染量測
+
+================================================================================
+總結：通過 / 不通過
+================================================================================
+【全部通過】A 測驗、B 收合區、C 成長曲線、D 表格數字、E 程式碼與渲染。
+            0 個 pageerror、0 個 console error、0 個 requestfailed。
+            13 個收合區全部展開後高度與文字皆 > 0；33 次 quiz 點擊全部產生正確回饋；
+            14 支完整程式全部編譯執行通過；26 張詞彙卡與題庫逐字相符。
+
+【1 個需要知道的行為問題（非本輪新錯誤，但本輪新增的 n³ 才讓它浮現）】
+  元素   : P03 成長曲線 #growthCanvas，曲線 n³（GFUNCS.n3 / .gcb[value="n3"]）
+  症狀   : 「n 上限」滑桿 ≥ 100 時，n³ 這條線幾乎消失 —— 只畫出 3/587 個點
+           （佔圖寬 0.5%），到 n≈1.87 就 break，畫面上只剩右上角一個 "n³" 標籤。
+  成因   : growthDraw() 第 2091 行
+              active.forEach(k => { const v = GFUNCS[k].f(maxN); if (v < 1e6 && v > maxY) maxY = v; });
+           只吸收 f(maxN) < 1e6 的值。n³(100) = 1,000,000 剛好達到 1e6 被丟掉，
+           maxY 退回預設的 10，繪圖迴圈第 2107 行 `if (y > maxY) break;` 立刻中斷。
+  範圍   : 滑桿預設值 64 時 n³ 畫滿 587/587 點（100%），完全正常；
+           只有使用者把滑桿拉過 100 才會遇到。
+  既有性 : exp2（2ⁿ）本來就有同樣行為（maxN=64 時只畫 22/587 點），是舊有設計。
+           本輪把 n³ 加進來，使同一個上限在「使用者會真的去拉」的範圍內被觸發。
+  建議   : 若要修，把 1e6 的硬上限改成依 active 曲線取對數座標，或把門檻提高；
+           本輪不改（唯讀驗收）。
+
+【1 個量測用語澄清，非缺陷】
+  頁面宣稱 100n+1 與 n²+n+1 在「n ≈ 100」交叉。實際精確交叉點是 n = 99
+  （兩者都等於 9901，完全相等），n = 100 起 n²+n+1 才正式超過。
+  代數上 alg2 − alg1 = n² − 99n = n(n−99)，零點就是 99。
+  「≈ 100」的敘述與事實相符（誤差 1），不算錯；精確值記錄於此供參考。
+
+================================================================================
+各項明細（每項附實測數字）
+================================================================================
+==============================================================================
+受測 = /home/phonchi/ds-cpp-selfstudy/analysis.html
+sha256 = 91577987104097e3aa2fb742cb0b6da0cc56dcb2080f58d8fef46563731a48d9
+
+==============================================================================
+A. QUIZ
+[A] .quiz-box 數 = 11（預期 11）
+  qCount   sec=counting   選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  qCost    sec=counting   選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  qBigo    sec=bigo       選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  qDef     sec=bigo       選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  qRatio   sec=growth     選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+      qRatio 選項#0 correct=False 回饋 46 字：不對 ✗ 這是把 O(n) 的算法套上去了。立方階要把倍數取三次方：2³ = 8，不是 2。…
+      qRatio 選項#1 correct=False 回饋 44 字：不對 ✗ 這是 O(n²) 的答案（2² = 4 倍）。題目是 n³，要再多乘一次 2。…
+      qRatio 選項#2 correct=True 回饋 71 字：正確 ✓ n 變成 2 倍，n³ 就變成 2³ = 8 倍，所以 2 秒 × 8 = 16 秒。這就是「把 n 加倍再量一次」那一招反過來用。…
+  qAna     sec=anagram    選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  ex1      sec=exercises  選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  ex2      sec=exercises  選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  ex3      sec=exercises  選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  ex4      sec=exercises  選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+  ex5      sec=exercises  選項=3 正解=1 有 data-fb=3 fb容器=✓ opts容器=✓
+[A] 共點擊 33 個 .quiz-opt，全部產生非空回饋
+[A] 全頁 id 總數 = 58，相異 = 58，重複 = 無
+[A] quizCheck 呼叫到的 id（11 個）= ['ex1', 'ex2', 'ex3', 'ex4', 'ex5', 'qAna', 'qBigo', 'qCost', 'qCount', 'qDef', 'qRatio']
+[A] 缺少對應容器的 id = 無；孤兒 *Feedback = 無；孤兒 *Options = 無
+
+[A] 註：站內已注入 quiz-shuffle，選項在 DOM 的順序與 analysis.html 原始碼順序不同。
+    例如 qRatio 原始碼把正解「約 16 秒」寫在第一個 (A)，載入後洗到第三個並重新標成 (C)。
+    下方逐題列出洗牌後的實際順序與標號，供與原始碼對照時參考。
+
+[A 補充] quiz 選項在 DOM 的實際順序、.opt-letter 標號、正解位置
+         （站內已注入 quiz-shuffle，DOM 順序不等於原始碼順序）
+  qCount   標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 1 個
+           #0 (A) 化簡後是 10n，O(10n)
+           #1 (B) 化簡後是 n，O(n) <= 正解
+           #2 (C) 化簡後是 n²，O(n²)
+  qCost    標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 0 個
+           #0 (A) O(n²) <= 正解
+           #1 (B) O(n log n)
+           #2 (C) O(n)
+  qBigo    標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 2 個
+           #0 (A) O(n² + n)
+           #1 (B) O(n³)
+           #2 (C) O(n²) <= 正解
+  qDef     標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 2 個
+           #0 (A) T(n) = O(n)
+           #1 (B) T(n) = O(n²)
+           #2 (C) T(n) = O(1) <= 正解
+  qRatio   標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 2 個
+           #0 (A) 約 4 秒
+           #1 (B) 約 8 秒
+           #2 (C) 約 16 秒 <= 正解
+  qAna     標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 2 個
+           #0 (A) 它其實是 O(n)
+           #1 (B) 字串比較是 O(n²)
+           #2 (C) 排序本身要 O(n log n) <= 正解
+  ex1      標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 1 個
+           #0 (A) O(log n)
+           #1 (B) O(n²) <= 正解
+           #2 (C) O(n² log n)
+  ex2      標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 0 個
+           #0 (A) n(n+1)/2 次；O(n²) <= 正解
+           #1 (B) n²/2 次；O(n)
+           #2 (C) n log n 次；O(n log n)
+  ex3      標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 1 個
+           #0 (A) O(log n)
+           #1 (B) O(n) <= 正解
+           #2 (C) O(n log n)
+  ex4      標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 0 個
+           #0 (A) unordered_set <= 正解
+           #1 (B) vector + 每次 find
+           #2 (C) 每次插入後重新排序 + binary sea
+  ex5      標號=['(A)', '(B)', '(C)'] 依序 A/B/C=True 正解在第 0 個
+           #0 (A) 整串 sort 一次，回傳第 k−1 格 <= 正解
+           #1 (B) 跑 k 輪「找最小、刪掉」
+           #2 (C) 全部塞進 unordered_map
+  結論：11 個 quiz 的 .opt-letter 全部依序 A/B/C = True
+         → 洗牌後有重新標號，畫面上看到的字母與位置一致，沒有 B/C/A 這種錯位。
+
+==============================================================================
+B. details.deep 收合區
+[B] details.deep 總數 = 13（預期 13）；帶 .book = 5（預期 5）；一般 = 8（預期 8）
+[B] computed border-left-color：.book = ['rgb(142, 68, 173)']；一般 = ['rgb(44, 62, 122)']
+[B] 兩者不同 ✓（book=rgb(142, 68, 173) vs 一般=rgb(44, 62, 122)）
+
+[B] 逐一展開（open=true）後量測：
+  #00 deep sec=prologue   h= 388px 文字= 795字 tag=展開看懂   code=0 mjx=0
+        summary（31 字）= <chrono> 的三個角色：時鐘、時間點、時間長度 展開看懂
+  #01 deep sec=prologue   h= 498px 文字= 553字 tag=展開看懂   code=1 mjx=0
+        summary（39 字）= 一個函式想「回傳兩個值」：double& seconds 的慣用手法 展開看懂
+  #02 book sec=prologue   h= 435px 文字= 575字 tag=課本對照   code=1 mjx=0
+        summary（22 字）= 課本的計時程式長得不一樣，為什麼？ 課本對照
+  #03 book sec=counting   h= 166px 文字= 344字 tag=課本對照   code=0 mjx=2
+        summary（26 字）= 課本的 sumOfN 其實跑了 n+1 輪 課本對照
+  #04 deep sec=counting   h= 212px 文字= 363字 tag=進階     code=0 mjx=16
+        summary（56 字）= 補充：
+∑
+ 記號怎麼讀，以及 
+1
++
+2
++
+⋯
++
+𝑛
+ 為什麼等於 
+𝑛
+(
+𝑛
++
+1
+)
+2
+ 進階
+  #05 deep sec=bigo       h= 189px 文字= 405字 tag=進階     code=0 mjx=20
+        summary（59 字）= 拿定義實際驗一次：
+𝑇
+(
+𝑛
+)
+=
+5
+𝑛
+2
++
+27
+𝑛
++
+1005
+ 是不是 
+𝑂
+(
+𝑛
+2
+)
+ 進階
+  #06 deep sec=bigo       h= 530px 文字= 944字 tag=進階     code=0 mjx=40
+        summary（17 字）= Ω
+ 與 
+Θ
+：下界與緊界 進階
+  #07 deep sec=bigo       h= 126px 文字= 189字 tag=進階     code=0 mjx=4
+        summary（22 字）= 那為什麼課本和論文幾乎只看到 
+𝑂
+？ 進階
+  #08 book sec=anagram    h= 292px 文字= 417字 tag=課本對照   code=0 mjx=0
+        summary（25 字）= 解法 1 的「劃掉」，課本跟這裡做法不同 課本對照
+  #09 book sec=vectors    h= 196px 文字= 446字 tag=課本對照   code=0 mjx=0
+        summary（16 字）= 課本這張表有兩處要留意 課本對照
+  #10 deep sec=vectors    h= 331px 文字= 505字 tag=進階     code=0 mjx=5
+        summary（29 字）= 為什麼偶爾 O(n) 的搬家，攤下來還是 O(1)？ 進階
+  #11 book sec=hash       h= 205px 文字= 413字 tag=課本對照   code=0 mjx=0
+        summary（40 字）= 課本那組「89.4 倍 / 11,603 倍」的數字對不上它自己的程式 課本對照
+  #12 deep sec=hash       h= 390px 文字= 583字 tag=進階     code=0 mjx=1
+        summary（28 字）= 「平均 O(1)」的條件：負載因子與 rehash 進階
+
+[B] 5 個 .book 所在 section = ['prologue', 'counting', 'anagram', 'vectors', 'hash']
+    對應任務描述的 P00（計時方式）/ P01（n+1 輪）/ P04（anagram 劃掉方式）/
+    P05（課本表兩處問題）/ P07（課本實驗量錯東西），五個位置全部到齊且各在正確 section 內。
+[B] .book 的 dp-tag = ['課本對照']；一般 deep 的 dp-tag = ['展開看懂', '進階']
+[B] summary 長度說明：5 個新增 .book 的 summary 都是純文字，長度 22 / 26 / 25 / 16 / 40 字，
+    數字即實際字數。#04-#07 那幾個一般「進階」區塊的 summary 長度（56 / 59 / 17 / 22 字）
+    偏大，是因為 summary 內含行內數學，innerText 把 mjx-container 的字元逐個直排展開所致，
+    並非文字真的那麼長。這些是既有區塊，本輪未更動。
+
+==============================================================================
+C. 成長曲線
+[C1] GFUNCS keys (9) = ['logn', 'n', 'nlogn', 'n2', 'n3', 'exp2', 'one', 'alg1', 'alg2']
+[C1] .gcb values (9) = ['logn', 'n', 'nlogn', 'n2', 'n3', 'exp2', 'one', 'alg1', 'alg2']
+[C1] 孤兒 GFUNCS key = 無；孤兒 checkbox = 無；重複 value = 無
+[C1] key 與 checkbox 完全一一對應 ✓
+[C1] canvas = 640x380；滑桿 min=16 max=256 預設=64；預設勾選=['logn', 'n', 'nlogn', 'n2']
+
+[C2] 逐一只勾選一條曲線（其餘全部取消），呼叫 growthDraw() 後數 alpha>0 的像素：
+  baseline（全部取消勾選，只剩座標軸與文字）= 2063 px，exception=無
+  --- n 上限 = 64 ---
+    logn   非空白像素 =   4348（baseline 2063 → 增加  2285） exception=無
+    n      非空白像素 =   4378（baseline 2063 → 增加  2315） exception=無
+    nlogn  非空白像素 =   4512（baseline 2063 → 增加  2449） exception=無
+    n2     非空白像素 =   4396（baseline 2063 → 增加  2333） exception=無
+    n3     非空白像素 =   4332（baseline 2063 → 增加  2269） exception=無
+    exp2   非空白像素 =   2924（baseline 2063 → 增加   861） exception=無
+    one    非空白像素 =   3845（baseline 2063 → 增加  1782） exception=無
+    alg1   非空白像素 =   4553（baseline 2063 → 增加  2490） exception=無
+    alg2   非空白像素 =   4499（baseline 2063 → 增加  2436） exception=無
+  --- n 上限 = 256 ---
+    logn   非空白像素 =   4551（baseline 2112 → 增加  2439） exception=無
+    n      非空白像素 =   4426（baseline 2112 → 增加  2314） exception=無
+    nlogn  非空白像素 =   4541（baseline 2112 → 增加  2429） exception=無
+    n2     非空白像素 =   4445（baseline 2112 → 增加  2333） exception=無
+    n3     非空白像素 =   2491（baseline 2112 → 增加   379） exception=無
+    exp2   非空白像素 =   2840（baseline 2112 → 增加   728） exception=無
+    one    非空白像素 =   3894（baseline 2112 → 增加  1782） exception=無
+    alg1   非空白像素 =   4604（baseline 2112 → 增加  2492） exception=無
+    alg2   非空白像素 =   4539（baseline 2112 → 增加  2427） exception=無
+
+[C3] 用頁面實際的 GFUNCS.alg1.f / alg2.f 掃 n=1..300 找符號改變：
+  符號改變處（n-1 → n）= [[98, 99, -98, 0]]
+  完全相等的 n = [99]；n=99 時 alg1=9901 alg2=9901
+  n=98  alg1=9801 alg2=9703（alg2 較小）
+  n=100 alg1=10001 alg2=10101（alg2 較大）
+  最後一個 alg2<alg1 的 n = 98；第一個 alg2>alg1 的 n = 100
+  n=1..98 全程 alg2 < alg1（「一開始在下面」）？ True
+  ⇒ 精確交叉點 = n=99（兩者同為 9901），頁面宣稱「n ≈ 100」
+
+[C4] n 上限拉到最大(256)、alg1 + alg2 兩條都勾：
+  滑桿值 = 256（max 屬性 256），exception = 無
+  canvas = 640x380，繪圖用 maxY = 65793（= alg2(256) = 65793；alg1(256) = 25601）
+  非空白像素總數 = 6606
+  alg1 線色 #00838f 像素 = 961；alg2 線色 #6d4c41 像素 = 1039
+  交叉點 n=99, T=9901 換算像素：X = 267.2（0<X<640? True），Y = 289.5（0<Y<380? True）
+  ⇒ 交叉點落在畫布範圍內 ✓
+
+==============================================================================
+E. 程式碼與渲染
+
+[E3] mjx-container = 150；mjx-merror = 0；textContent 空的容器 = 0；零尺寸容器 = 0
+[E3] 散文中殘留未渲染的裸 $…$ = 0 處
+
+[E4] FLASHCARDS = 26；DOM 卡片 = 26（class 樣本 fc-card）
+[E4] 翻面測試（點一下→className 變化→再點回）：
+     # 0 changed=True front='可讀性（Readability）\nCLICK TO FL' back 長度=44
+     #12 changed=True front='攤還分析（Amortized Analysis）\nCLI' back 長度=68
+     #24 changed=True front='演算法（Algorithm）\nCLICK TO FLIP' back 長度=86
+     #25 changed=True front='連續儲存與動態大小（Contiguous / Dynam' back 長度=102
+
+[E5] 版面溢出（1440px / 390px，各量「全部 details 關閉」與「全部展開」兩種狀態）：
+  [1440px / 預設收合] documentElement scrollWidth=1440 clientWidth=1440 → 橫向溢出=False
+      超出視窗右緣的元素 = 0 個；.pseudo-code 出現橫捲 = 0 個；.expected-out pre 橫捲 = 0 個
+      .gcb 曲線勾選列：display=flex flex-wrap=wrap scrollWidth=757 clientWidth=757 溢出=False
+  [1440px / 全部展開] documentElement scrollWidth=1440 clientWidth=1440 → 橫向溢出=False
+      超出視窗右緣的元素 = 0 個；.pseudo-code 出現橫捲 = 0 個；.expected-out pre 橫捲 = 0 個
+      .gcb 曲線勾選列：display=flex flex-wrap=wrap scrollWidth=757 clientWidth=757 溢出=False
+  [390px / 預設收合] documentElement scrollWidth=390 clientWidth=390 → 橫向溢出=False
+      超出視窗右緣的元素 = 169 個；.pseudo-code 出現橫捲 = 17 個；.expected-out pre 橫捲 = 0 個
+      .gcb 曲線勾選列：display=flex flex-wrap=wrap scrollWidth=308 clientWidth=308 溢出=False
+      （註：169 個元素右緣超出 clientWidth 但未造成文件橫捲：['TABLE.cmp-table right=401', 'THEAD. right=401', 'TR. right=401']）
+  [390px / 全部展開] documentElement scrollWidth=390 clientWidth=390 → 橫向溢出=False
+      超出視窗右緣的元素 = 169 個；.pseudo-code 出現橫捲 = 17 個；.expected-out pre 橫捲 = 0 個
+      .gcb 曲線勾選列：display=flex flex-wrap=wrap scrollWidth=308 clientWidth=308 溢出=False
+      （註：169 個元素右緣超出 clientWidth 但未造成文件橫捲：['TABLE.cmp-table right=401', 'THEAD. right=401', 'TR. right=401']）
+
+==============================================================================
+[B/C] console 訊息 = 1；其中 error = 0
+     [warning] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#conc
+     ↑ 這則 warning 由驗收腳本自己反覆呼叫 getImageData 造成（C2 逐色像素計數），
+       不是頁面自身的輸出；正常瀏覽不會出現。頁面本身的 console error = 0。
+[B/C] pageerror = 0
+[B/C] requestfailed = 0
+
+================================================================================
+E1. .pseudo-code 程式碼區塊（修正後的量測）
+================================================================================
+第一次探針量的是 .pseudo-code 容器本身，得到 white-space: normal —— 那是探針選錯元素。
+CSS 實際定義在 analysis.html 第 158-159 行：
+   .pseudo-code      { ... overflow-x:auto; }            <- 容器負責橫捲
+   .pseudo-code .line{ ... display:block; white-space:pre; }  <- 逐行保留空白
+所以正確的檢查對象是每個 .line。以下為對 .line 的量測結果。
+[E1] .pseudo-code 區塊 = 19（所有 details 展開後）
+[E1] 每塊 .line 的 computed white-space 值集合 = [('pre',)]
+[E1] .line 的 white-space 不是 pre 的區塊 = 0 -> []
+[E1] 有程式碼落在 .line 之外的區塊 = 0 -> []
+[E1] 容器 .pseudo-code 自身 white-space = ['normal']，overflow-x = ['auto']
+
+--- 縮排是否真的渲染出來（量每行第一個非空白字元的螢幕 x）---
+[E1] 縮排是否真的渲染出來（量每行第一個非空白字元的 x，與無縮排行比較）
+   #00 sec=prologue   縮排行= 7 每個空白≈8.93px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 8, 'dx': 68}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #01 sec=prologue   縮排行= 8 每個空白≈8.88px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 8, 'dx': 68}, {'n': 8, 'dx': 68}] 全部位移>0=True
+   #02 sec=prologue   縮排行= 8 每個空白≈9px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #03 sec=prologue   縮排行= 1 每個空白≈8.12px 樣本=[{'n': 34, 'dx': 276}] 全部位移>0=True
+   #04 sec=prologue   縮排行=10 每個空白≈8.57px 樣本=[{'n': 4, 'dx': 36}, {'n': 8, 'dx': 68}, {'n': 8, 'dx': 68}, {'n': 8, 'dx': 68}] 全部位移>0=True
+   #05 sec=prologue   縮排行= 0 每個空白≈Nonepx 樣本=[] 全部位移>0=True
+   #06 sec=counting   縮排行= 6 每個空白≈8.92px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 8, 'dx': 68}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #07 sec=counting   縮排行= 7 每個空白≈8.93px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #08 sec=bigo       縮排行= 2 每個空白≈9px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #09 sec=bigo       縮排行=19 每個空白≈8.79px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #10 sec=anagram    縮排行= 5 每個空白≈9px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #11 sec=anagram    縮排行=21 每個空白≈8.77px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #12 sec=anagram    縮排行=14 每個空白≈8.93px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #13 sec=anagram    縮排行=15 每個空白≈8.97px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #14 sec=vectors    縮排行=10 每個空白≈8.75px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 8, 'dx': 68}] 全部位移>0=True
+   #15 sec=vectors    縮排行=17 每個空白≈8.86px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #16 sec=vectors    縮排行=11 每個空白≈8.64px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 8, 'dx': 68}, {'n': 8, 'dx': 68}] 全部位移>0=True
+   #17 sec=strings    縮排行= 5 每個空白≈9px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}] 全部位移>0=True
+   #18 sec=hash       縮排行=14 每個空白≈8.6px 樣本=[{'n': 4, 'dx': 36}, {'n': 4, 'dx': 36}, {'n': 8, 'dx': 68}, {'n': 8, 'dx': 68}] 全部位移>0=True
+[E1] 結論：縮排全部正確渲染 = True
+
+================================================================================
+C2 補充。逐色像素計數與繪圖迴圈複算（找出 n³ 殘段問題）
+================================================================================
+[C2b] 單獨勾選一條曲線，只數「該曲線自己顏色」的像素（排除座標軸/標籤文字干擾）
+      growthDraw 的 maxY 只吸收 < 1e6 的 f(maxN)；被丟棄時 maxY 停在 10，迴圈一下就 break。
+key      maxN           f(maxN)      繪圖maxY      該色像素  說明
+logn       16                 4          10      2109  
+logn       64                 6          10      2265  
+logn      100                 7          10      2318  
+logn      128                 7          10      2347  
+logn      200                 8          10      2407  
+logn      256                 8          10      2425  
+
+n          16                16          16      2318  
+n          64                64          64      2315  
+n         100               100         100      2315  
+n         128               128         128      2316  
+n         200               200         200      2315  
+n         256               256         256      2315  
+
+nlogn      16                64          64      2388  
+nlogn      64               384         384      2400  
+nlogn     100               664         664      2378  
+nlogn     128               896         896      2394  
+nlogn     200              1529        1529      2396  
+nlogn     256              2048        2048      2397  
+
+n2         16               256         256      2290  
+n2         64              4096        4096      2281  
+n2        100             10000       10000      2308  
+n2        128             16384       16384      2305  
+n2        200             40000       40000      2286  
+n2        256             65536       65536      2279  
+
+n3         16              4096        4096      2344  
+n3         64            262144      262144      2379  
+n3        100           1000000          10       772  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+n3        128           2097152          10       843  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+n3        200           8000000          10       709  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+n3        256          16777216          10       499  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+
+exp2       16             65536       65536      2604  
+exp2       6418446744073709551616          10       843  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+exp2      1001267650600228229401496703205376          10       795  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+exp2      128340282366920938463463374607431768211456          10       775  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+exp2      2001606938044258990275541962092341162602522202993782792835301376          10       682  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+exp2      256115792089237316195423570985008687907853269984665640564039457584007913129639936          10       754  f(maxN) ≥ 1e6 被 maxY 丟棄 → 只畫得出殘段
+
+one        16                 1          10      1785  
+one        64                 1          10      1785  
+one       100                 1          10      1785  
+one       128                 1          10      1785  
+one       200                 1          10      1785  
+one       256                 1          10      1785  
+
+alg1       16              1601        1601      2483  
+alg1       64              6401        6401      2480  
+alg1      100             10001       10001      2484  
+alg1      128             12801       12801      2485  
+alg1      200             20001       20001      2483  
+alg1      256             25601       25601      2482  
+
+alg2       16               273         273      2411  
+alg2       64              4161        4161      2403  
+alg2      100             10101       10101      2405  
+alg2      128             16513       16513      2425  
+alg2      200             40201       40201      2426  
+alg2      256             65793       65793      2426
+
+[C2c] 複算 growthDraw 繪圖迴圈：每條曲線實際畫了幾個 px 點（繪圖寬度 span+1 = 587）
+  --- n 上限 = 64 ---
+    logn   畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=10
+    n      畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=64
+    nlogn  畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=384
+    n2     畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=4096
+    n3     畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=262144
+    exp2   畫出   22/587 點 =   3.7% 的圖寬；繪圖 maxY=10  <== 只畫到 n≈3.26 就 break（殘段）
+    one    畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=10
+    alg1   畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=6401
+    alg2   畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=4161
+
+  --- n 上限 = 256 ---
+    logn   畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=10
+    n      畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=256
+    nlogn  畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=2048
+    n2     畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=65536
+    n3     畫出    3/587 點 =   0.5% 的圖寬；繪圖 maxY=10  <== 只畫到 n≈1.87 就 break（殘段）
+    exp2   畫出    6/587 點 =     1% 的圖寬；繪圖 maxY=10  <== 只畫到 n≈3.18 就 break（殘段）
+    one    畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=10
+    alg1   畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=25601
+    alg2   畫出  587/587 點 =   100% 的圖寬；繪圖 maxY=65793
+
+================================================================================
+D / E2 / E4。靜態算術、編譯執行、題庫一致性
+================================================================================
+### 靜態 / 編譯驗收
+analysis.html sha256 = 91577987104097e3aa2fb742cb0b6da0cc56dcb2080f58d8fef46563731a48d9
+
+[E2] .pseudo-code 區塊總數 = 19；其後緊鄰 .expected-out 的 = 15
+[E2] 含 int main( 的完整程式 = 14；片段 = 5
+
+[E2] 片段清單（不應被當成編譯失敗）：
+  - #03 L678   sec=prologue      2 行 | long long sumOfN2(long long n, double& seconds);
+  - #04 L702   sec=prologue     14 行 | #include <chrono>
+  - #05 L745   sec=prologue      6 行 | #include <ctime>
+  - #08 L979   sec=bigo          6 行 | int i = n;
+  - #10 L1194  sec=anagram      12 行 | // 解法 1 Checking Off：對 s1 每個字元，去 s2 找到就劃掉 → O(n²)
+
+[E2] 完整程式編譯執行：
+  ok #00 L584   sec=prologue   輸出完全相符 ('55')
+  ok #01 L603   sec=prologue   輸出完全相符 ('55')
+  ok #02 L624   sec=prologue   輸出完全相符 ('55')
+  ok #06 L818   sec=counting   輸出完全相符 ('55')
+  ok #07 L837   sec=counting   輸出完全相符 ('0\n0\n0')
+  ok #09 L1074  sec=bigo       輸出完全相符 ('done')
+  ok #11 L1213  sec=anagram    輸出完全相符 ('true\ntrue\nfalse')
+  ok #12 L1251  sec=anagram    輸出完全相符 ('true\ntrue\nfalse')
+  ok #13 L1317  sec=anagram    輸出完全相符 ('true\ntrue\nfalse')
+  ok #14 L1461  sec=vectors    輸出完全相符 ('第幾次\tsize\tcapacity\n1\t1\t1\t<-- 擴充並搬家\n2\t2\t2\t<-- 擴充並搬家\n3\t3\t4\t<-- 擴充並搬家\n4\t4\t4\n5\t5\t8\t<-- 擴充並搬家\n6\t6\t8\n7\t7\t8\n8\t8\t8\n9\t9\t16\t<-- 擴充並搬家\n10\t10\t16')
+  ok #15 L1531  sec=vectors    計時類：編譯✓ 執行✓ rc=0
+       頁面 expected = ['insert at front   285.31 ms', 'push_back            6.42 ms', 'with reserve         3.85 ms']
+       實跑 actual   = ['insert at front     61.82 ms', 'push_back            3.62 ms', 'with reserve         2.97 ms']
+  ok #16 L1572  sec=vectors    計時類：編譯✓ 執行✓ rc=0
+       頁面 expected = ['n           erase(begin)    pop_back', '2500000        155.20031     0.00022', '5000000        311.87542     0.00021']
+       實跑 actual   = ['n           erase(begin)    pop_back', '2500000         20.44917     0.00027', '5000000         45.83376     0.00025']
+  ok #17 L1625  sec=strings    輸出完全相符 ('C++ data! | size=9')
+  ok #18 L1766  sec=hash       計時類：編譯✓ 執行✓ rc=0
+       頁面 expected = ['n             vector  hash table', '250000         8.512       0.011', '500000        17.204       0.012']
+       實跑 actual   = ['n             vector  hash table', '250000        40.150       0.030', '500000        77.316       0.037']
+
+[E2/D3] 砍半迴圈片段：包進 main 手動實跑
+  片段位置：#8 L979 sec=bigo，原文：
+     | int i = n;
+     | int count = 0;
+     | while (i > 0) {
+     |     count = count + 1;
+     |     i = i / 2;          // 整數除法，每輪砍一半
+     | }
+  實跑 rc=0（未逾時＝非無窮迴圈）
+  count = 10   （頁面宣稱：10 輪）
+  序列  = 1000 -> 500 -> 250 -> 125 -> 62 -> 31 -> 15 -> 7 -> 3 -> 1 -> 0
+  頁面序列 = 1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1 → 0
+  序列一致？ True   輪數一致？ True
+
+[D1] P02 成長率表 n³ 一列自算：
+  n=10       n³ = 1000                      = 10^3   頁面寫 1,000  →  一致
+  n=1000     n³ = 1000000000                = 10^9   頁面寫 10⁹  →  一致
+  n=1000000  n³ = 1000000000000000000       = 10^18   頁面寫 10¹⁸  →  一致
+  10³=1000 ✓  (10³)³=10⁹ ✓  (10⁶)³=10¹⁸ ✓  → 三格全部相符
+
+[D2] qRatio 正解回饋自算：
+  n: 1000 → 2000，倍率 = 2
+  O(n³) ⇒ 時間倍率 = 2³ = 8
+  2 秒 × 8 = 16 秒   頁面回饋寫「2³ = 8 倍，2 秒 × 8 = 16 秒」→ 一致
+  精確比：(2000³)/(1000³) = 8
+
+[D3] 砍半迴圈 Python 端獨立複算（整數除法）：
+  count = 10；序列 = 1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1 → 0
+  log2(1000) = 9.9658  → 頁面寫 ≈9.97、取 10 輪：一致
+
+[C3] GFUNCS.alg1 / alg2 交叉點（Python 複算同一式子，n=1..300）：
+  alg2−alg1 = n² − 99n = n(n−99)
+  完全相等（差=0）的 n = [99]，此時兩者都 = 9901
+  最後一個 alg2 < alg1 的 n = 98（差 -98）
+  第一個 alg2 > alg1 的 n = 100（差 100）
+  ⇒ 交叉點 n = 99（精確相等），n=100 起 alg2 正式超過。頁面宣稱「n ≈ 100」
+  n=1..98 全部 alg2 < alg1（頁面宣稱「一開始在下面」）？ True
+
+[E4] 詞彙卡：inline FLASHCARDS vs data/flashcards_zh/ch2.json
+  inline FLASHCARDS = 26 筆；ch2.json = 26 筆
+  front 清單逐項相同（含順序）？ True
+  back  清單逐項相同（含順序）？ True
+  新增兩張：'演算法（Algorithm）' / '連續儲存與動態大小（Contiguous / Dynamic Size）'
+  頁面殘留「24 張」次數 = 0；「26 張」次數 = 3
+  index.html：「24 張詞彙卡」=0，「26 張詞彙卡」=1
+
+[E2] FAILS = 無
+
+================================================================================
+唯讀確認
+================================================================================
+驗收後 git status --short（本檔寫入後實際取得）：
+    M analysis.html
+    M data/flashcards_zh/ch2.json
+    M index.html
+    M tools/enrich/enrich_analysis.py
+    ?? docs/verification/20260920-textbook-notes/
+
+4 個 M 與驗收前完全相同（analysis.html / data/flashcards_zh/ch2.json / index.html /
+tools/enrich/enrich_analysis.py），皆為本輪待驗收的改動，非驗收過程造成。
+唯一新增的 ?? 就是本報告所在目錄，即指定的輸出檔。
+本次驗收在 repo 內只新增本檔 docs/verification/20260920-textbook-notes/verify.log；
+所有 .cpp、執行檔、截圖與中間輸出都留在 scratchpad，未進 repo。
+================================================================================
+報告結束
+================================================================================

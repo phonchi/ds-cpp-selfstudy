@@ -31,8 +31,8 @@ def build():
     family=table(['比較','原生陣列 <code>int a[3]</code>','<code>std::array&lt;int,3&gt;</code>','<code>std::vector&lt;int&gt;</code>'],[
       ['需要的標頭','不需容器標頭','<code>&lt;array&gt;</code>','<code>&lt;vector&gt;</code>'],
       ['元素數量','固定；new[] 可在執行時決定配置大小，但配置後不變','固定；大小是型別的一部分','可增減，另有 capacity'],
-      ['元素排列','連續','連續','一般元素連續（本章用 int）'],
-      ['查大小','完整陣列可用 sizeof(a)/sizeof(a[0])；退化成指標後不行','<code>a.size()</code>','<code>v.size()</code>'],
+      ['元素排列','元素連續儲存','元素連續儲存','元素連續儲存'],
+      ['查大小','<code>sizeof(a) / sizeof(a[0])</code>','<code>a.size()</code>','<code>v.size()</code>'],
       ['索引','<code>[]</code> 不檢查','<code>[]</code> 不檢查；<code>.at()</code> 檢查','<code>[]</code> 不檢查；<code>.at()</code> 檢查'],
       ['整體複製／指定','不能直接以 a=b 指定整個陣列','支援值複製','支援值複製'],
       ['常見用途','理解底層與既有 C 介面','數量固定的資料','數量可能改變的一般序列']])
@@ -48,7 +48,25 @@ int main() {
               << dynamic.at(3) << '\n';
     std::cout << fixed.size() << ' ' << dynamic.size() << '\n';
 }''','20 20 40\n3 4\n','run')
-    family += '<p>本章以 C++17 的一般容器行為說明。<code>vector&lt;bool&gt;</code> 是特殊化版本，不用它推論一般 vector 的元素儲存與參考行為。</p>'
+    family += details('補充：vector<bool> 為什麼是例外？', '''<p><code>std::vector&lt;bool&gt;</code> 是為 bool 提供的特殊化版本。為了節省空間，實作可以把多個布林值壓進位元中，因此不能把它看成一排可逐個取址的 bool 物件。</p>
+<p>讀取 <code>v[i]</code> 可以得到布林值，也能用 <code>v[i] = true</code> 修改。但非 const 的索引運算子回傳的是代表該位元的代理物件，不是一般 vector 的元素參考，所以不能用 <code>bool&amp; r = v[i]</code> 綁定它。學習本章的連續儲存與參考行為時，先用 <code>vector&lt;int&gt;</code> 理解即可。</p>''')
+    family += details('補充：陣列退化成指標後，為什麼不能用 sizeof 算長度？', '''<p>對仍保有陣列型別的 <code>int a[3]</code>，<code>sizeof(a)</code> 是整個陣列的空間，除以一個元素的大小 <code>sizeof(a[0])</code>，就能得到元素數量 3。sizeof 在這裡不會讓陣列退化成指標。</p>
+<p>但在 <code>int* p = a</code> 中，a 會轉換成指向第一個元素的指標，這個轉換稱為「陣列退化成指標」。p 只保存位址，不包含陣列有幾格的資訊。此時 <code>sizeof(p)</code> 算的是指標本身的大小，<code>sizeof(p) / sizeof(p[0])</code> 無法用來判斷陣列長度；即使剛好算出相同數字，也只是巧合。</p>
+<p>函式參數寫成 <code>const int values[]</code> 時，參數型別也會調整成 <code>const int*</code>，因此下面另外傳入 count 告訴函式元素數量：</p>'''+code('在呼叫端算出長度，和陣列一起傳入函式',r'''#include <cstddef>
+#include <iostream>
+void show(const int values[], std::size_t count) {
+    for (std::size_t i = 0; i < count; ++i)
+        std::cout << values[i] << ' ';
+    std::cout << '\n';
+}
+int main() {
+    int a[3] = {10, 20, 30};
+    std::size_t count = sizeof(a) / sizeof(a[0]);
+    int* p = a;
+    std::cout << count << '\n';
+    std::cout << p[1] << '\n';
+    show(a, count);
+}''','3\n20\n10 20 30 \n','run')+'''<p>陣列本身沒有因為這個轉換而消失，a 仍是三格陣列；失去長度資訊的是接收端的指標型別。<code>std::array</code> 與 <code>std::vector</code> 都提供 <code>.size()</code>，不必用這個除法取得元素數量。</p>''')
     sections['prologue']=section('prologue','低階陣列：連續、等寬的儲存格',details('先比較：原生陣列、std::array、std::vector',family)+'''
 <p>從程式的位址模型來看，記憶體是一條按位元組編號的序列。陣列把同型別的元素連續排在這條序列上，每格大小相同。因此只要知道起始位址、索引和元素大小，就能直接找到元素。</p>
 <p>本章依序介紹低階陣列與 ArrayList、compact／referential、二維矩陣如何攤平，以及 COO、DOK、線性串列三種稀疏表示。</p>

@@ -1,0 +1,27 @@
+<div class="viz-layout">
+<div>
+<div class="viz-panel">
+<div id="mdGrid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 64px));gap:5px;justify-content:center;padding:.5rem;"></div>
+<div class="bq-row" id="mdFlat" style="min-height:56px;"></div>
+<div class="status-banner" id="mdStatus"><span class="status-icon">›</span><span class="status-text">3×4 的 int 陣列。點上面格子，看它攤平後的位置；或播放兩種走訪順序。</span></div>
+<div class="controls-bar">
+<button class="btn" onclick="mdRun('row')">▶ row-major 走訪</button>
+<button class="btn" onclick="mdRun('col')">▶ column 走訪（跳格！）</button>
+<button class="btn" onclick="mdPlayer &amp;&amp; mdPlayer.step()">→ 單步</button>
+<button class="btn" onclick="mdPlayer &amp;&amp; mdPlayer.toggle(this)">⏸ 暫停</button>
+<span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="mdSpeed" max="1200" min="120" style="vertical-align:middle;" type="range" value="500"/></span>
+</div>
+</div>
+</div>
+<div class="side-panel">
+<div class="info-card">
+<div class="ic-title">效能後果</div>
+<div style="font-size:.87rem;line-height:1.9;">row-major 佈局下，<code>for i for j a[i][j]</code>
+        是順著記憶體走（cache 友善）；內外圈對調就變成沿同一欄跨到下一列時跳 Cols×sizeof(int) bytes。較大的跨距可能降低快取利用率。</div>
+</div>
+<div class="info-card">
+<div class="ic-title">C++ 寫法</div>
+<div class="mono" style="font-size:.82rem;line-height:2;">int a[3][4]; // 真 2D<br/>vector&lt;vector&lt;int&gt;&gt; v; // 每列是一個 vector<br/>// 每列內連續，列與列不保證相接</div>
+</div>
+</div>
+</div>

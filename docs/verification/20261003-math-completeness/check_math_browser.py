@@ -1,7 +1,7 @@
 from pathlib import Path
-import json,re
+import json,re,os
 from playwright.sync_api import sync_playwright
-ROOT=Path(__file__).resolve().parents[3];OUT=Path(__file__).parent
+ROOT=Path(__file__).resolve().parents[3];OUT=Path(os.environ.get("DSCPP_VERIFY_OUT",str(Path(__file__).parent)));OUT.mkdir(parents=True,exist_ok=True)
 results=[]
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/home/phonchi/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome',headless=True,args=['--no-sandbox'])

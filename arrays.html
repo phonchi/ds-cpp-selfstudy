@@ -478,8 +478,55 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .matrix-equations{display:flex;flex-wrap:wrap;gap:1rem;}
 .matrix-equations>div{flex:1 1 220px;min-width:0;overflow-x:auto;}
 .coo-equations{overflow-x:auto;}
+
+#mdGrid .char-cell{font-family:'JetBrains Mono',monospace;}
 </style>
 <script id="chapter-math-runtime">
+/* Only text nodes are formatted. Markup, existing code and LaTeX stay intact. */
+(() => {
+  const tokens = new RegExp("(?<![A-Za-z_0-9.-])(?:(?:[A-Za-z_0-9-]+/)*[A-Za-z_0-9-]+\\.(?:hpp|cpp|h)|(?:\\+\\+|--)?(?:operator(?:\\[\\]|\\(\\)|==|!=|\\+|-|\\*|/)|[A-Za-z_][A-Za-z_0-9]*(?:(?:::|->|\\.)[A-Za-z_][A-Za-z_0-9]*)+|[A-Za-z_][A-Za-z_0-9]*(?=\\()|[A-Za-z_][A-Za-z_0-9]*(?=\\[)|\\.?(?:reference_wrapper|fromDenseMatrix|UnorderedList|emplace_front|unordered_map|SparseMatrix|before_begin|forward_list|insert_after|OrderedList|erase_after|newCapacity|push_front|ArrayList|lastIndex|pop_front|push_back|remove_if|capacity|distance|inserted|operator|pointers|pop_back|previous|sparsity|students|template|typename|current|dynamic|getData|getNext|isEmpty|maxSize|myArray|newNode|nullptr|private|reserve|setData|setNext|trailer|Linear|append|bigger|delete|double|header|insert|primes|printf|public|remove|result|return|search|size_t|sizeof|string|strlen|struct|unique|values|vector|array|begin|class|clear|const|count|empty|erase|false|fixed|front|index|item1|item2|names|other|right|slice|start|value|NULL|Node|back|bool|char|cols|cout|data|endl|find|flat|grow|head|item|left|list|move|next|pair|prev|refs|rows|size|sort|stop|tail|temp|true|add|col|cur|end|get|int|map|new|nnz|pop|pos|raw|ref|row|val|at|if|it))(?:<(?:[^<>\\n]|<[^<>\\n]*>)*>)?(?:\\((?:[^()\\n]|\\((?:[^()\\n]|\\([^()\\n]*\\))*\\))*\\))?(?:\\[[^\\]\\n]*\\])*(?:\\s*[*&](?![A-Za-z_]))?(?:\\s*(?:==|!=|=(?!=))\\s*(?:(?:\\+\\+|--)?(?:operator(?:\\[\\]|\\(\\)|==|!=|\\+|-|\\*|/)|[A-Za-z_][A-Za-z_0-9]*(?:(?:::|->|\\.)[A-Za-z_][A-Za-z_0-9]*)+|[A-Za-z_][A-Za-z_0-9]*(?=\\()|[A-Za-z_][A-Za-z_0-9]*(?=\\[)|\\.?(?:reference_wrapper|fromDenseMatrix|UnorderedList|emplace_front|unordered_map|SparseMatrix|before_begin|forward_list|insert_after|OrderedList|erase_after|newCapacity|push_front|ArrayList|lastIndex|pop_front|push_back|remove_if|capacity|distance|inserted|operator|pointers|pop_back|previous|sparsity|students|template|typename|current|dynamic|getData|getNext|isEmpty|maxSize|myArray|newNode|nullptr|private|reserve|setData|setNext|trailer|Linear|append|bigger|delete|double|header|insert|primes|printf|public|remove|result|return|search|size_t|sizeof|string|strlen|struct|unique|values|vector|array|begin|class|clear|const|count|empty|erase|false|fixed|front|index|item1|item2|names|other|right|slice|start|value|NULL|Node|back|bool|char|cols|cout|data|endl|find|flat|grow|head|item|left|list|move|next|pair|prev|refs|rows|size|sort|stop|tail|temp|true|add|col|cur|end|get|int|map|new|nnz|pop|pos|raw|ref|row|val|at|if|it))(?:<(?:[^<>\\n]|<[^<>\\n]*>)*>)?(?:\\((?:[^()\\n]|\\((?:[^()\\n]|\\([^()\\n]*\\))*\\))*\\))?(?:\\[[^\\]\\n]*\\])*(?:\\s*[*&](?![A-Za-z_]))?|[0-9]+))?|\\*[A-Za-z_][A-Za-z_0-9]*|\\[\\]|->|\\+\\+)(?![A-Za-z_0-9-])", 'g');
+  const isTermProse = (token, before, after) => {
+    if (token==='string' && /(?:C-style|C)\s+$/.test(before)) return true;
+    if (token==='double' && /^\s+free\b/.test(after)) return true;
+    if (token==='Linear' && /^\s+Linked\b/.test(after)) return true;
+    if (token==='row' && /\(\s*$/.test(before) && /^\s*,\s*(col|column)\b/.test(after)) return true;
+    if (['col','column'].includes(token) && /\(\s*row\s*,\s*$/.test(before) && /^\s*[,)]/.test(after)) return true;
+    if (['val','value'].includes(token) && /\(\s*row\s*,\s*(col|column)\s*,\s*$/.test(before) && /^\s*\)/.test(after)) return true;
+    if (['Linear', 'list'].includes(token) && (/(Linear|linked)\s+$/i.test(before) || /^\s+list\b/.test(after))) return true;
+    if (token === 'Node' && /[（(]\s*$/.test(before) && /^\s*[）)]/.test(after)) return true;
+    return ['row','col','column'].includes(token) && /^\s*[＝=：:]\s*[列欄]/.test(after);
+  };
+  window.chapterFormatCode = html => {
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (!node.parentElement?.closest('code,pre,script,style,svg,.pseudo-code,mjx-container')) nodes.push(node);
+    }
+    for (const node of nodes) {
+      const replacement = document.createDocumentFragment();
+      for (const part of node.data.split(/(\$\$[\s\S]*?\$\$|\$[^$]*\$)/g)) {
+        if (part.startsWith('$')) { replacement.append(document.createTextNode(part)); continue; }
+        let last = 0;
+        for (const match of part.matchAll(tokens)) {
+          replacement.append(document.createTextNode(part.slice(last, match.index)));
+          if (isTermProse(match[0],part.slice(0,match.index),part.slice(match.index+match[0].length))) {
+            replacement.append(document.createTextNode(match[0]));
+          } else {
+            const code = document.createElement('code');code.textContent = match[0];replacement.append(code);
+          }
+          last = match.index + match[0].length;
+        }
+        replacement.append(document.createTextNode(part.slice(last)));
+      }
+      node.replaceWith(replacement);
+    }
+    return template.innerHTML;
+  };
+})();
+
 /* Serialize dynamic MathJax updates; the latest update for an element wins. */
 (() => {
   const pending = new Map();
@@ -504,7 +551,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   }
   window.chapterSetMath = (el, html) => {
     if (!el) return;
-    html = formatCosts(html);
+    html = chapterFormatCode(formatCosts(html));
     if (!window.MathJax?.typesetPromise) { el.innerHTML = html; return; }
     pending.set(el, html);
     if (!scheduled) {
@@ -583,7 +630,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="prologue">
 <!-- gen:arrays-prologue -->
 <h2>低階陣列：連續、等寬的儲存格</h2>
-<details class="chapter-extra"><summary>先比較：原生陣列、std::array、std::vector（補充）</summary><div class="extra-body"><div class="chapter-table"><table class="cmp-table"><thead><tr><th>比較</th><th>原生陣列 <code>int a[3]</code></th><th><code>std::array&lt;int,3&gt;</code></th><th><code>std::vector&lt;int&gt;</code></th></tr></thead><tbody><tr><td>需要的標頭</td><td>不需容器標頭</td><td><code>&lt;array&gt;</code></td><td><code>&lt;vector&gt;</code></td></tr><tr><td>元素數量</td><td>固定；new[] 可在執行時決定配置大小，但配置後不變</td><td>固定；大小是型別的一部分</td><td>可增減，另有 capacity</td></tr><tr><td>元素排列</td><td>元素連續儲存</td><td>元素連續儲存</td><td>元素連續儲存</td></tr><tr><td>查大小</td><td><code>sizeof(a) / sizeof(a[0])</code></td><td><code>a.size()</code></td><td><code>v.size()</code></td></tr><tr><td>索引</td><td><code>[]</code> 不檢查</td><td><code>[]</code> 不檢查；<code>.at()</code> 檢查</td><td><code>[]</code> 不檢查；<code>.at()</code> 檢查</td></tr><tr><td>整體複製／指定</td><td>不能直接以 a=b 指定整個陣列</td><td>支援值複製</td><td>支援值複製</td></tr><tr><td>常見用途</td><td>理解底層與既有 C 介面</td><td>數量固定的資料</td><td>數量可能改變的一般序列</td></tr></tbody></table></div><div class="deck-extra"><div class="dx-label">三種容器，讀取方式相似</div><div class="pseudo-code" data-cpp="run" data-expected="20 20 40&#10;3 4&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;array&gt;</span></span>
+<details class="chapter-extra"><summary>先比較：原生陣列、<code>std::array</code>、<code>std::vector</code>（補充）</summary><div class="extra-body"><div class="chapter-table"><table class="cmp-table"><thead><tr><th>比較</th><th>原生陣列 <code>int a[3]</code></th><th><code>std::array&lt;int,3&gt;</code></th><th><code>std::vector&lt;int&gt;</code></th></tr></thead><tbody><tr><td>需要的標頭</td><td>不需容器標頭</td><td><code>&lt;array&gt;</code></td><td><code>&lt;vector&gt;</code></td></tr><tr><td>元素數量</td><td>固定；<code>new[]</code> 可在執行時決定配置大小，但配置後不變</td><td>固定；大小是型別的一部分</td><td>可增減，另有 <code>capacity</code></td></tr><tr><td>元素排列</td><td>元素連續儲存</td><td>元素連續儲存</td><td>元素連續儲存</td></tr><tr><td>查大小</td><td><code>sizeof(a) / sizeof(a[0])</code></td><td><code>a.size()</code></td><td><code>v.size()</code></td></tr><tr><td>索引</td><td><code>[]</code> 不檢查</td><td><code>[]</code> 不檢查；<code>.at()</code> 檢查</td><td><code>[]</code> 不檢查；<code>.at()</code> 檢查</td></tr><tr><td>整體複製／指定</td><td>不能直接以 a=b 指定整個陣列</td><td>支援值複製</td><td>支援值複製</td></tr><tr><td>常見用途</td><td>理解底層與既有 C 介面</td><td>數量固定的資料</td><td>數量可能改變的一般序列</td></tr></tbody></table></div><div class="deck-extra"><div class="dx-label">三種容器，讀取方式相似</div><div class="pseudo-code" data-cpp="run" data-expected="20 20 40&#10;3 4&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;array&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
@@ -596,10 +643,10 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="11">    std::cout &lt;&lt; fixed.size() &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; dynamic.size() &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
 <span class="line" data-l="12">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>20 20 40
 3 4
-</pre></div></div><details class="chapter-extra"><summary>vector&lt;bool&gt; 為什麼是例外？（補充）</summary><div class="extra-body"><p><code>std::vector&lt;bool&gt;</code> 是為 bool 提供的特殊化版本。為了節省空間，實作可以把多個布林值壓進位元中，因此不能把它看成一排可逐個取址的 bool 物件。</p>
-<p>讀取 <code>v[i]</code> 可以得到布林值，也能用 <code>v[i] = true</code> 修改。但非 const 的索引運算子回傳的是代表該位元的代理物件，不是一般 vector 的元素參考，所以不能用 <code>bool&amp; r = v[i]</code> 綁定它。學習本章的連續儲存與參考行為時，先用 <code>vector&lt;int&gt;</code> 理解即可。</p></div></details><details class="chapter-extra"><summary>陣列退化成指標後，為什麼不能用 sizeof 算長度？（補充）</summary><div class="extra-body"><p>對仍保有陣列型別的 <code>int a[3]</code>，<code>sizeof(a)</code> 是整個陣列的空間，除以一個元素的大小 <code>sizeof(a[0])</code>，就能得到元素數量 3。sizeof 在這裡不會讓陣列退化成指標。</p>
+</pre></div></div><details class="chapter-extra"><summary><code>vector&lt;bool&gt;</code> 為什麼是例外？（補充）</summary><div class="extra-body"><p><code>std::vector&lt;bool&gt;</code> 是為 <code>bool</code> 提供的特殊化版本。為了節省空間，實作可以把多個布林值壓進位元中，因此不能把它看成一排可逐個取址的 <code>bool</code> 物件。</p>
+<p>讀取 <code>v[i]</code> 可以得到布林值，也能用 <code>v[i] = true</code> 修改。但非 <code>const</code> 的索引運算子回傳的是代表該位元的代理物件，不是一般 <code>vector</code> 的元素參考，所以不能用 <code>bool&amp; r = v[i]</code> 綁定它。學習本章的連續儲存與參考行為時，先用 <code>vector&lt;int&gt;</code> 理解即可。</p></div></details><details class="chapter-extra"><summary>陣列退化成指標後，為什麼不能用 <code>sizeof</code> 算長度？（補充）</summary><div class="extra-body"><p>對仍保有陣列型別的 <code>int a[3]</code>，<code>sizeof(a)</code> 是整個陣列的空間，除以一個元素的大小 <code>sizeof(a[0])</code>，就能得到元素數量 3。<code>sizeof</code> 在這裡不會讓陣列退化成指標。</p>
 <p>但在 <code>int* p = a</code> 中，a 會轉換成指向第一個元素的指標，這個轉換稱為「陣列退化成指標」。p 只保存位址，不包含陣列有幾格的資訊。此時 <code>sizeof(p)</code> 算的是指標本身的大小，<code>sizeof(p) / sizeof(p[0])</code> 無法用來判斷陣列長度；即使剛好算出相同數字，也只是巧合。</p>
-<p>函式參數寫成 <code>const int values[]</code> 時，參數型別也會調整成 <code>const int*</code>，因此下面另外傳入 count 告訴函式元素數量：</p><div class="deck-extra"><div class="dx-label">在呼叫端算出長度，和陣列一起傳入函式</div><div class="pseudo-code" data-cpp="run" data-expected="3&#10;20&#10;10 20 30 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstddef&gt;</span></span>
+<p>函式參數寫成 <code>const int values[]</code> 時，參數型別也會調整成 <code>const int*</code>，因此下面另外傳入 <code>count</code> 告訴函式元素數量：</p><div class="deck-extra"><div class="dx-label">在呼叫端算出長度，和陣列一起傳入函式</div><div class="pseudo-code" data-cpp="run" data-expected="3&#10;20&#10;10 20 30 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstddef&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">void</span> <span class="fn">show</span>(<span class="kw">const</span> <span class="kw">int</span> values[], std::<span class="kw">size_t</span> count) {</span>
 <span class="line" data-l="4">    <span class="kw">for</span> (std::<span class="kw">size_t</span> i = <span class="num">0</span>; i &lt; count; ++i)</span>
@@ -618,23 +665,23 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 10 20 30&#32;
 </pre></div></div><p>陣列本身沒有因為這個轉換而消失，a 仍是三格陣列；失去長度資訊的是接收端的指標型別。<code>std::array</code> 與 <code>std::vector</code> 都提供 <code>.size()</code>，不必用這個除法取得元素數量。</p></div></details></div></details>
 <p>從程式的位址模型來看，記憶體是一條按位元組編號的序列。陣列把同型別的元素排在這條序列上，<strong>元素連續儲存，每格大小相同</strong>。因此只要知道起始位址、索引和元素大小，就能直接找到元素。</p>
-<p>本章依序介紹低階陣列與 ArrayList、compact／referential、二維矩陣如何攤平，以及 COO、DOK、線性串列三種稀疏表示。</p>
-<p id="dx-low"><code>double a[6]</code> 佔 $6\times\operatorname{sizeof}(\mathrm{double})$ bytes；若此環境的 double 是 8 bytes，總共就是 48 bytes。型別大小以 sizeof 的結果為準，不同平台可能不同。</p>
+<p>本章依序介紹低階陣列與 <code>ArrayList</code>、compact／referential、二維矩陣如何攤平，以及 COO、DOK、線性串列三種稀疏表示。</p>
+<p id="dx-low"><code>double a[6]</code> 佔 $6\times\operatorname{sizeof}(\mathrm{double})$ bytes；若此環境的 <code>double</code> 是 8 bytes，總共就是 48 bytes。型別大小以 <code>sizeof</code> 的結果為準，不同平台可能不同。</p>
 <!-- /gen:arrays-prologue -->
 </section>
 
 <section id="layout">
 <!-- gen:arrays-layout -->
-<h2>低階陣列與 ArrayList：從位址計算到動態擴容</h2>
+<h2>低階陣列與 <code>ArrayList</code>：從位址計算到動態擴容</h2>
 <p>有效索引 $0\le i\lt n$ 的元素位址為 $\mathrm{base}+i\times\operatorname{sizeof}(T)$。乘法與加法的次數不隨 n 增加，因此索引是 $O(1)$。以下位址與型別大小是示意。</p><div class="viz-layout">
 <div>
 <div class="viz-panel">
 <div class="bq-row" id="addrVis" style="min-height:80px;"></div>
-<div class="status-banner" id="addrStatus"><span class="status-icon">›</span><span class="status-text">假設 int 陣列每格 4 bytes從位址 1000 開始。點任一格看位址怎麼算。</span></div>
+<div class="status-banner" id="addrStatus"><span class="status-icon">›</span><span class="status-text">假設 <code>int</code> 陣列每格 4 bytes從位址 1000 開始。點任一格看位址怎麼算。</span></div>
 <div class="controls-bar">
-<span class="mono" style="font-size:.85rem;">sizeof：</span>
+<span class="mono" style="font-size:.85rem;"><code>sizeof</code>：</span>
 <select class="mono" id="addrSize" onchange="addrRender(-1)" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
-<option selected="" value="4">示例 int（4B）</option><option value="8">示例 double（8B）</option><option value="1">char（1B）</option>
+<option selected="" value="4">示例 <code>int</code>（4B）</option><option value="8">示例 <code>double</code>（8B）</option><option value="1"><code>char</code>（1B）</option>
 </select>
 </div>
 </div>
@@ -643,27 +690,27 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <div class="info-card">
 <div class="ic-title">兩個直接推論</div>
 <div style="font-size:.87rem;line-height:1.9;">
-        ① 存取任何 a[i] 成本相同：<strong>不用走訪</strong>。<br/>
+        ① 存取任何 <code>a[i]</code> 成本相同：<strong>不用走訪</strong>。<br/>
         ② 格子必須<strong>等寬</strong>：所以 C++ 陣列是同型別元素。</div>
 </div>
 <div class="info-card">
 <div class="ic-title">C++ 對照</div>
-<div class="mono" style="font-size:.83rem;line-height:2;">int a[6];<br/>&amp;a[3] == a + 3  // 指標算術<br/>sizeof(a) // 6 * sizeof(int)</div>
+<div class="mono" style="font-size:.83rem;line-height:2;"><code>int</code> <code>a[6]</code>;<br/>&amp;<code>a[3]</code> == a + 3  // 指標算術<br/><code>sizeof(a)</code> // 6 * <code>sizeof(int)</code></div>
 </div>
 </div>
 </div>
 <h3>兩個限制：不能直接擴增，也不會替你檢查邊界</h3>
 <div class="info-box warm"><span class="info-label">越界與錯誤訊息</span><p><code>int a[3]</code> 只有三格。寫入 <code>a[3]</code> 不是追加，而是越界；原生 <code>[]</code> 不會先確認索引是否合法。即使寫入後沒有訊息或當機，這仍是<strong>未定義行為</strong>，可能改壞別的資料，也可能有其他結果。</p></div>
 <p>程式存取未映射或沒有存取權限的記憶體頁面時，執行環境可能回報 segmentation fault。作業系統通常不知道某個 C++ 陣列的元素邊界：越界一格可能仍落在可存取頁面，也可能剛好跨入不可存取頁面；不能用「走得夠遠才會出錯」判斷。空指標、懸空指標等也可能造成相同錯誤。</p>
-<h3>用 ArrayList 把檢查與擴容包起來</h3>
-<p>接著實作 ArrayList：內部用原生陣列儲存資料，容量不夠時擴容，索引存取前先檢查範圍。<code>myArray</code> 指向配置區，<code>lastIndex</code> 是目前元素數量，也是下一個空位；<code>maxSize</code> 是容量。操作時須維持 $0\le\mathrm{lastIndex}\le\mathrm{maxSize}$。</p>
-<p>例如容量 4、元素數量 3 時，只有索引 0、1、2 有效。第 3 格留給下一次 push_back；不能因為它已配置就把它當成現有元素。</p><div class="deck-extra"><div class="dx-label">ArrayList 的索引運算子：這是類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">int</span>&amp; <span class="kw">operator</span>[](<span class="kw">int</span> idx) {</span>
+<h3>用 <code>ArrayList</code> 把檢查與擴容包起來</h3>
+<p>接著實作 <code>ArrayList</code>：內部用原生陣列儲存資料，容量不夠時擴容，索引存取前先檢查範圍。<code>myArray</code> 指向配置區，<code>lastIndex</code> 是目前元素數量，也是下一個空位；<code>maxSize</code> 是容量。操作時須維持 $0\le\mathrm{lastIndex}\le\mathrm{maxSize}$。</p>
+<p>例如容量 4、元素數量 3 時，只有索引 0、1、2 有效。第 3 格留給下一次 <code>push_back</code>；不能因為它已配置就把它當成現有元素。</p><div class="deck-extra"><div class="dx-label"><code>ArrayList</code> 的索引運算子：這是類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">int</span>&amp; <span class="kw">operator</span>[](<span class="kw">int</span> idx) {</span>
 <span class="line" data-l="2">    <span class="kw">if</span> (<span class="num">0</span> &lt;= idx &amp;&amp; idx &lt; lastIndex) {</span>
 <span class="line" data-l="3">        <span class="kw">return</span> myArray[idx];</span>
 <span class="line" data-l="4">    }</span>
 <span class="line" data-l="5">    <span class="kw">throw</span> out_of_range(<span class="str">"</span><span class="str">index out of bounds</span><span class="str">"</span>);</span>
-<span class="line" data-l="6">}</span></div></div><h3>為什麼回傳 int&amp;？讓 a[i] 代表陣列裡的那一格</h3>
-<p><code>int&amp;</code> 是原元素的別名，不是複製出的整數。<code>a[0]</code> 先取得那一格的參考：放在讀取位置就讀其值，放在指定運算左邊就修改該格；不需要另寫一個「指定版本」的 operator[]。</p><div class="deck-extra"><div class="dx-label">讀取複本、直接指定、保留別名</div><div class="pseudo-code" data-cpp="run" data-expected="10 50 50&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="6">}</span></div></div><h3>為什麼回傳 <code>int&amp;</code>？讓 <code>a[i]</code> 代表陣列裡的那一格</h3>
+<p><code>int&amp;</code> 是原元素的別名，不是複製出的整數。<code>a[0]</code> 先取得那一格的參考：放在讀取位置就讀其值，放在指定運算左邊就修改該格；不需要另寫一個「指定版本」的 <code>operator[]</code>。</p><div class="deck-extra"><div class="dx-label">讀取複本、直接指定、保留別名</div><div class="pseudo-code" data-cpp="run" data-expected="10 50 50&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/arraylist.hpp"</span></span>
 <span class="line" data-l="3"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="4">    ArrayList a(<span class="num">2</span>);</span>
@@ -674,10 +721,10 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="9">    r += <span class="num">8</span>;</span>
 <span class="line" data-l="10">    std::cout &lt;&lt; x &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; a[<span class="num">0</span>] &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; r &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
 <span class="line" data-l="11">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>10 50 50
-</pre></div></div><details class="chapter-extra"><summary>對照：回傳 int 為何不能直接指定？（補充）</summary><div class="extra-body"><div class="deck-extra"><div class="dx-label">刻意無法編譯的反例</div><div class="pseudo-code" data-cpp="compile-error"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">value</span>() { <span class="kw">return</span> <span class="num">10</span>; }</span>
+</pre></div></div><details class="chapter-extra"><summary>對照：回傳 <code>int</code> 為何不能直接指定？（補充）</summary><div class="extra-body"><div class="deck-extra"><div class="dx-label">刻意無法編譯的反例</div><div class="pseudo-code" data-cpp="compile-error"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">value</span>() { <span class="kw">return</span> <span class="num">10</span>; }</span>
 <span class="line" data-l="2"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="3">    value() = <span class="num">42</span>; <span class="com">// 回傳的是 int 值，不是可修改的原元素</span></span>
-<span class="line" data-l="4">}</span></div></div><p>若把索引運算子的回傳型別改成 int，讀取仍可取得複本，但 <code>a[i] = 42</code> 不能編譯。也不能回傳函式內區域整數的參考：函式結束後該物件已不存在。ArrayList 擴容會刪掉舊陣列，因此先前取得的元素參考與指標也會失效；需要時應重新用索引取得。</p></div></details><div class="deck-extra"><div class="dx-label">追加、擴容：類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">push_back</span>(<span class="kw">int</span> val) {</span>
+<span class="line" data-l="4">}</span></div></div><p>若把索引運算子的回傳型別改成 <code>int</code>，讀取仍可取得複本，但 <code>a[i] = 42</code> 不能編譯。也不能回傳函式內區域整數的參考：函式結束後該物件已不存在。<code>ArrayList</code> 擴容會刪掉舊陣列，因此先前取得的元素參考與指標也會失效；需要時應重新用索引取得。</p></div></details><div class="deck-extra"><div class="dx-label">追加、擴容：類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">push_back</span>(<span class="kw">int</span> val) {</span>
 <span class="line" data-l="2">    <span class="kw">if</span> (lastIndex == maxSize) grow();</span>
 <span class="line" data-l="3">    myArray[lastIndex++] = val;</span>
 <span class="line" data-l="4">}</span>
@@ -691,8 +738,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="12">    <span class="kw">delete</span>[] myArray;</span>
 <span class="line" data-l="13">    myArray = bigger;</span>
 <span class="line" data-l="14">    maxSize = newCapacity;</span>
-<span class="line" data-l="15">}</span></div></div><p>建構時配置 <code>new int[maxSize]</code>，解構時以 <code>delete[] myArray</code> 釋放；容量為零時先擴充到 1。grow 先配置新空間、複製元素，再釋放舊空間；只把容量數字改大，並不會真的得到更多儲存格。</p>
-<h3>插入從右往左搬，刪除從左往右補</h3><p>在有 n 個元素的序列中，若要插入到索引 i，須先把 i 到 $n-1$ 的元素向右搬一格，共 $n-i$ 個。<strong>從尾端開始</strong>，才不會蓋掉還沒複製的值。刪除索引 i 則把右邊 $n-1-i$ 個元素往左搬。insert 允許 $i=n$；erase 與 [] 必須 $i\lt n$。</p><figure class="arrays-figure"><div class="arrays-figure-scroll" tabindex="0" aria-label="插入索引 2 前，依箭頭編號從索引 5 向索引 2 倒序右移。"><img src="assets/figures/ch3/insert_list.png" alt="插入索引 2 前，依箭頭編號從索引 5 向索引 2 倒序右移。" loading="lazy"></div><figcaption>先把索引 5 的值搬到空位 6，再依序搬移 4、3、2，才不會蓋掉尚未複製的值。圖中數值用來示意搬移，規則不隨元素值改變。</figcaption></figure><figure class="arrays-figure"><div class="arrays-figure-scroll" tabindex="0" aria-label="刪除 idx 後，從 idx 開始依序把右側元素往左移。"><img src="assets/figures/ch3/remove_list.png" alt="刪除 idx 後，從 idx 開始依序把右側元素往左移。" loading="lazy"></div><figcaption>刪除時從左往右補空位；每格取右邊一格的值。最後減少 lastIndex，原本的末項位置就不再屬於有效元素。</figcaption></figure><div class="deck-extra"><div class="dx-label">插入與刪除：類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> idx, <span class="kw">int</span> val) {</span>
+<span class="line" data-l="15">}</span></div></div><p>建構時配置 <code>new int[maxSize]</code>，解構時以 <code>delete[] myArray</code> 釋放；容量為零時先擴充到 1。<code>grow</code> 先配置新空間、複製元素，再釋放舊空間；只把容量數字改大，並不會真的得到更多儲存格。</p>
+<h3>插入從右往左搬，刪除從左往右補</h3><p>在有 n 個元素的序列中，若要插入到索引 i，須先把 i 到 $n-1$ 的元素向右搬一格，共 $n-i$ 個。<strong>從尾端開始</strong>，才不會蓋掉還沒複製的值。刪除索引 i 則把右邊 $n-1-i$ 個元素往左搬。<code>insert</code> 允許 $i=n$；<code>erase</code> 與 <code>[]</code> 必須 $i\lt n$。</p><figure class="arrays-figure"><div class="arrays-figure-scroll" tabindex="0" aria-label="插入索引 2 前，依箭頭編號從索引 5 向索引 2 倒序右移。"><img src="assets/figures/ch3/insert_list.png" alt="插入索引 2 前，依箭頭編號從索引 5 向索引 2 倒序右移。" loading="lazy"></div><figcaption>先把索引 5 的值搬到空位 6，再依序搬移 4、3、2，才不會蓋掉尚未複製的值。圖中數值用來示意搬移，規則不隨元素值改變。</figcaption></figure><figure class="arrays-figure"><div class="arrays-figure-scroll" tabindex="0" aria-label="刪除 idx 後，從 idx 開始依序把右側元素往左移。"><img src="assets/figures/ch3/remove_list.png" alt="刪除 idx 後，從 idx 開始依序把右側元素往左移。" loading="lazy"></div><figcaption>刪除時從左往右補空位；每格取右邊一格的值。最後減少 <code>lastIndex</code>，原本的末項位置就不再屬於有效元素。</figcaption></figure><div class="deck-extra"><div class="dx-label">插入與刪除：類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> idx, <span class="kw">int</span> val) {</span>
 <span class="line" data-l="2">    <span class="kw">if</span> (idx &lt; <span class="num">0</span> || idx &gt; lastIndex)</span>
 <span class="line" data-l="3">        <span class="kw">throw</span> out_of_range(<span class="str">"</span><span class="str">insert index out of bounds</span><span class="str">"</span>);</span>
 <span class="line" data-l="4">    <span class="kw">if</span> (lastIndex == maxSize) grow();</span>
@@ -706,8 +753,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="12">    <span class="kw">for</span> (<span class="kw">int</span> i = idx; i &lt; lastIndex - <span class="num">1</span>; ++i)</span>
 <span class="line" data-l="13">        myArray[i] = myArray[i + <span class="num">1</span>];</span>
 <span class="line" data-l="14">    --lastIndex;</span>
-<span class="line" data-l="15">}</span></div></div><div class="chapter-table"><table class="cmp-table"><thead><tr><th>操作</th><th>ArrayList／一般 vector 的成本</th><th>原因</th></tr></thead><tbody><tr><td>有效索引 []／at</td><td>$O(1)$</td><td>固定次數的檢查與位址定位</td></tr><tr><td>size／empty</td><td>$O(1)$</td><td>讀取已記錄的元素數量</td></tr><tr><td>push_back</td><td>攤還 $O(1)$，擴容那次 $O(n)$</td><td>多數直接填一格；擴容須搬移 n 個元素</td></tr><tr><td>insert／erase</td><td>最壞 $O(n)$</td><td>插入或刪除點後的元素須搬移</td></tr><tr><td>pop_back</td><td>$O(1)$</td><td>移除尾端，不搬移前面的元素</td></tr></tbody></table></div><details class="chapter-extra"><summary>元素本身的操作也要花時間（補充）</summary><div class="extra-body"><p>上表將單一元素的複製、移動與解構視為 $O(1)$，先看需要處理多少個元素。若 vector 存的是字串或其他物件，這些操作本身也可能有額外成本，分析時要一起計入。</p><p>例如 pop_back 不必搬移其他元素，但仍會解構被移除的物件；插入與擴容則可能複製或移動多個元素。</p></div></details><p>從固定小容量開始加倍，搬移量形成 $1+2+4+\cdots$ 的等比級數。連續追加 n 次，全部搬移量是 $O(n)$，連同 n 次放入，平均攤到每次 $O(1)$。這是<strong>攤還分析</strong>，不是說每次操作都一樣快，也不需要假設隨機輸入。</p>
-<div class="info-box"><span class="info-label">實務上先用 vector</span><p>實務上推薦 <code>vector</code>，因為它已處理資源管理、複製、迭代器等細節。從 ArrayList 的搬移過程可以理解這些操作的成本。不過，兩者介面有些差異：課程 ArrayList 的 [] 會檢查，vector 的 [] 不會；vector 要用 at 才有範圍檢查。vector 的成長倍率由實作決定，不保證每次加倍。</p></div><details class="chapter-extra"><summary>用 vector 看 size、容量與邊界（補充）</summary><div class="extra-body"><div class="deck-extra"><div class="dx-label">reserve 配置容量，並不新增元素</div><div class="pseudo-code" data-cpp="run" data-expected="2&#10;true&#10;99&#10;out of range&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="15">}</span></div></div><div class="chapter-table"><table class="cmp-table"><thead><tr><th>操作</th><th><code>ArrayList</code>／一般 <code>vector</code> 的成本</th><th>原因</th></tr></thead><tbody><tr><td>有效索引 <code>[]</code>／<code>at</code></td><td>$O(1)$</td><td>固定次數的檢查與位址定位</td></tr><tr><td><code>size</code>／<code>empty</code></td><td>$O(1)$</td><td>讀取已記錄的元素數量</td></tr><tr><td><code>push_back</code></td><td>攤還 $O(1)$，擴容那次 $O(n)$</td><td>多數直接填一格；擴容須搬移 n 個元素</td></tr><tr><td><code>insert</code>／<code>erase</code></td><td>最壞 $O(n)$</td><td>插入或刪除點後的元素須搬移</td></tr><tr><td><code>pop_back</code></td><td>$O(1)$</td><td>移除尾端，不搬移前面的元素</td></tr></tbody></table></div><details class="chapter-extra"><summary>元素本身的操作也要花時間（補充）</summary><div class="extra-body"><p>上表將單一元素的複製、移動與解構視為 $O(1)$，先看需要處理多少個元素。若 <code>vector</code> 存的是字串或其他物件，這些操作本身也可能有額外成本，分析時要一起計入。</p><p>例如 <code>pop_back</code> 不必搬移其他元素，但仍會解構被移除的物件；插入與擴容則可能複製或移動多個元素。</p></div></details><p>從固定小容量開始加倍，搬移量形成 $1+2+4+\cdots$ 的等比級數。連續追加 n 次，全部搬移量是 $O(n)$，連同 n 次放入，平均攤到每次 $O(1)$。這是<strong>攤還分析</strong>，不是說每次操作都一樣快，也不需要假設隨機輸入。</p>
+<div class="info-box"><span class="info-label">實務上先用 <code>vector</code></span><p>實務上推薦 <code>vector</code>，因為它已處理資源管理、複製、迭代器等細節。從 <code>ArrayList</code> 的搬移過程可以理解這些操作的成本。不過，兩者介面有些差異：課程 <code>ArrayList</code> 的 <code>[]</code> 會檢查，<code>vector</code> 的 <code>[]</code> 不會；<code>vector</code> 要用 <code>at</code> 才有範圍檢查。<code>vector</code> 的成長倍率由實作決定，不保證每次加倍。</p></div><details class="chapter-extra"><summary>用 <code>vector</code> 看 <code>size</code>、容量與邊界（補充）</summary><div class="extra-body"><div class="deck-extra"><div class="dx-label"><code>reserve</code> 配置容量，並不新增元素</div><div class="pseudo-code" data-cpp="run" data-expected="2&#10;true&#10;99&#10;out of range&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
 <span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
@@ -725,7 +772,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 true
 99
 out of range
-</pre></div></div><p>此時 size 是 2，索引 2 仍越界。課程標頭另提供 ArrayList 的深層複製、const 索引及容量檢查；含 new[]／delete[] 的簡化骨架不可直接依賴預設淺層複製。</p></div></details>
+</pre></div></div><p>此時 <code>size</code> 是 2，索引 2 仍越界。課程標頭另提供 <code>ArrayList</code> 的深層複製、<code>const</code> 索引及容量檢查；含 <code>new[]</code>／<code>delete[]</code> 的簡化骨架不可直接依賴預設淺層複製。</p></div></details>
 <!-- /gen:arrays-layout -->
 </section>
 
@@ -733,7 +780,7 @@ out of range
 <!-- gen:arrays-compact -->
 <h2>Compact 與 Referential：格子裡存值，還是連結？</h2>
 <p><strong>Compact</strong> 指主要資料直接放在陣列格子內，例如 <code>int values[]</code>。<strong>Referential</strong> 則在格子裡保存到其他物件的連結，例如 <code>int* pointers[]</code>。兩者的格子都連續、等寬，差別是取出格子內容後，是否還要跟著連結取得主要資料。</p>
-<p>指標指向的物件不一定在 heap，也可能是區域變數或靜態物件。指標大小依實作而定；64-bit 環境常見 8 bytes，但應以 sizeof 判斷。長短不同的名字也可放在 <code>vector&lt;string&gt;</code>：每個 string 物件大小相同，管理的字元數量可以不同，不必一律改用指標陣列。</p><div class="viz-panel">
+<p>指標指向的物件不一定在 heap，也可能是區域變數或靜態物件。指標大小依實作而定；64-bit 環境常見 8 bytes，但應以 <code>sizeof</code> 判斷。長短不同的名字也可放在 <code>vector&lt;string&gt;</code>：每個 <code>string</code> 物件大小相同，管理的字元數量可以不同，不必一律改用指標陣列。</p><div class="viz-panel">
 <div class="bq-row" id="cmpVis" style="min-height:110px;"></div>
 <div class="status-banner" id="cmpStatus"><span class="status-icon">›</span><span class="status-text">切換兩種視角。</span></div>
 <div class="controls-bar">
@@ -750,7 +797,7 @@ out of range
 <span class="line" data-l="7">    *pointers[<span class="num">1</span>] = <span class="num">77</span>;   <span class="com">// 改 y</span></span>
 <span class="line" data-l="8">    std::cout &lt;&lt; x &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; y &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; values[<span class="num">0</span>] &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
 <span class="line" data-l="9">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>10 77 99
-</pre></div></div><details class="chapter-extra"><summary>用 reference_wrapper 表示參考式陣列（補充）</summary><div class="extra-body"><p>C++ 不允許 <code>int&amp; refs[2]</code> 這種「參考的陣列」。可以改存 <code>&lt;functional&gt;</code> 提供的 <code>std::reference_wrapper&lt;int&gt;</code> 物件，用 <code>std::ref</code> 包住既有變數、<code>.get()</code> 取得其參考。</p><div class="deck-extra"><div class="dx-label">改變被參考的值，與改變參考目標</div><div class="pseudo-code" data-cpp="run" data-expected="42 21&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;functional&gt;</span></span>
+</pre></div></div><details class="chapter-extra"><summary>用 <code>reference_wrapper</code> 表示參考式陣列（補充）</summary><div class="extra-body"><p>C++ 不允許 <code>int&amp; refs[2]</code> 這種「參考的陣列」。可以改存 <code>&lt;functional&gt;</code> 提供的 <code>std::reference_wrapper&lt;int&gt;</code> 物件，用 <code>std::ref</code> 包住既有變數、<code>.get()</code> 取得其參考。</p><div class="deck-extra"><div class="dx-label">改變被參考的值，與改變參考目標</div><div class="pseudo-code" data-cpp="run" data-expected="42 21&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;functional&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="4">    <span class="kw">int</span> x = <span class="num">10</span>, y = <span class="num">20</span>;</span>
@@ -760,7 +807,7 @@ out of range
 <span class="line" data-l="8">    refs[<span class="num">0</span>].get() += <span class="num">1</span>;        <span class="com">// 現在修改 y</span></span>
 <span class="line" data-l="9">    std::cout &lt;&lt; x &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; y &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
 <span class="line" data-l="10">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>42 21
-</pre></div></div><div class="chapter-table"><table class="cmp-table"><thead><tr><th>性質</th><th>值陣列</th><th>指標陣列</th><th>reference_wrapper 陣列</th></tr></thead><tbody><tr><td>修改原物件</td><td>存入時是複本，之後互不影響</td><td>以 *p 存取原物件</td><td>以 .get() 存取原物件</td></tr><tr><td>空值</td><td>依元素型別</td><td>可以存 nullptr</td><td>須綁定物件，沒有 nullptr 狀態</td></tr><tr><td>改變目標</td><td>指定新值</td><td>可改指向其他物件</td><td>指定另一個 wrapper 可重新綁定</td></tr><tr><td>生命週期</td><td>陣列擁有元素</td><td>不會自動延長目標生命週期</td><td>不會自動延長目標生命週期</td></tr></tbody></table></div><p>兩種間接表示都要確保目標仍存在；reference_wrapper 不是生命週期管理工具，也不保證比指標更省空間。</p></div></details><p id="dx-comp">比較儲存空間：n 個 int 的 compact 陣列佔 $n\times\operatorname{sizeof}(\mathrm{int})$；指標陣列本身佔 $n\times\operatorname{sizeof}(\mathrm{int*})$，目標物件另外計算。若多個指標共用同一個物件，計算總空間時只計入該物件一次。Compact 不等於「容量必須剛好等於大小」；vector 即使預留容量，元素仍直接連續儲存。</p><details class="chapter-extra"><summary>字元陣列與 C-style string：為什麼 SAMPLE 需要七格？（補充）</summary><div class="extra-body"><p>C-style string 沒有另外儲存字串長度，必須以特殊字元 <code>'\0'</code> 告訴程式：「字串到這裡結束」。</p><div class="deck-extra"><div class="dx-label">字串常值會自動附加終止字元</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> s[] = <span class="str">"</span><span class="str">SAMPLE</span><span class="str">"</span>;</span>
+</pre></div></div><div class="chapter-table"><table class="cmp-table"><thead><tr><th>性質</th><th>值陣列</th><th>指標陣列</th><th><code>reference_wrapper</code> 陣列</th></tr></thead><tbody><tr><td>修改原物件</td><td>存入時是複本，之後互不影響</td><td>以 <code>*p</code> 存取原物件</td><td>以 <code>.get()</code> 存取原物件</td></tr><tr><td>空值</td><td>依元素型別</td><td>可以存 <code>nullptr</code></td><td>須綁定物件，沒有 <code>nullptr</code> 狀態</td></tr><tr><td>改變目標</td><td>指定新值</td><td>可改指向其他物件</td><td>指定另一個 wrapper 可重新綁定</td></tr><tr><td>生命週期</td><td>陣列擁有元素</td><td>不會自動延長目標生命週期</td><td>不會自動延長目標生命週期</td></tr></tbody></table></div><p>兩種間接表示都要確保目標仍存在；<code>reference_wrapper</code> 不是生命週期管理工具，也不保證比指標更省空間。</p></div></details><p id="dx-comp">比較儲存空間：n 個 <code>int</code> 的 compact 陣列佔 $n\times\operatorname{sizeof}(\mathrm{int})$；指標陣列本身佔 $n\times\operatorname{sizeof}(\mathrm{int*})$，目標物件另外計算。若多個指標共用同一個物件，計算總空間時只計入該物件一次。Compact 不等於「容量必須剛好等於大小」；<code>vector</code> 即使預留容量，元素仍直接連續儲存。</p><details class="chapter-extra"><summary>字元陣列與 C-style string：為什麼 SAMPLE 需要七格？（補充）</summary><div class="extra-body"><p>C-style string 沒有另外儲存字串長度，必須以特殊字元 <code>'\0'</code> 告訴程式：「字串到這裡結束」。</p><div class="deck-extra"><div class="dx-label">字串常值會自動附加終止字元</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> s[] = <span class="str">"</span><span class="str">SAMPLE</span><span class="str">"</span>;</span>
 <span class="line" data-l="2"><span class="com">// 等同於 char s[] = {'S','A','M','P','L','E','\0'};</span></span></div></div><pre class="memory-text">index:  0   1   2   3   4   5   6
         S   A   M   P   L   E  \0
 讀取：  S → A → M → P → L → E → \0（停止）</pre>
@@ -778,21 +825,21 @@ out of range
 <span class="line" data-l="8">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>SAMPLE
 7 6
 0
-</pre></div></div><div class="deck-extra"><div class="dx-label">合法 char 陣列，但不是 null-terminated C string</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> s[<span class="num">6</span>] = {<span class="str">'</span><span class="str">S</span><span class="str">'</span>, <span class="str">'</span><span class="str">A</span><span class="str">'</span>, <span class="str">'</span><span class="str">M</span><span class="str">'</span>, <span class="str">'</span><span class="str">P</span><span class="str">'</span>, <span class="str">'</span><span class="str">L</span><span class="str">'</span>, <span class="str">'</span><span class="str">E</span><span class="str">'</span>};</span>
+</pre></div></div><div class="deck-extra"><div class="dx-label">合法 <code>char</code> 陣列，但不是 null-terminated C string</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> s[<span class="num">6</span>] = {<span class="str">'</span><span class="str">S</span><span class="str">'</span>, <span class="str">'</span><span class="str">A</span><span class="str">'</span>, <span class="str">'</span><span class="str">M</span><span class="str">'</span>, <span class="str">'</span><span class="str">P</span><span class="str">'</span>, <span class="str">'</span><span class="str">L</span><span class="str">'</span>, <span class="str">'</span><span class="str">E</span><span class="str">'</span>};</span>
 <span class="line" data-l="2"><span class="com">// cout &lt;&lt; s;  // 不可這樣當成 C string 使用：會越界尋找 '\0' </span></span></div></div><p>缺少終止字元時，操作可能繼續讀到後方記憶體，印出垃圾或造成非法存取；一旦越界就已是未定義行為，不能保證最終一定遇到零。若已知有六個字元，可用長度受控的迴圈，或 <code>cout.write(s, 6)</code> 輸出。</p>
-<p><code>'\0'</code> 是數值 0 的 char；<code>'0'</code> 是可見的數字字元，在 ASCII 編碼中數值為 48，兩者不同。sizeof(s) 計算整個陣列的空間，包含終止字元；strlen(s) 計算第一個終止字元前的字元數，須逐個掃描，成本 $O(L)$。</p></div></details><div class="quiz-box">
+<p><code>'\0'</code> 是數值 0 的 <code>char</code>；<code>'0'</code> 是可見的數字字元，在 ASCII 編碼中數值為 48，兩者不同。<code>sizeof(s)</code> 計算整個陣列的空間，包含終止字元；<code>strlen(s)</code> 計算第一個終止字元前的字元數，須逐個掃描，成本 $O(L)$。</p></div></details><div class="quiz-box">
 <div class="quiz-label">QUIZ · cache 效應</div>
-<p>走訪加總 $10^{6}$ 個 int，compact 版通常較有利於快取，主因是？</p>
+<p>走訪加總 $10^{6}$ 個 <code>int</code>，compact 版通常較有利於快取，主因是？</p>
 <div class="quiz-options" id="qCmpOptions">
-<div class="quiz-opt" data-correct="true" data-fb="連續資料通常較利於快取；每條 cache line 容納的元素數依硬體與型別大小而定。間接存取的效果還取決於目標是否集中。" onclick="quizCheck('qCmp', this)"><span class="opt-letter">(A)</span> 連續記憶體對 CPU cache 友善</div><div class="quiz-opt" data-correct="false" data-fb="指標不保證比 int 大；關鍵在資料排列與是否需要間接存取。" onclick="quizCheck('qCmp', this)"><span class="opt-letter">(B)</span> 指標比 int 大</div><div class="quiz-opt" data-correct="false" data-fb="指標指向相同型別的元素，不需要額外的元素型別轉換。" onclick="quizCheck('qCmp', this)"><span class="opt-letter">(C)</span> referential 版要多做型別轉換</div>
+<div class="quiz-opt" data-correct="true" data-fb="連續資料通常較利於快取；每條 cache line 容納的元素數依硬體與型別大小而定。間接存取的效果還取決於目標是否集中。" onclick="quizCheck('qCmp', this)"><span class="opt-letter">(A)</span> 連續記憶體對 CPU cache 友善</div><div class="quiz-opt" data-correct="false" data-fb="指標不保證比 &lt;code&gt;int&lt;/code&gt; 大；關鍵在資料排列與是否需要間接存取。" onclick="quizCheck('qCmp', this)"><span class="opt-letter">(B)</span> 指標比 <code>int</code> 大</div><div class="quiz-opt" data-correct="false" data-fb="指標指向相同型別的元素，不需要額外的元素型別轉換。" onclick="quizCheck('qCmp', this)"><span class="opt-letter">(C)</span> referential 版要多做型別轉換</div>
 </div>
 <div class="quiz-feedback" id="qCmpFeedback"></div>
 </div>
 <div class="quiz-box">
-<div class="quiz-label">QUIZ · grow() 的攤銷成本</div>
-<p>從空的 ArrayList 連續 push_back n 個元素（容量 8 起跳、滿了加倍）。總共搬移了大約幾個元素？</p>
+<div class="quiz-label">QUIZ · <code>grow()</code> 的攤銷成本</div>
+<p>從空的 <code>ArrayList</code> 連續 <code>push_back</code> n 個元素（容量 8 起跳、滿了加倍）。總共搬移了大約幾個元素？</p>
 <div class="quiz-options" id="qGrowOptions">
-<div class="quiz-opt" data-correct="true" data-fb="搬家發生在容量 8、16、32、…時，各搬當時的元素數，等比級數加總小於 $2n$（固定初始容量）。攤到每次 push_back 是常數：這就是「攤銷 $O(1)$」。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(A)</span> $O(n)$ 個：每次追加攤還 $O(1)$</div><div class="quiz-opt" data-correct="false" data-fb="那是「每次只加 1 格容量」的下場：每次擴容都得整批搬。加倍策略正是為了逃離 $n^2$。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(B)</span> 約 $n^2$ 個</div><div class="quiz-opt" data-correct="false" data-fb="搬家次數確實是 $\log_2 n$ 次，但每次搬的量呈等比縮小（往回看），總搬移量小於 $2n$，不是 $n\log n$。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(C)</span> 約 $n\log n$ 個</div>
+<div class="quiz-opt" data-correct="true" data-fb="搬家發生在容量 8、16、32、…時，各搬當時的元素數，等比級數加總小於 $2n$（固定初始容量）。攤到每次 &lt;code&gt;push_back&lt;/code&gt; 是常數：這就是「攤銷 $O(1)$」。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(A)</span> $O(n)$ 個：每次追加攤還 $O(1)$</div><div class="quiz-opt" data-correct="false" data-fb="那是「每次只加 1 格容量」的下場：每次擴容都得整批搬。加倍策略正是為了逃離 $n^2$。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(B)</span> 約 $n^2$ 個</div><div class="quiz-opt" data-correct="false" data-fb="搬家次數確實是 $\log_2 n$ 次，但每次搬的量呈等比縮小（往回看），總搬移量小於 $2n$，不是 $n\log n$。" onclick="quizCheck('qGrow', this)"><span class="opt-letter">(C)</span> 約 $n\log n$ 個</div>
 </div>
 <div class="quiz-feedback" id="qGrowFeedback"></div>
 </div>
@@ -814,7 +861,7 @@ out of range
     <div class="mapping-view"><h4>Row-major · 逐列儲存</h4><div class="memory-scroll" tabindex="0" aria-label="row-major 一維記憶體"><div id="mappingRow" class="memory-band"></div></div><p id="mappingRowFormula" class="mapping-formula"></p></div>
     <div class="mapping-view"><h4>Column-major · 逐欄儲存</h4><div class="memory-scroll" tabindex="0" aria-label="column-major 一維記憶體"><div id="mappingCol" class="memory-band"></div></div><p id="mappingColFormula" class="mapping-formula"></p></div>
   </div>
-  <p class="mapping-address">假設基底位址 $B=1000$、每個 int 佔 4 bytes。每格最下方的數字是 offset（可左右捲動記憶體帶）；實際 byte 位址還要乘上 4。</p>
+  <p class="mapping-address">假設基底位址 $B=1000$、每個 <code>int</code> 佔 4 bytes。每格最下方的數字是 offset（可左右捲動記憶體帶）；實際 byte 位址還要乘上 4。</p>
   <div class="controls-bar">
     <button type="button" class="btn" id="mappingPlay">播放</button>
     <button type="button" class="btn" id="mappingStep">單步</button>
@@ -829,7 +876,7 @@ out of range
 <div class="viz-panel">
 <div id="mdGrid" style="display:grid;grid-template-columns:repeat(4, minmax(0, 64px));gap:5px;justify-content:center;padding:.5rem;"></div>
 <div class="bq-row" id="mdFlat" style="min-height:56px;"></div>
-<div class="status-banner" id="mdStatus"><span class="status-icon">›</span><span class="status-text">$3\times 4$ 的 int 陣列。點上面格子，看它攤平後的位置；或播放兩種走訪順序。</span></div>
+<div class="status-banner" id="mdStatus"><span class="status-icon">›</span><span class="status-text">$3\times 4$ 的 <code>int</code> 陣列。點上面格子，看它攤平後的位置；或播放兩種走訪順序。</span></div>
 <div class="controls-bar">
 <button class="btn" onclick="mdRun('row')">▶ row-major 走訪</button>
 <button class="btn" onclick="mdRun('col')">▶ column 走訪（跳格！）</button>
@@ -847,7 +894,7 @@ out of range
 </div>
 <div class="info-card">
 <div class="ic-title">C++ 寫法</div>
-<div class="mono" style="font-size:.82rem;line-height:2;">int a[3][4]; // 真 2D<br/>vector&lt;vector&lt;int&gt;&gt; v; // 每列是一個 vector<br/>// 每列內連續，列與列不保證相接</div>
+<div class="mono" style="font-size:.82rem;line-height:2;"><code>int</code> <code>a[3][4]</code>; // 真 2D<br/><code>vector&lt;vector&lt;int&gt;&gt;</code> v; // 每列是一個 <code>vector</code><br/>// 每列內連續，列與列不保證相接</div>
 </div>
 </div>
 </div>
@@ -867,7 +914,7 @@ out of range
 <span class="line" data-l="14">    std::cout &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
 <span class="line" data-l="15">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1 2 3 4 5 6&#32;
 1 4 2 5 3 6&#32;
-</pre></div></div><p id="dx-multi">講義的 <code>students[100][4]</code>：<code>students[5][3]</code> 的 row-major offset 是 $5\times 4+3=23$；同一邏輯矩陣若改存 column-major，offset 是 $3\times 100+5=305$。再乘元素大小才得到相對位元組位址。公式描述佈局，不代表可以拿指向第一列的 int* 跨越該列進行 C++ 指標運算。</p><details class="chapter-extra"><summary>二維 vector 與一維 vector：同樣能表示矩陣，配置不同（補充）</summary><div class="extra-body"><div class="deck-extra"><div class="dx-label">初始化、逐列走訪與攤平</div><div class="pseudo-code" data-cpp="run" data-expected="0 0 0 &#10;0 0 7 &#10;7&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+</pre></div></div><p id="dx-multi">講義的 <code>students[100][4]</code>：<code>students[5][3]</code> 的 row-major offset 是 $5\times 4+3=23$；同一邏輯矩陣若改存 column-major，offset 是 $3\times 100+5=305$。再乘元素大小才得到相對位元組位址。公式描述佈局，不代表可以拿指向第一列的 <code>int*</code> 跨越該列進行 C++ 指標運算。</p><details class="chapter-extra"><summary>二維 <code>vector</code> 與一維 <code>vector</code>：同樣能表示矩陣，配置不同（補充）</summary><div class="extra-body"><div class="deck-extra"><div class="dx-label">初始化、逐列走訪與攤平</div><div class="pseudo-code" data-cpp="run" data-expected="0 0 0 &#10;0 0 7 &#10;7&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="4">    <span class="kw">const</span> std::<span class="kw">size_t</span> rows = <span class="num">2</span>, cols = <span class="num">3</span>;</span>
@@ -885,7 +932,7 @@ out of range
 <span class="line" data-l="16">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>0 0 0&#32;
 0 0 7&#32;
 7
-</pre></div></div><p>外層 vector 連續存放的是各列的 vector 物件，不是所有 int。每列自己的 int 連續，不保證相鄰兩列的 int 接在一起，而且各列長度可以不同。單一 flat vector 的所有 int 才連續；使用攤平公式前仍須分別確認 i&lt;rows、j&lt;cols，因為錯誤的 j 可能算出仍在 flat 範圍內的位置。</p></div></details>
+</pre></div></div><p>外層 <code>vector</code> 連續存放的是各列的 <code>vector</code> 物件，不是所有 <code>int</code>。每列自己的 <code>int</code> 連續，不保證相鄰兩列的 <code>int</code> 接在一起，而且各列長度可以不同。單一 <code>flat</code> <code>vector</code> 的所有 <code>int</code> 才連續；使用攤平公式前仍須分別確認 i&lt;<code>rows</code>、j&lt;<code>cols</code>，因為錯誤的 j 可能算出仍在 <code>flat</code> 範圍內的位置。</p></div></details>
 <!-- /gen:arrays-multidim -->
 </section>
 
@@ -899,7 +946,7 @@ out of range
 <h3 id="sparse-coo">COO：三條陣列的同一個索引是一筆資料</h3>
 <div class="coo-equations">$$\begin{aligned}\mathrm{row}&=[0,1,2]\\\mathrm{col}&=[1,0,2]\\\mathrm{val}&=[2,3,4]\end{aligned}$$</div>
 <p>第 k 項表示 <code>A[row[k]][col[k]] = val[k]</code>。三條陣列長度相同，讀取時把同一索引的列、欄與值一起看。未排序時，找一個座標最壞要掃過 a 筆資料；按座標排序後可以二分搜尋，但插入仍可能搬移後續元素。</p><details class="chapter-extra"><summary>COO 的加減乘：完整 C++ 程式與複雜度（補充）</summary><div class="extra-body"><p>加減使用兩個索引，由小到大比較座標。座標較小的一邊先輸出；相同時將值相加或相減，兩邊一起前進。結果為零就不存。</p>
-<p>以下 append 按 (row,col) 遞增順序加入有效座標，同一座標只加入一次。三條陣列維持這個順序，加減便能用合併完成，時間 $O(a+b)$、輸出空間 $O(a+b)$。若資料原本未排序，要先排序並合併重複座標，另計 $O(a \log (a+1)+b \log (b+1))$。</p>
+<p>以下 <code>append</code> 按 (row,col) 遞增順序加入有效座標，同一座標只加入一次。三條陣列維持這個順序，加減便能用合併完成，時間 $O(a+b)$、輸出空間 $O(a+b)$。若資料原本未排序，要先排序並合併重複座標，另計 $O(a \log (a+1)+b \log (b+1))$。</p>
 <p>乘法把每個 $A(i,k)$ 與 $B(l,j)$ 配對，只有 $k=l$ 時產生對 (i,j) 的貢獻。設配對成功的乘積有 q 筆，先存下來，再依結果座標排序、合併。非空輸入的時間為 $O(ab+q \log (q+1))$，暫存 $O(q)$；任一輸入為空便直接回傳。不同 k 的貢獻要累加，不能只留下最後一筆。</p><div class="deck-extra"><div class="dx-label">COO：三條平行陣列，加法、減法與乘法</div><div class="pseudo-code" data-cpp="run" data-expected="(0,0):5 (0,1):2 (1,0):3 (1,1):6 (2,2):11 &#10;(0,0):-5 (0,1):2 (1,0):3 (1,1):-6 (2,2):-3 &#10;(0,1):12 (1,0):15 (2,2):28 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span></span>
@@ -975,13 +1022,13 @@ out of range
 <span class="line" data-l="73">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>(0,0):5 (0,1):2 (1,0):3 (1,1):6 (2,2):11&#32;
 (0,0):-5 (0,1):2 (1,0):3 (1,1):-6 (2,2):-3&#32;
 (0,1):12 (1,0):15 (2,2):28&#32;
-</pre></div></div><p>三行依序是 $A+B$、$A-B$、$A\times B$。例如乘積的 (0,1) 是 $2\times 6=12$，(1,0) 是 $3\times 5=15$，(2,2) 是 $4\times 7=28$。</p></div></details><h3 id="sparse-dok">DOK：用座標當作 map 的鍵</h3>
+</pre></div></div><p>三行依序是 $A+B$、$A-B$、$A\times B$。例如乘積的 (0,1) 是 $2\times 6=12$，(1,0) 是 $3\times 5=15$，(2,2) 是 $4\times 7=28$。</p></div></details><h3 id="sparse-dok">DOK：用座標當作 <code>map</code> 的鍵</h3>
 <pre class="memory-text">{ (0,1):2, (1,0):3, (2,2):4 }</pre>
-<p>DOK 以 (row,column) 當作鍵，保存該位置的值。std::map 按 row、再按 column 排序。令 $a$ 為 map 目前儲存的座標與值的筆數，查詢／插入需要 $O(\log (a+1))$。用 <code>m(i,j) = value</code> 就能指定某個位置的值，不必自行搜尋三條陣列。</p>
-<div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p><code>operator()</code> 回傳 <code>double&amp;</code>，讓 <code>m(i,j)</code> 代表 map 中那個可讀寫的值。若座標尚未存在，map 的 [] 會先插入值為零的項目；因此單純讀取空位置也會新增項目。</p></div><details class="chapter-extra"><summary>size_t 是什麼？（補充）</summary><div class="extra-body"><p><code>std::size_t</code> 是 <code>&lt;cstddef&gt;</code> 提供的無號整數型別，用來表示物件大小，也是 sizeof 結果的型別。<code>pair&lt;size_t,size_t&gt;</code> 把列、欄索引組成一個鍵，<code>map&lt;pair&lt;size_t,size_t&gt;,double&gt;</code> 則把這個鍵對應到 double 值。</p>
-<p>無號型別仍需要邊界檢查。負數轉成 size_t 可能成為很大的正數；讀入有號索引時，先確認非負且在維度內，再轉型。不要用 <code>i &gt;= 0</code> 作為無號倒數迴圈的終止條件。</p></div></details><details class="chapter-extra"><summary>SparseMatrix：完整 C++ 類別、使用範例與加減乘</summary><div class="extra-body"><p>下面把建構、存取、加減乘與輸出放在完整類別中，可直接編譯執行。索引介面使用講義中回傳 double&amp; 的寫法。加減法在函式內用 find 查詢另一個矩陣，缺少的座標取零，不為了查詢而改動輸入。</p>
-<p>加法第一輪處理 A 的所有鍵，第二輪補 B 獨有的鍵；減法第一輪相減，第二輪補 B 值的負值。<strong>每筆還有 map 查詢或插入的成本</strong>，時間上界為 $O((a+b) \log (a+b+1))$，輸出空間 $O(a+b)$。</p>
-<p>乘法保留講義的兩層迴圈。每一對項目都要檢查中間索引，即使沒有配對成功也有成本。設成功配對 q 次、累加過程出現 c 個結果座標，兩邊非空時需 $O(ab+q \log (c+1))$，結果空間 $O(c)$。若 B 為空，這份寫法仍會走過 A 的 a 項。結果可能變密，也可能保留相消後的零值。</p><div class="deck-extra"><div class="dx-label">SparseMatrix：以座標為鍵的 map</div><div class="pseudo-code" data-cpp="run" data-expected="(0, 0): 5  (0, 1): 2  (1, 0): 3  (1, 1): 6  (2, 2): 11  &#10;(0, 0): -5  (0, 1): 2  (1, 0): 3  (1, 1): -6  (2, 2): -3  &#10;(0, 1): 12  (1, 0): 15  (2, 2): 28  &#10;"><span class="line" data-l="1"><span class="com">// pythonds3/cppds/sparsematrix.hpp -- Dictionary-Of-Keys sparse matrix (Chapter 3)</span></span>
+<p>DOK 以 (row,column) 當作鍵，保存該位置的值。<code>std::map</code> 按 <code>row</code>、再按 column 排序。令 $a$ 為 <code>map</code> 目前儲存的座標與值的筆數，查詢／插入需要 $O(\log (a+1))$。用 <code>m(i,j) = value</code> 就能指定某個位置的值，不必自行搜尋三條陣列。</p>
+<div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p><code>operator()</code> 回傳 <code>double&amp;</code>，讓 <code>m(i,j)</code> 代表 <code>map</code> 中那個可讀寫的值。若座標尚未存在，<code>map</code> 的 <code>[]</code> 會先插入值為零的項目；因此單純讀取空位置也會新增項目。</p></div><details class="chapter-extra"><summary><code>size_t</code> 是什麼？（補充）</summary><div class="extra-body"><p><code>std::size_t</code> 是 <code>&lt;cstddef&gt;</code> 提供的無號整數型別，用來表示物件大小，也是 <code>sizeof</code> 結果的型別。<code>pair&lt;size_t,size_t&gt;</code> 把列、欄索引組成一個鍵，<code>map&lt;pair&lt;size_t,size_t&gt;,double&gt;</code> 則把這個鍵對應到 <code>double</code> 值。</p>
+<p>無號型別仍需要邊界檢查。負數轉成 <code>size_t</code> 可能成為很大的正數；讀入有號索引時，先確認非負且在維度內，再轉型。不要用 <code>i &gt;= 0</code> 作為無號倒數迴圈的終止條件。</p></div></details><details class="chapter-extra"><summary><code>SparseMatrix</code>：完整 C++ 類別、使用範例與加減乘</summary><div class="extra-body"><p>下面把建構、存取、加減乘與輸出放在完整類別中，可直接編譯執行。索引介面使用講義中回傳 <code>double&amp;</code> 的寫法。加減法在函式內用 <code>find</code> 查詢另一個矩陣，缺少的座標取零，不為了查詢而改動輸入。</p>
+<p>加法第一輪處理 A 的所有鍵，第二輪補 B 獨有的鍵；減法第一輪相減，第二輪補 B 值的負值。<strong>每筆還有 <code>map</code> 查詢或插入的成本</strong>，時間上界為 $O((a+b) \log (a+b+1))$，輸出空間 $O(a+b)$。</p>
+<p>乘法保留講義的兩層迴圈。每一對項目都要檢查中間索引，即使沒有配對成功也有成本。設成功配對 q 次、累加過程出現 c 個結果座標，兩邊非空時需 $O(ab+q \log (c+1))$，結果空間 $O(c)$。若 B 為空，這份寫法仍會走過 A 的 a 項。結果可能變密，也可能保留相消後的零值。</p><div class="deck-extra"><div class="dx-label"><code>SparseMatrix</code>：以座標為鍵的 <code>map</code></div><div class="pseudo-code" data-cpp="run" data-expected="(0, 0): 5  (0, 1): 2  (1, 0): 3  (1, 1): 6  (2, 2): 11  &#10;(0, 0): -5  (0, 1): 2  (1, 0): 3  (1, 1): -6  (2, 2): -3  &#10;(0, 1): 12  (1, 0): 15  (2, 2): 28  &#10;"><span class="line" data-l="1"><span class="com">// pythonds3/cppds/sparsematrix.hpp -- Dictionary-Of-Keys sparse matrix (Chapter 3)</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">ifnde<span></span>f DSCPP_SPARSEMATRIX_HPP</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">define DSCPP_SPARSEMATRIX_HPP</span></span>
 <span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -1058,11 +1105,11 @@ out of range
 <span class="line" data-l="75">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>(0, 0): 5  (0, 1): 2  (1, 0): 3  (1, 1): 6  (2, 2): 11 &#32;
 (0, 0): -5  (0, 1): 2  (1, 0): 3  (1, 1): -6  (2, 2): -3 &#32;
 (0, 1): 12  (1, 0): 15  (2, 2): 28 &#32;
-</pre></div></div><p id="dx-sp">三行依序是 $A+B$、$A-B$、$A\times B$，與 COO 的結果相同。這個類別的 nnz() 回傳 data.size()，數的是儲存項數；寫入零、讀取空位置或相加相消，都可能讓它和真正的非零數不同。</p></div></details><details class="chapter-extra"><summary>使用這個 SparseMatrix 時要注意什麼？（補充）</summary><div class="extra-body"><p>類別不保存 rows／cols，因此不能自動檢查形狀或索引是否越界，也無法從空 map 得知零矩陣的大小，使用時要另外記住維度。sparsity(rows,cols) 使用 $1-\frac{a}{\mathrm{rows}\times\mathrm{cols}}$，須確認維度乘積有效且非零，儲存項也符合矩陣內容。</p>
-<p>operator== 比較的是 map 的儲存內容。例如一個物件存了 (0,0):0，另一個是空 map，兩者都可表示零矩陣，但 == 會得到 false。要比較矩陣的數值是否相同，還須處理零項與維度。</p><p>fromDenseMatrix 會加入非零項，但不清空原有 map。要轉換另一個矩陣，請使用新物件。上方的 COO 程式與下方的串列程式另保存維度並略過零值；這裡保留 DOK 類別的行為，使用時要分清楚。</p></div></details><h3 id="sparse-linear">Linear list：按座標串成一條串列</h3>
+</pre></div></div><p id="dx-sp">三行依序是 $A+B$、$A-B$、$A\times B$，與 COO 的結果相同。這個類別的 <code>nnz()</code> 回傳 <code>data.size()</code>，數的是儲存項數；寫入零、讀取空位置或相加相消，都可能讓它和真正的非零數不同。</p></div></details><details class="chapter-extra"><summary>使用這個 <code>SparseMatrix</code> 時要注意什麼？（補充）</summary><div class="extra-body"><p>類別不保存 <code>rows</code>／<code>cols</code>，因此不能自動檢查形狀或索引是否越界，也無法從空 <code>map</code> 得知零矩陣的大小，使用時要另外記住維度。<code>sparsity(rows,cols)</code> 使用 $1-\frac{a}{\mathrm{rows}\times\mathrm{cols}}$，須確認維度乘積有效且非零，儲存項也符合矩陣內容。</p>
+<p><code>operator==</code> 比較的是 <code>map</code> 的儲存內容。例如一個物件存了 (0,0):0，另一個是空 <code>map</code>，兩者都可表示零矩陣，但 == 會得到 <code>false</code>。要比較矩陣的數值是否相同，還須處理零項與維度。</p><p><code>fromDenseMatrix</code> 會加入非零項，但不清空原有 <code>map</code>。要轉換另一個矩陣，請使用新物件。上方的 COO 程式與下方的串列程式另保存維度並略過零值；這裡保留 DOK 類別的行為，使用時要分清楚。</p></div></details><h3 id="sparse-linear">Linear list：按座標串成一條串列</h3>
 <pre class="memory-text">head → (0,1,2) → (1,0,3) → (2,2,4) → nullptr</pre>
-<p>每個節點記錄 row、col、value 與 next，所有非零項按 (row,col) 串成同一條串列。節點不必相鄰，跟著 next 才能找到下一筆；找指定座標最壞需要 $O(a)$。已有前驅時接入或移除節點只需 $O(1)$，但尋找前驅的成本要另算。下一章會仔細說明這些指標怎麼連接。</p><figure class="arrays-figure"><div class="arrays-figure-scroll" tabindex="0" aria-label="矩陣的非零項依列、欄順序共用同一個 head；每個節點保存 row、col、value、next。"><img src="assets/figures/ch3/sparse_matrixlist.png" alt="矩陣的非零項依列、欄順序共用同一個 head；每個節點保存 row、col、value、next。" loading="lazy"></div><figcaption>圖中的 $4\times 5$ 矩陣有六個非零項，全都串在同一條串列裡。next 會跨過矩陣的列界線；空的第 2 列不需要節點。</figcaption></figure><details class="chapter-extra"><summary>線性串列的加減乘：完整 C++ 程式與複雜度（補充）</summary><div class="extra-body"><p>加減用兩個節點指標依序比較座標，做法與 COO 的合併相同。結果保存 tail，每次把新節點接到尾端只需 $O(1)$，因此整體時間 $O(a+b)$、輸出空間 $O(a+b)$。若每次都從 head 重新找尾端，還要加上那段走訪成本。</p>
-<p>這份程式的 append 同樣要求有效座標按 (row,col) 遞增、沒有重複。乘法兩兩走訪節點，以 map 累加相同結果座標，再依序輸出串列。非空輸入的時間是 $O(ab+q \log (c+1)+c)$，輔助 map 與輸出各用 $O(c)$ 空間；任一輸入為空便直接回傳。q 是成功配對數，c 是累加時出現的不同座標數。</p><div class="deck-extra"><div class="dx-label">Linear：一條有序鏈結串列，加法、減法與乘法</div><div class="pseudo-code" data-cpp="run" data-expected="(0,0):5 (0,1):2 (1,0):3 (1,1):6 (2,2):11 &#10;(0,0):-5 (0,1):2 (1,0):3 (1,1):-6 (2,2):-3 &#10;(0,1):12 (1,0):15 (2,2):28 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<p>每個節點記錄 <code>row</code>、<code>col</code>、<code>value</code> 與 <code>next</code>，所有非零項按 (row,col) 串成同一條串列。節點不必相鄰，跟著 <code>next</code> 才能找到下一筆；找指定座標最壞需要 $O(a)$。已有前驅時接入或移除節點只需 $O(1)$，但尋找前驅的成本要另算。下一章會仔細說明這些指標怎麼連接。</p><figure class="arrays-figure"><div class="arrays-figure-scroll" tabindex="0" aria-label="矩陣的非零項依列、欄順序共用同一個 head；每個節點保存 row、col、value、next。"><img src="assets/figures/ch3/sparse_matrixlist.png" alt="矩陣的非零項依列、欄順序共用同一個 head；每個節點保存 row、col、value、next。" loading="lazy"></div><figcaption>圖中的 $4\times 5$ 矩陣有六個非零項，全都串在同一條串列裡。<code>next</code> 會跨過矩陣的列界線；空的第 2 列不需要節點。</figcaption></figure><details class="chapter-extra"><summary>線性串列的加減乘：完整 C++ 程式與複雜度（補充）</summary><div class="extra-body"><p>加減用兩個節點指標依序比較座標，做法與 COO 的合併相同。結果保存 <code>tail</code>，每次把新節點接到尾端只需 $O(1)$，因此整體時間 $O(a+b)$、輸出空間 $O(a+b)$。若每次都從 <code>head</code> 重新找尾端，還要加上那段走訪成本。</p>
+<p>這份程式的 <code>append</code> 同樣要求有效座標按 (row,col) 遞增、沒有重複。乘法兩兩走訪節點，以 <code>map</code> 累加相同結果座標，再依序輸出串列。非空輸入的時間是 $O(ab+q \log (c+1)+c)$，輔助 <code>map</code> 與輸出各用 $O(c)$ 空間；任一輸入為空便直接回傳。q 是成功配對數，c 是累加時出現的不同座標數。</p><div class="deck-extra"><div class="dx-label"><code>Linear</code>：一條有序鏈結串列，加法、減法與乘法</div><div class="pseudo-code" data-cpp="run" data-expected="(0,0):5 (0,1):2 (1,0):3 (1,1):6 (2,2):11 &#10;(0,0):-5 (0,1):2 (1,0):3 (1,1):-6 (2,2):-3 &#10;(0,1):12 (1,0):15 (2,2):28 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;map&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span></span>
 <span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;tuple&gt;</span></span>
@@ -1158,12 +1205,12 @@ out of range
 <div class="side-panel">
 
 <div class="info-card">
-<div class="ic-title">稀疏度（sparsity）</div>
+<div class="ic-title">稀疏度（<code>sparsity</code>）</div>
 <div class="mono" id="spDensity" style="font-size:.9rem;"></div>
 </div>
 </div>
 </div>
-<div class="quiz-box"><div class="quiz-label">QUIZ · map 加法成本</div><p>兩個各有 n 筆儲存項的 std::map DOK，逐筆查詢與插入相加，上界為何？</p><div class="quiz-options" id="qSpAddOptions"><div class="quiz-opt" data-correct="true" data-fb="總共走訪 $O(n)$ 項，每項 map 查詢或插入還有對數成本。" onclick="quizCheck('qSpAdd', this)"><span class="opt-letter">(A)</span> $O(n \log (n+1))$</div><div class="quiz-opt" data-correct="false" data-fb="$O(n)$ 是已排序序列合併的成本；這份程式逐筆操作 map。" onclick="quizCheck('qSpAdd', this)"><span class="opt-letter">(B)</span> $O(n)$</div><div class="quiz-opt" data-correct="false" data-fb="加法不需要將 A 的每項與 B 的每項兩兩配對。" onclick="quizCheck('qSpAdd', this)"><span class="opt-letter">(C)</span> $O(n^2)$</div></div><div class="quiz-feedback" id="qSpAddFeedback"></div></div><div class="quiz-box"><div class="quiz-label">QUIZ · 空間取捨</div><p>為何不能只看非零項數，就保證小矩陣用 DOK 一定省空間？</p><div class="quiz-options" id="qSpOptions"><div class="quiz-opt" data-correct="true" data-fb="std::map 的節點大小依實作而定，不能假定 key+value 就是全部。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(A)</span> 每項還有座標、樹節點與配置的額外成本</div><div class="quiz-opt" data-correct="false" data-fb="未存入的座標不佔 map 節點。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(B)</span> 因為 DOK 還是配置所有零值</div><div class="quiz-opt" data-correct="false" data-fb="map 可以存零，這個類別也不會自動清除零項。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(C)</span> 因為 map 不允許零值</div></div><div class="quiz-feedback" id="qSpFeedback"></div></div>
+<div class="quiz-box"><div class="quiz-label">QUIZ · <code>map</code> 加法成本</div><p>兩個各有 n 筆儲存項的 <code>std::map</code> DOK，逐筆查詢與插入相加，上界為何？</p><div class="quiz-options" id="qSpAddOptions"><div class="quiz-opt" data-correct="true" data-fb="總共走訪 $O(n)$ 項，每項 &lt;code&gt;map&lt;/code&gt; 查詢或插入還有對數成本。" onclick="quizCheck('qSpAdd', this)"><span class="opt-letter">(A)</span> $O(n \log (n+1))$</div><div class="quiz-opt" data-correct="false" data-fb="$O(n)$ 是已排序序列合併的成本；這份程式逐筆操作 &lt;code&gt;map&lt;/code&gt;。" onclick="quizCheck('qSpAdd', this)"><span class="opt-letter">(B)</span> $O(n)$</div><div class="quiz-opt" data-correct="false" data-fb="加法不需要將 A 的每項與 B 的每項兩兩配對。" onclick="quizCheck('qSpAdd', this)"><span class="opt-letter">(C)</span> $O(n^2)$</div></div><div class="quiz-feedback" id="qSpAddFeedback"></div></div><div class="quiz-box"><div class="quiz-label">QUIZ · 空間取捨</div><p>為何不能只看非零項數，就保證小矩陣用 DOK 一定省空間？</p><div class="quiz-options" id="qSpOptions"><div class="quiz-opt" data-correct="true" data-fb="&lt;code&gt;std::map&lt;/code&gt; 的節點大小依實作而定，不能假定 key+&lt;code&gt;value&lt;/code&gt; 就是全部。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(A)</span> 每項還有座標、樹節點與配置的額外成本</div><div class="quiz-opt" data-correct="false" data-fb="未存入的座標不佔 &lt;code&gt;map&lt;/code&gt; 節點。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(B)</span> 因為 DOK 還是配置所有零值</div><div class="quiz-opt" data-correct="false" data-fb="&lt;code&gt;map&lt;/code&gt; 可以存零，這個類別也不會自動清除零項。" onclick="quizCheck('qSp', this)"><span class="opt-letter">(C)</span> 因為 <code>map</code> 不允許零值</div></div><div class="quiz-feedback" id="qSpFeedback"></div></div>
 <!-- /gen:arrays-sparse -->
 </section>
 
@@ -1176,7 +1223,7 @@ out of range
   <p><code>double a[100]</code>（8B/格）$\mathrm{base}=2000$。<code>&amp;a[13]</code> 是？</p>
   
   <div class="quiz-options" id="ex1Options">
-    <div class="quiz-opt" data-correct="true" data-fb="$2000 + 13\times 8 = 2104$。一個乘法一個加法：這就是 $O(1)$。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(A)</span> <code>2104</code></div><div class="quiz-opt" data-correct="false" data-fb="忘了乘 $\operatorname{sizeof}(\mathrm{double})=8$。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(B)</span> <code>2013</code></div><div class="quiz-opt" data-correct="false" data-fb="那是 a[14]；索引從 0 起算。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(C)</span> <code>2112</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="$2000 + 13\times 8 = 2104$。一個乘法一個加法：這就是 $O(1)$。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(A)</span> <code>2104</code></div><div class="quiz-opt" data-correct="false" data-fb="忘了乘 $\operatorname{sizeof}(\mathrm{double})=8$。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(B)</span> <code>2013</code></div><div class="quiz-opt" data-correct="false" data-fb="那是 &lt;code&gt;a[14]&lt;/code&gt;；索引從 0 起算。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(C)</span> <code>2112</code></div>
   </div>
   <div class="quiz-feedback" id="ex1Feedback"></div>
 </div>
@@ -1186,17 +1233,17 @@ out of range
   <p><code>int a[3][4]</code> $\mathrm{base}=1000$（$\operatorname{sizeof}(\mathrm{int})=4\,\mathrm{B}$）。<code>&amp;a[2][1]</code> 是？</p>
   
   <div class="quiz-options" id="ex2Options">
-    <div class="quiz-opt" data-correct="true" data-fb="$(2\times 4 + 1) = 9$ 格 → $1000 + 9\times 4 = 1036$。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(A)</span> <code>1036</code></div><div class="quiz-opt" data-correct="false" data-fb="那是 a[1][2]（offset 6）。公式：$i\times4+j$。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(B)</span> <code>1024</code></div><div class="quiz-opt" data-correct="false" data-fb="那是 a[2][0]；別忘了 +j。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(C)</span> <code>1032</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="$(2\times 4 + 1) = 9$ 格 → $1000 + 9\times 4 = 1036$。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(A)</span> <code>1036</code></div><div class="quiz-opt" data-correct="false" data-fb="那是 &lt;code&gt;a[1][2]&lt;/code&gt;（offset 6）。公式：$i\times4+j$。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(B)</span> <code>1024</code></div><div class="quiz-opt" data-correct="false" data-fb="那是 &lt;code&gt;a[2][0]&lt;/code&gt;；別忘了 +j。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(C)</span> <code>1032</code></div>
   </div>
   <div class="quiz-feedback" id="ex2Feedback"></div>
 </div>
   
 <div class="quiz-box">
-  <div class="quiz-label">EXERCISE 4 · 講義練習：students 陣列</div>
-  <p>$100\times 4$ 的陣列，students[0][0] 的位址是 0、每個元素佔 1 格、row-major。students[7][2] 的位址是？</p>
+  <div class="quiz-label">EXERCISE 4 · 講義練習：<code>students</code> 陣列</div>
+  <p>$100\times 4$ 的陣列，<code>students[0][0]</code> 的位址是 0、每個元素佔 1 格、row-major。<code>students[7][2]</code> 的位址是？</p>
   
   <div class="quiz-options" id="ex4Options">
-    <div class="quiz-opt" data-correct="true" data-fb="$$\begin{aligned}y&amp;=x+(\mathrm{Cols}\times i+j)\times s\\&amp;=0+(4\times7+2)\times1\\&amp;=30\end{aligned}$$s 是每個元素占的空間；這一題為 $s=1$。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(A)</span> <code>30</code></div><div class="quiz-opt" data-correct="false" data-fb="把 100 當成 Cols 了（$100\times 7 + 2$）。公式吃的是「每列幾欄」（4），不是列數。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(B)</span> <code>702</code></div><div class="quiz-opt" data-correct="false" data-fb="算到 row 開頭（$4\times 7 = 28$）就停了，還要 $+j=2$。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(C)</span> <code>28</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="$$\begin{aligned}y&amp;=x+(\mathrm{Cols}\times i+j)\times s\\&amp;=0+(4\times7+2)\times1\\&amp;=30\end{aligned}$$s 是每個元素占的空間；這一題為 $s=1$。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(A)</span> <code>30</code></div><div class="quiz-opt" data-correct="false" data-fb="把 100 當成 Cols 了（$100\times 7 + 2$）。公式吃的是「每列幾欄」（4），不是列數。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(B)</span> <code>702</code></div><div class="quiz-opt" data-correct="false" data-fb="算到 &lt;code&gt;row&lt;/code&gt; 開頭（$4\times 7 = 28$）就停了，還要 $+j=2$。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(C)</span> <code>28</code></div>
   </div>
   <div class="quiz-feedback" id="ex4Feedback"></div>
 </div>
@@ -1206,7 +1253,7 @@ out of range
   <p>$10^{5}\times 10^{5}$ 矩陣、約 $10^{6}$ 個非零、需要頻繁「讀寫任意 (r,c)」。選哪個？</p>
   
   <div class="quiz-options" id="ex3Options">
-    <div class="quiz-opt" data-correct="true" data-fb="std::map 查找 $O(\log (\mathrm{nnz}+1))$；unordered_map 平均 $O(1)$。未排序 COO 需線性掃描；密矩陣需要 $\mathrm{Rows}\times\mathrm{Cols}$ 格。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(A)</span> DOK（map/unordered_map）</div><div class="quiz-opt" data-correct="false" data-fb="未排序 COO 需線性掃描；排序後雖可二分查詢，插入仍可能搬移後續項目。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(B)</span> COO 三陣列</div><div class="quiz-opt" data-correct="false" data-fb="$10^{10}\times4\,\mathrm{B}=40\,\mathrm{GB}$，需要大量記憶體。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(C)</span> 直接開二維 vector</div>
+    <div class="quiz-opt" data-correct="true" data-fb="&lt;code&gt;std::map&lt;/code&gt; 查找 $O(\log (\mathrm{nnz}+1))$；&lt;code&gt;unordered_map&lt;/code&gt; 平均 $O(1)$。未排序 COO 需線性掃描；密矩陣需要 $\mathrm{Rows}\times\mathrm{Cols}$ 格。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(A)</span> DOK（<code>map</code>/<code>unordered_map</code>）</div><div class="quiz-opt" data-correct="false" data-fb="未排序 COO 需線性掃描；排序後雖可二分查詢，插入仍可能搬移後續項目。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(B)</span> COO 三陣列</div><div class="quiz-opt" data-correct="false" data-fb="$10^{10}\times4\,\mathrm{B}=40\,\mathrm{GB}$，需要大量記憶體。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(C)</span> 直接開二維 <code>vector</code></div>
   </div>
   <div class="quiz-feedback" id="ex3Feedback"></div>
 </div>
@@ -1215,11 +1262,11 @@ out of range
 <section id="reference">
 <!-- gen:arrays-reference -->
 <h2>陣列家族總覽</h2>
-<div class="chapter-table"><table class="cmp-table"><thead><tr><th>表示</th><th>空間</th><th>讀取</th><th>適合用途／限制</th></tr></thead><tbody><tr><td>原生陣列／std::array</td><td>$O(n)$</td><td>$O(1)$</td><td>大小固定；資料直接連續存放</td></tr><tr><td>vector&lt;T&gt;</td><td>$O(\mathrm{capacity})$</td><td>$O(1)$</td><td>動態大小；中間增刪最壞 $O(n)$</td></tr><tr><td>指標／reference_wrapper 陣列</td><td>$O(n)$，目標另計</td><td>$O(1)$，多一層間接存取</td><td>可共享物件；須維持目標生命週期</td></tr><tr><td>row-major／column-major 密矩陣</td><td>$O(\mathrm{Rows}\times \mathrm{Cols})$</td><td>$O(1)$</td><td>按公式定位；走訪順序影響快取</td></tr><tr><td>COO</td><td>$O(a)$</td><td>未排序 $O(a)$；排序後可 $O(\log (a+1))$</td><td>適合收集三元組；更新可能搬移</td></tr><tr><td>DOK（std::map）</td><td>$O(a)$</td><td>$O(\log (a+1))$</td><td>按座標查找；每項另有樹節點成本</td></tr><tr><td>有序單一鏈結串列</td><td>$O(a)$</td><td>$O(a)$</td><td>合併走訪方便；不能隨機跳到第 i 個節點</td></tr></tbody></table></div><p>a 是儲存項數。固定寬度的資料、可直接計算的位置帶來 $O(1)$ 索引；參考式結構與鏈結結構增加間接存取。稀疏格式省下零值空間，但需多存座標或指標，也不保證每種運算都更快。</p>
+<div class="chapter-table"><table class="cmp-table"><thead><tr><th>表示</th><th>空間</th><th>讀取</th><th>適合用途／限制</th></tr></thead><tbody><tr><td>原生陣列／<code>std::array</code></td><td>$O(n)$</td><td>$O(1)$</td><td>大小固定；資料直接連續存放</td></tr><tr><td><code>vector&lt;T&gt;</code></td><td>$O(\mathrm{capacity})$</td><td>$O(1)$</td><td>動態大小；中間增刪最壞 $O(n)$</td></tr><tr><td>指標／<code>reference_wrapper</code> 陣列</td><td>$O(n)$，目標另計</td><td>$O(1)$，多一層間接存取</td><td>可共享物件；須維持目標生命週期</td></tr><tr><td>row-major／column-major 密矩陣</td><td>$O(\mathrm{Rows}\times \mathrm{Cols})$</td><td>$O(1)$</td><td>按公式定位；走訪順序影響快取</td></tr><tr><td>COO</td><td>$O(a)$</td><td>未排序 $O(a)$；排序後可 $O(\log (a+1))$</td><td>適合收集三元組；更新可能搬移</td></tr><tr><td>DOK（<code>std::map</code>）</td><td>$O(a)$</td><td>$O(\log (a+1))$</td><td>按座標查找；每項另有樹節點成本</td></tr><tr><td>有序單一鏈結串列</td><td>$O(a)$</td><td>$O(a)$</td><td>合併走訪方便；不能隨機跳到第 i 個節點</td></tr></tbody></table></div><p>a 是儲存項數。固定寬度的資料、可直接計算的位置帶來 $O(1)$ 索引；參考式結構與鏈結結構增加間接存取。稀疏格式省下零值空間，但需多存座標或指標，也不保證每種運算都更快。</p>
 <!-- /gen:arrays-reference -->
 </section><section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch3.json · 11 張</span></h2>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 <code>ch3.json</code> · 11 張</span></h2>
   <p>詞彙卡取自本章課程題庫，已譯為繁體中文，正面附英文原名。先看正面術語，試著說出定義，再翻面核對；不熟的詞可以洗牌後再練習。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>

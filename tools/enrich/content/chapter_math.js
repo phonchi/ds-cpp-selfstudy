@@ -22,7 +22,7 @@
   }
   window.chapterSetMath = (el, html) => {
     if (!el) return;
-    html = formatCosts(html);
+    html = chapterFormatCode(formatCosts(html));
     if (!window.MathJax?.typesetPromise) { el.innerHTML = html; return; }
     pending.set(el, html);
     if (!scheduled) {

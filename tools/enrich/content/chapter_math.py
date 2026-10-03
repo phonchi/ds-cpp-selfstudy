@@ -3,6 +3,7 @@ from html.parser import HTMLParser
 from html import escape
 from pathlib import Path
 import re
+from .inline_code import code_text, browser_formatter, clean_natural_code
 
 FORMULAS = {
     'offset = i × Cols + j': r'$\mathrm{offset}=i\times\mathrm{Cols}+j$',
@@ -82,27 +83,37 @@ def math_text(text):
 class ProseMath(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=False)
-        self.out=[];self.stack=[]
+        self.out=[];self.stack=[];self.buffer=[]
+    def flush_text(self):
+        raw=''.join(self.buffer);self.buffer=[]
+        self.out.append(raw if any(skip for _,skip in self.stack) else code_text(math_text(raw)))
     def handle_starttag(self,tag,attrs):
+        self.flush_text()
         raw=self.get_starttag_text();pairs=dict(attrs)
         if 'data-fb' in pairs:
-            value=escape(math_text(pairs['data-fb']),quote=True)
+            fragment=ProseMath();fragment.feed(clean_natural_code(pairs['data-fb']));fragment.close();fragment.flush_text()
+            value=escape(''.join(fragment.out),quote=True)
             raw=re.sub(r'data-fb="[^"]*"',lambda _: 'data-fb="'+value+'"',raw)
         if tag not in {'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'}:
-            self.stack.append((tag,tag in {'script','style','pre','code'} or 'pseudo-code' in pairs.get('class','').split()))
+            self.stack.append((tag,tag in {'script','style','pre','code','svg','title'} or 'pseudo-code' in pairs.get('class','').split()))
         self.out.append(raw)
-    def handle_startendtag(self,tag,attrs):self.out.append(self.get_starttag_text())
+    def handle_startendtag(self,tag,attrs):
+        self.flush_text();self.out.append(self.get_starttag_text())
     def handle_endtag(self,tag):
+        self.flush_text()
         for i in range(len(self.stack)-1,-1,-1):
             if self.stack[i][0]==tag:self.stack=self.stack[:i];break
         self.out.append('</'+tag+'>')
-    def handle_data(self,data):self.out.append(data if any(skip for _,skip in self.stack) else math_text(data))
-    def handle_entityref(self,name):self.out.append('&'+name+';')
-    def handle_charref(self,name):self.out.append('&#'+name+';')
-    def handle_comment(self,data):self.out.append('<!--'+data+'-->')
-    def handle_decl(self,data):self.out.append('<!'+data+'>')
+    def handle_data(self,data):self.buffer.append(data)
+    def handle_entityref(self,name):self.buffer.append('&'+name+';')
+    def handle_charref(self,name):self.buffer.append('&#'+name+';')
+    def handle_comment(self,data):
+        self.flush_text();self.out.append('<!--'+data+'-->')
+    def handle_decl(self,data):
+        self.flush_text();self.out.append('<!'+data+'>')
 
 def render_math(text):
+    text=clean_natural_code(text)
     text=text.replace('$y=x+(\\mathrm{Cols}\\times i+j)\\times\\operatorname{sizeof}=0+(4\\times7+2)\\times1=30$','$$\\begin{aligned}y&=x+(\\mathrm{Cols}\\times i+j)\\times s\\\\&=0+(4\\times7+2)\\times1\\\\&=30\\end{aligned}$$')
     text=text.replace('跟上一題同一條公式，只是 sizeof 是 1。', 's 是每個元素占的空間；這一題為 $s=1$。')
     for old,new in INLINE_MATH.items():
@@ -113,10 +124,10 @@ def render_math(text):
         r"setStatus('mdStatus', String.raw`<code>a[${i}][${j}]</code> → 攤平索引 $${i}\times${MD_C}+${j}=${k}$，位址 $1000+${k}\times4=${1000+k*4}$。`);")
     text=text.replace("$('spDensity').innerHTML = `nnz = ${nnz} / ${total}<br>sparsity = ${(100*(1 - nnz/total)).toFixed(1)}%`;",
         r"chapterSetMath($('spDensity'), String.raw`$\mathrm{nnz}=${nnz}$（共 ${total} 格）<br>$\mathrm{sparsity}=${(100*(1-nnz/total)).toFixed(1)}\%$`);")
-    parser=ProseMath();parser.feed(text);parser.close()
+    parser=ProseMath();parser.feed(text);parser.close();parser.flush_text()
     text=''.join(parser.out)
     text=text.replace('$$。s 是每個元素', '$$s 是每個元素')
-    runtime='<script id="chapter-math-runtime">\n'+(Path(__file__).parent/'chapter_math.js').read_text()+'</script>'
+    runtime='<script id="chapter-math-runtime">\n'+browser_formatter()+'\n'+(Path(__file__).parent/'chapter_math.js').read_text()+'</script>'
     style = '<style id="chapter-math-layout">.quiz-feedback,.mapping-formula{overflow-x:auto;}.status-text{min-width:0;}.status-text mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden;}</style>'
     text=re.sub(r'<script id="chapter-math-runtime">.*?</script>\n?', '', text, flags=re.S)
     text=re.sub(r'<style id="chapter-math-layout">.*?</style>\n?', '', text, flags=re.S)

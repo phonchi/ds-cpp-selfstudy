@@ -1,16 +1,387 @@
-"""Chapter 4 supplemental teaching blocks; compiled examples are kept with outputs."""
-from enrich_lib import card
-import re
+"""Chapter 4 section bodies. Each value of sections() fills one <!-- gen:NAME --> block.
 
-def fold(title, body):
-    title = re.sub(r'^(?:補充|延伸|實作練習)：', '', title) + '（補充）'
-    return f'<details class="linked-detail"><summary>{title}</summary><div class="linked-detail-body">{body}</div></details>'
+Code shown as lecture or header code is copied from 04_Linear_Linked_Structure.ipynb and
+pythonds3/cppds/linked_list.hpp; expected outputs come from compiling the programs.
+"""
+from html import escape
+from enrich_lib import card, hl
+from content.linked_figures import figure
+
+
+def details(summary, body, cls='linked-detail', did=''):
+    ident = f' id="{did}"' if did else ''
+    return f'<details class="{cls}"{ident}><summary>{summary}</summary><div class="linked-detail-body">{body}</div></details>'
+
+
+def fold(title, body, did=''):
+    """Content that the lecture does not cover: collapsed and labelled （補充）."""
+    return details(title + '（補充）', body, did=did)
+
 
 def table(headers, rows):
-    return '<div style="overflow-x:auto"><table class="cmp-table"><thead><tr>'+''.join(f'<th>{h}</th>' for h in headers)+'</tr></thead><tbody>'+''.join('<tr>'+''.join(f'<td>{v}</td>' for v in r)+'</tr>' for r in rows)+'</tbody></table></div>'
+    return ('<div style="overflow-x:auto"><table class="cmp-table"><thead><tr>'
+            + ''.join(f'<th>{h}</th>' for h in headers) + '</tr></thead><tbody>'
+            + ''.join('<tr>' + ''.join(f'<td>{v}</td>' for v in r) + '</tr>' for r in rows)
+            + '</tbody></table></div>')
 
-EXAMPLES = {
-'list': (r'''#include <iostream>
+
+def quiz(qid, label, question, options):
+    """options: [(correct, text, feedback)]; the page shuffles option order at load time."""
+    opts = ''.join(
+        f'<div class="quiz-opt" data-correct="{"true" if ok else "false"}" data-fb="{escape(fb, quote=True)}" '
+        f'onclick="quizCheck(\'{qid}\', this)"><span class="opt-letter">({chr(65 + i)})</span> <span class="opt-text">{text}</span></div>'
+        for i, (ok, text, fb) in enumerate(options))
+    return (f'<div class="quiz-box">\n  <div class="quiz-label">{label}</div>\n  <p>{question}</p>\n'
+            f'  <div class="quiz-options" id="{qid}Options">\n    {opts}\n  </div>\n'
+            f'  <div class="quiz-feedback" id="{qid}Feedback"></div>\n</div>')
+
+
+LEGEND = {
+    'hl': ('#fff3cd', '#d68910', '正在處理的節點'),
+    'cmp': ('#f4ecf7', '#7d3c98', '正在比較的節點'),
+    'found': ('#d5f5e3', 'var(--accent3)', '找到的節點'),
+    'new': ('#e9f7ef', 'var(--accent3)', '新節點或剛改過的指標'),
+    'del': ('transparent', 'var(--accent)', '已釋放的節點'),
+    'lost': ('var(--card)', 'var(--muted)', '無法再到達的節點'),
+    'skip': ('var(--card)', 'var(--node-gray)', '未走訪的節點'),
+    'sent': ('#eceff1', 'var(--muted)', '哨兵節點'),
+}
+
+
+def widget(p, cases, status, codes=(), legend=(), extra='', aside=''):
+    """One player-v2 animation: case buttons pick a scenario; ▶／→／⏸ and the speed slider drive it."""
+    leg = ''.join(f'<span><i class="ll-sw" style="background:{bg};border-color:{bd};"></i>{txt}</span>'
+                  for bg, bd, txt in (LEGEND[k] for k in legend))
+    btns = ''.join(f'<button class="btn ll-case" data-ll="{p}" onclick="llCase(\'{p}\', \'{k}\', this)">{label}</button>'
+                   for k, label in cases)
+    panel = f'''<div class="viz-panel">
+  <div class="ll-canvas" id="{p}Vis"></div>
+  {f'<div class="ll-legend">{leg}</div>' if leg else ''}
+  <div class="status-banner" id="{p}Status"><span class="status-icon">›</span><span class="status-text">{status}</span></div>
+  <div class="controls-bar">{btns}{extra}</div>
+  <div class="controls-bar ll-play">
+    <button class="btn btn-play" onclick="llPlay('{p}')">▶ 播放</button>
+    <button class="btn btn-step" onclick="llStep('{p}')">→ 單步</button>
+    <button class="btn btn-toggle" id="{p}Toggle" onclick="llToggle('{p}', this)">⏸ 暫停</button>
+    <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="{p}Speed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
+    <span class="ll-count" id="{p}Count"></span>
+  </div>
+</div>'''
+    side = ''.join(
+        f'<div class="info-card" data-ll-code="{p}" data-idx="{j}"{" hidden" if j else ""}><div class="ic-title"><span>{title}</span> <span class="ic-badge">CODE</span></div>'
+        f'<div class="pseudo-code" id="{p}Code{j}">{hl(code)}</div></div>'
+        for j, (title, code) in enumerate(codes)) + aside
+    if not side:
+        return f'<div class="ll-widget">{panel}</div>'
+    return f'<div class="viz-layout ll-widget"><div>{panel}</div><div class="side-panel">{side}</div></div>'
+
+
+def snippet(label, code, output=None, note=None):
+    return card(label, code, output, note=note)
+
+
+def lecture_program(summary, label, code, output, note=None):
+    """Lecture full program: collapse the code, keep the expected output and note visible."""
+    out = ('<div class="expected-out"><span class="eo-tag">預期輸出</span><pre>'
+           + escape(output.replace("\\n", "\n")) + '</pre></div>')
+    if note:
+        out += f'<p class="dx-note">{note}</p>'
+    return details(summary, card(label, code)) + out
+
+
+# ---------------------------------------------------------------- lecture / header code
+NODE_CLASS = '''template <typename T>
+class Node {
+    private:
+        T data;           // data of generic type
+        Node<T> *next;    // pointer to the next node
+    public:
+        Node(T initdata) {
+            data = initdata;
+            next = NULL;
+        }
+        T getData() const {
+            return data;
+        }
+        Node<T> *getNext() const {
+            return next;
+        }
+        void setData(T newData) {
+            data = newData;
+        }
+        void setNext(Node<T> *newnext) {
+            next = newnext;
+        }
+};'''
+
+NODE_LINES = '''Node<int> *temp = new Node<int>(93);
+cout << temp->getData() << endl;
+cout << temp->getNext() << endl;   // NULL prints as 0
+delete temp;'''
+
+NODE_MAIN = '''#include <iostream>
+#include "pythonds3/cppds/linked_list.hpp"   // Node / UnorderedList / OrderedList
+using namespace std;
+
+int main() {
+    Node<int> *temp = new Node<int>(93);
+    cout << temp->getData() << endl;
+    cout << temp->getNext() << endl;   // NULL prints as 0
+    delete temp;
+    return 0;
+}'''
+
+UL_SKELETON = '''template <typename T>
+class UnorderedList {
+    private:
+        Node<T> *head;
+    public:
+        UnorderedList() {
+            head = NULL;
+        }
+};'''
+
+IS_EMPTY = '''bool isEmpty() const {
+    return head == NULL;
+}'''
+
+UL_ADD = '''void add(T item) {
+    Node<T> *temp = new Node<T>(item);
+    temp->setNext(head);
+    head = temp;
+}'''
+
+UL_ADD_WRONG = '''void add(T item) {   // wrong order
+    Node<T> *temp = new Node<T>(item);
+    head = temp;
+    temp->setNext(head);
+}'''
+
+UL_SIZE = '''int size() const {
+    Node<T> *current = head;
+    int count = 0;
+    while (current != NULL) {
+        count++;
+        current = current->getNext();
+    }
+    return count;
+}'''
+
+UL_SEARCH = '''bool search(T item) const {
+    Node<T> *current = head;
+    while (current != NULL) {
+        if (current->getData() == item) {
+            return true;
+        }
+        current = current->getNext();
+    }
+    return false;
+}'''
+
+UL_REMOVE = '''void remove(T item) {
+    Node<T> *current = head;
+    Node<T> *previous = NULL;
+    bool found = false;
+    // Step 1: traverse to find the item
+    while (!found && current != NULL) {
+        if (current->getData() == item) {
+            found = true;
+        } else {
+            previous = current;
+            current = current->getNext();
+        }
+    }
+    // Step 2: unlink and FREE the node (C++ has no garbage collector!)
+    if (found) {
+        if (previous == NULL) {
+            head = current->getNext();
+        } else {
+            previous->setNext(current->getNext());
+        }
+        delete current;
+    }
+}'''
+
+UL_MAIN = '''#include <iostream>
+#include "pythonds3/cppds/linked_list.hpp"
+using namespace std;
+
+int main() {
+    UnorderedList<int> myList;
+    myList.add(31); myList.add(77); myList.add(17);
+    myList.add(93); myList.add(26); myList.add(54);
+
+    cout << myList << endl;
+    cout << myList.size() << endl;
+    cout << boolalpha << myList.search(93) << endl;
+
+    myList.remove(54);
+    myList.remove(93);
+    myList.remove(31);
+    cout << myList << endl;
+    return 0;
+}'''
+
+UL_PRINT = '''friend ostream& operator<<(ostream& os, const UnorderedList<T>& ol) {
+    Node<T> *current = ol.head;
+    while (current != NULL) {
+        os << current->getData() << " ";
+        current = current->getNext();
+    }
+    return os;
+}'''
+
+EDGES = r'''#include <iostream>
+#include "pythonds3/cppds/linked_list.hpp"
+int main() {
+    UnorderedList<int> a;
+    a.remove(9);                        // empty: unchanged
+    std::cout << std::boolalpha << a.isEmpty() << '\n';
+    a.add(7); a.remove(7);              // only node
+    std::cout << a.isEmpty() << '\n';
+    a.add(10); a.add(20); a.add(20); a.add(30);
+    a.remove(20);                      // first matching 20 only
+    std::cout << a << '\n';
+    a.remove(99);                      // missing: unchanged
+    a.remove(30);                      // head
+    a.remove(10);                      // tail
+    std::cout << a << '\n';
+    OrderedList<int> b;
+    b.add(20); b.add(10); b.add(20);
+    b.remove(20);
+    std::cout << b << '\n';
+}'''
+
+OWNERSHIP = '''UnorderedList<int> a;
+a.add(1); a.add(2);
+UnorderedList<int> b = a;  // copies the whole chain
+b.remove(2);               // must not change a'''
+
+APPEND = '''void append(T item) {
+    Node<T> *temp = new Node<T>(item);
+    if (head == NULL) {
+        head = temp;
+        return;
+    }
+    Node<T> *current = head;
+    while (current->getNext() != NULL) {
+        current = current->getNext();
+    }
+    current->setNext(temp);
+}'''
+
+OL_SKELETON = '''template <typename T>
+class OrderedList {
+    private:
+        Node<T> *head;
+
+    public:
+        OrderedList() {
+            head = NULL;
+        }
+};'''
+
+OL_SEARCH = '''bool search(T item) const {
+    Node<T> *current = head;
+    while (current != NULL) {
+        if (current->getData() == item) {
+            return true;
+        } else if (current->getData() > item) {
+            return false;   // passed the spot: stop early!
+        }
+        current = current->getNext();
+    }
+    return false;
+}'''
+
+OL_ADD = '''void add(T item) {
+    Node<T> *newNode = new Node<T>(item);
+    if (head == NULL || head->getData() >= item) {
+        newNode->setNext(head);
+        head = newNode;
+    } else {
+        Node<T> *current = head;
+        while (current->getNext() != NULL && current->getNext()->getData() < item) {
+            current = current->getNext();
+        }
+        newNode->setNext(current->getNext());
+        current->setNext(newNode);
+    }
+}'''
+
+OL_ADD_BOOK = '''void add(int item) {
+    if (head == nullptr) {
+        Node *newNode = new Node(item);
+        head = newNode;
+    } else {
+        Node *current = head;
+        Node *previous = nullptr;
+        bool stop = false;
+        while (current != nullptr && !stop) {
+            if (current->getData() > item) {
+                stop = true;
+            } else {
+                previous = current;
+                current = current->getNext();
+            }
+        }
+        Node *temp = new Node(item);
+        if (previous == nullptr) {
+            temp->setNext(head);
+            head = temp;
+        } else {
+            temp->setNext(current);
+            previous->setNext(temp);
+        }
+    }
+}'''
+
+OL_REMOVE = '''void remove(T item) {
+    Node<T> *current = head, *previous = NULL;
+    while (current != NULL && current->getData() < item) {
+        previous = current;
+        current = current->getNext();
+    }
+    if (current == NULL || current->getData() != item) return;
+    if (previous == NULL) head = current->getNext();
+    else previous->setNext(current->getNext());
+    delete current;
+}'''
+
+OL_MAIN = '''#include <iostream>
+#include "pythonds3/cppds/linked_list.hpp"
+using namespace std;
+
+int main() {
+    OrderedList<int> myList;
+    for (int value : {31, 77, 17, 93, 26, 54}) myList.add(value);
+    cout << myList << endl;
+    cout << myList.size() << endl;
+    cout << boolalpha << myList.search(93) << endl;
+    cout << myList.search(100) << endl;
+    myList.remove(31);
+    myList.remove(100);  // missing value: no-op
+    cout << myList << endl;
+}'''
+
+STL_MAIN = '''#include <forward_list>
+#include <iostream>
+#include <list>
+using namespace std;
+
+int main() {
+    forward_list<int> singly = {31, 54};
+    singly.insert_after(singly.before_begin(), 17);
+    list<int> doubly = {17, 31, 54};
+    auto pos = next(doubly.begin());
+    doubly.insert(pos, 26);
+    for (int x : singly) cout << x << ' ';
+    cout << endl;
+    for (int x : doubly) cout << x << ' ';
+    cout << endl;
+}'''
+
+STL_LIST = r'''#include <iostream>
 #include <list>
 int main() {
     std::list<int> a{20, 30};
@@ -29,8 +400,9 @@ int main() {
     }
     for (int x : a) std::cout << x << ' ';
     std::cout << "\nsize = " << a.size() << '\n';
-}''', '35 \nsize = 1'),
-'forward': (r'''#include <forward_list>
+}'''
+
+STL_FORWARD = r'''#include <forward_list>
 #include <iostream>
 #include <iterator>
 int main() {
@@ -50,8 +422,9 @@ int main() {
     }
     for (int x : a) std::cout << x << ' ';
     std::cout << "\ncount = " << std::distance(a.begin(), a.end()) << '\n';
-}''', '10 \ncount = 1'),
-'algorithms': (r'''#include <iostream>
+}'''
+
+STL_ALGOS = r'''#include <iostream>
 #include <list>
 template<class C> void show(const C& a) {
     for (int x : a) std::cout << x << ' ';
@@ -64,63 +437,411 @@ int main() {
     a.push_back(1);
     a.sort(); show(a);
     a.unique(); show(a);
-}''', '3 1 3 2 \n1 2 \n1 1 2 \n1 2 '),
-'edges': (r'''#include <iostream>
-#include "pythonds3/cppds/linked_list.hpp"
-int main() {
-    UnorderedList<int> a;
-    a.remove(9);                        // empty: unchanged
-    std::cout << std::boolalpha << a.isEmpty() << '\n';
-    a.add(7); a.remove(7);              // only node
-    std::cout << a.isEmpty() << '\n';
-    a.add(10); a.add(20); a.add(20); a.add(30);
-    a.remove(20);                      // first matching 20 only
-    std::cout << a << '\n';
-    a.remove(99);                      // missing: unchanged
-    a.remove(30);                      // head
-    a.remove(10);                      // tail
-    std::cout << a << '\n';
-    OrderedList<int> b;
-    b.add(20); b.add(10); b.add(20);
-    b.remove(20);
-    std::cout << b << '\n';
-}''', 'true\ntrue\n30 20 10 \n20 \n10 20 ')
-}
+}'''
 
-def blocks():
-    node = '''<h3>指標記住位置，不會複製節點</h3>
-<p><code>head</code> 是串列物件保存的入口；<code>current</code> 是走訪時的游標；<code>previous</code> 記住 current 的前驅。令 <code>current = head</code> 只複製位址，兩者指向同一節點；令 <code>current = current-&gt;getNext()</code> 只移動游標，不會改變 head 或接線。</p>
-<p><code>current-&gt;setData(42)</code> 會修改節點資料，<code>previous-&gt;setNext(current)</code> 才會修改鏈結。空串列的 <code>head == nullptr</code>；解參考前先檢查空指標。</p>
-<p>節點不必相鄰：next 存的是下一個節點的位置，不是下一個陣列索引。配置方式也不是 Node 類別本身的限制；此處用 new 動態配置，串列負責 delete。</p>'''
-    node += fold('補充：NULL、nullptr 與箭頭運算子', '<p>講義使用的 NULL 與 nullptr 都用來表示空指標，現代 C++ 通常使用 nullptr。<code>p-&gt;getNext()</code> 是透過指標 p 呼叫節點的方法，等同於 <code>(*p).getNext()</code>；使用前要確認 p 指向有效節點。</p>')
-    uno = '''<h3>更新指標時，要維持哪些關係？</h3>
-<div class="info-box"><span class="info-label">走訪時的兩個指標</span><p>尋找時維持：current 是待比較節點；若 previous 非空，<code>previous-&gt;getNext() == current</code>。前進必須<strong>先保存 previous，再更新 current</strong>：先做 <code>previous = current</code>，再移動 current；若反過來，兩者會停在同一節點。</p></div>
-<ol><li><strong>插入：</strong>先讓新節點的 next 接到原來的後段，再讓 head 或前驅接到新節點。只有入口切換，後段不必搬移。</li><li><strong>刪除：</strong>先讀取 current 的 next，再讓 head 或前驅跳過 current，最後才 delete current。delete 之後不能再讀 current 的欄位。</li><li><strong>找不到：</strong>current 到達空指標就返回，不能解參考，也不應更動串列。</li></ol>'''+table(['情況','head／前驅的更新','結果'],[
-('空串列 remove','不更新','仍為空'),('只剩一個節點且命中','head = current 的 next（空指標）','變成空串列'),('刪頭','head = current 的 next','新 head 是原第二節點'),('刪中間','previous 的 next = current 的 next','前後段接回'),('刪尾','previous 的 next = 空指標','previous 成為尾端'),('多個相同值','只跳過第一個命中節點','其餘相同值保留')])+card('空串列、重複值與頭尾刪除',*EXAMPLES['edges'])+fold('延伸：保存元素數量，讓 size() 變成 O(1)', '<p>本課實作的 size() 每次從 head 數到尾端，所以是 O(n)。可另存 count，成功新增後加一、確實刪除後減一；找不到時不減。建構、清空、複製與移動時也要維護 count。多保存一個計數，就能省下 size() 的走訪；因此 size() 的成本取決於類別的實作。</p>')
-    ordered = '''<h3>有排序，為什麼搜尋仍是 O(n)？</h3>
-<p>搜尋 45 時依序看 17、26、31、54；遇到 $54 \\gt 45$ 就能停止，後方不可能有 45。搜尋 100 則必須看完所有節點。排序讓部分失敗搜尋提早結束，<strong>最壞情況仍要走訪 n 個節點</strong>；鏈結串列沒有 O(1) 的中點索引，不能直接套用陣列二分搜尋的 O(log n) 存取成本。</p>
-<p>若從尚未包含 31 的串列 17 → 26 → 54 → 77 → 93 開始，add(31) 必須先找出 26 與 54 之間的位置，再接上新節點。講義標頭用 current 找前驅，先接 <code>newNode-&gt;setNext(current-&gt;getNext())</code>，再接 <code>current-&gt;setNext(newNode)</code>。空串列或新值不大於首項時改走頭插；重複值允許存在，新值插在原有相等值之前。remove 只刪第一個相等值，遇到更大的值就停止。</p>'''+table(['操作','UnorderedList','OrderedList','成本來源'],[
-('isEmpty()','O(1)','O(1)','只看 head'),('size()','O(n)','O(n)','逐節點計數'),('add(item)','O(1)','最壞 O(n)','有序版先定位'),('search / remove(item)','最壞 O(n)','最壞 O(n)','依值尋找'),('已知所需前驅後插／刪一個節點','O(1)','O(1)','固定次數接線；另須保持排序')])+ '<p>刪除整段 k 個節點仍要 O(k)；「接線 O(1)」不包含尋找位置或逐一釋放整段。</p>'+fold('補充：元素的比較、複製與解構成本', '<p>上表將單一元素的比較、複製與解構視為 O(1)，先計算走訪多少個節點、更新多少次指標。若節點存放的物件需要較多時間才能比較、複製或解構，還要把這些成本加進去。</p>')
-    variants = '''<h3>環狀串列：回到起點才結束</h3>
-<p>非空環狀串列的 tail-&gt;next 指向 head；不能再用「走到 NULL」判斷結束。先處理空串列，再至少拜訪一次起點；只有一個節點時，其 next 指向自己，也剛好拜訪一次。</p>'''+card('環狀走訪片段（假設鏈結已形成完整環）', '''if (head != nullptr) {
+CIRCULAR = '''if (head != nullptr) {
     Node<int>* current = head;
     do {
         std::cout << current->getData() << ' ';
         current = current->getNext();
     } while (current != head);
-}''')+'''<p>保存 tail 時，可用 tail-&gt;next 取得 head，頭插或尾插可在 O(1) 完成；刪除單向環的尾節點仍需找前驅，最壞 O(n)。環狀只改變終止關係，沒有增加反向走訪能力。</p>
-<h3>雙向串列：左右兩邊都要接回</h3>
-<p>以不存使用者資料的 header、trailer 作哨兵：空串列為 <code>header ↔ trailer</code>，非空為 <code>header ↔ 第一項 ↔ … ↔ 最後一項 ↔ trailer</code>。header 的 prev 與 trailer 的 next 可為空；走訪停在 trailer，不能把哨兵當資料讀取或刪除。</p>'''+card('雙向插入／刪除的接線片段（prev、next 為示意欄位）', '''// Insert a newly allocated node x between adjacent nodes left and right.
+}'''
+
+D_INSERT = '''// Insert a newly allocated node x between adjacent nodes left and right.
 x->prev = left;
 x->next = right;
 left->next = x;
-right->prev = x;
+right->prev = x;'''
 
-// Erase a real data node x; never erase a sentinel.
+D_ERASE = '''// Erase a real data node x; never erase a sentinel.
 auto left = x->prev;
 auto right = x->next;
 left->next = right;
 right->prev = left;
-delete x;''')+'''<p>第一個與最後一個資料節點也都有兩個鄰居，因此使用同一套接線；刪掉最後一項後自然恢復 header ↔ trailer。已知 <code>x</code> 時刪除為 O(1)，但依值尋找 <code>x</code> 仍為 O(n)。只保存 head 的雙向串列仍需尋找尾端；要 O(1) 尾端操作，還需保存 tail 或 trailer。</p>'''
-    stl = fold('實作練習：std::list 的建立、頭尾增刪與安全刪除迴圈',card('雙向串列：插在位置之前，刪除後接回下一個位置',*EXAMPLES['list'])+'''<p>begin() 指向第一項，end() 是尾後位置，不能解參考。insert(pos,x) 插在 pos 前並回傳新項位置；erase(it) 回傳被刪項的下一個位置。迴圈刪除後使用這個回傳值，不能對已失效的 it 做 ++it。</p><p>push_front / push_back / pop_front / pop_back 與單項 insert / erase 都是 O(1)，前提是位置已知且符合操作前提。pop、front、back 要求非空；erase(end()) 不合法；insert(end(),x) 則是合法尾插。std::find 或逐步 ++ 找位置是 O(n)。</p>''')+fold('實作練習：std::forward_list 與 before_begin()',card('單向串列：保留前驅才能安全刪除',*EXAMPLES['forward'])+'''<p>before_begin() 是「第一項前面」的特殊位置，不能解參考，但可傳給 insert_after / erase_after，統一處理頭端。end() 是尾後位置，不能拿來 insert_after；erase_after(prev) 要求 prev 後確實有可刪的元素。</p><p>刪除 current 後，previous 留在原處，current 接回 erase_after 的回傳值；保留 current 時才一起前進。這正對應前面 previous/current 的指標關係。forward_list 沒有 size()、back() 或 push_back()；std::distance(begin(),end()) 需要 O(n) 走訪。std::list::size() 在 C++11 起為 O(1)。兩者都沒有 [] 與 at()；std::next(it,k) 需要 O(k) 前進，不是直接索引。</p>''')+fold('延伸：remove、unique、sort 與迭代器有效性',card('先分清楚「全部符合」與「相鄰重複」',*EXAMPLES['algorithms'])+table(['成員操作（兩種串列皆有）','效果','成本'],[('remove(x) / remove_if(pred)','刪掉所有符合項；不同於本課 remove 只刪第一項','O(n) 次比較／條件判斷'),('unique()','每一段相鄰相等值只保留第一項；不會搜尋隔開的重複值','O(n) 次比較'),('sort()','穩定排序；相等元素保留原相對次序','約 O(n log n) 次比較')])+'''<p>兩種串列皆可使用同樣的三個成員操作。若要移除整個串列中的重複值，可先 sort 再 unique，但元素原順序會改變；只想移除某值就用 remove。std::sort 需要隨機存取迭代器，因此不能套在這兩種串列，應用成員 sort()。</p><p>單項插入不使既有節點的迭代器或參考失效；刪除只使被刪節點的迭代器／參考失效，其他節點仍有效。remove 與 unique 也適用此規則。sort 會改變走訪順序，但保留指向元素的迭代器／參考。容器析構或 clear 後，原元素全部消失，不能再使用指向它們的迭代器。</p><p>參考：<a href="https://eel.is/c++draft/list">C++ 標準草案：list</a>、<a href="https://eel.is/c++draft/forward.list">forward_list</a>。</p>''')+fold('如何選擇 vector、list 與 forward_list？','''<p>需要依索引讀取、緊密儲存與大量循序掃描時，可先選 vector。頻繁在已知位置插刪、需要保留其他元素的參考或迭代器時，再考慮鏈結容器。list 可雙向走訪並提供 O(1) 頭尾操作；forward_list 只向前走，需要自己保留前驅。若每次插入前都從頭尋找位置，整體仍是 O(n)。節點額外指標與分散配置可能增加記憶體及快取成本，不能只比較接線次數。</p>''')
-    return {'node':node,'unordered':uno,'ordered':ordered,'variants':variants,'stl':stl}
+delete x;'''
+
+# Outputs were obtained by compiling each program with g++ -std=c++17 against the course headers.
+OUT = {
+    'node': '93\n0',
+    'ul': '54 26 93 17 77 31 \n6\ntrue\n26 17 77 ',
+    'edges': 'true\ntrue\n30 20 10 \n20 \n10 20 ',
+    'ol': '17 26 31 54 77 93 \n6\ntrue\nfalse\n17 26 54 77 93 ',
+    'stl': '17 31 54 \n17 26 31 54 ',
+    'list': '35 \nsize = 1',
+    'forward': '10 \ncount = 1',
+    'algos': '3 1 3 2 \n1 2 \n1 1 2 \n1 2 ',
+}
+
+
+def prologue():
+    adt = table(['操作', '作用', '課程標頭的 <code>UnorderedList</code>'], [
+        ('UnorderedList()', '建立空串列', '提供'),
+        ('isEmpty()', '檢查 head == NULL', '提供'),
+        ('add(item)', '在 head 加入新元素，$O(1)$', '提供'),
+        ('size()', '回傳元素個數', '提供'),
+        ('search(item)', '回傳 item 是否在串列中', '提供'),
+        ('remove(item)', '移除第一個相等的元素；找不到時串列不變', '提供'),
+        ('append(item)', '把新元素加到尾端，成為最後一項', '未提供，留作練習'),
+        ('index(item)', '回傳 item 的位置', '未提供'),
+        ('insert(pos, item)', '在位置 pos 加入新元素', '未提供'),
+        ('pop()／pop(pos)', '移除並回傳最後一項／位置 pos 的項', '未提供'),
+    ])
+    aside = '''<div class="info-card">
+  <div class="ic-title">取捨一覽</div>
+  <div class="ic-row"><span class="ic-label">依位置讀取</span><span class="ic-value">陣列 $O(1)$｜串列 $O(n)$</span></div>
+  <div class="ic-row"><span class="ic-label">頭端插入／刪除</span><span class="ic-value">陣列 $O(n)$｜串列 $O(1)$</span></div>
+  <div class="ic-row"><span class="ic-label">額外空間</span><span class="ic-value">串列每個節點多存指標</span></div>
+</div>
+<div class="info-card">
+  <div class="ic-title">分時系統的例子（課本）</div>
+  <div style="font-size:.86rem;line-height:1.9;">作業系統讓多個工作輪流使用 CPU，每個工作分到一小段時間後換下一個。課本以這種分時（timesharing）說明鏈結結構：輪流的順序可以用環狀鏈結串列表示。</div>
+</div>'''
+    return f'''<p>前面的 ArrayList 建立在連續的原生陣列上。本章改用<strong>節點（node）與指標（pointer）</strong>組成集合：元素不必放在相鄰的記憶體位置，每個節點記得下一個節點在哪裡。只要知道第一個節點（<strong>head</strong>），就能沿著指標依序找到其他元素。</p>
+<h3>串列 ADT：元素之間有相對位置</h3>
+<p>串列（List）是一群元素的集合，每個元素相對於其他元素有固定的位置：有第一項、第二項、第三項……。若這個順序與元素的值無關，就稱為<strong>無序串列</strong>（Unordered List）。定義 ADT 時，講義與課本為了簡化，假設串列中沒有重複的元素。無序串列 ADT 可能包含下列操作：</p>
+{adt}
+<p>後四項屬於較完整的串列 ADT。課程標頭 <code>pythonds3/cppds/linked_list.hpp</code> 的 UnorderedList 只實作前六項；append 留到本頁的練習區。</p>
+<h3>記憶體裡的樣子：用公式定位，或沿指標前進</h3>
+<p>同樣讀第 k 項（零起始），陣列用位址公式一次算出位置；鏈結串列沒有這種公式，只能從 head 出發，沿 next 一步一步走過去。選一種表示法與 k，用「→ 單步」比較兩者需要的步數。</p>
+{widget("mem", [("array", "陣列：讀 a[k]"), ("linked", "鏈結串列：讀第 k 項")],
+        "選一種表示法，再按 ▶ 播放或 → 單步。", legend=("hl", "found"),
+        extra='<label class="mono" style="font-size:.85rem;">k = <input id="memK" type="number" min="0" max="4" value="3" style="width:56px;padding:.3rem .4rem;border:1px solid var(--card-border);border-radius:6px;" onchange="llRecase(\'mem\')"></label>',
+        aside=aside)}'''
+
+
+def node_section():
+    pointer_note = '''<div style="font-size:.9rem;line-height:2;" class="mono">
+<code>Node&lt;int&gt; *p = new Node&lt;int&gt;(93);</code><br>
+<code>p-&gt;getData()</code>  // 93<br>
+<code>p-&gt;getNext()</code>  // NULL<br>
+<code>delete p;</code>  // 釋放節點</div>
+<p><code>p-&gt;getNext()</code> 透過指標 p 呼叫節點的方法，等同於 <code>(*p).getNext()</code>；使用前要確認 p 指向有效的節點。講義使用 NULL 表示空指標；現代 C++ 通常寫 nullptr，兩者在這裡的意思相同。</p>
+<p>指標只記住位置，不會複製節點：令 current = head 只複製位址，兩者指向同一個節點；令 current = current-&gt;getNext() 只移動 current，不會改變 head 或任何鏈結。current-&gt;setData(42) 修改節點的資料，previous-&gt;setNext(current) 才會修改鏈結。</p>'''
+    return f'''<p>節點是鏈結串列的基本單位。每個節點至少保存兩項資訊：<strong>資料欄位</strong> data 存放元素本身，next 指向下一個節點。兩個欄位都是 private，串列的程式只能透過 getData()、getNext()、setData()、setNext() 存取；直接寫 node-&gt;next 無法通過編譯。</p>
+{snippet("講義 04 · Node 類別（pythonds3/cppds/linked_list.hpp）", NODE_CLASS)}
+<p>建構子把 next 設成 NULL，表示後面沒有節點。等於 NULL 的指標代表「沒有下一個節點」，之後走訪串列時，也是看到這個值才停下。指標若沒有初始化，內容是無法預測的值，所以建立節點時就明確設成 NULL。課本把 next 為空的節點稱為 grounded（接地），圖中用電路的接地符號表示（課本）。</p>
+<h3>建立、使用與釋放一個節點</h3>
+<p>用 new 在 heap 配置節點，取得它的位址；用 -&gt; 透過指標呼叫方法；用完後以 delete 釋放。按 → 單步，看 temp 在每一行之後指向什麼。</p>
+{widget("node", [("run", "執行這四行")], "按 ▶ 播放或 → 單步。", codes=[("講義 04 · 使用 Node", NODE_LINES)], legend=("new", "hl", "del"))}
+{lecture_program("講義完整程式：建立一個 Node", "講義 04 · Node 的使用", NODE_MAIN, OUT['node'], note="用 cout 印出空指標時，會顯示 0。")}
+{fold("指標語法速記", pointer_note)}'''
+
+
+def unordered_section():
+    trace = '''<div class="deck-extra">
+  <div class="dx-label">講義 04 · remove(26) 的指標更新步驟</div>
+  <p>從六次 add 後的串列 54 → 26 → 93 → 17 → 77 → 31 開始。</p>
+  <div style="overflow-x:auto"><table class="cmp-table">
+    <thead><tr><th>步驟</th><th>previous</th><th>current</th><th>found</th><th>動作</th></tr></thead>
+    <tbody>
+    <tr><td>開始</td><td>NULL</td><td>54</td><td>false</td><td>current = head</td></tr>
+    <tr><td>比對 54</td><td>54</td><td>26</td><td>false</td><td>不相等：previous 先移到 current，current 再前進</td></tr>
+    <tr><td>比對 26</td><td>54</td><td>26</td><td>true</td><td>相等：found = true，離開迴圈</td></tr>
+    <tr><td>移除</td><td colspan="3">previous-&gt;setNext(current-&gt;getNext())</td><td>54 改指 93，26 被跳過</td></tr>
+    <tr><td>釋放</td><td colspan="3">delete current</td><td>釋放 26 的節點</td></tr>
+    </tbody>
+  </table></div>
+</div>'''
+    edges = table(['情況', 'head 或前驅的更新', '結果'], [
+        ('空串列 remove', '不更新', '仍為空'),
+        ('只剩一個節點且命中', 'head = current-&gt;getNext()，也就是 NULL', '變成空串列'),
+        ('刪頭', 'head = current-&gt;getNext()', '新的 head 是原本的第二個節點'),
+        ('刪中間', 'previous-&gt;setNext(current-&gt;getNext())', '前後兩段接回'),
+        ('刪尾', 'previous-&gt;setNext(NULL)', 'previous 成為最後一個節點'),
+        ('找不到', '不更新', '串列不變'),
+        ('多個相同值', '只跳過第一個命中的節點', '其餘相同值保留'),
+    ])
+    ownership = snippet("所有權與深層複製", OWNERSHIP, note="串列物件擁有它用 new 配置的節點：解構子要逐一 delete；複製建構子與複製指派要複製整條鏈（deep copy）。若只複製 head，兩個串列會共用同一批節點，之後可能重複釋放。課程標頭已依這個規則實作。")
+    q_order = quiz('qUll', 'QUIZ · add 的兩行順序',
+                   'add 裡若把兩行寫反（先 head = temp，再 temp-&gt;setNext(head)），會發生什麼事？', [
+                       (True, 'temp 的 next 指向自己，原本的節點全部無法到達',
+                        'head 先被改成 temp，之後 temp->setNext(head) 讓新節點指向自己；原本的節點沒有任何指標可以到達，也無法再釋放。'),
+                       (False, '沒有差別，結果一樣',
+                        '順序很重要：必須先讓新節點接住原本的串列，才能移動 head。'),
+                       (False, '編譯錯誤',
+                        '兩行都是合法的 C++，可以通過編譯；問題出在執行時指標指向哪裡。'),
+                   ])
+    return f'''<p>無序串列的類別本身不存放任何節點，只保存一個指向第一個節點的指標 head。以下依序實作 add、size、search、remove；其中 size、search、remove 都建立在<strong>走訪</strong>（traversal）上：用一個外部指標從 head 出發，沿著 next 逐一拜訪節點，直到遇到 NULL。</p>
+<h3>head 與空串列</h3>
+{snippet("講義 04 · UnorderedList 的資料成員與建構子", UL_SKELETON)}
+<p><code>UnorderedList&lt;int&gt; myList;</code> 會建立空串列：建構子把 head 設為 NULL，此時沒有任何節點。isEmpty() 只要檢查 head 是否為 NULL，所以是 $O(1)$。</p>
+{snippet("講義 04 · isEmpty", IS_EMPTY)}
+<h3>add：把新節點放在 head</h3>
+<p>無序串列不在乎新元素放在哪裡，所以放在最容易的位置。其他節點都只能從 head 沿 next 走到，唯有第一個節點可以直接存取，因此新節點加在 head。連續執行 add(31)、add(77)、add(17)、add(93)、add(26)、add(54) 之後，最先加入的 31 在最後面，最後加入的 54 在最前面。</p>
+<p>第 3 行先讓新節點的 next 接住原本的第一個節點，第 4 行才讓 head 指向新節點。按 → 單步觀察：在第 3 行之後，head 與新節點同時指向 93，所以後段不會遺失。</p>
+{widget("uAdd", [("mid", "add(26)"), ("empty", "空串列 add(26)"), ("wrong", "兩行順序對調")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · add", UL_ADD), ("兩行順序對調（錯誤示範）", UL_ADD_WRONG)], legend=("new", "lost"))}
+{figure('add')}
+<p>兩行的順序不能對調。若先執行 head = temp，原本唯一指向 93 的 head 就被改掉，原來的節點再也找不到，也無法 delete；接著 temp-&gt;setNext(head) 讓新節點指向自己。</p>
+{figure('wrong')}
+{q_order}
+<h3>size：走訪並計數</h3>
+<p>current 從 head 出發；每進入一次迴圈，先把 count 加一，再讓 current 沿 next 前進。current 變成 NULL 時，每個節點都恰好數過一次。這份實作沒有另存元素個數，所以 size() 是 $O(n)$；若類別另外維護一個計數成員，size() 可以是 $O(1)$，代價是每次新增與刪除都要更新它。</p>
+{widget("uSize", [("four", "四個節點"), ("empty", "空串列")], "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · size", UL_SIZE)], legend=("hl",))}
+<h3>search：找到就停</h3>
+<p>search 也從 head 開始走訪，每到一個節點就比對資料：相等就立刻回傳 true，不必再往後找；不相等才前進。走到 NULL 表示每個節點都比過了，回傳 false。</p>
+{widget("uSearch", [("hit", "search(17)"), ("miss", "search(45)")], "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · search", UL_SEARCH)], legend=("hl", "cmp", "found"))}
+<h3>remove：previous 跟在 current 後面</h3>
+<p>remove 分兩步：先像 search 一樣找到第一個相等的節點，再把它從鏈結中移除並 delete。找到時 current 指向要刪的節點，但要修改的是<strong>前一個節點的 next</strong>；單向串列無法往回走，所以走訪時另用 previous 一直落後 current 一個節點。前進時必須先執行 previous = current，再移動 current。</p>
+{widget("uRemove", [("mid", "刪中間 17"), ("head", "刪頭端 54"), ("tail", "刪尾端 31"), ("only", "唯一節點 7"), ("miss", "找不到 45")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · remove", UL_REMOVE)], legend=("cmp", "hl", "found", "new", "del"))}
+<p>若要刪的是第一個節點，迴圈結束時 previous 仍是 NULL，這時要改的是 head（第 17 行）；否則改前驅的 next（第 19 行）。兩種情況的新目標都是 current-&gt;getNext()。節點脫離鏈結後，第 21 行 delete current 釋放它；串列的解構子也用同樣方式釋放剩下的所有節點。</p>
+{figure('remove')}
+<div class="info-box"><span class="info-label">ADT 的假設與實作的行為</span><p>ADT 說明假設串列沒有重複元素。課程標頭的實作其實接受重複值：add 不檢查，remove 只刪第一個相等的節點。課本的 remove 假設要刪的項目一定在串列中；講義與課程標頭則在找不到時不做任何修改。</p></div>
+{trace}
+<p>各種情況下，remove 要更新哪個指標，整理如下：</p>
+{edges}
+<div class="info-box warm"><span class="info-label">想一想（課本）</span><p>① 要刪的是最後一個節點時，上面兩種情況夠用嗎？② 串列只有一個節點，而且正是要刪的節點時呢？先自己推演，再展開答案。</p>
+{details("參考答案", "<p>① 刪最後一個節點時，previous 指向倒數第二個節點，current-&gt;getNext() 是 NULL，於是 previous-&gt;setNext(NULL)，previous 成為新的最後一個節點，不需要另外處理。② 只有一個節點時，迴圈第一次比對就命中，previous 仍是 NULL，執行 head = current-&gt;getNext()，head 變成 NULL，串列成為空串列。上面的動畫可以選「刪尾端 31」與「唯一節點 7」對照。</p>")}</div>
+{lecture_program("講義完整程式：UnorderedList 的 add、size、search、remove", "講義 04 · UnorderedList 全套操作", UL_MAIN, OUT['ul'], note="第一行可以看出 add 採用頭插：最後加入的 54 排在最前面。三次 remove 分別刪除頭端、中間與尾端的節點。")}
+{fold("<code>cout &lt;&lt; myList</code> 如何印出串列", snippet("課程標頭 · operator&lt;&lt;", UL_PRINT, note="範例中的 <code>cout &lt;&lt; myList</code> 使用標頭裡的 operator&lt;&lt;：它同樣從 head 走訪，每個值後面接一個空格，所以輸出的行尾有一個空格。"))}
+{fold("空串列、重複值與頭尾刪除的完整程式", snippet("邊界情況", EDGES, OUT['edges']))}
+{fold("所有權與深層複製", ownership)}'''
+
+
+def ordered_section():
+    q_ana = quiz('qAna', 'QUIZ · 平均走一半，為什麼還是 $O(n)$？',
+                 '假設搜尋成功，而且每個位置被找到的機會相同，平均約檢查 n/2 個節點。為什麼仍寫成 $O(n)$？', [
+                     (True, '係數在 Big-O 裡沒有意義，且最壞情況要走完全程',
+                      '平均比較次數隨 n 線性成長，常數係數不改變 O(n)。最壞情況也要走到底，例如搜尋比所有元素都大的值。'),
+                     (False, '因為 n/2 四捨五入之後就是 n',
+                      'Big-O 不是四捨五入，而是把成長率相同的函數視為同一類。'),
+                     (False, '平均情況根本不能分析',
+                      '平均情況可以分析；只是它和最壞情況同樣是線性成長，結論不變。'),
+                 ])
+    book = details('課本的 add：previous 與 current 兩個指標（課本寫法）', snippet('課本 · OrderedList::add', OL_ADD_BOOK) +
+                   '<p>課本用 previous 與 current 兩個指標：current 遇到大於 item 的值才停止，新節點插在 previous 與 current 之間；previous 仍是 nullptr 時，新節點放在最前面。因為遇到相等的值不會停，重複值會排在原有相等值的後面，這點和講義版相反。兩種寫法都能維持遞增順序。</p>')
+    return f'''<p>有序串列（Ordered List）中，每個元素的相對位置由元素本身的某種特性決定，通常是遞增或遞減；這裡假設元素之間已有明確的比較運算。前面的整數若改成遞增的有序串列，就是 17、26、31、54、77、93：17 最小，排在第一個位置；93 最大，排在最後。</p>
+<p>有序串列的許多操作與無序串列相同：</p>
+<ul class="linked-ul">
+<li>OrderedList() 建立空的有序串列。</li>
+<li>add(item) 加入新元素，並維持排序。</li>
+<li>remove(item) 移除第一個相等的元素；找不到時串列不變。</li>
+<li>search(item) 回傳元素是否存在；越過目標應在的位置後就可以停止。</li>
+<li>isEmpty() 檢查 head 是否為 NULL；size() 以走訪計算節點數。</li>
+</ul>
+<p>較完整的有序串列 ADT 還有 index、pop 等依位置的操作，課程標頭的 OrderedList 沒有提供。實作方式與無序串列相同：空串列仍以 head == NULL 表示，isEmpty() 與 size() 的寫法不變。search、add、remove 則可以利用排序。</p>
+{snippet("講義 04 · OrderedList 的資料成員與建構子", OL_SKELETON)}
+<h3>search：越過目標就停止</h3>
+<p>以搜尋 45 為例：依序比較 17、26、31、54。看到 54 時，因為串列遞增，後面的 77、93 只會更大，45 不可能在後面，可以直接回傳 false。目標存在時，作法和無序串列相同；只有在找不到時，排序才可能讓搜尋提早結束。</p>
+{widget("oSearch", [("stop", "search(45)"), ("hit", "search(31)"), ("miss", "search(100)")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · OrderedList::search", OL_SEARCH)], legend=("hl", "cmp", "found", "skip"))}
+<h3>add：先找到位置再接上</h3>
+<p>無序串列可以把新節點直接放在 head；有序串列則必須先找出新元素的位置。例如在 17、26、54、77、93 中加入 31，新節點要放在 26 與 54 之間。</p>
+<p>講義的 add 只用一個 current，並且每次<strong>先看下一個節點</strong>：若串列是空的，或 head 的值已經大於或等於 item，新節點直接放在最前面；否則 current 從 head 出發，只要 current-&gt;getNext() 不是 NULL，而且它的值小於 item，就前進一步。停下時，新節點要接在 current 後面：先 newNode-&gt;setNext(current-&gt;getNext())，再 current-&gt;setNext(newNode)。和相等的值比較時不會前進，所以重複值會插在原有相等值的前面。</p>
+{widget("oAdd", [("mid", "add(31)"), ("head", "add(10)：插在最前"), ("tail", "add(100)：插在最後"), ("empty", "空串列 add(31)")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · OrderedList::add", OL_ADD)], legend=("hl", "cmp", "new"))}
+{book}
+<h3>remove：利用排序提早放棄</h3>
+<p>有序版的 remove 在 current 的值小於 item 時前進。迴圈停下後，若 current 是 NULL，或它的值不等於 item，就表示 item 不在串列中，直接 return；找到時的接線與 delete 和無序串列相同。</p>
+{widget("oRemove", [("mid", "remove(54)"), ("head", "remove(17)"), ("miss", "remove(45)")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · OrderedList::remove", OL_REMOVE)], legend=("hl", "cmp", "found", "new", "del", "skip"))}
+{lecture_program("講義完整程式：OrderedList", "講義 04 · OrderedList", OL_MAIN, OUT['ol'], note="同樣加入六個值，輸出卻由小到大排列，差別全在 add 內部先找位置再插入。remove(100) 找不到目標，串列不變。")}
+<h3>分析：哪些操作需要走訪（cppds §4.6.1）</h3>
+<p>判斷方式是看操作是否需要走訪。isEmpty() 只看 head，是 $O(1)$；size() 沒有另存個數，必須數完 n 個節點，是 $O(n)$。無序串列的 add 在 head 插入，是 $O(1)$；search、remove，以及有序串列的 add 都可能走完整條串列，最壞情況是 $O(n)$。有序搜尋可以提早停止，但最壞情況仍是 $O(n)$。已經握有前驅的指標時，插入或刪除一個節點只要 $O(1)$；找到那個位置則可能需要 $O(n)$。</p>
+<p>若搜尋成功，而且每個位置被找到的機會相同，平均約檢查 n/2 個節點，平均成本仍是 $O(n)$。</p>
+{fold("平均要比較幾次？", "<p>成功搜尋 n 個位置的比較次數依序為 1、2、…、n。若每個位置等可能，平均為 (1 + 2 + … + n) / n = (n + 1) / 2，約為 n/2；因此隨 n 線性成長。</p>", did="linked-average-detail")}
+<p>鏈結串列與連續陣列的取捨正好相反：串列在前端插入是 $O(1)$、依位置存取是 $O(n)$；陣列依位置存取是 $O(1)$、在前端插入則要搬移元素。哪一種較合適，取決於程式最常做哪些操作。各操作的完整比較見<a href="#reference">總覽與回顧</a>。</p>
+{q_ana}
+{fold("有序串列能不能做二分搜尋？", "<p>二分搜尋每一步都要直接取得中間的元素。陣列可以用索引一次算出中點；鏈結串列沒有這種索引，要找到中間節點就得從 head 走過去。因此有序串列不能直接套用陣列二分搜尋的 $O(\\log n)$ 成本。</p>")}
+{fold("元素的比較、複製與解構成本", "<p>上面的分析把單一元素的比較、複製與解構視為 $O(1)$，只計算走訪多少個節點、更新多少次指標。若節點存放的物件需要較多時間才能比較、複製或解構，還要把這些成本加進去。</p>")}'''
+
+
+def stl_section():
+    q_stl = quiz('qStl', 'QUIZ · 為什麼叫 insert_after？',
+                 'forward_list 只提供 insert_after，不提供 insert（插在某個節點前面）。原因是？', [
+                     (True, '單向串列不能直接找到前驅；提供前驅才能 $O(1)$ 接線',
+                      '要插在 it 前面，必須修改前驅的 next。單向串列不能反向找前驅；從頭找需要 O(n)，提供前驅後接線才是 O(1)。'),
+                     (False, '歷史因素，沒有技術上的原因',
+                      '介面反映了資料結構的限制：已知前驅才能在常數時間內接線。std::list 有 prev 指標，可以由 pos 找到前驅，所以提供 insert。'),
+                     (False, 'insert_after 比較快',
+                      '若從頭找前驅，仍然可以插在某個節點之前，但需要 O(n)；insert_after 要求呼叫者直接提供前驅。'),
+                 ])
+    compare = '''<div style="overflow-x:auto;">
+  <table class="cmp-table" style="width:100%;font-size:.88rem;">
+    <thead><tr><th></th><th>vector</th><th>forward_list（單向）</th><th>list（雙向）</th></tr></thead>
+    <tbody>
+      <tr><td>依索引存取 [i]</td><td>$O(1)$</td><td>不提供</td><td>不提供</td></tr>
+      <tr><td>頭端插入</td><td>$O(n)$</td><td>$O(1)$ push_front</td><td>$O(1)$ push_front</td></tr>
+      <tr><td>尾端插入</td><td>攤銷 $O(1)$</td><td>不提供 push_back</td><td>$O(1)$ push_back</td></tr>
+      <tr><td>已知位置插入／刪除</td><td>$O(n)$</td><td>$O(1)$ insert_after／erase_after（給前驅）</td><td>$O(1)$ insert／erase</td></tr>
+      <tr><td>每個元素的額外空間</td><td>預留容量</td><td>一個 next 指標</td><td>prev 與 next 兩個指標</td></tr>
+      <tr><td>記憶體位置</td><td>連續，對快取友善</td><td colspan="2">節點分散在 heap 各處</td></tr>
+    </tbody>
+  </table>
+</div>'''
+    ops = table(['操作', '說明'], [
+        ('forward_list&lt;T&gt; a;', '建立空的 forward_list'),
+        ('push_front(x)／emplace_front(...)', '在最前面加入元素；emplace 版就地建構元素'),
+        ('pop_front()', '移除第一個元素'),
+        ('insert_after(it, x)／emplace_after(it, ...)', '在 it 指向的元素後面加入'),
+        ('erase_after(it)', '刪除 it 後面的元素（也可以刪除一段範圍）'),
+        ('clear()', '移除所有元素'),
+    ])
+    iter_note = '<p>begin() 指向第一項，end() 是尾後位置，不能解參考。list 的 insert(pos, x) 插在 pos 前面並回傳新元素的位置；erase(it) 回傳被刪元素的下一個位置，迴圈中刪除時要用這個回傳值繼續，不能對已刪除的 it 做 ++it。</p><p>forward_list 的 before_begin() 是「第一項前面」的位置，不能解參考，但可以傳給 insert_after／erase_after，讓頭端也用同一套寫法。刪除 current 時 previous 留在原地，current 接回 erase_after 的回傳值；保留 current 時兩者才一起前進，這正是前面 previous／current 的關係。forward_list 沒有 size()；std::distance(begin(), end()) 需要 $O(n)$。</p>'
+    algos = '<p>兩種串列都有成員函式 remove(x)、unique()、sort()。remove(x) 刪掉<strong>所有</strong>等於 x 的元素，和本課 remove 只刪第一個不同；unique() 只合併<strong>相鄰</strong>的相等值；sort() 是穩定排序，約需 $O(n \\log n)$ 次比較。std::sort 需要隨機存取迭代器，不能用在這兩種串列上。插入不會使其他元素的迭代器失效；刪除只會使被刪元素的迭代器失效。</p>'
+    return f'''<p>UnorderedList 與 OrderedList 讓你看清楚指標怎麼接、節點由誰釋放。實際寫程式時，優先使用 STL 容器：它們的解構、複製、迭代器與例外安全都已有明確規範並經過測試。</p>
+<p>std::forward_list&lt;T&gt; 是單向串列，提供 push_front、insert_after、erase_after；std::list&lt;T&gt; 是雙向串列，可以用雙向迭代器在指定位置插入或刪除。兩者都不支援依索引的隨機存取。插入與刪除是 $O(1)$ 的前提是：手上已經有對應位置的迭代器。</p>
+{snippet("講義 04 · forward_list 與 list", STL_MAIN, OUT['stl'], note="singly.insert_after(singly.before_begin(), 17) 插在「第一項之前的位置」後面，也就是成為新的第一項。next(doubly.begin()) 指向 31，doubly.insert(pos, 26) 把 26 插在 31 前面。")}
+{compare}
+<h3>forward_list 的常用操作（課本）</h3>
+<p>forward_list 的插入與刪除都作用在指定元素的<strong>後面</strong>：insert_after、erase_after。課本列出的常用操作如下：</p>
+{ops}
+<div class="info-box warm" style="margin-top:.9rem;"><span class="info-label">選擇容器時的考量</span>需要依索引讀取，或大多是從頭到尾的循序掃描時，先考慮 vector：元素連續存放，對快取友善。經常在已知位置插入或刪除，而且手上已有該位置的迭代器時，再考慮 list 或 forward_list。</div>
+{q_stl}
+{fold("std::list 的頭尾增刪與迴圈中的刪除", snippet("雙向串列：插在位置之前，刪除後接回下一個位置", STL_LIST, OUT['list']) + iter_note)}
+{fold("std::forward_list 與 before_begin()", snippet("單向串列：保留前驅才能安全刪除", STL_FORWARD, OUT['forward']))}
+{fold("remove、unique、sort 成員函式", snippet("先分清楚「全部符合」與「相鄰重複」", STL_ALGOS, OUT['algos']) + algos)}'''
+
+
+def variants_section():
+    q_var = quiz('qVar', 'QUIZ · 尾端刪除', '要讓「刪除最後一個節點」變成 $O(1)$，需要哪種配置？', [
+        (True, '雙向串列加上 tail 指標（或 trailer 哨兵）',
+         'tail 直接找到最後一個節點，tail->prev 直接找到倒數第二個；兩個指標都不必走訪。'),
+        (False, '單向串列加上 tail 指標',
+         'tail 找得到最後一個節點，但刪除時要把倒數第二個節點的 next 改成 NULL；單向串列找不到它，仍要 O(n) 走訪。'),
+        (False, '環狀單向串列',
+         '環狀只改變結尾的接法；刪除最後一個節點一樣需要前一個節點，仍是 O(n)。'),
+    ])
+    return f'''<p>以下是講義在本章最後介紹的兩種延伸：環狀串列與雙向串列。</p>
+<h3>環狀串列：回到起點才結束</h3>
+<p>讓最後一個節點的 next 指回第一個節點，就得到<strong>環狀鏈結串列</strong>（Circularly Linked List）。它適合描述沒有明確起點與終點的循環資料，例如列車沿環狀路線停靠的站點，或遊戲中玩家輪流的順序。環本身沒有頭尾，但程式仍要保存某個節點的指標，才能使用這個串列。</p>
+<p>前進的寫法一樣是 current = current-&gt;getNext()；但串列中沒有 NULL，所以走訪改成判斷是否回到出發的節點。空串列要先排除；只有一個節點時，它的 next 指向自己。</p>
+{widget("cTrav", [("four", "四個節點"), ("one", "單一節點"), ("empty", "空串列")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("環狀走訪（補充）", CIRCULAR)], legend=("hl", "cmp"))}
+<p>講義指出，環狀串列適合輪流分配資源，也方便實作 append 一類的操作：若保存最後一個節點 tail，tail-&gt;getNext() 就是第一個節點，在頭端或尾端加入都只要 $O(1)$。環狀只改變結尾的接法，並沒有增加反向走訪的能力。</p>
+<h3>雙向串列：左右兩邊都要接回</h3>
+<p>單向串列可以有效率地在頭端插入與刪除，也能在保存 tail 時快速加到尾端，但<strong>刪除尾端</strong>不容易：必須先找到倒數第二個節點。問題其實更普遍：只拿到某個節點的指標時，找不到它的前驅，也就無法立刻刪除它。</p>
+<p><strong>雙向鏈結串列</strong>（Doubly Linked List）讓每個節點同時保存指向後一個節點的 next 與指向前一個節點的 prev，因此能在任意位置以 $O(1)$ 完成更多種更新；需要反向走訪的演算法（例如檢查回文）也適合使用。</p>
+<p>講義的設計在兩端各放一個不存使用者資料的<strong>哨兵節點</strong>（sentinel）：header 與 trailer。非空串列中，header 的 next 指向第一個資料節點，trailer 的 prev 指向最後一個資料節點；空串列時兩者直接相連。這樣每次插入都發生在兩個既有節點之間，每個要刪除的資料節點兩側也一定有鄰居，所以頭端、尾端與中間都能用同一套接線。走訪時要在 trailer 停下，哨兵不能當成資料讀取或刪除。</p>
+{figure('sentinels')}
+<p>插入新節點 x 時，先設定 x 自己的 prev、next，再讓左右鄰居改指 x，共四個指標：</p>
+{widget("dIns", [("mid", "插在 54 與 93 之間"), ("front", "插在最前面"), ("empty", "空串列插入")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("插入四步（補充）", D_INSERT)], legend=("new", "sent"))}
+<p>刪除的步驟與插入相反：讓 x 的兩個鄰居直接互相連接、跳過 x。只要改兩個鏈結，x 就不再屬於串列，接著釋放它。已知 x 時刪除是 $O(1)$，但依值尋找 x 仍要 $O(n)$。</p>
+{widget("dErase", [("mid", "刪除中間的 26"), ("first", "刪除第一項 54"), ("only", "刪除唯一的資料節點")],
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("刪除（補充）", D_ERASE)], legend=("found", "new", "del", "sent"))}
+{q_var}'''
+
+
+def exercises_section():
+    ex1 = quiz('ex1', 'EXERCISE 1 · 走訪計數', '一條長度 n 的單向串列，size()（用走訪實作）與「取第 k 個元素」的成本分別是？', [
+        (True, '$O(n)$ 與 $O(k)$', '兩者都得從 head 一步步走；這是串列與陣列最根本的差別。'),
+        (False, '$O(1)$ 與 $O(1)$', '除非另外維護元素個數，否則 size 必須走訪；取第 k 個元素也要從 head 走 k 步。'),
+        (False, '$O(n)$ 與 $O(\\log k)$', '依位置取值要從 head 沿 next 走到該位置；串列沒有可以直接跳到中間的索引。'),
+    ])
+    ex2 = quiz('ex2', 'EXERCISE 2 · remove 邊界', 'remove(item) 用 previous／current 兩個指標。要刪的是 <strong>head 指向的節點</strong>時，正確動作是？', [
+        (True, 'head = current-&gt;getNext()（此時 previous 是 NULL）', 'previous == NULL 代表 current 就是第一個節點，這時要直接修改 head。'),
+        (False, 'previous-&gt;setNext(current-&gt;getNext())', 'previous 是 NULL，透過它存取節點是未定義行為。'),
+        (False, '先把串列反轉再刪', '不需要；用 previous == NULL 判斷，直接修改 head 就能處理。'),
+    ])
+    ex3 = quiz('ex3', 'EXERCISE 3 · 記憶體', 'remove 把節點從鏈結中移除後，若少了 delete current，會發生什麼事？', [
+        (True, '記憶體洩漏：那個節點再也無法釋放', '節點脫離鏈結後，只剩 current 知道它的位址；函式結束後連 current 也消失，這塊記憶體就無法再釋放。STL 容器會自動管理節點的生命週期。'),
+        (False, '編譯錯誤', '少寫 delete 不影響編譯，問題要到執行時才會累積出來。'),
+        (False, '什麼都不會發生', '每次 remove 都會留下一個無法釋放的節點；程式執行越久，累積的記憶體越多。'),
+    ])
+    ex4 = quiz('ex4', '練習 · append 的成本', '上面的 append() 是 $O(n)$。要讓它變成 $O(1)$，正確的做法是？', [
+        (True, '類別另存一個 tail 指標，append 直接接在 tail 後面',
+         'tail 直接找到最後一個節點：接上新節點後，再讓 tail 指向它。代價是 add、remove 都要一併維護 tail，尤其是刪到最後一個節點時。'),
+        (False, '把串列改成從尾端往頭端指',
+         '這只是把問題反過來：append 變快了，原本 O(1) 的頭端 add 就變成 O(n)。'),
+        (False, '先把串列反轉、插入、再反轉回來', '兩次反轉各需 O(n)，比原本更慢。'),
+    ])
+    book = '''<div class="deck-extra" id="dx-exx">
+  <div class="dx-label">課本 Programming Exercises 精選（課本）</div>
+  <ol style="font-size:.92rem;line-height:1.9;padding-left:1.4rem;">
+    <li><strong>size 的 $O(1)$ 版</strong>：把節點數存成資料成員，改寫 add、remove 與 size，讓 size() 變成 $O(1)$。</li>
+    <li><strong>remove 找不到時</strong>：確認 remove 在項目不存在時也能正確運作，並替空串列、找不到、刪頭端、刪尾端各寫一個測試。</li>
+    <li><strong>補完 ADT</strong>：實作 append、index、pop、insert，並分析各自的 Big-O。</li>
+    <li><strong>slice(start, stop)</strong>：回傳從 start 到 stop（不含）的新串列。</li>
+    <li><strong>用繼承減少重複</strong>：OrderedList 與 UnorderedList 有許多相同的方法。設計繼承階層，讓共同的部分只寫一次。</li>
+    <li><strong>用串列實作 Stack、Queue、Deque</strong>：各實作一次，並與連續陣列的實作比較效能。哪些操作變快、哪些變慢？</li>
+  </ol>
+  <p class="dx-note">題目改寫自課本第 4 章 Programming Exercises 的第 4、5、9、10、12 題，以及第 13 至 15 題與第 17 題；完整題目見 <a href="https://runestone.academy/ns/books/published/cppds/LinearLinked/ProgrammingExercises.html" target="_blank" rel="noopener">cppds Programming Exercises</a>。</p>
+</div>'''
+    return f'''{ex1}
+{ex2}
+{ex3}
+<h3>練習：實作 append()</h3>
+<p>替 UnorderedList 加上 append(item)，把新元素接在<strong>尾端</strong>，使它成為最後一項。先自己寫寫看，再思考：你的方法時間複雜度是多少？</p>
+{details("參考解答（講義）", snippet("講義 04 · append 的一種寫法", APPEND, note="這個寫法要走到最後一個節點，所以是 $O(n)$；若類別另存 tail 指標，可以做到 $O(1)$。"))}
+{ex4}
+<h3>練習：加入 header 節點</h3>
+<p>講義提到，可以在串列最前面放一個不存資料的 header 節點來簡化 remove。改寫 UnorderedList，讓 head 永遠指向這個 header：remove 還需要「previous == NULL」的特殊情況嗎？add、size、search 與 isEmpty 要怎麼跟著調整？</p>
+{book}'''
+
+
+def reference_section():
+    rows = table(['操作', 'vector／連續陣列', 'UnorderedList', 'OrderedList', '成本從哪裡來'], [
+        ('isEmpty()', '$O(1)$', '$O(1)$', '$O(1)$', '只檢查一個值（陣列看 size，串列看 head）'),
+        ('size()', '$O(1)$', '$O(n)$', '$O(n)$', '本課的串列沒有另存個數，要逐一計數'),
+        ('讀零起始的第 k 項', '$O(1)$', '$O(k+1)$', '$O(k+1)$', '陣列用位址公式；串列要從 head 走 k 步'),
+        ('add(item)', '尾端攤銷 $O(1)$；頭插 $O(n)$', '$O(1)$', '最壞 $O(n)$', '無序版插在 head；有序版要先找位置'),
+        ('search(item)', '$O(n)$；已排序可二分 $O(\\log n)$', '$O(n)$', '$O(n)$，可提早停止', '串列只能依序走訪'),
+        ('remove(item)', '$O(n)$', '最壞 $O(n)$', '最壞 $O(n)$', '先找到節點；接線本身是 $O(1)$'),
+        ('已知前驅時插入或刪除一個節點', '$O(n)$（要搬移）', '$O(1)$', '$O(1)$', '只改固定幾個指標（有序串列另須維持排序）'),
+        ('append(item)（練習）', '攤銷 $O(1)$', '$O(n)$；另存 tail 可 $O(1)$', '不適用', '要先走到最後一個節點'),
+    ])
+    qa = [
+        ('delete 之後要不要把指標設成 NULL？',
+         '<p>delete 釋放的是指標所指的節點，指標變數本身仍保存舊位址，成為失效指標。若這個指標之後還會用到（例如類別的成員），把它設成 NULL，之後的 NULL 檢查才有作用；若它是即將結束的區域變數（例如 remove 裡的 current），設不設都不影響結果。重點是 delete 之後不能再透過它讀寫。另外，其他指向同一節點的指標並不會因此變成 NULL。</p>'),
+        ('「插入、刪除 $O(1)$」和「要先找到位置 $O(n)$」怎麼合起來看？',
+         '<p>$O(1)$ 指的是已經握有位置（單向串列還要有前驅）之後，修改指標的成本。若位置要靠比對值或從 head 數過去才能找到，尋找就要 $O(n)$，整個操作也是 $O(n)$。鏈結串列的優勢出現在位置本來就已知的情況，例如一直在 head 操作，或在走訪的同時順便插入、刪除。</p>'),
+        ('什麼時候適合用 list 或 forward_list？',
+         '<p>需要在已知位置頻繁插入、刪除，而且手上已有迭代器時。list 是雙向的，給一個迭代器就能在它前面插入，或刪除它本身；forward_list 只能往後走，操作時要提供前驅的位置（insert_after、erase_after），但每個節點少存一個指標。若主要是依索引讀取或循序掃描，vector 通常較合適。</p>'),
+        ('陣列和串列的快取表現為什麼不同？',
+         '<p>CPU 讀取記憶體時，會把相鄰的一小段資料一起載入快取（cache）。陣列元素連續存放，讀 a[i] 時，a[i+1]、a[i+2] 多半也已經在快取裡；串列的節點分散在 heap 各處，每走一步都可能讀到不在快取中的位置。因此即使兩者的走訪都是 $O(n)$，實際執行時陣列常常快得多。</p>'),
+    ]
+    faq = ''.join(details(f'{q}（補充）', a, cls='linked-detail linked-faq') for q, a in qa)
+    return f'''<p>下表整理本章各操作的成本；最右欄說明成本從哪裡來。</p>
+{rows}
+<h3>重點回顧</h3>
+<ul class="linked-ul linked-recap">
+<li>鏈結串列用 next 指標維持元素的相對順序，元素不必連續存放；head 是唯一的入口。</li>
+<li>插入時先接好新節點的 next，再修改 head 或前驅的 next，後段才不會遺失。</li>
+<li>size、search、remove 都靠走訪；remove 讓 previous 跟在 current 後面，找到後改前驅的 next（或 head），再 delete 節點。</li>
+<li>有序串列的 search 可以在越過目標時停止；add 用 current 先看下一個節點，找到位置後先接後段、再接前段。</li>
+<li>環狀串列以回到起點作為走訪的結束；雙向串列配合 header、trailer 哨兵，任何位置的插入與刪除都用同一套接線。</li>
+<li>實際寫程式時優先使用 std::list 或 std::forward_list；之後學遞迴時，也可以把串列看成「一個節點，加上剩下的串列」。</li>
+</ul>
+<h3>常見疑問</h3>
+{faq}'''
+
+
+def sections():
+    return {
+        'linked-prologue': prologue(),
+        'linked-node': node_section(),
+        'linked-unordered': unordered_section(),
+        'linked-ordered': ordered_section(),
+        'linked-stl': stl_section(),
+        'linked-variants': variants_section(),
+        'linked-exercises': exercises_section(),
+        'linked-reference': reference_section(),
+    }
+
+
+STYLE = """<style id="linked-depth-style">
+.linked-detail{margin:1rem 0;border:1px solid var(--card-border);border-radius:8px;background:var(--card);}
+.linked-detail>summary{cursor:pointer;padding:.9rem 1rem;font-weight:600;line-height:1.6;}
+.linked-detail-body{padding:0 1rem 1rem;min-width:0;}
+.linked-detail-body .pseudo-code{max-width:100%;overflow-x:auto;}
+.linked-detail-body .cmp-table{min-width:500px;}
+.info-box .linked-detail{background:var(--card);}
+.ll-canvas{min-height:110px;min-width:0;}
+.ll-scroll{overflow-x:auto;}
+.ll-canvas svg{display:block;margin:0 auto;}
+.ll-vars{display:flex;flex-wrap:wrap;gap:.2rem 1.1rem;font-size:.82rem;line-height:1.7;margin:.35rem 0 .1rem;color:var(--ink);}
+.ll-legend{display:flex;flex-wrap:wrap;gap:.2rem .9rem;font-size:.78rem;color:var(--ink);margin-top:.4rem;}
+.ll-sw{display:inline-block;width:.95em;height:.95em;border:2px solid;border-radius:3px;vertical-align:-.12em;margin-right:.3em;}
+.ll-case{background:var(--card);color:var(--accent2);border:1px solid var(--card-border);}
+.ll-case.on{background:#e8eefc;border-color:var(--accent2);box-shadow:inset 0 0 0 1px var(--accent2);}
+.ll-count{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--ink);margin-left:auto;}
+.ll-widget .info-card[hidden]{display:none;}
+.viz-layout.ll-widget{grid-template-columns:minmax(0,1fr) 400px;}
+@media(max-width:900px){.viz-layout.ll-widget{grid-template-columns:1fr;}}
+.ll-widget .ic-title{text-transform:none;letter-spacing:.04em;}
+.linked-ul{padding-left:1.4rem;margin-bottom:1rem;}
+.linked-ul li{margin:.25rem 0;}
+.quiz-opt .opt-text{min-width:0;overflow-wrap:anywhere;}
+</style>"""

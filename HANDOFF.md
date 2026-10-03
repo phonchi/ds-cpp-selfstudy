@@ -4,6 +4,25 @@
 `recursion.html` 的整個 `<head>`（1–332 行）除了 `<title>` 之外逐位元組一致。改動任一站之前，
 先看另一站有沒有已經解過同一個問題。
 
+## 第三、四章教學改進（2026-10-03）
+
+- 以講義 03／04 ipynb 為主、cppds Ch.4 為輔，重整 `arrays.html`、`linked_lists.html`：
+  - 主線補齊；
+  - 完整程式收合，講義範例的輸出保持可見；
+  - 偏離講義的內容一律收合並標「（補充）／（課本）／（課本寫法）」；
+  - 章末加重點回顧與 Q&A。
+- 動畫全部用 player-v2，frame 為純資料快照，從第 0 格就能單步：
+  - 第三章：ArrayList（6 案例）、位址、緊湊／參考式、二維（合併原 matrixMapping 與 mdGrid）、稀疏；
+  - 第四章：12 個播放器、34 個案例，含 ordered lookahead add、found 版 remove、雙向 sentinel、環狀。
+- **兩章的產生器已與頁面同步且冪等**：改稿一律改 `tools/enrich/content/`，再重跑 `enrich_arrays.py`／`enrich_linked.py`。不要直接改 gen 區 HTML。
+  - `enrich_linked.py` 的舊 `s.replace` 清單已移除；`EDITS['linked_lists']` 只剩 1 條。
+  - `enrich_arrays.py` 裡少數舊的 `.replace` 已比對不到目標，等於不作用。
+- `arrays_headers.py` 與 `sparse_examples.py['dok_header']` 是課程標頭的逐字複本：改 `arraylist.hpp`／`sparsematrix.hpp` 時要同步。
+- 已知取捨：
+  - Exercise 1 照講義 cell 82 原題（`int* s` 跨列）做填空題，標準限制收合為補充；
+  - 第四章環狀與雙向的程式標（補充），但因為要驅動動畫高亮，放在可見的程式面板。
+- 計畫與成品都經 Codex（gpt-6-astra）唯讀審查（job 78ab62ca…、030cdc43…），核實後的意見已修正。
+
 ## 最新修訂：語氣與完整讀者複查
 
 以 `f5d7772` 為起點，完成 P1–P9 的 speak-human-tw 修文與作者以外的順讀複查。

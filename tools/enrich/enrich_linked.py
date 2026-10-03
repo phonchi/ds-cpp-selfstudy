@@ -62,6 +62,7 @@ int main() {
 note="第一行輸出可以看出 add 採用<strong>頭插</strong>：最後加入的 54 排最前面。三次 remove 分別刪除頭端、中間與尾端節點。接著逐步看指標如何更新。")}
 <div class="deck-extra">
   <div class="dx-label">講義 04 · remove(26) 的指標更新步驟</div>
+  <p>以下另從六次 add 後、尚未刪除的串列 54 → 26 → 93 → 17 → 77 → 31 開始。</p>
   <table style="width:100%;border-collapse:collapse;font-size:.88rem;">
     <tr style="border-bottom:2px solid var(--card-border);"><th style="text-align:left;padding:.4rem;">步驟</th><th style="text-align:left;">prev</th><th style="text-align:left;">cur</th><th style="text-align:left;">動作</th></tr>
     <tr style="border-bottom:1px solid var(--card-border);"><td style="padding:.4rem;">開始</td><td>NULL</td><td>head（54）</td><td>兩根指標起跑</td></tr>
@@ -116,7 +117,7 @@ exx = f'''<div class="deck-extra" id="dx-exx">
     <li><strong>補完 ADT</strong>：實作 append、index、pop、insert 四個缺席的方法，並分析各自的 Big-O。</li>
     <li><strong>slice(start, stop)</strong>：回傳從 start 到 stop（不含）的新串列。</li>
     <li><strong>用繼承減少重複</strong>：OrderedList 與 UnorderedList 大量方法相同。設計繼承階層，讓共同的部分只寫一次。</li>
-    <li><strong>串列版 Stack／Queue／Deque</strong>：用鏈結串列各實作一次，跟第 3 章的 vector 版比效能。哪些操作變快、哪些變慢？</li>
+    <li><strong>串列版 Stack／Queue／Deque</strong>：用鏈結串列各實作一次，與連續陣列實作比較效能。哪些操作變快、哪些變慢？</li>
   </ol>
   <p class="dx-note">完整題目在 <a href="https://runestone.academy/ns/books/published/cppds/LinearLinked/ProgrammingExercises.html" target="_blank" rel="noopener">cppds ProgrammingExercises</a>；第 1、2 題是課本的自我檢測熱身，第 5 題則練習比較兩個類別的差異。</p>
 </div>'''
@@ -163,10 +164,39 @@ s = s.replace('<th>vector／陣列</th>', '<th>vector／連續陣列表示</th>'
 s = s.replace('<tr><td>存取第 k 個</td><td>O(1)</td><td>O(k)</td><td>O(k)</td></tr>', '<tr><td>存取零起始第 k 項</td><td>O(1)</td><td>O(k+1)</td><td>O(k+1)</td></tr>')
 s = s.replace('C++ 沒有垃圾回收！', '釋放動態配置的節點')
 s = s.replace('節點脫鉤後若不 delete，這塊 heap 記憶體永遠拿不回來：C++ 沒有垃圾回收，釋放永遠要自己來。', '這份以原生指標管理節點的實作，脫鉤後若失去最後的節點指標且未 delete，就會洩漏記憶體。STL 容器則會自動管理其節點生命週期。')
+# Preserve corrected teaching text when rebuilding the existing page.
+corrections = {
+    'Node *temp = new Node(93)': 'Node&lt;int&gt; *temp = new Node&lt;int&gt;(93)',
+    'Node *p = new Node(93);': 'Node&lt;int&gt; *p = new Node&lt;int&gt;(93);',
+    'Node *temp': 'Node&lt;int&gt; *temp',
+    'Node *cur': 'Node&lt;int&gt; *cur',
+    '<span class="fn">Node</span>(item)': '<span class="fn">Node</span>&lt;int&gt;(item)',
+    '只碰 head 的操作是 O(1)，其他都要走訪': '先看是否需要走訪定位；位置與所需前驅已知後，單項接線只需 O(1)',
+    'search 平均找到目標時走了 n/2 步：Big-O 看的是成長率，\n  係數 1/2 會被丟掉，而且最壞情況（不在串列裡、或排在最後）還是得走完全程，所以仍是 O(n)。': '若搜尋成功，而且每個位置被找到的機會相同，平均約檢查 n/2 個節點，所以平均成本是 O(n)。最壞情況也要走完整條串列，例如目標位於最後，或比所有元素都大。',
+    'search 平均只要走 n/2 個節點就找到目標。為什麼複雜度不寫成 O(n/2)？': '假設搜尋成功，而且每個位置被找到的機會相同，平均約檢查 n/2 個節點。為什麼仍寫成 O(n)？',
+    'n/2 與 n 的成長率相同：n 加倍、時間都加倍。Big-O 抓的是成長率，1/2 這種常數係數一律丟掉；何況目標不在串列裡時一步都少不了。': '平均比較次數隨 n 線性成長，常數係數不改變 O(n)。最壞情況也要走到底，例如搜尋比所有元素都大的值。',
+    '要插在 it 前面，就得改「it 前一個節點」的 next，但單向串列走不回去。命名直接反映了資料結構的能力邊界。': '要插在 it 前面，必須修改前驅的 next。單向串列不能直接反向找前驅；從頭找需要 O(n)，提供前驅後接線才是 O(1)。',
+    '單向串列拿不到「前一個節點」，只能在已知節點後面接': '單向串列不能直接反向找前驅；提供前驅才能 O(1) 接線',
+    '沒有隨機存取就沒有二分：log 是陣列的專利。': '依索引取值要從 head 沿 next 走到該位置。有序串列即使採用二分的比較方式，尋找中點仍要走訪，不能省去這些成本。',
+    'head 是唯一入口，弄丟就全丟。': 'head 指向首節點；修改入口前，先保留後段的連結。',
+}
+for before, after in corrections.items():
+    s = s.replace(before, after)
+s = re.sub(r'<div class="info-card">\s*<div class="ic-title">指標語法速記</div>\s*(<div[^>]*class="mono">.*?</div>)\s*</div>', lambda m: '<details class="linked-detail"><summary>補充：指標語法速記</summary><div class="linked-detail-body">' + m[1] + '</div></details>', s, flags=re.S)
+if 'id="linked-average-detail"' not in s:
+    detail = '<details class="linked-detail" id="linked-average-detail"><summary>補充：平均要比較幾次？</summary><div class="linked-detail-body"><p>成功搜尋 n 個位置的比較次數依序為 1、2、…、n。若每個位置等可能，平均為 (1 + 2 + … + n) / n = (n + 1) / 2，約為 n / 2；因此隨 n 線性成長。</p></div></details>'
+    s = s.replace('下表整理 List ADT 各項操作的成本：</p>', '下表整理 List ADT 各項操作的成本：</p>' + detail)
+interactions = (Path(__file__).parent / 'content' / 'linked_interactions.js').read_text()
+s = re.sub(r'/\* ---------- P02 unordered ---------- \*/.*?(?=/\* ---------- P04 variants ---------- \*/)', lambda m: interactions, s, flags=re.S)
+
 # Preserve output spaces as HTML entities without source trailing whitespace.
 s = re.sub(r'<pre>.*?</pre>', lambda m: re.sub(r' +(?=\n)', lambda w: '&#32;' * len(w.group()), m.group()), s, flags=re.S)
 s = re.sub(r'(?m)^[ \t]+$', '', s)
 from content.teaching_copy import polish_preserved
 s = polish_preserved("linked_lists", s)
+from content.linked_figures import apply_figures
+s = apply_figures(s)
+from content.chapter_math import render_math
+s = render_math(s)
 PAGE.write_text(s)
 print("inserted:", [n for n, ok in zip("node uno ownership odr exx".split(), [c1, c2, c5, c3, c4]) if ok])

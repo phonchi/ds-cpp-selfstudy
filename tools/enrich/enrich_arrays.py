@@ -37,8 +37,14 @@ def main():
     text = text.replace("$('spStore').innerHTML = `<strong>COO</strong>：${coo}<br><strong>DOK</strong>：${dok}`;", "const chain = entries.map(e => `(${e.r},${e.c},${e.v})`).join(' → ');\n  $('spStore').innerHTML = `<strong>COO</strong>：${coo}<br><strong>DOK</strong>：${dok}<br><strong>Linear list</strong>：head → ${chain ? chain + ' → ' : ''}nullptr`;")
     text = text.replace('隨機讀寫 O(log nnz) 或 O(1)；COO 要線性掃、密陣列 10¹⁰ 格根本放不下（40GB+）。', 'std::map 查找 O(log(nnz+1))；unordered_map 平均 O(1)。未排序 COO 需線性掃描；密矩陣需要 Rows×Cols 格。')
     text = text.replace('COO 隨機查 (r,c) 要掃整條列表：它是「建構/匯出」格式。', '未排序 COO 需線性掃描；排序後雖可二分查詢，插入仍可能搬移後續項目。')
+    text = text.replace('i×行數(4)+j', 'i×欄數(4)+j')
+    address_old = "const size = parseInt($('addrSize').value, 10);\n  const el = $('addrVis');"
+    address_new = "const size = parseInt($('addrSize').value, 10);\n  if (sel < 0) setStatus('addrStatus', `每格 ${size} bytes，起始位址 1000。點格子查看位址計算。`);\n  const el = $('addrVis');"
+    text = text.replace(address_old, address_new)
     from content.teaching_copy import polish_preserved
     text = polish_preserved("arrays", text)
+    from content.chapter_math import render_math
+    text = render_math(text)
     page.write_text(text)
     print('Rebuilt arrays.html sections and mapping assets')
 

@@ -26,6 +26,9 @@ def section(sid, title, body):
 def quiz(qid, title, question, answers):
     return f'<div class="quiz-box"><div class="quiz-label">{title}</div><p>{question}</p><div class="quiz-options" id="{qid}Options">'+''.join(f'<div class="quiz-opt" data-correct="{str(ok).lower()}" data-fb="{escape(fb,quote=True)}" onclick="quizCheck(\'{qid}\', this)"><span class="opt-letter">({chr(65+i)})</span> {a}</div>' for i,(a,ok,fb) in enumerate(answers))+f'</div><div class="quiz-feedback" id="{qid}Feedback"></div></div>'
 
+def figure(filename, alt, caption):
+    return f'<figure class="arrays-figure"><div class="arrays-figure-scroll" tabindex="0" aria-label="{escape(alt, quote=True)}"><img src="assets/figures/ch3/{filename}" alt="{escape(alt, quote=True)}" loading="lazy"></div><figcaption>{caption}</figcaption></figure>'
+
 def build():
     sections={}
     family=table(['比較','原生陣列 <code>int a[3]</code>','<code>std::array&lt;int,3&gt;</code>','<code>std::vector&lt;int&gt;</code>'],[
@@ -68,12 +71,12 @@ int main() {
     show(a, count);
 }''','3\n20\n10 20 30 \n','run')+'''<p>陣列本身沒有因為這個轉換而消失，a 仍是三格陣列；失去長度資訊的是接收端的指標型別。<code>std::array</code> 與 <code>std::vector</code> 都提供 <code>.size()</code>，不必用這個除法取得元素數量。</p>''')
     sections['prologue']=section('prologue','低階陣列：連續、等寬的儲存格',details('先比較：原生陣列、std::array、std::vector',family)+'''
-<p>從程式的位址模型來看，記憶體是一條按位元組編號的序列。陣列把同型別的元素連續排在這條序列上，每格大小相同。因此只要知道起始位址、索引和元素大小，就能直接找到元素。</p>
+<p>從程式的位址模型來看，記憶體是一條按位元組編號的序列。陣列把同型別的元素排在這條序列上，<strong>元素連續儲存，每格大小相同</strong>。因此只要知道起始位址、索引和元素大小，就能直接找到元素。</p>
 <p>本章依序介紹低階陣列與 ArrayList、compact／referential、二維矩陣如何攤平，以及 COO、DOK、線性串列三種稀疏表示。</p>
 <p id="dx-low"><code>double a[6]</code> 佔 <code>6 * sizeof(double)</code> bytes；若此環境的 double 是 8 bytes，總共就是 48 bytes。型別大小以 sizeof 的結果為準，不同平台可能不同。</p>''')
     layout='''<p>有效索引 <code>0 ≤ i &lt; n</code> 的元素位址為 <code>base + i × sizeof(T)</code>。乘法與加法的次數不隨 n 增加，因此索引是 O(1)。以下位址與型別大小是示意。</p>'''+widget('layout')
     layout+='''<h3>兩個限制：不能直接擴增，也不會替你檢查邊界</h3>
-<p><code>int a[3]</code> 只有三格。寫入 <code>a[3]</code> 不是追加，而是越界；原生 <code>[]</code> 不會先確認索引是否合法。即使寫入後沒有訊息或當機，這仍是<strong>未定義行為</strong>，可能改壞別的資料，也可能有其他結果。</p>
+<div class="info-box warm"><span class="info-label">越界與錯誤訊息</span><p><code>int a[3]</code> 只有三格。寫入 <code>a[3]</code> 不是追加，而是越界；原生 <code>[]</code> 不會先確認索引是否合法。即使寫入後沒有訊息或當機，這仍是<strong>未定義行為</strong>，可能改壞別的資料，也可能有其他結果。</p></div>
 <p>程式存取未映射或沒有存取權限的記憶體頁面時，執行環境可能回報 segmentation fault。作業系統通常不知道某個 C++ 陣列的元素邊界：越界一格可能仍落在可存取頁面，也可能剛好跨入不可存取頁面；不能用「走得夠遠才會出錯」判斷。空指標、懸空指標等也可能造成相同錯誤。</p>
 <h3>用 ArrayList 把檢查與擴容包起來</h3>
 <p>接著實作 ArrayList：內部用原生陣列儲存資料，容量不夠時擴容，索引存取前先檢查範圍。<code>myArray</code> 指向配置區，<code>lastIndex</code> 是目前元素數量，也是下一個空位；<code>maxSize</code> 是容量。操作時須維持 <code>0 ≤ lastIndex ≤ maxSize</code>。</p>
@@ -117,7 +120,9 @@ void grow() {
     maxSize = newCapacity;
 }''')
     layout+='''<p>建構時配置 <code>new int[maxSize]</code>，解構時以 <code>delete[] myArray</code> 釋放；容量為零時先擴充到 1。grow 先配置新空間、複製元素，再釋放舊空間；只把容量數字改大，並不會真的得到更多儲存格。</p>
-<h3>插入從右往左搬，刪除從左往右補</h3><p>在有 n 個元素的序列中，若要插入到索引 i，須先把 i 到 n−1 的元素向右搬一格，共 n−i 個。從尾端開始才不會蓋掉還沒複製的值。刪除索引 i 則把右邊 n−1−i 個元素往左搬。insert 允許 i=n；erase 與 [] 必須 i&lt;n。</p>'''
+<h3>插入從右往左搬，刪除從左往右補</h3><p>在有 n 個元素的序列中，若要插入到索引 i，須先把 i 到 n−1 的元素向右搬一格，共 n−i 個。<strong>從尾端開始</strong>，才不會蓋掉還沒複製的值。刪除索引 i 則把右邊 n−1−i 個元素往左搬。insert 允許 i=n；erase 與 [] 必須 i&lt;n。</p>'''
+    layout+=figure('insert_list.png', '插入索引 2 前，依箭頭編號從索引 5 向索引 2 倒序右移。', '先把索引 5 的值搬到空位 6，再依序搬移 4、3、2，才不會蓋掉尚未複製的值。圖中數值用來示意搬移，規則不隨元素值改變。')
+    layout+=figure('remove_list.png', '刪除 idx 後，從 idx 開始依序把右側元素往左移。', '刪除時從左往右補空位；每格取右邊一格的值。最後減少 lastIndex，原本的末項位置就不再屬於有效元素。')
     layout+=code('插入與刪除：類別內的方法片段',r'''void insert(int idx, int val) {
     if (idx < 0 || idx > lastIndex)
         throw out_of_range("insert index out of bounds");
@@ -137,7 +142,7 @@ void erase(int idx) {
         ['有效索引 []／at','O(1)','固定次數的檢查與位址定位'],['size／empty','O(1)','讀取已記錄的元素數量'],['push_back','攤還 O(1)，擴容那次 O(n)','多數直接填一格；擴容須搬移 n 個元素'],['insert／erase','最壞 O(n)','插入或刪除點後的元素須搬移'],['pop_back','O(1)','移除尾端，不搬移前面的元素']])
     layout+=details('補充：元素本身的操作也要花時間', '<p>上表將單一元素的複製、移動與解構視為 O(1)，先看需要處理多少個元素。若 vector 存的是字串或其他物件，這些操作本身也可能有額外成本，分析時要一起計入。</p><p>例如 pop_back 不必搬移其他元素，但仍會解構被移除的物件；插入與擴容則可能複製或移動多個元素。</p>')
     layout+='''<p>從固定小容量開始加倍，搬移量形成 <code>1+2+4+…</code> 的等比級數。連續追加 n 次，全部搬移量是 O(n)，連同 n 次放入，平均攤到每次 O(1)。這是<strong>攤還分析</strong>，不是說每次操作都一樣快，也不需要假設隨機輸入。</p>
-<p>實務上推薦 <code>vector</code>，因為它已處理資源管理、複製、迭代器等細節。從 ArrayList 的搬移過程可以理解這些操作的成本。不過，兩者介面有些差異：課程 ArrayList 的 [] 會檢查，vector 的 [] 不會；vector 要用 at 才有範圍檢查。vector 的成長倍率由實作決定，不保證每次加倍。</p>'''
+<div class="info-box"><span class="info-label">實務上先用 vector</span><p>實務上推薦 <code>vector</code>，因為它已處理資源管理、複製、迭代器等細節。從 ArrayList 的搬移過程可以理解這些操作的成本。不過，兩者介面有些差異：課程 ArrayList 的 [] 會檢查，vector 的 [] 不會；vector 要用 at 才有範圍檢查。vector 的成長倍率由實作決定，不保證每次加倍。</p></div>'''
     layout+=details('用 vector 看 size、容量與邊界',code('reserve 配置容量，並不新增元素',r'''#include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -201,7 +206,7 @@ int main() {
     multi='''<p>矩陣有 Rows 列、Cols 欄，但程式使用的記憶體位址是一維的。因此二維索引 (i,j) 必須轉成一維位置；這是<strong>邏輯形狀</strong>與<strong>實際儲存順序</strong>的區別。以下一律使用零起始索引、row＝列、column＝欄。</p>
 <h3>先算跳過幾格，再換成位元組</h3>
 <p>Row-major 先放完整的一列：前面有 i 列，每列 Cols 格，然後再走 j 格，所以 <strong>offset = i × Cols + j</strong>。Column-major 先放完整的一欄：前面有 j 欄，每欄 Rows 格，再走 i 格，所以 <strong>offset = j × Rows + i</strong>。</p>
-<p>若起始位址是 B，每格佔 s = sizeof(T) bytes，位址公式分別為 <strong>B + (i × Cols + j) × s</strong> 與 <strong>B + (j × Rows + i) × s</strong>。offset 是格數，不能與 byte 位址混用。</p>
+<div class="info-box"><span class="info-label">從索引算出位址</span><p>若起始位址是 B，每格佔 s = sizeof(T) bytes：</p><p><strong>Row-major：</strong>B + (i × Cols + j) × s</p><p><strong>Column-major：</strong>B + (j × Rows + i) × s</p><p><strong>offset 是格數</strong>，乘上元素大小才得到相對位元組位址。</p></div>
 <p>C++ 原生 <code>T M[Rows][Cols]</code> 是「陣列的陣列」，採 row-major；一列的 Cols 個元素放完才接下一列。需要 column-major 時，可以用一維容器配合第二條公式表示。</p>'''
     multi+=(HERE/'arrays_mapping.html').read_text()
     multi+='''<h3>相同的儲存排列，也能用不同順序走訪</h3><p>下方固定採 row-major 儲存，只改變讀取順序。沿同一欄由上一列往下一列走時，跨距是 Cols × sizeof(T) bytes；換欄時會回到較前方的位址。連續走訪通常有利於快取，但實際差距取決於矩陣大小、硬體與運算內容。</p>'''+widget('multidim')
@@ -244,104 +249,41 @@ int main() {
     return sections
 
 def sparse_content():
-    s='''<p>大部分元素是零時，可以只記錄非零值的位置，未記錄的位置視為零。密矩陣要 O(Rows×Cols) 空間；下列三種表示儲存 a 項需 O(a) 空間，但每項還要保存座標或連結。講義以非零比例低於 5% 作為例子，5% 不是通用定義或必然省空間的分界。</p>
-<p>先看同一個 3×3 矩陣 A：下列三種表示描述完全相同的資料。</p><pre class="memory-text">A = [0 2 0]
-    [3 0 0]
-    [0 0 4]</pre>
-<h3>COO：三條陣列的同一個索引是一筆資料</h3>
+    from sparse_examples import EXAMPLES
+    s='''<p>大部分元素是零時，可以只記錄非零值的位置，<strong>未記錄的位置視為零</strong>。密矩陣需要 Rows×Cols 格；稀疏表示則另外記錄座標，省下零值的儲存空間。是否划算，還要看非零項有多少、每項需要多少額外資料。</p>
+<p>以下用同一個 3×3 矩陣 A 比較三種表示。各小節的加減乘程式也沿用 A，並以 B＝diag(5,6,7) 作為另一個運算元。</p>
+<pre class="memory-text">A = [0 2 0]    B = [5 0 0]
+    [3 0 0]        [0 6 0]
+    [0 0 4]        [0 0 7]</pre>
+<p>加減要求形狀相同；乘法要求 A 的欄數等於 B 的列數。下文以 a、b 表示兩個輸入的儲存項數。</p>
+<h3 id="sparse-coo">COO：三條陣列的同一個索引是一筆資料</h3>
 <pre class="memory-text">row = [0, 1, 2]
 col = [1, 0, 2]
 val = [2, 3, 4]</pre>
-<p>第 k 項表示 <code>A[row[k]][col[k]] = val[k]</code>。三條陣列長度必須相同；也可用含 row、col、value 的三元組陣列表達同樣資訊。收集資料時追加方便，但未排序時查一個座標須掃 O(a)。按 (row,col) 排序且座標唯一後，可以二分搜尋 O(log(a+1))；在有序陣列中插入仍可能搬移 O(a) 項。</p>
-<p>若輸入含重複座標，須先決定它們是相加的貢獻還是覆寫。本節運算先把重複座標加總、刪除零值，得到座標唯一的表示。</p>
-<h3>DOK：用座標當作 map 的鍵</h3>
+<p>第 k 項表示 <code>A[row[k]][col[k]] = val[k]</code>。三條陣列長度相同，讀取時把同一索引的列、欄與值一起看。未排序時，找一個座標最壞要掃過 a 筆資料；按座標排序後可以二分搜尋，但插入仍可能搬移後續元素。</p>'''
+    s+=details('COO 的加減乘：完整 C++ 程式與複雜度', '''<p>加減使用兩個索引，由小到大比較座標。座標較小的一邊先輸出；相同時將值相加或相減，兩邊一起前進。結果為零就不存。</p>
+<p>以下 append 按 (row,col) 遞增順序加入有效座標，同一座標只加入一次。三條陣列維持這個順序，加減便能用合併完成，時間 O(a+b)、輸出空間 O(a+b)。若資料原本未排序，要先排序並合併重複座標，另計 O(a log(a+1)+b log(b+1))。</p>
+<p>乘法把每個 A(i,k) 與 B(l,j) 配對，只有 k=l 時產生對 (i,j) 的貢獻。設配對成功的乘積有 q 筆，先存下來，再依結果座標排序、合併。非空輸入的時間為 O(ab+q log(q+1))，暫存 O(q)；任一輸入為空便直接回傳。不同 k 的貢獻要累加，不能只留下最後一筆。</p>'''+code('COO：三條平行陣列，加法、減法與乘法',*EXAMPLES['coo'],kind='run')+'''<p>三行依序是 A+B、A−B、A×B。例如乘積的 (0,1) 是 2×6＝12，(1,0) 是 3×5＝15，(2,2) 是 4×7＝28。</p>''')
+    s+='''<h3 id="sparse-dok">DOK：用座標當作 map 的鍵</h3>
 <pre class="memory-text">{ (0,1):2, (1,0):3, (2,2):4 }</pre>
-<p><code>map&lt;pair&lt;size_t,size_t&gt;,double&gt;</code> 的鍵是 (row,column)，值是 double。std::map 依鍵排序，pair 先比 row，再比 column，正好是 row-major 的座標順序。查詢／插入成本為 O(log(a+1))；它不是平均 O(1) 的雜湊表。</p>
-<h3>size_t 是什麼？</h3>
-<p><code>std::size_t</code> 是 <code>&lt;cstddef&gt;</code> 提供、用於物件大小的無號整數型別，也是 sizeof 結果的型別。容器大小與索引常使用它，但位元寬度依平台決定，不一定是 unsigned int。<code>pair&lt;size_t,size_t&gt;</code> 就是一對用這種型別保存的列、欄索引。</p>
-<p>無號型別仍需要邊界檢查。負數轉成 size_t 可能成為很大的正數；讀入有號索引時，應先檢查非負且在維度內，再轉型。避免用 <code>i &gt;= 0</code> 作為無號倒數迴圈的終止條件。</p>'''
-    s+=code('DOK 的兩種存取：類別內的方法片段',r'''// private:
-map<pair<size_t, size_t>, double> data;
-// public:
-double operator()(size_t i, size_t j) const {
-    auto it = data.find({i, j});
-    return it != data.end() ? it->second : 0.0;
-}
-double& operator()(size_t i, size_t j) {
-    return data[{i, j}];
-}
-size_t nnz() const { return data.size(); }''')
-    s+='''<p>const 版本用 find 查詢，不存在便回傳 0；非 const 版本透過 map 的 [] 取得可寫入的參考，鍵不存在時會先插入值為零的項目。這個多載由物件是否為 const 決定，<strong>不是由你打算讀或寫來決定</strong>。</p>
-<h3>A.4.3 Linear list：按座標串成一條串列</h3>
-<pre class="memory-text">head → (0,1,2) → (1,0,3) → (2,2,4) → nullptr</pre>'''
-    s+=code('每個節點保存座標、值與下一個節點',r'''struct Node {
-    int row, col;
-    double value;
-    Node* next;
-};''')
-    s+='''<p>講義的表示是一條依 (row,col) 排序的鏈結串列。節點不必相鄰，依 next 才能找到下一筆；找指定座標最壞 O(a)。已有前驅時接入或移除節點 O(1)，但找到前驅仍可能 O(a)。每列各設一個串列入口是另一種延伸設計，不是此處的單一串列。</p>
-<h3>操作矩陣，對照三種儲存內容</h3><p>下方使用 5×6 矩陣；點格子切換零與非零，觀察相同資料如何出現在三種表示裡。</p>'''+widget('sparse')
-    s+='''<h3>加減乘：先定義工作量</h3>
-<p>a、b 是輸入 A、B 的儲存項數；q 是符合 <code>A(i,k)</code> 與 <code>B(k,j)</code> 的項目配對數，c 是結果在累加過程中出現的不同座標數（含最後相消為零的座標）。加減要求形狀相同；乘法要求 A 的欄數等於 B 的列數。</p>
-<p>以 B＝diag(5,6,7) 為例，A+B 的三列是 [5,2,0]、[3,6,0]、[0,0,11]；A−B 是 [−5,2,0]、[3,−6,0]、[0,0,−3]；A×B 是 [0,12,0]、[15,0,0]、[0,0,28]。</p>'''
-    merge=code('合併兩個有序序列（偽碼；減法把 B 的值乘 −1）',r'''while A 或 B 還有項目:
-    若 B 已結束，或（A 未結束且 A 的座標較小）:
-        輸出 A 的項目；前進 A
-    否則若 A 已結束，或 B 的座標較小:
-        輸出 (B.row, B.col, sign * B.value)；前進 B
-    否則:
-        sum = A.value + sign * B.value
-        若 sum != 0: 輸出共同座標與 sum
-        同時前進 A、B''',kind='pseudocode')
-    s+=details('COO 的 +、−、×：排序、合併與累加', '''<p>加減先確保兩邊按 (row,col) 排序、座標唯一，再用兩個索引合併。每筆最多走過一次，時間 O(a+b)，結果最多 a+b 項。若原本未排序，另加 O(a log(a+1)+b log(b+1)) 的排序成本。</p>'''+merge+code('COO 乘法（偽碼）',r'''products = 空三元組陣列
-for 每筆 (i,k,x) in A:
-    for 每筆 (l,j,y) in B:
-        if k == l: products.push_back((i,j,x*y))
-依 (row,col) 排序 products
-合併相同座標的值，略過總和為零者''',kind='pseudocode')+'''<p>兩兩檢查 O(ab)，產生 q 筆乘積後排序 O(q log(q+1))、合併 O(q)，總時間 O(ab+q log(q+1))，暫存 O(q)。不同的 k 可能貢獻給同一個 (i,j)，不能只留下最後一筆。空輸入直接回傳空結果。</p>''')
-    s+=details('DOK 的 +、−、×：把 map 的成本也算進去',code('加法：講義類別內的方法；減法同理',r'''SparseMatrix operator+(const SparseMatrix& other) const {
-    SparseMatrix result;
-    for (const auto& item : data) {
-        result.data[item.first] = item.second
-            + other(item.first.first, item.first.second);
-    }
-    for (const auto& item : other.data) {
-        if (data.find(item.first) == data.end())
-            result.data[item.first] = item.second;
-    }
-    return result;
-}''')+'''<p>第一輪處理 A 的所有鍵，第二輪補 B 獨有的鍵；每筆還有樹狀 map 查詢或插入，因此上界是 O((a+b) log(a+b+1))，結果空間 O(a+b)。減法第一輪改成相減，第二輪放入 B 值的負值；不能只把第一輪的加號改掉。</p>'''+code('乘法：講義類別內的方法',r'''SparseMatrix operator*(const SparseMatrix& other) const {
-    SparseMatrix result;
-    for (const auto& x : data) {
-        for (const auto& y : other.data) {
-            if (x.first.second == y.first.first)
-                result(x.first.first, y.first.second)
-                    += x.second * y.second;
-        }
-    }
-    return result;
-}''')+'''<p>即使 k 不相等，內外迴圈仍會檢查那一對項目，分析成本時也要計入。時間是 O(ab+q log(c+1))，結果儲存 O(c)；空輸入可直接回傳。稀疏乘積可能變密，c 可能接近結果的全部格數。</p>''')
-    s+=details('Linear list 的 +、−、×：走訪節點如何完成運算？','''<p>加減使用兩個節點指標，依座標合併；結果維護 tail，才能每次 O(1) 接上新節點。時間 O(a+b)，輸出空間 O(a+b)。若每次輸出都從 head 重新找尾端，還要加上這段走訪的成本。</p>'''+merge+code('單一串列乘法，使用輔助 map 累加（偽碼）',r'''acc = 空 map，鍵為 (row,col)，值為累加值
-for p 從 A.head 沿 next 走:
-    for t 從 B.head 沿 next 走:
-        if p.col == t.row:
-            acc[(p.row,t.col)] += p.value * t.value
-依 acc 的座標順序走訪:
-    若值不為零，以 tail 接到結果串列尾端''',kind='pseudocode')+'''<p>仍須 O(ab) 配對檢查，q 次累加共 O(q log(c+1))，輸出另需 O(c)。輔助 map 與結果各用 O(c) 空間。這裡借用 DOK 累加各座標的值。若改成在結果串列逐筆尋找座標，每次可能需要 O(c)，無法直接以 O(1) 定位。</p>''')
-    s+=details('SparseMatrix 使用例與教學類別的限制',code('直接使用課程標頭進行加減乘',r'''#include <iostream>
-#include "pythonds3/cppds/sparsematrix.hpp"
-int main() {
-    SparseMatrix A({{{0,1},2}, {{1,0},3}, {{2,2},4}});
-    SparseMatrix B({{{0,0},5}, {{1,1},6}, {{2,2},7}});
-    std::cout << A + B << '\n' << A - B << '\n' << A * B << '\n';
-    const SparseMatrix& readOnly = A;
-    std::cout << readOnly(0,0) << ' ' << A.nnz() << '\n';
-    double zero = A(0,0); // 非 const 存取，會插入零項目
-    std::cout << zero << ' ' << A.nnz() << '\n';
-}''','(0, 0): 5  (0, 1): 2  (1, 0): 3  (1, 1): 6  (2, 2): 11  \n(0, 0): -5  (0, 1): 2  (1, 0): 3  (1, 1): -6  (2, 2): -3  \n(0, 1): 12  (1, 0): 15  (2, 2): 28  \n0 3\n0 4\n','run')+'''<p id="dx-sp">課程類別提供 nnz() 與 sparsity()，但 data.size() 實際數的是儲存項目。寫入零、讀取非 const 物件的空位置，或加減相消都可能留下零項目，因此它不一定等於數學上的非零數。上方互動示範會刪除零項目，兩者行為不同。</p>
-<p>類別本身不保存 rows／cols，所以不能自動檢查矩陣形狀或越界，也不能從空 map 判斷零矩陣大小。使用者須另記維度。sparsity(rows,cols) 的公式是 1−a/(rows×cols)，使用時須確認維度乘積有效且非零，儲存項也符合矩陣內容。fromDenseMatrix 會加入非零項但不清空舊 map；要完整轉換新的矩陣，請使用新物件。</p>''')
-    s+=quiz('qSpAdd','QUIZ · map 加法成本','兩個各有 n 筆儲存項的 std::map DOK，依講義逐筆查詢與插入相加，上界為何？',[
-        ('O(n log(n+1))',True,'總共走訪 O(n) 項，每項 map 查詢或插入還有對數成本。'),('O(n)',False,'O(n) 是已排序序列合併的成本；講義這份程式逐筆操作 map。'),('O(n²)',False,'加法不需要將 A 的每項與 B 的每項兩兩配對。')])
+<p>DOK 以 (row,column) 當作鍵，保存該位置的值。std::map 按 row、再按 column 排序，查詢／插入需要 O(log(a+1))。用 <code>m(i,j) = value</code> 就能指定某個位置的值，不必自行搜尋三條陣列。</p>
+<div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p><code>operator()</code> 回傳 <code>double&amp;</code>，讓 <code>m(i,j)</code> 代表 map 中那個可讀寫的值。若座標尚未存在，map 的 [] 會先插入值為零的項目；因此單純讀取空位置也會新增項目。</p></div>'''
+    s+=details('size_t 是什麼？', '''<p><code>std::size_t</code> 是 <code>&lt;cstddef&gt;</code> 提供的無號整數型別，用來表示物件大小，也是 sizeof 結果的型別。<code>pair&lt;size_t,size_t&gt;</code> 把列、欄索引組成一個鍵，<code>map&lt;pair&lt;size_t,size_t&gt;,double&gt;</code> 則把這個鍵對應到 double 值。</p>
+<p>無號型別仍需要邊界檢查。負數轉成 size_t 可能成為很大的正數；讀入有號索引時，先確認非負且在維度內，再轉型。不要用 <code>i &gt;= 0</code> 作為無號倒數迴圈的終止條件。</p>''')
+    s+=details('SparseMatrix：完整 C++ 類別、使用範例與加減乘', '''<p>下面把建構、存取、加減乘與輸出放在完整類別中，可直接編譯執行。索引介面使用講義中回傳 double&amp; 的寫法。加減法在函式內用 find 查詢另一個矩陣，缺少的座標取零，不為了查詢而改動輸入。</p>
+<p>加法第一輪處理 A 的所有鍵，第二輪補 B 獨有的鍵；減法第一輪相減，第二輪補 B 值的負值。<strong>每筆還有 map 查詢或插入的成本</strong>，時間上界為 O((a+b) log(a+b+1))，輸出空間 O(a+b)。</p>
+<p>乘法保留講義的兩層迴圈。每一對項目都要檢查中間索引，即使沒有配對成功也有成本。設成功配對 q 次、累加過程出現 c 個結果座標，兩邊非空時需 O(ab+q log(c+1))，結果空間 O(c)。若 B 為空，這份寫法仍會走過 A 的 a 項。結果可能變密，也可能保留相消後的零值。</p>'''+code('SparseMatrix：以座標為鍵的 map',*EXAMPLES['dok'],kind='run')+'''<p id="dx-sp">三行依序是 A+B、A−B、A×B，與 COO 的結果相同。這個類別的 nnz() 回傳 data.size()，數的是儲存項數；寫入零、讀取空位置或相加相消，都可能讓它和真正的非零數不同。</p>''')
+    s+=details('補充：使用這個 SparseMatrix 時要注意什麼？', '''<p>類別不保存 rows／cols，因此不能自動檢查形狀或索引是否越界，也無法從空 map 得知零矩陣的大小，使用時要另外記住維度。sparsity(rows,cols) 使用 1−a/(rows×cols)，須確認維度乘積有效且非零，儲存項也符合矩陣內容。</p>
+<p>operator== 比較的是 map 的儲存內容。例如一個物件存了 (0,0):0，另一個是空 map，兩者都可表示零矩陣，但 == 會得到 false。要比較矩陣的數值是否相同，還須處理零項與維度。</p><p>fromDenseMatrix 會加入非零項，但不清空原有 map。要轉換另一個矩陣，請使用新物件。上方的 COO 程式與下方的串列程式另保存維度並略過零值；這裡保留 DOK 類別的行為，使用時要分清楚。</p>''')
+    s+='''<h3 id="sparse-linear">Linear list：按座標串成一條串列</h3>
+<pre class="memory-text">head → (0,1,2) → (1,0,3) → (2,2,4) → nullptr</pre>
+<p>每個節點記錄 row、col、value 與 next，所有非零項按 (row,col) 串成同一條串列。節點不必相鄰，跟著 next 才能找到下一筆；找指定座標最壞需要 O(a)。已有前驅時接入或移除節點只需 O(1)，但尋找前驅的成本要另算。下一章會仔細說明這些指標怎麼連接。</p>'''
+    s+=figure('sparse_matrixlist.png','矩陣的非零項依列、欄順序共用同一個 head；每個節點保存 row、col、value、next。','圖中的 4×5 矩陣有六個非零項，全都串在同一條串列裡。next 會跨過矩陣的列界線；空的第 2 列不需要節點。')
+    s+=details('線性串列的加減乘：完整 C++ 程式與複雜度', '''<p>加減用兩個節點指標依序比較座標，做法與 COO 的合併相同。結果保存 tail，每次把新節點接到尾端只需 O(1)，因此整體時間 O(a+b)、輸出空間 O(a+b)。若每次都從 head 重新找尾端，還要加上那段走訪成本。</p>
+<p>這份程式的 append 同樣要求有效座標按 (row,col) 遞增、沒有重複。乘法兩兩走訪節點，以 map 累加相同結果座標，再依序輸出串列。非空輸入的時間是 O(ab+q log(c+1)+c)，輔助 map 與輸出各用 O(c) 空間；任一輸入為空便直接回傳。q 是成功配對數，c 是累加時出現的不同座標數。</p>'''+code('Linear：一條有序鏈結串列，加法、減法與乘法',*EXAMPLES['linear'],kind='run')+'''<p>三行仍是 A+B、A−B、A×B。類別解構時逐一釋放節點；此版本停用複製，並以移動建構把結果串列交給接收端，避免兩個物件重複釋放同一批節點。</p>''')
+    s+='''<h3>操作矩陣，對照三種儲存內容</h3><p>下面改用 5×6 矩陣。點格子切換零與非零，看同一筆資料如何出現在 COO、DOK 與單一串列中。這個互動會移除零項目。</p>'''+widget('sparse')
+    s+=quiz('qSpAdd','QUIZ · map 加法成本','兩個各有 n 筆儲存項的 std::map DOK，逐筆查詢與插入相加，上界為何？',[
+        ('O(n log(n+1))',True,'總共走訪 O(n) 項，每項 map 查詢或插入還有對數成本。'),('O(n)',False,'O(n) 是已排序序列合併的成本；這份程式逐筆操作 map。'),('O(n²)',False,'加法不需要將 A 的每項與 B 的每項兩兩配對。')])
     s+=quiz('qSp','QUIZ · 空間取捨','為何不能只看非零項數，就保證小矩陣用 DOK 一定省空間？',[
-        ('每項還有座標、樹節點與配置的額外成本',True,'std::map 的節點大小依實作而定，不能假定 key+value 就是全部。'),('因為 DOK 還是配置所有零值',False,'未存入的座標不佔 map 節點。'),('因為 map 不允許零值',False,'map 可以存零，課程類別也不會自動清除零項。')])
+        ('每項還有座標、樹節點與配置的額外成本',True,'std::map 的節點大小依實作而定，不能假定 key+value 就是全部。'),('因為 DOK 還是配置所有零值',False,'未存入的座標不佔 map 節點。'),('因為 map 不允許零值',False,'map 可以存零，這個類別也不會自動清除零項。')])
     return s

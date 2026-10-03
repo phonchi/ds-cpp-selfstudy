@@ -6,16 +6,18 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+import os
 from bs4 import BeautifulSoup
 ROOT=Path(__file__).resolve().parents[3]
-OUT=Path(__file__).parent
+OUT=Path(os.environ.get("DSCPP_VERIFY_OUT", str(Path(__file__).parent)))
+OUT.mkdir(parents=True, exist_ok=True)
 HEADERS=Path('/home/phonchi/ds_cpp/Slides')
 sys.path.insert(0,str(ROOT/'tools/enrich'))
 from content.linked_depth import EXAMPLES
 report=[]
 with tempfile.TemporaryDirectory(prefix='chapters-cpp-') as tmp:
  for page in ['arrays','linked_lists']:
-  soup=BeautifulSoup((ROOT/(page+'.html')).read_text(),'html.parser')
+  soup=BeautifulSoup((ROOT/(page+'.html')).read_text(),'html.parser',preserve_whitespace_tags={'pre','span'})
   ids=[e['id'] for e in soup.select('[id]')]
   assert len(ids)==len(set(ids)), (page,'duplicate id')
   for a in soup.select('a[href^="#"]'):

@@ -265,7 +265,7 @@ def sparse_content():
 <p>乘法把每個 A(i,k) 與 B(l,j) 配對，只有 k=l 時產生對 (i,j) 的貢獻。設配對成功的乘積有 q 筆，先存下來，再依結果座標排序、合併。非空輸入的時間為 O(ab+q log(q+1))，暫存 O(q)；任一輸入為空便直接回傳。不同 k 的貢獻要累加，不能只留下最後一筆。</p>'''+code('COO：三條平行陣列，加法、減法與乘法',*EXAMPLES['coo'],kind='run')+'''<p>三行依序是 A+B、A−B、A×B。例如乘積的 (0,1) 是 2×6＝12，(1,0) 是 3×5＝15，(2,2) 是 4×7＝28。</p>''')
     s+='''<h3 id="sparse-dok">DOK：用座標當作 map 的鍵</h3>
 <pre class="memory-text">{ (0,1):2, (1,0):3, (2,2):4 }</pre>
-<p>DOK 以 (row,column) 當作鍵，保存該位置的值。std::map 按 row、再按 column 排序，查詢／插入需要 O(log(a+1))。用 <code>m(i,j) = value</code> 就能指定某個位置的值，不必自行搜尋三條陣列。</p>
+<p>DOK 以 (row,column) 當作鍵，保存該位置的值。std::map 按 row、再按 column 排序。令 $a$ 為 map 目前儲存的座標與值的筆數，查詢／插入需要 O(log(a+1))。用 <code>m(i,j) = value</code> 就能指定某個位置的值，不必自行搜尋三條陣列。</p>
 <div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p><code>operator()</code> 回傳 <code>double&amp;</code>，讓 <code>m(i,j)</code> 代表 map 中那個可讀寫的值。若座標尚未存在，map 的 [] 會先插入值為零的項目；因此單純讀取空位置也會新增項目。</p></div>'''
     s+=details('size_t 是什麼？', '''<p><code>std::size_t</code> 是 <code>&lt;cstddef&gt;</code> 提供的無號整數型別，用來表示物件大小，也是 sizeof 結果的型別。<code>pair&lt;size_t,size_t&gt;</code> 把列、欄索引組成一個鍵，<code>map&lt;pair&lt;size_t,size_t&gt;,double&gt;</code> 則把這個鍵對應到 double 值。</p>
 <p>無號型別仍需要邊界檢查。負數轉成 size_t 可能成為很大的正數；讀入有號索引時，先確認非負且在維度內，再轉型。不要用 <code>i &gt;= 0</code> 作為無號倒數迴圈的終止條件。</p>''')

@@ -977,7 +977,7 @@ out of range
 (0,1):12 (1,0):15 (2,2):28&#32;
 </pre></div></div><p>三行依序是 $A+B$、$A-B$、$A\times B$。例如乘積的 (0,1) 是 $2\times 6=12$，(1,0) 是 $3\times 5=15$，(2,2) 是 $4\times 7=28$。</p></div></details><h3 id="sparse-dok">DOK：用座標當作 map 的鍵</h3>
 <pre class="memory-text">{ (0,1):2, (1,0):3, (2,2):4 }</pre>
-<p>DOK 以 (row,column) 當作鍵，保存該位置的值。std::map 按 row、再按 column 排序，查詢／插入需要 $O(\log (a+1))$。用 <code>m(i,j) = value</code> 就能指定某個位置的值，不必自行搜尋三條陣列。</p>
+<p>DOK 以 (row,column) 當作鍵，保存該位置的值。std::map 按 row、再按 column 排序。令 $a$ 為 map 目前儲存的座標與值的筆數，查詢／插入需要 $O(\log (a+1))$。用 <code>m(i,j) = value</code> 就能指定某個位置的值，不必自行搜尋三條陣列。</p>
 <div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p><code>operator()</code> 回傳 <code>double&amp;</code>，讓 <code>m(i,j)</code> 代表 map 中那個可讀寫的值。若座標尚未存在，map 的 [] 會先插入值為零的項目；因此單純讀取空位置也會新增項目。</p></div><details class="chapter-extra"><summary>size_t 是什麼？（補充）</summary><div class="extra-body"><p><code>std::size_t</code> 是 <code>&lt;cstddef&gt;</code> 提供的無號整數型別，用來表示物件大小，也是 sizeof 結果的型別。<code>pair&lt;size_t,size_t&gt;</code> 把列、欄索引組成一個鍵，<code>map&lt;pair&lt;size_t,size_t&gt;,double&gt;</code> 則把這個鍵對應到 double 值。</p>
 <p>無號型別仍需要邊界檢查。負數轉成 size_t 可能成為很大的正數；讀入有號索引時，先確認非負且在維度內，再轉型。不要用 <code>i &gt;= 0</code> 作為無號倒數迴圈的終止條件。</p></div></details><details class="chapter-extra"><summary>SparseMatrix：完整 C++ 類別、使用範例與加減乘</summary><div class="extra-body"><p>下面把建構、存取、加減乘與輸出放在完整類別中，可直接編譯執行。索引介面使用講義中回傳 double&amp; 的寫法。加減法在函式內用 find 查詢另一個矩陣，缺少的座標取零，不為了查詢而改動輸入。</p>
 <p>加法第一輪處理 A 的所有鍵，第二輪補 B 獨有的鍵；減法第一輪相減，第二輪補 B 值的負值。<strong>每筆還有 map 查詢或插入的成本</strong>，時間上界為 $O((a+b) \log (a+b+1))$，輸出空間 $O(a+b)$。</p>

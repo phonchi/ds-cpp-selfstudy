@@ -42,14 +42,14 @@
     }
     if (selected >= 0) {
       const i = Math.floor(selected/C), j = selected%C;
-      find('mappingRowFormula').textContent = `${i} × ${C} + ${j} = ${selected} 格；位址 1000 + ${selected} × 4 = ${1000+selected*4}`;
+      chapterSetMath(find('mappingRowFormula'), String.raw`$${i}\times${C}+${j}=${selected}$ 格；位址 $1000+${selected}\times4=${1000+selected*4}$`);
       const k = j*R+i;
-      find('mappingColFormula').textContent = `${j} × ${R} + ${i} = ${k} 格；位址 1000 + ${k} × 4 = ${1000+k*4}`;
-      find('mappingStatus').textContent = `已放入 ${progress} / ${N} 個元素。選取 M[${i}][${j}] = ${selected+1}；邏輯座標相同，兩種排列的 offset 可能不同。`;
+      chapterSetMath(find('mappingColFormula'), String.raw`$${j}\times${R}+${i}=${k}$ 格；位址 $1000+${k}\times4=${1000+k*4}$`);
+      chapterSetMath(find('mappingStatus'), String.raw`已放入 ${progress} 個，共 ${N} 個。選取 $M[${i}][${j}]=${selected+1}$；邏輯座標相同，兩種排列的 offset 可能不同。`);
     } else {
-      find('mappingRowFormula').textContent = 'offset = i × Cols + j';
-      find('mappingColFormula').textContent = 'offset = j × Rows + i';
-      find('mappingStatus').textContent = '尚未放入元素（0 / 12）。';
+      chapterSetMath(find('mappingRowFormula'), String.raw`$\mathrm{offset}=i\times\mathrm{Cols}+j$`);
+      chapterSetMath(find('mappingColFormula'), String.raw`$\mathrm{offset}=j\times\mathrm{Rows}+i$`);
+      chapterSetMath(find('mappingStatus'), '尚未放入元素（共 12 個）。');
     }
     find('mappingProgress').value = progress;
     find('mappingStep').disabled = progress === N;

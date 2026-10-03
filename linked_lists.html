@@ -451,7 +451,49 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .linked-figure-scroll{max-width:100%;overflow-x:auto;background:#fff;border:1px solid var(--card-border);border-radius:8px;}
 .linked-figure img{display:block;height:auto;max-width:none;width:var(--figure-width);margin:0 auto;}
 .linked-figure figcaption{margin-top:.65rem;font-size:.9rem;line-height:1.8;color:var(--ink);}
-</style></head>
+</style><script id="chapter-math-runtime">
+/* Serialize dynamic MathJax updates; the latest update for an element wins. */
+(() => {
+  const pending = new Map();
+  let work = Promise.resolve(), scheduled = false;
+  const formatCosts = text => text.split(/(\$\$[\s\S]*?\$\$|\$[^$]*\$)/g).map(part => {
+    if (part.startsWith('$')) return part;
+    return part.replace(/\bO\((?:[^()\n]|\((?:[^()\n]|\([^()\n]*\))*\))*\)/g,
+      expr => '$' + expr.replace(/log\b/g, '\\log ').replace(/²/g, '^2').replace(/³/g, '^3') + '$');
+  }).join('');
+  async function drain() {
+    try {
+      await MathJax.startup.promise;
+      while (pending.size) {
+        const batch = [...pending].filter(([el]) => el.isConnected);
+        pending.clear();
+        const elements = batch.map(([el]) => el);
+        MathJax.typesetClear(elements);
+        for (const [el, html] of batch) el.innerHTML = html;
+        if (elements.length) await MathJax.typesetPromise(elements);
+      }
+    } finally { scheduled = false; }
+  }
+  window.chapterSetMath = (el, html) => {
+    if (!el) return;
+    html = formatCosts(html);
+    if (!window.MathJax?.typesetPromise) { el.innerHTML = html; return; }
+    pending.set(el, html);
+    if (!scheduled) {
+      scheduled = true;
+      work = work.then(drain).catch(error => {
+        window.chapterMathError = String(error);
+        for (const [target, latest] of pending) target.innerHTML = latest;
+        pending.clear();
+        console.error(error);
+      });
+    }
+  };
+  window.chapterMathIdle = () => work;
+})();
+</script>
+<style id="chapter-math-layout">.quiz-feedback,.mapping-formula{overflow-x:auto;}.status-text{min-width:0;}.status-text mjx-container{max-width:100%;overflow-x:auto;overflow-y:hidden;}</style>
+</head>
 <body>
 <nav class="float-nav" id="floatNav" aria-label="章節導覽">
   <div class="fn-title">章節導覽</div>
@@ -580,7 +622,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="10">    <span class="kw">void</span> <span class="fn">setData</span>(T d) { data = d; }</span>
 <span class="line" data-l="11">    <span class="kw">void</span> <span class="fn">setNext</span>(Node&lt;T&gt; *n) { next = n; }</span>
 <span class="line" data-l="12">};</span></div></div>
-      <details class="linked-detail"><summary>補充：指標語法速記</summary><div class="linked-detail-body"><div style="font-size:.86rem;line-height:2;" class="mono">
+      <details class="linked-detail"><summary>指標語法速記（補充）</summary><div class="linked-detail-body"><div style="font-size:.86rem;line-height:2;" class="mono">
         Node&lt;int&gt; *p = new Node&lt;int&gt;(93);<br>
         p-&gt;getData()&nbsp;&nbsp;// 93<br>
         p-&gt;getNext()&nbsp;&nbsp;// NULL<br>
@@ -613,7 +655,7 @@ true</pre></div>
 <h3>指標記住位置，不會複製節點</h3>
 <p><code>head</code> 是串列物件保存的入口；<code>current</code> 是走訪時的游標；<code>previous</code> 記住 current 的前驅。令 <code>current = head</code> 只複製位址，兩者指向同一節點；令 <code>current = current-&gt;getNext()</code> 只移動游標，不會改變 head 或接線。</p>
 <p><code>current-&gt;setData(42)</code> 會修改節點資料，<code>previous-&gt;setNext(current)</code> 才會修改鏈結。空串列的 <code>head == nullptr</code>；解參考前先檢查空指標。</p>
-<p>節點不必相鄰：next 存的是下一個節點的位置，不是下一個陣列索引。配置方式也不是 Node 類別本身的限制；此處用 new 動態配置，串列負責 delete。</p><details class="linked-detail"><summary>補充：NULL、nullptr 與箭頭運算子</summary><div class="linked-detail-body"><p>講義使用的 NULL 與 nullptr 都用來表示空指標，現代 C++ 通常使用 nullptr。<code>p-&gt;getNext()</code> 是透過指標 p 呼叫節點的方法，等同於 <code>(*p).getNext()</code>；使用前要確認 p 指向有效節點。</p></div></details>
+<p>節點不必相鄰：next 存的是下一個節點的位置，不是下一個陣列索引。配置方式也不是 Node 類別本身的限制；此處用 new 動態配置，串列負責 delete。</p><details class="linked-detail"><summary>NULL、nullptr 與箭頭運算子（補充）</summary><div class="linked-detail-body"><p>講義使用的 NULL 與 nullptr 都用來表示空指標，現代 C++ 通常使用 nullptr。<code>p-&gt;getNext()</code> 是透過指標 p 呼叫節點的方法，等同於 <code>(*p).getNext()</code>；使用前要確認 p 指向有效節點。</p></div></details>
 <!-- /gen:linked-depth-node -->
 </section>
 
@@ -712,7 +754,7 @@ true</pre></div>
   <p><code>add</code> 裡若把兩行寫反（先 <code>head = temp</code>、再 <code>temp-&gt;setNext(head)</code>），會發生什麼事？</p>
 
   <div class="quiz-options" id="qUllOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="head 先被改成 temp，之後 temp->setNext(head) 會讓新節點指向自己；原串列再也無法到達（記憶體洩漏）。" onclick="quizCheck('qUll', this)"><span class="opt-letter">(A)</span> temp 的 next 指向自己，其餘節點全部漏接</div><div class="quiz-opt" data-correct="false" data-fb="順序是關鍵！先讓新節點接住原串列，才能安全移動 head。" onclick="quizCheck('qUll', this)"><span class="opt-letter">(B)</span> 沒差，結果一樣</div><div class="quiz-opt" data-correct="false" data-fb="語法完全合法，這是「邏輯炸彈」，編譯器不會救你。" onclick="quizCheck('qUll', this)"><span class="opt-letter">(C)</span> 編譯錯誤</div>
+    <div class="quiz-opt" data-correct="true" data-fb="head 先被改成 temp，之後 temp-&gt;setNext(head) 會讓新節點指向自己；原串列再也無法到達（記憶體洩漏）。" onclick="quizCheck('qUll', this)"><span class="opt-letter">(A)</span> temp 的 next 指向自己，其餘節點全部漏接</div><div class="quiz-opt" data-correct="false" data-fb="順序是關鍵！先讓新節點接住原串列，才能安全移動 head。" onclick="quizCheck('qUll', this)"><span class="opt-letter">(B)</span> 沒差，結果一樣</div><div class="quiz-opt" data-correct="false" data-fb="語法完全合法，這是「邏輯炸彈」，編譯器不會救你。" onclick="quizCheck('qUll', this)"><span class="opt-letter">(C)</span> 編譯錯誤</div>
   </div>
   <div class="quiz-feedback" id="qUllFeedback"></div>
 </div>
@@ -763,7 +805,7 @@ true
 <!-- /gen:linked-uno -->
 
 <!-- gen:linked-ownership -->
-<details class="linked-detail"><summary>延伸：所有權與深層複製</summary><div class="linked-detail-body"><div class="deck-extra">
+<details class="linked-detail"><summary>所有權與深層複製（補充）</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">講義 04 · 所有權與 deep copy</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1">UnorderedList&lt;<span class="kw">int</span>&gt; a;</span>
 <span class="line" data-l="2">a.add(<span class="num">1</span>); a.add(<span class="num">2</span>);</span>
@@ -803,14 +845,14 @@ true
 30 20 10&#32;
 20&#32;
 10 20 </pre></div>
-</div><details class="linked-detail"><summary>延伸：保存元素數量，讓 size() 變成 $O(1)$</summary><div class="linked-detail-body"><p>本課實作的 size() 每次從 head 數到尾端，所以是 $O(n)$。可另存 count，成功新增後加一、確實刪除後減一；找不到時不減。建構、清空、複製與移動時也要維護 count。多保存一個計數，就能省下 size() 的走訪；因此 size() 的成本取決於類別的實作。</p></div></details>
+</div><details class="linked-detail"><summary>保存元素數量，讓 size() 變成 $O(1)$（補充）</summary><div class="linked-detail-body"><p>本課實作的 size() 每次從 head 數到尾端，所以是 $O(n)$。可另存 count，成功新增後加一、確實刪除後減一；找不到時不減。建構、清空、複製與移動時也要維護 count。多保存一個計數，就能省下 size() 的走訪；因此 size() 的成本取決於類別的實作。</p></div></details>
 <!-- /gen:linked-depth-unordered -->
 </section>
 
 <section id="ordered">
   <div class="section-number">PART 03 · 排序串列</div>
   <h2>OrderedList：維持大小順序的插入 <span class="sec-badge">cppds §4.5–4.6</span></h2>
-  <p>排序串列的 <code>add</code> 要先找到插入位置：prev/cur 往前走，直到 <code>cur-&gt;getData() ≥ item</code> 就是插入點。
+  <p>排序串列的 <code>add</code> 要先找到插入位置：prev/cur 往前走，直到 <code>cur-&gt;getData()</code> $\ge\mathrm{item}$ 就是插入點。
   <code>search</code> 因此能<strong>提早結束搜尋</strong>：一旦看到比目標大的值就確定不存在。</p>
   <p><code>remove(item)</code> 也利用排序提前停止；找到後移除連結並 <code>delete</code>，找不到則保持不變。</p>
   <div class="viz-layout">
@@ -846,8 +888,8 @@ true
 
   <h3 style="margin-top:1.5rem;">分析：哪些操作 $O(1)$、哪些需要走訪（cppds §4.6.1）</h3>
   <p>判斷準則一句話：<strong>先看是否需要走訪定位；位置與所需前驅已知後，單項接線只需 $O(1)$</strong>。
-  若搜尋成功，而且每個位置被找到的機會相同，平均約檢查 n/2 個節點，所以平均成本是 $O(n)$。最壞情況也要走完整條串列，例如目標位於最後，或比所有元素都大。
-  下表整理 List ADT 各項操作的成本：</p><details class="linked-detail" id="linked-average-detail"><summary>補充：平均要比較幾次？</summary><div class="linked-detail-body"><p>成功搜尋 n 個位置的比較次數依序為 1、2、…、n。若每個位置等可能，平均為 $\frac{1+2+\cdots+n}{n}=\frac{n+1}{2}$，約為 n / 2；因此隨 n 線性成長。</p></div></details>
+  若搜尋成功，而且每個位置被找到的機會相同，平均約檢查 $\frac{n}{2}$ 個節點，所以平均成本是 $O(n)$。最壞情況也要走完整條串列，例如目標位於最後，或比所有元素都大。
+  下表整理 List ADT 各項操作的成本：</p><details class="linked-detail" id="linked-average-detail"><summary>平均要比較幾次？（補充）</summary><div class="linked-detail-body"><p>成功搜尋 n 個位置的比較次數依序為 1、2、…、n。若每個位置等可能，平均為 $\frac{1+2+\cdots+n}{n}=\frac{n+1}{2}$，約為 $\frac{n}{2}$；因此隨 n 線性成長。</p></div></details>
   <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.85rem;">
     <thead><tr><th>方法</th><th>做什麼</th><th>未排序</th><th>排序</th></tr></thead>
     <tbody>
@@ -865,10 +907,10 @@ true
 
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · 平均走一半，為什麼還是 $O(n)$？</div>
-  <p>假設搜尋成功，而且每個位置被找到的機會相同，平均約檢查 n/2 個節點。為什麼仍寫成 $O(n)$？</p>
+  <p>假設搜尋成功，而且每個位置被找到的機會相同，平均約檢查 $\frac{n}{2}$ 個節點。為什麼仍寫成 $O(n)$？</p>
 
   <div class="quiz-options" id="qAnaOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="平均比較次數隨 n 線性成長，常數係數不改變 O(n)。最壞情況也要走到底，例如搜尋比所有元素都大的值。" onclick="quizCheck('qAna', this)"><span class="opt-letter">(A)</span> 係數在 Big-O 裡沒有意義，且最壞情況要走完全程</div><div class="quiz-opt" data-correct="false" data-fb="Big-O 不是四捨五入：是「成長率相同的函數視為同類」。" onclick="quizCheck('qAna', this)"><span class="opt-letter">(B)</span> 因為 n/2 四捨五入之後就是 n</div><div class="quiz-opt" data-correct="false" data-fb="平均情況可以分析（第 2 章的 average case）；只是它跟最壞情況同為線性，結論不變。" onclick="quizCheck('qAna', this)"><span class="opt-letter">(C)</span> 平均情況根本不能分析</div>
+    <div class="quiz-opt" data-correct="true" data-fb="平均比較次數隨 n 線性成長，常數係數不改變 $O(n)$。最壞情況也要走到底，例如搜尋比所有元素都大的值。" onclick="quizCheck('qAna', this)"><span class="opt-letter">(A)</span> 係數在 Big-O 裡沒有意義，且最壞情況要走完全程</div><div class="quiz-opt" data-correct="false" data-fb="Big-O 不是四捨五入：是「成長率相同的函數視為同類」。" onclick="quizCheck('qAna', this)"><span class="opt-letter">(B)</span> 因為 $\frac{n}{2}$ 四捨五入之後就是 n</div><div class="quiz-opt" data-correct="false" data-fb="平均情況可以分析（第 2 章的 average case）；只是它跟最壞情況同為線性，結論不變。" onclick="quizCheck('qAna', this)"><span class="opt-letter">(C)</span> 平均情況根本不能分析</div>
   </div>
   <div class="quiz-feedback" id="qAnaFeedback"></div>
 </div>
@@ -906,8 +948,8 @@ false</pre></div>
 
 <!-- gen:linked-depth-ordered -->
 <h3>有排序，為什麼搜尋仍是 $O(n)$？</h3>
-<p>搜尋 45 時依序看 17、26、31、54；遇到 54 &gt; 45 就能停止，後方不可能有 45。搜尋 100 則必須看完所有節點。排序讓部分失敗搜尋提早結束，<strong>最壞情況仍要走訪 n 個節點</strong>；鏈結串列沒有 $O(1)$ 的中點索引，不能直接套用陣列二分搜尋的 $O(\log  n)$ 存取成本。</p>
-<p>若從尚未包含 31 的串列 17 → 26 → 54 → 77 → 93 開始，add(31) 必須先找出 26 與 54 之間的位置，再接上新節點。講義標頭用 current 找前驅，先接 <code>newNode-&gt;setNext(current-&gt;getNext())</code>，再接 <code>current-&gt;setNext(newNode)</code>。空串列或新值不大於首項時改走頭插；重複值允許存在，新值插在原有相等值之前。remove 只刪第一個相等值，遇到更大的值就停止。</p><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>操作</th><th>UnorderedList</th><th>OrderedList</th><th>成本來源</th></tr></thead><tbody><tr><td>isEmpty()</td><td>$O(1)$</td><td>$O(1)$</td><td>只看 head</td></tr><tr><td>size()</td><td>$O(n)$</td><td>$O(n)$</td><td>逐節點計數</td></tr><tr><td>add(item)</td><td>$O(1)$</td><td>最壞 $O(n)$</td><td>有序版先定位</td></tr><tr><td>search / remove(item)</td><td>最壞 $O(n)$</td><td>最壞 $O(n)$</td><td>依值尋找</td></tr><tr><td>已知所需前驅後插／刪一個節點</td><td>$O(1)$</td><td>$O(1)$</td><td>固定次數接線；另須保持排序</td></tr></tbody></table></div><p>刪除整段 k 個節點仍要 $O(k)$；「接線 $O(1)$」不包含尋找位置或逐一釋放整段。</p><details class="linked-detail"><summary>補充：元素的比較、複製與解構成本</summary><div class="linked-detail-body"><p>上表將單一元素的比較、複製與解構視為 $O(1)$，先計算走訪多少個節點、更新多少次指標。若節點存放的物件需要較多時間才能比較、複製或解構，還要把這些成本加進去。</p></div></details>
+<p>搜尋 45 時依序看 17、26、31、54；遇到 $54 \gt 45$ 就能停止，後方不可能有 45。搜尋 100 則必須看完所有節點。排序讓部分失敗搜尋提早結束，<strong>最壞情況仍要走訪 n 個節點</strong>；鏈結串列沒有 $O(1)$ 的中點索引，不能直接套用陣列二分搜尋的 $O(\log  n)$ 存取成本。</p>
+<p>若從尚未包含 31 的串列 17 → 26 → 54 → 77 → 93 開始，add(31) 必須先找出 26 與 54 之間的位置，再接上新節點。講義標頭用 current 找前驅，先接 <code>newNode-&gt;setNext(current-&gt;getNext())</code>，再接 <code>current-&gt;setNext(newNode)</code>。空串列或新值不大於首項時改走頭插；重複值允許存在，新值插在原有相等值之前。remove 只刪第一個相等值，遇到更大的值就停止。</p><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>操作</th><th>UnorderedList</th><th>OrderedList</th><th>成本來源</th></tr></thead><tbody><tr><td>isEmpty()</td><td>$O(1)$</td><td>$O(1)$</td><td>只看 head</td></tr><tr><td>size()</td><td>$O(n)$</td><td>$O(n)$</td><td>逐節點計數</td></tr><tr><td>add(item)</td><td>$O(1)$</td><td>最壞 $O(n)$</td><td>有序版先定位</td></tr><tr><td>search / remove(item)</td><td>最壞 $O(n)$</td><td>最壞 $O(n)$</td><td>依值尋找</td></tr><tr><td>已知所需前驅後插／刪一個節點</td><td>$O(1)$</td><td>$O(1)$</td><td>固定次數接線；另須保持排序</td></tr></tbody></table></div><p>刪除整段 k 個節點仍要 $O(k)$；「接線 $O(1)$」不包含尋找位置或逐一釋放整段。</p><details class="linked-detail"><summary>元素的比較、複製與解構成本（補充）</summary><div class="linked-detail-body"><p>上表將單一元素的比較、複製與解構視為 $O(1)$，先計算走訪多少個節點、更新多少次指標。若節點存放的物件需要較多時間才能比較、複製或解構，還要把這些成本加進去。</p></div></details>
 <!-- /gen:linked-depth-ordered -->
 </section>
 
@@ -954,13 +996,13 @@ false</pre></div>
   <p>forward_list 只提供 insert_after，不提供 insert（插在某節點前面）。原因是？</p>
 
   <div class="quiz-options" id="qStlOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="要插在 it 前面，必須修改前驅的 next。單向串列不能直接反向找前驅；從頭找需要 O(n)，提供前驅後接線才是 O(1)。" onclick="quizCheck('qStl', this)"><span class="opt-letter">(A)</span> 單向串列不能直接反向找前驅；提供前驅才能 $O(1)$ 接線</div><div class="quiz-opt" data-correct="false" data-fb="介面反映已知前驅才能常數時間接線；std::list 可由 pos 找到前驅。" onclick="quizCheck('qStl', this)"><span class="opt-letter">(B)</span> 歷史包袱，沒有技術原因</div><div class="quiz-opt" data-correct="false" data-fb="若從頭找前驅仍能插在某節點之前，但需要 O(n)；insert_after 明確要求呼叫者提供前驅。" onclick="quizCheck('qStl', this)"><span class="opt-letter">(C)</span> insert_after 比較快</div>
+    <div class="quiz-opt" data-correct="true" data-fb="要插在 it 前面，必須修改前驅的 next。單向串列不能直接反向找前驅；從頭找需要 $O(n)$，提供前驅後接線才是 $O(1)$。" onclick="quizCheck('qStl', this)"><span class="opt-letter">(A)</span> 單向串列不能直接反向找前驅；提供前驅才能 $O(1)$ 接線</div><div class="quiz-opt" data-correct="false" data-fb="介面反映已知前驅才能常數時間接線；std::list 可由 pos 找到前驅。" onclick="quizCheck('qStl', this)"><span class="opt-letter">(B)</span> 歷史包袱，沒有技術原因</div><div class="quiz-opt" data-correct="false" data-fb="若從頭找前驅仍能插在某節點之前，但需要 $O(n)$；insert_after 明確要求呼叫者提供前驅。" onclick="quizCheck('qStl', this)"><span class="opt-letter">(C)</span> insert_after 比較快</div>
   </div>
   <div class="quiz-feedback" id="qStlFeedback"></div>
 </div>
 
 <!-- gen:linked-depth-stl -->
-<details class="linked-detail"><summary>實作練習：std::list 的建立、頭尾增刪與安全刪除迴圈</summary><div class="linked-detail-body"><div class="deck-extra">
+<details class="linked-detail"><summary>std::list 的建立、頭尾增刪與安全刪除迴圈（補充）</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">雙向串列：插在位置之前，刪除後接回下一個位置</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;list&gt;</span></span>
@@ -984,7 +1026,7 @@ false</pre></div>
 <span class="line" data-l="20">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>35&#32;
 size = 1</pre></div>
-</div><p>begin() 指向第一項，end() 是尾後位置，不能解參考。insert(pos,x) 插在 pos 前並回傳新項位置；erase(it) 回傳被刪項的下一個位置。迴圈刪除後使用這個回傳值，不能對已失效的 it 做 ++it。</p><p>push_front / push_back / pop_front / pop_back 與單項 insert / erase 都是 $O(1)$，前提是位置已知且符合操作前提。pop、front、back 要求非空；erase(end()) 不合法；insert(end(),x) 則是合法尾插。std::find 或逐步 ++ 找位置是 $O(n)$。</p></div></details><details class="linked-detail"><summary>實作練習：std::forward_list 與 before_begin()</summary><div class="linked-detail-body"><div class="deck-extra">
+</div><p>begin() 指向第一項，end() 是尾後位置，不能解參考。insert(pos,x) 插在 pos 前並回傳新項位置；erase(it) 回傳被刪項的下一個位置。迴圈刪除後使用這個回傳值，不能對已失效的 it 做 ++it。</p><p>push_front / push_back / pop_front / pop_back 與單項 insert / erase 都是 $O(1)$，前提是位置已知且符合操作前提。pop、front、back 要求非空；erase(end()) 不合法；insert(end(),x) 則是合法尾插。std::find 或逐步 ++ 找位置是 $O(n)$。</p></div></details><details class="linked-detail"><summary>std::forward_list 與 before_begin()（補充）</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">單向串列：保留前驅才能安全刪除</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;forward_list&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -1009,7 +1051,7 @@ size = 1</pre></div>
 <span class="line" data-l="21">}</span></div>
   <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>10&#32;
 count = 1</pre></div>
-</div><p>before_begin() 是「第一項前面」的特殊位置，不能解參考，但可傳給 insert_after / erase_after，統一處理頭端。end() 是尾後位置，不能拿來 insert_after；erase_after(prev) 要求 prev 後確實有可刪的元素。</p><p>刪除 current 後，previous 留在原處，current 接回 erase_after 的回傳值；保留 current 時才一起前進。這正對應前面 previous/current 的指標關係。forward_list 沒有 size()、back() 或 push_back()；std::distance(begin(),end()) 需要 $O(n)$ 走訪。std::list::size() 在 C++11 起為 $O(1)$。兩者都沒有 [] 與 at()；std::next(it,k) 需要 $O(k)$ 前進，不是直接索引。</p></div></details><details class="linked-detail"><summary>延伸：remove、unique、sort 與迭代器有效性</summary><div class="linked-detail-body"><div class="deck-extra">
+</div><p>before_begin() 是「第一項前面」的特殊位置，不能解參考，但可傳給 insert_after / erase_after，統一處理頭端。end() 是尾後位置，不能拿來 insert_after；erase_after(prev) 要求 prev 後確實有可刪的元素。</p><p>刪除 current 後，previous 留在原處，current 接回 erase_after 的回傳值；保留 current 時才一起前進。這正對應前面 previous/current 的指標關係。forward_list 沒有 size()、back() 或 push_back()；std::distance(begin(),end()) 需要 $O(n)$ 走訪。std::list::size() 在 C++11 起為 $O(1)$。兩者都沒有 [] 與 at()；std::next(it,k) 需要 $O(k)$ 前進，不是直接索引。</p></div></details><details class="linked-detail"><summary>remove、unique、sort 與迭代器有效性（補充）</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">先分清楚「全部符合」與「相鄰重複」</div>
   <div class="pseudo-code" style="font-size:.8rem;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;list&gt;</span></span>
@@ -1029,7 +1071,7 @@ count = 1</pre></div>
 1 2&#32;
 1 1 2&#32;
 1 2 </pre></div>
-</div><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>成員操作（兩種串列皆有）</th><th>效果</th><th>成本</th></tr></thead><tbody><tr><td>remove(x) / remove_if(pred)</td><td>刪掉所有符合項；不同於本課 remove 只刪第一項</td><td>$O(n)$ 次比較／條件判斷</td></tr><tr><td>unique()</td><td>每一段相鄰相等值只保留第一項；不會搜尋隔開的重複值</td><td>$O(n)$ 次比較</td></tr><tr><td>sort()</td><td>穩定排序；相等元素保留原相對次序</td><td>約 $O(n \log  n)$ 次比較</td></tr></tbody></table></div><p>兩種串列皆可使用同樣的三個成員操作。若要移除整個串列中的重複值，可先 sort 再 unique，但元素原順序會改變；只想移除某值就用 remove。std::sort 需要隨機存取迭代器，因此不能套在這兩種串列，應用成員 sort()。</p><p>單項插入不使既有節點的迭代器或參考失效；刪除只使被刪節點的迭代器／參考失效，其他節點仍有效。remove 與 unique 也適用此規則。sort 會改變走訪順序，但保留指向元素的迭代器／參考。容器析構或 clear 後，原元素全部消失，不能再使用指向它們的迭代器。</p><p>參考：<a href="https://eel.is/c++draft/list">C++ 標準草案：list</a>、<a href="https://eel.is/c++draft/forward.list">forward_list</a>。</p></div></details><details class="linked-detail"><summary>如何選擇 vector、list 與 forward_list？</summary><div class="linked-detail-body"><p>需要依索引讀取、緊密儲存與大量循序掃描時，可先選 vector。頻繁在已知位置插刪、需要保留其他元素的參考或迭代器時，再考慮鏈結容器。list 可雙向走訪並提供 $O(1)$ 頭尾操作；forward_list 只向前走，需要自己保留前驅。若每次插入前都從頭尋找位置，整體仍是 $O(n)$。節點額外指標與分散配置可能增加記憶體及快取成本，不能只比較接線次數。</p></div></details>
+</div><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>成員操作（兩種串列皆有）</th><th>效果</th><th>成本</th></tr></thead><tbody><tr><td>remove(x) / remove_if(pred)</td><td>刪掉所有符合項；不同於本課 remove 只刪第一項</td><td>$O(n)$ 次比較／條件判斷</td></tr><tr><td>unique()</td><td>每一段相鄰相等值只保留第一項；不會搜尋隔開的重複值</td><td>$O(n)$ 次比較</td></tr><tr><td>sort()</td><td>穩定排序；相等元素保留原相對次序</td><td>約 $O(n \log  n)$ 次比較</td></tr></tbody></table></div><p>兩種串列皆可使用同樣的三個成員操作。若要移除整個串列中的重複值，可先 sort 再 unique，但元素原順序會改變；只想移除某值就用 remove。std::sort 需要隨機存取迭代器，因此不能套在這兩種串列，應用成員 sort()。</p><p>單項插入不使既有節點的迭代器或參考失效；刪除只使被刪節點的迭代器／參考失效，其他節點仍有效。remove 與 unique 也適用此規則。sort 會改變走訪順序，但保留指向元素的迭代器／參考。容器析構或 clear 後，原元素全部消失，不能再使用指向它們的迭代器。</p><p>參考：<a href="https://eel.is/c++draft/list">C++ 標準草案：list</a>、<a href="https://eel.is/c++draft/forward.list">forward_list</a>。</p></div></details><details class="linked-detail"><summary>如何選擇 vector、list 與 forward_list？（補充）</summary><div class="linked-detail-body"><p>需要依索引讀取、緊密儲存與大量循序掃描時，可先選 vector。頻繁在已知位置插刪、需要保留其他元素的參考或迭代器時，再考慮鏈結容器。list 可雙向走訪並提供 $O(1)$ 頭尾操作；forward_list 只向前走，需要自己保留前驅。若每次插入前都從頭尋找位置，整體仍是 $O(n)$。節點額外指標與分散配置可能增加記憶體及快取成本，不能只比較接線次數。</p></div></details>
 <!-- /gen:linked-depth-stl -->
 </section>
 
@@ -1058,7 +1100,7 @@ count = 1</pre></div>
   <p>要讓「刪除尾端節點」變成 $O(1)$，需要哪種配置？</p>
 
   <div class="quiz-options" id="qVarOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="tail 直接定位尾端，tail->prev 直接定位倒數第二個：兩步搞定。" onclick="quizCheck('qVar', this)"><span class="opt-letter">(A)</span> 雙向串列 + tail 指標</div><div class="quiz-opt" data-correct="false" data-fb="tail 找得到尾端，但刪除還需要「倒數第二個」的 next 清 NULL：單向串列拿不到它，仍要 O(n) 走訪。" onclick="quizCheck('qVar', this)"><span class="opt-letter">(B)</span> 單向串列 + tail 指標</div><div class="quiz-opt" data-correct="false" data-fb="環狀解決「輪轉」問題；刪尾端一樣需要前一個節點，仍是 O(n)。" onclick="quizCheck('qVar', this)"><span class="opt-letter">(C)</span> 環狀單向串列</div>
+    <div class="quiz-opt" data-correct="true" data-fb="tail 直接定位尾端，tail-&gt;prev 直接定位倒數第二個：兩步搞定。" onclick="quizCheck('qVar', this)"><span class="opt-letter">(A)</span> 雙向串列 + tail 指標</div><div class="quiz-opt" data-correct="false" data-fb="tail 找得到尾端，但刪除還需要「倒數第二個」的 next 清 NULL：單向串列拿不到它，仍要 $O(n)$ 走訪。" onclick="quizCheck('qVar', this)"><span class="opt-letter">(B)</span> 單向串列 + tail 指標</div><div class="quiz-opt" data-correct="false" data-fb="環狀解決「輪轉」問題；刪尾端一樣需要前一個節點，仍是 $O(n)$。" onclick="quizCheck('qVar', this)"><span class="opt-letter">(C)</span> 環狀單向串列</div>
   </div>
   <div class="quiz-feedback" id="qVarFeedback"></div>
 </div>
@@ -1147,7 +1189,7 @@ count = 1</pre></div>
   <p>上面這個 <code>append()</code> 是 $O(n)$。要讓它變成 $O(1)$，正確的做法是？</p>
 
   <div class="quiz-options" id="ex4Options">
-    <div class="quiz-opt" data-correct="true" data-fb="tail 一步定位尾端：接上新節點、tail 往後搬即可。代價是 add/remove 都要順手維護 tail（尤其刪到尾端節點時），這是「空間與維護成本換時間」的老交易。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(A)</span> 類別多存一根 tail 指標，append 直接接在 tail 後面</div><div class="quiz-opt" data-correct="false" data-fb="這只是把問題鏡射：append 變快了，原本 O(1) 的頭端 add 就變 O(n)。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(B)</span> 把串列改成從尾端往頭端指</div><div class="quiz-opt" data-correct="false" data-fb="兩次反轉各 O(n)，比原本更慢。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(C)</span> 先把串列反轉、插入、再反轉回來</div>
+    <div class="quiz-opt" data-correct="true" data-fb="tail 一步定位尾端：接上新節點、tail 往後搬即可。代價是 add/remove 都要順手維護 tail（尤其刪到尾端節點時），這是「空間與維護成本換時間」的老交易。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(A)</span> 類別多存一根 tail 指標，append 直接接在 tail 後面</div><div class="quiz-opt" data-correct="false" data-fb="這只是把問題鏡射：append 變快了，原本 $O(1)$ 的頭端 add 就變 $O(n)$。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(B)</span> 把串列改成從尾端往頭端指</div><div class="quiz-opt" data-correct="false" data-fb="兩次反轉各 $O(n)$，比原本更慢。" onclick="quizCheck('ex4', this)"><span class="opt-letter">(C)</span> 先把串列反轉、插入、再反轉回來</div>
   </div>
   <div class="quiz-feedback" id="ex4Feedback"></div>
 </div>
@@ -1218,7 +1260,7 @@ function quizCheck(quizId, optEl) {
   const fb = $(quizId + 'Feedback');
   fb.classList.remove('correct','wrong');
   fb.classList.add('show', isCorrect ? 'correct' : 'wrong');
-  fb.innerHTML = (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || '');
+  chapterSetMath(fb, (isCorrect ? '<strong>正確 ✓</strong> ' : '<strong>不對 ✗</strong> ') + (optEl.dataset.fb || ''));
 }
 
 function hlLine(rootId, n) {
@@ -1289,7 +1331,7 @@ class Player {
 /* /player-v2 */
 
 function setStatus(id, html) {
-  const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
+  const el = $(id); if (el) chapterSetMath(el.querySelector('.status-text'), html);
 }
 
 /* vertical box stack renderer (DOM) */
@@ -1450,7 +1492,7 @@ function ullSearch() { ullStop();
   const v = parseInt($('ullInput').value || '17', 10);
   const frames = [];
   for (let i = 0; i < ull.length; i++) {
-    frames.push({hl:i, line:9, msg:`cur->getData() = ${ull[i]}，${ull[i] === v ? `等於 ${v} → <strong>找到 ✓</strong>` : `不是 ${v}，cur = cur->getNext()`}`});
+    frames.push({hl:i, line:9, msg:ull[i] === v ? String.raw`$${ull[i]}=${v}$ → <strong>找到 ✓</strong>` : String.raw`$${ull[i]}\ne ${v}$，<code>cur = cur-&gt;getNext()</code>`});
     if (ull[i] === v) break;
   }
   if (ull.indexOf(v) < 0) frames.push({hl:-1, line:11, msg:`cur 走到 NULL → <strong>${v} 不在串列中 ✗</strong>`});
@@ -1463,7 +1505,7 @@ function ullRemove() { ullStop();
   if (idx < 0) { ullRender({}, `${v} 不在串列裡，先 add 或換個值。`); return; }
   const frames = [];
   for (let i = 0; i <= idx; i++)
-    frames.push({hl:i, prevHl:i-1, line:15, msg:`cur = ${ull[i]}${i===idx?'（就是它！）':'，prev 跟上'}`});
+    frames.push({hl:i, prevHl:i-1, line:15, msg:`目前節點的值是 ${ull[i]}${i===idx?'（就是它！）':'，prev 跟上'}`});
   frames.push({act:'do', hl:-1, line:18,
     msg: idx===0 ? `prev 是 NULL → head = cur->getNext()。別忘了 delete cur！`
                  : `prev->setNext(cur->getNext())，${ull[idx-1]} 直接跳過 ${v}。別忘了 delete cur！`});
@@ -1491,12 +1533,12 @@ function ollAdd() { ollStop();
   const frames = [];
   let i = 0;
   while (i < oll.length && oll[i] < v) {
-    frames.push({hl:i, line:3, msg:`cur->getData() = ${oll[i]} < ${v}，繼續前進`});
+    frames.push({hl:i, line:3, msg:String.raw`目前節點的值 $${oll[i]}\lt ${v}$，繼續前進`});
     i++;
   }
   const at = i;
   frames.push({hl: i < oll.length ? i : -1, line:5,
-    msg: i < oll.length ? `cur->getData() = ${oll[i]} ≥ ${v} → 插在 prev 與 cur 之間` : `走到尾端 → 插在最後`});
+    msg: i < oll.length ? String.raw`目前節點的值 $${oll[i]}\ge ${v}$ → 插在 prev 與 cur 之間` : `走到尾端 → 插在最後`});
   frames.push({act:'do', hl:at, line: at===0?7:8,
     msg: at===0 ? `插在最前：temp->setNext(head); head = temp` : `temp->setNext(cur); prev->setNext(temp) ✓`});
   ollPlayer = new Player({frames, apply: f => {
@@ -1522,7 +1564,7 @@ function varShow(mode) {
 varShow('singly');
 </script>
 <script>
-const FLASHCARDS = [{"front": "無序串列（Unordered List）", "back": "元素彼此有相對位置、但順序與元素值無關的集合。鏈結實作中，新元素通常加在頭部（head）以求效率。"}, {"front": "鏈結串列（Linked List）", "back": "不需要連續記憶體、靠「明確的參考」維持元素相對位置的資料結構：由節點組成，每個節點存放元素本身與下一個元素位置的參考。"}, {"front": "節點（Node）", "back": "鏈結串列的基本建材：含一個資料欄位存放串列元素，以及一個 next 欄位存放指向下一個節點的參考。"}, {"front": "串列頭（Head of Linked List）", "back": "head 指向串列的第一個節點；從這裡沿 next 可以依序走訪元素。"}, {"front": "串列尾（Tail of Linked List）", "back": "tail 指向串列的最後一個節點。非環狀串列的末端以 NULL 或尾哨兵結束；環狀串列則接回 head。"}, {"front": "有序串列（Ordered List）", "back": "元素依某種特性（如遞增或遞減）維持相對位置的集合，加入新元素時要保持排序不變。"}, {"front": "環狀鏈結串列（Circularly Linked List）", "back": "鏈結串列的變形：尾節點的 next 不指向 NULL，而是指回頭節點，適合表示循環性的資料。"}, {"front": "雙向鏈結串列（Doubly Linked List）", "back": "每個節點保有兩個參考：指向後一個節點的 next 與指向前一個節點的 prev，因此可以雙向走訪與高效更新。"}, {"front": "std::forward_list", "back": "STL 單向鏈結容器。已知前驅迭代器時 insert_after／erase_after 是 O(1)，但不支援隨機存取。"}, {"front": "std::list", "back": "STL 雙向鏈結容器。已知迭代器時插入／刪除是 O(1)，但尋找位置是 O(n)，也沒有 operator[]。"}, {"front": "深層複製（Deep Copy）", "back": "把每個節點複製到各自擁有的儲存空間；只複製 head 會讓兩個串列共用節點，導致互相影響甚至重複釋放。"}];
+const FLASHCARDS = [{"front": "無序串列（Unordered List）", "back": "元素彼此有相對位置、但順序與元素值無關的集合。鏈結實作中，新元素通常加在頭部（head）以求效率。"}, {"front": "鏈結串列（Linked List）", "back": "不需要連續記憶體、靠「明確的參考」維持元素相對位置的資料結構：由節點組成，每個節點存放元素本身與下一個元素位置的參考。"}, {"front": "節點（Node）", "back": "鏈結串列的基本建材：含一個資料欄位存放串列元素，以及一個 next 欄位存放指向下一個節點的參考。"}, {"front": "串列頭（Head of Linked List）", "back": "head 指向串列的第一個節點；從這裡沿 next 可以依序走訪元素。"}, {"front": "串列尾（Tail of Linked List）", "back": "tail 指向串列的最後一個節點。非環狀串列的末端以 NULL 或尾哨兵結束；環狀串列則接回 head。"}, {"front": "有序串列（Ordered List）", "back": "元素依某種特性（如遞增或遞減）維持相對位置的集合，加入新元素時要保持排序不變。"}, {"front": "環狀鏈結串列（Circularly Linked List）", "back": "鏈結串列的變形：尾節點的 next 不指向 NULL，而是指回頭節點，適合表示循環性的資料。"}, {"front": "雙向鏈結串列（Doubly Linked List）", "back": "每個節點保有兩個參考：指向後一個節點的 next 與指向前一個節點的 prev，因此可以雙向走訪與高效更新。"}, {"front": "std::forward_list", "back": "STL 單向鏈結容器。已知前驅迭代器時 insert_after／erase_after 是 $O(1)$，但不支援隨機存取。"}, {"front": "std::list", "back": "STL 雙向鏈結容器。已知迭代器時插入／刪除是 $O(1)$，但尋找位置是 $O(n)$，也沒有 operator[]。"}, {"front": "深層複製（Deep Copy）", "back": "把每個節點複製到各自擁有的儲存空間；只複製 head 會讓兩個串列共用節點，導致互相影響甚至重複釋放。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){
@@ -1530,11 +1572,11 @@ const FLASHCARDS = [{"front": "無序串列（Unordered List）", "back": "元�
   const grid = document.getElementById('fcGrid');
   if (!grid) return;
   const render = cards => {
-    grid.innerHTML = cards.map(c =>
+    chapterSetMath(grid, cards.map(c =>
       `<div class="fc-card"><div class="fc-inner">
          <div class="fc-face fc-front"><div>${esc(c.front)}</div><div class="fc-hint">CLICK TO FLIP</div></div>
          <div class="fc-face fc-back">${esc(c.back)}</div>
-       </div></div>`).join('');
+       </div></div>`).join(''));
   };
   render(FLASHCARDS);
   grid.addEventListener('click', e => {

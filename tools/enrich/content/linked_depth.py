@@ -1,7 +1,9 @@
 """Chapter 4 supplemental teaching blocks; compiled examples are kept with outputs."""
 from enrich_lib import card
+import re
 
 def fold(title, body):
+    title = re.sub(r'^(?:補充|延伸|實作練習)：', '', title) + '（補充）'
     return f'<details class="linked-detail"><summary>{title}</summary><div class="linked-detail-body">{body}</div></details>'
 
 def table(headers, rows):
@@ -96,7 +98,7 @@ def blocks():
 <ol><li><strong>插入：</strong>先讓新節點的 next 接到原來的後段，再讓 head 或前驅接到新節點。只有入口切換，後段不必搬移。</li><li><strong>刪除：</strong>先讀取 current 的 next，再讓 head 或前驅跳過 current，最後才 delete current。delete 之後不能再讀 current 的欄位。</li><li><strong>找不到：</strong>current 到達空指標就返回，不能解參考，也不應更動串列。</li></ol>'''+table(['情況','head／前驅的更新','結果'],[
 ('空串列 remove','不更新','仍為空'),('只剩一個節點且命中','head = current 的 next（空指標）','變成空串列'),('刪頭','head = current 的 next','新 head 是原第二節點'),('刪中間','previous 的 next = current 的 next','前後段接回'),('刪尾','previous 的 next = 空指標','previous 成為尾端'),('多個相同值','只跳過第一個命中節點','其餘相同值保留')])+card('空串列、重複值與頭尾刪除',*EXAMPLES['edges'])+fold('延伸：保存元素數量，讓 size() 變成 O(1)', '<p>本課實作的 size() 每次從 head 數到尾端，所以是 O(n)。可另存 count，成功新增後加一、確實刪除後減一；找不到時不減。建構、清空、複製與移動時也要維護 count。多保存一個計數，就能省下 size() 的走訪；因此 size() 的成本取決於類別的實作。</p>')
     ordered = '''<h3>有排序，為什麼搜尋仍是 O(n)？</h3>
-<p>搜尋 45 時依序看 17、26、31、54；遇到 54 &gt; 45 就能停止，後方不可能有 45。搜尋 100 則必須看完所有節點。排序讓部分失敗搜尋提早結束，<strong>最壞情況仍要走訪 n 個節點</strong>；鏈結串列沒有 O(1) 的中點索引，不能直接套用陣列二分搜尋的 O(log n) 存取成本。</p>
+<p>搜尋 45 時依序看 17、26、31、54；遇到 $54 \\gt 45$ 就能停止，後方不可能有 45。搜尋 100 則必須看完所有節點。排序讓部分失敗搜尋提早結束，<strong>最壞情況仍要走訪 n 個節點</strong>；鏈結串列沒有 O(1) 的中點索引，不能直接套用陣列二分搜尋的 O(log n) 存取成本。</p>
 <p>若從尚未包含 31 的串列 17 → 26 → 54 → 77 → 93 開始，add(31) 必須先找出 26 與 54 之間的位置，再接上新節點。講義標頭用 current 找前驅，先接 <code>newNode-&gt;setNext(current-&gt;getNext())</code>，再接 <code>current-&gt;setNext(newNode)</code>。空串列或新值不大於首項時改走頭插；重複值允許存在，新值插在原有相等值之前。remove 只刪第一個相等值，遇到更大的值就停止。</p>'''+table(['操作','UnorderedList','OrderedList','成本來源'],[
 ('isEmpty()','O(1)','O(1)','只看 head'),('size()','O(n)','O(n)','逐節點計數'),('add(item)','O(1)','最壞 O(n)','有序版先定位'),('search / remove(item)','最壞 O(n)','最壞 O(n)','依值尋找'),('已知所需前驅後插／刪一個節點','O(1)','O(1)','固定次數接線；另須保持排序')])+ '<p>刪除整段 k 個節點仍要 O(k)；「接線 O(1)」不包含尋找位置或逐一釋放整段。</p>'+fold('補充：元素的比較、複製與解構成本', '<p>上表將單一元素的比較、複製與解構視為 O(1)，先計算走訪多少個節點、更新多少次指標。若節點存放的物件需要較多時間才能比較、複製或解構，還要把這些成本加進去。</p>')
     variants = '''<h3>環狀串列：回到起點才結束</h3>

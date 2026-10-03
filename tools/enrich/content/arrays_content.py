@@ -1,6 +1,7 @@
 """第三章教學正文。由 enrich_arrays.py 產生受管 section。"""
 from pathlib import Path
 from html import escape
+import re
 from enrich_lib import hl
 HERE = Path(__file__).parent
 
@@ -14,6 +15,8 @@ def code(title, src, output=None, kind='fragment'):
     return out + '</div>'
 
 def details(title, body):
+    if title != 'SparseMatrix：完整 C++ 類別、使用範例與加減乘':
+        title = re.sub(r'^(?:補充|延伸|實作練習)：', '', title) + '（補充）'
     return f'<details class="chapter-extra"><summary>{escape(title)}</summary><div class="extra-body">{body}</div></details>'
 
 def table(head, rows):
@@ -120,7 +123,7 @@ void grow() {
     maxSize = newCapacity;
 }''')
     layout+='''<p>建構時配置 <code>new int[maxSize]</code>，解構時以 <code>delete[] myArray</code> 釋放；容量為零時先擴充到 1。grow 先配置新空間、複製元素，再釋放舊空間；只把容量數字改大，並不會真的得到更多儲存格。</p>
-<h3>插入從右往左搬，刪除從左往右補</h3><p>在有 n 個元素的序列中，若要插入到索引 i，須先把 i 到 n−1 的元素向右搬一格，共 n−i 個。<strong>從尾端開始</strong>，才不會蓋掉還沒複製的值。刪除索引 i 則把右邊 n−1−i 個元素往左搬。insert 允許 i=n；erase 與 [] 必須 i&lt;n。</p>'''
+<h3>插入從右往左搬，刪除從左往右補</h3><p>在有 n 個元素的序列中，若要插入到索引 i，須先把 i 到 n−1 的元素向右搬一格，共 n−i 個。<strong>從尾端開始</strong>，才不會蓋掉還沒複製的值。刪除索引 i 則把右邊 n−1−i 個元素往左搬。insert 允許 i=n；erase 與 [] 必須 $i\\lt n$。</p>'''
     layout+=figure('insert_list.png', '插入索引 2 前，依箭頭編號從索引 5 向索引 2 倒序右移。', '先把索引 5 的值搬到空位 6，再依序搬移 4、3、2，才不會蓋掉尚未複製的值。圖中數值用來示意搬移，規則不隨元素值改變。')
     layout+=figure('remove_list.png', '刪除 idx 後，從 idx 開始依序把右側元素往左移。', '刪除時從左往右補空位；每格取右邊一格的值。最後減少 lastIndex，原本的末項位置就不再屬於有效元素。')
     layout+=code('插入與刪除：類別內的方法片段',r'''void insert(int idx, int val) {
@@ -250,16 +253,12 @@ int main() {
 
 def sparse_content():
     from sparse_examples import EXAMPLES
-    s='''<p>大部分元素是零時，可以只記錄非零值的位置，<strong>未記錄的位置視為零</strong>。密矩陣需要 Rows×Cols 格；稀疏表示則另外記錄座標，省下零值的儲存空間。是否划算，還要看非零項有多少、每項需要多少額外資料。</p>
+    s=r'''<p>大部分元素是零時，可以只記錄非零值的位置，<strong>未記錄的位置視為零</strong>。密矩陣需要 Rows×Cols 格；稀疏表示則另外記錄座標，省下零值的儲存空間。是否划算，還要看非零項有多少、每項需要多少額外資料。</p>
 <p>以下用同一個 3×3 矩陣 A 比較三種表示。各小節的加減乘程式也沿用 A，並以 B＝diag(5,6,7) 作為另一個運算元。</p>
-<pre class="memory-text">A = [0 2 0]    B = [5 0 0]
-    [3 0 0]        [0 6 0]
-    [0 0 4]        [0 0 7]</pre>
+<div class="matrix-equations"><div>$$A=\begin{bmatrix}0&2&0\\3&0&0\\0&0&4\end{bmatrix}$$</div><div>$$B=\begin{bmatrix}5&0&0\\0&6&0\\0&0&7\end{bmatrix}$$</div></div>
 <p>加減要求形狀相同；乘法要求 A 的欄數等於 B 的列數。下文以 a、b 表示兩個輸入的儲存項數。</p>
 <h3 id="sparse-coo">COO：三條陣列的同一個索引是一筆資料</h3>
-<pre class="memory-text">row = [0, 1, 2]
-col = [1, 0, 2]
-val = [2, 3, 4]</pre>
+<div class="coo-equations">$$\begin{aligned}\mathrm{row}&=[0,1,2]\\\mathrm{col}&=[1,0,2]\\\mathrm{val}&=[2,3,4]\end{aligned}$$</div>
 <p>第 k 項表示 <code>A[row[k]][col[k]] = val[k]</code>。三條陣列長度相同，讀取時把同一索引的列、欄與值一起看。未排序時，找一個座標最壞要掃過 a 筆資料；按座標排序後可以二分搜尋，但插入仍可能搬移後續元素。</p>'''
     s+=details('COO 的加減乘：完整 C++ 程式與複雜度', '''<p>加減使用兩個索引，由小到大比較座標。座標較小的一邊先輸出；相同時將值相加或相減，兩邊一起前進。結果為零就不存。</p>
 <p>以下 append 按 (row,col) 遞增順序加入有效座標，同一座標只加入一次。三條陣列維持這個順序，加減便能用合併完成，時間 O(a+b)、輸出空間 O(a+b)。若資料原本未排序，要先排序並合併重複座標，另計 O(a log(a+1)+b log(b+1))。</p>

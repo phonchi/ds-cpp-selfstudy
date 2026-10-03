@@ -46,7 +46,7 @@ function ullSearch() { ullStop();
   const v = parseInt($('ullInput').value || '17', 10);
   const frames = [];
   for (let i = 0; i < ull.length; i++) {
-    frames.push({hl:i, line:9, msg:`cur->getData() = ${ull[i]}，${ull[i] === v ? `等於 ${v} → <strong>找到 ✓</strong>` : `不是 ${v}，cur = cur->getNext()`}`});
+    frames.push({hl:i, line:9, msg:ull[i] === v ? String.raw`$${ull[i]}=${v}$ → <strong>找到 ✓</strong>` : String.raw`$${ull[i]}\ne ${v}$，<code>cur = cur-&gt;getNext()</code>`});
     if (ull[i] === v) break;
   }
   if (ull.indexOf(v) < 0) frames.push({hl:-1, line:11, msg:`cur 走到 NULL → <strong>${v} 不在串列中 ✗</strong>`});
@@ -59,7 +59,7 @@ function ullRemove() { ullStop();
   if (idx < 0) { ullRender({}, `${v} 不在串列裡，先 add 或換個值。`); return; }
   const frames = [];
   for (let i = 0; i <= idx; i++)
-    frames.push({hl:i, prevHl:i-1, line:15, msg:`cur = ${ull[i]}${i===idx?'（就是它！）':'，prev 跟上'}`});
+    frames.push({hl:i, prevHl:i-1, line:15, msg:`目前節點的值是 ${ull[i]}${i===idx?'（就是它！）':'，prev 跟上'}`});
   frames.push({act:'do', hl:-1, line:18,
     msg: idx===0 ? `prev 是 NULL → head = cur->getNext()。別忘了 delete cur！`
                  : `prev->setNext(cur->getNext())，${ull[idx-1]} 直接跳過 ${v}。別忘了 delete cur！`});
@@ -87,12 +87,12 @@ function ollAdd() { ollStop();
   const frames = [];
   let i = 0;
   while (i < oll.length && oll[i] < v) {
-    frames.push({hl:i, line:3, msg:`cur->getData() = ${oll[i]} < ${v}，繼續前進`});
+    frames.push({hl:i, line:3, msg:String.raw`目前節點的值 $${oll[i]}\lt ${v}$，繼續前進`});
     i++;
   }
   const at = i;
   frames.push({hl: i < oll.length ? i : -1, line:5,
-    msg: i < oll.length ? `cur->getData() = ${oll[i]} ≥ ${v} → 插在 prev 與 cur 之間` : `走到尾端 → 插在最後`});
+    msg: i < oll.length ? String.raw`目前節點的值 $${oll[i]}\ge ${v}$ → 插在 prev 與 cur 之間` : `走到尾端 → 插在最後`});
   frames.push({act:'do', hl:at, line: at===0?7:8,
     msg: at===0 ? `插在最前：temp->setNext(head); head = temp` : `temp->setNext(cur); prev->setNext(temp) ✓`});
   ollPlayer = new Player({frames, apply: f => {

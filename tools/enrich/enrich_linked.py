@@ -182,9 +182,9 @@ corrections = {
 }
 for before, after in corrections.items():
     s = s.replace(before, after)
-s = re.sub(r'<div class="info-card">\s*<div class="ic-title">指標語法速記</div>\s*(<div[^>]*class="mono">.*?</div>)\s*</div>', lambda m: '<details class="linked-detail"><summary>補充：指標語法速記</summary><div class="linked-detail-body">' + m[1] + '</div></details>', s, flags=re.S)
+s = re.sub(r'<div class="info-card">\s*<div class="ic-title">指標語法速記</div>\s*(<div[^>]*class="mono">.*?</div>)\s*</div>', lambda m: '<details class="linked-detail"><summary>指標語法速記（補充）</summary><div class="linked-detail-body">' + m[1] + '</div></details>', s, flags=re.S)
 if 'id="linked-average-detail"' not in s:
-    detail = '<details class="linked-detail" id="linked-average-detail"><summary>補充：平均要比較幾次？</summary><div class="linked-detail-body"><p>成功搜尋 n 個位置的比較次數依序為 1、2、…、n。若每個位置等可能，平均為 (1 + 2 + … + n) / n = (n + 1) / 2，約為 n / 2；因此隨 n 線性成長。</p></div></details>'
+    detail = '<details class="linked-detail" id="linked-average-detail"><summary>平均要比較幾次？（補充）</summary><div class="linked-detail-body"><p>成功搜尋 n 個位置的比較次數依序為 1、2、…、n。若每個位置等可能，平均為 (1 + 2 + … + n) / n = (n + 1) / 2，約為 n / 2；因此隨 n 線性成長。</p></div></details>'
     s = s.replace('下表整理 List ADT 各項操作的成本：</p>', '下表整理 List ADT 各項操作的成本：</p>' + detail)
 interactions = (Path(__file__).parent / 'content' / 'linked_interactions.js').read_text()
 s = re.sub(r'/\* ---------- P02 unordered ---------- \*/.*?(?=/\* ---------- P04 variants ---------- \*/)', lambda m: interactions, s, flags=re.S)
@@ -196,6 +196,8 @@ from content.teaching_copy import polish_preserved
 s = polish_preserved("linked_lists", s)
 from content.linked_figures import apply_figures
 s = apply_figures(s)
+s = s.replace('<summary>補充：指標語法速記</summary>', '<summary>指標語法速記（補充）</summary>')
+s = s.replace('<summary>補充：平均要比較幾次？</summary>', '<summary>平均要比較幾次？（補充）</summary>')
 from content.chapter_math import render_math
 s = render_math(s)
 PAGE.write_text(s)

@@ -14,7 +14,7 @@ def code(title, src, output=None, kind='fragment'):
     return out + '</div>'
 
 def details(title, body):
-    return f'<details class="chapter-extra"><summary>{title}</summary><div class="extra-body">{body}</div></details>'
+    return f'<details class="chapter-extra"><summary>{escape(title)}</summary><div class="extra-body">{body}</div></details>'
 
 def table(head, rows):
     return '<div class="chapter-table"><table class="cmp-table"><thead><tr>' + ''.join('<th>'+x+'</th>' for x in head) + '</tr></thead><tbody>' + ''.join('<tr>'+''.join('<td>'+x+'</td>' for x in row)+'</tr>' for row in rows) + '</tbody></table></div>'

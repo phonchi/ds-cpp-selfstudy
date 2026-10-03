@@ -75,7 +75,7 @@ int main() {
     (a + b).print(); (a - b).print(); (a * b).print();
 }
 ''', '(0,0):5 (0,1):2 (1,0):3 (1,1):6 (2,2):11 \n(0,0):-5 (0,1):2 (1,0):3 (1,1):-6 (2,2):-3 \n(0,1):12 (1,0):15 (2,2):28 \n'),
-    'dok': (r'''// pythonds3/cppds/sparsematrix.hpp -- Dictionary-Of-Keys sparse matrix (Chapter 3)
+    'dok_header': r'''// pythonds3/cppds/sparsematrix.hpp -- Dictionary-Of-Keys sparse matrix (Chapter 3)
 #ifndef DSCPP_SPARSEMATRIX_HPP
 #define DSCPP_SPARSEMATRIX_HPP
 #include <iostream>
@@ -92,6 +92,10 @@ class SparseMatrix {
                 for (size_t j = 0; j < matrix[i].size(); ++j)
                     if (matrix[i][j] != 0) data[{i, j}] = matrix[i][j];
         }
+        double operator()(size_t i, size_t j) const {
+            auto it = data.find({i, j});
+            return it != data.end() ? it->second : 0.0;
+        }
         double& operator()(size_t i, size_t j) { return data[{i, j}]; }
         bool operator==(const SparseMatrix& other) const {
             return data == other.data;
@@ -103,26 +107,20 @@ class SparseMatrix {
             return 1.0 - double(data.size()) / double(rows * cols);
         }
         size_t nnz() const {
-            return data.size();   // stored entries; zero values may also be stored
+            return data.size();   // number of non-zeros
         }
         SparseMatrix operator+(const SparseMatrix& other) const {
             SparseMatrix result;
-            for (const auto& item : data) {
-                auto found = other.data.find(item.first);
-                double rhs = found != other.data.end() ? found->second : 0.0;
-                result.data[item.first] = item.second + rhs;
-            }
+            for (const auto& item : data)
+                result.data[item.first] = item.second + other(item.first.first, item.first.second);
             for (const auto& item : other.data)
                 if (data.find(item.first) == data.end()) result.data[item.first] = item.second;
             return result;
         }
         SparseMatrix operator-(const SparseMatrix& other) const {
             SparseMatrix result;
-            for (const auto& item : data) {
-                auto found = other.data.find(item.first);
-                double rhs = found != other.data.end() ? found->second : 0.0;
-                result.data[item.first] = item.second - rhs;
-            }
+            for (const auto& item : data)
+                result.data[item.first] = item.second - other(item.first.first, item.first.second);
             for (const auto& item : other.data)
                 if (data.find(item.first) == data.end()) result.data[item.first] = -item.second;
             return result;
@@ -143,14 +141,25 @@ class SparseMatrix {
     private:
         map<pair<size_t, size_t>, double> data;
 };
-#endif
+#endif''',
+    'dok': (r'''#include <iostream>
+#include "pythonds3/cppds/sparsematrix.hpp"
+using namespace std;
 
 int main() {
-    SparseMatrix a({{{0, 1}, 2}, {{1, 0}, 3}, {{2, 2}, 4}});
-    SparseMatrix b({{{0, 0}, 5}, {{1, 1}, 6}, {{2, 2}, 7}});
-    std::cout << a + b << '\n' << a - b << '\n' << a * b << '\n';
-}
-''', '(0, 0): 5  (0, 1): 2  (1, 0): 3  (1, 1): 6  (2, 2): 11  \n(0, 0): -5  (0, 1): 2  (1, 0): 3  (1, 1): -6  (2, 2): -3  \n(0, 1): 12  (1, 0): 15  (2, 2): 28  \n'),
+    vector<vector<double>> denseMatrix = {{1, 0, 0}, {0, 2, 0}, {0, 0, 3}};
+    SparseMatrix sparseMatrix;
+    sparseMatrix.fromDenseMatrix(denseMatrix);
+    cout << sparseMatrix << endl;
+
+    SparseMatrix matrix1({{{0, 1}, 1}, {{1, 1}, 2}, {{2, 2}, 3}});
+    SparseMatrix matrix2({{{1, 1}, 3}, {{2, 2}, 4}});
+
+    cout << matrix1 + matrix2 << endl;
+    cout << matrix1 - matrix2 << endl;
+    cout << matrix1 * matrix2 << endl;
+    return 0;
+}''', '(0, 0): 1  (1, 1): 2  (2, 2): 3  \n(0, 1): 1  (1, 1): 5  (2, 2): 7  \n(0, 1): 1  (1, 1): -1  (2, 2): -1  \n(0, 1): 3  (1, 1): 6  (2, 2): 12  \n'),
     'linear': (r'''#include <iostream>
 #include <map>
 #include <stdexcept>

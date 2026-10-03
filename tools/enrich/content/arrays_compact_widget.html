@@ -1,8 +1,27 @@
+<div class="viz-layout">
+<div>
 <div class="viz-panel">
-<div class="bq-row" id="cmpVis" style="min-height:110px;"></div>
-<div class="status-banner" id="cmpStatus"><span class="status-icon">›</span><span class="status-text">切換兩種視角。</span></div>
+<div id="cmpVis" class="cmp-vis"></div>
+<div class="cmp-bytes" id="cmpBytes"></div>
+<div class="status-banner" id="cmpStatus"><span class="status-icon">›</span><span class="status-text">選擇陣列與索引，按 ▶ 播放或 → 單步。</span></div>
 <div class="controls-bar">
-<button class="btn" onclick="cmpShow('compact')">compact（值內嵌）</button>
-<button class="btn" onclick="cmpShow('ref')">referential（存指標）</button>
+<label class="mono" style="font-size:.85rem;">陣列 <select class="mono" id="cmpMode" onchange="cmpLoad()" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);"><option value="compact">int a[6]（緊湊）</option><option value="ref">int* p[6]（參考式）</option></select></label>
+<label class="mono" style="font-size:.85rem;">讀取索引 <select class="mono" id="cmpIndex" onchange="cmpLoad()" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);"><option>0</option><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option></select></label>
+<button class="btn btn-play" onclick="cmpPlay()">▶ 播放</button>
+<button class="btn btn-step" onclick="cmpStep()">→ 單步</button>
+<button class="btn" onclick="cmpPlayer &amp;&amp; cmpPlayer.toggle(this)">⏸ 暫停</button>
+<span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="cmpSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+</div>
+</div>
+</div>
+<div class="side-panel">
+<div class="info-card">
+<div class="ic-title">假設</div>
+<div style="font-size:.87rem;line-height:1.9;">int 佔 4 bytes、指標佔 8 bytes。陣列 a 從位址 1000 開始；指標陣列 p 從位址 2000 開始，它指向的六個 int 散在其他位置。位址都是示意值。</div>
+</div>
+<div class="info-card">
+<div class="ic-title">讀取一個元素的步驟</div>
+<div style="font-size:.87rem;line-height:1.9;">緊湊：定位槽位 → 讀值。<br>參考式：定位指標槽 → 讀出位址 → 沿箭頭找到物件 → 讀值。</div>
+</div>
 </div>
 </div>

@@ -39,6 +39,8 @@ from content.teaching_copy import polish_preserved
 s = polish_preserved("linked_lists", s)
 from content.linked_figures import apply_figures
 s = apply_figures(s)
+from content.course_recordings import apply_recording
+s = apply_recording(s, "linked_lists")
 from content.chapter_math import render_math
 s = render_math(s)
 PAGE.write_text(s)

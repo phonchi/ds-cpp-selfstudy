@@ -43,6 +43,8 @@ def main():
     text = text.replace(address_old, address_new)
     from content.teaching_copy import polish_preserved
     text = polish_preserved("arrays", text)
+    from content.course_recordings import apply_recording
+    text = apply_recording(text, "arrays")
     from content.chapter_math import render_math
     text = render_math(text)
     page.write_text(text)

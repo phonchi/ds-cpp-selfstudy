@@ -550,7 +550,9 @@ def sparse_content():
     s+='''<h3 id="sparse-dok">DOK：用座標當作 map 的鍵</h3>
 <pre class="memory-text">{ (0,1):2, (1,0):3, (2,2):4 }</pre>
 <p><strong>DOK</strong>（Dictionary Of Keys）和 COO 很像，差別是用一個 <strong>map，以 (row, column) 配對當鍵</strong>，把座標與值存成鍵值對。課程實作使用 <code>std::map</code>（平衡搜尋樹），查一次是 O(log nnz)；改用 <code>std::unordered_map</code>（雜湊表）平均是 O(1)。需要關聯容器的功能時可以用這個格式，但樹或雜湊表的節點比陣列佔更多記憶體。</p>
-<p><code>SparseMatrix</code> 類別用 <code>map&lt;pair&lt;size_t, size_t&gt;, double&gt;</code> 存資料：鍵是列、欄配對，值是元素。讀取用 const 版本的 <code>operator()</code>，沒記錄的位置回傳 0：</p>'''
+<p><code>SparseMatrix</code> 類別用 <code>map&lt;pair&lt;size_t, size_t&gt;, double&gt;</code> 存資料：鍵是列、欄配對，值是元素。</p>
+<h4 id="dok-read-access">讀取的 operator()：查不到就回傳 0</h4>
+<p>只讀版本先用 <code>find({i, j})</code> 查詢座標：找到時回傳儲存的值，找不到就回傳 0.0，表示這個位置是零。<strong>find 不會插入資料</strong>，所以讀取未記錄的位置後，map 的項目數仍不變。</p>'''
     s+=code('const 版本的 operator()：只讀',r'''class SparseMatrix {
     public:
         SparseMatrix() {}
@@ -565,6 +567,7 @@ def sparse_content():
     private:
         map<pair<size_t, size_t>, double> data;
 };''')
+    s+='<h4>寫入的 operator()：回傳可修改的參考</h4>'
     s+=code('非 const 版本的 operator() 與 nnz：類別內的方法片段',r'''// write access: inserts the position if absent
 double& operator()(size_t i, size_t j) {
     return data[{i, j}];
@@ -575,18 +578,20 @@ size_t nnz() const {
 }''')
     s+='''<p>非 const 版本回傳 <code>double&amp;</code>，所以可以寫 <code>m(i, j) = value</code>。它用 map 的 [] 取值：座標不存在時，會先插入一個值為 0 的項目。</p>
 <div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p>對非 const 物件呼叫 <code>m(i, j)</code> 時，編譯器選的是非 const 版本。所以即使只寫 <code>double x = m(i, j)</code> 讀值，空位置也會被插入一筆 0。只想讀取時，透過 const 參考呼叫，就會選到只查詢的 const 版本。</p></div>'''
-    s+=code('非 const 讀取會插入，const 讀取不會',r'''#include <iostream>
+    s+=details('語法對照：const 如何決定 operator() 的版本', '''<p>函式尾端的 const 表示這個成員函式不修改物件。對 const 物件，或透過 <code>const SparseMatrix&amp;</code> 參考呼叫時，只能使用這個只讀版本。它回傳 double 的值，因此能直接回傳 0.0。</p>
+<p>另一個版本沒有尾端的 const，回傳 double&amp;，讓呼叫結果可以用來指定新值。<strong>選擇哪個重載，看的是呼叫物件的型別</strong>，不是這行程式最後有沒有賦值。對一般物件寫 <code>double x = m(i, j)</code>，仍會選到非 const 版本。</p>
+<p><code>const SparseMatrix&amp; view = m</code> 是替同一個矩陣建立只讀參考，不會複製矩陣。下面用 <code>view</code> 讀取已存在與未記錄的位置，再看 <code>m</code> 的儲存項數。</p>''')
+    s+=code('先用 const 參考讀取，再對照非 const 版本',r'''#include <iostream>
 #include "pythonds3/cppds/sparsematrix.hpp"
 int main() {
     SparseMatrix m;
     m(0, 1) = 2;
-    std::cout << m.nnz() << '\n';
-    double x = m(5, 5);              // 非 const 版本：插入 (5,5):0
-    std::cout << x << ' ' << m.nnz() << '\n';
     const SparseMatrix& view = m;
-    double y = view(7, 7);           // const 版本：只查詢
-    std::cout << y << ' ' << m.nnz() << '\n';
-}''','1\n0 2\n0 2\n','run')
+    std::cout << view(0, 1) << ' ' << view(7, 7) << '\n'; // 讀到 2 與 0
+    std::cout << m.nnz() << '\n';    // 仍只有 (0,1) 這一項
+    double x = m(5, 5);             // 非 const 版本：插入 (5,5):0
+    std::cout << x << ' ' << m.nnz() << '\n';
+}''','2 0\n1\n0 2\n','run',cid='dok-read-example')
     s+='''<p>因此 <code>nnz()</code> 回傳的 <code>data.size()</code> 是<strong>儲存的項數</strong>，不一定等於真正的非零元素個數：讀取空位置、寫入 0 或加減後相消，都可能留下值為 0 的項目。</p>
 <p>關係運算直接比較兩個 map；sparsity 則依給定的列數與欄數計算 1−a/(rows×cols)，其中 a 是儲存項數。加減運算稍微複雜：任一個運算元出現的座標，都要出現在結果中。</p>'''
     s+=code('operator+：類別內的方法片段',r'''SparseMatrix operator+(const SparseMatrix& other) const {

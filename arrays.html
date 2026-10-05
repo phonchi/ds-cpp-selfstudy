@@ -1366,7 +1366,9 @@ out of range
 </pre></div></div><p>三行依序是 $A+B$、$A-B$、$A\times B$。例如乘積的 (0,1) 是 $2\times 6=12$，(1,0) 是 $3\times 5=15$，(2,2) 是 $4\times 7=28$。</p></div></details><h3 id="sparse-dok">DOK：用座標當作 <code>map</code> 的鍵</h3>
 <pre class="memory-text">{ (0,1):2, (1,0):3, (2,2):4 }</pre>
 <p><strong>DOK</strong>（Dictionary Of Keys）和 COO 很像，差別是用一個 <strong><code>map</code>，以 (row, column) 配對當鍵</strong>，把座標與值存成鍵值對。課程實作使用 <code>std::map</code>（平衡搜尋樹），查一次是 $O(\log  \mathrm{nnz})$；改用 <code>std::unordered_map</code>（雜湊表）平均是 $O(1)$。需要關聯容器的功能時可以用這個格式，但樹或雜湊表的節點比陣列佔更多記憶體。</p>
-<p><code>SparseMatrix</code> 類別用 <code>map&lt;pair&lt;size_t, size_t&gt;, double&gt;</code> 存資料：鍵是列、欄配對，值是元素。讀取用 <code>const</code> 版本的 <code>operator()</code>，沒記錄的位置回傳 0：</p><div class="deck-extra"><div class="dx-label"><code>const</code> 版本的 <code>operator()</code>：只讀</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> SparseMatrix {</span>
+<p><code>SparseMatrix</code> 類別用 <code>map&lt;pair&lt;size_t, size_t&gt;, double&gt;</code> 存資料：鍵是列、欄配對，值是元素。</p>
+<h4 id="dok-read-access">讀取的 <code>operator()</code>：查不到就回傳 0</h4>
+<p>只讀版本先用 <code>find({i, j})</code> 查詢座標：找到時回傳儲存的值，找不到就回傳 0.0，表示這個位置是零。<strong><code>find</code> 不會插入資料</strong>，所以讀取未記錄的位置後，<code>map</code> 的項目數仍不變。</p><div class="deck-extra"><div class="dx-label"><code>const</code> 版本的 <code>operator()</code>：只讀</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> SparseMatrix {</span>
 <span class="line" data-l="2">    <span class="kw">public</span>:</span>
 <span class="line" data-l="3">        SparseMatrix() {}</span>
 <span class="line" data-l="4">        <span class="com">// read access: return the stored value, or 0 for unset positions</span></span>
@@ -1379,7 +1381,7 @@ out of range
 <span class="line" data-l="11">        }</span>
 <span class="line" data-l="12">    <span class="kw">private</span>:</span>
 <span class="line" data-l="13">        map&lt;pair&lt;<span class="kw">size_t</span>, <span class="kw">size_t</span>&gt;, <span class="kw">double</span>&gt; data;</span>
-<span class="line" data-l="14">};</span></div></div><div class="deck-extra"><div class="dx-label">非 <code>const</code> 版本的 <code>operator()</code> 與 <code>nnz</code>：類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="com">// write access: inserts the position if absent</span></span>
+<span class="line" data-l="14">};</span></div></div><h4>寫入的 <code>operator()</code>：回傳可修改的參考</h4><div class="deck-extra"><div class="dx-label">非 <code>const</code> 版本的 <code>operator()</code> 與 <code>nnz</code>：類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="com">// write access: inserts the position if absent</span></span>
 <span class="line" data-l="2"><span class="kw">double</span>&amp; <span class="fn">operator</span>()(<span class="kw">size_t</span> i, <span class="kw">size_t</span> j) {</span>
 <span class="line" data-l="3">    <span class="kw">return</span> data[{i, j}];</span>
 <span class="line" data-l="4">}</span>
@@ -1387,19 +1389,20 @@ out of range
 <span class="line" data-l="6"><span class="kw">size_t</span> <span class="fn">nnz</span>() <span class="kw">const</span> {</span>
 <span class="line" data-l="7">    <span class="kw">return</span> data.size();   <span class="com">// number of stored entries</span></span>
 <span class="line" data-l="8">}</span></div></div><p>非 <code>const</code> 版本回傳 <code>double&amp;</code>，所以可以寫 <code>m(i, j) = value</code>。它用 <code>map</code> 的 <code>[]</code> 取值：座標不存在時，會先插入一個值為 0 的項目。</p>
-<div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p>對非 <code>const</code> 物件呼叫 <code>m(i, j)</code> 時，編譯器選的是非 <code>const</code> 版本。所以即使只寫 <code>double x = m(i, j)</code> 讀值，空位置也會被插入一筆 0。只想讀取時，透過 <code>const</code> 參考呼叫，就會選到只查詢的 <code>const</code> 版本。</p></div><div class="deck-extra"><div class="dx-label">非 <code>const</code> 讀取會插入，<code>const</code> 讀取不會</div><div class="pseudo-code" data-cpp="run" data-expected="1&#10;0 2&#10;0 2&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<div class="info-box warm"><span class="info-label">讀取也可能新增項目</span><p>對非 <code>const</code> 物件呼叫 <code>m(i, j)</code> 時，編譯器選的是非 <code>const</code> 版本。所以即使只寫 <code>double x = m(i, j)</code> 讀值，空位置也會被插入一筆 0。只想讀取時，透過 <code>const</code> 參考呼叫，就會選到只查詢的 <code>const</code> 版本。</p></div><details class="chapter-extra"><summary>語法對照：<code>const</code> 如何決定 <code>operator()</code> 的版本（補充）</summary><div class="extra-body"><p>函式尾端的 <code>const</code> 表示這個成員函式不修改物件。對 <code>const</code> 物件，或透過 <code>const SparseMatrix&amp;</code> 參考呼叫時，只能使用這個只讀版本。它回傳 <code>double</code> 的值，因此能直接回傳 0.0。</p>
+<p>另一個版本沒有尾端的 <code>const</code>，回傳 <code>double&amp;</code>，讓呼叫結果可以用來指定新值。<strong>選擇哪個重載，看的是呼叫物件的型別</strong>，不是這行程式最後有沒有賦值。對一般物件寫 <code>double x = m(i, j)</code>，仍會選到非 <code>const</code> 版本。</p>
+<p><code>const SparseMatrix&amp; view = m</code> 是替同一個矩陣建立只讀參考，不會複製矩陣。下面用 <code>view</code> 讀取已存在與未記錄的位置，再看 <code>m</code> 的儲存項數。</p></div></details><div class="deck-extra"><div class="dx-label">先用 <code>const</code> 參考讀取，再對照非 <code>const</code> 版本</div><div class="pseudo-code" data-cpp="run" id="dok-read-example" data-expected="2 0&#10;1&#10;0 2&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/sparsematrix.hpp"</span></span>
 <span class="line" data-l="3"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="4">    SparseMatrix m;</span>
 <span class="line" data-l="5">    m(<span class="num">0</span>, <span class="num">1</span>) = <span class="num">2</span>;</span>
-<span class="line" data-l="6">    std::cout &lt;&lt; m.nnz() &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
-<span class="line" data-l="7">    <span class="kw">double</span> x = m(<span class="num">5</span>, <span class="num">5</span>);              <span class="com">// 非 const 版本：插入 (5,5):0</span></span>
-<span class="line" data-l="8">    std::cout &lt;&lt; x &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; m.nnz() &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
-<span class="line" data-l="9">    <span class="kw">const</span> SparseMatrix&amp; view = m;</span>
-<span class="line" data-l="10">    <span class="kw">double</span> y = view(<span class="num">7</span>, <span class="num">7</span>);           <span class="com">// const 版本：只查詢</span></span>
-<span class="line" data-l="11">    std::cout &lt;&lt; y &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; m.nnz() &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
-<span class="line" data-l="12">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>1
-0 2
+<span class="line" data-l="6">    <span class="kw">const</span> SparseMatrix&amp; view = m;</span>
+<span class="line" data-l="7">    std::cout &lt;&lt; view(<span class="num">0</span>, <span class="num">1</span>) &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; view(<span class="num">7</span>, <span class="num">7</span>) &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>; <span class="com">// 讀到 2 與 0</span></span>
+<span class="line" data-l="8">    std::cout &lt;&lt; m.nnz() &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;    <span class="com">// 仍只有 (0,1) 這一項</span></span>
+<span class="line" data-l="9">    <span class="kw">double</span> x = m(<span class="num">5</span>, <span class="num">5</span>);             <span class="com">// 非 const 版本：插入 (5,5):0</span></span>
+<span class="line" data-l="10">    std::cout &lt;&lt; x &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span> &lt;&lt; m.nnz() &lt;&lt; <span class="str">'</span><span class="str">\n</span><span class="str">'</span>;</span>
+<span class="line" data-l="11">}</span></div><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 0
+1
 0 2
 </pre></div></div><p>因此 <code>nnz()</code> 回傳的 <code>data.size()</code> 是<strong>儲存的項數</strong>，不一定等於真正的非零元素個數：讀取空位置、寫入 0 或加減後相消，都可能留下值為 0 的項目。</p>
 <p>關係運算直接比較兩個 <code>map</code>；<code>sparsity</code> 則依給定的列數與欄數計算 $1-\frac{a}{\mathrm{rows}\times\mathrm{cols}}$，其中 a 是儲存項數。加減運算稍微複雜：任一個運算元出現的座標，都要出現在結果中。</p><div class="deck-extra"><div class="dx-label"><code>operator+</code>：類別內的方法片段</div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1">SparseMatrix <span class="kw">operator</span>+(<span class="kw">const</span> SparseMatrix&amp; other) <span class="kw">const</span> {</span>

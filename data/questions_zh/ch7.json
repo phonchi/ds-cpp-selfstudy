@@ -1,51 +1,58 @@
 [
-{"question": "遞迴版二分搜尋傳入索引邊界，並令 midpoint = first + (last - first) / 2。對已排序 vector {3, 5, 6, 8, 11, 12, 14, 15, 17, 18} 找 16，依序比較哪些值？",
+{"question": "用 <algorithm> 的 std::find(aList.begin(), aList.end(), item) 搜尋 vector，item 不在裡面時，find 回傳什麼？",
  "answers": [
-  {"answer": "12, 17, 15", "correct": false, "feedback": "不對。初始邊界是 0 到 9，整數除法得到索引 4（值 11），不是索引 5。"},
-  {"answer": "18, 17, 15", "correct": false, "feedback": "不對。二分搜尋從目前索引範圍的中點開始，不是從尾端。"},
-  {"answer": "11, 14, 17", "correct": false, "feedback": "不對。第一次比較 11 後，邊界變成 5..9；下一個中點是索引 7，也就是 15，不是 14。"},
-  {"answer": "11, 15, 17", "correct": true, "feedback": "正確。邊界 0..9 比 11；5..9 比 15；8..9 比 17；下一個範圍為空。整個過程只改索引，不複製子 vector。"}
+  {"answer": "aList.end()，也就是傳進去的 last", "correct": true, "feedback": "正確。find 找不到時回傳範圍的終點 last，所以判斷式寫成 find(...) != aList.end()。"},
+  {"answer": "-1", "correct": false, "feedback": "find 回傳的是迭代器，不是索引；找不到時回傳 last，不是 -1。"},
+  {"answer": "false", "correct": false, "feedback": "find 不回傳 bool。要得到 true 或 false，得自己把結果和 aList.end() 比較。"},
+  {"answer": "丟出例外", "correct": false, "feedback": "找不到是正常情況，find 不會丟出例外，而是回傳 last。"}
  ]},
-{"question": "對 {5, 1, 4, 2, 8} 做遞增氣泡排序，完整跑完第一輪後 vector 是哪一個？",
+{"question": "用平方取中法（先平方，取中間兩位，再 % 11）計算 31 的雜湊值，結果是多少？",
  "answers": [
-  {"answer": "{1, 4, 2, 5, 8}", "correct": true, "feedback": "正確。5 依序越過 1、4、2；最後 5 與 8 已是正確順序，所以第一輪結束時最大值 8 固定在尾端。"},
-  {"answer": "{1, 4, 2, 8, 5}", "correct": false, "feedback": "不對。5 與 8 已是遞增順序，不會交換。"},
-  {"answer": "{1, 2, 4, 5, 8}", "correct": false, "feedback": "這是全部排序完成的結果，不是只跑一輪。"},
-  {"answer": "{5, 1, 4, 2, 8}", "correct": false, "feedback": "至少前三組相鄰元素逆序，第一輪一定會交換。"}
+  {"answer": "8", "correct": true, "feedback": "正確。31² = 961，補成偶數位 0961，中間兩位是 96，96 % 11 = 8。"},
+  {"answer": "9", "correct": false, "feedback": "9 是餘數法 31 % 11 的結果，平方取中法要先平方再取中間兩位。"},
+  {"answer": "4", "correct": false, "feedback": "這是把 961 直接 % 11。平方取中法只取中間兩位 96 再取餘數。"},
+  {"answer": "6", "correct": false, "feedback": "961 是三位數，要先在前面補 0 成為 0961，中間兩位是 96，不是 61。"}
  ]},
-{"question": "大小為 13 的雜湊表，鍵 27 與 130 分別會對應到哪個索引位置？",
+{"question": "大小 11 的雜湊表用線性探查放入 54, 26, 93, 17, 77, 31, 44, 55, 20 之後，負載因子 λ 是多少？",
  "answers": [
-  {"answer": "1, 10", "correct": false, "feedback": "不對。27 對應到 1 沒錯，但 130 不會對應到 10。"},
-  {"answer": "13, 0", "correct": false, "feedback": "不對。大小 13 的表不可能有索引 13：索引範圍是 0 到 12。"},
-  {"answer": "1, 0", "correct": true, "feedback": "正確！用餘數法（key % 大小）：27 % 13 = 1、130 % 13 = 0。"},
-  {"answer": "2, 3", "correct": false, "feedback": "不對。請重新算一次兩個鍵的模運算。"}
+  {"answer": "9/11", "correct": true, "feedback": "正確。λ = 元素個數 / 表的大小 = 9 / 11，約 0.82。碰撞不會改變元素個數。"},
+  {"answer": "2/11", "correct": false, "feedback": "2/11 是空槽的比例，負載因子算的是已佔用的比例。"},
+  {"answer": "11/9", "correct": false, "feedback": "分子分母放反了：λ = 元素個數 / 表的大小。開放定址的 λ 不會超過 1。"},
+  {"answer": "3/11", "correct": false, "feedback": "3 是發生碰撞的元素個數（44、55、20），負載因子要算全部的元素。"}
  ]},
-{"question": "把這組鍵依序插入恰好 11 格的雜湊表：113, 117, 97, 100, 114, 108, 116, 105, 99，用線性探查解決碰撞。全部插完後，表的內容最接近下列哪一個？",
+{"question": "課程的 HashTable 在 key 不存在時，get(key) 回傳空字串。這個設計有什麼限制？",
  "answers": [
-  {"answer": "100, __, __, 113, 114, 105, 116, 117, 97, 108, 99", "correct": false, "feedback": "不對。這一組把 100 放在索引 0，但 100 % 11 = 1，應該在索引 1。"},
-  {"answer": "99, 100, __, 113, 114, __, 116, 117, 105, 97, 108", "correct": true, "feedback": "正確！各鍵對應：99→0、100→1、113→3、114→4、116→6、117→7、105 碰撞後探查到 8、97→9、108 碰撞後探查到 10。"},
-  {"answer": "100, 113, 117, 97, 14, 108, 116, 105, 99, __, __", "correct": false, "feedback": "不對。這個排列不符合各鍵取餘數後的結果。"},
-  {"answer": "117, 114, 108, 116, 105, 99, __, __, 97, 100, 113", "correct": false, "feedback": "不對。這個鍵的分布不符合 mod 11 的運算結果。"}
+  {"answer": "無法分辨「key 不存在」和「key 存在但 value 是空字串」", "correct": true, "feedback": "正確。兩種情況回傳值都是 \"\"。完整的 Map ADT 會另外提供 contains(key)。"},
+  {"answer": "找不到時會無限迴圈", "correct": false, "feedback": "get 碰到空槽或繞回起點就停止，不會無限迴圈。"},
+  {"answer": "找不到時會丟出 overflow_error", "correct": false, "feedback": "overflow_error 是 put 在表滿時丟出的；get 找不到只回傳空字串。"},
+  {"answer": "找不到時回傳 -1", "correct": false, "feedback": "get 的回傳型別是 string，回傳的是空字串；-1 是 slots 裡標記空槽的值。"}
  ]},
-{"question": "串列 [21, 1, 26, 45, 29, 28, 2, 9, 16, 49, 39, 27, 43, 34, 46, 40] 執行 mergesort。第 3 次遞迴呼叫時要排序的串列是下列哪一個？",
+{"question": "課程的 shellSort 排序 9 個元素時，依序使用哪些增量（gap）？",
  "answers": [
-  {"answer": "[16, 49, 39, 27, 43, 34, 46, 40]", "correct": false, "feedback": "不對。這是原串列的右半，要等整個左半處理並合併完才會輪到。"},
-  {"answer": "[21, 1]", "correct": true, "feedback": "正確！mergesort 先對半切、再先遞迴左半：16 個元素的串列，第 1 次遞迴拿前 8 個、第 2 次拿前 4 個、第 3 次拿前 2 個，也就是 [21, 1]。"},
-  {"answer": "[21, 1, 26, 45]", "correct": false, "feedback": "不對。這個 4 元素串列是第 2 次遞迴呼叫的輸入。"},
-  {"answer": "[21]", "correct": false, "feedback": "不對。單一元素的串列是第 4 次遞迴呼叫的輸入，它會直接觸發基底情況。"}
+  {"answer": "4、2、1", "correct": true, "feedback": "正確。sublistCount 從 9 / 2 = 4 開始，每輪除以 2，直到 1。"},
+  {"answer": "3、1", "correct": false, "feedback": "增量 3 是講義圖示的例子；程式從 n / 2 開始。"},
+  {"answer": "9、4、2、1", "correct": false, "feedback": "增量從 n / 2 開始，不是 n；增量等於 n 時每個子清單只有一個元素。"},
+  {"answer": "1、3、7", "correct": false, "feedback": "增量要由大到小，最後一輪才是 1；1、3、7 是 2^k − 1 序列由小到大列出。"}
  ]},
-{"question": "串列 [14, 17, 13, 15, 19, 10, 3, 16, 9, 12] 執行 quicksort。第二次分割（partition）之後，串列內容是下列哪一個？",
+{"question": "選擇排序（selectionSort）處理 n 個元素時，交換次數最多是多少？",
  "answers": [
-  {"answer": "[9, 3, 10, 13, 12]", "correct": false, "feedback": "不對。這只是第二次分割後的左子串列，不是整條串列的狀態。"},
-  {"answer": "[9, 3, 10, 13, 12, 14]", "correct": false, "feedback": "不對。這條串列被截掉了，少了右邊分割區的元素。"},
-  {"answer": "[9, 3, 10, 13, 12, 14, 17, 16, 15, 19]", "correct": false, "feedback": "不對。右半（19, 16, 15, 17）在輪到它自己的遞迴呼叫之前，會維持第一次分割後的狀態。"},
-  {"answer": "[9, 3, 10, 13, 12, 14, 19, 16, 15, 17]", "correct": true, "feedback": "正確！第一次以 pivot 14 分割後，串列是 [10, 12, 13, 9, 3, 14, 19, 16, 15, 17]。第二次分割處理左子串列 [10, 12, 13, 9, 3]、pivot 是 10，得到 [9, 3, 10, 13, 12]；放回整條串列就是這個答案。"}
+  {"answer": "n − 1", "correct": true, "feedback": "正確。每一輪最多交換一次，共 n − 1 輪；最大值已在正確位置的那一輪不交換。"},
+  {"answer": "n(n − 1)/2", "correct": false, "feedback": "這是比較次數。選擇排序的特色就是比較次數多、交換次數少。"},
+  {"answer": "n", "correct": false, "feedback": "只需要 n − 1 輪：前 n − 1 個位置就位後，最後一個元素一定也在正確位置。"},
+  {"answer": "1", "correct": false, "feedback": "每一輪都可能交換一次，不是整個排序只交換一次。"}
  ]},
-{"question": "對有序串列 [3, 5, 6, 8, 11, 12, 14, 15, 17, 18] 做循序搜尋，要判定 key 13 不在裡面，需要幾次比較？",
+{"question": "本章的排序中，哪一個需要 O(n) 的額外暫存空間？",
  "answers": [
-  {"answer": "10", "correct": false, "feedback": "不對。無序串列的循序搜尋才需要看完全部 10 個；有序串列一碰到比目標大的值就能提前停止。"},
-  {"answer": "5", "correct": false, "feedback": "不對。比較 5 次後只走到 11；11 比 13 小，還得繼續往後找。"},
-  {"answer": "7", "correct": true, "feedback": "正確！有序串列的搜尋會逐一比較，直到找到目標或碰到比目標大的值：13 依序跟 3, 5, 6, 8, 11, 12, 14 比較，共 7 次。比到 14 時發現 14 > 13，就能斷定 13 不可能在後面，搜尋停止。"},
-  {"answer": "6", "correct": false, "feedback": "不對。比較 6 次後走到 12；12 比 13 小，還需要第 7 次跟 14 比較，才能確定 13 不在串列裡。"}
+  {"answer": "合併排序", "correct": true, "feedback": "正確。mergeSort 每層建立 leftHalf 與 rightHalf，最多需要 O(n) 的額外元素空間，另加 O(log n) 的遞迴堆疊。"},
+  {"answer": "快速排序", "correct": false, "feedback": "quickSort 在原本的 vector 上交換，只需要遞迴堆疊的空間。"},
+  {"answer": "插入排序", "correct": false, "feedback": "插入排序只用一個 curVal 暫存要插入的值，額外空間是 O(1)。"},
+  {"answer": "希爾排序", "correct": false, "feedback": "希爾排序對子清單做插入排序，也只需要 O(1) 的額外空間。"}
+ ]},
+{"question": "以第一個元素當 pivot 的 quickSort，下列哪一種輸入最容易出現 O(n²) 的情況？",
+ "answers": [
+  {"answer": "已經遞增排好的 list", "correct": true, "feedback": "正確。每次 pivot 都是最小值，分成 0 個與 n − 1 個元素，要切 n − 1 層。"},
+  {"answer": "隨機打亂的 list", "correct": false, "feedback": "隨機資料的 pivot 通常落在中間附近，平均是 O(n log n)。"},
+  {"answer": "第一個元素剛好是中位數的 list", "correct": false, "feedback": "pivot 是中位數時第一次分割最平均，這是好的情況。"},
+  {"answer": "只有兩個元素的 list", "correct": false, "feedback": "兩個元素只做一次 partition，談不上最差情況的成長率。"}
  ]}
 ]

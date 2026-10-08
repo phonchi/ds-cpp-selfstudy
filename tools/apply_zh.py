@@ -84,12 +84,9 @@ def apply_page(page, ch):
     </div>
     <div class="sq-fb"></div>
   </div>''')
-        # ch* 來自課程題庫（沿用原措辭，既有三頁維持零 diff）；p* 是先備頁，題目另有來源
-        from_bank = qch.startswith("ch")
-        badge = f"課程題庫 {qch} · {len(qs)} 題" if from_bank else f"隨堂自測 · {len(qs)} 題"
-        lead = ("題目取自課程題庫（已譯為繁體中文），每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。"
-                if from_bank else
-                "每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。")
+        # 章末題庫：講義 quiz 已放進正文，這裡是另外出的自我檢測題，所有頁面同一措辭
+        badge = f"隨堂自測 · {len(qs)} 題"
+        lead = "每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。"
         section = f'''<section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
   <h2>自我檢測：{note} <span class="sec-badge">{badge}</span></h2>

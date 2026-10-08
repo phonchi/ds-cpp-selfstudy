@@ -18,6 +18,13 @@
   - 每章的 `docs/verification/20261008-chN/pipeline.sh` 依序跑 enrich → apply_zh → shuffle。
   - gen 區外的一次性手改，逐項列在各章驗證 README。
 - `chapter_math.render_math` 會誤轉後序式與按鈕文字，第 5–9 章不呼叫；公式直接寫 MathJax `$…$`。
+- 課程標頭的逐字複本，改 `pythonds3/cppds/*.hpp` 時要同步：
+  - 第 4 章：`linked_programs.py` 的標頭片段；
+  - 第 5 章：`linear_programs.py` 的 `STACK_HPP` 等；
+  - 第 7 章：`search_headers.py`，17 個函式，由 checker 比對；
+  - 第 8 章：`graphs_programs.HEADER_GRAPH`；
+  - 第 9 章：`trees_programs.py` 的 7 張 `binarytree.hpp` 卡。
+- MathJax 已在真實網路下排版第 4–9 章，0 錯誤（`docs/verification/20261008-mathjax/`）。
 - 進度、待決事項與講義端的不一致：`handoffs/20261008-205516-ch4-9-expansion.md`。
 
 ## 第三、四章教學改進（2026-10-03）

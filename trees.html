@@ -415,6 +415,28 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .vert-table th i{color:inherit;}
 </style>
 <!-- /contrast-fix -->
+<style id="trees-depth-style">
+.tree-detail{margin:1rem 0;border:1px solid var(--card-border);border-radius:8px;background:var(--card);}
+.tree-detail>summary{cursor:pointer;padding:.9rem 1rem;font-weight:600;line-height:1.6;}
+.tree-detail-body{padding:0 1rem 1rem;min-width:0;}
+.tree-detail-body .pseudo-code,.deck-extra .pseudo-code,.side-panel .pseudo-code{max-width:100%;overflow-x:auto;}
+.tree-ul{padding-left:1.4rem;margin:.6rem 0 1rem;}
+.tree-ul li{margin:.3rem 0;line-height:1.8;}
+.tree-quiz{margin-top:1.2rem;}
+.tree-quiz .sq-num{margin-right:.6rem;}
+.viz-layout,.viz-layout>div{min-width:0;}
+#canvas-trav .t-node{font-size:.72rem;}
+</style>
+<style id="trees-figures-style">
+.tree-figure{margin:1rem 0 1.4rem;max-width:100%;}
+.tree-figure-scroll{max-width:100%;overflow-x:auto;background:#fff;border:1px solid var(--card-border);border-radius:8px;padding:.4rem 0;}
+.tree-figure img{display:block;height:auto;max-width:100%;width:var(--figure-width);margin:0 auto;}
+.tree-figure figcaption{margin-top:.65rem;font-size:.9rem;line-height:1.8;color:var(--ink);}
+.tree-figrow-cells{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;align-items:flex-end;padding:.6rem;}
+.tree-figrow-cell{display:flex;flex-direction:column;align-items:center;gap:.4rem;max-width:200px;}
+.tree-figrow-cell img{margin:0;}
+.tree-figrow-cell span{font-size:.8rem;line-height:1.5;color:var(--ink);text-align:center;}
+</style>
 </head>
 <body>
 
@@ -423,15 +445,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="fn-title">章節導覽</div>
   <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">引言</span></a>
   <a href="#vocabulary" data-target="vocabulary"><span class="fn-num">P01</span><span class="fn-name">術語與定義</span></a>
-  <a href="#nodes-refs" data-target="nodes-refs"><span class="fn-num">P02</span><span class="fn-name">Nodes &amp; References</span></a>
-  <a href="#parse-tree" data-target="parse-tree"><span class="fn-num">P03</span><span class="fn-name">解析樹</span></a>
-  <a href="#traversals" data-target="traversals"><span class="fn-num">P04</span><span class="fn-name">樹的走訪</span></a>
-  <a href="#heap" data-target="heap"><span class="fn-num">P05</span><span class="fn-name">二元堆積</span></a>
-  <a href="#bst" data-target="bst"><span class="fn-num">P06</span><span class="fn-name">二元搜尋樹</span></a>
-  <a href="#bst-delete" data-target="bst-delete"><span class="fn-num">P07</span><span class="fn-name">BST 刪除</span></a>
-  <a href="#bst-analysis" data-target="bst-analysis"><span class="fn-num">P08</span><span class="fn-name">BST 分析</span></a>
-  <a href="#avl" data-target="avl"><span class="fn-num">P09</span><span class="fn-name">AVL 樹</span></a>
+  <a href="#tree-adt" data-target="tree-adt"><span class="fn-num">P02</span><span class="fn-name">Tree ADT</span></a>
+  <a href="#nodes-refs" data-target="nodes-refs"><span class="fn-num">P03</span><span class="fn-name">Nodes &amp; References</span></a>
+  <a href="#parse-tree" data-target="parse-tree"><span class="fn-num">P04</span><span class="fn-name">解析樹</span></a>
+  <a href="#traversals" data-target="traversals"><span class="fn-num">P05</span><span class="fn-name">樹的走訪</span></a>
+  <a href="#heap" data-target="heap"><span class="fn-num">P06</span><span class="fn-name">二元堆積</span></a>
+  <a href="#bst" data-target="bst"><span class="fn-num">P07</span><span class="fn-name">二元搜尋樹</span></a>
+  <a href="#bst-delete" data-target="bst-delete"><span class="fn-num">P08</span><span class="fn-name">BST 刪除</span></a>
+  <a href="#bst-analysis" data-target="bst-analysis"><span class="fn-num">P09</span><span class="fn-name">BST 分析</span></a>
+  <a href="#avl" data-target="avl"><span class="fn-num">P10</span><span class="fn-name">AVL 樹</span></a>
   <a href="#summary" data-target="summary"><span class="fn-num">REF</span><span class="fn-name">總覽比較</span></a>
+  <a href="#recap" data-target="recap"><span class="fn-num">SUM</span><span class="fn-name">重點回顧</span></a>
     <a href="#bankquiz" data-target="bankquiz"><span class="fn-num">QUIZ</span><span class="fn-name">自我檢測（8 題）</span></a>
   <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
   <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
@@ -453,7 +477,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>① <strong>照節次讀</strong>：每一節先讀說明、動手玩互動元件，預測結果再按按鈕驗證。
   ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；細節與完整程式請回講義 09 與 cppds 原文。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
-  ④ 最後翻 <a href="#cards">關鍵詞彙卡（33 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標 Optional／Python 參考的內容第一輪可略過。</p>
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡（37 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表，章末的<a href="#recap">重點回顧</a>可以用來複習。標「選讀」的 AVL 內部實作與標「（補充）」的收合區是課堂沒細講的延伸，第一輪可略過。</p>
   <div class="sg-links"><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/09_Trees%20and%20Tree%20Algorithms.html#/" target="_blank" rel="noopener">🖥 講義 09 線上閱讀 HTML</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/09_Trees%20and%20Tree%20Algorithms.pdf" target="_blank" rel="noopener">📑 講義 09 閱讀 PDF</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/09_Trees%20and%20Tree%20Algorithms.pdf" download="09_Trees and Tree Algorithms.pdf">⬇ 講義 09 下載 PDF</a><a href="https://runestone.academy/ns/books/published/cppds/Trees/toctree.html" target="_blank" rel="noopener">📖 課本 cppds（Trees）</a><a href="https://github.com/phonchi/pythonds3/tree/master/cppds" target="_blank" rel="noopener">💾 課程標頭 pythonds3/cppds</a><a href="https://www.hello-algo.com/zh-hant/chapter_tree/" target="_blank" rel="noopener">📘 Hello 演算法（樹）</a><a href="https://www.hello-algo.com/zh-hant/chapter_heap/" target="_blank" rel="noopener">📘 Hello 演算法（堆積）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
@@ -464,17 +488,19 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="toc-grid">
     <a href="#prologue"><span class="toc-num">P00</span>引言：為什麼需要樹？</a>
     <a href="#vocabulary"><span class="toc-num">P01</span>術語與定義</a>
-    <a href="#nodes-refs"><span class="toc-num">P02</span>Nodes &amp; References</a>
-    <a href="#parse-tree"><span class="toc-num">P03</span>解析樹 Parse Tree</a>
-    <a href="#traversals"><span class="toc-num">P04</span>樹的走訪</a>
-    <a href="#heap"><span class="toc-num">P05</span>二元堆積</a>
-    <a href="#bst"><span class="toc-num">P06</span>二元搜尋樹</a>
-    <a href="#bst-delete"><span class="toc-num">P07</span>BST 刪除三情境</a>
-    <a href="#bst-analysis"><span class="toc-num">P08</span>BST 分析</a>
-    <a href="#avl"><span class="toc-num">P09</span>AVL 樹與旋轉</a>
+    <a href="#tree-adt"><span class="toc-num">P02</span>Tree ADT</a>
+    <a href="#nodes-refs"><span class="toc-num">P03</span>Nodes &amp; References</a>
+    <a href="#parse-tree"><span class="toc-num">P04</span>解析樹 Parse Tree</a>
+    <a href="#traversals"><span class="toc-num">P05</span>樹的走訪</a>
+    <a href="#heap"><span class="toc-num">P06</span>二元堆積</a>
+    <a href="#bst"><span class="toc-num">P07</span>二元搜尋樹</a>
+    <a href="#bst-delete"><span class="toc-num">P08</span>BST 刪除三情境</a>
+    <a href="#bst-analysis"><span class="toc-num">P09</span>BST 分析</a>
+    <a href="#avl"><span class="toc-num">P10</span>AVL 樹與旋轉</a>
     <a href="#summary"><span class="toc-num">REF</span>Map ADT 總覽比較</a>
+    <a href="#recap"><span class="toc-num">SUM</span>重點回顧</a>
     <a href="#bankquiz"><span class="toc-num">QUIZ</span>自我檢測（8 題）</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（33 張）</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（37 張）</a>
   </div>
 </div>
 
@@ -484,7 +510,16 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="prologue">
   <div class="section-number">PROLOGUE · 開場</div>
   <h2>Examples of Trees：最普遍的階層式結構 <span class="sec-badge">cppds §8.2</span></h2>
+<!-- gen:trees-prologue -->
   <p>樹（tree）這個資料結構出現在作業系統、編譯器、資料庫、網路路由、機器學習等幾乎每一個領域。不同於我們前面學過的線性結構（list、stack、queue），樹是<strong>階層式</strong>的：一個節點可以連到多個子節點，整體組成一個由根（root）往下分支的層次。</p>
+<h3>兩個例子：生物分類與檔案系統</h3>
+<p>電腦科學裡的樹有根（root）、分支（branch）與葉（leaf），只是畫法和自然界的樹相反：根在最上面，葉在最下面。第一個例子是生物分類樹。</p>
+<figure class="tree-figure" id="tree-figure-biology"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="生物分類樹：根 Animalia 分成 Chordata 與 Arthropoda，往下依序是綱、目、科、屬、種，最底層是 Human、Chimpanzee、Cat、Lion、Housefly、Firebrat。左側標出 Kingdom 到 Species 七個層級。"><img src="assets/figures/ch9/biology.png" alt="生物分類樹：根 Animalia 分成 Chordata 與 Arthropoda，往下依序是綱、目、科、屬、種，最底層是 Human、Chimpanzee、Cat、Lion、Housefly、Firebrat。左側標出 Kingdom 到 Species 七個層級。" width="560" height="377" style="--figure-width:560px" loading="lazy"></div><figcaption>生物分類是一棵樹：越上層越一般，越下層越具體。從根 Animalia 一路往下，每一層回答一個問題（脊索動物還是節肢動物？哺乳類嗎？），走到底就是一個物種。到每個葉節點的路徑都是唯一的。</figcaption></figure>
+<p>這個例子說明樹是<strong>階層式</strong>（hierarchical）的：越上層越一般，越下層越具體。從最上層的界（kingdom）往下，依序是門、綱、目、科、屬、種。每往下一層，就回答一個問題，選擇符合答案的那條路徑。</p>
+<p>從這個例子還能看出樹的另外兩個性質：</p>
+<ul class="tree-ul"><li>一個節點的子節點，和另一個節點的子節點互不相干。例如 Felidae 底下的 Felis，和 Muscidae 底下的 Musca 沒有關係。</li><li>從根到每個葉節點的路徑都是唯一的。例如 Animalia → Chordata → Mammalia → Carnivora → Felidae → Felis → catus 唯一地指出家貓。</li></ul>
+<p>第二個例子是每天都會用到的檔案系統。目錄（資料夾）組成一棵樹，從根目錄走到任何一個子目錄的路徑，就是它唯一的路徑名稱。</p>
+<figure class="tree-figure" id="tree-figure-directory"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="檔案系統樹：根目錄 / 底下有 dev/、etc/、sbin/、tmp/、Users/、usr/、var/，etc/ 底下有 cups/、httpd/、init.d/、postfix/，Users/、usr/、var/ 也各有子目錄。"><img src="assets/figures/ch9/directory.png" alt="檔案系統樹：根目錄 / 底下有 dev/、etc/、sbin/、tmp/、Users/、usr/、var/，etc/ 底下有 cups/、httpd/、init.d/、postfix/，Users/、usr/、var/ 也各有子目錄。" width="720" height="116" style="--figure-width:720px" loading="lazy"></div><figcaption>檔案系統的目錄也是樹。從根 / 走到任何一個目錄的路徑就是它的路徑名稱，例如 /etc/httpd。把整棵 etc/ 子樹搬到 usr/ 底下，路徑變成 /usr/etc/httpd，但 httpd 目錄本身與它底下的內容都不受影響。</figcaption></figure>
 
   <div class="info-box">
     <span class="info-label">本章你會學到的技術</span>
@@ -507,6 +542,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
   <p>每一節都採相同的版面：左邊是<strong>視覺化畫布與控制列</strong>，右邊是<strong>即時統計、虛擬碼與複雜度分析</strong>。請大膽地按 <span class="pill pill-green">▶ 開始</span> 觀察完整動畫，或按 <span class="pill pill-blue">→ 單步</span> 一格一格觀察。</p>
+<!-- /gen:trees-prologue -->
 </section>
 
 <!-- ============================================================ -->
@@ -515,6 +551,9 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="vocabulary">
   <div class="section-number">PART 01 · 術語與定義</div>
   <h2>樹的術語：節點、邊、根、葉、層、高度 <span class="sec-badge">cppds §8.3</span></h2>
+<!-- gen:trees-vocabulary -->
+<h3>名詞定義</h3>
+<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>術語</th><th>意義</th></tr></thead><tbody><tr><td>節點（node）</td><td>樹的基本組成。節點有一個名稱，稱為<strong>鍵</strong>（key）；也可以存放其他資料，稱為值（value）或酬載（payload）。</td></tr><tr><td>邊（edge）</td><td>連接兩個節點，表示它們之間有關係。除了根以外，每個節點都<strong>恰好有一條</strong>從別的節點進來的邊；出去的邊可以有好幾條。</td></tr><tr><td>根（root）</td><td>樹中唯一沒有進來的邊的節點。</td></tr><tr><td>路徑（path）</td><td>由邊連起來的一串有順序的節點，例如 Mammalia → Carnivora → Felidae → Felis → catus。</td></tr><tr><td>子節點（children）</td><td>從同一個節點出發、經由邊連到的那些節點，是該節點的子節點。</td></tr><tr><td>父節點（parent）</td><td>一個節點是它用出去的邊連到的所有節點的父節點。</td></tr><tr><td>兄弟節點（sibling）</td><td>有同一個父節點的節點。檔案系統裡的 etc/ 和 usr/ 是兄弟節點。</td></tr><tr><td>子樹（subtree）</td><td>一個父節點與它所有子孫，連同之間的邊。</td></tr><tr><td>葉節點（leaf node）</td><td>沒有子節點的節點。</td></tr><tr><td>層（level）</td><td>從根走到節點 $n$ 的路徑上的邊數。根在第 0 層。</td></tr><tr><td>高度（height）</td><td>樹中所有節點的最大層數。只有一個節點的樹高度是 0。</td></tr></tbody></table></div>
   <p>在進入演算法之前，我們先把語言對齊。把滑鼠移到下方互動樹的任何一個節點上，<strong>右側面板會即時顯示該節點的所有屬性</strong>；點擊節點則會高亮它的「祖先路徑（path-to-root）」與「子樹（subtree）」。</p>
 
   <div class="viz-layout">
@@ -565,83 +604,119 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <br><br>
     遞迴定義對寫程式特別友善：它直接告訴你 base case（空樹）和 recursive step（處理 root + 遞迴處理子樹），這也是後面所有走訪、評估、刪除演算法的骨架。
   </div>
+<p>定義一的圖：方框是節點，箭頭是邊，箭頭方向表示連接的方向（從 parent 指向 child）。</p>
+<figure class="tree-figure" id="tree-figure-treedef1"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="方框表示的樹：root node 有 child1、child2 兩個欄位，分別指向 node1 與 node2；node1 有三個欄位指向 node3、node4、node5，node2 有一個欄位指向 node6。"><img src="assets/figures/ch9/treedef1.png" alt="方框表示的樹：root node 有 child1、child2 兩個欄位，分別指向 node1 與 node2；node1 有三個欄位指向 node3、node4、node5，node2 有一個欄位指向 node6。" width="360" height="251" style="--figure-width:360px" loading="lazy"></div><figcaption>定義一的例子：節點加上連接節點的有向邊。箭頭方向是 parent 指向 child；除了根以外，每個節點都恰好有一條進來的邊。這棵樹的 node1 有三個子節點，所以它不是二元樹。</figcaption></figure>
+<p>定義二是遞迴的：每個三角形代表一棵子樹，子樹的根用一條邊接到上層的根。</p>
+<figure class="tree-figure" id="tree-figure-TreeDefRecursive"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="一個標示 root 的圓圈，往下連到三個三角形，分別標示 subtree 1、subtree 2、subtree 3。"><img src="assets/figures/ch9/TreeDefRecursive.png" alt="一個標示 root 的圓圈，往下連到三個三角形，分別標示 subtree 1、subtree 2、subtree 3。" width="300" height="233" style="--figure-width:300px" loading="lazy"></div><figcaption>定義二（遞迴定義）：一棵樹是空的，或由一個根加上零個以上的子樹組成，每個子樹本身也是一棵樹。這張圖的每個三角形都有自己的根，所以這棵樹（若非空）至少有四個節點。</figcaption></figure>
+<div class="sq-item tree-quiz" id="quiz-tree">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>關於樹的邊與節點，下列哪個敘述正確？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="不對。根節點是特例：它沒有入邊。">樹中每個節點都至少要有一條入邊。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確！這是教材對樹結構定義的基本性質。">除了根以外，每個節點都恰好有一條來自其他節點的入邊。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。葉節點是沒有子節點的節點，也就是出邊數為零。">葉節點的定義是恰好有一條出邊的節點。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。高度是樹中節點的最大層數，不是邊的總數。">樹的高度等於它包含的邊的總數。</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
 
   <h3>二元樹（Binary Tree）</h3>
   <p>本章我們專注於每個節點最多有<strong>兩個子節點</strong>的樹，稱為二元樹。我們特別命名為 <code>leftChild</code> 和 <code>rightChild</code>，這個順序在解析樹（運算子的左右運算元）和 BST（小的在左、大的在右）中是有語義的。</p>
+<!-- /gen:trees-vocabulary -->
+</section>
 
-<h3 id="dx-voc">講義完整範例：BinaryTree 與解析樹的使用畫面</h3>
+<!-- ============================================================ -->
+<!-- PART 02: Tree ADT -->
+<!-- ============================================================ -->
+<section id="tree-adt">
+  <div class="section-number">PART 02 · Tree ADT</div>
+  <h2>Tree ADT：用哪些操作建立與操作二元樹 <span class="sec-badge">cppds §8.4</span></h2>
+<!-- gen:trees-tree-adt -->
+<p>有了術語之後，接著定義要用哪些操作來建立與操作一棵二元樹。這組操作就是二元樹的抽象資料型別（ADT）。</p>
+<h3>操作清單</h3>
+<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinaryTree(root)</code></td><td>建立一個節點，值是 <code>root</code>，兩個子指標都是 <code>NULL</code>。</td></tr><tr><td><code>getRootVal()</code>／<code>setRootVal(value)</code></td><td>讀取或替換目前節點的值。</td></tr><tr><td><code>getLeftChild()</code>／<code>getRightChild()</code></td><td>回傳左、右子樹的指標；那一邊是空的時候回傳 <code>NULL</code>。</td></tr><tr><td><code>insertLeft(value)</code>／<code>insertRight(value)</code></td><td>配置一個新節點接成左（右）子節點；原本已經有子節點時，把它往下推一層（下一節說明）。</td></tr></tbody></table></div>
+<p><code>getLeftChild()</code> 回傳的是一整棵子樹（<code>BinaryTree*</code>），所以可以接著用 <code>-&gt;</code> 呼叫子樹的操作，一路往下走到任何深度。</p>
 <div class="deck-extra">
-  <div class="dx-label">講義 09 · BinaryTree 基本操作</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // 本節的完整類別</span></span>
-<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="4"> </span>
-<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="6">    BinaryTree aTree(<span class="str">"</span><span class="str">a</span><span class="str">"</span>);</span>
-<span class="line" data-l="7">    cout &lt;&lt; aTree.getRootVal() &lt;&lt; endl;</span>
-<span class="line" data-l="8">    cout &lt;&lt; aTree.getLeftChild() &lt;&lt; endl;      <span class="com">// NULL 印出來是 0</span></span>
-<span class="line" data-l="9">    aTree.insertLeft(<span class="str">"</span><span class="str">b</span><span class="str">"</span>);</span>
-<span class="line" data-l="10">    cout &lt;&lt; aTree.getLeftChild()-&gt;getRootVal() &lt;&lt; endl;</span>
-<span class="line" data-l="11">    aTree.insertRight(<span class="str">"</span><span class="str">c</span><span class="str">"</span>);</span>
-<span class="line" data-l="12">    cout &lt;&lt; aTree.getRightChild()-&gt;getRootVal() &lt;&lt; endl;</span>
-<span class="line" data-l="13">    aTree.getRightChild()-&gt;setRootVal(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>);</span>
-<span class="line" data-l="14">    cout &lt;&lt; aTree.getRightChild()-&gt;getRootVal() &lt;&lt; endl;</span>
-<span class="line" data-l="15">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="16">}</span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a
-0
-b
-c
-hello</pre></div>
-  <p class="dx-note">getLeftChild() 回傳的是<strong>整棵左子樹</strong>（BinaryTree*），不只是值：所以能一路 -&gt; 下去操作任何深度的節點。insertLeft 若遇到既有左子樹，會把它「往下推」成新節點的左子樹。</p>
+  <div class="dx-label">Tree ADT 的呼叫方式</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">BinaryTree r(<span class="str">"</span><span class="str">a</span><span class="str">"</span>);                      <span class="com">// a node with two NULL children</span></span>
+<span class="line" data-l="2">r.insertLeft(<span class="str">"</span><span class="str">b</span><span class="str">"</span>);                      <span class="com">// attach a new left child</span></span>
+<span class="line" data-l="3">r.insertRight(<span class="str">"</span><span class="str">c</span><span class="str">"</span>);                     <span class="com">// attach a new right child</span></span>
+<span class="line" data-l="4">r.getLeftChild()-&gt;setRootVal(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>);  <span class="com">// change the value of the left child</span></span>
+<span class="line" data-l="5">cout &lt;&lt; r.getRightChild()-&gt;getRootVal() &lt;&lt; endl;</span></div>
 </div>
-<div class="deck-extra">
-  <div class="dx-label">講義 09 · 解析樹：建樹、求值、還原</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // buildParseTree + evaluate + printExp</span></span>
-<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="4"> </span>
-<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="6">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
-<span class="line" data-l="7">    inorder(pt);                      <span class="com">// 中序走訪：印回運算式的骨架</span></span>
-<span class="line" data-l="8">    cout &lt;&lt; endl;</span>
-<span class="line" data-l="9">    cout &lt;&lt; evaluate(pt) &lt;&lt; endl;     <span class="com">// 後序邏輯：先算子樹再套運算子</span></span>
-<span class="line" data-l="10">    cout &lt;&lt; printExp(pt) &lt;&lt; endl;     <span class="com">// 中序＋括號還原</span></span>
-<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="12">}</span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3 + 4 * 5 
-23
-((3)+((4)*(5)))</pre></div>
-  <p class="dx-note">三個函式就是三種走訪的應用：inorder 印骨架（但括號不見了）、evaluate 是後序（算 4*5=20 再算 3+20）、printExp 是中序加括號（每個子樹都包一層，連葉節點也包）。課後練習：改 printExp，讓葉節點不要包括號，輸出變成 (3+(4*5))。</p>
-</div>
+<h3>從介面到實作</h3>
+<p>實作一棵樹時，最關鍵的決定是內部要用什麼方式儲存。本課程使用<strong>節點與參考</strong>（nodes and references）：每個節點是一個物件，用指標連到它的子樹。下一節就用這個方式寫出 <code>BinaryTree</code> 類別。</p>
+<!-- /gen:trees-tree-adt -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 02: Nodes and References -->
 <!-- ============================================================ -->
 <section id="nodes-refs">
-  <div class="section-number">PART 02 · 樹的實作</div>
+  <div class="section-number">PART 03 · 樹的實作</div>
   <h2>Nodes &amp; References：用類別與遞迴結構表示二元樹 <span class="sec-badge">cppds §8.4</span></h2>
-  <p>Python 原書另示範 <strong>list of lists</strong>（巢狀串列）；這裡只保留為語言比較。C++ 主線採 <strong>nodes and references</strong>（節點物件 + 指標）：每個 <code>BinaryTree</code> 帶 <code>key</code>、<code>leftChild</code>、<code>rightChild</code>，子指標不是 <code>NULL</code> 時就指向另一棵遞迴定義的樹。</p>
+<!-- gen:trees-nodes-refs -->
+  <p>本課程用 <strong>nodes and references</strong>（節點物件 + 指標）表示二元樹：每個 <code>BinaryTree</code> 帶 <code>key</code>、<code>leftChild</code>、<code>rightChild</code>，子指標不是 <code>NULL</code> 時就指向另一棵遞迴定義的樹。</p>
 
-  <h3>語言比較：List of Lists <span class="sec-badge">Python 原書參考（課堂跳過）</span></h3>
-  <p>巢狀串列版把「根的值」放在第 0 格、左子樹放第 1 格、右子樹放第 2 格；
-  每個子樹自己又是同樣格式的串列，<strong>結構本身就是遞迴的</strong>。
-  葉節點就是「值＋兩個空串列」。它還有個好處：要表示多元樹（超過兩個子樹），再多掛一個串列就好。</p>
-  <div class="info-card" style="max-width:600px;"><div class="ic-title">巢狀串列表示 <span class="ic-badge">CODE</span></div>
-    <div class="pseudo-code" style="font-size:.74rem;">
-<span class="line">my_tree = [<span class="num">"a"</span>,                        <span class="com">// [0] 根的值</span></span>
-<span class="line">    [<span class="num">"b"</span>, [<span class="num">"d"</span>,[],[]], [<span class="num">"e"</span>,[],[]]],  <span class="com">// [1] 左子樹</span></span>
-<span class="line">    [<span class="num">"c"</span>, [<span class="num">"f"</span>,[],[]], []        ]]   <span class="com">// [2] 右子樹</span></span>
-<span class="line"> </span>
-<span class="line">my_tree[<span class="num">0</span>]  <span class="com">// "a"：根</span></span>
-<span class="line">my_tree[<span class="num">1</span>]  <span class="com">// 整個左子樹（又是一個同構的串列）</span></span>
-<span class="line">my_tree[<span class="num">2</span>]  <span class="com">// 整個右子樹</span></span></div></div>
-  <p style="font-size:.88rem;color:var(--muted);">C++ 是靜態型別語言，寫不出這種「值和串列混住」的巢狀字面值，
-  所以我們直接採用下面的 nodes and references 表示法（對 C++ 來說本來就更自然）。
-  課堂投影片跳過這一小節（RISE skip），列為自學補充。</p>
+<h3>BinaryTree 類別</h3>
+<p>用節點與參考表示一棵樹時，定義一個類別，存放根的值以及左、右子樹。下圖的六個標籤就是六個 <code>BinaryTree</code> 物件，靠子指標連在一起。</p>
+<figure class="tree-figure" id="tree-figure-treerecs"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="節點與參考的樹：key 為 &quot;a&quot; 的節點有兩個指標，分別指向 key &quot;b&quot; 與 key &quot;c&quot;；&quot;b&quot; 指向 &quot;d&quot; 與 &quot;e&quot;；&quot;c&quot; 的左指標指向 &quot;f&quot;，右指標是 NULL；&quot;d&quot;、&quot;e&quot;、&quot;f&quot; 的兩個指標都是 NULL。底部標示 BinaryTree* leftChild 與 BinaryTree* rightChild。"><img src="assets/figures/ch9/treerecs.png" alt="節點與參考的樹：key 為 &quot;a&quot; 的節點有兩個指標，分別指向 key &quot;b&quot; 與 key &quot;c&quot;；&quot;b&quot; 指向 &quot;d&quot; 與 &quot;e&quot;；&quot;c&quot; 的左指標指向 &quot;f&quot;，右指標是 NULL；&quot;d&quot;、&quot;e&quot;、&quot;f&quot; 的兩個指標都是 NULL。底部標示 BinaryTree* leftChild 與 BinaryTree* rightChild。" width="640" height="244" style="--figure-width:640px" loading="lazy"></div><figcaption>用節點與參考表示二元樹：每個 BinaryTree 物件存一個 key 和兩個 BinaryTree* 指標。指標不是 NULL 時就指向另一棵子樹；NULL 表示那一邊是空的。</figcaption></figure>
+<p>在 C++ 裡，<code>leftChild</code> 與 <code>rightChild</code> 是指向其他 <code>BinaryTree</code> 物件的指標；<code>NULL</code> 表示那一邊是空的子樹。節點的值可以是任何型別，這個教學版本用 <code>string</code>。</p>
+<div class="deck-extra">
+  <div class="dx-label">BinaryTree 的資料成員與建構子</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> BinaryTree {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        string key;</span>
+<span class="line" data-l="4">        BinaryTree* leftChild;</span>
+<span class="line" data-l="5">        BinaryTree* rightChild;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7">        BinaryTree(string rootObj) {</span>
+<span class="line" data-l="8">            key = rootObj;</span>
+<span class="line" data-l="9">            leftChild = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="10">            rightChild = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="11">        }</span>
+<span class="line" data-l="12">};</span></div>
+</div>
+<h3>insertLeft 與 insertRight</h3>
+<p>要加左子節點，就配置一個新的 <code>BinaryTree</code>，把位址存進 <code>leftChild</code>。插入分兩種情況：原本沒有左子節點時，直接接上；原本已經有左子節點時，新節點插在中間，原本的左子樹變成新節點的左子樹，等於被往下推一層。<code>insertRight</code> 對稱地處理右邊。</p>
+<div class="deck-extra">
+  <div class="dx-label">insertLeft 與 insertRight</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insertLeft</span>(string newNode) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (leftChild == <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="3">        leftChild = <span class="kw">new</span> BinaryTree(newNode);</span>
+<span class="line" data-l="4">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="5">        BinaryTree* newChild = <span class="kw">new</span> BinaryTree(newNode);</span>
+<span class="line" data-l="6">        newChild-&gt;leftChild = leftChild;</span>
+<span class="line" data-l="7">        leftChild = newChild;</span>
+<span class="line" data-l="8">    }</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11"><span class="kw">void</span> <span class="fn">insertRight</span>(string newNode) {</span>
+<span class="line" data-l="12">    <span class="kw">if</span> (rightChild == <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="13">        rightChild = <span class="kw">new</span> BinaryTree(newNode);</span>
+<span class="line" data-l="14">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="15">        BinaryTree* newChild = <span class="kw">new</span> BinaryTree(newNode);</span>
+<span class="line" data-l="16">        newChild-&gt;rightChild = rightChild;</span>
+<span class="line" data-l="17">        rightChild = newChild;</span>
+<span class="line" data-l="18">    }</span>
+<span class="line" data-l="19">}</span></div>
+</div>
+<p>最後補上讀取子樹與讀寫根值的函式，一個簡單的二元樹類別就完成了。</p>
+<div class="deck-extra">
+  <div class="dx-label">存取函式</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">string <span class="fn">getRootVal</span>() {</span>
+<span class="line" data-l="2">    <span class="kw">return</span> key;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">setRootVal</span>(string newKey) {</span>
+<span class="line" data-l="5">    key = newKey;</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7">BinaryTree* <span class="fn">getLeftChild</span>() {</span>
+<span class="line" data-l="8">    <span class="kw">return</span> leftChild;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10">BinaryTree* <span class="fn">getRightChild</span>() {</span>
+<span class="line" data-l="11">    <span class="kw">return</span> rightChild;</span>
+<span class="line" data-l="12">}</span></div>
+</div>
+<p>下面的動畫用這些函式一步一步長出一棵樹。</p>
 
   <div class="viz-layout">
     <div>
@@ -681,15 +756,22 @@ hello</pre></div>
 <span class="line"><span class="kw">class</span> <span class="fn">BinaryTree</span> {</span>
 <span class="line">  <span class="kw">public</span>:</span>
 <span class="line">    string key;</span>
-<span class="line">    BinaryTree *leftChild, *rightChild;</span>
-<span class="line">    <span class="fn">BinaryTree</span>(string rootObj)</span>
-<span class="line">      : key(rootObj), leftChild(<span class="num">NULL</span>), rightChild(<span class="num">NULL</span>) {}</span>
+<span class="line">    BinaryTree* leftChild;</span>
+<span class="line">    BinaryTree* rightChild;</span>
+<span class="line">    <span class="fn">BinaryTree</span>(string rootObj) {</span>
+<span class="line">        key = rootObj;</span>
+<span class="line">        leftChild = <span class="num">NULL</span>;</span>
+<span class="line">        rightChild = <span class="num">NULL</span>;</span>
+<span class="line">    }</span>
 <span class="line"> </span>
 <span class="line">    <span class="kw">void</span> <span class="fn">insertLeft</span>(string newNode) {</span>
-<span class="line">        BinaryTree *t = <span class="kw">new</span> <span class="fn">BinaryTree</span>(newNode);</span>
-<span class="line">        <span class="kw">if</span> (leftChild != <span class="num">NULL</span>)</span>
-<span class="line">            t-&gt;leftChild = leftChild;   <span class="com">// 舊子樹下推</span></span>
-<span class="line">        leftChild = t;</span>
+<span class="line">        <span class="kw">if</span> (leftChild == <span class="num">NULL</span>) {</span>
+<span class="line">            leftChild = <span class="kw">new</span> <span class="fn">BinaryTree</span>(newNode);</span>
+<span class="line">        } <span class="kw">else</span> {</span>
+<span class="line">            BinaryTree* newChild = <span class="kw">new</span> <span class="fn">BinaryTree</span>(newNode);</span>
+<span class="line">            newChild-&gt;leftChild = leftChild;   <span class="com">// 舊子樹下推</span></span>
+<span class="line">            leftChild = newChild;</span>
+<span class="line">        }</span>
 <span class="line">    }</span>
 <span class="line">};</span></div>
       </div>
@@ -701,17 +783,125 @@ hello</pre></div>
     <strong>Case 1（左邊空）：</strong>直接把新節點掛上去。<br>
     <strong>Case 2（左邊已有東西）：</strong>新節點插在中間，<strong>把原本的左子樹整個推到新節點的左邊一層</strong>。這個「往下推」的設計避免了破壞原本的子結構。<code>insertRight</code> 對稱地處理右邊。
   </div>
+<h3 id="dx-voc">實際執行：建立根 a 與子節點 b、c</h3>
+<p>完整的類別在 <code>pythonds3/cppds/binarytree.hpp</code>。下面的程式建立根 <code>"a"</code>，再加上左子 <code>"b"</code> 與右子 <code>"c"</code>，最後把右子的值改成 <code>"hello"</code>。</p>
+<details class="tree-detail"><summary>講義完整程式：BinaryTree 的基本操作</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 09 · BinaryTree</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="a&#10;0&#10;b&#10;c&#10;hello&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // the class of this section</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryTree aTree(<span class="str">"</span><span class="str">a</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    cout &lt;&lt; aTree.getRootVal() &lt;&lt; endl;</span>
+<span class="line" data-l="8">    cout &lt;&lt; aTree.getLeftChild() &lt;&lt; endl;      <span class="com">// NULL prints as 0</span></span>
+<span class="line" data-l="9">    aTree.insertLeft(<span class="str">"</span><span class="str">b</span><span class="str">"</span>);</span>
+<span class="line" data-l="10">    cout &lt;&lt; aTree.getLeftChild()-&gt;getRootVal() &lt;&lt; endl;</span>
+<span class="line" data-l="11">    aTree.insertRight(<span class="str">"</span><span class="str">c</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">    cout &lt;&lt; aTree.getRightChild()-&gt;getRootVal() &lt;&lt; endl;</span>
+<span class="line" data-l="13">    aTree.getRightChild()-&gt;setRootVal(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>);</span>
+<span class="line" data-l="14">    cout &lt;&lt; aTree.getRightChild()-&gt;getRootVal() &lt;&lt; endl;</span>
+<span class="line" data-l="15">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="16">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>a
+0
+b
+c
+hello</pre></div><p class="dx-note">第二行的 0 是空的左子指標：<code>NULL</code> 用 <code>cout</code> 印出來就是 0。<code>getRightChild()</code> 回傳整棵右子樹，所以能接著呼叫 <code>setRootVal</code> 修改它。</p>
+<details class="tree-detail"><summary>List of Lists：Python 的巢狀串列表示（補充）</summary><div class="tree-detail-body">  <p>巢狀串列版把「根的值」放在第 0 格、左子樹放第 1 格、右子樹放第 2 格；
+  每個子樹自己又是同樣格式的串列，<strong>結構本身就是遞迴的</strong>。
+  葉節點就是「值＋兩個空串列」。它還有個好處：要表示多元樹（超過兩個子樹），再多掛一個串列就好。</p>
+  <div class="info-card" style="max-width:600px;"><div class="ic-title">巢狀串列表示 <span class="ic-badge">CODE</span></div>
+    <div class="pseudo-code" style="font-size:.74rem;">
+<span class="line">my_tree = [<span class="num">"a"</span>,                        <span class="com"># [0] 根的值</span></span>
+<span class="line">    [<span class="num">"b"</span>, [<span class="num">"d"</span>,[],[]], [<span class="num">"e"</span>,[],[]]],  <span class="com"># [1] 左子樹</span></span>
+<span class="line">    [<span class="num">"c"</span>, [<span class="num">"f"</span>,[],[]], []        ]]   <span class="com"># [2] 右子樹</span></span>
+<span class="line"> </span>
+<span class="line">my_tree[<span class="num">0</span>]  <span class="com"># "a"：根</span></span>
+<span class="line">my_tree[<span class="num">1</span>]  <span class="com"># 整個左子樹（又是一個同構的串列）</span></span>
+<span class="line">my_tree[<span class="num">2</span>]  <span class="com"># 整個右子樹</span></span></div></div>
+  <p style="font-size:.88rem;color:var(--muted);">C++ 是靜態型別語言，寫不出這種「值和串列混住」的巢狀字面值，
+  所以我們直接採用 nodes and references 表示法（對 C++ 來說本來就更自然）。</p></div></details>
+<!-- /gen:trees-nodes-refs -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 03: Parse Tree -->
 <!-- ============================================================ -->
 <section id="parse-tree">
-  <div class="section-number">PART 03 · 解析樹</div>
+  <div class="section-number">PART 04 · 解析樹</div>
   <h2>解析樹：把數學表達式轉成可遞迴計算的結構 <span class="sec-badge">cppds §8.5</span></h2>
+<!-- gen:trees-parse-tree -->
+<h3>句子與運算式都能畫成樹</h3>
+<p><strong>解析樹</strong>（parse tree）可以表示句子或數學運算式這類有結構的東西。下圖是一個簡單句子的階層結構；把句子表示成樹之後，就能用子樹分別處理句子的各個部分。</p>
+<figure class="tree-figure" id="tree-figure-nlParse"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="句子 Lisa plays saxophone 的解析樹：Sentence 分成 Noun Phrase 與 Verb Phrase；Noun Phrase 經 Proper Noun 到 Lisa；Verb Phrase 分成 Verb（plays）與 Noun Phrase，後者經 Noun 到 saxophone。"><img src="assets/figures/ch9/nlParse.png" alt="句子 Lisa plays saxophone 的解析樹：Sentence 分成 Noun Phrase 與 Verb Phrase；Noun Phrase 經 Proper Noun 到 Lisa；Verb Phrase 分成 Verb（plays）與 Noun Phrase，後者經 Noun 到 saxophone。" width="380" height="309" style="--figure-width:380px" loading="lazy"></div><figcaption>自然語言的解析樹：句子 Sentence 拆成名詞片語與動詞片語，再一路拆到單字。每個子樹對應句子的一個成分，可以單獨處理。</figcaption></figure>
   <p>對於完全括號化（fully parenthesized）的表達式，例如 <code>((7 + 3) * (5 - 2))</code>，我們可以把它變成一棵樹：<strong>運算子放在內部節點、運算元放在葉子上</strong>。樹的階層自然就反映了運算優先序：評估時只要遞迴地<em>先算左子樹、再算右子樹、最後套用 root 的運算子</em>。</p>
+<figure class="tree-figure" id="tree-figure-meParse"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="運算式樹：根是乘號，左子樹是 + 連著 7 和 3，右子樹是 - 連著 5 和 2。"><img src="assets/figures/ch9/meParse.png" alt="運算式樹：根是乘號，左子樹是 + 連著 7 和 3，右子樹是 - 連著 5 和 2。" width="300" height="203" style="--figure-width:300px" loading="lazy"></div><figcaption>((7 + 3) * (5 - 2)) 的解析樹：運算子在內部節點，數字在葉節點。乘法在根，表示要先算出左右兩個子樹，才能做最後的乘法。</figcaption></figure>
+<p>乘法的優先順序比加法、減法高，但因為括號，乘法之前必須先算出括號裡的加法與減法。樹的階層正好表達了這個順序：要算根的乘法，得先算出左子樹（7 + 3 = 10）與右子樹（5 - 2 = 3）。算完的子樹可以整棵換成一個節點：</p>
+<figure class="tree-figure" id="tree-figure-meSimple"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="簡化後的樹：根是乘號，兩個子節點是 10 和 3。"><img src="assets/figures/ch9/meSimple.png" alt="簡化後的樹：根是乘號，兩個子節點是 10 和 3。" width="150" height="130" style="--figure-width:150px" loading="lazy"></div><figcaption>把算好的子樹換成一個節點：左子樹 7 + 3 換成 10，右子樹 5 - 2 換成 3，剩下 10 * 3。這就是遞迴求值的想法。</figcaption></figure>
+<p>接下來要處理三件事：</p>
+<ul class="tree-ul"><li>從完全括號化的運算式建立解析樹。</li><li>計算解析樹所代表的運算式的值。</li><li>從解析樹還原原本的運算式。</li></ul>
+<h3>建樹的四條規則</h3>
+<p>第一步是把運算式切成 token，存成 <code>vector&lt;string&gt;</code>。token 有四種：左括號、右括號、運算子、運算元。讀到左括號表示開始一個新的子運算式，所以要建立一個新節點；讀到右括號表示一個子運算式結束。運算元一定是葉節點，運算子一定有左右兩個子節點。由此得到四條規則：</p>
+<ol class="tree-ul">
+<li>目前 token 是 <code>(</code>：在目前節點新增一個左子節點，往下移到這個左子節點。</li>
+<li>目前 token 是 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code> 之一：把運算子存進目前節點，新增一個空的右子節點，往下移到右子節點。</li>
+<li>目前 token 是數字：把目前節點的值設為這個數字，回到父節點。</li>
+<li>目前 token 是 <code>)</code>：回到目前節點的父節點。</li>
+</ol>
+<p>以 $(3 + (4 * 5))$ 為例，切出的 token 是 <code>{"(", "3", "+", "(", "4", "*", "5", ")", ")"}</code>。從一個空的根開始，一次套用一條規則。下圖的灰色節點是目前節點：</p>
+<figure class="tree-figure tree-figrow" id="tree-figure-buildExp1"><div class="tree-figure-scroll tree-figrow-cells" tabindex="0" role="region" aria-label="建樹的前三步"><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp1.png" alt="一個灰色的空節點。" width="62" height="62" style="--figure-width:62px" loading="lazy"><span>開始：只有一個空的根，它就是目前節點（灰色）。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp2.png" alt="白色的根，左下方接一個灰色的空節點。" width="96" height="145" style="--figure-width:96px" loading="lazy"><span>讀到 (：新增左子節點，往下移到它。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp3.png" alt="灰色的根，左子節點是 3。" width="97" height="145" style="--figure-width:97px" loading="lazy"><span>讀到 3：把目前節點設為 3，回到父節點。</span></div></div><figcaption>前三個 token：(、3、+ 之前的狀態。讀 ( 往左下走，讀 3 填值後回到根。</figcaption></figure>
+<details class="tree-detail"><summary>逐步圖：讀入 +、(、4、*、5</summary><div class="tree-detail-body"><figure class="tree-figure tree-figrow" id="tree-figure-buildExp4"><div class="tree-figure-scroll tree-figrow-cells" tabindex="0" role="region" aria-label="建樹的後五步"><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp4.png" alt="根是 +，左子節點 3，右子節點是灰色的空節點。" width="130" height="145" style="--figure-width:130px" loading="lazy"><span>讀到 +：根設為 +，新增右子節點並往下移。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp5.png" alt="根 +，左 3；右子節點底下又接一個灰色的左子節點。" width="130" height="228" style="--figure-width:130px" loading="lazy"><span>讀到 (：在目前節點新增左子節點，往下移。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp6.png" alt="根 +，左 3；右子節點是灰色，它的左子節點是 4。" width="130" height="228" style="--figure-width:130px" loading="lazy"><span>讀到 4：設為 4，回到父節點。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp7.png" alt="根 +，左 3；右子節點是 *，它的左子節點 4，右子節點是灰色的空節點。" width="170" height="228" style="--figure-width:170px" loading="lazy"><span>讀到 *：設為 *，新增右子節點並往下移。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp8.png" alt="根 +，左 3；右子節點 * 是灰色，底下是 4 和 5。" width="169" height="228" style="--figure-width:169px" loading="lazy"><span>讀到 5：設為 5，回到 *。接著兩個 ) 再往上回到根，建樹完成。</span></div></div><figcaption>每讀一個 token 就套用一條規則。最後的兩個 ) 只是往上回到父節點：先回到 +，+ 已經沒有父節點，建樹完成。</figcaption></figure></div></details>
 
   <p>建構演算法用一個 <strong>stack 追蹤 parent</strong>：當我們往下走進一個 child（看到 <code>(</code> 或運算子）就把當前節點 push 進 stack；當需要回到 parent（看到 <code>)</code> 或讀完一個數字）就 pop。</p>
+<h3>buildParseTree</h3>
+<p>四條規則就是程式中 <code>if</code>／<code>else if</code> 的四個分支。往下走到子節點用 <code>getLeftChild()</code>、<code>getRightChild()</code>；回到父節點則靠 <code>pStack</code>：往下走之前先把目前節點 push，要回去時再 pop。</p>
+<div class="deck-extra">
+  <div class="dx-label">buildParseTree（binarytree.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">BinaryTree* <span class="fn">buildParseTree</span>(string fpExpr) {</span>
+<span class="line" data-l="2">    stack&lt;BinaryTree*&gt; pStack;</span>
+<span class="line" data-l="3">    BinaryTree* exprTree = <span class="kw">new</span> BinaryTree(<span class="str">"</span><span class="str">"</span>);</span>
+<span class="line" data-l="4">    pStack.push(exprTree);</span>
+<span class="line" data-l="5">    BinaryTree* currentTree = exprTree;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7">    stringstream ss(fpExpr);</span>
+<span class="line" data-l="8">    string i;</span>
+<span class="line" data-l="9">    <span class="kw">while</span> (ss &gt;&gt; i) {</span>
+<span class="line" data-l="10">        <span class="kw">if</span> (i == <span class="str">"</span><span class="str">(</span><span class="str">"</span>) {</span>
+<span class="line" data-l="11">            currentTree-&gt;insertLeft(<span class="str">"</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">            pStack.push(currentTree);</span>
+<span class="line" data-l="13">            currentTree = currentTree-&gt;getLeftChild();</span>
+<span class="line" data-l="14">        } <span class="kw">else</span> <span class="kw">if</span> (i == <span class="str">"</span><span class="str">+</span><span class="str">"</span> || i == <span class="str">"</span><span class="str">-</span><span class="str">"</span> || i == <span class="str">"</span><span class="str">*</span><span class="str">"</span> || i == <span class="str">"</span><span class="str">/</span><span class="str">"</span>) {</span>
+<span class="line" data-l="15">            currentTree-&gt;setRootVal(i);</span>
+<span class="line" data-l="16">            currentTree-&gt;insertRight(<span class="str">"</span><span class="str">"</span>);</span>
+<span class="line" data-l="17">            pStack.push(currentTree);</span>
+<span class="line" data-l="18">            currentTree = currentTree-&gt;getRightChild();</span>
+<span class="line" data-l="19">        } <span class="kw">else</span> <span class="kw">if</span> (i == <span class="str">"</span><span class="str">)</span><span class="str">"</span>) {</span>
+<span class="line" data-l="20">            currentTree = pStack.top();</span>
+<span class="line" data-l="21">            pStack.pop();</span>
+<span class="line" data-l="22">        } <span class="kw">else</span> {</span>
+<span class="line" data-l="23">            currentTree-&gt;setRootVal(i);   <span class="com">// a number</span></span>
+<span class="line" data-l="24">            currentTree = pStack.top();</span>
+<span class="line" data-l="25">            pStack.pop();</span>
+<span class="line" data-l="26">        }</span>
+<span class="line" data-l="27">    }</span>
+<span class="line" data-l="28">    <span class="kw">return</span> exprTree;</span>
+<span class="line" data-l="29">}</span></div>
+</div>
+<p>這個教學版本假設輸入格式正確，而且 token 之間以空白分隔。實際使用的解析器遇到既不是括號、也不是運算子或數字的 token 時，應該丟出 <code>invalid_argument</code>。</p>
+<details class="tree-detail"><summary>講義完整程式：建立解析樹並以中序印出</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 09 · buildParseTree</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="3 + 4 * 5 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // buildParseTree</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    inorder(pt);   <span class="com">// defined and explained in the next section</span></span>
+<span class="line" data-l="8">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="10">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3 + 4 * 5 </pre></div><p class="dx-note"><code>inorder</code> 依「左子樹、根、右子樹」的順序印出節點，下一節會說明。印出的運算式少了括號。</p>
 
   <div class="viz-layout">
     <div>
@@ -776,14 +966,49 @@ hello</pre></div>
     <span class="info-label">為什麼評估要用 postorder？</span>
     要計算一個運算子節點的值，必須先有<strong>左右兩個子樹的值</strong>。這正好符合 <strong>postorder（後序）</strong>的訪問順序：先左子樹、再右子樹、最後 root。實際上<code>evaluate</code> 函式就是 postorder 走訪 + 在 root 執行運算：解析樹的計算演算法就是走訪演算法的特例。
   </div>
+<h3>evaluate：遞迴求值</h3>
+<p>建好解析樹之後，可以利用樹的階層性質，<strong>遞迴地計算每一棵子樹</strong>來求出整個運算式的值。</p>
+<p>樹的遞迴演算法常用葉節點當作 base case。解析樹的葉節點一定是運算元，數字不需要再處理，直接回傳葉節點存的值即可。遞迴步驟是對左右兩個子節點呼叫 <code>evaluate</code>，每次呼叫都往葉節點靠近一層。最後把兩個遞迴呼叫的結果，用父節點存的運算子合起來。</p>
+<div class="deck-extra">
+  <div class="dx-label">evaluate（binarytree.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">double</span> <span class="fn">evaluate</span>(BinaryTree* parseTree) {</span>
+<span class="line" data-l="2">    BinaryTree* leftChild = parseTree-&gt;getLeftChild();</span>
+<span class="line" data-l="3">    BinaryTree* rightChild = parseTree-&gt;getRightChild();</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5">    <span class="kw">if</span> (leftChild != <span class="fn">NULL</span> &amp;&amp; rightChild != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="6">        string op = parseTree-&gt;getRootVal();</span>
+<span class="line" data-l="7">        <span class="kw">if</span> (op == <span class="str">"</span><span class="str">+</span><span class="str">"</span>) <span class="kw">return</span> evaluate(leftChild) + evaluate(rightChild);</span>
+<span class="line" data-l="8">        <span class="kw">if</span> (op == <span class="str">"</span><span class="str">-</span><span class="str">"</span>) <span class="kw">return</span> evaluate(leftChild) - evaluate(rightChild);</span>
+<span class="line" data-l="9">        <span class="kw">if</span> (op == <span class="str">"</span><span class="str">*</span><span class="str">"</span>) <span class="kw">return</span> evaluate(leftChild) * evaluate(rightChild);</span>
+<span class="line" data-l="10">        <span class="kw">return</span> evaluate(leftChild) / evaluate(rightChild);</span>
+<span class="line" data-l="11">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="12">        <span class="kw">return</span> stod(parseTree-&gt;getRootVal());   <span class="com">// a leaf: a number</span></span>
+<span class="line" data-l="13">    }</span>
+<span class="line" data-l="14">}</span></div>
+</div>
+<p>運算子存成 <code>string</code>，用 <code>if</code>／<code>else if</code> 決定要做哪一種運算；也可以改用字元和 <code>switch</code>。</p>
+<details class="tree-detail"><summary>講義完整程式：evaluate</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 09 · evaluate</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="23&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // evaluate</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    cout &lt;&lt; evaluate(pt) &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>23</pre></div><p class="dx-note">在根節點，<code>evaluate()</code> 看到 <code>+</code>：左子樹是葉節點，回傳 3；右子樹的 <code>*</code> 把葉節點 4 和 5 相乘得到 20。最後根回傳 3 + 20 = 23。</p>
+<!-- /gen:trees-parse-tree -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 04: Tree Traversals -->
 <!-- ============================================================ -->
 <section id="traversals">
-  <div class="section-number">PART 04 · 樹的走訪</div>
+  <div class="section-number">PART 05 · 樹的走訪</div>
   <h2>三種走訪：preorder、inorder、postorder <span class="sec-badge">cppds §8.6</span></h2>
+<!-- gen:trees-traversals -->
   <p>「走訪」（traversal）就是按某種順序拜訪樹中每個節點。對二元樹有<strong>三種對稱遞迴的走訪</strong>，差別只在「何時拜訪 root」：</p>
 
   <div class="info-box">
@@ -792,8 +1017,64 @@ hello</pre></div>
     <strong>Inorder（中序）：</strong>左子樹 → root → 右子樹<br>
     <strong>Postorder（後序）：</strong>左子樹 → 右子樹 → root
     <br><br>
-    寫成程式碼<strong>幾乎是逐字翻譯</strong>定義，這正是樹的遞迴定義帶來的優雅：
+    寫成程式碼<strong>幾乎是逐字翻譯</strong>定義，這正是樹的遞迴定義帶來的優雅。
   </div>
+<h3>前序走訪：從頭到尾讀一本書</h3>
+<p>先用一本書當例子。書是樹的根，每一章是根的子節點，每一節是章的子節點，小節又是節的子節點。</p>
+<figure class="tree-figure" id="tree-figure-booktree"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="書的樹：Book 底下是 Chapter 1 與 Chapter 2；Chapter 1 底下是 Section 1.1 與 Section 1.2，Section 1.2 底下是 Section 1.2.1 與 Section 1.2.2；Chapter 2 底下是 Section 2.1 與 Section 2.2，Section 2.2 底下是 Section 2.2.1 與 Section 2.2.2。"><img src="assets/figures/ch9/booktree.png" alt="書的樹：Book 底下是 Chapter 1 與 Chapter 2；Chapter 1 底下是 Section 1.1 與 Section 1.2，Section 1.2 底下是 Section 1.2.1 與 Section 1.2.2；Chapter 2 底下是 Section 2.1 與 Section 2.2，Section 2.2 底下是 Section 2.2.1 與 Section 2.2.2。" width="640" height="237" style="--figure-width:640px" loading="lazy"></div><figcaption>一本書的章節結構：書是根，章是書的子節點，節是章的子節點。由前往後讀這本書的順序，正好就是前序走訪：先讀標題（根），再讀左邊整章，最後讀右邊整章。</figcaption></figure>
+<p>想從頭到尾讀完這本書，前序走訪的順序就是閱讀順序：從根 Book 開始，遞迴走左子樹 Chapter 1，再遞迴走它的左子樹 Section 1.1。Section 1.1 沒有子節點，回到 Chapter 1，接著走右子樹 Section 1.2，依序讀 Section 1.2.1、Section 1.2.2。Chapter 1 讀完後回到 Book，再用同樣的方式讀 Chapter 2。</p>
+<p>寫成外部函式的前序走訪很簡潔：base case 只有 <code>tree == NULL</code>；否則先印出根，再遞迴走左子樹與右子樹。對前面的解析樹，它印出 <code>+ 3 * 4 5</code>，也就是運算式的前序（prefix）形式。</p>
+<div class="deck-extra">
+  <div class="dx-label">preorder（binarytree.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">preorder</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="3">        cout &lt;&lt; tree-&gt;getRootVal() &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="4">        preorder(tree-&gt;getLeftChild());</span>
+<span class="line" data-l="5">        preorder(tree-&gt;getRightChild());</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">}</span></div>
+</div>
+<details class="tree-detail"><summary>講義的書本樹：以 BinaryTree 建立並做前序走訪</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">書本樹的前序走訪</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="Book Chapter1 Section1.1 Section1.2 Section1.2.1 Section1.2.2 Chapter2 Section2.1 Section2.2 Section2.2.1 Section2.2.2 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // BinaryTree, preorder</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryTree book(<span class="str">"</span><span class="str">Book</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    book.insertLeft(<span class="str">"</span><span class="str">Chapter1</span><span class="str">"</span>);</span>
+<span class="line" data-l="8">    book.insertRight(<span class="str">"</span><span class="str">Chapter2</span><span class="str">"</span>);</span>
+<span class="line" data-l="9">    BinaryTree* ch1 = book.getLeftChild();</span>
+<span class="line" data-l="10">    ch1-&gt;insertLeft(<span class="str">"</span><span class="str">Section1.1</span><span class="str">"</span>);</span>
+<span class="line" data-l="11">    ch1-&gt;insertRight(<span class="str">"</span><span class="str">Section1.2</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">    ch1-&gt;getRightChild()-&gt;insertLeft(<span class="str">"</span><span class="str">Section1.2.1</span><span class="str">"</span>);</span>
+<span class="line" data-l="13">    ch1-&gt;getRightChild()-&gt;insertRight(<span class="str">"</span><span class="str">Section1.2.2</span><span class="str">"</span>);</span>
+<span class="line" data-l="14">    BinaryTree* ch2 = book.getRightChild();</span>
+<span class="line" data-l="15">    ch2-&gt;insertLeft(<span class="str">"</span><span class="str">Section2.1</span><span class="str">"</span>);</span>
+<span class="line" data-l="16">    ch2-&gt;insertRight(<span class="str">"</span><span class="str">Section2.2</span><span class="str">"</span>);</span>
+<span class="line" data-l="17">    ch2-&gt;getRightChild()-&gt;insertLeft(<span class="str">"</span><span class="str">Section2.2.1</span><span class="str">"</span>);</span>
+<span class="line" data-l="18">    ch2-&gt;getRightChild()-&gt;insertRight(<span class="str">"</span><span class="str">Section2.2.2</span><span class="str">"</span>);</span>
+<span class="line" data-l="19"> </span>
+<span class="line" data-l="20">    preorder(&amp;book);</span>
+<span class="line" data-l="21">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="22">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="23">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Book Chapter1 Section1.1 Section1.2 Section1.2.1 Section1.2.2 Chapter2 Section2.1 Section2.2 Section2.2.1 Section2.2.2 </pre></div><p class="dx-note">輸出就是閱讀順序。下方動畫選「講義：書的章節樹」，可以一步一步看這個順序與呼叫堆疊。</p>
+<h3>成員函式版與外部函式版</h3>
+<p><code>preorder</code> 也可以寫成 <code>BinaryTree</code> 的成員函式，作用在 <code>this</code> 上。這時候不能對 <code>NULL</code> 呼叫成員函式，所以遞迴之前要先檢查 <code>leftChild</code>、<code>rightChild</code> 是不是 <code>NULL</code>：</p>
+<div class="deck-extra">
+  <div class="dx-label">preorder 的成員函式版（課程標頭沒有收錄）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">preorder</span>() {   <span class="com">// a member function of BinaryTree</span></span>
+<span class="line" data-l="2">    cout &lt;&lt; key &lt;&lt; endl;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (leftChild != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="4">        leftChild-&gt;preorder();</span>
+<span class="line" data-l="5">    }</span>
+<span class="line" data-l="6">    <span class="kw">if</span> (rightChild != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="7">        rightChild-&gt;preorder();</span>
+<span class="line" data-l="8">    }</span>
+<span class="line" data-l="9">}</span></div>
+</div>
+<p>這個例子比較適合寫成外部函式。很少有人只想把樹走一遍，通常是要在走訪的同時完成別的工作；外部函式比較容易改寫成其他用途。下一個例子會看到，後序走訪的寫法和前面計算解析樹的 <code>evaluate</code> 幾乎一樣，所以其餘的走訪都寫成外部函式。</p>
 
   <div class="viz-layout">
     <div>
@@ -813,6 +1094,7 @@ hello</pre></div>
           <button class="preset-btn active" data-tree="parse">解析樹 (3+(4*5))</button>
           <button class="preset-btn" data-tree="bst">BST 範例</button>
           <button class="preset-btn" data-tree="balanced">cppds 走訪範例樹</button>
+          <button class="preset-btn" data-tree="book">講義：書的章節樹</button>
         </div>
         <div class="controls-bar">
           <button class="btn btn-play" id="travPlay">▶ 開始</button>
@@ -830,11 +1112,13 @@ hello</pre></div>
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
         <div class="pseudo-code" id="travCode"><span class="line">#include &quot;pythonds3/cppds/binarytree.hpp&quot;</span>
-<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">preorderPanel</span>(BinaryTree* tree) {</span>
-<span class="line" data-l="2">    <span class="kw">if</span> (tree != NULL) {</span>
-<span class="line" data-l="3">        cout &lt;&lt; tree-&gt;<span class="fn">getRootVal</span>() &lt;&lt; <span class="str">&quot; &quot;</span>;</span>
-<span class="line" data-l="4">        <span class="fn">preorderPanel</span>(tree-&gt;<span class="fn">getLeftChild</span>());</span>
-<span class="line" data-l="5">        <span class="fn">preorderPanel</span>(tree-&gt;<span class="fn">getRightChild</span>()); } }</span></div>
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">preorder</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree != <span class="num">NULL</span>) {</span>
+<span class="line" data-l="3">        cout &lt;&lt; tree-&gt;<span class="fn">getRootVal</span>() &lt;&lt; <span class="str">" "</span>;   <span class="com">// root</span></span>
+<span class="line" data-l="4">        <span class="fn">preorder</span>(tree-&gt;<span class="fn">getLeftChild</span>());</span>
+<span class="line" data-l="5">        <span class="fn">preorder</span>(tree-&gt;<span class="fn">getRightChild</span>());</span>
+<span class="line">    }</span>
+<span class="line">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">遞迴呼叫堆疊 <span class="ic-badge" style="background:var(--accent2)">STACK</span></div>
@@ -852,7 +1136,69 @@ hello</pre></div>
       </div>
     </div>
   </div>
-
+<h3>後序走訪與 postordereval</h3>
+<p>後序走訪和前序只差在印出根的位置：先遞迴走完左右子樹，最後才印根。對解析樹，它印出 <code>3 4 5 * +</code>，也就是後序（postfix）形式。</p>
+<div class="deck-extra">
+  <div class="dx-label">postorder（binarytree.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">postorder</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="3">        postorder(tree-&gt;getLeftChild());</span>
+<span class="line" data-l="4">        postorder(tree-&gt;getRightChild());</span>
+<span class="line" data-l="5">        cout &lt;&lt; tree-&gt;getRootVal() &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">}</span></div>
+</div>
+<p>後序走訪的常見用途就是計算解析樹。假設樹裡只存運算式，照著後序走訪的骨架重寫求值函式：</p>
+<div class="deck-extra">
+  <div class="dx-label">postordereval（binarytree.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">double</span> <span class="fn">postordereval</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree == <span class="fn">NULL</span>) <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (tree-&gt;getLeftChild() != <span class="fn">NULL</span> &amp;&amp; tree-&gt;getRightChild() != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="4">        <span class="kw">double</span> result1 = postordereval(tree-&gt;getLeftChild());</span>
+<span class="line" data-l="5">        <span class="kw">double</span> result2 = postordereval(tree-&gt;getRightChild());</span>
+<span class="line" data-l="6">        string op = tree-&gt;getRootVal();</span>
+<span class="line" data-l="7">        <span class="kw">if</span> (op == <span class="str">"</span><span class="str">+</span><span class="str">"</span>) <span class="kw">return</span> result1 + result2;</span>
+<span class="line" data-l="8">        <span class="kw">if</span> (op == <span class="str">"</span><span class="str">-</span><span class="str">"</span>) <span class="kw">return</span> result1 - result2;</span>
+<span class="line" data-l="9">        <span class="kw">if</span> (op == <span class="str">"</span><span class="str">*</span><span class="str">"</span>) <span class="kw">return</span> result1 * result2;</span>
+<span class="line" data-l="10">        <span class="kw">return</span> result1 / result2;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    <span class="kw">return</span> stod(tree-&gt;getRootVal());</span>
+<span class="line" data-l="13">}</span></div>
+</div>
+<p>和 <code>postorder</code> 相比，差別只在最後不是印出鍵，而是<strong>回傳</strong>值。兩個遞迴呼叫的回傳值存在 <code>result1</code>、<code>result2</code>，再用根的運算子合起來。</p>
+<h3>中序走訪</h3>
+<p>中序走訪先走左子樹，再拜訪根，最後走右子樹。對解析樹，它印出 <code>3 + 4 * 5</code>，是熟悉的中序（infix）形式，但少了括號。</p>
+<div class="deck-extra">
+  <div class="dx-label">inorder（binarytree.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">inorder</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="3">        inorder(tree-&gt;getLeftChild());</span>
+<span class="line" data-l="4">        cout &lt;&lt; tree-&gt;getRootVal() &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="5">        inorder(tree-&gt;getRightChild());</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">}</span></div>
+</div>
+<details class="tree-detail"><summary>講義的走訪函式：對解析樹做三種走訪與 postordereval</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">三種走訪與 postordereval</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="preorder:  + 3 * 4 5 &#10;inorder:   3 + 4 * 5 &#10;postorder: 3 4 5 * + &#10;postordereval: 23&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // preorder, inorder, postorder, postordereval</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    cout &lt;&lt; <span class="str">"</span><span class="str">preorder:  </span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    preorder(pt);</span>
+<span class="line" data-l="9">    cout &lt;&lt; endl &lt;&lt; <span class="str">"</span><span class="str">inorder:   </span><span class="str">"</span>;</span>
+<span class="line" data-l="10">    inorder(pt);</span>
+<span class="line" data-l="11">    cout &lt;&lt; endl &lt;&lt; <span class="str">"</span><span class="str">postorder: </span><span class="str">"</span>;</span>
+<span class="line" data-l="12">    postorder(pt);</span>
+<span class="line" data-l="13">    cout &lt;&lt; endl &lt;&lt; <span class="str">"</span><span class="str">postordereval: </span><span class="str">"</span> &lt;&lt; postordereval(pt) &lt;&lt; endl;</span>
+<span class="line" data-l="14">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="15">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>preorder:  + 3 * 4 5&#32;
+inorder:   3 + 4 * 5&#32;
+postorder: 3 4 5 * +&#32;
+postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得到 infix、後序得到 postfix；<code>postordereval</code> 依後序的順序計算，結果和 <code>evaluate</code> 一樣是 23。</p>
   <div class="info-box warm">
     <span class="info-label">小實驗：對解析樹 (3+(4*5)) 做三種走訪</span>
     <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.86rem;margin-top:.4rem;">
@@ -862,15 +1208,131 @@ hello</pre></div>
     </table></div>
     這也說明了為什麼<strong>後綴表達式（RPN）</strong>能用 stack 直接計算：postorder 的順序就是「邊計算邊累積」的最佳順序。
   </div>
+<h3>printExp：還原完整括號</h3>
+<p>對解析樹做一般的中序走訪，得到的運算式沒有括號。稍微修改中序走訪的骨架，就能還原完整括號的版本：在遞迴走左子樹之前印左括號，走完右子樹之後印右括號。</p>
+<div class="deck-extra">
+  <div class="dx-label">printExp（binarytree.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">string <span class="fn">printExp</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    string result = <span class="str">"</span><span class="str">"</span>;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (tree != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="4">        result = <span class="str">"</span><span class="str">(</span><span class="str">"</span> + printExp(tree-&gt;getLeftChild());</span>
+<span class="line" data-l="5">        result = result + tree-&gt;getRootVal();</span>
+<span class="line" data-l="6">        result = result + printExp(tree-&gt;getRightChild()) + <span class="str">"</span><span class="str">)</span><span class="str">"</span>;</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="9">}</span></div>
+</div>
+<details class="tree-detail"><summary>講義完整程式：printExp</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 09 · printExp</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="((3)+((4)*(5)))&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span><span class="com">   // printExp</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line" data-l="7">    cout &lt;&lt; printExp(pt) &lt;&lt; endl;</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="9">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>((3)+((4)*(5)))</pre></div><p class="dx-note">每一棵子樹都包了一層括號，連只有一個數字的葉節點也被包起來，例如 <code>(3)</code>。</p>
+<div class="sq-item tree-quiz" id="quiz-traversal">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>哪一種樹走訪方式，是等所有子樹都走完之後才造訪根節點？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="不對。前序走訪最先造訪根節點，然後才是子樹。">前序走訪（Preorder）</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。中序走訪的順序是左子樹、根、右子樹。">中序走訪（Inorder）</button>
+      <button class="sq-opt" data-c="1" data-fb="正確！後序走訪先走左子樹、再走右子樹，最後才造訪根節點。">後序走訪（Postorder）</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。層序走訪是由上往下一層一層造訪節點。">層序走訪（Level-order）</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+<h3 id="ex-printexp2">練習 1：葉節點不要加括號</h3>
+<p>修改 <code>printExp</code>，讓葉節點的數字不要被括號包住。目標是印出 <code>(3+(4*5))</code>，而不是 <code>((3)+((4)*(5)))</code>。下面的起始程式可以直接執行，目前輸出的還是多餘括號的版本。</p>
+<div class="deck-extra">
+  <div class="dx-label">練習 1 起始程式（printExp2）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="((3)+((4)*(5)))&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="com">// Modify printExp so leaf numbers are not wrapped in parentheses</span></span>
+<span class="line" data-l="6">string <span class="fn">printExp2</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="7">    string result = <span class="str">"</span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    <span class="kw">if</span> (tree != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="9">        result = <span class="str">"</span><span class="str">(</span><span class="str">"</span> + printExp2(tree-&gt;getLeftChild());</span>
+<span class="line" data-l="10">        result = result + tree-&gt;getRootVal();</span>
+<span class="line" data-l="11">        result = result + printExp2(tree-&gt;getRightChild()) + <span class="str">"</span><span class="str">)</span><span class="str">"</span>;</span>
+<span class="line" data-l="12">    }</span>
+<span class="line" data-l="13">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="17">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line" data-l="18">    cout &lt;&lt; printExp2(pt) &lt;&lt; endl;</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span></div>
+  <div class="expected-out"><span class="eo-tag">起始程式的輸出</span><pre>((3)+((4)*(5)))</pre></div>
+</div><details class="tree-detail"><summary>看解答</summary><div class="tree-detail-body"><p>葉節點的左右子樹都是 <code>NULL</code>。在加括號之前先檢查這件事，葉節點就直接回傳數字本身；其他節點照原本的方式在兩側加括號。</p><div class="deck-extra">
+  <div class="dx-label">練習 1 解答</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="(3+(4*5))&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binarytree.hpp"</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="com">// Leaf numbers are printed without parentheses</span></span>
+<span class="line" data-l="6">string <span class="fn">printExp2</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="7">    string result = <span class="str">"</span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    <span class="kw">if</span> (tree != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="9">        <span class="kw">if</span> (tree-&gt;getLeftChild() == <span class="fn">NULL</span> &amp;&amp; tree-&gt;getRightChild() == <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="10">            <span class="kw">return</span> tree-&gt;getRootVal();          <span class="com">// a leaf: just the number</span></span>
+<span class="line" data-l="11">        }</span>
+<span class="line" data-l="12">        result = <span class="str">"</span><span class="str">(</span><span class="str">"</span> + printExp2(tree-&gt;getLeftChild());</span>
+<span class="line" data-l="13">        result = result + tree-&gt;getRootVal();</span>
+<span class="line" data-l="14">        result = result + printExp2(tree-&gt;getRightChild()) + <span class="str">"</span><span class="str">)</span><span class="str">"</span>;</span>
+<span class="line" data-l="15">    }</span>
+<span class="line" data-l="16">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span>
+<span class="line" data-l="19"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="20">    BinaryTree* pt = buildParseTree(<span class="str">"</span><span class="str">( 3 + ( 4 * 5 ) )</span><span class="str">"</span>);</span>
+<span class="line" data-l="21">    cout &lt;&lt; printExp2(pt) &lt;&lt; endl;</span>
+<span class="line" data-l="22">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="23">}</span></div>
+  <div class="expected-out"><span class="eo-tag">解答的輸出</span><pre>(3+(4*5))</pre></div>
+</div></div></details>
+<!-- /gen:trees-traversals -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 05: Binary Heap -->
 <!-- ============================================================ -->
 <section id="heap">
-  <div class="section-number">PART 05 · 二元堆積</div>
+  <div class="section-number">PART 06 · 二元堆積</div>
   <h2>Binary Heap：用陣列實作的優先佇列 <span class="sec-badge">cppds §8.7–8.10</span></h2>
+<!-- gen:trees-heap -->
   <p>優先佇列每次取出優先級最高的元素。若用 <code>vector</code>，維持排序會讓取最小為 $O(1)$、插入因搬移而為 $O(n)$；不排序則插入 $O(1)$、尋找並刪除最小值 $O(n)$。<strong>Binary heap</strong> 讓 insert 與 delete-min 都是 $O(\log n)$。</p>
+<p>binary heap 畫出來像一棵完全二元樹，實際上存在一個 <code>vector</code> 裡；在最小堆積（min-heap）中，最小的鍵在索引 0。插入與刪除都是 $O(\log n)$，讀取最小值是 $O(1)$。</p>
+<h3 id="dx-hp">BinaryHeap 的操作</h3>
+<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinaryHeap()</code></td><td>建立空的最小堆積。</td></tr><tr><td><code>insert(k)</code></td><td>插入一個鍵，$O(\log n)$。</td></tr><tr><td><code>findMin()</code></td><td>回傳最小值但不移除，$O(1)$。</td></tr><tr><td><code>delMin()</code></td><td>移除並回傳最小值，$O(\log n)$。舊版的課程程式把同一個操作叫做 <code>delet()</code>。</td></tr><tr><td><code>isEmpty()</code>、<code>size()</code></td><td>回報堆積是否為空、有幾個元素。</td></tr><tr><td><code>buildHeap(values)</code></td><td>由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。</td></tr></tbody></table></div>
+<details class="tree-detail"><summary>講義完整程式：插入 5、7、3、11 再逐一取出</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 09 · BinaryHeap</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="3&#10;5&#10;7&#10;11&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binaryheap.hpp"</span><span class="com">   // the class of this section</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryHeap myHeap;</span>
+<span class="line" data-l="7">    myHeap.insert(<span class="num">5</span>);</span>
+<span class="line" data-l="8">    myHeap.insert(<span class="num">7</span>);</span>
+<span class="line" data-l="9">    myHeap.insert(<span class="num">3</span>);</span>
+<span class="line" data-l="10">    myHeap.insert(<span class="num">11</span>);</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12">    cout &lt;&lt; myHeap.delet() &lt;&lt; endl;</span>
+<span class="line" data-l="13">    cout &lt;&lt; myHeap.delet() &lt;&lt; endl;</span>
+<span class="line" data-l="14">    cout &lt;&lt; myHeap.delet() &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; myHeap.delet() &lt;&lt; endl;</span>
+<span class="line" data-l="16">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="17">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3
+5
+7
+11</pre></div><p class="dx-note">不管以什麼順序插入，每次取出的都是目前最小的值。</p>
 
   <div class="info-box">
     <span class="info-label">cppds §8.8：Priority Queue Example</span>
@@ -882,8 +1344,27 @@ hello</pre></div>
     <strong>結構性質（structure property）：</strong>是一棵 <strong>complete binary tree</strong>（除最底層外每層填滿，最底層由左到右填）。<br>
     <strong>順序性質（heap order property）：</strong>每個節點的 key $\le$ 其子節點 key（min-heap）；對稱地 max-heap 是 $\ge$。
     <br><br>
-    結構性質讓我們可以用<strong>單一陣列</strong>儲存整棵樹：節點 $p$ 的左子在 $2p+1$、右子在 $2p+2$、父節點在 $\lfloor (p-1)/2 \rfloor$。完全不需要指標！
+    結構性質讓我們可以用<strong>單一陣列</strong>儲存整棵樹：節點 $p$ 的左子在 $2p+1$、右子在 $2p+2$、父節點在 $\lfloor (p-1)/2 \rfloor$。完全不需要指標。
   </div>
+<h3>完全二元樹與 vector 表示法</h3>
+<p>為了保證對數時間，樹必須保持<strong>平衡</strong>：根的左右子樹節點數大致相同。堆積用<strong>完全二元樹</strong>（complete binary tree）來維持平衡：除了最底層之外每一層都填滿，最底層由左往右填。</p>
+<figure class="tree-figure" id="tree-figure-compTree"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="十個節點的二元樹：5 的子節點是 9 和 11，9 的子節點是 14 和 18，11 的子節點是 19 和 21，14 的子節點是 33 和 17，18 只有左子節點 27。"><img src="assets/figures/ch9/compTree.png" alt="十個節點的二元樹：5 的子節點是 9 和 11，9 的子節點是 14 和 18，11 的子節點是 19 和 21，14 的子節點是 33 和 17，18 只有左子節點 27。" width="460" height="236" style="--figure-width:460px" loading="lazy"></div><figcaption>完全二元樹：除了最底層之外每一層都填滿，最底層由左往右填。這裡最底層只有 33、17、27，而且都靠左。</figcaption></figure>
+<p>完全二元樹可以存在一個 <code>vector</code> 裡，不需要節點指標。索引從 0 開始時，索引 $p$ 的左子在 $2p+1$、右子在 $2p+2$；非根節點 $i$ 的父節點，在 C++ 中用整數除法 <code>(i - 1) / 2</code> 算出。</p>
+<figure class="tree-figure" id="tree-figure-heapOrder"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="同一棵樹，下方是一列陣列 5, 9, 11, 14, 18, 19, 21, 33, 17, 27，索引 0 到 9。"><img src="assets/figures/ch9/heapOrder.png" alt="同一棵樹，下方是一列陣列 5, 9, 11, 14, 18, 19, 21, 33, 17, 27，索引 0 到 9。" width="460" height="325" style="--figure-width:460px" loading="lazy"></div><figcaption>同一棵完全二元樹存進 vector：由上往下、由左往右依序編號。索引 p 的左子在 2p + 1、右子在 2p + 2，例如 9（索引 1）的子節點是 14（索引 3）與 18（索引 4）。每個父節點都不大於它的子節點，這就是堆積順序性質。</figcaption></figure>
+<p>堆積存放資料的方式依靠<strong>堆積順序性質</strong>（heap order property）：每個節點 $x$ 與它的父節點 $p$，$p$ 的鍵小於或等於 $x$ 的鍵。上圖的樹也滿足這個性質。因為樹的形狀完全由索引決定，類別只需要一個資料成員：</p>
+<div class="deck-extra">
+  <div class="dx-label">BinaryHeap 的資料成員</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> BinaryHeap {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        vector&lt;<span class="kw">int</span>&gt; heap;   <span class="com">// the complete tree, stored flat</span></span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5">        BinaryHeap() {}</span>
+<span class="line" data-l="6">        <span class="kw">bool</span> isEmpty() {</span>
+<span class="line" data-l="7">            <span class="kw">return</span> heap.empty();</span>
+<span class="line" data-l="8">        }</span>
+<span class="line" data-l="9">};</span></div>
+</div>
+<p>下面的動畫一開始就是圖中的 heap。用「講義」那一列按鈕可以直接載入插入 7、delMin 與 buildHeap 三個例子。</p>
 
   <div class="viz-layout">
     <div>
@@ -900,12 +1381,17 @@ hello</pre></div>
           <button class="preset-btn" data-op="delete">Delete-min</button>
           <button class="preset-btn" data-op="heapify">Heapify (建堆積)</button>
         </div>
+        <div class="preset-row">
+          <button class="preset-btn" data-heapdemo="insert" data-arr="5, 9, 11, 14, 18, 19, 21, 33, 17, 27" data-key="7" data-msg="講義圖的 heap，插入 7：按「開始」或「單步」看 percUp">講義：插入 7</button>
+          <button class="preset-btn" data-heapdemo="delete" data-arr="5, 9, 11, 14, 18, 19, 21, 33, 17, 27" data-msg="講義圖的 heap：按「開始」或「單步」看 delMin 與 percDown">講義：delMin</button>
+          <button class="preset-btn" data-heapdemo="heapify" data-arr="9, 6, 5, 2, 3" data-msg="講義的 [9, 6, 5, 2, 3]：按「開始」或「單步」看 buildHeap">講義：buildHeap [9, 6, 5, 2, 3]</button>
+        </div>
         <div class="input-row" id="heapInsertRow">
           <label>插入 key：</label>
-          <input type="number" id="heapInsertKey" value="2" style="width:80px;">
+          <input type="number" id="heapInsertKey" value="7" style="width:80px;">
           <button class="btn btn-shuffle" id="heapInsertBtn">插入</button>
           <span style="font-size:.78rem;color:var(--muted);">當前 heap：</span>
-          <input type="text" id="heapArrInput" value="3, 5, 9, 7, 11, 15, 14" style="flex:1;min-width:140px;">
+          <input type="text" id="heapArrInput" value="5, 9, 11, 14, 18, 19, 21, 33, 17, 27" style="flex:1;min-width:140px;">
           <button class="btn btn-reset" id="heapApplyArr">套用</button>
         </div>
         <div class="controls-bar">
@@ -932,13 +1418,18 @@ hello</pre></div>
       </div>
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <div class="pseudo-code" id="heapCode" style="font-size:.74rem;"><span class="line">#include &lt;algorithm&gt;</span><span class="line">#include &lt;vector&gt;</span><span class="line"><span class="kw">using</span> namespace std;</span>
-<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">percUp</span>(vector&lt;<span class="kw">int</span>&gt;&amp; heap, <span class="kw">int</span> i) {</span>
+        <div class="pseudo-code" id="heapCode" style="font-size:.74rem;"><span class="line"><span class="com">// BinaryHeap 的成員函式（binaryheap.hpp）</span></span>
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">percUp</span>(<span class="kw">int</span> i) {</span>
 <span class="line" data-l="2">    <span class="kw">while</span> (i &gt; <span class="num">0</span>) {</span>
-<span class="line" data-l="3">        <span class="kw">int</span> parent = (i - <span class="num">1</span>) / <span class="num">2</span>;</span>
-<span class="line" data-l="4">        <span class="kw">if</span> (heap[i] &lt; heap[parent])</span>
-<span class="line" data-l="5">            <span class="fn">swap</span>(heap[i], heap[parent]); <span class="kw">else</span> <span class="kw">break</span>;</span>
-<span class="line" data-l="6">        i = parent; } }</span></div>
+<span class="line" data-l="3">        <span class="kw">int</span> parentIdx = (i - <span class="num">1</span>) / <span class="num">2</span>;</span>
+<span class="line" data-l="4">        <span class="kw">if</span> (heap[i] &lt; heap[parentIdx]) {</span>
+<span class="line" data-l="5">            <span class="fn">swap</span>(heap[i], heap[parentIdx]);</span>
+<span class="line">        } <span class="kw">else</span> {</span>
+<span class="line">            <span class="kw">break</span>;</span>
+<span class="line">        }</span>
+<span class="line" data-l="6">        i = parentIdx;</span>
+<span class="line">    }</span>
+<span class="line">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">複雜度</div>
@@ -949,15 +1440,160 @@ hello</pre></div>
       </div>
     </div>
   </div>
-
+<h3>insert 與 percUp</h3>
+<p>插入時先把新元素接在 <code>vector</code> 的尾端，這樣仍然是完全二元樹，結構性質不變。但新元素可能比父節點小，破壞順序性質。這時拿它和父節點比較，比父節點小就交換，一路往上浮（percolate up），直到不再比父節點小，或已經到達根。</p>
+<figure class="tree-figure" id="tree-figure-percUp1"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="前面的 heap 在 18 的右子位置多了一個白色節點 7，旁邊標示 new item。"><img src="assets/figures/ch9/percUp1.png" alt="前面的 heap 在 18 的右子位置多了一個白色節點 7，旁邊標示 new item。" width="480" height="238" style="--figure-width:480px" loading="lazy"></div><figcaption>插入 7：先放在 vector 的最後一格，也就是 18 的右子。結構性質還在，但 7 比父節點 18 小，順序性質被破壞。</figcaption></figure>
+<details class="tree-detail"><summary>逐步圖：percUp 的兩次交換</summary><div class="tree-detail-body"><figure class="tree-figure" id="tree-figure-percUp2"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="7 與 18 交換位置，虛線箭頭標示 swap 1。"><img src="assets/figures/ch9/percUp2.png" alt="7 與 18 交換位置，虛線箭頭標示 swap 1。" width="480" height="229" style="--figure-width:480px" loading="lazy"></div><figcaption>第一次交換：7 小於 18，兩者交換，7 上浮一層。</figcaption></figure><figure class="tree-figure" id="tree-figure-percUp3"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="7 與 9 交換，7 成為 5 的左子節點，標示 swap 2。"><img src="assets/figures/ch9/percUp3.png" alt="7 與 9 交換，7 成為 5 的左子節點，標示 swap 2。" width="480" height="234" style="--figure-width:480px" loading="lazy"></div><figcaption>第二次交換：7 小於父節點 9，再上浮一層。接著和 5 比較，7 不小於 5，停止。</figcaption></figure></div></details>
+<p>往上浮的時候，新元素和父節點之間的順序性質恢復了，兄弟節點那一側的順序性質也維持不變。新元素很小的話，可能要一路換到根。</p>
+<div class="deck-extra">
+  <div class="dx-label">percUp 與 insert</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">percUp</span>(<span class="kw">int</span> i) {</span>
+<span class="line" data-l="2">    <span class="kw">while</span> (i &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="3">        <span class="kw">int</span> parentIdx = (i - <span class="num">1</span>) / <span class="num">2</span>;</span>
+<span class="line" data-l="4">        <span class="kw">if</span> (heap[i] &lt; heap[parentIdx]) {</span>
+<span class="line" data-l="5">            swap(heap[i], heap[parentIdx]);</span>
+<span class="line" data-l="6">        } <span class="kw">else</span> {</span>
+<span class="line" data-l="7">            <span class="kw">break</span>;</span>
+<span class="line" data-l="8">        }</span>
+<span class="line" data-l="9">        i = parentIdx;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> item) {</span>
+<span class="line" data-l="14">    heap.push_back(item);</span>
+<span class="line" data-l="15">    percUp(heap.size() - <span class="num">1</span>);</span>
+<span class="line" data-l="16">}</span></div>
+</div>
+<h3>delMin 與 percDown</h3>
+<p>最小值就在 <code>heap[0]</code>，所以 <code>findMin()</code> 只要讀它。<code>delMin()</code> 的難處在於移除根之後，要同時恢復結構性質與順序性質，分兩步做：先把根和 <code>vector</code> 最後一個元素交換並移除最後一格，結構維持完整；再對新的根呼叫 <code>percDown(0)</code>，讓它和<strong>較小的子節點</strong>交換，一路往下沉，直到比兩個子節點都小。</p>
+<figure class="tree-figure" id="tree-figure-percDown1"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="根 5 被移出，旁邊標示 remove min；虛線箭頭把最後一個節點 27 搬到空出來的根。"><img src="assets/figures/ch9/percDown1.png" alt="根 5 被移出，旁邊標示 remove min；虛線箭頭把最後一個節點 27 搬到空出來的根。" width="460" height="270" style="--figure-width:460px" loading="lazy"></div><figcaption>delMin 的第一步：取出根 5，再把最後一個元素 27 搬到根。這樣樹還是完全二元樹，但 27 太大，順序性質被破壞。</figcaption></figure>
+<details class="tree-detail"><summary>逐步圖：percDown 的三次交換</summary><div class="tree-detail-body"><figure class="tree-figure" id="tree-figure-percDown2"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="根變成 9，27 下移到 9 原本的位置，標示 swap 1。"><img src="assets/figures/ch9/percDown2.png" alt="根變成 9，27 下移到 9 原本的位置，標示 swap 1。" width="460" height="238" style="--figure-width:460px" loading="lazy"></div><figcaption>第一次下沉：27 的子節點是 9 和 11，和較小的 9 交換。</figcaption></figure><figure class="tree-figure" id="tree-figure-percDown3"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="27 再和 14 交換，標示 swap 2。"><img src="assets/figures/ch9/percDown3.png" alt="27 再和 14 交換，標示 swap 2。" width="460" height="233" style="--figure-width:460px" loading="lazy"></div><figcaption>第二次下沉：27 的子節點是 14 和 18，和較小的 14 交換。</figcaption></figure><figure class="tree-figure" id="tree-figure-percDown4"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="27 和 17 交換，成為 17 的右子葉節點，標示 swap 3。"><img src="assets/figures/ch9/percDown4.png" alt="27 和 17 交換，成為 17 的右子葉節點，標示 swap 3。" width="460" height="235" style="--figure-width:460px" loading="lazy"></div><figcaption>第三次下沉：子節點 33 和 17 中較小的是 17，交換後 27 成為葉節點，停止。</figcaption></figure></div></details>
+<div class="deck-extra">
+  <div class="dx-label">percDown、getMinChild 與 delMin</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">percDown</span>(<span class="kw">int</span> i) {</span>
+<span class="line" data-l="2">    <span class="kw">while</span> (<span class="num">2</span> * i + <span class="num">1</span> &lt; (<span class="kw">int</span>)heap.size()) {</span>
+<span class="line" data-l="3">        <span class="kw">int</span> smChild = getMinChild(i);</span>
+<span class="line" data-l="4">        <span class="kw">if</span> (heap[i] &gt; heap[smChild]) {</span>
+<span class="line" data-l="5">            swap(heap[i], heap[smChild]);</span>
+<span class="line" data-l="6">        } <span class="kw">else</span> {</span>
+<span class="line" data-l="7">            <span class="kw">break</span>;</span>
+<span class="line" data-l="8">        }</span>
+<span class="line" data-l="9">        i = smChild;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">int</span> <span class="fn">getMinChild</span>(<span class="kw">int</span> i) {</span>
+<span class="line" data-l="14">    <span class="kw">if</span> (<span class="num">2</span> * i + <span class="num">2</span> &gt; (<span class="kw">int</span>)heap.size() - <span class="num">1</span>) {</span>
+<span class="line" data-l="15">        <span class="kw">return</span> <span class="num">2</span> * i + <span class="num">1</span>;</span>
+<span class="line" data-l="16">    }</span>
+<span class="line" data-l="17">    <span class="kw">if</span> (heap[<span class="num">2</span> * i + <span class="num">1</span>] &lt; heap[<span class="num">2</span> * i + <span class="num">2</span>]) {</span>
+<span class="line" data-l="18">        <span class="kw">return</span> <span class="num">2</span> * i + <span class="num">1</span>;</span>
+<span class="line" data-l="19">    }</span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">2</span> * i + <span class="num">2</span>;</span>
+<span class="line" data-l="21">}</span>
+<span class="line" data-l="22"> </span>
+<span class="line" data-l="23"><span class="kw">int</span> <span class="fn">delet</span>() {   <span class="com">// legacy name; delete is a C++ keyword</span></span>
+<span class="line" data-l="24">    <span class="kw">if</span> (heap.empty()) <span class="kw">throw</span> underflow_error(<span class="str">"</span><span class="str">empty heap</span><span class="str">"</span>);</span>
+<span class="line" data-l="25">    swap(heap[<span class="num">0</span>], heap.back());</span>
+<span class="line" data-l="26">    <span class="kw">int</span> result = heap.back();</span>
+<span class="line" data-l="27">    heap.pop_back();</span>
+<span class="line" data-l="28">    <span class="kw">if</span> (!heap.empty()) percDown(<span class="num">0</span>);</span>
+<span class="line" data-l="29">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="30">}</span>
+<span class="line" data-l="31"> </span>
+<span class="line" data-l="32"><span class="kw">int</span> <span class="fn">delMin</span>() { <span class="kw">return</span> delet(); }</span></div>
+</div>
+<details class="tree-detail"><summary>對照圖：在圖中的 heap 插入 7，以及執行 delMin</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">圖中的 heap：insert 與 delMin</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="5 7 11 14 9 19 21 33 17 27 18 &#10;5&#10;9 14 11 17 18 19 21 33 27 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binaryheap.hpp"</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryHeap h;</span>
+<span class="line" data-l="7">    h.heap = {<span class="num">5</span>, <span class="num">9</span>, <span class="num">11</span>, <span class="num">14</span>, <span class="num">18</span>, <span class="num">19</span>, <span class="num">21</span>, <span class="num">33</span>, <span class="num">17</span>, <span class="num">27</span>};   <span class="com">// the heap in the figures</span></span>
+<span class="line" data-l="8">    h.insert(<span class="num">7</span>);                  <span class="com">// percUp: 7 rises past 18 and 9</span></span>
+<span class="line" data-l="9">    h.pri<span></span>nt();</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11">    BinaryHeap d;</span>
+<span class="line" data-l="12">    d.heap = {<span class="num">5</span>, <span class="num">9</span>, <span class="num">11</span>, <span class="num">14</span>, <span class="num">18</span>, <span class="num">19</span>, <span class="num">21</span>, <span class="num">33</span>, <span class="num">17</span>, <span class="num">27</span>};</span>
+<span class="line" data-l="13">    cout &lt;&lt; d.delMin() &lt;&lt; endl;   <span class="com">// percDown: 27 sinks past 9, 14 and 17</span></span>
+<span class="line" data-l="14">    d.pri<span></span>nt();</span>
+<span class="line" data-l="15">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="16">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5 7 11 14 9 19 21 33 17 27 18&#32;
+5
+9 14 11 17 18 19 21 33 27 </pre></div><p class="dx-note">第一行是插入 7 之後的 vector：7 換到索引 1，9 和 18 各往下一層。第二、三行是另一份同樣的 heap 執行 delMin：回傳 5，27 從根沉到索引 8。</p>
   <div class="info-box green">
     <span class="info-label">為什麼 heapify 是 O(n) 而不是 O(n log n)？</span>
     Naïve 想法是對 $n$ 個元素逐一 <code>insert</code>，每個 $O(\log n)$，總共 $O(n \log n)$。但 <code>heapify</code> 從<strong>陣列中間 $\lfloor n/2 \rfloor - 1$ 倒著做 perc_down</strong>：底層大量節點高度只有 0 或 1，往下移的成本很小。嚴謹分析會用 $\sum_{h=0}^{\log n} \frac{n}{2^{h+1}} \cdot h = O(n)$。直觀上：<strong>樹底層節點多但移動少，頂層節點少但移動多，兩者相乘的總和是 $O(n)$</strong>。
   </div>
+<h3>buildHeap：由下往上建堆</h3>
+<p>一種建堆的方法是逐一插入 $n$ 個鍵。每次 <code>insert()</code> 接在尾端，最壞要往上浮過整個樹高，所以每次 $O(\log n)$，逐一插入共 $O(n\log n)$。插入並不需要把元素塞進排序好的 vector 中間；順序性質只規範父節點和子節點。</p>
+<p>由下往上的 <code>buildHeap()</code>（舊名 <code>heapify()</code>）比較快：從最後一個非葉節點開始，往根的方向逐一呼叫 <code>percDown()</code>，總成本是 $O(n)$。索引大於等於 <code>heap.size() / 2</code> 的都是葉節點，不需要處理。</p>
+<div class="deck-extra">
+  <div class="dx-label">heapify（buildHeap）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">heapify</span>(vector&lt;<span class="kw">int</span>&gt; notAHeap) {</span>
+<span class="line" data-l="2">    heap = notAHeap;               <span class="com">// copy the vector</span></span>
+<span class="line" data-l="3">    <span class="kw">int</span> i = heap.size() / <span class="num">2</span> - <span class="num">1</span>;   <span class="com">// last non-leaf node</span></span>
+<span class="line" data-l="4">    <span class="kw">while</span> (i &gt;= <span class="num">0</span>) {</span>
+<span class="line" data-l="5">        percDown(i);</span>
+<span class="line" data-l="6">        i = i - <span class="num">1</span>;</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">}</span></div>
+</div>
+<figure class="tree-figure" id="tree-figure-buildheap"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="四棵樹由箭頭連接：Initial Heap 是 9, 6, 5, 2, 3；i = 1 時 6 和 2 交換；i = 0 時 9 和 2 交換；最後 9 和 3 交換，得到根 2、子節點 3 和 5、葉節點 6 和 9。"><img src="assets/figures/ch9/buildheap.png" alt="四棵樹由箭頭連接：Initial Heap 是 9, 6, 5, 2, 3；i = 1 時 6 和 2 交換；i = 0 時 9 和 2 交換；最後 9 和 3 交換，得到根 2、子節點 3 和 5、葉節點 6 和 9。" width="560" height="199" style="--figure-width:560px" loading="lazy"></div><figcaption>對 [9, 6, 5, 2, 3] 做 buildHeap。從最後一個非葉節點 i = 1 開始：6 和較小的子節點 2 交換。接著 i = 0：9 和 2 交換後，9 還比子節點 3 大，再交換一次。結果是 [2, 3, 5, 6, 9]。</figcaption></figure>
+<p>當 <code>i = 0</code> 時，從根往下沉可能要跨好幾層。<code>percDown()</code> 每次交換後都會再檢查較小的子節點，所以 9 會一直往下移，直到最底層。</p>
+<details class="tree-detail"><summary>講義例子：buildHeap({9, 6, 5, 2, 3})</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">buildHeap 小例子</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="2 3 5 6 9 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binaryheap.hpp"</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryHeap aHeap;</span>
+<span class="line" data-l="7">    aHeap.buildHeap({<span class="num">9</span>, <span class="num">6</span>, <span class="num">5</span>, <span class="num">2</span>, <span class="num">3</span>});</span>
+<span class="line" data-l="8">    aHeap.pri<span></span>nt();</span>
+<span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="10">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2 3 5 6 9 </pre></div><p class="dx-note">輸出和圖的最後一棵樹一致。在上面的動畫按「講義：buildHeap [9, 6, 5, 2, 3]」可以逐步看 <code>i = 1</code>、<code>i = 0</code> 兩輪。</p>
+<details class="tree-detail"><summary>講義完整程式：heapify 十個數</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 09 · heapify</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="3 4 9 5 12 15 10 8 14 18 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binaryheap.hpp"</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinaryHeap aHeap;</span>
+<span class="line" data-l="7">    aHeap.heapify({<span class="num">10</span>, <span class="num">4</span>, <span class="num">9</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">15</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">14</span>, <span class="num">18</span>});</span>
+<span class="line" data-l="8">    aHeap.pri<span></span>nt();</span>
+<span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="10">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3 4 9 5 12 15 10 8 14 18 </pre></div><p class="dx-note">每個父節點都不大於子節點，例如索引 1 的 4 小於索引 3、4 的 5 和 12；但整個 vector 並沒有排序。</p>
+<p>$O(n)$ 的上界可以依節點高度計算工作量：大約一半的節點是葉節點，不必移動；約 $n/4$ 個節點最多下沉一層，$n/8$ 個最多兩層，依此類推。總和 $\sum_{h\ge0}(n/2^{h+1})h=O(n)$，不是 $O(n\log n)$。</p>
+<div class="sq-item tree-quiz" id="quiz-heap1">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>用二元堆積（Binary Heap）實作優先佇列，最主要的理由是什麼？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="不對。堆積的好處是根（最小值或最大值）O(1) 就拿得到。">它能在 O(n) 時間找到最大或最小元素。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確！完全二元樹不必是完美平衡，也不會把 vector 完整排序。">完全二元樹使高度為 O(log n)，所以 insert 與 delete-min 都是 O(log n)。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。堆積只維持「部分順序」（堆積順序性質），不是完全排序。">它把元素在底層串列中完全排序好。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。插入需要比較才能執行 percolate up（往上浮）的過程。">它讓插入完全不需要比較操作。</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+<div class="sq-item tree-quiz" id="quiz-heap2">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>從 n 個 keys 建立 heap 時，逐一 insert 與 bottom-up buildHeap 的複雜度如何？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="不對。逐一 insert 時，每個 key 最壞可能往上移 O(log n) 層。">兩者永遠都是 O(n)。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確！bottom-up 的大多數節點靠近 leaves，percDown 總工作量是線性的。">逐一 insert 是 O(n log n)，bottom-up buildHeap 是 O(n)。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。Heap insert 是 append 再 percolate，不是在排序 vector 中搬移全部元素。">逐一 insert 是 O(n²)，buildHeap 是 O(log n)。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。Heap 只維持 parent-child 的部分順序。">buildHeap 必須先完整排序 vector。</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
 
-  <h3>完整的 BinaryHeap 類別（cppds §8.9–8.10）</h3>
-  <p>動畫側欄只放了 percUp 的骨架；講義的完整類別把六個方法全部攤開。
-  整個類別只有一個成員 <code>vector&lt;int&gt; heap</code>：樹形是用索引「算」出來的
+<h3>完整的 BinaryHeap 類別</h3>
+<details class="tree-detail"><summary>展開：percUp、percDown、delet、heapify 等成員函式並列</summary><div class="tree-detail-body">  <p>把前面的函式放在一起看。整個類別只有一個成員 <code>vector&lt;int&gt; heap</code>：樹形是用索引「算」出來的
   （左子 2i+1、右子 2i+2、父 (i-1)/2），從頭到尾不需要指標。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.8rem;">
     <div class="info-card"><div class="ic-title">percUp ＋ insert：新元素往上浮 <span class="ic-badge">CODE</span></div>
@@ -1012,17 +1648,16 @@ hello</pre></div>
 <span class="line">    }</span>
 <span class="line">}</span></div></div>
   </div>
-  <p style="font-size:.85rem;color:var(--muted);margin-top:.5rem;">講義的 demo 依序 insert
-  {10, 4, 9, 8, 12, 15, 3, 5, 14, 18}：不管插入順序怎麼亂，<code>heap[0]</code> 永遠是目前最小值，
-  <code>delet()</code> 也總是取出最小者。<code>findMin()</code> 讀取最小值，<code>delMin()</code> 移除最小值，<code>size()</code> 回傳元素數，<code>buildHeap()</code> 從一批資料建堆。<code>delet()</code> 與 <code>heapify()</code> 分別是 <code>delMin()</code> 與 <code>buildHeap()</code> 的別名。</p>
+  <p style="font-size:.85rem;color:var(--muted);margin-top:.5rem;">不管資料以什麼順序進來，<code>heap[0]</code> 永遠是目前最小值，
+  <code>delet()</code> 也總是取出最小者。<code>findMin()</code> 讀取最小值，<code>delMin()</code> 移除最小值，<code>size()</code> 回傳元素數，<code>buildHeap()</code> 從一批資料建堆。<code>delet()</code> 與 <code>heapify()</code> 分別是 <code>delMin()</code> 與 <code>buildHeap()</code> 的別名。</p></div></details>
 
   <h3>應用：Heap Sort（堆排序）</h3>
   <p>有了 <code>heapify</code>（$O(n)$）和 $n$ 次 <code>delete-min</code>（每次 $O(\log n)$），教學版可把結果寫到另一個 vector，總時間 $O(n \log n)$、額外空間 $O(n)$。真正的 in-place heapsort 則直接在原陣列管理 heap 範圍。</p>
-
+<h3 id="ex-heapsort">練習 2：heapSort</h3>
+<p>用 <code>buildHeap()</code>（或舊名 <code>heapify()</code>）與 <code>delMin()</code>（或舊名 <code>delet()</code>）寫一個函式，在 $O(n\log n)$ 時間內排序一個 vector。目標輸出是 <code>1 2 3 5 7 8 9 10 15</code>。可用的成員函式有 <code>insert</code>、<code>findMin</code>、<code>delMin</code>、<code>size</code>、<code>buildHeap</code>、<code>isEmpty</code>，以及舊名 <code>delet</code>、<code>heapify</code>；對空堆積呼叫 <code>findMin</code> 或 <code>delMin</code> 會丟出 <code>underflow_error</code>。</p>
 <div class="deck-extra">
-  <div class="dx-label">講義 09 · buildHeap 的使用畫面＋heapSort 練習</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+  <div class="dx-label">練習 2 填空（heapSort）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="exercise"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binaryheap.hpp"</span></span>
 <span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
@@ -1030,35 +1665,53 @@ hello</pre></div>
 <span class="line" data-l="6">vector&lt;<span class="kw">int</span>&gt; heapSort(vector&lt;<span class="kw">int</span>&gt; unsortedList) {</span>
 <span class="line" data-l="7">    BinaryHeap heap;</span>
 <span class="line" data-l="8">    vector&lt;<span class="kw">int</span>&gt; sortedList;</span>
-<span class="line" data-l="9">    ____;                  <span class="com">// 1. heap.buildHeap(unsortedList)，O(n)</span></span>
-<span class="line" data-l="10">    <span class="kw">while</span> (____) {         <span class="com">// 2. !heap.isEmpty()</span></span>
+<span class="line" data-l="9">    ____;                  <span class="com">// 1. build the heap in O(n)</span></span>
+<span class="line" data-l="10">    <span class="kw">while</span> (____) {         <span class="com">// 2. repeatedly delete the minimum, O(log n) each</span></span>
 <span class="line" data-l="11">        ____;</span>
 <span class="line" data-l="12">    }</span>
 <span class="line" data-l="13">    <span class="kw">return</span> sortedList;</span>
 <span class="line" data-l="14">}</span>
-<span class="line" data-l="15"> </span>
-<span class="line" data-l="16"><span class="kw">int</span> main() {</span>
-<span class="line" data-l="17">    BinaryHeap aHeap;</span>
-<span class="line" data-l="18">    aHeap.buildHeap({<span class="num">10</span>, <span class="num">4</span>, <span class="num">9</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">15</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">14</span>, <span class="num">18</span>});</span>
-<span class="line" data-l="19">    aHeap.pri<span></span>nt();</span>
-<span class="line" data-l="20"> </span>
-<span class="line" data-l="21">    <span class="kw">for</span> (<span class="kw">int</span> x : heapSort({<span class="num">10</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">1</span>, <span class="num">15</span>, <span class="num">7</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">8</span>})) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
-<span class="line" data-l="22">    cout &lt;&lt; endl;</span>
-<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="24">}</span></div>
-  <div class="expected-out"><span class="eo-tag">buildHeap 與 heapSort 的輸出</span><pre>3 4 9 5 12 15 10 8 14 18
-1 2 3 5 7 8 9 10 15</pre></div>
-  <p class="dx-note"><span id="dx-hp"></span>第一行是 buildHeap 建立的最小堆積，每個父節點都小於或等於其子節點；第二行是 heapSort 排好的結果。buildHeap 為 O(n)，逐一 insert 建堆的最差成本為 O(n log n)；delMin 每次 O(log n)。</p>
-</div>
+<span class="line" data-l="15"><span class="kw">int</span> main() {</span>
+<span class="line" data-l="16">    <span class="kw">for</span> (<span class="kw">int</span> x : heapSort({<span class="num">10</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">1</span>, <span class="num">15</span>, <span class="num">7</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">8</span>})) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="18">}</span></div>
+</div><details class="tree-detail"><summary>看解答</summary><div class="tree-detail-body"><p><code>buildHeap</code> 花 $O(n)$，接著 $n$ 次 <code>delMin</code> 各 $O(\log n)$，每次取出的都是剩下的最小值，依序放進 <code>sortedList</code> 就排好了。</p><div class="deck-extra">
+  <div class="dx-label">練習 2 解答</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="1 2 3 5 7 8 9 10 15 "><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/binaryheap.hpp"</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6">vector&lt;<span class="kw">int</span>&gt; heapSort(vector&lt;<span class="kw">int</span>&gt; unsortedList) {</span>
+<span class="line" data-l="7">    BinaryHeap heap;</span>
+<span class="line" data-l="8">    vector&lt;<span class="kw">int</span>&gt; sortedList;</span>
+<span class="line" data-l="9">    heap.buildHeap(unsortedList);              <span class="com">// 1. build the heap in O(n)</span></span>
+<span class="line" data-l="10">    <span class="kw">while</span> (!heap.isEmpty()) {                  <span class="com">// 2. repeatedly delete the minimum</span></span>
+<span class="line" data-l="11">        sortedList.push_back(heap.delMin());   <span class="com">//    O(log n) each</span></span>
+<span class="line" data-l="12">    }</span>
+<span class="line" data-l="13">    <span class="kw">return</span> sortedList;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"><span class="kw">int</span> main() {</span>
+<span class="line" data-l="16">    <span class="kw">for</span> (<span class="kw">int</span> x : heapSort({<span class="num">10</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">1</span>, <span class="num">15</span>, <span class="num">7</span>, <span class="num">9</span>, <span class="num">2</span>, <span class="num">8</span>})) cout &lt;&lt; x &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="18">}</span></div>
+  <div class="expected-out"><span class="eo-tag">解答的輸出</span><pre>1 2 3 5 7 8 9 10 15 </pre></div>
+</div></div></details>
+<p>想看更多堆積操作的例子，可以參考 <a href="https://visualgo.net/en/heap" target="_blank" rel="noopener">VisuAlgo 的 heap 動畫</a>。</p>
+<!-- /gen:trees-heap -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 06: Binary Search Tree -->
 <!-- ============================================================ -->
 <section id="bst">
-  <div class="section-number">PART 06 · 二元搜尋樹</div>
+  <div class="section-number">PART 07 · 二元搜尋樹</div>
   <h2>Binary Search Tree：實作 Map ADT 的第三種方法 <span class="sec-badge">cppds §8.11–8.13</span></h2>
-  <p>Map ADT 把 key 對應到 value（就像 `C++` 的 <code>unordered_map</code>）。我們已經學過兩種實作：<strong>排序陣列 + binary search</strong>（搜尋 $O(\log n)$ 但插入 $O(n)$）和<strong>雜湊表</strong>（平均 $O(1)$ 但有衝突風險、無排序）。BST 提供第三條路：</p>
+<!-- gen:trees-bst -->
+  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>unordered_map</code>）。我們已經學過兩種實作：<strong>排序陣列 + binary search</strong>（搜尋 $O(\log n)$ 但插入 $O(n)$）和<strong>雜湊表</strong>（平均 $O(1)$ 但有衝突風險、無排序）。BST 提供第三條路。</p>
+<p>二元搜尋樹是存放鍵值對的第三種方式。這裡要利用二元樹的結構讓搜尋有效率，元素放在樹中的哪個確切位置並不重要。</p>
+<h3>Map ADT 的操作</h3>
+<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinarySearchTree()</code></td><td>建立空的 map。</td></tr><tr><td><code>put(key, value)</code></td><td>插入一組鍵值對；鍵已經存在時，改成新的值。</td></tr><tr><td><code>get(key)</code></td><td>回傳鍵對應的值；這個簡化的字串版本在鍵不存在時回傳 <code>""</code>。</td></tr><tr><td><code>remove(key)</code></td><td>刪除一組鍵值對；鍵不存在時丟出 <code>invalid_argument</code>。</td></tr><tr><td><code>length()</code></td><td>回傳不同鍵的個數。</td></tr><tr><td><code>contains(key)</code></td><td>回傳 <code>bool</code>，表示鍵在不在樹中。</td></tr></tbody></table></div>
 
   <div class="info-box">
     <span class="info-label">Map 與 ownership 契約</span>
@@ -1073,6 +1726,90 @@ hello</pre></div>
     1. 從 root 出發比較 key，每一步會<strong>排除整個不可能的子樹，但不保證剛好一半</strong>；成本是 $O(h)$，平衡時才是 $O(\log n)$。<br>
     2. 對 BST 做 <strong>inorder traversal 直接得到排序的 key 序列</strong>。
   </div>
+<h3>BST 性質與建樹順序</h3>
+<p>BST 依靠一個性質：比父節點小的鍵都在左子樹，比父節點大的鍵都在右子樹，稱為 <strong>BST 性質</strong>。下圖只畫鍵，不畫值。</p>
+<figure class="tree-figure" id="tree-figure-simpleBST"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="二元搜尋樹：根 70，左子 31，右子 93；31 的左子是 14，14 的右子是 23；93 的左子 73，右子 94。每個節點畫成三格方框，左右格是指標。"><img src="assets/figures/ch9/simpleBST.png" alt="二元搜尋樹：根 70，左子 31，右子 93；31 的左子是 14，14 的右子是 23；93 的左子 73，右子 94。每個節點畫成三格方框，左右格是指標。" width="300" height="249" style="--figure-width:300px" loading="lazy"></div><figcaption>依序插入 70, 31, 93, 94, 14, 23, 73 得到的 BST。任一節點左子樹的鍵都比它小，右子樹的鍵都比它大，例如 31 的左邊是 14 和 23。</figcaption></figure>
+<p>這棵樹是依序插入 $70, 31, 93, 94, 14, 23, 73$ 的結果。70 最先插入，所以是根。31 比 70 小，成為 70 的左子；93 比 70 大，成為右子。94 比 70 和 93 都大，成為 93 的右子；14 比 70 和 31 都小，成為 31 的左子。23 也比 31 小，但比 14 大，所以成為 14 的右子。</p>
+<h3>TreeNode 與 BinarySearchTree</h3>
+<p>BST 同樣用節點與參考實作。因為必須能建立並操作一棵空的樹，實作分成兩個類別：<code>BinarySearchTree</code> 保存指向根節點的指標，<code>TreeNode</code> 是樹中的節點。外層的公開函式大多先檢查樹是不是空的，再把工作交給以根為參數的輔助函式；樹是空的或要刪除根的時候，需要特別處理。</p>
+<div class="deck-extra">
+  <div class="dx-label">BinarySearchTree 的外殼</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> BinarySearchTree {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        TreeNode* root = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="4">        <span class="kw">int</span> size = <span class="num">0</span>;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6">        BinarySearchTree() = <span class="kw">default</span>;</span>
+<span class="line" data-l="7">        ~BinarySearchTree();              <span class="com">// releases every node</span></span>
+<span class="line" data-l="8">        BinarySearchTree(<span class="kw">const</span> BinarySearchTree&amp; other);  <span class="com">// deep copy</span></span>
+<span class="line" data-l="9">        <span class="kw">int</span> <span class="fn">length</span>() <span class="kw">const</span> { <span class="kw">return</span> size; }</span>
+<span class="line" data-l="10">};</span></div>
+  <p class="dx-note">完整的標頭還提供複製與移動指定，確保兩棵樹不會共用同一批節點。</p>
+</div>
+<p><code>TreeNode</code> 提供許多輔助函式，判斷自己是左子還是右子、有沒有子節點，讓 <code>BinarySearchTree</code> 的函式好寫很多。</p>
+<div class="deck-extra">
+  <div class="dx-label">TreeNode</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> TreeNode {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        string key;</span>
+<span class="line" data-l="4">        string value;</span>
+<span class="line" data-l="5">        TreeNode* leftChild;</span>
+<span class="line" data-l="6">        TreeNode* rightChild;</span>
+<span class="line" data-l="7">        TreeNode* parent;</span>
+<span class="line" data-l="8"> </span>
+<span class="line" data-l="9">        TreeNode(string k, string v, TreeNode* p = <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="10">            key = k;</span>
+<span class="line" data-l="11">            value = v;</span>
+<span class="line" data-l="12">            leftChild = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="13">            rightChild = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="14">            parent = p;</span>
+<span class="line" data-l="15">        }</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17">        <span class="kw">bool</span> isLeftChild() {</span>
+<span class="line" data-l="18">            <span class="kw">return</span> parent != <span class="fn">NULL</span> &amp;&amp; parent-&gt;leftChild == <span class="kw">this</span>;</span>
+<span class="line" data-l="19">        }</span>
+<span class="line" data-l="20">        <span class="kw">bool</span> isRightChild() {</span>
+<span class="line" data-l="21">            <span class="kw">return</span> parent != <span class="fn">NULL</span> &amp;&amp; parent-&gt;rightChild == <span class="kw">this</span>;</span>
+<span class="line" data-l="22">        }</span>
+<span class="line" data-l="23">        <span class="kw">bool</span> isRoot() {</span>
+<span class="line" data-l="24">            <span class="kw">return</span> parent == <span class="fn">NULL</span>;</span>
+<span class="line" data-l="25">        }</span>
+<span class="line" data-l="26">        <span class="kw">bool</span> isLeaf() {</span>
+<span class="line" data-l="27">            <span class="kw">return</span> leftChild == <span class="fn">NULL</span> &amp;&amp; rightChild == <span class="fn">NULL</span>;</span>
+<span class="line" data-l="28">        }</span>
+<span class="line" data-l="29">        <span class="kw">bool</span> hasAnyChild() {</span>
+<span class="line" data-l="30">            <span class="kw">return</span> leftChild != <span class="fn">NULL</span> || rightChild != <span class="fn">NULL</span>;</span>
+<span class="line" data-l="31">        }</span>
+<span class="line" data-l="32">};</span></div>
+</div>
+<p>每個 <code>TreeNode</code> 都存了 parent 指標，在 <code>remove()</code> 重新接上子節點、或拆出中序後繼者時特別有用。建構子的 parent 參數有預設值，所以可以建立根（<code>parent == NULL</code>），也可以建立連到父節點的子節點。</p>
+<h3>put 與 insertOrAssign</h3>
+<p><code>put()</code> 把每一次插入（包括建立根）都交給受保護的虛擬函式 <code>insertOrAssign()</code>。平衡樹的子類別可以覆寫這個函式，而不會繞過公開的 <code>put()</code> 與它對 <code>size</code> 的計算。插入的步驟是：</p>
+<ul class="tree-ul"><li>從根開始比較新鍵與目前節點的鍵：比較小就往左子樹找，比較大就往右子樹找。</li><li>找到沒有左（右）子節點可以再往下的位置，就是新節點應該放的地方。</li><li>建立一個新的 <code>TreeNode</code>，接在上一步找到的位置。</li></ul>
+<div class="deck-extra">
+  <div class="dx-label">insertOrAssign 與 put</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">protected</span>:</span>
+<span class="line" data-l="2"><span class="kw">virtual</span> <span class="kw">bool</span> insertOrAssign(string key, string value,</span>
+<span class="line" data-l="3">                            TreeNode*&amp; slot, TreeNode* parent) {</span>
+<span class="line" data-l="4">    <span class="kw">if</span> (slot == <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="5">        slot = <span class="kw">new</span> TreeNode(key, value, parent);</span>
+<span class="line" data-l="6">        <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">    <span class="kw">if</span> (key == slot-&gt;key) {</span>
+<span class="line" data-l="9">        slot-&gt;value = value;          <span class="com">// duplicate: update, do not grow size</span></span>
+<span class="line" data-l="10">        <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">    TreeNode*&amp; child = (key &lt; slot-&gt;key) ? slot-&gt;leftChild : slot-&gt;rightChild;</span>
+<span class="line" data-l="13">    <span class="kw">return</span> insertOrAssign(key, value, child, slot);</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">public</span>:</span>
+<span class="line" data-l="17"><span class="kw">void</span> put(string key, string value) {</span>
+<span class="line" data-l="18">    <span class="kw">if</span> (insertOrAssign(key, value, root, <span class="fn">NULL</span>)) size++;</span>
+<span class="line" data-l="19">}</span></div>
+</div>
+<p>鍵重複時採用 <strong>insert-or-assign</strong>：只替換既有的值，不建立新節點，<code>size</code> 也不變，符合 Map ADT 的語意。課程標頭用明確的 <code>put(key, value)</code>，例如 <code>myTree.put("a", "apple")</code>，再用 <code>myTree.get("a")</code> 取值；沒有提供 <code>operator[]</code>。</p>
+<figure class="tree-figure" id="tree-figure-bstput"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="BST：根 17，左子樹 5（2、16），右子樹 35（29、38），29 的右子是 33；17、35、29 塗成淺灰色，新節點 19 是黑色，用虛線接在 29 的左邊。"><img src="assets/figures/ch9/bstput.png" alt="BST：根 17，左子樹 5（2、16），右子樹 35（29、38），29 的右子是 33；17、35、29 塗成淺灰色，新節點 19 是黑色，用虛線接在 29 的左邊。" width="440" height="164" style="--figure-width:440px" loading="lazy"></div><figcaption>插入 19：19 比 17 大往右，比 35 小往左，比 29 小往左，29 的左邊是空的，就放在那裡。淺灰色是途中比較過的節點，比較次數等於走過的層數。</figcaption></figure>
 
   <div class="viz-layout">
     <div>
@@ -1147,53 +1884,47 @@ hello</pre></div>
     <span class="info-label">build BST 的順序很重要</span>
     把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵漂亮的「平衡」BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。這就是下一節要解決的問題。
   </div>
-
+<h3>get 與 contains</h3>
+<p><code>get()</code> 比 <code>put()</code> 更簡單：遞迴往下找，找到相同的鍵就回傳節點的值，走到空指標就表示不存在。私有輔助函式 <code>_get()</code> 回傳的是 <code>TreeNode*</code>，所以 <code>get()</code>、<code>contains()</code> 與 <code>remove()</code> 都能重用同一段搜尋。</p>
 <div class="deck-extra">
-  <div class="dx-label">講義 09 · BinarySearchTree 當 Map 用＋treeSort 練習</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
-<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/bst.hpp"</span><span class="com">   // TreeNode + BinarySearchTree</span></span>
-<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="5"> </span>
-<span class="line" data-l="6">vector&lt;string&gt; treeSort(vector&lt;string&gt; values) {</span>
-<span class="line" data-l="7">    BinarySearchTree bst;</span>
-<span class="line" data-l="8">    vector&lt;string&gt; result;</span>
-<span class="line" data-l="9">    ____;   <span class="com">// 1. 全部 put 進去（平均每次 O(log n)）</span></span>
-<span class="line" data-l="10">    ____;   <span class="com">// 2. 中序走訪，鍵自動由小到大（O(n)）</span></span>
-<span class="line" data-l="11">    <span class="kw">return</span> result;</span>
-<span class="line" data-l="12">}</span>
-<span class="line" data-l="13"> </span>
-<span class="line" data-l="14"><span class="kw">int</span> main() {</span>
-<span class="line" data-l="15">    BinarySearchTree myTree;</span>
-<span class="line" data-l="16">    myTree.put(<span class="str">"</span><span class="str">a</span><span class="str">"</span>, <span class="str">"</span><span class="str">a</span><span class="str">"</span>);      myTree.put(<span class="str">"</span><span class="str">q</span><span class="str">"</span>, <span class="str">"</span><span class="str">quick</span><span class="str">"</span>);</span>
-<span class="line" data-l="17">    myTree.put(<span class="str">"</span><span class="str">b</span><span class="str">"</span>, <span class="str">"</span><span class="str">brown</span><span class="str">"</span>);  myTree.put(<span class="str">"</span><span class="str">f</span><span class="str">"</span>, <span class="str">"</span><span class="str">fox</span><span class="str">"</span>);</span>
-<span class="line" data-l="18">    myTree.put(<span class="str">"</span><span class="str">j</span><span class="str">"</span>, <span class="str">"</span><span class="str">jumps</span><span class="str">"</span>);  myTree.put(<span class="str">"</span><span class="str">o</span><span class="str">"</span>, <span class="str">"</span><span class="str">over</span><span class="str">"</span>);</span>
-<span class="line" data-l="19">    myTree.put(<span class="str">"</span><span class="str">t</span><span class="str">"</span>, <span class="str">"</span><span class="str">the</span><span class="str">"</span>);    myTree.put(<span class="str">"</span><span class="str">l</span><span class="str">"</span>, <span class="str">"</span><span class="str">lazy</span><span class="str">"</span>);</span>
-<span class="line" data-l="20">    myTree.put(<span class="str">"</span><span class="str">d</span><span class="str">"</span>, <span class="str">"</span><span class="str">dog</span><span class="str">"</span>);</span>
-<span class="line" data-l="21"> </span>
-<span class="line" data-l="22">    cout &lt;&lt; myTree.get(<span class="str">"</span><span class="str">q</span><span class="str">"</span>) &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; myTree.get(<span class="str">"</span><span class="str">l</span><span class="str">"</span>) &lt;&lt; endl;</span>
-<span class="line" data-l="23">    cout &lt;&lt; <span class="str">"</span><span class="str">There are </span><span class="str">"</span> &lt;&lt; myTree.length() &lt;&lt; <span class="str">"</span><span class="str"> items in this tree</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="24">    myTree.remove(<span class="str">"</span><span class="str">a</span><span class="str">"</span>);</span>
-<span class="line" data-l="25">    cout &lt;&lt; <span class="str">"</span><span class="str">There are </span><span class="str">"</span> &lt;&lt; myTree.length() &lt;&lt; <span class="str">"</span><span class="str"> items in this tree</span><span class="str">"</span> &lt;&lt; endl;</span>
-<span class="line" data-l="26">    myTree.inorder(myTree.root);   <span class="com">// 依鍵序印出 value</span></span>
-<span class="line" data-l="27">    cout &lt;&lt; endl;</span>
-<span class="line" data-l="28">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="29">}</span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>quick lazy
-There are 9 items in this tree
-There are 8 items in this tree
-brown dog fox jumps lazy over quick the </pre></div>
-  <p class="dx-note"><span id="dx-bst"></span>中序走訪 BST 會依鍵排序。put 遇到重複 key 時更新 value、size 不變；protected virtual insertOrAssign hook 讓 AVL 延伸插入而不繞過 size 契約。remove 釋放節點，整棵樹使用 deep-copy/move ownership。</p>
+  <div class="dx-label">get、_get 與 contains</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">string <span class="fn">get</span>(string key) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (root != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="3">        TreeNode* result = _get(key, root);</span>
+<span class="line" data-l="4">        <span class="kw">if</span> (result != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="5">            <span class="kw">return</span> result-&gt;value;</span>
+<span class="line" data-l="6">        }</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">    <span class="kw">return</span> <span class="str">"</span><span class="str">"</span>;</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"> </span>
+<span class="line" data-l="11">TreeNode* <span class="fn">_get</span>(string key, TreeNode* currentNode) {</span>
+<span class="line" data-l="12">    <span class="kw">if</span> (currentNode == <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="13">        <span class="kw">return</span> <span class="fn">NULL</span>;</span>
+<span class="line" data-l="14">    }</span>
+<span class="line" data-l="15">    <span class="kw">if</span> (currentNode-&gt;key == key) {</span>
+<span class="line" data-l="16">        <span class="kw">return</span> currentNode;</span>
+<span class="line" data-l="17">    } <span class="kw">else</span> <span class="kw">if</span> (key &lt; currentNode-&gt;key) {</span>
+<span class="line" data-l="18">        <span class="kw">return</span> _get(key, currentNode-&gt;leftChild);</span>
+<span class="line" data-l="19">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="20">        <span class="kw">return</span> _get(key, currentNode-&gt;rightChild);</span>
+<span class="line" data-l="21">    }</span>
+<span class="line" data-l="22">}</span>
+<span class="line" data-l="23"> </span>
+<span class="line" data-l="24"><span class="kw">bool</span> <span class="fn">contains</span>(string key) {</span>
+<span class="line" data-l="25">    <span class="kw">return</span> _get(key, root) != <span class="fn">NULL</span>;</span>
+<span class="line" data-l="26">}</span></div>
 </div>
+<!-- /gen:trees-bst -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 07: BST Delete -->
 <!-- ============================================================ -->
 <section id="bst-delete">
-  <div class="section-number">PART 07 · BST 刪除三情境</div>
+  <div class="section-number">PART 08 · BST 刪除三情境</div>
   <h2>BST 刪除：三種情境，與 in-order successor <span class="sec-badge">cppds §8.13</span></h2>
+<!-- gen:trees-bst-delete -->
   <p>BST 的 <code>put</code> 與 <code>get</code> 直觀，但<strong>刪除是最麻煩的操作</strong>，因為刪掉一個內部節點後，必須維持 BST 性質。我們把情境分成三類：</p>
 
   <div class="info-box red">
@@ -1202,6 +1933,81 @@ brown dog fox jumps lazy over quick the </pre></div>
     <strong>Case 2：要刪的節點只有<em>一個</em>子節點。</strong>把這個 child「提升」上來取代被刪節點。<br>
     <strong>Case 3：要刪的節點有<em>兩個</em>子節點。</strong>找它的 <strong>in-order successor（中序後繼）</strong>（也就是右子樹中 key 最小的節點），把它的 key 拷貝到當前節點，然後從原位置「splice out」 successor。
   </div>
+<h3>remove 的骨架</h3>
+<p>刪除的第一步是用 <code>_get()</code> 找到要刪的節點；找不到就丟出例外。樹只有一個節點時，要刪的就是根，但仍然要確認根的鍵和要刪的鍵相同，<code>_get()</code> 已經做了這個檢查。刪除根的情況在 <code>_delete()</code> 裡處理：刪掉最後一個節點時，把 <code>root</code> 設為 <code>NULL</code> 並釋放節點。</p>
+<div class="deck-extra">
+  <div class="dx-label">remove</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">remove</span>(string key) {</span>
+<span class="line" data-l="2">    TreeNode* nodeToRemove = _get(key, root);</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (nodeToRemove == <span class="fn">NULL</span>)</span>
+<span class="line" data-l="4">        <span class="kw">throw</span> invalid_argument(<span class="str">"</span><span class="str">Error, key not in tree</span><span class="str">"</span>);</span>
+<span class="line" data-l="5">    _delete(nodeToRemove);              <span class="com">// reconnects links and deletes storage</span></span>
+<span class="line" data-l="6">    size--;</span>
+<span class="line" data-l="7">}</span></div>
+</div>
+<h3>情況一：沒有子節點</h3>
+<figure class="tree-figure" id="tree-figure-bstdel1"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="左邊的 BST 中 16 是白色葉節點；箭頭右邊是刪掉 16 之後的樹，11 只剩左子 9。"><img src="assets/figures/ch9/bstdel1.png" alt="左邊的 BST 中 16 是白色葉節點；箭頭右邊是刪掉 16 之後的樹，11 只剩左子 9。" width="560" height="256" style="--figure-width:560px" loading="lazy"></div><figcaption>情況一：刪除葉節點 16。直接把父節點 11 的右指標設為 NULL，再釋放節點。</figcaption></figure>
+<p>目前節點沒有子節點時，只要刪掉它，並把父節點指向它的指標設為 <code>NULL</code>。</p>
+<div class="deck-extra">
+  <div class="dx-label">情況一：刪除葉節點</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">if</span> (currentNode-&gt;isLeaf()) {   <span class="com">// removing a leaf</span></span>
+<span class="line" data-l="2">    <span class="kw">if</span> (currentNode == currentNode-&gt;parent-&gt;leftChild) {</span>
+<span class="line" data-l="3">        currentNode-&gt;parent-&gt;leftChild = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="4">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="5">        currentNode-&gt;parent-&gt;rightChild = <span class="fn">NULL</span>;</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">    <span class="kw">delete</span> currentNode;</span>
+<span class="line" data-l="8">}</span></div>
+</div>
+<h3>情況二：只有一個子節點</h3>
+<figure class="tree-figure" id="tree-figure-bstdel2"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="左邊的 BST 中 25 是白色，它只有右子 35（底下 29、38）；右邊的樹中 35 直接接在 17 的右邊。"><img src="assets/figures/ch9/bstdel2.png" alt="左邊的 BST 中 25 是白色，它只有右子 35（底下 29、38）；右邊的樹中 35 直接接在 17 的右邊。" width="560" height="241" style="--figure-width:560px" loading="lazy"></div><figcaption>情況二：刪除只有一個子節點的 25。把它唯一的子節點 35 提上來接到 17，並更新 35 的 parent。</figcaption></figure>
+<p>只有一個子節點時，直接把這個子節點提上來取代父節點。左右兩種情況對稱，這裡只看目前節點有左子節點的情形：</p>
+<ul class="tree-ul"><li>目前節點是左子：把左子節點的 parent 改成目前節點的父節點，再把父節點的 <code>leftChild</code> 指向這個左子節點。</li><li>目前節點是右子：把父節點的 <code>rightChild</code> 直接接到唯一的子節點，並更新子節點的 parent。</li><li>目前節點是根：把 <code>root</code> 設為它唯一的子節點（或 <code>NULL</code>），並清掉新根的 parent 指標。每一種情況最後都要刪掉被移除的節點。</li></ul>
+<div class="deck-extra">
+  <div class="dx-label">情況二：刪除只有一個子節點的節點</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">else</span> {   <span class="com">// removing a node with one child</span></span>
+<span class="line" data-l="2">    <span class="kw">if</span> (currentNode-&gt;leftChild != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="3">        <span class="kw">if</span> (currentNode-&gt;isLeftChild()) {</span>
+<span class="line" data-l="4">            currentNode-&gt;leftChild-&gt;parent = currentNode-&gt;parent;</span>
+<span class="line" data-l="5">            currentNode-&gt;parent-&gt;leftChild = currentNode-&gt;leftChild;</span>
+<span class="line" data-l="6">        } <span class="kw">else</span> <span class="kw">if</span> (currentNode-&gt;isRightChild()) {</span>
+<span class="line" data-l="7">            currentNode-&gt;leftChild-&gt;parent = currentNode-&gt;parent;</span>
+<span class="line" data-l="8">            currentNode-&gt;parent-&gt;rightChild = currentNode-&gt;leftChild;</span>
+<span class="line" data-l="9">        }</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">    <span class="com">// (mirror image for a right child)</span></span>
+<span class="line" data-l="12">    <span class="kw">delete</span> currentNode;</span>
+<span class="line" data-l="13">}</span></div>
+</div>
+<h3>情況三：有兩個子節點</h3>
+<figure class="tree-figure" id="tree-figure-bstdel3"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="左邊的 BST 中 5 是白色，它有左子 2 和右子 11；虛線箭頭從 5 指向右子樹中最左的 7，標示 successor；右邊的樹中 5 的位置變成 7，8 接在 9 的左邊。"><img src="assets/figures/ch9/bstdel3.png" alt="左邊的 BST 中 5 是白色，它有左子 2 和右子 11；虛線箭頭從 5 指向右子樹中最左的 7，標示 successor；右邊的樹中 5 的位置變成 7，8 接在 9 的左邊。" width="560" height="316" style="--figure-width:560px" loading="lazy"></div><figcaption>情況三：刪除有兩個子節點的 5。後繼者是右子樹中最小的 7。先把 7 從原位置拆出（它的右子 8 接到 9），再把 7 的鍵和值複製到 5 的位置。</figcaption></figure>
+<p>有兩個子節點時，不能直接把其中一個提上來。要在樹中找一個節點來取代被刪的節點，而且左右兩棵子樹的 BST 性質都要維持；這個節點就是鍵次大的那一個，稱為<strong>後繼者</strong>（successor）。後繼者最多只有一個子節點，所以用 <code>spliceOut()</code> 把它拆出、接好它的子節點，再把它的鍵和值複製到目標節點，最後刪掉後繼者節點。</p>
+<div class="deck-extra">
+  <div class="dx-label">情況三：刪除有兩個子節點的節點</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">else</span> <span class="kw">if</span> (currentNode-&gt;hasBothChildren()) {   <span class="com">// removing a node with two children</span></span>
+<span class="line" data-l="2">    TreeNode* successor = currentNode-&gt;findSuccessor();</span>
+<span class="line" data-l="3">    successor-&gt;spliceOut();</span>
+<span class="line" data-l="4">    currentNode-&gt;key = successor-&gt;key;</span>
+<span class="line" data-l="5">    currentNode-&gt;value = successor-&gt;value;</span>
+<span class="line" data-l="6">    <span class="kw">delete</span> successor;</span>
+<span class="line" data-l="7">}</span></div>
+</div>
+<p>刪除時目標節點一定有右子樹，所以後繼者就是右子樹的最小值。<code>findMin()</code> 沿著 <code>leftChild</code> 一直走到下一個是 <code>NULL</code> 為止，最左邊的節點就是子樹中最小的鍵。</p>
+<div class="deck-extra">
+  <div class="dx-label">findSuccessor 與 findMin</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">TreeNode* <span class="fn">findSuccessor</span>() {</span>
+<span class="line" data-l="2">    <span class="kw">return</span> rightChild-&gt;findMin();</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5">TreeNode* <span class="fn">findMin</span>() {   <span class="com">// a method of the TreeNode class</span></span>
+<span class="line" data-l="6">    TreeNode* current = <span class="kw">this</span>;</span>
+<span class="line" data-l="7">    <span class="kw">while</span> (current-&gt;leftChild != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="8">        current = current-&gt;leftChild;</span>
+<span class="line" data-l="9">    }</span>
+<span class="line" data-l="10">    <span class="kw">return</span> current;</span>
+<span class="line" data-l="11">}</span></div>
+</div>
+<p>這和中序走訪由小到大印出 BST 的性質是同一回事。一般而言找後繼者要考慮三種情況：節點有右子樹時，後繼者是右子樹的最小鍵；沒有右子樹且自己是左子時，父節點就是後繼者；沒有右子樹且自己是右子時，後繼者是父節點的後繼者（不算自己）。刪除時目標節點有兩個子節點，只會用到第一種。</p>
 
   <p>為什麼 successor 一定有<strong>最多一個 child</strong>？因為它是右子樹中的<em>最左</em>節點：如果它還有左 child，那個 child 一定更小、應該才是 successor。所以 splice out successor 一定是 case 1 或 case 2，可以遞迴處理。</p>
 
@@ -1276,7 +2082,7 @@ brown dog fox jumps lazy over quick the </pre></div>
 
   <h3>講義的完整拼圖：findSuccessor 三情境與 spliceOut</h3>
   <p>側欄的 findSuccessor 是刪除專用的精簡版（刪除時節點必有右子樹，successor 就是右子樹的最小值）。
-  講義的完整版其實處理三種情境，另外兩種在中序走訪相關的練習會用到。
+  一般的 successor 有三種情境（下方左欄），另外兩種在沒有右子樹、需要往上找時才用得到。
   successor 找到之後，用 <code>spliceOut()</code> 把它從原位置「縫」出來：
   successor 保證最多一個 child，所以只有兩種縫法。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.8rem;">
@@ -1319,14 +2125,104 @@ brown dog fox jumps lazy over quick the </pre></div>
 <span class="line">currentNode-&gt;value = successor-&gt;value; <span class="com">// 節點本身不動</span></span>
 <span class="line"><span class="kw">delete</span> successor;</span></div></div>
   </div>
+<h3 id="dx-bst">中序走訪：依鍵的順序處理</h3>
+<p>要依鍵的順序處理 BST 的每一個鍵，就用前面學過的中序走訪。課程的類別直接印出值；若要重複使用，可以改成把鍵依序放進一個輸出 vector。每次遞迴處理一棵較小的子樹，base case 是 <code>NULL</code> 指標；在左右兩次遞迴之間處理節點，得到的鍵就是排好的。走訪每個節點一次，時間 $O(n)$，遞迴深度 $O(h)$。</p>
+<div class="deck-extra">
+  <div class="dx-label">inorder（BinarySearchTree 的成員函式）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">inorder</span>(TreeNode* node) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (node != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="3">        inorder(node-&gt;leftChild);</span>
+<span class="line" data-l="4">        cout &lt;&lt; node-&gt;value &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="5">        inorder(node-&gt;rightChild);</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">}</span></div>
+</div>
+<details class="tree-detail"><summary>講義完整程式：BinarySearchTree 當 map 使用</summary><div class="tree-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 09 · BinarySearchTree</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="quick lazy&#10;There are 9 items in this tree&#10;There are 8 items in this tree&#10;brown dog fox jumps lazy over quick the &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/bst.hpp"</span><span class="com">   // TreeNode + BinarySearchTree</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="6">    BinarySearchTree myTree;</span>
+<span class="line" data-l="7">    myTree.put(<span class="str">"</span><span class="str">a</span><span class="str">"</span>, <span class="str">"</span><span class="str">a</span><span class="str">"</span>);      myTree.put(<span class="str">"</span><span class="str">q</span><span class="str">"</span>, <span class="str">"</span><span class="str">quick</span><span class="str">"</span>);</span>
+<span class="line" data-l="8">    myTree.put(<span class="str">"</span><span class="str">b</span><span class="str">"</span>, <span class="str">"</span><span class="str">brown</span><span class="str">"</span>);  myTree.put(<span class="str">"</span><span class="str">f</span><span class="str">"</span>, <span class="str">"</span><span class="str">fox</span><span class="str">"</span>);</span>
+<span class="line" data-l="9">    myTree.put(<span class="str">"</span><span class="str">j</span><span class="str">"</span>, <span class="str">"</span><span class="str">jumps</span><span class="str">"</span>);  myTree.put(<span class="str">"</span><span class="str">o</span><span class="str">"</span>, <span class="str">"</span><span class="str">over</span><span class="str">"</span>);</span>
+<span class="line" data-l="10">    myTree.put(<span class="str">"</span><span class="str">t</span><span class="str">"</span>, <span class="str">"</span><span class="str">the</span><span class="str">"</span>);    myTree.put(<span class="str">"</span><span class="str">l</span><span class="str">"</span>, <span class="str">"</span><span class="str">lazy</span><span class="str">"</span>);</span>
+<span class="line" data-l="11">    myTree.put(<span class="str">"</span><span class="str">d</span><span class="str">"</span>, <span class="str">"</span><span class="str">dog</span><span class="str">"</span>);</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">    cout &lt;&lt; myTree.get(<span class="str">"</span><span class="str">q</span><span class="str">"</span>) &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; myTree.get(<span class="str">"</span><span class="str">l</span><span class="str">"</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">There are </span><span class="str">"</span> &lt;&lt; myTree.length() &lt;&lt; <span class="str">"</span><span class="str"> items in this tree</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="15">    myTree.remove(<span class="str">"</span><span class="str">a</span><span class="str">"</span>);</span>
+<span class="line" data-l="16">    cout &lt;&lt; <span class="str">"</span><span class="str">There are </span><span class="str">"</span> &lt;&lt; myTree.length() &lt;&lt; <span class="str">"</span><span class="str"> items in this tree</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="17">    myTree.inorder(myTree.root);</span>
+<span class="line" data-l="18">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>quick lazy
+There are 9 items in this tree
+There are 8 items in this tree
+brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一行依鍵的順序印出值。刪掉 <code>"a"</code> 之後剩 8 個鍵，所以第一個值是 b 對應的 brown。</p>
+<p>想看更多 BST 插入、搜尋與刪除的例子，可以參考 <a href="https://visualgo.net/en/bst" target="_blank" rel="noopener">VisuAlgo 的 BST 動畫</a>。</p>
+<h3 id="ex-treesort">練習 3：treeSort</h3>
+<p>用 <code>put()</code> 和中序走訪，在平均 $O(n\log n)$ 時間內排序一個 vector；再說明為什麼不平衡的 BST 最差會是 $O(n^2)$。目標輸出是 <code>a b d f j l o q t</code>：BST 的中序走訪一定是排好的。</p>
+<div class="deck-extra">
+  <div class="dx-label">練習 3 填空（treeSort）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="exercise"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/bst.hpp"</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6">vector&lt;string&gt; treeSort(vector&lt;string&gt; values) {</span>
+<span class="line" data-l="7">    BinarySearchTree bst;</span>
+<span class="line" data-l="8">    vector&lt;string&gt; result;</span>
+<span class="line" data-l="9">    ____;   <span class="com">// 1. insert all elements (O(log n) each on average)</span></span>
+<span class="line" data-l="10">    ____;   <span class="com">// 2. in-order traversal visits keys in sorted order (O(n))</span></span>
+<span class="line" data-l="11">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="12">}</span>
+<span class="line" data-l="13"><span class="kw">int</span> main() {</span>
+<span class="line" data-l="14">    <span class="kw">for</span> (string s : treeSort({<span class="str">"</span><span class="str">t</span><span class="str">"</span>, <span class="str">"</span><span class="str">a</span><span class="str">"</span>, <span class="str">"</span><span class="str">o</span><span class="str">"</span>, <span class="str">"</span><span class="str">j</span><span class="str">"</span>, <span class="str">"</span><span class="str">d</span><span class="str">"</span>, <span class="str">"</span><span class="str">b</span><span class="str">"</span>, <span class="str">"</span><span class="str">q</span><span class="str">"</span>, <span class="str">"</span><span class="str">f</span><span class="str">"</span>, <span class="str">"</span><span class="str">l</span><span class="str">"</span>}))</span>
+<span class="line" data-l="15">        cout &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="16">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="17">}</span></div>
+</div><details class="tree-detail"><summary>看解答</summary><div class="tree-detail-body"><p>課程類別的 <code>inorder</code> 只會印出值，所以解答另寫一個 <code>inorderKeys</code>，在中序走訪時把鍵放進 <code>result</code>。平均每次 <code>put</code> 是 $O(\log n)$，共 $O(n\log n)$；但如果輸入已經排好，每個新鍵都接在最右邊，第 $k$ 次 <code>put</code> 要走過 $k-1$ 個節點，總共 $1+2+\cdots+(n-1)=O(n^2)$。</p><div class="deck-extra">
+  <div class="dx-label">練習 3 解答</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="a b d f j l o q t "><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/bst.hpp"</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">void</span> <span class="fn">inorderKeys</span>(TreeNode* node, vector&lt;string&gt;&amp; keys) {</span>
+<span class="line" data-l="7">    <span class="kw">if</span> (node == <span class="fn">NULL</span>) <span class="kw">return</span>;</span>
+<span class="line" data-l="8">    inorderKeys(node-&gt;leftChild, keys);</span>
+<span class="line" data-l="9">    keys.push_back(node-&gt;key);</span>
+<span class="line" data-l="10">    inorderKeys(node-&gt;rightChild, keys);</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13">vector&lt;string&gt; treeSort(vector&lt;string&gt; values) {</span>
+<span class="line" data-l="14">    BinarySearchTree bst;</span>
+<span class="line" data-l="15">    vector&lt;string&gt; result;</span>
+<span class="line" data-l="16">    <span class="kw">for</span> (string v : values) bst.put(v, v);   <span class="com">// 1. insert all elements</span></span>
+<span class="line" data-l="17">    inorderKeys(bst.root, result);           <span class="com">// 2. in-order traversal: sorted keys</span></span>
+<span class="line" data-l="18">    <span class="kw">return</span> result;</span>
+<span class="line" data-l="19">}</span>
+<span class="line" data-l="20"><span class="kw">int</span> main() {</span>
+<span class="line" data-l="21">    <span class="kw">for</span> (string s : treeSort({<span class="str">"</span><span class="str">t</span><span class="str">"</span>, <span class="str">"</span><span class="str">a</span><span class="str">"</span>, <span class="str">"</span><span class="str">o</span><span class="str">"</span>, <span class="str">"</span><span class="str">j</span><span class="str">"</span>, <span class="str">"</span><span class="str">d</span><span class="str">"</span>, <span class="str">"</span><span class="str">b</span><span class="str">"</span>, <span class="str">"</span><span class="str">q</span><span class="str">"</span>, <span class="str">"</span><span class="str">f</span><span class="str">"</span>, <span class="str">"</span><span class="str">l</span><span class="str">"</span>}))</span>
+<span class="line" data-l="22">        cout &lt;&lt; s &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="23">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="24">}</span></div>
+  <div class="expected-out"><span class="eo-tag">解答的輸出</span><pre>a b d f j l o q t </pre></div>
+</div></div></details>
+<!-- /gen:trees-bst-delete -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 08: BST Analysis -->
 <!-- ============================================================ -->
 <section id="bst-analysis">
-  <div class="section-number">PART 08 · BST 分析</div>
+  <div class="section-number">PART 09 · BST 分析</div>
   <h2>BST 的限制：高度決定一切 <span class="sec-badge">cppds §8.14</span></h2>
+<!-- gen:trees-bst-analysis -->
   <p>BST 的 <code>put</code>、<code>get</code>、<code>contains</code>、<code>remove</code> 都沿 root-to-leaf path 前進，時間複雜度正比於<strong>樹高 $h$</strong>。所以關鍵問題是：給定 $n$ 個節點，$h$ 會是多少？</p>
 
   <div class="info-box">
@@ -1335,6 +2231,13 @@ brown dog fox jumps lazy over quick the </pre></div>
     若 keys 隨機插入，高度期望也是 $O(\log n)$，因為大概一半 key 進左、一半進右。<br>
     但<strong>最差情況 $h = n - 1$</strong>：把已排序 keys 依序插入就會發生：每個新節點都比當前所有節點大（或小），永遠落到右（或左）這一支，BST 退化成連結串列。
   </div>
+<h3>高度決定 put 的成本</h3>
+<p>先看 <code>put()</code>。限制它效能的是樹的高度：高度是根到最深的葉節點之間的邊數，而找插入位置時每一層最多比較一次。鍵以隨機順序加入時，大約一半比根小、一半比根大，樹高大約是 $\log_2 n$。</p>
+<p>二元樹的根那一層有 1 個節點，下一層 2 個，再下一層 4 個，深度 $d$ 那一層有 $2^d$ 個。完美平衡、高度為 $h$ 的二元樹共有 $2^{h+1}-1$ 個節點，反過來說高度就是 $\log_2 n$，也就是 <code>put()</code> 最多要做的比較次數。</p>
+<h3>最差情況：已排序的插入順序</h3>
+<p>可惜只要把鍵依排序好的順序插入，就能建出高度 $n-1$ 的樹：</p>
+<figure class="tree-figure" id="tree-figure-skewedTree"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="一條往右下斜的鏈：10 的右子 20，20 的右子 30，30 的右子 40，40 的右子 50。"><img src="assets/figures/ch9/skewedTree.png" alt="一條往右下斜的鏈：10 的右子 20，20 的右子 30，30 的右子 40，40 的右子 50。" width="230" height="201" style="--figure-width:230px" loading="lazy"></div><figcaption>依序插入已排序的 10, 20, 30, 40, 50：每個新鍵都比前面的大，只能一直往右接，樹退化成一條鏈，高度是 n - 1。</figcaption></figure>
+<p>這時 <code>put</code> 是 $O(n)$。樹高同樣限制 <code>get()</code>、<code>contains()</code> 與 <code>remove()</code>：最差情況都要走一條長度為 $h$ 的路徑。<code>remove()</code> 可能還要再走一段路找後繼者，但那最多是另一段 $O(h)$；常數倍不影響上界。所以不平衡的 BST 最差是 $O(n)$，AVL 樹則是 $O(\log n)$。</p>
 
   <div class="viz-layout">
     <div>
@@ -1389,14 +2292,36 @@ brown dog fox jumps lazy over quick the </pre></div>
       </div>
     </div>
   </div>
+<div class="sq-item tree-quiz" id="quiz-bst1">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>二元搜尋樹（BST）中，每個節點必須滿足什麼性質，搜尋才會有效率？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="1" data-fb="正確！每次比較會排除一棵不可能的子樹。成本是 O(h)，取決於樹高；基本 BST 不保證每步砍掉一半節點。">節點的鍵必須大於左子樹的所有鍵、小於右子樹的所有鍵。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。節點可以有 0、1 或 2 個子節點，BST 不要求一定要有兩個。">每個節點都必須恰好有兩個子節點以維持平衡。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。按排序順序插入反而會建出「歪斜」成串列狀的樹，效率極差。">鍵必須按排序好的順序插入，才能建出最有效率的樹。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。那是完美平衡樹的描述，基本 BST 並不保證。">所有葉節點必須在同一層深度。</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+<div class="sq-item tree-quiz" id="quiz-bst2">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>課程 BST map 的 put(key, value) 遇到既有 key 時應怎麼做？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="不對。這會破壞 Map 語意，還可能讓 duplicate 無法由一般搜尋取得。">把 duplicate node 插到右子樹並增加 size。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確！這是 insert-or-assign 語意。">更新既有 value，size 維持不變。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。更新 value 不應改變樹結構。">刪除該 key 以下的整棵 subtree。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。underflow_error 用於空 heap 存取，不是 BST assignment。">丟出 underflow_error。</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+<!-- /gen:trees-bst-analysis -->
 </section>
 
 <!-- ============================================================ -->
 <!-- PART 09: AVL Tree -->
 <!-- ============================================================ -->
 <section id="avl">
-  <div class="section-number">PART 09 · AVL 樹</div>
+  <div class="section-number">PART 10 · AVL 樹</div>
   <h2>AVL Tree：保證 O(log n) 的自平衡 BST <span class="sec-badge">cppds §8.15–8.17</span></h2>
+<!-- gen:trees-avl -->
   <p>BST 退化的原因是<strong>插入順序</strong>。AVL 樹（Adelson-Velsky 和 Landis，1962）讓樹在每次插入/刪除時<strong>自動旋轉</strong>，保證它一直是「近似平衡」。代價只是常數因子的開銷。</p>
 
   <div class="info-box">
@@ -1405,6 +2330,11 @@ brown dog fox jumps lazy over quick the </pre></div>
     AVL 規則：<strong>每個節點的 bf 必須是 $-1$、$0$ 或 $+1$</strong>。任何超出這個範圍的節點觸發旋轉來「修正」。<br>
     bf $&gt; 0$：left-heavy；bf $&lt; 0$：right-heavy；bf $= 0$：完美平衡。
   </div>
+<h3>平衡因子的例子</h3>
+<p>AVL 樹和一般 BST 一樣實作 Map ADT，差別只在效能。下圖是一棵右重的不平衡樹，節點上標的是平衡因子：</p>
+<figure class="tree-figure" id="tree-figure-unbalanced"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="每個節點標著平衡因子：根 -2，左子 0，右子 -1；右子的左子 0、右子 -1；最下面的葉節點 0。"><img src="assets/figures/ch9/unbalanced.png" alt="每個節點標著平衡因子：根 -2，左子 0，右子 -1；右子的左子 0、右子 -1；最下面的葉節點 0。" width="180" height="213" style="--figure-width:180px" loading="lazy"></div><figcaption>右重（right-heavy）的不平衡樹，節點上的數字是平衡因子（左子樹高度減右子樹高度）。根的平衡因子是 -2，超出 -1 到 1 的範圍，需要重新平衡。</figcaption></figure>
+<p>根的平衡因子是 -2：左子樹高度 0，右子樹高度 2。只要有節點的平衡因子超出 -1、0、1，就需要把樹調回平衡。</p>
+<p class="dx-note">下面的旋轉示範（補充）把 LL、RR、LR、RL 四種不平衡各做一次，可以先看形狀怎麼變，旋轉的細節在本節後半段的選讀內容。</p>
 
   <div class="viz-layout">
     <div>
@@ -1460,6 +2390,16 @@ brown dog fox jumps lazy over quick the </pre></div>
     </div>
   </div>
 
+<h3>AVL 樹的高度上界 <span class="sec-badge">cppds §8.16 · 選讀</span></h3>
+<p>要求每個平衡因子都是 -1、0、1，能把 AVL 樹的高度限制在 $O(\log n)$。先看在這個條件下最不平衡的樹長什麼樣子。下圖是高度 0、1、2、3 時，節點最少的左重樹：</p>
+<figure class="tree-figure" id="tree-figure-worstAVL"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="四棵左重的樹，高度 0 到 3：只有 A；B 接 A；C 接 B（下接 A）與 D；E 接 C（C 接 B、D，B 接 A）與 G（G 接 F）。每個節點標著平衡因子。"><img src="assets/figures/ch9/worstAVL.png" alt="四棵左重的樹，高度 0 到 3：只有 A；B 接 A；C 接 B（下接 A）與 D；E 接 C（C 接 B、D，B 接 A）與 G（G 接 F）。每個節點標著平衡因子。" width="480" height="240" style="--figure-width:480px" loading="lazy"></div><figcaption>高度 0、1、2、3 時節點數最少的左重 AVL 樹，分別有 1、2、4、7 個節點。高度 h 的這種樹由根、一棵高度 h - 1 的最瘦樹與一棵高度 h - 2 的最瘦樹組成。</figcaption></figure>
+<p>令 $N_h$ 為高度 $h$ 的 AVL 樹最少的節點數。高度以邊數計算時 $N_0=1$、$N_1=2$；最瘦的合法樹由一個根、一棵高度 $h-1$ 的最瘦樹和一棵高度 $h-2$ 的最瘦樹組成：</p>
+<p>$$N_h = 1 + N_{h-1} + N_{h-2}$$</p>
+<p>這和費氏數列很像。費氏數列定義為 $F_0=0$、$F_1=1$、$F_i=F_{i-1}+F_{i-2}$（$i\ge2$），而且 $F_i/F_{i-1}$ 越來越接近黃金比例 $\Phi=\frac{1+\sqrt5}{2}$，可以近似成 $F_i\approx\Phi^i/\sqrt5$。代入初始值可以驗證 $N_h=F_{h+3}-1$，所以</p>
+<p>$$N_h = F_{h+3}-1 \approx \frac{\Phi^{h+3}}{\sqrt5}-1$$</p>
+<p>移項後兩邊取以 2 為底的對數，解出 $h$：</p>
+<p>$$h \approx \frac{\log_2(N_h+1)+\tfrac12\log_2 5}{\log_2\Phi}-3$$</p>
+<p>$1/\log_2\Phi\approx1.44$，所以 $h$ 的成長不會超過大約 $1.44\log_2 n$（差一個加法常數）。</p>
   <div class="info-box green">
     <span class="info-label">為什麼是 1.44 log n？</span>
     最瘦的 AVL 樹滿足 $N_h = 1 + N_{h-1} + N_{h-2}$、$N_0=1$、$N_1=2$，所以 <strong>$N_h=F_{h+3}-1$</strong>。當 $h$ 很大時 $N_h \approx \Phi^{h+3}/\sqrt 5-1$。反解得到的是<strong>高度上界</strong>而非每棵 AVL 的精確等式：
@@ -1467,14 +2407,32 @@ brown dog fox jumps lazy over quick the </pre></div>
     這比完美平衡的 $\log_2 n$ 只大了一個常數因子，<strong>所有 BST 操作仍是 $O(\log n)$</strong>。
   </div>
 
-  <h3>實作內幕：updateBalance、rotateLeft、rebalance <span class="sec-badge">cppds §8.16–8.17 · 講義補充</span></h3>
-  <p style="font-size:.88rem;color:var(--muted);">課堂投影片跳過 §8.16（AVL 效能）與 §8.17（AVL 實作）這兩節（RISE skip，講義標 Optional）：屬自學補充。</p>
+  <h3>實作內幕：updateBalance、rotateLeft、rebalance <span class="sec-badge">cppds §8.17 · 選讀</span></h3>
+  <p style="font-size:.88rem;color:var(--muted);">AVL 的效能分析與實作細節屬於選讀內容。課堂上只要知道：插入後沿路更新平衡因子，LL、RR 不平衡做一次旋轉，LR、RL 做兩次，每次旋轉 $O(1)$。</p>
   <p>AVL 的 <code>insertOrAssign()</code> 跟 BST 幾乎一樣，唯一差別是掛上新節點後多呼叫一次
   <code>updateBalance()</code>：它沿著 parent 指標往上修正平衡因子，
   一發現 |bf| &gt; 1 就地 <code>rebalance()</code>。旋轉最多兩次、每次 O(1)，
   往上修正最多走 log n 層，所以 <strong>put 整體仍是 O(log n)</strong>。
   上面的動畫可以對照著看：四個按鈕（LL/RR/LR/RL）正是 rebalance 的四個分支。刪除後的重平衡，講義留作練習。</p>
   <p>這段的 <code>TreeNode*&amp; slot</code> 是「指標的參考」，修改 slot 會一起改到呼叫端保存的指標；<code>auto*</code> 讓編譯器推導指向的型別。<code>static_cast&lt;AVLTreeNode*&gt;(slot)</code> 把基底類別指標轉成衍生類別指標，前提是本樹的節點確實都由 AVLTreeNode 建立；它不會在執行時檢查型別，不能拿來轉換任意 TreeNode。<code>override</code> 要求編譯器確認此函式覆寫基底類別的 virtual 函式。</p>
+<h3>左旋與右旋</h3>
+<p>插入新的葉節點之後，要更新它父節點的平衡因子：新節點是右子時，父節點的平衡因子減 1；是左子時加 1。同樣的規則可以遞迴地套用到祖父節點，甚至一路到根。遞迴有兩個停止條件：已經到達根，或某個父節點的平衡因子被調成 0。子樹的平衡因子變成 0 之後，它的高度沒有改變，祖先的平衡因子也不會變。</p>
+<p>需要重新平衡時，用一次或多次<strong>旋轉</strong>（rotation）把樹調回平衡。</p>
+<figure class="tree-figure" id="tree-figure-simpleunbalanced"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="左邊是 A（-2）的右子 B（-1），B 的右子 C（0）；箭頭右邊是 B（0）為根，左子 A（0），右子 C（0）。"><img src="assets/figures/ch9/simpleunbalanced.png" alt="左邊是 A（-2）的右子 B（-1），B 的右子 C（0）；箭頭右邊是 B（0）為根，左子 A（0），右子 C（0）。" width="400" height="200" style="--figure-width:400px" loading="lazy"></div><figcaption>最簡單的左旋：A 的平衡因子是 -2。把右子 B 提為新根，A 變成 B 的左子，三個節點都恢復平衡。</figcaption></figure>
+<p>左旋的步驟：</p>
+<ol class="tree-ul">
+<li>把右子（B）提為子樹的新根。</li>
+<li>把舊根（A）移成新根的左子。</li>
+<li>如果新根（B）原本有左子，把它改接成新左子（A）的右子。A 原本的右子就是 B，所以這時 A 的右邊一定是空的，可以直接接上。</li>
+</ol>
+<figure class="tree-figure" id="tree-figure-rightrotate1"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="左邊是 E（2）有左子 C（1）與右子 F（0），C 有左子 B（1）與右子 D（0），B 有左子 A（0）；右邊是 C（0）為根，左子 B（1，下接 A），右子 E（0，下接 D 和 F）。"><img src="assets/figures/ch9/rightrotate1.png" alt="左邊是 E（2）有左子 C（1）與右子 F（0），C 有左子 B（1）與右子 D（0），B 有左子 A（0）；右邊是 C（0）為根，左子 B（1，下接 A），右子 E（0，下接 D 和 F）。" width="480" height="243" style="--figure-width:480px" loading="lazy"></div><figcaption>右旋：E 的平衡因子是 2。把左子 C 提為新根，E 變成 C 的右子；C 原本的右子 D 改接成 E 的左子。BST 的大小順序沒有改變。</figcaption></figure>
+<p>右旋對稱：</p>
+<ol class="tree-ul">
+<li>把左子（C）提為子樹的新根。</li>
+<li>把舊根（E）移成新根的右子。</li>
+<li>如果新根（C）原本有右子（D），把它改接成新右子（E）的左子。E 原本的左子就是 C，所以這時 E 的左邊一定是空的。</li>
+</ol>
+<p>概念不難，但程式要依正確的順序搬動，才能維持 BST 的所有性質，而且每個 parent 指標都要更新。下面左欄是 <code>insertOrAssign</code> 的覆寫與 <code>updateBalance</code>，中欄是 <code>rotateLeft</code>（<code>rotateRight</code> 對稱）。<code>rotateLeft</code> 先用暫存變數記住新根，也就是舊根的右子，再把舊根的右子換成新根的左子；接著調整兩個節點的 parent 指標：舊根若是整棵樹的根，就把 <code>root</code> 改成新根，否則讓舊根的父節點改指向新根；最後把舊根的 parent 設為新根。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.8rem;">
     <div class="info-card"><div class="ic-title">insertOrAssign() 的差異 ＋ updateBalance <span class="ic-badge">CODE</span></div>
       <div class="pseudo-code" style="font-size:.72rem;">
@@ -1556,6 +2514,57 @@ brown dog fox jumps lazy over quick the </pre></div>
 <span class="line">}</span></div>
       <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">先看「歪向哪邊」，再看「子節點歪向哪邊」決定要不要先轉子節點：跟上面動畫的四個 preset 一一對應。</div></div>
   </div>
+<h3>平衡因子的更新公式</h3>
+<p><code>rotateLeft</code> 最後兩行更新舊根與新根的平衡因子。其他節點都是整棵子樹一起搬動，平衡因子不受影響。問題是：不重新計算子樹高度，怎麼得到新的平衡因子？</p>
+<figure class="tree-figure" id="tree-figure-bfderive"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="左邊 B 的左子樹是三角形 A，右子是 D，D 底下是三角形 C 和 E；箭頭右邊 D 為根，左子 B（底下 A、C），右子樹 E。"><img src="assets/figures/ch9/bfderive.png" alt="左邊 B 的左子樹是三角形 A，右子是 D，D 底下是三角形 C 和 E；箭頭右邊 D 為根，左子 B（底下 A、C），右子樹 E。" width="420" height="177" style="--figure-width:420px" loading="lazy"></div><figcaption>左旋的一般形狀：B 是旋轉前的根，D 是它的右子；A、C、E 是整棵搬動的子樹。旋轉後只有 B 和 D 的子樹改變，所以只需要更新這兩個節點的平衡因子。</figcaption></figure>
+<p>B、D 是旋轉的兩個節點，A、C、E 是它們的子樹，$h_x$ 表示以 $x$ 為根的子樹高度。依定義：</p>
+<p>$$\begin{aligned}\text{new\_bal}(B) &= h_A - h_C\\ \text{old\_bal}(B) &= h_A - h_D\end{aligned}$$</p>
+<p>D 的舊高度是它兩棵子樹中較高的再加 1，也就是 $h_D = 1 + \max(h_C, h_E)$，而 $h_C$、$h_E$ 在旋轉中沒有改變。代入第二式：</p>
+<p>$$\text{old\_bal}(B) = h_A - (1 + \max(h_C, h_E))$$</p>
+<p>兩式相減，$h_A$ 消掉：</p>
+<p>$$\text{new\_bal}(B) - \text{old\_bal}(B) = 1 + \max(h_C, h_E) - h_C$$</p>
+<p>把 $\text{old\_bal}(B)$ 移到右邊，並用 $\max(a,b)-c=\max(a-c,b-c)$：</p>
+<p>$$\text{new\_bal}(B) = \text{old\_bal}(B) + 1 + \max(0,\ h_E - h_C)$$</p>
+<p>$h_E - h_C$ 正好是 $-\text{old\_bal}(D)$。再用 $\max(-a,-b) = -\min(a,b)$：</p>
+<p>$$\begin{aligned}\text{new\_bal}(B) &= \text{old\_bal}(B) + 1 + \max(0,\ -\text{old\_bal}(D))\\ &= \text{old\_bal}(B) + 1 - \min(0,\ \text{old\_bal}(D))\end{aligned}$$</p>
+<p>B 是 <code>rotationRoot</code>、D 是 <code>newRoot</code>，這就是程式中的</p>
+<div class="deck-extra">
+  <div class="dx-label">rotateLeft 的平衡因子更新</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">rotationRoot-&gt;balanceFactor = rotationRoot-&gt;balanceFactor + <span class="num">1</span></span>
+<span class="line" data-l="2">                              - min(newRoot-&gt;balanceFactor, <span class="num">0</span>);</span></div>
+</div>
+<p>新根 D 的公式，以及右旋時的兩個公式，可以用同樣的方法推導，留作練習。</p>
+<h3>需要兩次旋轉的情況</h3>
+<p>知道何時左旋、何時右旋似乎就夠了，但看下面左圖：A 的平衡因子是 -2，應該左旋；左旋之後卻變成右圖，往另一邊不平衡。再右旋一次，又回到原狀。</p>
+<figure class="tree-figure tree-figrow" id="tree-figure-hardunbalanced"><div class="tree-figure-scroll tree-figrow-cells" tabindex="0" role="region" aria-label="直接左旋失敗的例子"><div class="tree-figrow-cell"><img src="assets/figures/ch9/hardunbalanced.png" alt="A（-2）的右子是 C（1），C 的左子是 B（0）。" width="100" height="202" style="--figure-width:100px" loading="lazy"><span>A 的平衡因子是 -2，但右子 C 是左重。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/badrotate.png" alt="C（2）的左子是 A（-1），A 的右子是 B（0）。" width="100" height="214" style="--figure-width:100px" loading="lazy"><span>直接左旋 A 的結果：C 的平衡因子變成 2，往另一邊不平衡。</span></div></div><figcaption>只做一次左旋解決不了：右子 C 是左重時，左旋 A 會得到左重的 C。</figcaption></figure>
+<p>要解決這個問題，遵守下面兩條規則：</p>
+<ol class="tree-ul">
+<li>子樹需要左旋時，先檢查右子的平衡因子。右子是左重的話，先對右子做右旋，再做原本的左旋。</li>
+<li>子樹需要右旋時，先檢查左子的平衡因子。左子是右重的話，先對左子做左旋，再做原本的右旋。</li>
+</ol>
+<figure class="tree-figure" id="tree-figure-rotatelr"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="三棵樹：A（-2）右子 C（1）、C 左子 B；先右旋 C 得到 A（-2）右子 B（-1）、B 右子 C；再左旋 A 得到 B 為根、A 和 C 為子節點，平衡因子都是 0。"><img src="assets/figures/ch9/rotatelr.png" alt="三棵樹：A（-2）右子 C（1）、C 左子 B；先右旋 C 得到 A（-2）右子 B（-1）、B 右子 C；再左旋 A 得到 B 為根、A 和 C 為子節點，平衡因子都是 0。" width="480" height="189" style="--figure-width:480px" loading="lazy"></div><figcaption>雙旋轉：先對右子 C 做右旋，把形狀變成一條往右的鏈，再對 A 做左旋，整棵子樹恢復平衡。</figcaption></figure>
+<p>右欄的 <code>rebalance</code> 就是這兩條規則。重新平衡的成本：新節點插在葉節點，往上更新平衡因子最多 $\log_2 n$ 次，每層一次；發現不平衡時最多兩次旋轉，每次 $O(1)$。所以 <code>put</code> 仍然是 $O(\log_2 n)$，<code>get</code> 也保持 $O(\log_2 n)$。刪除節點以及之後的更新與重新平衡，留作練習。</p>
+<div class="sq-item tree-quiz" id="quiz-avl1">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>AVL 樹改良了標準二元搜尋樹的哪一點？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="不對。AVL 樹靠的是基於高度的旋轉，不是雜湊。">它用特殊的雜湊函數把節點分布得更平均。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確！它替每個節點維護平衡因子，防止樹歪斜，保證搜尋維持對數時間。">它會自動做旋轉，確保樹高維持在 O(log n)。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。那是 B-Tree 這類結構的做法；AVL 的節點仍然一個節點一個鍵。">它允許一個節點存多個鍵來省記憶體。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。AVL 樹仍支援也需要刪除操作，而且刪除後還要重新平衡。">它完全不需要刪除操作。</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+<div class="sq-item tree-quiz" id="quiz-avl2">
+    <div class="sq-q"><span class="sq-num">QUIZ</span>以邊數定義 height 時，最瘦的 AVL tree 應滿足哪個敘述？</div>
+    <div class="sq-opts">
+      <button class="sq-opt" data-c="0" data-fb="不對。Fibonacci 推導給的是上界（差一個 additive constant），不是每棵樹的精確等式。">每棵 AVL 的精確高度都等於 1.44 log2(n)。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確！N_0=1、N_1=2 對應 Fibonacci index h+3。">N_h = F_(h+3) - 1，因此 height 是 O(log n)。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。最少節點數遵循 Fibonacci 型遞迴，不是平方。">N_h = h²，因此 height 是 O(sqrt(n))。</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。AVL height 隨節點數呈對數成長。">AVL 平衡會讓 height 維持常數。</button>
+    </div>
+    <div class="sq-fb"></div>
+  </div>
+<!-- /gen:trees-avl -->
 </section>
 
 <!-- ============================================================ -->
@@ -1564,6 +2573,7 @@ brown dog fox jumps lazy over quick the </pre></div>
 <section id="summary">
   <div class="section-number">REFERENCE · 總覽比較</div>
   <h2>Map ADT 四種實作的對照表 <span class="sec-badge">cppds §8.18</span></h2>
+<!-- gen:trees-summary -->
   <p>過去兩章我們學了四種實作 map ADT 的方式。下表整理 worst-case 複雜度；注意 hash table 的 $O(1)$ 是<strong>平均</strong>，最差情況（全部碰撞）會退化到 $O(n)$。</p>
 
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
@@ -1615,6 +2625,7 @@ brown dog fox jumps lazy over quick the </pre></div>
     </tbody>
   </table></div>
 
+  <h3>怎麼選擇實作方式</h3>
   <div class="info-box">
     <span class="info-label">什麼時候選什麼？</span>
     <strong>需要 $O(1)$ 平均、不需要排序：</strong>選 <strong>hash table</strong>（C++ <code>unordered_map</code>、Java <code>HashMap</code>）。<br>
@@ -1623,108 +2634,130 @@ brown dog fox jumps lazy over quick the </pre></div>
     <strong>需要快速取出最小/最大值（優先佇列）：</strong>選 <strong>binary heap</strong>（C++ <code>priority_queue</code>），不需要完整排序就能 $O(\log n)$ 操作。
   </div>
 
-  <h3>樹結構在實際系統中的地位</h3>
-  <p>這一章你學到的概念是現代軟體系統的基石：</p>
+<details class="tree-detail"><summary>樹結構在實際系統中的地位（補充）</summary><div class="tree-detail-body">  <p>這一章你學到的概念是現代軟體系統的基石：</p>
   <ul style="margin-left:1.5rem;line-height:1.9;">
     <li><strong>檔案系統</strong>（樹）：每個目錄一個節點，檔案是葉子。</li>
     <li><strong>編譯器與直譯器</strong>（解析樹 / AST）：源碼解析成抽象語法樹，遞迴走訪做型別檢查、最佳化、產生機器碼。</li>
     <li><strong>資料庫索引</strong>（B-tree / B+tree）：BST 的多路推廣，每個節點容納上百個 keys，是磁碟導向的設計。</li>
     <li><strong>路由表 / IP lookup</strong>（Trie）：另一種樹型結構，依字元逐層走訪。</li>
     <li><strong>Heap 在演算法中的核心地位</strong>：Dijkstra 最短路徑、Huffman 編碼、$k$ 路合併、top-$k$ 問題全都靠 priority queue。</li>
-  </ul>
+  </ul></div></details>
 
   <p style="margin-top:1.5rem;text-align:center;font-style:italic;color:var(--muted);">「<strong>看到階層、想到遞迴、寫成樹</strong>」：這是這一章最值得帶走的思考方式。</p>
+<!-- /gen:trees-summary -->
+</section>
+
+<!-- ============================================================ -->
+<!-- RECAP -->
+<!-- ============================================================ -->
+<section id="recap">
+  <div class="section-number">SUMMARY · 重點回顧</div>
+  <h2>重點回顧 <span class="sec-badge">本章總結</span></h2>
+<!-- gen:trees-recap -->
+<ul class="tree-ul tree-recap">
+<li>樹是階層式的結構：除了根以外每個節點恰好有一個父節點，從根到每個節點的路徑唯一。高度是最大的層數，只有根的樹高度為 0。樹也可以遞迴定義：空樹，或根加上若干棵子樹。</li>
+<li>二元樹的每個節點最多兩個子節點。課程用節點與參考實作 <code>BinaryTree</code>：<code>key</code> 加上 <code>leftChild</code>、<code>rightChild</code> 兩個指標，<code>NULL</code> 表示空子樹；<code>insertLeft</code>／<code>insertRight</code> 遇到既有子節點時把它往下推一層。</li>
+<li>解析樹把運算式的結構表示成樹：運算子在內部節點、數字在葉節點。<code>buildParseTree</code> 用四條規則加上一個 parent stack 建樹，<code>evaluate</code> 遞迴地先算左右子樹再套用運算子。</li>
+<li>三種走訪只差在拜訪根的時機：前序（根、左、右）、中序（左、根、右）、後序（左、右、根）。解析樹的後序就是求值的順序（<code>postordereval</code>），中序加括號就是 <code>printExp</code>。</li>
+<li>二元堆積是存在 vector 裡的完全二元樹：索引 $p$ 的子節點在 $2p+1$、$2p+2$，父節點在 <code>(i - 1) / 2</code>。<code>insert</code> 接在尾端再 <code>percUp</code>，<code>delMin</code> 把最後一個搬到根再 <code>percDown</code>，都是 $O(\log n)$；由下往上的 <code>buildHeap</code> 是 $O(n)$。</li>
+<li>BST 滿足左子樹的鍵都比較小、右子樹的鍵都比較大。<code>put</code>、<code>get</code>、<code>contains</code>、<code>remove</code> 都沿著一條路徑走，成本是 $O(h)$；鍵重複時 <code>put</code> 只更新值。刪除分三種情況：葉節點、一個子節點、兩個子節點（用後繼者取代）。</li>
+<li>隨機插入時 BST 的高度約為 $\log_2 n$，但依排序好的順序插入會退化成高度 $n-1$ 的鏈，操作變成 $O(n)$。</li>
+<li>AVL 樹要求每個節點的平衡因子（左子樹高度減右子樹高度）是 -1、0 或 1，用旋轉維持平衡，高度上界約 $1.44\log_2 n$，所有 map 操作都是 $O(\log n)$。</li>
+</ul>
+<h3>常見疑問</h3>
+<details class="tree-detail tree-faq"><summary>getLeftChild() 為什麼回傳指標，不是回傳值？（補充）</summary><div class="tree-detail-body"><p>因為子節點本身就是一棵 <code>BinaryTree</code>。回傳 <code>BinaryTree*</code> 之後，可以接著用 <code>-&gt;</code> 對子樹呼叫 <code>insertLeft</code>、<code>setRootVal</code> 等操作，一路往下修改；空的子樹則回傳 <code>NULL</code>。如果回傳複本，修改的就不是樹裡的節點。</p></div></details><details class="tree-detail tree-faq"><summary>前序、中序、後序要怎麼記？（補充）</summary><div class="tree-detail-body"><p>看「根」排在第幾個：前序是根在最前（根、左、右），中序是根在中間（左、根、右），後序是根在最後（左、右、根）。左子樹永遠在右子樹之前。</p></div></details><details class="tree-detail tree-faq"><summary>heap 已經是「排好」的嗎？（補充）</summary><div class="tree-detail-body"><p>不是。堆積只保證父節點不大於子節點，所以最小值一定在 <code>heap[0]</code>；兄弟節點之間、不同子樹之間沒有大小關係。例如 <code>heapify</code> 十個數的結果 <code>3 4 9 5 12 15 10 8 14 18</code> 就不是遞增的。要得到排序結果，得反覆 <code>delMin</code>，也就是練習 2 的 heapSort。</p></div></details><details class="tree-detail tree-faq"><summary>buildHeap 為什麼從 heap.size() / 2 - 1 開始？（補充）</summary><div class="tree-detail-body"><p>索引 $i$ 的左子在 $2i+1$。當 $i \ge$ <code>heap.size() / 2</code> 時，$2i+1$ 已經超出 vector 的範圍，這些節點都是葉節點，自己就滿足堆積性質。所以從最後一個非葉節點開始往前做 <code>percDown</code> 就夠了。</p></div></details><details class="tree-detail tree-faq"><summary>BST 和雜湊表都能實作 map，什麼時候選 BST？（補充）</summary><div class="tree-detail-body"><p>雜湊表平均 $O(1)$，但鍵沒有順序。BST 可以用中序走訪依鍵的順序列出所有資料，也方便找最小、最大或某個範圍的鍵；平衡的 BST（例如 AVL 樹，或 <code>std::map</code> 常用的紅黑樹）還保證最差 $O(\log n)$。</p></div></details>
+<!-- /gen:trees-recap -->
 </section>
 
 <section id="bankquiz">
   <div class="section-number">QUIZ · 自我檢測</div>
-  <h2>自我檢測：樹結構 <span class="sec-badge">課程題庫 ch9 · 8 題</span></h2>
-  <p>題目取自課程題庫（已譯為繁體中文），每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
+  <h2>自我檢測：樹結構 <span class="sec-badge">隨堂自測 · 8 題</span></h2>
+  <p>每個選項都有解說：選錯也點開看看為什麼錯。全對之後再往下翻詞彙卡。</p>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q1.</span>AVL 樹改良了標準二元搜尋樹的哪一點？</div>
+    <div class="sq-q"><span class="sq-num">Q1.</span>BinaryHeap 用 zero-based vector 存放完全二元樹。索引 4 的節點，父節點與左右子節點的索引分別是多少？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。AVL 樹靠的是基於高度的旋轉，不是雜湊。">它用特殊的雜湊函數把節點分布得更平均。</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！它替每個節點維護平衡因子，防止樹歪斜，保證搜尋維持對數時間。">它會自動做旋轉，確保樹高維持在 O(log n)。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。那是 B-Tree 這類結構的做法；AVL 的節點仍然一個節點一個鍵。">它允許一個節點存多個鍵來省記憶體。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。AVL 樹仍支援也需要刪除操作，而且刪除後還要重新平衡。">它完全不需要刪除操作。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。父節點是 (4 - 1) / 2 = 1（整數除法），左子 2·4 + 1 = 9，右子 2·4 + 2 = 10。">父節點 1，子節點 9 和 10</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是索引從 1 開始時的公式（父 i/2、子 2i 與 2i + 1）；課程的 heap 從索引 0 開始。">父節點 2，子節點 8 和 9</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。父節點算對了，但左子在 2p + 1 = 9，不是 2p = 8。">父節點 1，子節點 8 和 9</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。相鄰的索引不是父子關係；往下一層索引大約加倍。">父節點 3，子節點 5 和 6</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q2.</span>用二元堆積（Binary Heap）實作優先佇列，最主要的理由是什麼？</div>
+    <div class="sq-q"><span class="sq-num">Q2.</span>BinaryTree t(&quot;a&quot;); 之後依序執行 t.insertLeft(&quot;b&quot;); t.insertLeft(&quot;x&quot;);。現在樹的形狀是哪一個？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。堆積的好處是根（最小值或最大值）O(1) 就拿得到。">它能在 O(n) 時間找到最大或最小元素。</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！完全二元樹不必是完美平衡，也不會把 vector 完整排序。">完全二元樹使高度為 O(log n)，所以 insert 與 delete-min 都是 O(log n)。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。堆積只維持「部分順序」（堆積順序性質），不是完全排序。">它把元素在底層串列中完全排序好。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。插入需要比較才能執行 percolate up（往上浮）的過程。">它讓插入完全不需要比較操作。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。第二次 insertLeft 時 a 已經有左子 b，新節點 x 插在中間，原本的 b 被往下推成 x 的左子。">a 的左子是 x，x 的左子是 b</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。insertLeft 是在 a 的正下方插入新節點，不是接到最底層。">a 的左子是 b，b 的左子是 x</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。課程版 insertLeft 會保留原本的子樹，把它接到新節點底下。">a 的左子是 x，b 被覆蓋掉了</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。insertLeft 只會動到左邊；右邊要用 insertRight。">a 的左子是 b，右子是 x</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q3.</span>二元搜尋樹（BST）中，每個節點必須滿足什麼性質，搜尋才會有效率？</div>
+    <div class="sq-q"><span class="sq-num">Q3.</span>運算式 ((7 + 3) * (5 - 2)) 的解析樹做後序走訪，印出的順序是哪一個？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="1" data-fb="正確！每次比較會排除一棵不可能的子樹。成本是 O(h)，取決於樹高；基本 BST 不保證每步砍掉一半節點。">節點的鍵必須大於左子樹的所有鍵、小於右子樹的所有鍵。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。節點可以有 0、1 或 2 個子節點，BST 不要求一定要有兩個。">每個節點都必須恰好有兩個子節點以維持平衡。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。按排序順序插入反而會建出「歪斜」成串列狀的樹，效率極差。">鍵必須按排序好的順序插入，才能建出最有效率的樹。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。那是完美平衡樹的描述，基本 BST 並不保證。">所有葉節點必須在同一層深度。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。後序先走左子樹（7 3 +）、再走右子樹（5 2 -），最後印根 *，得到後序（postfix）形式。">7 3 + 5 2 - *</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是前序走訪：根最先印出。">* + 7 3 - 5 2</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是中序走訪，少了括號，意思也跟原式不同。">7 + 3 * 5 - 2</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。後序是一棵子樹走完才換下一棵，+ 要緊接在 7 3 之後。">7 3 5 2 + - *</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q4.</span>哪一種樹走訪方式，是等所有子樹都走完之後才造訪根節點？</div>
+    <div class="sq-q"><span class="sq-num">Q4.</span>對 buildParseTree(&quot;( ( 10 / 2 ) - ( 6 - 3 ) )&quot;) 建出的樹呼叫 evaluate，結果是多少？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。前序走訪最先造訪根節點，然後才是子樹。">前序走訪（Preorder）</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。中序走訪的順序是左子樹、根、右子樹。">中序走訪（Inorder）</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！後序走訪先走左子樹、再走右子樹，最後才造訪根節點。">後序走訪（Postorder）</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。層序走訪是由上往下一層一層造訪節點。">層序走訪（Level-order）</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。根是 -；左子樹 10 / 2 = 5，右子樹 6 - 3 = 3，最後 5 - 3 = 2。">2</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是把根的 - 當成 + 的結果。evaluate 用的是根存的運算子。">8</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。左子樹的結果是被減數：5 - 3，不是 3 - 5。">-2</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是由左往右直接計算 10 / 2 - 6 - 3 之類沒有括號的算法；解析樹依括號的結構先算兩個子樹。">1.4</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q5.</span>關於樹的邊與節點，下列哪個敘述正確？</div>
+    <div class="sq-q"><span class="sq-num">Q5.</span>在 heap [5, 9, 11, 14, 18, 19, 21, 33, 17, 27] 中 insert(7) 之後，vector 是哪一個？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。根節點是特例：它沒有入邊。">樹中每個節點都至少要有一條入邊。</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！這是教材對樹結構定義的基本性質。">除了根以外，每個節點都恰好有一條來自其他節點的入邊。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。葉節點是沒有子節點的節點，也就是出邊數為零。">葉節點的定義是恰好有一條出邊的節點。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。高度是樹中節點的最大層數，不是邊的總數。">樹的高度等於它包含的邊的總數。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。7 先接在索引 10（18 的右子），比 18 小交換到索引 4，再比 9 小交換到索引 1；和 5 比較後停止。">[5, 7, 11, 14, 9, 19, 21, 33, 17, 27, 18]</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。7 交換到索引 4 之後還比父節點 9 小，percUp 會繼續往上。">[5, 9, 11, 14, 7, 19, 21, 33, 17, 27, 18]</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。heap 不會把整個 vector 排序，只沿著一條路徑往上交換。">[5, 7, 9, 11, 14, 17, 18, 19, 21, 27, 33]</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。7 不小於根 5，所以不會換到根。">[7, 5, 11, 14, 9, 19, 21, 33, 17, 27, 18]</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q6.</span>從 n 個 keys 建立 heap 時，逐一 insert 與 bottom-up buildHeap 的複雜度如何？</div>
+    <div class="sq-q"><span class="sq-num">Q6.</span>BST 刪除一個有兩個子節點的節點時，課程的 remove 怎麼做？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。逐一 insert 時，每個 key 最壞可能往上移 O(log n) 層。">兩者永遠都是 O(n)。</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！bottom-up 的大多數節點靠近 leaves，percDown 總工作量是線性的。">逐一 insert 是 O(n log n)，bottom-up buildHeap 是 O(n)。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。Heap insert 是 append 再 percolate，不是在排序 vector 中搬移全部元素。">逐一 insert 是 O(n²)，buildHeap 是 O(log n)。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。Heap 只維持 parent-child 的部分順序。">buildHeap 必須先完整排序 vector。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。後繼者最多一個子節點，用 spliceOut 拆出很簡單；複製鍵值後 BST 性質仍然成立。">找右子樹中最小的節點（後繼者），把它拆出來，再把它的鍵和值複製到要刪的節點</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。兩個子節點都在時，提上左子會讓原本的右子樹沒有地方接，或破壞 BST 性質。">直接把左子節點提上來取代要刪的節點</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。remove 只刪除一個鍵，不能連帶刪除其他鍵。">把整棵右子樹刪掉，再把左子提上來</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是 heap 的 delMin 做法，不適用於 BST 的任意刪除。">把要刪的節點和根交換，再刪掉根</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q7.</span>課程 BST map 的 put(key, value) 遇到既有 key 時應怎麼做？</div>
+    <div class="sq-q"><span class="sq-num">Q7.</span>把 1, 2, 3, …, n 依序 put 進一棵空的（不會自動平衡的）BST，接著 get(n) 的成本是多少？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。這會破壞 Map 語意，還可能讓 duplicate 無法由一般搜尋取得。">把 duplicate node 插到右子樹並增加 size。</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！這是 insert-or-assign 語意。">更新既有 value，size 維持不變。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。更新 value 不應改變樹結構。">刪除該 key 以下的整棵 subtree。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。underflow_error 用於空 heap 存取，不是 BST assignment。">丟出 underflow_error。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。每個新鍵都比前面的大，只能接在最右邊；get(n) 要走過全部 n 個節點。">O(n)，因為樹退化成一條往右的鏈，高度是 n - 1</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。只有樹大致平衡時才會每次排除約一半；排序好的輸入會讓 BST 退化。">O(log n)，因為 BST 的搜尋每次排除一半</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。BST 沒有記住最後插入的位置，搜尋一定從根開始。">O(1)，因為 n 是最後插入的</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是把 n 個鍵全部插入的平均成本，不是單次 get 的成本。">O(n log n)</button>
     </div>
     <div class="sq-fb"></div>
   </div>
   <div class="sq-item">
-    <div class="sq-q"><span class="sq-num">Q8.</span>以邊數定義 height 時，最瘦的 AVL tree 應滿足哪個敘述？</div>
+    <div class="sq-q"><span class="sq-num">Q8.</span>AVL 樹中某節點的平衡因子是 -2，它的右子節點平衡因子是 +1。應該怎麼旋轉？</div>
     <div class="sq-opts">
-      <button class="sq-opt" data-c="0" data-fb="不對。Fibonacci 推導給的是上界（差一個 additive constant），不是每棵樹的精確等式。">每棵 AVL 的精確高度都等於 1.44 log2(n)。</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！N_0=1、N_1=2 對應 Fibonacci index h+3。">N_h = F_(h+3) - 1，因此 height 是 O(log n)。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。最少節點數遵循 Fibonacci 型遞迴，不是平方。">N_h = h²，因此 height 是 O(sqrt(n))。</button>
-      <button class="sq-opt" data-c="0" data-fb="不對。AVL height 隨節點數呈對數成長。">AVL 平衡會讓 height 維持常數。</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。右子是左重，直接左旋會變成往另一邊不平衡；先右旋右子，再左旋本節點。">先對右子節點右旋，再對這個節點左旋</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。右子左重時只做一次左旋，結果會變成平衡因子 +2，還是不平衡。">只對這個節點左旋</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。這是左重（平衡因子 +2）且左子右重時的處理方式。">先對左子節點左旋，再對這個節點右旋</button>
+      <button class="sq-opt" data-c="0" data-fb="不對。平衡因子 -2 表示右邊太高，右旋會讓右邊更高。">只對這個節點右旋</button>
     </div>
     <div class="sq-fb"></div>
   </div>
 </section>
 <section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch9.json · 33 張</span></h2>
-  <p>詞彙卡取自本章課程題庫，已譯為繁體中文，正面附英文原名。先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch9.json · 37 張</span></h2>
+  <p>詞彙卡涵蓋本章的關鍵術語，已譯為繁體中文，正面附英文原名。先看正面術語，試著說出定義，再翻面核對；不熟的詞可以洗牌後再練習。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>
     <button id="fcFlipAll">全部翻面</button>
@@ -2455,6 +3488,11 @@ function initTraversals() {
     balanced: () => {
       const arr = ['F','B','A',null,null,'D','C',null,null,'E',null,null,'G',null,'H',null,null];
       return buildFromArr(arr);
+    },
+    book: () => {
+      const arr = ['Book','Ch1','1.1',null,null,'1.2','1.2.1',null,null,'1.2.2',null,null,
+                   'Ch2','2.1',null,null,'2.2','2.2.1',null,null,'2.2.2',null,null];
+      return buildFromArr(arr);
     }
   };
 
@@ -2535,21 +3573,27 @@ function initTraversals() {
     player.reset();
     // Update code panel to match traversal
     const codeMap = {
-      preorder: `<span class="line" data-l="1"><span class="fn">preorder</span>(tree):</span>
-<span class="line" data-l="2">    <span class="kw">if</span> tree != <span class="num">NULL</span>:</span>
-<span class="line" data-l="3">        <span class="fn">visit</span>(tree-&gt;key)   <span class="com">// root</span></span>
-<span class="line" data-l="4">        <span class="fn">preorder</span>(tree-&gt;left)</span>
-<span class="line" data-l="5">        <span class="fn">preorder</span>(tree-&gt;right)</span>`,
-      inorder: `<span class="line" data-l="1"><span class="fn">inorder</span>(tree):</span>
-<span class="line" data-l="2">    <span class="kw">if</span> tree != <span class="num">NULL</span>:</span>
-<span class="line" data-l="3">        <span class="fn">inorder</span>(tree-&gt;left)</span>
-<span class="line" data-l="4">        <span class="fn">visit</span>(tree-&gt;key)   <span class="com">// root</span></span>
-<span class="line" data-l="5">        <span class="fn">inorder</span>(tree-&gt;right)</span>`,
-      postorder: `<span class="line" data-l="1"><span class="fn">postorder</span>(tree):</span>
-<span class="line" data-l="2">    <span class="kw">if</span> tree != <span class="num">NULL</span>:</span>
-<span class="line" data-l="3">        <span class="fn">postorder</span>(tree-&gt;left)</span>
-<span class="line" data-l="4">        <span class="fn">postorder</span>(tree-&gt;right)</span>
-<span class="line" data-l="5">        <span class="fn">visit</span>(tree-&gt;key)   <span class="com">// root</span></span>`,
+      preorder: `<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">preorder</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree != <span class="num">NULL</span>) {</span>
+<span class="line" data-l="3">        cout &lt;&lt; tree-&gt;<span class="fn">getRootVal</span>() &lt;&lt; <span class="str">" "</span>;   <span class="com">// root</span></span>
+<span class="line" data-l="4">        <span class="fn">preorder</span>(tree-&gt;<span class="fn">getLeftChild</span>());</span>
+<span class="line" data-l="5">        <span class="fn">preorder</span>(tree-&gt;<span class="fn">getRightChild</span>());</span>
+<span class="line">    }</span>
+<span class="line">}</span>`,
+      inorder: `<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">inorder</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree != <span class="num">NULL</span>) {</span>
+<span class="line" data-l="3">        <span class="fn">inorder</span>(tree-&gt;<span class="fn">getLeftChild</span>());</span>
+<span class="line" data-l="4">        cout &lt;&lt; tree-&gt;<span class="fn">getRootVal</span>() &lt;&lt; <span class="str">" "</span>;   <span class="com">// root</span></span>
+<span class="line" data-l="5">        <span class="fn">inorder</span>(tree-&gt;<span class="fn">getRightChild</span>());</span>
+<span class="line">    }</span>
+<span class="line">}</span>`,
+      postorder: `<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">postorder</span>(BinaryTree* tree) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (tree != <span class="num">NULL</span>) {</span>
+<span class="line" data-l="3">        <span class="fn">postorder</span>(tree-&gt;<span class="fn">getLeftChild</span>());</span>
+<span class="line" data-l="4">        <span class="fn">postorder</span>(tree-&gt;<span class="fn">getRightChild</span>());</span>
+<span class="line" data-l="5">        cout &lt;&lt; tree-&gt;<span class="fn">getRootVal</span>() &lt;&lt; <span class="str">" "</span>;   <span class="com">// root</span></span>
+<span class="line">    }</span>
+<span class="line">}</span>`,
     };
     $('travCode').innerHTML = codeMap[currentTrav];
   }
@@ -2604,7 +3648,7 @@ function initHeap() {
   if (!canvas) return;
   const listEl = $('heapList');
 
-  let heapArr = [3, 5, 9, 7, 11, 15, 14];
+  let heapArr = [5, 9, 11, 14, 18, 19, 21, 33, 17, 27];
   let currentOp = 'insert';
   let player = null;
   let stats = { swap: 0, cmp: 0 };
@@ -2886,6 +3930,23 @@ function initHeap() {
   });
 
   $('heapInsertBtn').onclick = startOp;
+  // Lecture examples: set the operation, the array and the key, then let 開始／單步 run them.
+  document.querySelectorAll('#heap .preset-btn[data-heapdemo]').forEach(btn => {
+    btn.onclick = () => {
+      const opBtn = document.querySelector(`#heap .preset-btn[data-op="${btn.dataset.heapdemo}"]`);
+      if (opBtn) opBtn.click();
+      $('heapArrInput').value = btn.dataset.arr;
+      if (btn.dataset.key) $('heapInsertKey').value = btn.dataset.key;
+      if (player) player.stop();
+      player = null;
+      heapArr = btn.dataset.arr.split(/[\s,]+/).map(x => parseInt(x, 10)).filter(n => !isNaN(n));
+      renderHeap(heapArr, {});
+      setText($('heapStatus'), btn.dataset.msg || '');
+      setText($('heapSwap'), '0'); setText($('heapCmp'), '0');
+      setText($('heapIdx'), '—'); setText($('heapPar'), '—');
+      hlLine($('heapCode'), null);
+    };
+  });
   $('heapApplyArr').onclick = () => {
     const raw = $('heapArrInput').value.split(/[\s,]+/).map(s=>parseInt(s,10)).filter(n=>!isNaN(n));
     heapArr = raw;
@@ -3339,21 +4400,23 @@ function initBSTDelete() {
     $('delTarget').textContent = '—';
     $('delSucc').textContent = '—';
     $('delPhase').textContent = '—';
+    if (player) player.stop();
+    player = null;
   }
 
-  function startDel() {
+  function startDel(autoplay = true) {
     const k = parseInt($('delKey').value, 10);
     if (isNaN(k)) return;
     if (player) player.stop();
     const steps = genDeleteSteps(k);
     player = new Player({ steps, apply: applyStep, delay: parseInt($('delSpeed').value, 10) });
     player.reset();
-    player.play();
+    if (autoplay) player.play();
   }
 
   $('delApplyInit').onclick = rebuild;
-  $('delPlay').onclick = startDel;
-  $('delStep').onclick = () => { if (!player) startDel(); else player.step(); };
+  $('delPlay').onclick = () => startDel(true);
+  $('delStep').onclick = () => { if (!player) startDel(false); else player.step(); };
   $('delReset').onclick = rebuild;
   $('delSpeed').addEventListener('input', () => {
     if (player) player.setDelay(parseInt($('delSpeed').value, 10));
@@ -3646,7 +4709,7 @@ window.addEventListener('resize', debounce(() => {
 }, 200));
 </script>
 <script>
-const FLASHCARDS = [{"front": "樹（Trees）", "back": "由節點組成的階層式資料結構：每個節點存放資料並持有指向子節點的參考，讓資料的組織與檢索都很有效率。"}, {"front": "節點（Node）", "back": "樹的基本組成：存放資料，並持有指向其他節點（子節點）的參考。每個節點代表一筆資料或結構中的一個位置。"}, {"front": "邊（Edge）", "back": "樹中兩節點之間的連接，代表父節點到子節點的關係或連結。"}, {"front": "根（Root）", "back": "樹最頂端的節點：所有其他節點都由它往下衍生，它自己沒有父節點。"}, {"front": "路徑（Path）", "back": "連接某節點與其子孫的一串節點與邊，描述在樹中從一個節點走到另一個節點的路線。"}, {"front": "子節點（Children）", "back": "在樹中直接連在某節點（父節點）底下、由它衍生的節點。"}, {"front": "父節點（Parent）", "back": "在階層中直接帶有一個以上子節點的節點。"}, {"front": "兄弟節點（Sibling）", "back": "擁有同一個父節點、位於樹中同一層的節點。"}, {"front": "子樹（Subtree）", "back": "由某節點與其全部子孫構成的樹的一部分，本身也是一棵樹。"}, {"front": "葉節點（Leaf node）", "back": "沒有任何子節點的節點，是樹的端點。"}, {"front": "層（Level）", "back": "節點的深度層次：根是第 0 層，往下每走一步加一。"}, {"front": "高度（Height）", "back": "根到最遠葉節點路徑上的最大邊數；只有根的一節點樹高度為 0。"}, {"front": "二元樹（Binary Tree）", "back": "每個節點最多兩個子節點的樹，兩個子節點通常稱為左子與右子。"}, {"front": "串列的串列（List of Lists）", "back": "Python 原書的巢狀串列表示；C++ 課程主線使用節點與 child pointers。"}, {"front": "節點與參考（Nodes and References）", "back": "樹的實作方法之一：每個節點物件存放自己的資料，以及指向子節點的明確連結。"}, {"front": "解析樹（Parse Tree）", "back": "依形式文法表示一個字串語法結構的樹，編譯器裡的核心資料結構。"}, {"front": "運算式樹（Expression Tree）", "back": "表示運算式的二元樹：內部節點是運算子，葉節點是運算元。"}, {"front": "前序走訪（Preorder）", "back": "「先處理節點本身、再處理子節點」的樹走訪：順序是根、左、右。"}, {"front": "後序走訪（Postorder）", "back": "「先處理子節點、最後處理節點本身」的樹走訪：順序是左、右、根。"}, {"front": "中序走訪（Inorder）", "back": "二元樹的走訪方式：順序是左子、根、右子。用在 BST 上會得到由小到大的序列。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的抽象資料型別：出隊順序由優先權決定，而非先來後到。"}, {"front": "二元堆積（Binary Heap）", "back": "儲存在 zero-based vector 的完全二元樹；min-heap 中每個 parent 都不大於 children。"}, {"front": "完全二元樹（Complete Binary Tree）", "back": "除了最後一層外每層都填滿、且最後一層節點盡量靠左的二元樹。"}, {"front": "堆積結構性質（Heap Structure Property）", "back": "堆積必須是完全二元樹的要求，用來保證樹的平衡。"}, {"front": "堆積順序性質（Heap Order Property）", "back": "節點與子節點之間必須維持的特定大小關係（max-heap 或 min-heap）。"}, {"front": "最大堆積（Max-Heap）", "back": "每個節點的值都大於等於其子節點的堆積：最大值永遠在根。"}, {"front": "最小堆積（Min-Heap）", "back": "每個節點的值都小於等於其子節點的堆積：最小值永遠在根。"}, {"front": "二元搜尋樹（BST, Binary Search Tree）", "back": "每個節點的鍵都大於左子樹所有鍵、小於右子樹所有鍵的二元樹。"}, {"front": "後繼者（Successor）", "back": "在 BST 的中序走訪中，緊接在某節點之後的那個節點；刪除有兩個子節點的節點時用它來替補。"}, {"front": "平衡二元搜尋樹（Balanced Binary Search Tree）", "back": "會自動調整以維持低高度的 BST，確保各路徑長度都維持在最短量級。"}, {"front": "平衡因子（Balance Factor）", "back": "AVL 樹中，一個節點左子樹高度減右子樹高度的差值。"}, {"front": "AVL 樹（AVL Tree）", "back": "自我平衡的 BST：任一節點兩側子樹高度差最多為 1，樹高為 O(log n)；旋轉實作列為選讀。"}, {"front": "Bottom-up buildHeap", "back": "從最後一個非葉節點往 root 做 percDown，可在 O(n) 建 heap；逐一 insert 則為 O(n log n)。"}];
+const FLASHCARDS = [{"front": "樹（Trees）", "back": "由節點組成的階層式資料結構：每個節點存放資料並持有指向子節點的參考，讓資料的組織與檢索都很有效率。"}, {"front": "節點（Node）", "back": "樹的基本組成：存放資料，並持有指向其他節點（子節點）的參考。每個節點代表一筆資料或結構中的一個位置。"}, {"front": "邊（Edge）", "back": "樹中兩節點之間的連接，代表父節點到子節點的關係或連結。"}, {"front": "根（Root）", "back": "樹最頂端的節點：所有其他節點都由它往下衍生，它自己沒有父節點。"}, {"front": "路徑（Path）", "back": "連接某節點與其子孫的一串節點與邊，描述在樹中從一個節點走到另一個節點的路線。"}, {"front": "子節點（Children）", "back": "在樹中直接連在某節點（父節點）底下、由它衍生的節點。"}, {"front": "父節點（Parent）", "back": "在階層中直接帶有一個以上子節點的節點。"}, {"front": "兄弟節點（Sibling）", "back": "擁有同一個父節點、位於樹中同一層的節點。"}, {"front": "子樹（Subtree）", "back": "由某節點與其全部子孫構成的樹的一部分，本身也是一棵樹。"}, {"front": "葉節點（Leaf node）", "back": "沒有任何子節點的節點，是樹的端點。"}, {"front": "層（Level）", "back": "節點的深度層次：根是第 0 層，往下每走一步加一。"}, {"front": "高度（Height）", "back": "根到最遠葉節點路徑上的最大邊數；只有根的一節點樹高度為 0。"}, {"front": "二元樹（Binary Tree）", "back": "每個節點最多兩個子節點的樹，兩個子節點通常稱為左子與右子。"}, {"front": "串列的串列（List of Lists）", "back": "Python 原書的巢狀串列表示；C++ 課程主線使用節點與 child pointers。"}, {"front": "節點與參考（Nodes and References）", "back": "樹的實作方法之一：每個節點物件存放自己的資料，以及指向子節點的明確連結。"}, {"front": "解析樹（Parse Tree）", "back": "依形式文法表示一個字串語法結構的樹，編譯器裡的核心資料結構。"}, {"front": "運算式樹（Expression Tree）", "back": "表示運算式的二元樹：內部節點是運算子，葉節點是運算元。"}, {"front": "前序走訪（Preorder）", "back": "「先處理節點本身、再處理子節點」的樹走訪：順序是根、左、右。"}, {"front": "後序走訪（Postorder）", "back": "「先處理子節點、最後處理節點本身」的樹走訪：順序是左、右、根。"}, {"front": "中序走訪（Inorder）", "back": "二元樹的走訪方式：順序是左子、根、右子。用在 BST 上會得到由小到大的序列。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的抽象資料型別：出隊順序由優先權決定，而非先來後到。"}, {"front": "二元堆積（Binary Heap）", "back": "儲存在 zero-based vector 的完全二元樹；min-heap 中每個 parent 都不大於 children。"}, {"front": "完全二元樹（Complete Binary Tree）", "back": "除了最後一層外每層都填滿、且最後一層節點盡量靠左的二元樹。"}, {"front": "堆積結構性質（Heap Structure Property）", "back": "堆積必須是完全二元樹的要求，用來保證樹的平衡。"}, {"front": "堆積順序性質（Heap Order Property）", "back": "節點與子節點之間必須維持的特定大小關係（max-heap 或 min-heap）。"}, {"front": "最大堆積（Max-Heap）", "back": "每個節點的值都大於等於其子節點的堆積：最大值永遠在根。"}, {"front": "最小堆積（Min-Heap）", "back": "每個節點的值都小於等於其子節點的堆積：最小值永遠在根。"}, {"front": "上浮與下沉（percUp／percDown）", "back": "堆積恢復順序性質的兩個動作：insert 把新元素接在尾端再往上和父節點交換（percUp）；delMin 把最後一個元素搬到根，再和較小的子節點交換往下沉（percDown）。各為 O(log n)。"}, {"front": "二元搜尋樹（BST, Binary Search Tree）", "back": "每個節點的鍵都大於左子樹所有鍵、小於右子樹所有鍵的二元樹。"}, {"front": "BST 性質（BST Property）", "back": "BST 的定義規則：每個節點左子樹的鍵都比它小，右子樹的鍵都比它大。"}, {"front": "後繼者（Successor）", "back": "在 BST 的中序走訪中，緊接在某節點之後的那個節點；刪除有兩個子節點的節點時用它來替補。"}, {"front": "遞迴中序走訪（Recursive Inorder Traversal）", "back": "遞迴地依序處理左子樹、節點本身、右子樹；用在 BST 上會依鍵由小到大輸出，時間 O(n)，遞迴深度 O(h)。"}, {"front": "平衡二元搜尋樹（Balanced Binary Search Tree）", "back": "會自動調整以維持低高度的 BST，確保各路徑長度都維持在最短量級。"}, {"front": "平衡因子（Balance Factor）", "back": "AVL 樹中，一個節點左子樹高度減右子樹高度的差值。"}, {"front": "旋轉（Rotation）", "back": "AVL 樹重新平衡的局部操作：左旋把右子提為新根、右旋把左子提為新根，BST 的大小順序不變，每次 O(1)。子節點偏向另一邊時要先旋轉子節點，共兩次。"}, {"front": "AVL 樹（AVL Tree）", "back": "自我平衡的 BST：任一節點兩側子樹高度差最多為 1，樹高為 O(log n)；旋轉實作列為選讀。"}, {"front": "Bottom-up buildHeap", "back": "從最後一個非葉節點往 root 做 percDown，可在 O(n) 建 heap；逐一 insert 則為 O(n log n)。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

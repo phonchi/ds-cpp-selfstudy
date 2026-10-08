@@ -1,109 +1,49 @@
 #!/usr/bin/env python3
-"""trees.html 完整自學充實。冪等。"""
+"""trees.html：第九章各節內容、講義圖、程式與練習。冪等，可重跑。
+
+每一節在 h2 之後有一對 <!-- gen:trees-* --> 標記，內容由 content/trees_depth.py 產生：
+手寫的說明與動畫面板在 trees_legacy.py，講義程式在 trees_programs.py，講義圖在 trees_figures.py，
+講義 quiz 在 trees_quizzes.py。動畫引擎（Player）是頁面原有的主 <script>，本腳本不改動。
+"""
+import json
+import re
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
-from enrich_lib import card, ensure_style, insert_end_of_section
+from enrich_lib import ensure_style, _replace_gen
 
-PAGE = Path.home() / "ds-cpp-selfstudy/trees.html"
+ROOT = Path(__file__).resolve().parents[2]
+PAGE = ROOT / "trees.html"
 s = PAGE.read_text()
 s = ensure_style(s)
 
-voc = f'''<h3 id="dx-voc">講義完整範例：BinaryTree 與解析樹的使用畫面</h3>
-{card("講義 09 · BinaryTree 基本操作", """#include <iostream>
-#include "binarytree.hpp"   // 本節的完整類別
-using namespace std;
+from content.trees_depth import sections, STYLE
+from content.trees_figures import STYLE as FIG_STYLE
 
-int main() {{
-    BinaryTree aTree("a");
-    cout << aTree.getRootVal() << endl;
-    cout << aTree.getLeftChild() << endl;      // NULL 印出來是 0
-    aTree.insertLeft("b");
-    cout << aTree.getLeftChild()->getRootVal() << endl;
-    aTree.insertRight("c");
-    cout << aTree.getRightChild()->getRootVal() << endl;
-    aTree.getRightChild()->setRootVal("hello");
-    cout << aTree.getRightChild()->getRootVal() << endl;
-    return 0;
-}}""".replace("{{","{").replace("}}","}"),
-"a\\n0\\nb\\nc\\nhello",
-note="getLeftChild() 回傳的是<strong>整棵左子樹</strong>（BinaryTree*），不只是值：所以能一路 -&gt; 下去操作任何深度的節點。insertLeft 若遇到既有左子樹，會把它「往下推」成新節點的左子樹。")}
-{card("講義 09 · 解析樹：建樹、求值、還原", """#include <iostream>
-#include "binarytree.hpp"   // buildParseTree + evaluate + printExp
-using namespace std;
+for name, block in sections().items():
+    s, ok = _replace_gen(s, name, block)
+    if not ok:
+        raise SystemExit(f"missing <!-- gen:{name} --> markers in {PAGE.name}")
 
-int main() {{
-    BinaryTree* pt = buildParseTree("( 3 + ( 4 * 5 ) )");
-    inorder(pt);                      // 中序走訪：印回運算式的骨架
-    cout << endl;
-    cout << evaluate(pt) << endl;     // 後序邏輯：先算子樹再套運算子
-    cout << printExp(pt) << endl;     // 中序＋括號還原
-    return 0;
-}}""".replace("{{","{").replace("}}","}"),
-"3 + 4 * 5 \\n23\\n((3)+((4)*(5)))",
-note="三個函式就是三種走訪的應用：inorder 印骨架（但括號不見了）、evaluate 是後序（算 4*5=20 再算 3+20）、printExp 是中序加括號（每個子樹都包一層，連葉節點也包）。課後練習：改 printExp，讓葉節點不要包括號，輸出變成 (3+(4*5))。")}'''
-s, c1 = insert_end_of_section(s, "vocabulary", voc, 'id="dx-voc"')
+for sid, css in (('trees-depth-style', STYLE), ('trees-figures-style', FIG_STYLE)):
+    if f'id="{sid}"' in s:
+        s = re.sub(rf'<style id="{sid}">.*?</style>', lambda m: css, s, count=1, flags=re.S)
+    else:
+        s = s.replace('</head>', css + '\n</head>', 1)
 
-hp = f'''{card("講義 09 · heapify 的使用畫面＋heapSort 練習", """#include <iostream>
-#include <vector>
-#include "binaryheap.hpp"
-using namespace std;
+# Counts shown in the table of contents, float navigation and study guide.
+n_cards = len(json.loads((ROOT / "data/flashcards_zh/ch9.json").read_text()))
+n_qs = len(json.loads((ROOT / "data/questions_zh/ch9.json").read_text()))
+s, n1 = re.subn(r'關鍵詞彙卡（\d+ 張）', f'關鍵詞彙卡（{n_cards} 張）', s)
+s, n2 = re.subn(r'題庫 ch9\.json · \d+ 張', f'題庫 ch9.json · {n_cards} 張', s)
+s, n3 = re.subn(r'自我檢測（\d+ 題）', f'自我檢測（{n_qs} 題）', s)
+if (n1, n2, n3) != (2, 1, 2):
+    raise SystemExit(f"count labels not found: {n1}, {n2}, {n3}")
 
-vector<int> heapSort(vector<int> unsortedList) {{
-    BinaryHeap heap;
-    vector<int> sortedList;
-    ____;                  // 1. heap.buildHeap(unsortedList)，O(n)
-    while (____) {{         // 2. !heap.isEmpty()
-        ____;
-    }}
-    return sortedList;
-}}
-
-int main() {{
-    BinaryHeap aHeap;
-    aHeap.buildHeap({{10, 4, 9, 8, 12, 15, 3, 5, 14, 18}});
-    aHeap.print();
-
-    for (int x : heapSort({{10, 3, 5, 1, 15, 7, 9, 2, 8}})) cout << x << " ";
-    cout << endl;
-    return 0;
-}}""".replace("{{","{").replace("}}","}"),
-"3 4 9 5 12 15 10 8 14 18\\n1 2 3 5 7 8 9 10 15", out_label="buildHeap 與 heapSort 的輸出",
-note='<span id="dx-hp"></span>第一行是 buildHeap 建立的最小堆積，每個父節點都小於或等於其子節點；第二行是 heapSort 排好的結果。buildHeap 為 O(n)，逐一 insert 建堆的最差成本為 O(n log n)；delMin 每次 O(log n)。')}'''
-s, c2 = insert_end_of_section(s, "heap", hp, 'id="dx-hp"')
-
-bst = f'''{card("講義 09 · BinarySearchTree 當 Map 用＋treeSort 練習", """#include <iostream>
-#include <vector>
-#include "bst.hpp"   // TreeNode + BinarySearchTree
-using namespace std;
-
-vector<string> treeSort(vector<string> values) {{
-    BinarySearchTree bst;
-    vector<string> result;
-    ____;   // 1. 全部 put 進去（平均每次 O(log n)）
-    ____;   // 2. 中序走訪，鍵自動由小到大（O(n)）
-    return result;
-}}
-
-int main() {{
-    BinarySearchTree myTree;
-    myTree.put("a", "a");      myTree.put("q", "quick");
-    myTree.put("b", "brown");  myTree.put("f", "fox");
-    myTree.put("j", "jumps");  myTree.put("o", "over");
-    myTree.put("t", "the");    myTree.put("l", "lazy");
-    myTree.put("d", "dog");
-
-    cout << myTree.get("q") << " " << myTree.get("l") << endl;
-    cout << "There are " << myTree.length() << " items in this tree" << endl;
-    myTree.remove("a");
-    cout << "There are " << myTree.length() << " items in this tree" << endl;
-    myTree.inorder(myTree.root);   // 依鍵序印出 value
-    cout << endl;
-    return 0;
-}}""".replace("{{","{").replace("}}","}"),
-"quick lazy\\nThere are 9 items in this tree\\nThere are 8 items in this tree\\nbrown dog fox jumps lazy over quick the ",
-note='<span id="dx-bst"></span>中序走訪 BST 會依鍵排序。put 遇到重複 key 時更新 value、size 不變；protected virtual insertOrAssign hook 讓 AVL 延伸插入而不繞過 size 契約。remove 釋放節點，整棵樹使用 deep-copy/move ownership。'.replace("{{","{").replace("}}","}"))}'''
-s, c3 = insert_end_of_section(s, "bst", bst, 'id="dx-bst"')
-
+# Preserve output spaces as HTML entities without source trailing whitespace.
+s = re.sub(r'<pre>.*?</pre>', lambda m: re.sub(r' +(?=\n)', lambda w: '&#32;' * len(w.group()), m.group()), s, flags=re.S)
+s = re.sub(r'(?m)^[ \t]+$', '', s)
+from content.teaching_copy import polish_preserved
+s = polish_preserved("trees", s)
 PAGE.write_text(s)
-print("inserted:", [n for n,ok in zip("voc heap bst".split(),[c1,c2,c3]) if ok])
+print("updated:", ", ".join(sections()))

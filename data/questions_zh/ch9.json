@@ -1,58 +1,58 @@
 [
-{"question": "AVL 樹改良了標準二元搜尋樹的哪一點？",
+{"question": "BinaryHeap 用 zero-based vector 存放完全二元樹。索引 4 的節點，父節點與左右子節點的索引分別是多少？",
  "answers": [
-  {"answer": "它用特殊的雜湊函數把節點分布得更平均。", "correct": false, "feedback": "不對。AVL 樹靠的是基於高度的旋轉，不是雜湊。"},
-  {"answer": "它會自動做旋轉，確保樹高維持在 O(log n)。", "correct": true, "feedback": "正確！它替每個節點維護平衡因子，防止樹歪斜，保證搜尋維持對數時間。"},
-  {"answer": "它允許一個節點存多個鍵來省記憶體。", "correct": false, "feedback": "不對。那是 B-Tree 這類結構的做法；AVL 的節點仍然一個節點一個鍵。"},
-  {"answer": "它完全不需要刪除操作。", "correct": false, "feedback": "不對。AVL 樹仍支援也需要刪除操作，而且刪除後還要重新平衡。"}
+  {"answer": "父節點 1，子節點 9 和 10", "correct": true, "feedback": "正確。父節點是 (4 - 1) / 2 = 1（整數除法），左子 2·4 + 1 = 9，右子 2·4 + 2 = 10。"},
+  {"answer": "父節點 2，子節點 8 和 9", "correct": false, "feedback": "不對。這是索引從 1 開始時的公式（父 i/2、子 2i 與 2i + 1）；課程的 heap 從索引 0 開始。"},
+  {"answer": "父節點 1，子節點 8 和 9", "correct": false, "feedback": "不對。父節點算對了，但左子在 2p + 1 = 9，不是 2p = 8。"},
+  {"answer": "父節點 3，子節點 5 和 6", "correct": false, "feedback": "不對。相鄰的索引不是父子關係；往下一層索引大約加倍。"}
  ]},
-{"question": "用二元堆積（Binary Heap）實作優先佇列，最主要的理由是什麼？",
+{"question": "BinaryTree t(\"a\"); 之後依序執行 t.insertLeft(\"b\"); t.insertLeft(\"x\");。現在樹的形狀是哪一個？",
  "answers": [
-  {"answer": "它能在 O(n) 時間找到最大或最小元素。", "correct": false, "feedback": "不對。堆積的好處是根（最小值或最大值）O(1) 就拿得到。"},
-  {"answer": "完全二元樹使高度為 O(log n)，所以 insert 與 delete-min 都是 O(log n)。", "correct": true, "feedback": "正確！完全二元樹不必是完美平衡，也不會把 vector 完整排序。"},
-  {"answer": "它把元素在底層串列中完全排序好。", "correct": false, "feedback": "不對。堆積只維持「部分順序」（堆積順序性質），不是完全排序。"},
-  {"answer": "它讓插入完全不需要比較操作。", "correct": false, "feedback": "不對。插入需要比較才能執行 percolate up（往上浮）的過程。"}
+  {"answer": "a 的左子是 x，x 的左子是 b", "correct": true, "feedback": "正確。第二次 insertLeft 時 a 已經有左子 b，新節點 x 插在中間，原本的 b 被往下推成 x 的左子。"},
+  {"answer": "a 的左子是 b，b 的左子是 x", "correct": false, "feedback": "不對。insertLeft 是在 a 的正下方插入新節點，不是接到最底層。"},
+  {"answer": "a 的左子是 x，b 被覆蓋掉了", "correct": false, "feedback": "不對。課程版 insertLeft 會保留原本的子樹，把它接到新節點底下。"},
+  {"answer": "a 的左子是 b，右子是 x", "correct": false, "feedback": "不對。insertLeft 只會動到左邊；右邊要用 insertRight。"}
  ]},
-{"question": "二元搜尋樹（BST）中，每個節點必須滿足什麼性質，搜尋才會有效率？",
+{"question": "運算式 ((7 + 3) * (5 - 2)) 的解析樹做後序走訪，印出的順序是哪一個？",
  "answers": [
-  {"answer": "節點的鍵必須大於左子樹的所有鍵、小於右子樹的所有鍵。", "correct": true, "feedback": "正確！每次比較會排除一棵不可能的子樹。成本是 O(h)，取決於樹高；基本 BST 不保證每步砍掉一半節點。"},
-  {"answer": "每個節點都必須恰好有兩個子節點以維持平衡。", "correct": false, "feedback": "不對。節點可以有 0、1 或 2 個子節點，BST 不要求一定要有兩個。"},
-  {"answer": "鍵必須按排序好的順序插入，才能建出最有效率的樹。", "correct": false, "feedback": "不對。按排序順序插入反而會建出「歪斜」成串列狀的樹，效率極差。"},
-  {"answer": "所有葉節點必須在同一層深度。", "correct": false, "feedback": "不對。那是完美平衡樹的描述，基本 BST 並不保證。"}
+  {"answer": "7 3 + 5 2 - *", "correct": true, "feedback": "正確。後序先走左子樹（7 3 +）、再走右子樹（5 2 -），最後印根 *，得到後序（postfix）形式。"},
+  {"answer": "* + 7 3 - 5 2", "correct": false, "feedback": "不對。這是前序走訪：根最先印出。"},
+  {"answer": "7 + 3 * 5 - 2", "correct": false, "feedback": "不對。這是中序走訪，少了括號，意思也跟原式不同。"},
+  {"answer": "7 3 5 2 + - *", "correct": false, "feedback": "不對。後序是一棵子樹走完才換下一棵，+ 要緊接在 7 3 之後。"}
  ]},
-{"question": "哪一種樹走訪方式，是等所有子樹都走完之後才造訪根節點？",
+{"question": "對 buildParseTree(\"( ( 10 / 2 ) - ( 6 - 3 ) )\") 建出的樹呼叫 evaluate，結果是多少？",
  "answers": [
-  {"answer": "前序走訪（Preorder）", "correct": false, "feedback": "不對。前序走訪最先造訪根節點，然後才是子樹。"},
-  {"answer": "中序走訪（Inorder）", "correct": false, "feedback": "不對。中序走訪的順序是左子樹、根、右子樹。"},
-  {"answer": "後序走訪（Postorder）", "correct": true, "feedback": "正確！後序走訪先走左子樹、再走右子樹，最後才造訪根節點。"},
-  {"answer": "層序走訪（Level-order）", "correct": false, "feedback": "不對。層序走訪是由上往下一層一層造訪節點。"}
+  {"answer": "2", "correct": true, "feedback": "正確。根是 -；左子樹 10 / 2 = 5，右子樹 6 - 3 = 3，最後 5 - 3 = 2。"},
+  {"answer": "8", "correct": false, "feedback": "不對。這是把根的 - 當成 + 的結果。evaluate 用的是根存的運算子。"},
+  {"answer": "-2", "correct": false, "feedback": "不對。左子樹的結果是被減數：5 - 3，不是 3 - 5。"},
+  {"answer": "1.4", "correct": false, "feedback": "不對。這是由左往右直接計算 10 / 2 - 6 - 3 之類沒有括號的算法；解析樹依括號的結構先算兩個子樹。"}
  ]},
-{"question": "關於樹的邊與節點，下列哪個敘述正確？",
+{"question": "在 heap [5, 9, 11, 14, 18, 19, 21, 33, 17, 27] 中 insert(7) 之後，vector 是哪一個？",
  "answers": [
-  {"answer": "樹中每個節點都至少要有一條入邊。", "correct": false, "feedback": "不對。根節點是特例：它沒有入邊。"},
-  {"answer": "除了根以外，每個節點都恰好有一條來自其他節點的入邊。", "correct": true, "feedback": "正確！這是教材對樹結構定義的基本性質。"},
-  {"answer": "葉節點的定義是恰好有一條出邊的節點。", "correct": false, "feedback": "不對。葉節點是沒有子節點的節點，也就是出邊數為零。"},
-  {"answer": "樹的高度等於它包含的邊的總數。", "correct": false, "feedback": "不對。高度是樹中節點的最大層數，不是邊的總數。"}
+  {"answer": "[5, 7, 11, 14, 9, 19, 21, 33, 17, 27, 18]", "correct": true, "feedback": "正確。7 先接在索引 10（18 的右子），比 18 小交換到索引 4，再比 9 小交換到索引 1；和 5 比較後停止。"},
+  {"answer": "[5, 9, 11, 14, 7, 19, 21, 33, 17, 27, 18]", "correct": false, "feedback": "不對。7 交換到索引 4 之後還比父節點 9 小，percUp 會繼續往上。"},
+  {"answer": "[5, 7, 9, 11, 14, 17, 18, 19, 21, 27, 33]", "correct": false, "feedback": "不對。heap 不會把整個 vector 排序，只沿著一條路徑往上交換。"},
+  {"answer": "[7, 5, 11, 14, 9, 19, 21, 33, 17, 27, 18]", "correct": false, "feedback": "不對。7 不小於根 5，所以不會換到根。"}
  ]},
-{"question": "從 n 個 keys 建立 heap 時，逐一 insert 與 bottom-up buildHeap 的複雜度如何？",
+{"question": "BST 刪除一個有兩個子節點的節點時，課程的 remove 怎麼做？",
  "answers": [
-  {"answer": "兩者永遠都是 O(n)。", "correct": false, "feedback": "不對。逐一 insert 時，每個 key 最壞可能往上移 O(log n) 層。"},
-  {"answer": "逐一 insert 是 O(n log n)，bottom-up buildHeap 是 O(n)。", "correct": true, "feedback": "正確！bottom-up 的大多數節點靠近 leaves，percDown 總工作量是線性的。"},
-  {"answer": "逐一 insert 是 O(n²)，buildHeap 是 O(log n)。", "correct": false, "feedback": "不對。Heap insert 是 append 再 percolate，不是在排序 vector 中搬移全部元素。"},
-  {"answer": "buildHeap 必須先完整排序 vector。", "correct": false, "feedback": "不對。Heap 只維持 parent-child 的部分順序。"}
+  {"answer": "找右子樹中最小的節點（後繼者），把它拆出來，再把它的鍵和值複製到要刪的節點", "correct": true, "feedback": "正確。後繼者最多一個子節點，用 spliceOut 拆出很簡單；複製鍵值後 BST 性質仍然成立。"},
+  {"answer": "直接把左子節點提上來取代要刪的節點", "correct": false, "feedback": "不對。兩個子節點都在時，提上左子會讓原本的右子樹沒有地方接，或破壞 BST 性質。"},
+  {"answer": "把整棵右子樹刪掉，再把左子提上來", "correct": false, "feedback": "不對。remove 只刪除一個鍵，不能連帶刪除其他鍵。"},
+  {"answer": "把要刪的節點和根交換，再刪掉根", "correct": false, "feedback": "不對。這是 heap 的 delMin 做法，不適用於 BST 的任意刪除。"}
  ]},
-{"question": "課程 BST map 的 put(key, value) 遇到既有 key 時應怎麼做？",
+{"question": "把 1, 2, 3, …, n 依序 put 進一棵空的（不會自動平衡的）BST，接著 get(n) 的成本是多少？",
  "answers": [
-  {"answer": "把 duplicate node 插到右子樹並增加 size。", "correct": false, "feedback": "不對。這會破壞 Map 語意，還可能讓 duplicate 無法由一般搜尋取得。"},
-  {"answer": "更新既有 value，size 維持不變。", "correct": true, "feedback": "正確！這是 insert-or-assign 語意。"},
-  {"answer": "刪除該 key 以下的整棵 subtree。", "correct": false, "feedback": "不對。更新 value 不應改變樹結構。"},
-  {"answer": "丟出 underflow_error。", "correct": false, "feedback": "不對。underflow_error 用於空 heap 存取，不是 BST assignment。"}
+  {"answer": "O(n)，因為樹退化成一條往右的鏈，高度是 n - 1", "correct": true, "feedback": "正確。每個新鍵都比前面的大，只能接在最右邊；get(n) 要走過全部 n 個節點。"},
+  {"answer": "O(log n)，因為 BST 的搜尋每次排除一半", "correct": false, "feedback": "不對。只有樹大致平衡時才會每次排除約一半；排序好的輸入會讓 BST 退化。"},
+  {"answer": "O(1)，因為 n 是最後插入的", "correct": false, "feedback": "不對。BST 沒有記住最後插入的位置，搜尋一定從根開始。"},
+  {"answer": "O(n log n)", "correct": false, "feedback": "不對。這是把 n 個鍵全部插入的平均成本，不是單次 get 的成本。"}
  ]},
-{"question": "以邊數定義 height 時，最瘦的 AVL tree 應滿足哪個敘述？",
+{"question": "AVL 樹中某節點的平衡因子是 -2，它的右子節點平衡因子是 +1。應該怎麼旋轉？",
  "answers": [
-  {"answer": "每棵 AVL 的精確高度都等於 1.44 log2(n)。", "correct": false, "feedback": "不對。Fibonacci 推導給的是上界（差一個 additive constant），不是每棵樹的精確等式。"},
-  {"answer": "N_h = F_(h+3) - 1，因此 height 是 O(log n)。", "correct": true, "feedback": "正確！N_0=1、N_1=2 對應 Fibonacci index h+3。"},
-  {"answer": "N_h = h²，因此 height 是 O(sqrt(n))。", "correct": false, "feedback": "不對。最少節點數遵循 Fibonacci 型遞迴，不是平方。"},
-  {"answer": "AVL 平衡會讓 height 維持常數。", "correct": false, "feedback": "不對。AVL height 隨節點數呈對數成長。"}
+  {"answer": "先對右子節點右旋，再對這個節點左旋", "correct": true, "feedback": "正確。右子是左重，直接左旋會變成往另一邊不平衡；先右旋右子，再左旋本節點。"},
+  {"answer": "只對這個節點左旋", "correct": false, "feedback": "不對。右子左重時只做一次左旋，結果會變成平衡因子 +2，還是不平衡。"},
+  {"answer": "先對左子節點左旋，再對這個節點右旋", "correct": false, "feedback": "不對。這是左重（平衡因子 +2）且左子右重時的處理方式。"},
+  {"answer": "只對這個節點右旋", "correct": false, "feedback": "不對。平衡因子 -2 表示右邊太高，右旋會讓右邊更高。"}
  ]}
 ]

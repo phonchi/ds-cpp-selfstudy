@@ -76,7 +76,7 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 | `tools/prereq_authoring.py` | 舊改寫的輔助程式；不得用來覆蓋目前恢復的 P1–P9 原版互動 |
 | `tools/check_00c.py` | 解析 00C 三份 JSON、核對圖片與範圍，並編譯三種匿名專案模式 |
 | `tools/enrich/enrich_lib.py` | 頁面同格式 C++ 上色、講義範例卡、插入器，以及 `run_cpp()`（編譯執行取真實輸出） |
-| `tools/enrich/enrich_*.py` | 九章正課頁的充實腳本，靠 `dx-*` 標記冪等（已注入完畢，**不要重跑**）。例外：`enrich_analysis.py`、`enrich_arrays.py`、`enrich_linked.py` 可重跑，更新各自的受管區塊。第三、四章的補充來源在 `tools/enrich/content/`；修改來源後重跑對應腳本，並驗證再次生成無差異 |
+| `tools/enrich/enrich_*.py` | 正課頁的產生腳本。第 2–9 章（`enrich_analysis.py`、`enrich_arrays.py`、`enrich_linked.py`、`enrich_linear.py`、`enrich_recursion.py`、`enrich_search.py`、`enrich_graphs.py`、`enrich_trees.py`）以 `<!-- gen:… -->` 受管區塊冪等重生，內容來源在 `tools/enrich/content/`；改稿一律改來源再重跑，接著跑 `apply_zh.py --pages <頁>` 與 `shuffle_quiz`，並驗證再次生成無差異。`enrich_intro.py` 是一次性舊腳本，**不要重跑** |
 | `tools/fix_bare_include.py` | 講義範例卡裸檔名 include 補 `pythonds3/cppds/` 前綴（冪等）；標頭目錄可用 `DSCPP_HEADERS` 覆寫，預設目錄不存在時警告略過（exit 0） |
 | `tools/shuffle_quiz.py` | 頁內自測題選項固定種子洗牌 JS 注入（冪等，`inject_prereq_cpp.py` 會呼叫） |
 

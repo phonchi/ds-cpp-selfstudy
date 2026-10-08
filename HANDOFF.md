@@ -4,6 +4,22 @@
 `recursion.html` 的整個 `<head>`（1–332 行）除了 `<title>` 之外逐位元組一致。改動任一站之前，
 先看另一站有沒有已經解過同一個問題。
 
+## 第四到九章依講義擴充（2026-10-08）
+
+- 以第 1–3 章為密度基準，依講義 05–09 ipynb 擴充第 5–9 章，第 4 章補齊弱點。commit 由 `bb65058` 到 `b5ba8ab`，尚未 push。
+- 共通做法：
+  - 節次與程式命名照講義；第 8 章已重排。
+  - 講義圖複製到 `assets/figures/chN/`；逐步序列只露出代表圖，其餘收合。
+  - 完整程式收合，輸出保持可見；網站自加的內容收合並標「（補充）」。
+  - 講義 quiz 放進正文；第 7–9 章的章末題庫改為另外出的自我檢測題；各章加上獨立的 `#recap`。
+- **第 5–9 章的產生器已改寫成 gen 架構，可冪等重跑**：
+  - 內容在 `tools/enrich/content/{linear,recursion,search,graphs,trees}_*.py`；
+  - 原本手寫、gen 區外的部分存在 `*_legacy.py`；
+  - 每章的 `docs/verification/20261008-chN/pipeline.sh` 依序跑 enrich → apply_zh → shuffle。
+  - gen 區外的一次性手改，逐項列在各章驗證 README。
+- `chapter_math.render_math` 會誤轉後序式與按鈕文字，第 5–9 章不呼叫；公式直接寫 MathJax `$…$`。
+- 進度、待決事項與講義端的不一致：`handoffs/20261008-205516-ch4-9-expansion.md`。
+
 ## 第三、四章教學改進（2026-10-03）
 
 - 以講義 03／04 ipynb 為主、cppds Ch.4 為輔，重整 `arrays.html`、`linked_lists.html`：

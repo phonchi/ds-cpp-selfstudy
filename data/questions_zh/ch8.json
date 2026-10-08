@@ -1,44 +1,58 @@
 [
-{"question": "為什麼廣度優先搜尋（BFS）在無權重圖上保證找到最短路徑？",
+{"question": "knightGraph(8) 在 8×8 棋盤上存了 336 筆有向的相鄰資料。這代表有幾種無向的合法走法？",
  "answers": [
-  {"answer": "它會先探索完距離起點 k 的所有頂點，才前進到距離 k+1 的頂點。", "correct": true, "feedback": "正確！BFS 像同心圓一層一層往外擴散，第一次碰到目標時，走的必然是最短的那條路徑。"},
-  {"answer": "它總是先選數值權重最小的邊。", "correct": false, "feedback": "不對。BFS 通常用在無權重圖，所有邊視為等價。"},
-  {"answer": "它用貪婪策略剪掉太長的路徑。", "correct": false, "feedback": "不對。BFS 不做長度剪枝，它只是一層一層把所有可能都走過。"},
-  {"answer": "它只在最短路徑確認後才把頂點標成黑色。", "correct": false, "feedback": "不對。頂點標黑只代表它的鄰居都探索完了。"}
+  {"answer": "168 種", "correct": true, "feedback": "正確。每種合法走法兩個方向各存一次，336 ÷ 2 = 168。"},
+  {"answer": "336 種", "correct": false, "feedback": "addEdge 只加一個方向；knightGraph 從兩個端點各加一次，所以 336 筆是重複計算後的數字。"},
+  {"answer": "64 種", "correct": false, "feedback": "64 是頂點（格子）的數量，不是邊的數量。"},
+  {"answer": "4,096 種", "correct": false, "feedback": "4,096 是 8×8 相鄰矩陣的格數，大部分格子是空的。"}
  ]},
-{"question": "廣度優先搜尋（BFS）與深度優先搜尋（DFS）在「追蹤下一個要探索的頂點」上，主要的結構差異是什麼？",
+{"question": "在 word ladder 的 15 個單字上執行 bfs(g, \"fool\") 之後，sage 的 distance 是多少？",
  "answers": [
-  {"answer": "BFS 用堆疊，DFS 用佇列。", "correct": false, "feedback": "不對。剛好相反。"},
-  {"answer": "BFS 用佇列逐層探索，DFS 用堆疊（常透過遞迴）盡量往深處走。", "correct": true, "feedback": "正確！BFS 用先進先出的佇列維持逐層搜尋的順序；DFS 用後進先出的堆疊（遞迴呼叫堆疊就是現成的）。"},
-  {"answer": "兩者都必須用優先佇列才能保證正確的搜尋順序。", "correct": false, "feedback": "不對。優先佇列是 Dijkstra、Prim 這類要處理權重的演算法在用的。"},
-  {"answer": "BFS 用 map 追蹤頂點，DFS 只用簡單的 vector。", "correct": false, "feedback": "不對。兩者都可能用 map 或 set 記錄已造訪節點；核心差異在排程探索用的是佇列還是堆疊。"}
+  {"answer": "6", "correct": true, "feedback": "正確。BFS 樹裡 sage 在第 6 層，也就是最少要改 6 次字母。"},
+  {"answer": "5", "correct": false, "feedback": "5 是 page 與 sale 的距離；sage 還要再多一步。"},
+  {"answer": "7", "correct": false, "feedback": "FOOL 到 SAGE 的解法列了 7 個單字，但步數是邊數，等於單字數減一。"},
+  {"answer": "INT_MAX", "correct": false, "feedback": "sage 從 fool 走得到，BFS 會替它設定有限的距離；只有走不到的頂點才維持 INT_MAX。"}
  ]},
-{"question": "下列哪一項是 Dijkstra 演算法的已知限制或特性？",
+{"question": "一般的 DFS 跑完後，頂點 u 的 discovery/closing 是 2/9，頂點 v 是 4/7。從括號性質可以得到什麼結論？",
  "answers": [
-  {"answer": "它能正確處理含負權重邊的圖。", "correct": false, "feedback": "不對。Dijkstra 要求所有邊權重非負；零權重邊可以，但負邊會破壞貪婪證明。"},
-  {"answer": "它是疊代式演算法，能給出單一起點到所有可達頂點的最短路徑。", "correct": true, "feedback": "正確！lazy C++ 版本反覆 pop 最小候選距離，並略過被後續改善取代的 stale entries。"},
-  {"answer": "它的時間複雜度與圖的邊數無關。", "correct": false, "feedback": "不對。複雜度是 O((V + E) log V)，跟頂點數與邊數都有關。"},
-  {"answer": "用在路由環境時，它不需要完整的網路地圖。", "correct": false, "feedback": "不對。要讓 Dijkstra 在路由上運作，每台路由器都得有完整的網路地圖。"}
+  {"answer": "v 是 u 在深度優先樹裡的子孫", "correct": true, "feedback": "正確。v 的區間 [4, 7] 完全包在 u 的 [2, 9] 裡，表示 v 是在 u 還是灰色時被發現、而且比 u 早完成。"},
+  {"answer": "u 是 v 的子孫", "correct": false, "feedback": "子孫的區間包在祖先的區間裡面；這裡是 v 的區間被包住，方向相反。"},
+  {"answer": "u 和 v 在不同的深度優先樹", "correct": false, "feedback": "不同樹（或互不為祖孫）的兩個區間會完全不重疊，這裡有包含關係。"},
+  {"answer": "無法判斷，兩個區間交錯", "correct": false, "feedback": "括號性質保證區間不會交錯；[4, 7] 與 [2, 9] 是包含，不是交錯。"}
  ]},
-{"question": "關於圖的實作方式，下列哪個敘述符合教材內容？",
+{"question": "DAG 有四條邊：A→B、A→C、B→D、C→D。下列哪一個是合法的拓撲排序？",
  "answers": [
-  {"answer": "相鄰矩陣是表示稀疏圖最省空間的方式。", "correct": false, "feedback": "不對。講義指出稀疏圖用相鄰矩陣很浪費：大多數格子是空的，卻仍占 V² 的空間。"},
-  {"answer": "對連接稀疏的圖來說，相鄰串列更省空間。", "correct": true, "feedback": "正確！相鄰串列只儲存實際存在的連接，能緊湊地表示稀疏圖。"},
-  {"answer": "相鄰矩陣中，兩頂點沒有相連就不會配置那一格的記憶體。", "correct": false, "feedback": "不對。矩陣實作裡每個「可能的邊」都占一格，就算權重是 0 或無限大也一樣。"},
-  {"answer": "找出某頂點的所有鄰居，相鄰矩陣比相鄰串列快。", "correct": false, "feedback": "不對。矩陣得掃完整條長度 V 的列；串列只要走實際存在的鄰居。"}
+  {"answer": "A, C, B, D", "correct": true, "feedback": "正確。A 在 B、C 之前，B、C 都在 D 之前，每條邊都由前指向後。B 和 C 的先後沒有限制，所以拓撲排序不唯一。"},
+  {"answer": "B, A, C, D", "correct": false, "feedback": "有邊 A→B，A 必須排在 B 前面。"},
+  {"answer": "A, B, D, C", "correct": false, "feedback": "有邊 C→D，C 必須排在 D 前面。"},
+  {"answer": "D, B, C, A", "correct": false, "feedback": "這是把所有邊反過來的順序，每條邊都變成由後指向前。"}
  ]},
-{"question": "Prim 演算法建最小生成樹（MST）時，什麼是「安全邊」（safe edge）？",
+{"question": "lazy 版的 dijkstra 從優先佇列取出 (5, \"w\")，但 w 目前存的 distance 是 3。程式接下來做什麼？",
  "answers": [
-  {"answer": "任何加入目前的樹之後不會形成循環的邊。", "correct": false, "feedback": "不對。Prim 的 safe edge 必須是跨越目前 tree cut 的最小權重邊。"},
-  {"answer": "跨越樹內與樹外頂點之 cut 的最小權重邊。", "correct": true, "feedback": "正確！這正是 Prim 使用 cut property 做出的安全貪婪選擇。"},
-  {"answer": "權重低於全圖平均邊權重的邊。", "correct": false, "feedback": "不對。演算法看的是目前邊界上絕對最小權重的連接，不是平均值。"},
-  {"answer": "對圖做深度優先搜尋時最先遇到的邊。", "correct": false, "feedback": "不對。Prim 跟 DFS 是不同的演算法，它靠權重決定下一條邊。"}
+  {"answer": "略過這一筆，不掃描 w 的鄰居", "correct": true, "feedback": "正確。5 > 3 表示這筆已經被後來的鬆弛取代，是過期的項目，continue 直接跳過。"},
+  {"answer": "把 w 的 distance 改回 5", "correct": false, "feedback": "距離只會變小。3 是目前已知更短的路，不會被舊的候選值蓋掉。"},
+  {"answer": "用 5 重新鬆弛 w 的所有鄰居", "correct": false, "feedback": "用過期的距離鬆弛不會讓任何距離變得更小，所以程式直接略過。"},
+  {"answer": "丟出 invalid_argument", "correct": false, "feedback": "過期項目是 lazy 寫法的正常現象，不是錯誤；只有負權重才會丟出例外。"}
  ]},
-{"question": "課程的 prim(g, start) 遇到不連通圖時會怎麼做？",
+{"question": "prim 與 dijkstra 的程式幾乎相同。鬆弛邊 (u, v) 時，prim 拿來和 v 目前的 distance 比較的是什麼？",
  "answers": [
-  {"answer": "安靜地回傳 minimum spanning forest。", "correct": false, "feedback": "不對。這是另一種契約；本函式要求一棵涵蓋所有頂點的 spanning tree。"},
-  {"answer": "自行加入不存在的邊來連接 components。", "correct": false, "feedback": "不對。Prim 只能選圖中既有的邊。"},
-  {"answer": "發現並非所有頂點都進樹後，丟出 invalid_argument。", "correct": true, "feedback": "正確！不連通圖沒有 spanning tree，void API 以例外回報前提不成立。"},
-  {"answer": "永遠等待下一個 priority-queue entry。", "correct": false, "feedback": "不對。Lazy queue 會清空，之後程式明確檢查 connectivity。"}
+  {"answer": "邊 (u, v) 本身的權重", "correct": true, "feedback": "正確。prim 的 newDistance = n.second，只看把 v 接上樹的那條邊有多重。"},
+  {"answer": "u 的 distance 加上邊 (u, v) 的權重", "correct": false, "feedback": "這是 dijkstra 的規則：從起點累加的路徑長度。"},
+  {"answer": "v 的鄰居數量", "correct": false, "feedback": "鄰居數量是 Warnsdorff 排序用的，和 prim 無關。"},
+  {"answer": "從起點到 v 經過的邊數", "correct": false, "feedback": "邊數是 BFS 的 distance，prim 看的是權重。"}
+ ]},
+{"question": "騎士目前所在格子有四個白色鄰居，各自剩下的白色鄰居數是 3、1、5、2。依 Warnsdorff 規則，orderByAvail 排序後第一個嘗試的是哪一個？",
+ "answers": [
+  {"answer": "剩下 1 個的那一格", "correct": true, "feedback": "正確。orderByAvail 依剩下的走法數由小到大排序，先走最難再到達的格子。"},
+  {"answer": "剩下 5 個的那一格", "correct": false, "feedback": "先走走法最多的格子，騎士容易早早佔用中間，之後被困在棋盤一側。"},
+  {"answer": "剩下 3 個的那一格", "correct": false, "feedback": "排序依的是剩下的走法數，不是鄰居在 map 裡的順序。"},
+  {"answer": "四個都要先算出完整的 tour 才能決定", "correct": false, "feedback": "Warnsdorff 只看下一步的走法數，是一個不需要往後模擬的啟發式。"}
+ ]},
+{"question": "無控制氾濫（uncontrolled flooding）中，訊息帶著的 TTL 有什麼作用？",
+ "answers": [
+  {"answer": "每轉送一次減一，減到 0 就停止轉送，讓訊息最後不再傳播", "correct": true, "feedback": "正確。TTL 至少設成廣播主機到最遠聽眾的邊數，訊息才到得了每位聽眾，同時又不會無限轉送。"},
+  {"answer": "保證每台路由器只收到一份訊息", "correct": false, "feedback": "氾濫時路由器會從不同鄰居收到同一則訊息好幾次；只收到一份是生成樹做法的好處。"},
+  {"answer": "記錄訊息走過的最便宜路徑", "correct": false, "feedback": "TTL 只是一個遞減的計數，不記錄路徑。"},
+  {"answer": "讓路由器依權重挑選下一站", "correct": false, "feedback": "氾濫把訊息轉送給所有鄰居，不做任何挑選。"}
  ]}
 ]

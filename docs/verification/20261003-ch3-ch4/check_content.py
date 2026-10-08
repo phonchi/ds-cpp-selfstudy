@@ -13,28 +13,21 @@ OUT=Path(os.environ.get("DSCPP_VERIFY_OUT", str(Path(__file__).parent)))
 OUT.mkdir(parents=True, exist_ok=True)
 HEADERS=Path('/home/phonchi/ds_cpp/Slides')
 sys.path.insert(0,str(ROOT/'tools/enrich'))
-from content.linked_depth import EXAMPLES
+# linked_depth no longer exposes EXAMPLES; both pages are now collected from [data-cpp] blocks.
+PAGES=os.environ.get('DSCPP_PAGES','arrays,linked_lists').split(',')
 report=[]
 with tempfile.TemporaryDirectory(prefix='chapters-cpp-') as tmp:
- for page in ['arrays','linked_lists']:
+ for page in PAGES:
   soup=BeautifulSoup((ROOT/(page+'.html')).read_text(),'html.parser',preserve_whitespace_tags={'pre','span'})
   ids=[e['id'] for e in soup.select('[id]')]
   assert len(ids)==len(set(ids)), (page,'duplicate id')
   for a in soup.select('a[href^="#"]'):
    assert a['href'][1:] in ids,(page,a['href'])
   examples=[]
-  if page=='arrays':
-   for i,el in enumerate(soup.select('[data-cpp]')):
-    if el['data-cpp'] in ['run','compile-error']:
-     src='\n'.join(x.get_text() for x in el.select('.line'))
-     examples.append((f'arrays-{i}',src,el.get('data-expected'),el['data-cpp']))
-  else:
-   for i,card in enumerate(soup.select('.deck-extra')):
-    block=card.select_one('.pseudo-code');expected=card.select_one('.expected-out pre')
-    if block and expected:
-     src='\n'.join(x.get_text() for x in block.select('.line'))
-     if re.search(r'int\s+main\s*\(',src):
-      examples.append((f'linked-{i}',src,expected.get_text()+'\n','run'))
+  for i,el in enumerate(soup.select('[data-cpp]')):
+   if el['data-cpp'] in ['run','compile-error']:
+    src='\n'.join(x.get_text() for x in el.select('.line'))
+    examples.append((f'{page}-{i}',src,el.get('data-expected'),el['data-cpp']))
   for name,src,expected,kind in examples:
    path=Path(tmp)/(name+'.cpp');exe=Path(tmp)/name;path.write_text(src)
    cmd=['g++','-std=c++17','-Wall','-Wextra','-pedantic','-I'+str(HEADERS),str(path),'-o',str(exe)]
@@ -56,4 +49,4 @@ with tempfile.TemporaryDirectory(prefix='chapters-cpp-') as tmp:
    js=subprocess.run(['node','--check',str(path)],capture_output=True,text=True)
    assert js.returncode==0,js.stderr
 (OUT/'content-results.json').write_text(json.dumps(report,indent=2)+'\n')
-print(f'{len(report)} examples passed; both generators stable; IDs, anchors and JS syntax passed')
+print(f'{len(report)} examples passed; generators stable for {",".join(PAGES)}; IDs, anchors and JS syntax passed')

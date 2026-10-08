@@ -1,96 +1,58 @@
 #!/usr/bin/env python3
-"""recursion.html 完整自學充實。冪等。"""
+"""recursion.html：第六章各節內容、圖、程式與附加互動。冪等，可重跑。
+
+每一節在 h2 之後有一對 <!-- gen:recursion-* --> 標記，內容由 content/recursion_depth.py 產生
+（程式在 recursion_programs.py、講義圖在 recursion_figures.py、互動元件在 recursion_widgets.py）。
+toStr(10, 2) 呼叫堆疊動畫的 JS 放在 <script id="recursion-extra-js">，其餘動畫 JS 是頁面原有的主 <script>。
+"""
+import json
+import re
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
-from enrich_lib import card, ensure_style, insert_end_of_section
+from enrich_lib import ensure_style, _replace_gen
 
-PAGE = Path.home() / "ds-cpp-selfstudy/recursion.html"
+ROOT = Path(__file__).resolve().parents[2]
+PAGE = ROOT / "recursion.html"
 s = PAGE.read_text()
 s = ensure_style(s)
 
-fr = f'''<h3 id="dx-fr">講義完整範例：用 stack 模擬遞迴、用 depth 看見遞迴</h3>
-{card("講義 06 · 遞迴拿掉、換成自己管理的 stack", """#include <iostream>
-#include <stack>
-#include <string>
-using namespace std;
+from content.recursion_depth import sections, STYLE
+from content.recursion_figures import STYLE as FIG_STYLE
+from content.recursion_widgets import EXTRA_JS
 
-string toStr(int n, int base) {
-    stack<char> rStack;
-    string convertString = "0123456789ABCDEF";
-    while (n > 0) {
-        rStack.push(convertString[n % base]);
-        n = n / base;
-    }
-    string res = "";
-    while (!rStack.empty()) {
-        res = res + rStack.top();
-        rStack.pop();
-    }
-    return res;
-}
+for name, block in sections().items():
+    s, ok = _replace_gen(s, name, block)
+    if not ok:
+        raise SystemExit(f"missing <!-- gen:{name} --> markers in {PAGE.name}")
 
-int main() { cout << toStr(1453, 16) << endl; }""",
-"5AD",
-note="這版沒有遞迴：自己開一個 stack 存餘數字元、最後倒出來。它證明了一件事：<strong>遞迴版其實是把同一個 stack 藏進了「呼叫堆疊」</strong>，每一層呼叫的區域變數就是一格 stack frame。")}
-{card("講義 06 · 印出深度，親眼看呼叫堆疊長高", """#include <iostream>
-#include <string>
-#include <cstdio>
-using namespace std;
+for sid, css in (('recursion-depth-style', STYLE), ('recursion-figures-style', FIG_STYLE)):
+    if f'id="{sid}"' in s:
+        s = re.sub(rf'<style id="{sid}">.*?</style>', lambda m: css, s, count=1, flags=re.S)
+    else:
+        s = s.replace('</head>', css + '\n</head>', 1)
 
-int depth = 0;   // 明著追蹤遞迴深度
+# Extra player JS: after the main script (it uses Player, renderBoxStack, setStatus, hlLine).
+extra = f'<script id="recursion-extra-js">\n{EXTRA_JS}\n</script>\n'
+if 'id="recursion-extra-js"' in s:
+    s = re.sub(r'<script id="recursion-extra-js">.*?</script>\n', lambda m: extra, s, count=1, flags=re.S)
+else:
+    anchor = '<script>\nconst FLASHCARDS'
+    if s.count(anchor) != 1:
+        raise SystemExit("FLASHCARDS script not found")
+    s = s.replace(anchor, extra + anchor, 1)
 
-string toStr(int n, int base) {
-    depth++;
-    printf("  depth=%d, n=%d\\n", depth, n);
-    string convertString = "0123456789ABCDEF";
-    if (n < base) {
-        return string(1, convertString[n]);
-    }
-    return toStr(n / base, base) + convertString[n % base];
-}
+# Flashcard count shown in the table of contents and the cards heading.
+n_cards = len(json.loads((ROOT / "data/flashcards_zh/ch6.json").read_text()))
+s, n1 = re.subn(r'關鍵詞彙卡（\d+ 張）', f'關鍵詞彙卡（{n_cards} 張）', s)
+s, n2 = re.subn(r'題庫 ch6\.json · \d+ 張', f'題庫 ch6.json · {n_cards} 張', s)
+if (n1, n2) != (2, 1):
+    raise SystemExit(f"flashcard count labels not found: {n1}, {n2}")
 
-int main() {
-    cout << toStr(10, 2) << endl;
-    return 0;
-}""",
-"  depth=1, n=10\\n  depth=2, n=5\\n  depth=3, n=2\\n  depth=4, n=1\\n1010",
-note="深度一路長到 4：n 每除一次 2 就多一層 frame。最深那層（n=1）先回傳「1」，然後一路「回程」把餘數黏在後面，1010 是回程時由左往右組出來的。")}'''
-s, c1 = insert_end_of_section(s, "frames", fr, 'id="dx-fr"')
-
-hn = f'''{card("講義 06 · moveTower 完整程式與 3 層塔的輸出", """#include <iostream>
-#include <string>
-using namespace std;
-
-void moveDisk(string fromP, string toP) {
-    cout << "moving disk from " << fromP << " to " << toP << endl;
-}
-void moveTower(int height, string fromPole, string toPole, string withPole) {
-    if (height >= 1) {
-        moveTower(height - 1, fromPole, withPole, toPole);
-        moveDisk(fromPole, toPole);
-        moveTower(height - 1, withPole, toPole, fromPole);
-    }
-}
-
-int main() { moveTower(3, "A", "B", "C"); }""",
-"moving disk from A to B\\nmoving disk from A to C\\nmoving disk from B to C\\nmoving disk from A to B\\nmoving disk from C to A\\nmoving disk from C to B\\nmoving disk from A to B",
-note='<span id="dx-hn"></span>7 行輸出 = 2³ − 1 步，跟理論下限一模一樣。注意基底情況是「height &lt; 1 什麼都不做」：它藏在 if 的反面，這種「隱形 base case」是遞迴的常見寫法。拿上面的互動動畫對照，每一行輸出對應一次圓盤移動。')}'''
-s, c2 = insert_end_of_section(s, "hanoi", hn, 'id="dx-hn"')
-
-mz = f'''{card("講義 06 · 迷宮主程式與輸出圖", """#include <iostream>
-#include "maze.hpp"   // Maze 類別 + searchFrom（上面的完整列表）
-using namespace std;
-
-int main() {
-    Maze myMaze("maze2.txt");
-    searchFrom(myMaze, myMaze.startRow, myMaze.startCol);
-    myMaze.print();   // O = 成功路徑，. = 試過，- = 死路
-    return 0;
-}""",
-"++++++++++++++++++++++\\n+   +   ++ ++     +   \\n+ O +   ++ ++  +++ + ++\\n+ O +   ++ ++  +++   + \\n+ OOOOOOOO ++ OOO  + + \\n+++++ O +++++ O +++  + \\n+     O  ++  OO      + \\n+ +++++  ++ O ++++++ + \\n+ +   +  + OO ++  + + +\\n+++ +  +++ O +++    + +\\n++++++++++ O +++++++++", out_label="示範輸出（節錄；依 maze2.txt 而異）",
-note='<span id="dx-mz"></span>O 是最後成功的那條路，點點是「試過但退回」的格子：遞迴回溯的痕跡全印在圖上。四個方向的 || 短路串接讓「找到一條就收工」，找不到才會把整片區域踩成點點。')}'''
-s, c3 = insert_end_of_section(s, "maze", mz, 'id="dx-mz"')
-
+# Preserve output spaces as HTML entities without source trailing whitespace.
+s = re.sub(r'<pre>.*?</pre>', lambda m: re.sub(r' +(?=\n)', lambda w: '&#32;' * len(w.group()), m.group()), s, flags=re.S)
+s = re.sub(r'(?m)^[ \t]+$', '', s)
+from content.teaching_copy import polish_preserved
+s = polish_preserved("recursion", s)
 PAGE.write_text(s)
-print("inserted:", [n for n, ok in zip("frames hanoi maze".split(), [c1, c2, c3]) if ok])
+print("updated:", ", ".join(sections()))

@@ -439,6 +439,30 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .vert-table th i{color:inherit;}
 </style>
 <!-- /contrast-fix -->
+<style id="recursion-depth-style">
+.rec-detail{margin:1rem 0;border:1px solid var(--card-border);border-radius:8px;background:var(--card);}
+.rec-detail>summary{cursor:pointer;padding:.9rem 1rem;font-weight:600;line-height:1.6;}
+.rec-detail-body{padding:0 1rem 1rem;min-width:0;}
+.rec-detail-body .pseudo-code{max-width:100%;overflow-x:auto;}
+.deck-extra .pseudo-code{max-width:100%;overflow-x:auto;}
+.side-panel .pseudo-code{max-width:100%;overflow-x:auto;}
+.rec-ul{padding-left:1.4rem;margin:.6rem 0 1rem;}
+.rec-ul li{margin:.3rem 0;line-height:1.8;}
+.rec-skip{font-size:.88rem;color:var(--muted);}
+.rec-maze{font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.35;background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:.6rem .9rem;overflow-x:auto;max-width:100%;white-space:pre;}
+.viz-layout{min-width:0;}
+.viz-layout>div{min-width:0;}
+.quiz-opt .opt-text{min-width:0;overflow-wrap:anywhere;}
+#tsfVis{flex-direction:column;}
+#tsfVis .bs-item{width:auto;min-width:230px;max-width:100%;font-size:.85rem;}
+</style>
+<style id="recursion-figures-style">
+.rec-figure{margin:1rem 0 1.4rem;max-width:100%;}
+.rec-figure-scroll{max-width:100%;overflow-x:auto;background:#fff;border:1px solid var(--card-border);border-radius:8px;padding:.4rem 0;}
+.rec-figure img{display:block;height:auto;max-width:100%;width:var(--figure-width);margin:0 auto;}
+#rec-figure-eq3 img,#rec-figure-dp1 img{min-width:640px;}
+.rec-figure figcaption{margin-top:.65rem;font-size:.9rem;line-height:1.8;color:var(--ink);}
+</style>
 </head>
 <body>
 <nav class="float-nav" id="floatNav" aria-label="章節導覽">
@@ -454,6 +478,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#dp" data-target="dp"><span class="fn-num">P08</span><span class="fn-name">動態規劃</span></a>
   <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">練習題</span></a>
   <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">總覽比較</span></a>
+  <a href="#recap" data-target="recap"><span class="fn-num">SUM</span><span class="fn-name">重點回顧</span></a>
     <a href="#cards" data-target="cards"><span class="fn-num">CARD</span><span class="fn-name">關鍵詞彙卡</span></a>
   <a href="#top" class="fn-top" title="回到頂端"><span class="fn-num">↑ TOP</span></a>
 </nav>
@@ -482,7 +507,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>① <strong>照節次讀</strong>：每一節先讀說明、動手玩互動元件，預測結果再按按鈕驗證。
   ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；細節與完整程式請回講義 06 與 cppds 原文。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
-  ④ 最後翻 <a href="#cards">關鍵詞彙卡（7 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區當速查表。標「講義補充」的節是課堂沒細講的延伸，第一輪可略過。</p>
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡（12 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區與<a href="#recap">重點回顧</a>當速查表。標「講義補充」的節是課堂沒細講的延伸，第一輪可略過。</p>
   <div class="sg-links"><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/06_Recursion.html#/" target="_blank" rel="noopener">🖥 講義 06 線上閱讀 HTML</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/06_Recursion.pdf" target="_blank" rel="noopener">📑 講義 06 閱讀 PDF</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/06_Recursion.pdf" download="06_Recursion.pdf">⬇ 講義 06 下載 PDF</a><a href="https://runestone.academy/ns/books/published/cppds/Recursion/toctree.html" target="_blank" rel="noopener">📖 課本 cppds（Recursion）</a><a href="https://github.com/phonchi/pythonds3/tree/master/cppds" target="_blank" rel="noopener">💾 課程標頭 pythonds3/cppds</a><a href="https://www.hello-algo.com/zh-hant/chapter_computational_complexity/iteration_and_recursion/" target="_blank" rel="noopener">📘 Hello 演算法（迭代與遞迴）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
@@ -500,182 +525,300 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#dp"><span class="toc-num">P08</span>動態規劃</a>
     <a href="#exercises"><span class="toc-num">EX</span>練習題</a>
     <a href="#reference"><span class="toc-num">REF</span>總覽比較</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（7 張）</a>
+    <a href="#recap"><span class="toc-num">SUM</span>重點回顧</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（12 張）</a>
   </div>
 </div>
 
 <section id="prologue">
   <div class="section-number">PROLOGUE · 開場</div>
   <h2>遞迴：把問題交給「更小的自己」 <span class="sec-badge">cppds §5.1–5.3</span></h2>
-  <p>遞迴（recursion）= 函式呼叫自己，每次都處理<strong>更小的同型問題</strong>，
-  直到小到可以直接回答（<strong>base case</strong>）。
-  <code>sum([1,3,5,7,9])</code> 其實就是 <code>1 + sum([3,5,7,9])</code> ：括號一路往內，再一路往外收。</p>
-  <div class="viz-layout">
+<!-- gen:recursion-prologue -->
+<p><strong>遞迴</strong>（recursion）是一種解題方法：把問題<strong>拆成越來越小的子問題</strong>，直到子問題小到可以直接解決。寫成程式時，通常就是函式呼叫自己。有些問題用迴圈很難寫，用遞迴卻能寫得簡潔。</p>
+<h3>先用迴圈：計算 vector 的總和</h3>
+<p>要算 <code>{1, 3, 5, 7, 9}</code> 的總和，迴圈版用一個<strong>累加變數</strong> <code>theSum</code>：從 0 開始，把每個數依序加進去，迴圈結束時 <code>theSum</code> 就是總和。</p>
+<details class="rec-detail"><summary>講義完整程式：迴圈版 listSum</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 用累加變數求和</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="25&#10;0&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">listSum</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; numList) {</span>
+<span class="line" data-l="6">    <span class="kw">int</span> theSum = <span class="num">0</span>;</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> value : numList) {</span>
+<span class="line" data-l="8">        theSum += value;</span>
+<span class="line" data-l="9">    }</span>
+<span class="line" data-l="10">    <span class="kw">return</span> theSum;</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="14">    cout &lt;&lt; listSum({<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">9</span>}) &lt;&lt; endl;</span>
+<span class="line" data-l="15">    cout &lt;&lt; listSum({}) &lt;&lt; endl;   <span class="com">// the empty vector sums to 0</span></span>
+<span class="line" data-l="16">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="17">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>25
+0</pre></div><p class="dx-note">第一行是 1 + 3 + 5 + 7 + 9 = 25；空的 vector 沒有元素可加，theSum 維持 0。參數用 const 參考傳入，不會複製 vector，也保證函式不會修改它。</p>
+<h3>不用迴圈：完全括號化的運算式</h3>
+<p>如果不能用迴圈，要怎麼加總？先想起加法是「兩個數」的運算。把整串加法改寫成<strong>完全括號化的運算式</strong>（fully parenthesized expression），每一對括號裡只做一次兩數相加：</p>
+<figure class="rec-figure" id="rec-figure-eq1"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="(1 + (3 + (5 + (7 + 9))))"><img src="assets/figures/ch6/recursion_eq1.png" alt="(1 + (3 + (5 + (7 + 9))))" width="300" height="49" style="--figure-width:300px" loading="lazy"></div><figcaption>把 {1, 3, 5, 7, 9} 的加總寫成完全括號化的運算式：每一對括號裡只有一次「兩個數相加」，最裡面的 (7 + 9) 不需要迴圈就能直接算。</figcaption></figure>
+<p>最裡面的 (7 + 9) 不需要迴圈或任何特殊結構就能算。算完之後換成 16，式子少了一層括號，形狀卻沒變。照這個方法一路化簡：</p>
+<figure class="rec-figure" id="rec-figure-eq2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="五行算式：total = (1 + (3 + (5 + (7 + 9))))，接著依序化簡為 (1 + (3 + (5 + 16)))、(1 + (3 + 21))、(1 + 24)，最後 total = 25。"><img src="assets/figures/ch6/recursion_eq2.png" alt="五行算式：total = (1 + (3 + (5 + (7 + 9))))，接著依序化簡為 (1 + (3 + (5 + 16)))、(1 + (3 + 21))、(1 + 24)，最後 total = 25。" width="380" height="178" style="--figure-width:380px" loading="lazy"></div><figcaption>從最裡面的括號往外化簡：先算 7 + 9 = 16，再算 5 + 16 = 21、3 + 21 = 24、1 + 24 = 25。每一步都只處理一組括號，剩下的式子形狀不變、只是變短。</figcaption></figure>
+<p>每一步都在解一個「比原本少一項」的同型問題。這就是遞迴的想法：相信較短的問題有辦法解決，再用它的答案組出原本問題的答案。</p>
+<h3>遞迴版：listSumFrom</h3>
+<p>改用 C++ 的 vector 描述同一件事：<strong>從索引 index 開始的總和</strong>，等於 <code>numList[index]</code> 加上從 <code>index + 1</code> 開始的總和。當 <code>index == numList.size()</code> 時，剩下的範圍是空的，總和是 0。每次呼叫都只傳同一個 vector 和一個索引，不必配置新的子 vector。</p>
+<figure class="rec-figure" id="rec-figure-eq3"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="listSumFrom(numList, i) 的分段定義：i &lt; numList.size() 時等於 numList[i] + listSumFrom(numList, i + 1)；i == numList.size() 時等於 0。"><img src="assets/figures/ch6/recursion_eq3.png" alt="listSumFrom(numList, i) 的分段定義：i &lt; numList.size() 時等於 numList[i] + listSumFrom(numList, i + 1)；i == numList.size() 時等於 0。" width="1000" height="108" style="--figure-width:1000px" loading="lazy"></div><figcaption>listSumFrom 的分段定義。上面一行是遞迴的情況：目前這一項加上「從下一個索引開始的總和」；下面一行是 base case：索引走到尾端時，剩下的範圍是空的，總和為 0。</figcaption></figure>
+<details class="rec-detail"><summary>講義完整程式：遞迴版 listSum</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · listSumFrom 與 listSum</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="25&#10;0&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstddef&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">int</span> <span class="fn">listSumFrom</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; numList, <span class="kw">size_t</span> index) {</span>
+<span class="line" data-l="7">    <span class="kw">if</span> (index == numList.size()) {</span>
+<span class="line" data-l="8">        <span class="kw">return</span> <span class="num">0</span>;                              <span class="com">// empty remaining range</span></span>
+<span class="line" data-l="9">    }</span>
+<span class="line" data-l="10">    <span class="kw">return</span> numList[index] + listSumFrom(numList, index + <span class="num">1</span>);</span>
+<span class="line" data-l="11">}</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">int</span> <span class="fn">listSum</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; numList) {</span>
+<span class="line" data-l="14">    <span class="kw">return</span> listSumFrom(numList, <span class="num">0</span>);</span>
+<span class="line" data-l="15">}</span>
+<span class="line" data-l="16"> </span>
+<span class="line" data-l="17"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="18">    cout &lt;&lt; listSum({<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">7</span>, <span class="num">9</span>}) &lt;&lt; endl;</span>
+<span class="line" data-l="19">    cout &lt;&lt; listSum({}) &lt;&lt; endl;               <span class="com">// safe: prints 0</span></span>
+<span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="21">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>25
+0</pre></div><p class="dx-note">輸出和迴圈版相同。listSum 只是包裝：從索引 0 開始呼叫 listSumFrom。</p>
+<ul class="rec-ul"><li><code>listSumFrom</code> 在 <code>index == numList.size()</code> 時停止。這個 base case 代表「剩下的範圍是空的」，總和為 0，所以 <code>listSum({})</code> 也能安全地回傳 0。</li><li>遞迴呼叫把 <code>index</code> 加一。同一個 vector 以 <code>const</code> 參考傳下去，遞迴過程中不會被複製，也不會被修改。</li></ul>
+<h3>展開與回傳</h3>
+<p>下圖是加總 {1, 3, 5, 7, 9} 所需的一連串遞迴呼叫（圖中的 sum(3,5,7,9) 表示「從 3 開始到結尾的總和」）。把這串呼叫看成一連串的化簡：每次呼叫都把問題縮短一項。</p>
+<figure class="rec-figure" id="rec-figure-sum"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="sum(1,3,5,7,9) = 1 + sum(3,5,7,9)，再往下展開為 3 + sum(5,7,9)、5 + sum(7,9)、7 + sum(9)，最後 sum(9) = 9。"><img src="assets/figures/ch6/recursion_sum.png" alt="sum(1,3,5,7,9) = 1 + sum(3,5,7,9)，再往下展開為 3 + sum(5,7,9)、5 + sum(7,9)、7 + sum(9)，最後 sum(9) = 9。" width="300" height="318" style="--figure-width:300px" loading="lazy"></div><figcaption>展開的過程：每一層都把第一個數留下來，剩下的部分交給下一層。問題一層比一層短，直到只剩一個數，可以直接回答。</figcaption></figure>
+<p>問題簡化到不能再簡單時，就開始把各個小問題的答案組合起來，一路回到最初的問題：</p>
+<figure class="rec-figure" id="rec-figure-sum2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="由下往上的回傳：sum(9) = 9，sum(7,9) = 7 + 9，sum(5,7,9) = 5 + 16，sum(3,5,7,9) = 3 + 21，sum(1,3,5,7,9) = 1 + 24 = 25。"><img src="assets/figures/ch6/recursion_sum2.png" alt="由下往上的回傳：sum(9) = 9，sum(7,9) = 7 + 9，sum(5,7,9) = 5 + 16，sum(3,5,7,9) = 3 + 21，sum(1,3,5,7,9) = 1 + 24 = 25。" width="360" height="303" style="--figure-width:360px" loading="lazy"></div><figcaption>回傳的過程：最下面一層先得到 9，每一層把下一層的結果加上自己留下的那個數，再交回上一層：16、21、24，最後得到 25。</figcaption></figure>
+<p>下面的動畫把同一件事拆成一步一步：先往下展開，碰到 base case 之後再一層層回傳。按「→ 單步」可以停在任何一步。</p>
+<div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div class="mono" id="sumTrace" style="font-size:.95rem;line-height:2.2;min-height:150px;"></div>
-        <div class="status-banner" id="sumStatus"><span class="status-icon">›</span><span class="status-text">按「開始」看 listSum([1,3,5,7,9]) 怎麼展開再收合。</span></div>
+        <div class="mono" id="sumTrace" style="font-size:.95rem;line-height:2.2;min-height:150px;overflow-x:auto;"></div>
+        <div class="status-banner" id="sumStatus"><span class="status-icon">›</span><span class="status-text">按「開始」看 listSum({1, 3, 5, 7, 9}) 怎麼展開再收合。</span></div>
         <div class="controls-bar">
           <button class="btn" onclick="sumStart()">▶ 開始</button>
           <button class="btn" onclick="sumPlayer &amp;&amp; sumPlayer.step()">→ 單步</button>
           <button class="btn" onclick="sumPlayer &amp;&amp; sumPlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="sumSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="sumSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
         </div>
       </div>
     </div>
     <div class="side-panel">
-      <div class="info-card"><div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="sumCode">
-<span class="line" data-l="1"><span class="kw">int</span> <span class="fn">listSumFrom</span>(const vector&lt;<span class="kw">int</span>&gt;&amp; a, size_t i) {</span>
-<span class="line" data-l="2">    <span class="kw">if</span> (i == a.<span class="fn">size</span>()) <span class="kw">return</span> <span class="num">0</span>; <span class="com">// 空尾段</span></span>
-<span class="line" data-l="3">    <span class="kw">return</span> a[i] + <span class="fn">listSumFrom</span>(a, i + <span class="num">1</span>);</span>
-<span class="line" data-l="4">}</span>
-<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">listSum</span>(const vector&lt;<span class="kw">int</span>&gt;&amp; a) {</span>
-<span class="line" data-l="6">    <span class="kw">return</span> <span class="fn">listSumFrom</span>(a, <span class="num">0</span>);</span>
-<span class="line" data-l="7">}</span></div></div>
-      <p><code>const vector&lt;int&gt;&amp; a</code> 以唯讀參考傳入，避免每次呼叫複製整個容器；<code>size_t i</code> 是無號索引，從 0 開始，到 <code>a.size()</code> 時先回傳，避免越界。詳見 <a href="p3_functions.html#constref">P3 傳參方式</a>。</p>
-      <div class="info-card">
-        <div class="ic-title">遞迴 vs 迴圈</div>
-        <div style="font-size:.86rem;line-height:1.9;">凡是遞迴能算的，迴圈都能算（反之亦然）。
-        遞迴的價值是<strong>讓程式長得像問題的定義</strong>：樹、分治、回溯問題上特別優雅。</div>
-      </div>
+      <div class="info-card"><div class="ic-title">listSumFrom <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="sumCode" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">int</span> <span class="fn">listSumFrom</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; numList, <span class="kw">size_t</span> index) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (index == numList.size()) {</span>
+<span class="line" data-l="3">        <span class="kw">return</span> <span class="num">0</span>;                              <span class="com">// empty remaining range</span></span>
+<span class="line" data-l="4">    }</span>
+<span class="line" data-l="5">    <span class="kw">return</span> numList[index] + listSumFrom(numList, index + <span class="num">1</span>);</span>
+<span class="line" data-l="6">}</span>
+<span class="line" data-l="7"> </span>
+<span class="line" data-l="8"><span class="kw">int</span> <span class="fn">listSum</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; numList) {</span>
+<span class="line" data-l="9">    <span class="kw">return</span> listSumFrom(numList, <span class="num">0</span>);</span>
+<span class="line" data-l="10">}</span></div></div>
+      <p style="font-size:.88rem;"><code>const vector&lt;int&gt;&amp; numList</code> 以唯讀參考傳入，每次呼叫都不複製容器；<code>size_t index</code> 是無號索引，從 0 開始，等於 <code>numList.size()</code> 時先回傳 0，不會越界。詳見 <a href="p3_functions.html#constref">P3 傳參方式</a>。</p>
     </div>
   </div>
+<div class="quiz-box">
+  <div class="quiz-label">QUIZ · 數呼叫次數</div>
+  <p>用本頁的 <code>listSum</code> 計算 <code>{2, 4, 6, 8, 10}</code>。<code>listSumFrom</code> 總共被呼叫幾次（包含 <code>listSum</code> 發出的第一次）？</p>
+  <div class="quiz-options" id="qSumCallsOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="index 依序是 0、1、2、3、4、5。前五次各處理一個元素，第六次 index == numList.size()，是回傳 0 的 base case。" onclick="quizCheck('qSumCalls', this)"><span class="opt-letter">(A)</span> <span class="opt-text">6 次</span></div><div class="quiz-opt" data-correct="false" data-fb="五個元素各一次之後，還要再呼叫一次 index 等於 size() 的 base case，才會開始回傳。" onclick="quizCheck('qSumCalls', this)"><span class="opt-letter">(B)</span> <span class="opt-text">5 次</span></div><div class="quiz-opt" data-correct="false" data-fb="這是「只剩一個元素就停」的版本中，第一次之後的遞迴呼叫次數。本頁的 base case 是空的範圍，要多走到尾端。" onclick="quizCheck('qSumCalls', this)"><span class="opt-letter">(C)</span> <span class="opt-text">4 次</span></div><div class="quiz-opt" data-correct="false" data-fb="呼叫次數只跟元素個數有關，跟元素的值或總和 30 無關。" onclick="quizCheck('qSumCalls', this)"><span class="opt-letter">(D)</span> <span class="opt-text">30 次</span></div>
+  </div>
+  <div class="quiz-feedback" id="qSumCallsFeedback"></div>
+</div>
+<details class="rec-detail"><summary>遞迴和迴圈可以互換嗎（補充）</summary><div class="rec-detail-body"><p>可以。凡是遞迴能算的，迴圈都能算，反過來也一樣；遞迴時由系統替你保存每一層的狀態，改寫成迴圈時就要自己保存，例如用一個 stack。遞迴的好處是讓程式的形狀跟問題的定義一致：listSumFrom 的兩行幾乎就是上面那條分段定義。後面的樹、分治與回溯問題，用遞迴寫特別自然。</p></div></details>
+<!-- /gen:recursion-prologue -->
 </section>
 
 <section id="laws">
   <div class="section-number">PART 01 · 三法則</div>
   <h2>遞迴三法則：寫對遞迴的檢查清單 <span class="sec-badge">cppds §5.4</span></h2>
-  <div class="viz-panel">
+<!-- gen:recursion-laws -->
+<div class="viz-panel">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;">
       <div class="info-card"><div class="ic-title">法則 1</div>
         <div style="font-size:.95rem;line-height:1.9;"><strong>必須有 base case</strong><br>
-        <span style="color:var(--muted);font-size:.85rem;">小到能直接回答的情況（listSum：索引到達尾端，空尾段總和為 0）。</span></div></div>
+        <span style="color:var(--muted);font-size:.85rem;">小到能直接回答的情況（listSumFrom：索引到達尾端，空範圍的總和為 0）。</span></div></div>
       <div class="info-card"><div class="ic-title">法則 2</div>
-        <div style="font-size:.95rem;line-height:1.9;"><strong>必須朝 base case 前進</strong><br>
-        <span style="color:var(--muted);font-size:.85rem;">每次呼叫都要改變狀態、縮小問題（串列變短、n 變小）。</span></div></div>
+        <div style="font-size:.95rem;line-height:1.9;"><strong>必須改變狀態，朝 base case 前進</strong><br>
+        <span style="color:var(--muted);font-size:.85rem;">每次呼叫都要縮小問題（未處理的範圍變短、n 變小）。</span></div></div>
       <div class="info-card"><div class="ic-title">法則 3</div>
         <div style="font-size:.95rem;line-height:1.9;"><strong>必須呼叫自己</strong><br>
-        <span style="color:var(--muted);font-size:.85rem;">用「相信小問題已解決」的心法組合出大問題的答案。</span></div></div>
+        <span style="color:var(--muted);font-size:.85rem;">相信較小的問題已經解決，再用它組合出大問題的答案。</span></div></div>
     </div>
   </div>
-  
+<p>就像艾西莫夫小說裡的機器人要遵守三大法則，所有遞迴演算法也必須遵守下面三條法則。寫完遞迴之後，用它們逐條檢查。</p>
+<h3>三條法則套在 listSumFrom 上</h3>
+<ol class="rec-ul"><li><strong>base case</strong> 是小到可以直接解決的問題。listSumFrom 的 base case 是剩下的範圍為空（<code>index == numList.size()</code>），總和為 0。</li><li><strong>改變狀態</strong>是指朝 base case 前進。listSumFrom 不動 vector，只把 <code>index</code> 加一，所以每次遞迴呼叫，未處理的範圍都短一項。</li><li>最後一條法則是演算法必須<strong>呼叫自己</strong>，這正是遞迴的定義。</li></ol>
+<h3>用自己解決自己，為什麼不會繞圈？</h3>
+<p>學寫函式時，我們學到可以把大問題拆成小問題，每個小問題各寫一個函式。講到遞迴，聽起來像在繞圈子：要用一個函式解決問題，這個函式卻靠呼叫自己來解決。關鍵在法則 2：每次呼叫自己時，問題都比原本<strong>更小、更容易</strong>，而且一定會碰到可以直接回答的 base case。</p>
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · 抓出壞遞迴</div>
   <p><code>int f(int n) { return n + f(n - 1); }</code> 違反了哪條法則？執行會怎樣？</p>
-  
   <div class="quiz-options" id="qLawsOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="沒有終止條件，每次呼叫都在 call stack 疊一層新 frame，直到把 stack 記憶體吃光（C++ 通常直接 segfault）。" onclick="quizCheck('qLaws', this)"><span class="opt-letter">(A)</span> 缺 base case → stack overflow</div><div class="quiz-opt" data-correct="false" data-fb="它有呼叫自己（法則 3 沒問題），缺的是法則 1。" onclick="quizCheck('qLaws', this)"><span class="opt-letter">(B)</span> 沒有呼叫自己</div><div class="quiz-opt" data-correct="false" data-fb="n-1 有在縮小；問題是縮到底也沒有停下來的條件。" onclick="quizCheck('qLaws', this)"><span class="opt-letter">(C)</span> 沒有縮小問題</div>
+    <div class="quiz-opt" data-correct="true" data-fb="沒有終止條件，每次呼叫都在 call stack 疊一層新 frame，直到把 stack 記憶體用完（C++ 通常直接 segfault）。" onclick="quizCheck('qLaws', this)"><span class="opt-letter">(A)</span> <span class="opt-text">缺 base case，最後 stack overflow</span></div><div class="quiz-opt" data-correct="false" data-fb="它有呼叫自己（法則 3 沒問題），缺的是法則 1。" onclick="quizCheck('qLaws', this)"><span class="opt-letter">(B)</span> <span class="opt-text">沒有呼叫自己</span></div><div class="quiz-opt" data-correct="false" data-fb="n - 1 確實在縮小；問題是縮到底也沒有停下來的條件。" onclick="quizCheck('qLaws', this)"><span class="opt-letter">(C)</span> <span class="opt-text">沒有縮小問題</span></div><div class="quiz-opt" data-correct="false" data-fb="n 減到 0 之後還會繼續呼叫 f(-1)、f(-2)……，沒有任何條件讓它停下。" onclick="quizCheck('qLaws', this)"><span class="opt-letter">(D)</span> <span class="opt-text">沒有違反，n 減到 0 就會停</span></div>
   </div>
   <div class="quiz-feedback" id="qLawsFeedback"></div>
 </div>
+<div class="quiz-box">
+  <div class="quiz-label">QUIZ · 階乘的 base case</div>
+  <p>要寫遞迴的 <code>fact(n)</code>，回傳 n × (n−1) × (n−2) × …，並規定 0 的階乘是 1。哪一個 base case 最合適，而且最有效率？</p>
+  <div class="quiz-options" id="qFactOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="0! 與 1! 都是 1。這個條件讓正整數在 n = 1 就停下，fact(0) 也能正確回傳 1。" onclick="quizCheck('qFact', this)"><span class="opt-letter">(A)</span> <span class="opt-text"><code>n &lt;= 1</code></span></div><div class="quiz-opt" data-correct="false" data-fb="結果正確，但 n 為正整數時，會多一次 fact(0) 的呼叫才停下。" onclick="quizCheck('qFact', this)"><span class="opt-letter">(B)</span> <span class="opt-text"><code>n == 0</code></span></div><div class="quiz-opt" data-correct="false" data-fb="題目規定 fact(0) 要回傳 1，這個條件處理不到 n = 0，會一路呼叫 fact(-1)、fact(-2)……。" onclick="quizCheck('qFact', this)"><span class="opt-letter">(C)</span> <span class="opt-text"><code>n == 1</code></span></div><div class="quiz-opt" data-correct="false" data-fb="這是在檢查輸入是否合法，不是終止條件：所有非負整數都會在第一次呼叫就停下，算不出階乘。" onclick="quizCheck('qFact', this)"><span class="opt-letter">(D)</span> <span class="opt-text"><code>n &gt;= 0</code></span></div>
+  </div>
+  <div class="quiz-feedback" id="qFactFeedback"></div>
+</div>
+<!-- /gen:recursion-laws -->
 </section>
 
 <section id="tostr">
   <div class="section-number">PART 02 · 進位轉換（遞迴版）</div>
   <h2>整數轉任意進位字串：遞迴自帶「反轉」 <span class="sec-badge">cppds §5.5</span></h2>
-  <p>第 3 章用 stack 反轉餘數順序；遞迴版<strong>連 stack 都不用自己管</strong>：
-  「先遞迴處理商、回來再接上自己的餘數」的順序天然就是高位在前。因為 <strong>call stack 就是那個 stack</strong>。</p>
-  <div class="viz-layout">
+<!-- gen:recursion-tostr -->
+<p>假設要把整數轉成 2 到 16 進位之間某種進位的字串。例如把整數 10 轉成十進位的 "10"，或二進位的 "1010"。這個問題有很多種解法，上一章用 stack 就做過一次；用遞迴寫則特別簡潔。</p>
+<h3>找出 base case：小於進位的數</h3>
+<p>以十進位的 769 為例。先準備一串字元 <code>convertString = "0123456789"</code>，對應前 10 個數字。小於 10 的數很容易轉換：直接用它當索引查表。</p>
+<p>如果能把 769 拆成 7、6、9 三個一位數，轉成字串就很簡單。「小於進位的數」聽起來就是個好的 base case。確定 base case 之後，整個演算法有三個部分：</p>
+<ol class="rec-ul"><li>把原本的數拆成一連串的一位數。</li><li>用查表把每個一位數轉成字串。</li><li>把這些一位數的字串接成最後的結果。</li></ol>
+<h3>朝 base case 前進：整數除法</h3>
+<p>下一步要決定怎麼改變狀態、朝 base case 前進。能讓數字變小的運算，最可能是除法與減法。減法也許可行，但不清楚該減什麼；整數除法加上餘數，方向就很明確。</p>
+<p>769 除以 10，商 76、餘數 9，同時得到兩個有用的結果：餘數小於進位，可以馬上查表轉成字串；商比原本的數小，往「只剩一個小於進位的數」的 base case 前進了一步。接著把 76 再除以 10，得到 7 與 6：</p>
+<figure class="rec-figure" id="rec-figure-num2str"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="toStr(769, 10) 呼叫 toStr(76, 10)，餘數 9；toStr(76, 10) 呼叫 toStr(7, 10)，餘數 6；7 &lt; 10 是 base case，得到 7。回傳 &quot;7&quot;、&quot;76&quot;、&quot;769&quot;。"><img src="assets/figures/ch6/num2str.png" alt="toStr(769, 10) 呼叫 toStr(76, 10)，餘數 9；toStr(76, 10) 呼叫 toStr(7, 10)，餘數 6；7 &lt; 10 是 base case，得到 7。回傳 &quot;7&quot;、&quot;76&quot;、&quot;769&quot;。" width="420" height="323" style="--figure-width:420px" loading="lazy"></div><figcaption>toStr(769, 10) 的分解：每次除以 10，商交給下一層遞迴，餘數記在右邊。7 小於 10 時停止。右欄的餘數由下往上讀，就是 "769"。</figcaption></figure>
+<p>要記住的數字，都在圖右側的餘數格裡。</p>
+<h3>講義程式：toStr</h3>
+<details class="rec-detail"><summary>講義完整程式：toStr</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 任意進位（2 到 16）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="5AD&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="com">// The algorithm outlined above for any base between 2 and 16.</span></span>
+<span class="line" data-l="6">string <span class="fn">toStr</span>(<span class="kw">int</span> n, <span class="kw">int</span> base) {</span>
+<span class="line" data-l="7">    string convertString = <span class="str">"</span><span class="str">0123456789ABCDEF</span><span class="str">"</span>;</span>
+<span class="line" data-l="8">    <span class="kw">if</span> (n &lt; base) {</span>
+<span class="line" data-l="9">        <span class="kw">return</span> string(<span class="num">1</span>, convertString[n]);</span>
+<span class="line" data-l="10">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="11">        <span class="kw">return</span> toStr(n / base, base) + convertString[n % base];</span>
+<span class="line" data-l="12">    }</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="16">    cout &lt;&lt; toStr(<span class="num">1453</span>, <span class="num">16</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="18">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5AD</pre></div><p class="dx-note">1453 = 5 × 256 + 10 × 16 + 13，三個位數 5、10、13 查表後是 5、A、D。<code>if (n &lt; base)</code> 檢查 base case：一旦 n 小於要轉換的進位，就停止遞迴，直接從 convertString 取出字元。else 分支同時滿足第二與第三條法則：用除法縮小問題，並呼叫自己。</p>
+<h3>追蹤 toStr(10, 2)</h3>
+<p>再追蹤一次，這次把 10 轉成二進位字串 "1010"：</p>
+<figure class="rec-figure" id="rec-figure-num2str2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="toStr(10, 2) 依序呼叫 toStr(5, 2)、toStr(2, 2)、toStr(1, 2)，餘數依序為 0、1、0；1 &lt; 2 是 base case。回傳 &quot;1&quot;、&quot;10&quot;、&quot;101&quot;、&quot;1010&quot;。"><img src="assets/figures/ch6/num2str2.png" alt="toStr(10, 2) 依序呼叫 toStr(5, 2)、toStr(2, 2)、toStr(1, 2)，餘數依序為 0、1、0；1 &lt; 2 是 base case。回傳 &quot;1&quot;、&quot;10&quot;、&quot;101&quot;、&quot;1010&quot;。" width="420" height="407" style="--figure-width:420px" loading="lazy"></div><figcaption>toStr(10, 2) 的追蹤：餘數由上往下產生的順序是 0、1、0，最後才得到 base case 的 1。字串卻是從最下層往上組成的，所以結果是 "1010"，不是倒過來的 "0101"。</figcaption></figure>
+<p>餘數產生的順序看起來是反的，但結果是對的：程式<strong>先</strong>做遞迴呼叫，等它回傳之後，<strong>才</strong>接上餘數的字元。如果把這兩件事的順序對調，先接上查到的字元、再處理商，得到的字串就會倒過來。把串接延後到遞迴呼叫回來之後，結果就是正確的順序。這和上一章討論的 stack 是同一個道理。</p>
+<p>在下面的動畫中輸入其他數字或換成二進位、十六進位，觀察每一層何時展開、何時接上自己的餘數。</p>
+<div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div class="mono" id="tostrTrace" style="font-size:.92rem;line-height:2.1;min-height:160px;"></div>
-        <div class="status-banner" id="tostrStatus"><span class="status-icon">›</span><span class="status-text">toStr(769, 10) 的展開與回傳。</span></div>
+        <div class="mono" id="tostrTrace" style="font-size:.92rem;line-height:2.1;min-height:160px;overflow-x:auto;"></div>
+        <div class="status-banner" id="tostrStatus"><span class="status-icon">›</span><span class="status-text">toStr(769, 10) 的展開與回傳。也可以換成自己的數字與進位。</span></div>
         <div class="controls-bar">
-          <input id="tostrN" type="number" class="mono" style="width:90px;padding:.35rem .5rem;border:1px solid var(--card-border);border-radius:6px;" value="769">
-          <select id="tostrB" class="mono" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
+          <input id="tostrN" type="number" class="mono" aria-label="要轉換的整數" style="width:90px;padding:.35rem .5rem;border:1px solid var(--card-border);border-radius:6px;" value="769">
+          <select id="tostrB" class="mono" aria-label="進位" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
             <option value="10" selected>base 10</option><option value="2">base 2</option><option value="16">base 16</option>
           </select>
           <button class="btn" onclick="tostrStart()">▶ 開始</button>
           <button class="btn" onclick="tostrPlayer &amp;&amp; tostrPlayer.step()">→ 單步</button>
           <button class="btn" onclick="tostrPlayer &amp;&amp; tostrPlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="tostrSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="tostrSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
         </div>
       </div>
     </div>
     <div class="side-panel">
-      <div class="info-card"><div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="tostrCode">
+      <div class="info-card"><div class="ic-title">toStr <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="tostrCode" data-cpp="fragment">
 <span class="line" data-l="1">string <span class="fn">toStr</span>(<span class="kw">int</span> n, <span class="kw">int</span> base) {</span>
-<span class="line" data-l="2">    string digits = <span class="str">&quot;0123456789ABCDEF&quot;</span>;</span>
-<span class="line" data-l="3">    <span class="kw">if</span> (n &lt; base) {             <span class="com">// base case：一位數</span></span>
-<span class="line" data-l="4">        <span class="kw">return</span> string(<span class="num">1</span>, digits[n]);</span>
-<span class="line" data-l="5">    }</span>
-<span class="line" data-l="6">    <span class="kw">return</span> <span class="fn">toStr</span>(n / base, base) + digits[n % base];</span>
-<span class="line" data-l="7">}</span></div></div>
+<span class="line" data-l="2">    string convertString = <span class="str">"</span><span class="str">0123456789ABCDEF</span><span class="str">"</span>;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (n &lt; base) {</span>
+<span class="line" data-l="4">        <span class="kw">return</span> string(<span class="num">1</span>, convertString[n]);</span>
+<span class="line" data-l="5">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="6">        <span class="kw">return</span> toStr(n / base, base) + convertString[n % base];</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">}</span></div></div>
       <div class="info-card">
-        <div class="ic-title">跟第 3 章比一比</div>
+        <div class="ic-title">跟上一章的 stack 版比一比</div>
         <div style="font-size:.86rem;line-height:1.9;">
-        stack 版：自己 push 餘數、自己 pop。<br>
-        遞迴版：<strong>把餘數留在「回來之後」處理</strong>：call stack 代勞。</div>
+        stack 版：自己 push 餘數，最後再 pop 出來。<br>
+        遞迴版：把餘數留到遞迴呼叫<strong>回來之後</strong>才接上，由呼叫堆疊記住順序。</div>
       </div>
     </div>
   </div>
-
-  <h3 style="margin-top:1.5rem;">講義練習：用遞迴反轉字串</h3>
-  <p>講義在這裡留了一題填空：寫一個遞迴的 <code>reverse(s)</code>，讓
-  <code>reverse("hello")</code> 回傳 <code>"olleh"</code>。原題挖掉兩個空，解答是：</p>
-  <div class="info-card" style="max-width:560px;"><div class="ic-title">reverse：尾巴先反、頭字殿後 <span class="ic-badge">CODE</span></div>
-    <div class="pseudo-code" style="font-size:.74rem;">
-<span class="line">string <span class="fn">reverse</span>(string s) {</span>
-<span class="line">    <span class="kw">if</span> (s.<span class="fn">size</span>() &lt;= <span class="num">1</span>) {</span>
-<span class="line">        <span class="kw">return</span> s;             <span class="com">// 空字串或一個字元</span></span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">return</span> <span class="fn">reverse</span>(s.<span class="fn">substr</span>(<span class="num">1</span>)) + s[<span class="num">0</span>];</span>
-<span class="line">}                                <span class="com">// 「剩下的反轉」接上「第一個字」</span></span>
-<span class="line"> </span>
-<span class="line"><span class="fn">assert</span>(<span class="fn">reverse</span>(<span class="str">&quot;&quot;</span>) == <span class="str">&quot;&quot;</span>);</span>
-<span class="line"><span class="fn">assert</span>(<span class="fn">reverse</span>(<span class="str">&quot;hello&quot;</span>) == <span class="str">&quot;olleh&quot;</span>);  <span class="com">// Pass</span></span></div></div>
-  <p style="font-size:.88rem;color:var(--muted);">用三法則檢查：base case 是長度不超過 1；
-  <code>s.substr(1)</code> 每次少一個字元，確實朝 base case 前進；而且它呼叫自己。
-  跟 toStr 同一個骨架：<strong>把「接字元」延後到遞迴回來之後</strong>，順序就自動反了。</p>
-  
+<h3>講義練習：用遞迴反轉字串</h3>
+<p>寫一個遞迴函式，接收一個字串，回傳順序相反的新字串。講義的程式挖了兩個空格，先自己想想再看解答。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · 練習：填入兩個空格</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="exercise"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4">string <span class="fn">reverse</span>(string s) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (s.size() &lt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="6">        <span class="kw">return</span> ____;            <span class="com">// handles "" and one character</span></span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">    <span class="kw">return</span> ____ + s[<span class="num">0</span>];</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="11">    assert(reverse(<span class="str">"</span><span class="str">"</span>) == <span class="str">"</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">    assert(reverse(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>) == <span class="str">"</span><span class="str">olleh</span><span class="str">"</span>);</span>
+<span class="line" data-l="13">}</span></div>
+  <p class="dx-note">照原樣編譯會失敗：<code>____</code> 是要填的空格。</p>
+</div>
+<details class="rec-detail"><summary>參考解答</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">reverse：剩下的部分先反轉，再接上第一個字元</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected=""><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4">string <span class="fn">reverse</span>(string s) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (s.size() &lt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="6">        <span class="kw">return</span> s;               <span class="com">// handles "" and one character</span></span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">    <span class="kw">return</span> reverse(s.substr(<span class="num">1</span>)) + s[<span class="num">0</span>];</span>
+<span class="line" data-l="9">}</span>
+<span class="line" data-l="10"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="11">    assert(reverse(<span class="str">"</span><span class="str">"</span>) == <span class="str">"</span><span class="str">"</span>);</span>
+<span class="line" data-l="12">    assert(reverse(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>) == <span class="str">"</span><span class="str">olleh</span><span class="str">"</span>);</span>
+<span class="line" data-l="13">}</span></div>
+  <p class="dx-note">用三法則檢查：base case 是長度不超過 1，空字串與單一字元本身就是自己的反轉；<code>s.substr(1)</code> 每次少一個字元，確實朝 base case 前進；而且它呼叫自己。跟 toStr 是同一個骨架：<strong>把「接上字元」延後到遞迴回來之後</strong>，順序就自動反過來。執行時沒有輸出，表示兩個 assert 都通過。</p>
+</div></div></details>
+<div class="quiz-box">
+  <div class="quiz-label">QUIZ · reverse 的 base case</div>
+  <p>哪一個 base case 能讓遞迴的 <code>reverse(string s)</code> 同時正確處理空字串與單一字元？</p>
+  <div class="quiz-options" id="qRevBaseOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="兩種輸入本身就是自己的反轉，空字串的情況也安全。" onclick="quizCheck('qRevBase', this)"><span class="opt-letter">(A)</span> <span class="opt-text"><code>if (s.size() &lt;= 1) return s;</code></span></div><div class="quiz-opt" data-correct="false" data-fb="處理得了單一字元，卻漏掉空字串；從空字串繼續取 s[0] 或遞迴下去就會出錯。" onclick="quizCheck('qRevBase', this)"><span class="opt-letter">(B)</span> <span class="opt-text"><code>if (s.size() == 1) return s;</code></span></div><div class="quiz-opt" data-correct="false" data-fb="空字串沒有索引 0 的元素。" onclick="quizCheck('qRevBase', this)"><span class="opt-letter">(C)</span> <span class="opt-text"><code>if (s.empty()) return s[0];</code></span></div><div class="quiz-opt" data-correct="false" data-fb="所有非空字串都會立刻停下，長度超過 1 的字串永遠不會被反轉。" onclick="quizCheck('qRevBase', this)"><span class="opt-letter">(D)</span> <span class="opt-text"><code>if (s.size() &gt;= 1) return s;</code></span></div>
+  </div>
+  <div class="quiz-feedback" id="qRevBaseFeedback"></div>
+</div>
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · 換個接法</div>
   <p>把最後一行改成 <code>return s[0] + reverse(s.substr(1));</code>，會得到什麼？</p>
-  
   <div class="quiz-options" id="qRevRecOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="頭字接在「前面」就是維持原順序：反轉的關鍵正是把 s[0] 排到遞迴結果「後面」。跟 toStr 的心得一樣：接的位置決定順序。" onclick="quizCheck('qRevRec', this)"><span class="opt-letter">(A)</span> 原字串（一點都沒反）</div><div class="quiz-opt" data-correct="false" data-fb="接的順序就是輸出順序：s[0] 在前，結果就以 s[0] 開頭，沒反。" onclick="quizCheck('qRevRec', this)"><span class="opt-letter">(B)</span> 一樣是反轉</div><div class="quiz-opt" data-correct="false" data-fb="語法沒問題（string 支援 char 的串接）：這是邏輯差異，編譯器不會攔。" onclick="quizCheck('qRevRec', this)"><span class="opt-letter">(C)</span> 編譯錯誤</div>
+    <div class="quiz-opt" data-correct="true" data-fb="頭一個字元接在「前面」，就維持原本的順序。反轉的關鍵是把 s[0] 排到遞迴結果的後面：接的位置決定順序。" onclick="quizCheck('qRevRec', this)"><span class="opt-letter">(A)</span> <span class="opt-text">原字串，一點都沒反</span></div><div class="quiz-opt" data-correct="false" data-fb="接的順序就是輸出的順序：s[0] 在前，結果就以 s[0] 開頭，沒有反轉。" onclick="quizCheck('qRevRec', this)"><span class="opt-letter">(B)</span> <span class="opt-text">一樣是反轉</span></div><div class="quiz-opt" data-correct="false" data-fb="char 與 string 可以用 + 串接，語法沒有問題；這是邏輯上的差異，編譯器不會攔。" onclick="quizCheck('qRevRec', this)"><span class="opt-letter">(C)</span> <span class="opt-text">編譯錯誤</span></div><div class="quiz-opt" data-correct="false" data-fb="substr(1) 仍然每次少一個字元，一樣會走到 base case，只是接的順序不同。" onclick="quizCheck('qRevRec', this)"><span class="opt-letter">(D)</span> <span class="opt-text">無窮遞迴</span></div>
   </div>
   <div class="quiz-feedback" id="qRevRecFeedback"></div>
 </div>
+<!-- /gen:recursion-tostr -->
 </section>
 
 <section id="frames">
   <div class="section-number">PART 03 · 呼叫堆疊</div>
   <h2>Stack frame：遞迴在記憶體裡長什麼樣 <span class="sec-badge">cppds §5.6</span></h2>
-  <p>每次函式呼叫，系統就在 <strong>call stack</strong> 推入一個 <strong>stack frame</strong>（區域變數＋返回位址）。
-  遞迴深 n 層 = 同時存在 n 個 frame。<strong>return 就是 pop</strong>：把值交回上一層 frame 停住的位置。</p>
-  <div class="viz-layout">
-    <div>
-      <div class="viz-panel">
-        <div class="bs-stack" id="frameVis" style="min-height:230px;"></div>
-        <div class="status-banner" id="frameStatus"><span class="status-icon">›</span><span class="status-text">觀察 fact(4) 的 frame 推入與彈出。</span></div>
-        <div class="controls-bar">
-          <button class="btn" onclick="frameStart()">▶ fact(4)</button>
-          <button class="btn" onclick="framePlayer &amp;&amp; framePlayer.step()">→ 單步</button>
-          <button class="btn" onclick="framePlayer &amp;&amp; framePlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="frameSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
-        </div>
-      </div>
-    </div>
-    <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">為什麼會 stack overflow？</div>
-        <div style="font-size:.86rem;line-height:1.9;">call stack 容量有限，但上限取決於作業系統、執行環境與設定。
-        base case 寫錯 → frame 持續堆積 → 最終出錯。深度可能很大的線性遞迴通常應改寫成迴圈。</div>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">尾遞迴</div>
-        <div style="font-size:.86rem;line-height:1.9;">若遞迴呼叫是函式的<strong>最後一步</strong>，
-        編譯器<strong>可能</strong>做尾呼叫最佳化並重用 frame；C++ 標準不保證一定會做，因此程式正確性不能依賴它。</div>
-      </div>
-    </div>
-  </div>
-
-<h3 id="dx-fr">講義完整範例：用 stack 模擬遞迴、用 depth 看見遞迴</h3>
-<div class="deck-extra">
-  <div class="dx-label">講義 06 · 遞迴拿掉、換成自己管理的 stack</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<!-- gen:recursion-frames -->
+<p>假設在 toStr 裡不做遞迴呼叫，而是把查到的字元推入一個 stack。用 STL 的 <code>stack</code>，就能用一個存放字元的顯式堆疊取代遞迴：</p>
+<details class="rec-detail"><summary>講義完整程式：用 stack 取代遞迴</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 顯式堆疊版 toStr</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="5AD&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stack&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
 <span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
@@ -696,18 +839,58 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="19">}</span>
 <span class="line" data-l="20"> </span>
 <span class="line" data-l="21"><span class="kw">int</span> <span class="fn">main</span>() { cout &lt;&lt; toStr(<span class="num">1453</span>, <span class="num">16</span>) &lt;&lt; endl; }</span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5AD</pre></div>
-  <p class="dx-note">這版沒有遞迴：自己開一個 stack 存餘數字元、最後倒出來。它證明了一件事：<strong>遞迴版其實是把同一個 stack 藏進了「呼叫堆疊」</strong>，每一層呼叫的區域變數就是一格 stack frame。</p>
-</div>
-<div class="deck-extra">
-  <div class="dx-label">講義 06 · 印出深度，親眼看呼叫堆疊長高</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5AD</pre></div><p class="dx-note">輸出和遞迴版相同。第一個迴圈從最低位開始，把每個餘數字元推入 rStack；第二個迴圈從頂端依序取出，最高位就排在最前面。</p>
+<h3 id="dx-fr">顯式堆疊裡放了什麼</h3>
+<p>每做一次除法，就推入一個字元。回到前面轉換 10 的例子，除完四次之後，堆疊長這樣：</p>
+<figure class="rec-figure" id="rec-figure-stack"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="一個堆疊，由下而上依序是 &#x27;0&#x27;、&#x27;1&#x27;、&#x27;0&#x27;、&#x27;1&#x27;。"><img src="assets/figures/ch6/recursion_stack.png" alt="一個堆疊，由下而上依序是 &#x27;0&#x27;、&#x27;1&#x27;、&#x27;0&#x27;、&#x27;1&#x27;。" width="160" height="162" style="--figure-width:160px" loading="lazy"></div><figcaption>改用顯式堆疊轉換 10：除了四次之後，堆疊由下而上存著 '0'、'1'、'0'、'1'。依序 pop 出來接成字串，就是 "1010"。</figcaption></figure>
+<p>接著只要把字元一個個 pop 出來接成字串，就得到 "1010"。</p>
+<h3>C++ 怎麼實作遞迴呼叫</h3>
+<p>上面的例子說明了 C++ 實作遞迴呼叫的方式。對每一個進行中的函式呼叫，執行環境都維護一個 <strong>stack frame</strong>，裡面放著這次呼叫的參數、區域變數與返回資訊。函式回傳時，回傳值留在堆疊頂端，讓呼叫它的函式取用。下圖是 return 之後的呼叫堆疊：</p>
+<figure class="rec-figure" id="rec-figure-stack2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="呼叫堆疊，最上面是 toStr(2, 2)：n = 2，正在計算 std::string(&quot;1&quot;) + convertString[2 % 2]，結果 &quot;10&quot;；下面的 toStr(5, 2) 與 toStr(10, 2) 標示 waiting。上方註明 toStr(1, 2) 已回傳 &quot;1&quot;。"><img src="assets/figures/ch6/recursion_stack2.png" alt="呼叫堆疊，最上面是 toStr(2, 2)：n = 2，正在計算 std::string(&quot;1&quot;) + convertString[2 % 2]，結果 &quot;10&quot;；下面的 toStr(5, 2) 與 toStr(10, 2) 標示 waiting。上方註明 toStr(1, 2) 已回傳 &quot;1&quot;。" width="400" height="392" style="--figure-width:400px" loading="lazy"></div><figcaption>toStr(1, 2) 回傳 "1" 之後的呼叫堆疊。最上面的 frame 屬於 toStr(2, 2)，它把收到的 "1" 接上 convertString[2 % 2]，得到 "10"；下面兩個 frame 還在等待，各自保存自己的 n 與 base。</figcaption></figure>
+<p>toStr(2 / 2, 2) 回傳 "1"。這個值代回 toStr(1, 2) + convertString[2 % 2]，得到 "10"，之後較早的呼叫才繼續依序回傳。</p>
+<p>這樣看來，C++ 的呼叫堆疊取代了我們剛才明確使用的 stack。在 vector 加總的例子裡，也可以把堆疊上的回傳值想成取代了累加變數的角色。</p>
+<p>stack frame 也為函式的變數提供了<strong>作用域</strong>。雖然一再呼叫的是同一個函式，每次呼叫都會建立新的作用域，存放這次呼叫自己的區域變數：toStr(10, 2) 與 toStr(5, 2) 各有一個 n，彼此不會互相覆蓋。</p>
+<h3>動畫：toStr(10, 2) 的呼叫堆疊</h3>
+<p>按「→ 單步」看每一次呼叫推入一個 frame，碰到 base case 之後再一格一格彈出。第 5 步就是上圖的狀態。</p>
+<div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="bs-stack" id="tsfVis" style="min-height:260px;"></div>
+        <div class="status-banner" id="tsfStatus"><span class="status-icon">›</span><span class="status-text">按「開始」，看 toStr(10, 2) 的 stack frame 怎麼推入與彈出。</span></div>
+        <div class="controls-bar">
+          <button class="btn" onclick="tsfStart()">▶ toStr(10, 2)</button>
+          <button class="btn" onclick="tsfPlayer &amp;&amp; tsfPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="tsfPlayer &amp;&amp; tsfPlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="tsfSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card"><div class="ic-title">toStr <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="tsfCode" data-cpp="fragment">
+<span class="line" data-l="1">string <span class="fn">toStr</span>(<span class="kw">int</span> n, <span class="kw">int</span> base) {</span>
+<span class="line" data-l="2">    string convertString = <span class="str">"</span><span class="str">0123456789ABCDEF</span><span class="str">"</span>;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (n &lt; base) {</span>
+<span class="line" data-l="4">        <span class="kw">return</span> string(<span class="num">1</span>, convertString[n]);</span>
+<span class="line" data-l="5">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="6">        <span class="kw">return</span> toStr(n / base, base) + convertString[n % base];</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">}</span></div></div>
+      <div class="info-card">
+        <div class="ic-title">怎麼看這個動畫</div>
+        <div style="font-size:.86rem;line-height:1.9;">最上面一格是正在執行的呼叫，下面的格子都停在第 6 行，等上一層的結果。每一格各有自己的 <code>n</code> 與 <code>base</code>。</div>
+      </div>
+    </div>
+  </div>
+<h3>印出遞迴深度</h3>
+<p>在函式裡用一個全域變數記錄目前是第幾次呼叫，就能在輸出中看到堆疊長高的過程。</p>
+<details class="rec-detail"><summary>講義程式：印出遞迴深度（上課略過）</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 用 depth 追蹤呼叫</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="  depth=1, n=10&#10;  depth=2, n=5&#10;  depth=3, n=2&#10;  depth=4, n=1&#10;1010&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstdio&gt;</span></span>
 <span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="5"> </span>
-<span class="line" data-l="6"><span class="kw">int</span> depth = <span class="num">0</span>;   <span class="com">// 明著追蹤遞迴深度</span></span>
+<span class="line" data-l="6"><span class="kw">int</span> depth = <span class="num">0</span>;   <span class="com">// track the recursion depth explicitly</span></span>
 <span class="line" data-l="7"> </span>
 <span class="line" data-l="8">string <span class="fn">toStr</span>(<span class="kw">int</span> n, <span class="kw">int</span> base) {</span>
 <span class="line" data-l="9">    depth++;</span>
@@ -723,30 +906,109 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="19">    cout &lt;&lt; toStr(<span class="num">10</span>, <span class="num">2</span>) &lt;&lt; endl;</span>
 <span class="line" data-l="20">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="21">}</span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  depth=1, n=10
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>  depth=1, n=10
   depth=2, n=5
   depth=3, n=2
   depth=4, n=1
-1010</pre></div>
-  <p class="dx-note">深度一路長到 4：n 每除一次 2 就多一層 frame。最深那層（n=1）先回傳「1」，然後一路「回程」把餘數黏在後面，1010 是回程時由左往右組出來的。</p>
-</div>
+1010</pre></div><p class="dx-note">四次呼叫的 n 依序是 10、5、2、1，n 每除一次 2 就多一層 frame。最深的那層先回傳 "1"，回程時再依序接上 0、1、0。這裡的 depth 只增不減，所以它記錄的是「第幾次呼叫」；在這條單一路徑上，剛好也等於深度。</p>
+<details class="rec-detail"><summary>fact(4) 的呼叫堆疊動畫，以及 stack overflow（補充）</summary><div class="rec-detail-body"><p>另一個常見的例子是階乘。fact(4) 要等 fact(3)，fact(3) 要等 fact(2)……每一層都在堆疊上留下一個 frame，直到 fact(1) 回傳 1，再一路乘回來。</p><div class="viz-layout">
+    <div>
+      <div class="viz-panel">
+        <div class="bs-stack" id="frameVis" style="min-height:230px;"></div>
+        <div class="status-banner" id="frameStatus"><span class="status-icon">›</span><span class="status-text">觀察 fact(4) 的 frame 推入與彈出。</span></div>
+        <div class="controls-bar">
+          <button class="btn" onclick="frameStart()">▶ fact(4)</button>
+          <button class="btn" onclick="framePlayer &amp;&amp; framePlayer.step()">→ 單步</button>
+          <button class="btn" onclick="framePlayer &amp;&amp; framePlayer.toggle(this)">⏸ 暫停</button>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="frameSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
+        </div>
+      </div>
+    </div>
+    <div class="side-panel">
+      <div class="info-card"><div class="ic-title">fact <span class="ic-badge">CODE</span></div><div class="pseudo-code" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">int</span> <span class="fn">fact</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (n &lt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="3">        <span class="kw">return</span> <span class="num">1</span>;</span>
+<span class="line" data-l="4">    }</span>
+<span class="line" data-l="5">    <span class="kw">return</span> n * fact(n - <span class="num">1</span>);</span>
+<span class="line" data-l="6">}</span></div></div>
+      <div class="info-card">
+        <div class="ic-title">為什麼會 stack overflow？</div>
+        <div style="font-size:.86rem;line-height:1.9;">call stack 容量有限，上限取決於作業系統、執行環境與設定。
+        base case 寫錯時 frame 會持續堆積，最後程式出錯。深度可能很大的線性遞迴，通常應改寫成迴圈。</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">尾遞迴</div>
+        <div style="font-size:.86rem;line-height:1.9;">若遞迴呼叫是函式的<strong>最後一步</strong>，
+        編譯器<strong>可能</strong>做尾呼叫最佳化並重用 frame；C++ 標準不保證一定會做，因此程式正確性不能依賴它。</div>
+      </div>
+    </div>
+  </div></div></details>
+<!-- /gen:recursion-frames -->
 </section>
 
 <section id="viz">
   <div class="section-number">PART 04 · 視覺化</div>
   <h2>視覺化遞迴：螺旋與碎形樹 <span class="sec-badge">cppds §5.7 · 講義補充</span></h2>
-  <p style="font-size:.88rem;color:var(--muted);">課堂投影片跳過本節（RISE skip）：屬自學補充。</p>
-  <p>遞迴難學，常常是因為腦中缺一張圖。cppds 的 C++ 範例使用 <code>CTurtle.hpp</code>；這裡用 canvas 重現同一套遞迴視覺，不需要額外安裝圖形函式庫。</p>
-  <p>先看螺旋：每一步往前畫一段線、右轉 90 度，然後<strong>用短一點的長度呼叫自己</strong>。
-  長度歸零就是 base case。</p>
-  <div class="viz-layout">
+<!-- gen:recursion-viz -->
+<p class="rec-skip">上課時略過本節，留給自學。</p>
+<p>有時候很難在腦中想像遞迴函式到底在做什麼，這也是遞迴不容易掌握的原因之一。本節用遞迴畫出一些有趣的圖形。看著圖形一步步成形，可以對遞迴的過程有新的體會。</p>
+<h3>CTurtle 程式要另外安裝</h3>
+<div class="warn-box"><b>這些程式需要另外安裝圖形函式庫。</b>cppds 的 C++ 範例使用只有標頭檔的 <code>CTurtle.hpp</code>：<code>cturtle::TurtleScreen</code> 負責繪圖視窗，<code>cturtle::Turtle</code> 在視窗裡移動。課程的 notebook 只執行主控台程式，所以本節的 CTurtle 程式只供閱讀，不會執行。想在自己的電腦上執行，要另外取得 <code>CTurtle.hpp</code>，放在原始檔旁邊，再編譯成桌面程式。本頁的互動圖用瀏覽器的 canvas 畫出同樣的圖形，不需要安裝。</div>
+<h3>遞迴畫螺旋</h3>
+<p>先看一個簡單的例子：用遞迴畫螺旋。base case 是要畫的線段長度減到 0 或以下。長度大於 0 時，讓烏龜往前走 length 單位、右轉 90 度，再用短一點的長度呼叫自己。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · spiral（CTurtle，需另外安裝）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;CTurtle.hpp&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">namespace</span> ct = cturtle;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">spiral</span>(ct::Turtle&amp; turtle, <span class="kw">int</span> length) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (length &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="6">        turtle.forward(length);</span>
+<span class="line" data-l="7">        turtle.right(<span class="num">90</span>);</span>
+<span class="line" data-l="8">        spiral(turtle, length - <span class="num">5</span>);</span>
+<span class="line" data-l="9">    }</span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="13">    ct::TurtleScreen screen;</span>
+<span class="line" data-l="14">    ct::Turtle turtle(screen);</span>
+<span class="line" data-l="15">    spiral(turtle, <span class="num">100</span>);</span>
+<span class="line" data-l="16">    screen.bye();</span>
+<span class="line" data-l="17">}</span></div>
+  <p class="dx-note">遞迴呼叫時長度減 5。長度減到 0 或以下時函式直接回傳；整個圖畫完之後，<code>screen.bye()</code> 關閉 CTurtle 的視窗。</p>
+</div>
+<h3>碎形樹</h3>
+<p>接著看<strong>碎形</strong>（fractal）。碎形來自數學的一個分支，和遞迴有很多共通點。依定義，碎形不管放大多少倍，基本形狀都一樣。大自然中的例子有海岸線、雪花、山脈，甚至樹木與灌木。因為這種性質，程式設計師可以用碎形為電腦動畫產生非常逼真的景物。</p>
+<p>既然碎形在各種放大倍率下看起來都一樣，套到樹上就是：連一根小樹枝，都和整棵樹有相同的形狀與特徵。所以可以這樣定義樹：<strong>一棵樹是一段樹幹，右邊長出一棵較小的樹，左邊也長出一棵較小的樹</strong>。用遞迴的觀點看這個定義，就是把同一個定義再套用到左右兩棵較小的樹上。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · tree（CTurtle，需另外安裝）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;CTurtle.hpp&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">namespace</span> ct = cturtle;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">tree</span>(<span class="kw">int</span> branchLen, ct::Turtle&amp; turtle) {</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (branchLen &gt; <span class="num">5</span>) {</span>
+<span class="line" data-l="6">        turtle.forward(branchLen);</span>
+<span class="line" data-l="7">        turtle.right(<span class="num">20</span>);</span>
+<span class="line" data-l="8">        tree(branchLen - <span class="num">15</span>, turtle);</span>
+<span class="line" data-l="9">        turtle.left(<span class="num">40</span>);</span>
+<span class="line" data-l="10">        tree(branchLen - <span class="num">15</span>, turtle);</span>
+<span class="line" data-l="11">        turtle.right(<span class="num">20</span>);</span>
+<span class="line" data-l="12">        turtle.backward(branchLen);</span>
+<span class="line" data-l="13">    }</span>
+<span class="line" data-l="14">}</span></div>
+  <p class="dx-note">完整的桌面程式會建立 <code>cturtle::TurtleScreen</code>、讓烏龜朝上，呼叫 <code>tree(75, turtle)</code>，畫完後關閉視窗。</p>
+</div>
+<p>兩次遞迴呼叫分別發生在右轉 20 度與左轉 40 度之後：左轉 40 度先抵銷原本的右轉 20 度，再往左多轉 20 度。每次呼叫都把 <code>branchLen</code> 減 15，<code>branchLen &gt; 5</code> 這個條件就是 base case 的把關。最後的右轉 20 度與後退，讓烏龜回到這次呼叫開始時的位置與方向，上一層才能接著畫另一邊。</p>
+<p>下面用 canvas 畫出同樣的兩個圖形。拉動樹的深度，比較每多一層時樹多長出多少枝。</p>
+<div class="viz-layout">
     <div>
       <div class="viz-panel">
         <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
-          <canvas id="spiralCv" width="300" height="300" style="background:#fff;border-radius:8px;max-width:100%;"></canvas>
-          <canvas id="treeCv" width="330" height="300" style="background:#fff;border-radius:8px;max-width:100%;"></canvas>
+          <canvas id="spiralCv" width="300" height="300" style="background:#fff;border-radius:8px;max-width:100%;" aria-label="螺旋"></canvas>
+          <canvas id="treeCv" width="330" height="300" style="background:#fff;border-radius:8px;max-width:100%;" aria-label="碎形樹"></canvas>
         </div>
-        <div class="status-banner" id="vizStatus"><span class="status-icon">›</span><span class="status-text">左邊是螺旋（drawSpiral），右邊是碎形樹（tree）。拉樹深度滑桿觀察「樹 = 樹幹 + 兩棵小樹」。</span></div>
+        <div class="status-banner" id="vizStatus"><span class="status-icon">›</span><span class="status-text">左邊是螺旋（spiral），右邊是碎形樹（tree）。拉樹深度滑桿，觀察「樹 = 樹幹 + 兩棵小樹」。</span></div>
         <div class="controls-bar">
           <button class="btn" onclick="spiralStart()">▶ 畫螺旋</button>
           <label class="mono" style="font-size:.8rem;">樹的深度 <input id="treeDepth" type="range" min="1" max="9" value="7" style="vertical-align:middle;"></label>
@@ -755,132 +1017,189 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       </div>
     </div>
     <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">螺旋 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" style="font-size:.78rem;">
-<span class="line"><span class="kw">void</span> <span class="fn">spiral</span>(ct::Turtle&amp; t, <span class="kw">int</span> len) {</span>
-<span class="line">    <span class="kw">if</span> (len &gt; <span class="num">0</span>) {       <span class="com">// base case：長度歸零</span></span>
-<span class="line">        t.<span class="fn">forward</span>(len);</span>
-<span class="line">        t.<span class="fn">right</span>(<span class="num">90</span>);</span>
-<span class="line">        <span class="fn">spiral</span>(t, len - <span class="num">5</span>);</span>
-<span class="line">    }</span><span class="line">}</span></div>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">碎形樹 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" style="font-size:.78rem;">
-<span class="line"><span class="kw">void</span> <span class="fn">tree</span>(<span class="kw">int</span> len, ct::Turtle&amp; t) {</span>
-<span class="line">    <span class="kw">if</span> (len &gt; <span class="num">5</span>) {</span>
-<span class="line">        t.<span class="fn">forward</span>(len); t.<span class="fn">right</span>(<span class="num">20</span>);</span>
-<span class="line">        <span class="fn">tree</span>(len - <span class="num">15</span>, t);   <span class="com">// 右子樹</span></span>
-<span class="line">        t.<span class="fn">left</span>(<span class="num">40</span>);         <span class="com">// 退掉 20 再左轉 20</span></span>
-<span class="line">        <span class="fn">tree</span>(len - <span class="num">15</span>, t);   <span class="com">// 左子樹</span></span>
-<span class="line">        t.<span class="fn">right</span>(<span class="num">20</span>); t.<span class="fn">backward</span>(len);</span>
-<span class="line">    }</span><span class="line">}</span></div>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">碎形是什麼？</div>
-        <div style="font-size:.86rem;line-height:1.9;">不管放大多少倍，長相都跟整體一樣：海岸線、雪花、樹。
-        「一棵樹 = 樹幹 + 右邊一棵小樹 + 左邊一棵小樹」，這句話本身就是遞迴定義。
-        注意畫的順序：先一路往右畫到最細的枝，才回頭補左邊，跟呼叫堆疊的展開順序一致。</div>
-      </div>
+      <div class="info-card"><div class="ic-title">spiral <span class="ic-badge">CODE</span></div><div class="pseudo-code" style="font-size:.76rem;" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">spiral</span>(ct::Turtle&amp; turtle, <span class="kw">int</span> length) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (length &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="3">        turtle.forward(length);</span>
+<span class="line" data-l="4">        turtle.right(<span class="num">90</span>);</span>
+<span class="line" data-l="5">        spiral(turtle, length - <span class="num">5</span>);</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">}</span></div></div>
+      <div class="info-card"><div class="ic-title">tree <span class="ic-badge">CODE</span></div><div class="pseudo-code" style="font-size:.76rem;" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">tree</span>(<span class="kw">int</span> branchLen, ct::Turtle&amp; turtle) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (branchLen &gt; <span class="num">5</span>) {</span>
+<span class="line" data-l="3">        turtle.forward(branchLen);</span>
+<span class="line" data-l="4">        turtle.right(<span class="num">20</span>);</span>
+<span class="line" data-l="5">        tree(branchLen - <span class="num">15</span>, turtle);</span>
+<span class="line" data-l="6">        turtle.left(<span class="num">40</span>);</span>
+<span class="line" data-l="7">        tree(branchLen - <span class="num">15</span>, turtle);</span>
+<span class="line" data-l="8">        turtle.right(<span class="num">20</span>);</span>
+<span class="line" data-l="9">        turtle.backward(branchLen);</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">}</span></div></div>
     </div>
   </div>
+<h3>樹是怎麼畫出來的</h3>
+<p>注意樹上的每個分岔點都對應一次遞迴呼叫，而且程式會一路往右畫到最短的小樹枝：</p>
+<figure class="rec-figure" id="rec-figure-viz1"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="一條從底部往上、不斷向右彎的線段，只畫出樹最右邊的一支。"><img src="assets/figures/ch6/recursion_viz1.png" alt="一條從底部往上、不斷向右彎的線段，只畫出樹最右邊的一支。" width="300" height="300" style="--figure-width:300px" loading="lazy"></div><figcaption>tree 一開始的樣子：每次都先處理右邊的小樹，所以程式一路往右畫，直到最短的小枝才停下。</figcaption></figure>
+<p>接著程式沿著樹幹往回退，直到整棵樹的右半邊都畫完：</p>
+<figure class="rec-figure" id="rec-figure-viz2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="樹幹加上右半邊的所有分枝已經畫完，左半邊還是空的。"><img src="assets/figures/ch6/recursion_viz2.png" alt="樹幹加上右半邊的所有分枝已經畫完，左半邊還是空的。" width="300" height="300" style="--figure-width:300px" loading="lazy"></div><figcaption>右半邊畫完了：程式沿著樹幹往回退，每退到一個分岔點才開始畫那裡的左子樹。左半邊會用同樣的方式，先畫各自的右邊。</figcaption></figure>
+<p>然後開始畫左半邊，但不是一路往左畫到底。左子樹的右半邊同樣會先整個畫完，最後才走到最左邊的小樹枝。這個簡單的樹程式只是起點：程式畫的樹完全對稱，所以看起來不太真實，大自然可沒有這麼整齊。</p>
+<!-- /gen:recursion-viz -->
 </section>
 
 <section id="sierpinski">
   <div class="section-number">PART 05 · 三路遞迴</div>
   <h2>Sierpinski 三角形：一次生三個自己 <span class="sec-badge">cppds §5.8 · 講義補充</span></h2>
-  <p style="font-size:.88rem;color:var(--muted);">課堂投影片跳過本節（RISE skip）：屬自學補充。</p>
-  <p>手繪流程只有三句話：畫一個大三角形；連接三邊中點，得到四個小三角形；
-  中間那個不管，對三個角落的小三角形重複同樣程序。
-  base case 是人為設定的<strong>degree（碎形深度）</strong>：每遞迴一層減 1，減到 0 就停。</p>
-  <div class="viz-layout">
+<!-- gen:recursion-sierpinski -->
+<p class="rec-skip">上課時略過本節，留給自學。</p>
+<p>Sierpinski 三角形是一個<strong>三路遞迴</strong>的例子。用手畫的步驟很簡單：</p>
+<ol class="rec-ul"><li>先畫一個大三角形。</li><li>連接三邊的中點，把大三角形分成四個小三角形。</li><li>中間那個不管，對三個角落的小三角形套用同樣的步驟。</li></ol>
+<figure class="rec-figure" id="rec-figure-triangle"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="degree 為 5 的 Sierpinski 三角形：大三角形中間是紫色倒三角形，三個角各有一個同樣圖案的小三角形，越小的三角形顏色依序不同。"><img src="assets/figures/ch6/recursion_triangle.png" alt="degree 為 5 的 Sierpinski 三角形：大三角形中間是紫色倒三角形，三個角各有一個同樣圖案的小三角形，越小的三角形顏色依序不同。" width="460" height="383" style="--figure-width:460px" loading="lazy"></div><figcaption>Sierpinski 三角形：中間的倒三角形不再分割，三個角落的小三角形各自又是一個 Sierpinski 三角形。顏色代表畫出這個三角形時的 degree。</figcaption></figure>
+<p>base case 是什麼？這裡的 base case 是人為設定的：要把三角形分割幾次。這個次數稱為碎形的 <strong>degree</strong>（深度）。每做一次遞迴呼叫，degree 就減 1；degree 減到 0 時，不再遞迴呼叫。</p>
+<h3>講義程式（CTurtle，需另外安裝）</h3>
+<p>程式分成三段。第一段的 drawTriangle 用指定顏色畫出並填滿一個三角形：</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · drawTriangle（CTurtle，需另外安裝）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;CTurtle.hpp&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">namespace</span> ct = cturtle;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">void</span> <span class="fn">drawTriangle</span>(ct::Point a, ct::Point b, ct::Point c,</span>
+<span class="line" data-l="5">                  ct::Color color, ct::Turtle&amp; turtle) {</span>
+<span class="line" data-l="6">    turtle.fillcolor(color);</span>
+<span class="line" data-l="7">    turtle.penup(); turtle.goTo(a); turtle.pendown();</span>
+<span class="line" data-l="8">    turtle.begin_fill();</span>
+<span class="line" data-l="9">    turtle.goTo(c); turtle.goTo(b); turtle.goTo(a);</span>
+<span class="line" data-l="10">    turtle.end_fill();</span>
+<span class="line" data-l="11">}</span></div>
+</div>
+<p>第二段是 sierpinski 本身。它有三個遞迴呼叫，每個呼叫對應連接中點之後得到的一個角落小三角形：</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · sierpinski</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">sierpinski</span>(ct::Point a, ct::Point b, ct::Point c,</span>
+<span class="line" data-l="2">                <span class="kw">int</span> degree, ct::Turtle&amp; turtle) {</span>
+<span class="line" data-l="3">    <span class="kw">const</span> string colors[] = {</span>
+<span class="line" data-l="4">        <span class="str">"</span><span class="str">blue</span><span class="str">"</span>, <span class="str">"</span><span class="str">red</span><span class="str">"</span>, <span class="str">"</span><span class="str">green</span><span class="str">"</span>, <span class="str">"</span><span class="str">white</span><span class="str">"</span>, <span class="str">"</span><span class="str">yellow</span><span class="str">"</span>, <span class="str">"</span><span class="str">violet</span><span class="str">"</span>, <span class="str">"</span><span class="str">orange</span><span class="str">"</span></span>
+<span class="line" data-l="5">    };</span>
+<span class="line" data-l="6">    drawTriangle(a, b, c, {colors[degree]}, turtle);</span>
+<span class="line" data-l="7">    <span class="kw">if</span> (degree &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="8">        sierpinski(a, ct::middle(a, b), ct::middle(a, c), degree - <span class="num">1</span>, turtle);</span>
+<span class="line" data-l="9">        sierpinski(b, ct::middle(a, b), ct::middle(b, c), degree - <span class="num">1</span>, turtle);</span>
+<span class="line" data-l="10">        sierpinski(c, ct::middle(c, b), ct::middle(a, c), degree - <span class="num">1</span>, turtle);</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">}</span></div>
+  <p class="dx-note"><code>ct::middle(a, b)</code> 回傳 a、b 兩點的中點。顏色用 degree 當索引，所以同一層的三角形顏色相同。</p>
+</div>
+<p>第三段的 main 建立視窗，設定三個頂點，用 degree 3 開始畫：</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · main</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="2">    ct::TurtleScreen screen;</span>
+<span class="line" data-l="3">    screen.tracer(<span class="num">3</span>);</span>
+<span class="line" data-l="4">    ct::Turtle turtle(screen);</span>
+<span class="line" data-l="5">    ct::Point points[] = {{<span class="num">-100</span>, <span class="num">-50</span>}, {<span class="num">0</span>, <span class="num">100</span>}, {<span class="num">100</span>, <span class="num">-50</span>}};</span>
+<span class="line" data-l="6">    sierpinski(points[<span class="num">0</span>], points[<span class="num">1</span>], points[<span class="num">2</span>], <span class="num">3</span>, turtle);</span>
+<span class="line" data-l="7">    screen.bye();</span>
+<span class="line" data-l="8">}</span></div>
+  <p class="dx-note">這是 CTurtle 的桌面程式，在 notebook 中只供閱讀；三個頂點依序是左下、上方、右下。</p>
+</div>
+<p>下面用 canvas 畫出同樣的圖形，拉動 degree 觀察三角形的數量怎麼成長。</p>
+<div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <canvas id="sierCv" width="560" height="360" style="background:#fff;border-radius:8px;max-width:100%;"></canvas>
-        <div class="status-banner" id="sierStatus"><span class="status-icon">›</span><span class="status-text">拉 degree 滑桿。最小的三角形有 3^degree 個，總共畫 3⁰+…+3^degree 個，長得快得很。</span></div>
+        <canvas id="sierCv" width="560" height="360" style="background:#fff;border-radius:8px;max-width:100%;" aria-label="Sierpinski 三角形"></canvas>
+        <div class="status-banner" id="sierStatus"><span class="status-icon">›</span><span class="status-text">拉 degree 滑桿。最小的三角形有 3^degree 個，總共畫 3⁰+…+3^degree 個。</span></div>
         <div class="controls-bar">
           <label class="mono" style="font-size:.8rem;">degree <input id="sierDeg" type="range" min="0" max="6" value="3" style="vertical-align:middle;"> <span id="sierDegLbl">3</span></label>
         </div>
       </div>
     </div>
     <div class="side-panel">
-      <div class="info-card">
-        <div class="ic-title">三路遞迴 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" style="font-size:.75rem;">
-<span class="line"><span class="kw">void</span> <span class="fn">sierpinski</span>(ct::Point a, ct::Point b, ct::Point c, <span class="kw">int</span> degree, ct::Turtle&amp; t) {</span>
-<span class="line">    const string colors[] = { <span class="str">&quot;blue&quot;</span>, <span class="str">&quot;red&quot;</span>, <span class="str">&quot;green&quot;</span>, <span class="str">&quot;white&quot;</span>,</span>
-<span class="line">                              <span class="str">&quot;yellow&quot;</span>, <span class="str">&quot;violet&quot;</span>, <span class="str">&quot;orange&quot;</span> };</span>
-<span class="line">    <span class="fn">drawTriangle</span>(a, b, c, {colors[degree]}, t);</span>
-<span class="line">    <span class="kw">if</span> (degree &gt; <span class="num">0</span>) {</span>
-<span class="line">        <span class="fn">sierpinski</span>(a, ct::middle(a,b), ct::middle(a,c), degree-<span class="num">1</span>, t);</span>
-<span class="line">        <span class="fn">sierpinski</span>(b, ct::middle(a,b), ct::middle(b,c), degree-<span class="num">1</span>, t);</span>
-<span class="line">        <span class="fn">sierpinski</span>(c, ct::middle(c,b), ct::middle(a,c), degree-<span class="num">1</span>, t);</span>
-<span class="line">    }</span><span class="line">}</span></div>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">畫的順序</div>
-        <div style="font-size:.86rem;line-height:1.9;">程式會先鑽到左下角最小的三角形，把左下角整片畫完，
-        再處理頂角、最後右下角。想像函式呼叫圖：越往下三角形越小，一次收完一整支子樹。
-        河內塔、樹的走訪（第 8 章）都是同一種「多路遞迴」的親戚。</div>
-      </div>
+      <div class="info-card"><div class="ic-title">sierpinski <span class="ic-badge">CODE</span></div><div class="pseudo-code" style="font-size:.72rem;" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">sierpinski</span>(ct::Point a, ct::Point b, ct::Point c,</span>
+<span class="line" data-l="2">                <span class="kw">int</span> degree, ct::Turtle&amp; turtle) {</span>
+<span class="line" data-l="3">    <span class="kw">const</span> string colors[] = {</span>
+<span class="line" data-l="4">        <span class="str">"</span><span class="str">blue</span><span class="str">"</span>, <span class="str">"</span><span class="str">red</span><span class="str">"</span>, <span class="str">"</span><span class="str">green</span><span class="str">"</span>, <span class="str">"</span><span class="str">white</span><span class="str">"</span>, <span class="str">"</span><span class="str">yellow</span><span class="str">"</span>, <span class="str">"</span><span class="str">violet</span><span class="str">"</span>, <span class="str">"</span><span class="str">orange</span><span class="str">"</span></span>
+<span class="line" data-l="5">    };</span>
+<span class="line" data-l="6">    drawTriangle(a, b, c, {colors[degree]}, turtle);</span>
+<span class="line" data-l="7">    <span class="kw">if</span> (degree &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="8">        sierpinski(a, ct::middle(a, b), ct::middle(a, c), degree - <span class="num">1</span>, turtle);</span>
+<span class="line" data-l="9">        sierpinski(b, ct::middle(a, b), ct::middle(b, c), degree - <span class="num">1</span>, turtle);</span>
+<span class="line" data-l="10">        sierpinski(c, ct::middle(c, b), ct::middle(a, c), degree - <span class="num">1</span>, turtle);</span>
+<span class="line" data-l="11">    }</span>
+<span class="line" data-l="12">}</span></div></div>
     </div>
   </div>
-  
+<h3>畫的順序</h3>
+<p>看著程式想想看，三角形會以什麼順序畫出來？假設三個角依序是左下、上方、右下。因為 sierpinski 呼叫自己的方式，它會先一路畫到左下角最小的三角形，再往回補齊其他三角形。接著往上方角落，一路畫到最上面最小的三角形；最後才是右下角。把遞迴演算法畫成函式呼叫圖，常常有助於理解：</p>
+<figure class="rec-figure" id="rec-figure-triangle2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="呼叫樹：每個節點有 left、top、right 三個子節點；最左邊一路往下的節點是白色（正在執行），其餘 top 與 right 子節點是灰色（尚未執行）。"><img src="assets/figures/ch6/recursion_triangle2.png" alt="呼叫樹：每個節點有 left、top、right 三個子節點；最左邊一路往下的節點是白色（正在執行），其餘 top 與 right 子節點是灰色（尚未執行）。" width="330" height="306" style="--figure-width:330px" loading="lazy"></div><figcaption>sierpinski 的呼叫圖。白色是目前正在執行的呼叫，灰色是還沒輪到的呼叫：程式先一路鑽到左下角最小的三角形，左邊整支做完才輪到 top，最後才是 right。</figcaption></figure>
+<p>正在執行的函式畫成黑框，還沒執行的呼叫是灰色。越往下，三角形越小。函式一次完成一層：左下角畫完之後，才移到下方中間，依此類推。</p>
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · 數三角形</div>
-  <p>degree = 3 時，sierpinski 總共呼叫了幾次（含最外層那一次）？</p>
-  
+  <p>degree = 3 時，sierpinski 總共被呼叫幾次（含最外層那一次）？</p>
   <div class="quiz-options" id="qSierOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="每層是前一層的 3 倍：3⁰+3¹+3²+3³。三路遞迴的呼叫數呈 3 的冪次成長，這也預告了第 2 章說的指數複雜度。" onclick="quizCheck('qSier', this)"><span class="opt-letter">(A)</span> 1 + 3 + 9 + 27 = 40 次</div><div class="quiz-opt" data-correct="false" data-fb="每一次呼叫都會再生三次，直到 degree 歸零，是連乘不是一次相乘。" onclick="quizCheck('qSier', this)"><span class="opt-letter">(B)</span> 3 × 3 = 9 次</div><div class="quiz-opt" data-correct="false" data-fb="27 只是最深那層；上面每一層的呼叫也要算。" onclick="quizCheck('qSier', this)"><span class="opt-letter">(C)</span> 27 次</div>
+    <div class="quiz-opt" data-correct="true" data-fb="每一層是前一層的 3 倍：3⁰ + 3¹ + 3² + 3³。三路遞迴的呼叫數以 3 的冪次成長。" onclick="quizCheck('qSier', this)"><span class="opt-letter">(A)</span> <span class="opt-text">1 + 3 + 9 + 27 = 40 次</span></div><div class="quiz-opt" data-correct="false" data-fb="每次呼叫都會再發出三次呼叫，直到 degree 歸零；是一層層連乘，不是只乘一次。" onclick="quizCheck('qSier', this)"><span class="opt-letter">(B)</span> <span class="opt-text">3 × 3 = 9 次</span></div><div class="quiz-opt" data-correct="false" data-fb="27 只是最深那一層的呼叫數，上面各層的呼叫也要算進去。" onclick="quizCheck('qSier', this)"><span class="opt-letter">(C)</span> <span class="opt-text">27 次</span></div><div class="quiz-opt" data-correct="false" data-fb="1 + 3 + 9 = 13 是 degree = 2 的總數；degree = 3 還要加上最深一層的 27 次。" onclick="quizCheck('qSier', this)"><span class="opt-letter">(D)</span> <span class="opt-text">13 次</span></div>
   </div>
   <div class="quiz-feedback" id="qSierFeedback"></div>
 </div>
+<!-- /gen:recursion-sierpinski -->
 </section>
 
 <section id="hanoi">
   <div class="section-number">PART 06 · 河內塔</div>
   <h2>河內塔：三行遞迴解千年謎題 <span class="sec-badge">cppds §5.10</span></h2>
-  <p>把 n 個盤子從 A 搬到 C（大盤不能壓小盤）：<strong>相信</strong> n−1 盤的搬法已存在，
-  那 n 盤 = 先把 n−1 盤挪到中繼柱、搬最大盤、再把 n−1 盤疊回來。移動次數 $2^n - 1$。</p>
-  <div class="viz-layout">
+<!-- gen:recursion-hanoi -->
+<div class="info-box"><span class="info-label">接下來的問題</span>前面的問題用遞迴解很容易，或主要用來建立對遞迴的直覺。接下來兩個問題用迴圈很難寫，用遞迴卻很簡潔：河內塔與迷宮。最後的找零錢問題正好相反：遞迴寫法很漂亮，執行起來卻慢得無法接受。</div>
+<h3>傳說與規則</h3>
+<p>河內塔是法國數學家 Édouard Lucas 在 1883 年發明的謎題。他的靈感來自一個傳說：一座印度教寺廟裡，年輕的僧侶被交付這個謎題。一開始他們拿到三根柱子，以及疊成一疊的 64 個金盤，每個盤子都比下面那個小一點。他們要把 64 個盤子從一根柱子全部搬到另一根，並遵守兩條規則：</p>
+<ol class="rec-ul"><li>一次只能搬一個盤子。</li><li>大盤子永遠不能放在小盤子上面。</li></ol>
+<p>傳說僧侶日夜不停，每秒搬一個盤子，搬完的那天，寺廟會化為塵土，世界也將消失。不必擔心：正確搬完 64 個盤子需要 $2^{64}-1 = 18{,}446{,}744{,}073{,}709{,}551{,}615$ 步，每秒一步要花 $584{,}942{,}417{,}355$ 年。</p>
+<p>下圖是從第一根柱子搬到第三根的過程中，某個時刻的樣子。依照規則，每根柱子上都是小盤在上、大盤在下：</p>
+<figure class="rec-figure" id="rec-figure-hanoi"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="三根柱子 fromPole、withPole、toPole。最大的盤子留在 fromPole，四個較小的盤子疊在 withPole，toPole 是空的。"><img src="assets/figures/ch6/Hanoi.png" alt="三根柱子 fromPole、withPole、toPole。最大的盤子留在 fromPole，四個較小的盤子疊在 withPole，toPole 是空的。" width="760" height="266" style="--figure-width:760px" loading="lazy"></div><figcaption>五盤河內塔進行到一半：上面四個盤子已經搬到 withPole，fromPole 只剩最大的盤子，下一步就是把它搬到 toPole。每根柱子上都是小盤在上、大盤在下。</figcaption></figure>
+<h3>由下往上想</h3>
+<p>假設第一根柱子上有五個盤子。如果你已經知道怎麼把四個盤子的塔搬到第二根柱子，就能把最下面的盤子搬到第三根，再把那四個盤子從第二根搬到第三根。</p>
+<p>可是如果不知道怎麼搬四個盤子呢？假設你知道怎麼把三個盤子的塔搬到第三根柱子，那就能把第四個盤子搬到第二根，再把三個盤子從第三根疊到它上面。如果連三個盤子都還不會呢？至少把一個盤子搬到第三根柱子很容易，簡單到不值一提。這聽起來就是 base case。</p>
+<h3>三步驟大綱</h3>
+<p>把高度 h 的塔從起始柱（fromPole）搬到目標柱（toPole），中途借用中間柱（withPole）：</p>
+<ol class="rec-ul"><li>借用目標柱，把上面高度 h−1 的塔從起始柱搬到中間柱。</li><li>把剩下的一個盤子從起始柱搬到目標柱。</li><li>借用起始柱，把高度 h−1 的塔從中間柱搬到目標柱。</li></ol>
+<p>最簡單的非空河內塔只有一個盤子：直接把它搬到目的地。程式中的 base case 是高度 0 的塔，什麼都不用搬。步驟 1 與步驟 3 都讓塔的高度減一，所以會朝 base case 前進。每一層各搬一個盤子，搬 n 個盤子總共要 $2^n - 1$ 步。</p>
+<div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div style="display:flex;justify-content:space-around;align-items:flex-end;min-height:170px;" id="hanoiVis"></div>
-        <div class="status-banner" id="hanoiStatus"><span class="status-icon">›</span><span class="status-text">選盤數後開始。</span></div>
+        <div style="display:flex;justify-content:space-around;align-items:flex-end;min-height:170px;overflow-x:auto;" id="hanoiVis"></div>
+        <div class="status-banner" id="hanoiStatus"><span class="status-icon">›</span><span class="status-text">選盤數後開始。A 是 fromPole、B 是 withPole、C 是 toPole。</span></div>
         <div class="controls-bar">
-          <select id="hanoiN" class="mono" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
+          <select id="hanoiN" class="mono" aria-label="盤數" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
             <option value="3" selected>3 盤</option><option value="4">4 盤</option><option value="5">5 盤</option>
           </select>
           <button class="btn" onclick="hanoiStart()">▶ 開始</button>
           <button class="btn" onclick="hanoiPlayer &amp;&amp; hanoiPlayer.step()">→ 單步</button>
           <button class="btn" onclick="hanoiPlayer &amp;&amp; hanoiPlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度<input id="hanoiSpeed" type="range" min="120" max="1000" value="420" style="vertical-align:middle;"></span>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="hanoiSpeed" type="range" min="120" max="1000" value="420" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
         </div>
       </div>
     </div>
     <div class="side-panel">
-      <div class="info-card"><div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="hanoiCode">
-<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">moveTower</span>(<span class="kw">int</span> height, string from, string to, string via) {</span>
-<span class="line" data-l="2">    <span class="kw">if</span> (height &lt; <span class="num">1</span>) <span class="kw">return</span>;   <span class="com">// base case</span></span>
-<span class="line" data-l="3">    <span class="fn">moveTower</span>(height-<span class="num">1</span>, from, via, to);  <span class="com">// ① 搬 n-1 個</span></span>
-<span class="line" data-l="4">    <span class="fn">moveDisk</span>(from, to);               <span class="com">// ② 搬最大盤</span></span>
-<span class="line" data-l="5">    <span class="fn">moveTower</span>(height-<span class="num">1</span>, via, to, from);  <span class="com">// ③ 搬回 n-1 個</span></span>
-<span class="line" data-l="6">}</span></div></div>
+      <div class="info-card"><div class="ic-title">moveTower <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="hanoiCode" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">moveTower</span>(<span class="kw">int</span> height, string fromPole, string toPole, string withPole) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (height &gt;= <span class="num">1</span>) {</span>
+<span class="line" data-l="3">        moveTower(height - <span class="num">1</span>, fromPole, withPole, toPole);</span>
+<span class="line" data-l="4">        moveDisk(fromPole, toPole);</span>
+<span class="line" data-l="5">        moveTower(height - <span class="num">1</span>, withPole, toPole, fromPole);</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">}</span></div></div>
       <div class="info-card">
         <div class="ic-title">移動次數</div>
         <div class="ic-row"><span class="ic-label">3 盤</span><span class="ic-value">7</span></div>
         <div class="ic-row"><span class="ic-label">5 盤</span><span class="ic-value">31</span></div>
         <div class="ic-row"><span class="ic-label">n 盤</span><span class="ic-value">2ⁿ − 1</span></div>
-        <div style="font-size:.76rem;color:var(--muted);margin-top:.3rem;">64 盤 ≈ 1.8×10¹⁹ 步：傳說中僧侶搬完，世界末日。</div>
       </div>
     </div>
   </div>
-
-<div class="deck-extra">
-  <div class="dx-label">講義 06 · moveTower 完整程式與 3 層塔的輸出</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<h3>講義程式：moveTower</h3>
+<details class="rec-detail"><summary>講義完整程式：moveTower 與 moveDisk</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 三個盤子的河內塔</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="moving disk from A to B&#10;moving disk from A to C&#10;moving disk from B to C&#10;moving disk from A to B&#10;moving disk from C to A&#10;moving disk from C to B&#10;moving disk from A to B&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
 <span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="4"> </span>
@@ -896,96 +1215,209 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="14">}</span>
 <span class="line" data-l="15"> </span>
 <span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() { moveTower(<span class="num">3</span>, <span class="str">"</span><span class="str">A</span><span class="str">"</span>, <span class="str">"</span><span class="str">B</span><span class="str">"</span>, <span class="str">"</span><span class="str">C</span><span class="str">"</span>); }</span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>moving disk from A to B
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>moving disk from A to B
 moving disk from A to C
 moving disk from B to C
 moving disk from A to B
 moving disk from C to A
 moving disk from C to B
-moving disk from A to B</pre></div>
-  <p class="dx-note"><span id="dx-hn"></span>7 行輸出 = 2³ − 1 步，跟理論下限一模一樣。注意基底情況是「height &lt; 1 什麼都不做」：它藏在 if 的反面，這種「隱形 base case」是遞迴的常見寫法。拿上面的互動動畫對照，每一行輸出對應一次圓盤移動。</p>
-</div>
+moving disk from A to B</pre></div><p class="dx-note">main 呼叫 <code>moveTower(3, "A", "B", "C")</code>：從 A 搬到 B，借用 C。7 行輸出等於 2³ − 1 步。base case 是高度 0 的塔：這時什麼都不做，moveTower 直接回傳。base case 一回傳，上一層就接著執行 moveDisk。</p>
+<h3>柱子上的盤子由誰記住？</h3>
+<p>看完 moveTower 與 moveDisk，你也許會疑惑：為什麼沒有一個資料結構明確記錄每根柱子上有哪些盤子？如果要明確追蹤，可以用三個 <code>Stack</code> 物件，每根柱子一個。遞迴的 C++ 程式則是靠執行時的呼叫堆疊，記住所有暫停中的呼叫：每個還沒結束的 moveTower 都記得自己要從哪裡搬到哪裡、搬到第幾步。</p>
+<!-- /gen:recursion-hanoi -->
 </section>
 
 <section id="maze">
   <div class="section-number">PART 07 · 走迷宮</div>
   <h2>迷宮探索：遞迴回溯（backtracking） <span class="sec-badge">cppds §5.11</span></h2>
-  <p>希臘神話裡忒修斯進迷宮殺牛頭人，靠一團線找到回頭路。我們的演算法用的是另一個道具：
-  <strong>麵包屑</strong>。從起點問「往北一步之後，能走出去嗎」，這又是一個一模一樣的迷宮問題，
-  於是遞迴。北邊不行換南邊，再換西邊、東邊。走過的格子撒麵包屑，下次踩到就立刻回頭，
-  不然兩格之間會互相呼叫到天荒地老。回溯（backtrack）在程式裡就一件事：<strong>從遞迴呼叫 return</strong>。</p>
-  <p>四個 base case 要背起來：撞牆、踩到麵包屑（走過或死路）、到達邊緣（出口）、四個方向全部失敗。</p>
-  <div class="viz-layout">
+<!-- gen:recursion-maze -->
+<p>這一節要解一個和機器人有關的問題：怎麼走出迷宮？我們要幫一隻烏龜走出虛擬的迷宮。迷宮問題可以追溯到希臘神話：忒修斯被派進迷宮殺死牛頭人，他用一團線標記來路，事後才找得到出口。這裡假設烏龜被丟在迷宮中間某處，必須自己找到出口。</p>
+<figure class="rec-figure" id="rec-figure-maze"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="迷宮格子圖：橘色是牆，白色是通道；藍色烏龜在起點，綠點標出走到出口的路線，紅點是試過之後退回的格子。"><img src="assets/figures/ch6/maze.png" alt="迷宮格子圖：橘色是牆，白色是通道；藍色烏龜在起點，綠點標出走到出口的路線，紅點是試過之後退回的格子。" width="440" height="413" style="--figure-width:440px" loading="lazy"></div><figcaption>迷宮探索的結果：綠點連成從起點到出口的路，紅點是走進去之後發現是死路、又退回來的格子。退回來的動作，在程式裡就是遞迴呼叫回傳 false。</figcaption></figure>
+<h3>探索程序</h3>
+<p>為了簡化，假設迷宮被切成方格，每一格不是通道就是牆。烏龜只能走通道，撞到牆就換一個方向。程序如下：</p>
+<ol class="rec-ul"><li>從目前的位置先往北走一格，<strong>再從那裡遞迴地執行同一個程序</strong>。</li><li>往北走不出去，就改往南走一格，再遞迴地執行同一個程序。</li><li>往南也不行，就往西走一格，再遞迴地執行。</li><li>北、南、西都失敗，就從往東一格的位置遞迴地執行。</li><li>四個方向都不行，就表示走不出迷宮，回報失敗。</li></ol>
+<p>聽起來很簡單，但有個細節要處理。假設第一步往北，照程序，下一步還是先往北；如果北邊是牆，就改試南邊。可是往南一步就回到了原本的起點，從那裡再執行程序，又會往北走一步，然後無限循環下去。所以必須記住走過哪些地方。</p>
+<p>假設烏龜帶著一袋<strong>麵包屑</strong>，邊走邊撒。往某個方向走一步，發現那一格已經有麵包屑，就立刻退回來，試程序中的下一個方向。之後看程式就會知道：<strong>退回來，就只是從遞迴呼叫回傳</strong>。</p>
+<h3>四個 base case</h3>
+<ol class="rec-ul"><li>烏龜撞到牆。這一格是牆，無法再探索。</li><li>烏龜走到已經探索過的格子。不從這裡繼續探索，以免陷入迴圈。</li><li>走到迷宮的邊緣，而且那一格不是牆。也就是找到出口了。</li><li>這一格往四個方向都探索過，全部失敗。</li></ol>
+<h3>Maze 類別</h3>
+<p>以下面這個迷宮為例：<code>+</code> 是牆，空白是通道，<code>S</code> 是起點。</p>
+<pre class="rec-maze">++++++++++++++++++++++
++   +   ++ ++     +
++ +   +       +++ + ++
++ + +  ++  ++++   + ++
++++ ++++++    +++ +  +
++          ++  ++    +
++++++ ++++++   +++++ +
++     +   +++++++  + +
++ +++++++      S +   +
++                + +++
+++++++++++++++++++ +++</pre>
+<p>Maze 物件提供下列方法，供搜尋演算法使用：</p>
+<ol class="rec-ul"><li><code>Maze(filename)</code>：建構子，讀入代表迷宮的資料檔，建立迷宮的內部表示，並找出起點的位置。</li><li><code>print()</code>：印出目前的字元格子。</li><li><code>updatePosition()</code>：更新迷宮中某一格存放的字元。</li><li><code>isExit()</code>：檢查目前位置是不是迷宮的出口。</li></ol>
+<p>另外還有 <code>get(row, col)</code>，讓演算法可以讀取任一格的狀態。迷宮的每種狀態用一個具名常數表示。C++ 版不畫烏龜動畫，而是把進度印成文字：</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · 迷宮的字元常數</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">const</span> <span class="kw">char</span> START = <span class="str">'</span><span class="str">S</span><span class="str">'</span>;</span>
+<span class="line" data-l="2"><span class="kw">const</span> <span class="kw">char</span> OBSTACLE = <span class="str">'</span><span class="str">+</span><span class="str">'</span>;</span>
+<span class="line" data-l="3"><span class="kw">const</span> <span class="kw">char</span> TRIED = <span class="str">'</span><span class="str">.</span><span class="str">'</span>;</span>
+<span class="line" data-l="4"><span class="kw">const</span> <span class="kw">char</span> DEAD_END = <span class="str">'</span><span class="str">-</span><span class="str">'</span>;</span>
+<span class="line" data-l="5"><span class="kw">const</span> <span class="kw">char</span> PART_OF_PATH = <span class="str">'</span><span class="str">O</span><span class="str">'</span>;</span></div>
+  <p class="dx-note">START 是起點，OBSTACLE 是牆，TRIED 是走過的格子（麵包屑），DEAD_END 是確定走不通的格子，PART_OF_PATH 是通往出口的路。</p>
+</div>
+<p>建構子 <code>Maze(filename)</code> 只有一個參數：檔名。這個文字檔用 <code>+</code> 表示牆、空白表示通道、字母 <code>S</code> 表示起點。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · Maze 的建構子與資料成員</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> Maze {</span>
+<span class="line" data-l="2">    <span class="kw">public</span>:</span>
+<span class="line" data-l="3">        Maze(string mazeFilename) {</span>
+<span class="line" data-l="4">            ifstream <span class="fn">mazeFile</span>(mazeFilename);</span>
+<span class="line" data-l="5">            string line;</span>
+<span class="line" data-l="6">            <span class="kw">while</span> (getline(mazeFile, line)) {</span>
+<span class="line" data-l="7">                mazeList.push_back(line);</span>
+<span class="line" data-l="8">            }</span>
+<span class="line" data-l="9">            rowsInMaze = mazeList.size();</span>
+<span class="line" data-l="10">            columnsInMaze = mazeList[<span class="num">0</span>].size();</span>
+<span class="line" data-l="11">            <span class="kw">for</span> (<span class="kw">int</span> row = <span class="num">0</span>; row &lt; rowsInMaze; row++) {</span>
+<span class="line" data-l="12">                <span class="kw">size_t</span> col = mazeList[row].find(START);</span>
+<span class="line" data-l="13">                <span class="kw">if</span> (col != string::npos) {</span>
+<span class="line" data-l="14">                    startRow = row;</span>
+<span class="line" data-l="15">                    startCol = col;</span>
+<span class="line" data-l="16">                    <span class="kw">break</span>;</span>
+<span class="line" data-l="17">                }</span>
+<span class="line" data-l="18">            }</span>
+<span class="line" data-l="19">        }</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21">        <span class="kw">int</span> startRow;</span>
+<span class="line" data-l="22">        <span class="kw">int</span> startCol;</span>
+<span class="line" data-l="23">    <span class="kw">private</span>:</span>
+<span class="line" data-l="24">        vector&lt;string&gt; mazeList;</span>
+<span class="line" data-l="25">        <span class="kw">int</span> rowsInMaze;</span>
+<span class="line" data-l="26">        <span class="kw">int</span> columnsInMaze;</span>
+<span class="line" data-l="27">};</span></div>
+  <p class="dx-note">建構子逐列讀檔，把每一列放進 <code>mazeList</code>，記下列數與欄數，再找出 S 所在的列與欄。<code>startRow</code>、<code>startCol</code> 是 public，main 要用它們開始搜尋；<code>mazeList</code>、<code>rowsInMaze</code>、<code>columnsInMaze</code> 是 private，只能透過成員函式存取。</p>
+</div>
+<p>C++ 的 Maze 把字元格子存在名為 <code>mazeList</code> 的 <code>vector&lt;string&gt;</code> 裡。每個 string 是一列，所以 <code>mazeList[row][col]</code> 就是一格。C++ 版保留同樣的遞迴狀態轉換，並印出字元格子；每次更新都會留在最後的格子裡，不需要圖形視窗：</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · updatePosition 與 print</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">updatePosition</span>(<span class="kw">int</span> row, <span class="kw">int</span> col, <span class="kw">char</span> val) {</span>
+<span class="line" data-l="2">    mazeList[row][col] = val;</span>
+<span class="line" data-l="3">}</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">print</span>() {</span>
+<span class="line" data-l="6">    <span class="kw">for</span> (string&amp; row : mazeList) {</span>
+<span class="line" data-l="7">        cout &lt;&lt; row &lt;&lt; endl;</span>
+<span class="line" data-l="8">    }</span>
+<span class="line" data-l="9">}</span></div>
+</div>
+<p><code>isExit()</code> 用目前的位置檢查是否到達出口：只要烏龜走到迷宮的邊緣，也就是第 0 列、第 0 欄、最右邊一欄或最下面一列，就是出口。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · isExit 與 get</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">bool</span> <span class="fn">isExit</span>(<span class="kw">int</span> row, <span class="kw">int</span> col) {</span>
+<span class="line" data-l="2">    <span class="kw">return</span> (row == <span class="num">0</span> || row == rowsInMaze - <span class="num">1</span> ||</span>
+<span class="line" data-l="3">            col == <span class="num">0</span> || col == columnsInMaze - <span class="num">1</span>);</span>
+<span class="line" data-l="4">}</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">char</span> <span class="fn">get</span>(<span class="kw">int</span> row, <span class="kw">int</span> col) {</span>
+<span class="line" data-l="7">    <span class="kw">return</span> mazeList[row][col];</span>
+<span class="line" data-l="8">}</span></div>
+</div>
+<h3>searchFrom：遞迴搜尋</h3>
+<p>搜尋函式叫做 <code>searchFrom()</code>，有三個參數：一個 Maze 物件、起始的列與起始的欄。這很重要：它是遞迴函式，每次遞迴呼叫，搜尋在邏輯上都從新的位置重新開始。</p>
+<div class="deck-extra">
+  <div class="dx-label">講義 06 · searchFrom（完整程式在 pythonds3/cppds/maze.hpp）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">bool</span> <span class="fn">searchFrom</span>(Maze&amp; maze, <span class="kw">int</span> row, <span class="kw">int</span> column) {</span>
+<span class="line" data-l="2">    <span class="com">// Base Case return values:</span></span>
+<span class="line" data-l="3">    <span class="com">//  1. We have run into an obstacle, return false</span></span>
+<span class="line" data-l="4">    <span class="kw">if</span> (maze.get(row, column) == OBSTACLE) {</span>
+<span class="line" data-l="5">        <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="6">    }</span>
+<span class="line" data-l="7">    <span class="com">//  2. We have found an already explored square</span></span>
+<span class="line" data-l="8">    <span class="kw">if</span> (maze.get(row, column) == TRIED || maze.get(row, column) == DEAD_END) {</span>
+<span class="line" data-l="9">        <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">    <span class="com">//  3. We have found an exit</span></span>
+<span class="line" data-l="12">    <span class="kw">if</span> (maze.isExit(row, column)) {</span>
+<span class="line" data-l="13">        maze.updatePosition(row, column, PART_OF_PATH);</span>
+<span class="line" data-l="14">        <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line" data-l="15">    }</span>
+<span class="line" data-l="16">    maze.updatePosition(row, column, TRIED);</span>
+<span class="line" data-l="17">    <span class="com">// Otherwise, use logical short circuiting to try each direction</span></span>
+<span class="line" data-l="18">    <span class="kw">bool</span> found = searchFrom(maze, row - <span class="num">1</span>, column)</span>
+<span class="line" data-l="19">              || searchFrom(maze, row + <span class="num">1</span>, column)</span>
+<span class="line" data-l="20">              || searchFrom(maze, row, column - <span class="num">1</span>)</span>
+<span class="line" data-l="21">              || searchFrom(maze, row, column + <span class="num">1</span>);</span>
+<span class="line" data-l="22">    <span class="kw">if</span> (found) {</span>
+<span class="line" data-l="23">        maze.updatePosition(row, column, PART_OF_PATH);</span>
+<span class="line" data-l="24">    } <span class="kw">else</span> {</span>
+<span class="line" data-l="25">        maze.updatePosition(row, column, DEAD_END);</span>
+<span class="line" data-l="26">    }</span>
+<span class="line" data-l="27">    <span class="kw">return</span> found;</span>
+<span class="line" data-l="28">}</span></div>
+  <p class="dx-note">前三個 if 是 base case 1 到 3；四個方向都回傳 false，就是 base case 4，這一格標成 DEAD_END。</p>
+</div>
+<p>遞迴步驟裡有四個 <code>searchFrom()</code> 呼叫，很難事先知道會用到幾個，因為它們用 <code>||</code> 連接：只要前面的呼叫成功，<strong>短路求值</strong>就會跳過後面的呼叫。如果第一個呼叫（往北）回傳 true，其他三個都不會執行；從幾何上看，北邊那一步就在通往出口的路上。往北失敗，才依序試南、西、東。四個呼叫都回傳 false，目前這一格就是死路。</p>
+<p>下面的動畫在一個較小的迷宮上執行同樣的 searchFrom。注意每一格怎麼先被標成走過，四個方向都試完後，再改成路徑或死路。</p>
+<div class="viz-layout">
     <div>
       <div class="viz-panel">
-        <div id="mazeVis" class="mono" style="line-height:1.15;font-size:1.05rem;letter-spacing:.1em;padding:.5rem;"></div>
-        <div class="status-banner" id="mazeStatus"><span class="status-icon">›</span><span class="status-text">S=起點；按「開始」看探索與回溯。</span></div>
+        <div id="mazeVis" class="mono" style="line-height:1.15;font-size:1.05rem;letter-spacing:.1em;padding:.5rem;overflow-x:auto;"></div>
+        <div class="status-banner" id="mazeStatus"><span class="status-icon">›</span><span class="status-text">S 是起點；按「開始」看探索與回溯。</span></div>
         <div class="controls-bar">
           <button class="btn" onclick="mazeStart()">▶ 開始</button>
           <button class="btn" onclick="mazePlayer &amp;&amp; mazePlayer.step()">→ 單步</button>
           <button class="btn" onclick="mazePlayer &amp;&amp; mazePlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度<input id="mazeSpeed" type="range" min="60" max="600" value="300" style="vertical-align:middle;"></span>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="mazeSpeed" type="range" min="60" max="600" value="300" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
         </div>
-        <div class="mono" style="font-size:.78rem;color:var(--muted);">圖例：<span style="color:#f39c12;">●</span> 目前｜<span style="color:#1a6b4a;">＋</span> 路徑｜<span style="color:#c0392b;">−</span> 死路</div>
+        <div class="mono" style="font-size:.78rem;color:var(--muted);">圖例：<span style="color:#f39c12;">●</span> 目前｜<span style="color:#1a6b4a;">＋</span> 路徑（O）｜<span style="color:#c0392b;">−</span> 死路</div>
       </div>
     </div>
     <div class="side-panel">
-      <div class="info-card"><div class="ic-title">虛擬碼 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="mazeCode">
-<span class="line" data-l="1"><span class="kw">bool</span> <span class="fn">searchFrom</span>(Maze&amp; maze, <span class="kw">int</span> row, <span class="kw">int</span> col) {</span>
-<span class="line" data-l="2">    <span class="kw">if</span> (maze.<span class="fn">get</span>(row,col) == OBSTACLE) <span class="kw">return</span> <span class="num">false</span>;</span>
-<span class="line" data-l="3">    <span class="kw">if</span> (maze.<span class="fn">get</span>(row,col) == TRIED || maze.<span class="fn">get</span>(row,col) == DEAD_END) <span class="kw">return</span> <span class="num">false</span>;</span>
-<span class="line" data-l="4">    <span class="kw">if</span> (maze.<span class="fn">isExit</span>(row,col)) <span class="kw">return</span> <span class="num">true</span>;</span>
-<span class="line" data-l="5">    maze.<span class="fn">updatePosition</span>(row,col,TRIED);</span>
-<span class="line" data-l="6">    <span class="kw">bool</span> found = <span class="fn">searchFrom</span>(maze,row-<span class="num">1</span>,col)</span>
-<span class="line" data-l="7">              || <span class="fn">searchFrom</span>(maze,row+<span class="num">1</span>,col)</span>
-<span class="line" data-l="8">              || <span class="fn">searchFrom</span>(maze,row,col-<span class="num">1</span>)</span>
-<span class="line" data-l="9">              || <span class="fn">searchFrom</span>(maze,row,col+<span class="num">1</span>);</span>
-<span class="line" data-l="10">    maze.<span class="fn">updatePosition</span>(row,col, found ? PART_OF_PATH : DEAD_END);</span>
-<span class="line" data-l="11">    <span class="kw">return</span> found;</span>
-<span class="line" data-l="12">}</span></div></div>
-      <div class="info-card">
-        <div class="ic-title">Maze 類別 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" style="font-size:.73rem;">
-<span class="line"><span class="kw">const char</span> OBSTACLE=<span class="str">&#39;+&#39;</span>, TRIED=<span class="str">&#39;.&#39;</span>,</span>
-<span class="line">           DEAD_END=<span class="str">&#39;-&#39;</span>, PART_OF_PATH=<span class="str">&#39;O&#39;</span>;</span>
-<span class="line"><span class="kw">class</span> <span class="fn">Maze</span> {         <span class="com">// pythonds3/cppds/maze.hpp</span></span>
-<span class="line">  <span class="kw">public</span>:</span>
-<span class="line">    <span class="fn">Maze</span>(string filename) {</span>
-<span class="line">        ifstream f(filename);  string line;</span>
-<span class="line">        <span class="kw">while</span> (<span class="fn">getline</span>(f, line)) mazeList.<span class="fn">push_back</span>(line);</span>
-<span class="line">        <span class="com">// 掃每一列找 'S' → startRow / startCol</span></span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">char</span> <span class="fn">get</span>(<span class="kw">int</span> r, <span class="kw">int</span> c) const { <span class="kw">return</span> mazeList[r][c]; }</span>
-<span class="line">    <span class="kw">bool</span> <span class="fn">isExit</span>(<span class="kw">int</span> r, <span class="kw">int</span> c) {   <span class="com">// 到達任一邊緣就是出口</span></span>
-<span class="line">        <span class="kw">return</span> r==<span class="num">0</span> || r==mazeList.<span class="fn">size</span>()-<span class="num">1</span> || c==<span class="num">0</span> || c==mazeList[r].<span class="fn">size</span>()-<span class="num">1</span>;</span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">void</span> <span class="fn">updatePosition</span>(<span class="kw">int</span> r, <span class="kw">int</span> c, <span class="kw">char</span> v) { mazeList[r][c] = v; }</span>
-<span class="line">    vector&lt;string&gt; mazeList;  <span class="com">// 逐列讀進來的字串</span></span>
-<span class="line">};</span></div>
-      </div>
-      <div class="info-card">
-        <div class="ic-title">searchFrom 的短路技巧</div>
-        <div style="font-size:.82rem;line-height:1.8;color:var(--muted);margin-top:.4rem;">四個呼叫用 || 串起來：
-        北邊一旦回報 true，剩下三個方向連試都不試（短路求值）。找到路的格子標 O、全敗的標 −，
-        印出來就是完整的探索地圖。課堂版把這個 Maze 跑在 maze2.txt 上（pythonds3/cppds/maze.hpp）。</div>
-      </div>
+      <div class="info-card"><div class="ic-title">searchFrom <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="mazeCode" style="font-size:.72rem;" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">bool</span> <span class="fn">searchFrom</span>(Maze&amp; maze, <span class="kw">int</span> row, <span class="kw">int</span> column) {</span>
+<span class="line" data-l="2">    <span class="kw">if</span> (maze.get(row, column) == OBSTACLE) <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="3">    <span class="kw">if</span> (maze.get(row, column) == TRIED || maze.get(row, column) == DEAD_END) <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="4">    <span class="kw">if</span> (maze.isExit(row, column)) {</span>
+<span class="line" data-l="5">        maze.updatePosition(row, column, PART_OF_PATH);</span>
+<span class="line" data-l="6">        <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">    maze.updatePosition(row, column, TRIED);</span>
+<span class="line" data-l="9">    <span class="kw">bool</span> found = searchFrom(maze, row - <span class="num">1</span>, column)</span>
+<span class="line" data-l="10">              || searchFrom(maze, row + <span class="num">1</span>, column)</span>
+<span class="line" data-l="11">              || searchFrom(maze, row, column - <span class="num">1</span>)</span>
+<span class="line" data-l="12">              || searchFrom(maze, row, column + <span class="num">1</span>);</span>
+<span class="line" data-l="13">    <span class="kw">if</span> (found) maze.updatePosition(row, column, PART_OF_PATH);</span>
+<span class="line" data-l="14">    <span class="kw">else</span> maze.updatePosition(row, column, DEAD_END);</span>
+<span class="line" data-l="15">    <span class="kw">return</span> found;</span>
+<span class="line" data-l="16">}</span></div></div>
     </div>
   </div>
-
-<div class="deck-extra">
-  <div class="dx-label">講義 06 · 迷宮主程式與輸出圖</div>
-  <div class="pseudo-code" style="font-size:.8rem;">
-<span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/maze.hpp"</span><span class="com">   // Maze 類別 + searchFrom（上面的完整列表）</span></span>
+<h3>講義程式：在 maze2.txt 上執行</h3>
+<p>課程資料夾裡已經有迷宮檔 <code>maze2.txt</code>：</p>
+<pre class="rec-maze">++++++++++++++++++++++
++   +   ++ ++        +
+      +     ++++++++++
++ +    ++  ++++ +++ ++
++ +   + + ++    +++  +
++          ++  ++  + +
++++++ + +      ++  + +
++++++ +++  + +  ++   +
++          + + S+ +  +
++++++ +  + + +     + +
+++++++++++++++++++++++</pre>
+<details class="rec-detail"><summary>講義完整程式：讀入 maze2.txt 並搜尋</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 迷宮主程式</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="++++++++++++++++++++++&#10;+-OO+OOO++ ++        +&#10;OOOOOO+OOO  ++++++++++&#10;+-+-OO ++O ++++ +++ ++&#10;+-+-OO+ +O++ OO +++  +&#10;+---OO   OO++OO++  + +&#10;+++++-+ +-OOOOO++  + +&#10;+++++-+++--+-+OO++   +&#10;+----------+-+ O+ +  +&#10;+++++-+--+-+-+     + +&#10;++++++++++++++++++++++&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/maze.hpp"</span><span class="com">   // Maze class + searchFrom (md listing above)</span></span>
 <span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
 <span class="line" data-l="4"> </span>
 <span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
 <span class="line" data-l="6">    Maze myMaze(<span class="str">"</span><span class="str">maze2.txt</span><span class="str">"</span>);</span>
 <span class="line" data-l="7">    searchFrom(myMaze, myMaze.startRow, myMaze.startCol);</span>
-<span class="line" data-l="8">    myMaze.pri<span></span>nt();   <span class="com">// O = 成功路徑，- = 死路</span></span>
+<span class="line" data-l="8">    myMaze.pri<span></span>nt();   <span class="com">// O = path, . = tried, - = dead end</span></span>
 <span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="10">}</span></div>
-  <div class="expected-out"><span class="eo-tag">實際輸出（依 maze2.txt）</span><pre>++++++++++++++++++++++
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>++++++++++++++++++++++
 +-OO+OOO++ ++        +
 OOOOOO+OOO  ++++++++++
 +-+-OO ++O ++++ +++ ++
@@ -995,150 +1427,378 @@ OOOOOO+OOO  ++++++++++
 +++++-+++--+-+OO++   +
 +----------+-+ O+ +  +
 +++++-+--+-+-+     + +
-++++++++++++++++++++++</pre></div>
-  <p class="dx-note"><span id="dx-mz"></span>O 是最後成功的那條路，− 是「試過但退回」的死路格子：遞迴回溯的痕跡全印在圖上。四個方向的 || 短路串接讓「找到一條就收工」，找不到才會把整片區域踩成 −。</p>
-</div>
+++++++++++++++++++++++</pre></div><p class="dx-note">印出的結果中，<code>O</code> 是成功的路徑，<code>-</code> 是死路，<code>.</code> 是走過的格子。這次的結果裡沒有 <code>.</code>：每一格離開 searchFrom 之前，都會從 TRIED 改成 PART_OF_PATH 或 DEAD_END。路徑從 S 往北走，最後在左邊第 2 列的邊緣找到出口；左下方那一大片 <code>-</code>，是往南與往西探索後退回來的痕跡。</p>
+<!-- /gen:recursion-maze -->
 </section>
 
 <section id="dp">
   <div class="section-number">PART 08 · 動態規劃</div>
   <h2>找零錢：從貪婪、天真遞迴，一路走到 DP <span class="sec-badge">cppds §5.12 · 講義補充</span></h2>
-  <p style="font-size:.88rem;color:var(--muted);">課堂投影片跳過本節（RISE skip，講義也標 Optional）：屬自學補充，但 DP 是後續演算法課的重要橋段。</p>
-  <p>自動販賣機要用最少的硬幣找零。37 分怎麼找？兩個 25 太多，一個 25、一個 10、兩個 1，共四枚。
-  這種「先拿最大的」叫<strong>貪婪法</strong>，美國硬幣（1、5、10、25）下它剛好都對。
-  但假設某國多了一種 21 分硬幣：63 分的最佳解是三枚 21，貪婪法卻還是給你六枚（25+25+10+1+1+1）。
-  貪婪法死在「當下最好」不等於「整體最好」。</p>
-  <p>為了比較計算量，cppds 接下來三個版本固定使用四種硬幣 <code>{1,5,10,25}</code>，目標為 63 分。
-  63 分的最少硬幣數，是「拿一枚 1 分之後 62 分的最少」「拿一枚 5 分之後 58 分的最少」……
-  之中最小的那個加一。這個定義完全正確，卻慢得離譜：<strong>天真遞迴要 67,716,925 次呼叫</strong>，
-  因為同樣的子問題（例如 15 分）被翻來覆去重算了幾十次。講義給了三帖藥，一帖比一帖徹底：</p>
-  <div style="overflow-x:auto;"><table class="cmp-table" style="width:100%;font-size:.85rem;">
-    <thead><tr><th>版本</th><th>策略</th><th>63 分的呼叫數</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">makeChange1</td><td>天真遞迴；coins={1,5,10,25}</td><td>67,716,925</td></tr>
-      <tr><td class="mono">makeChange2</td><td>memoization；同一組四硬幣</td><td>221（cppds 此版）</td></tr>
-      <tr><td class="mono">makeChange3</td><td>bottom-up DP；同一組四硬幣</td><td>至多 63 × 4 次硬幣檢查</td></tr>
-    </tbody>
-  </table></div>
-  <p style="margin-top:.6rem;">memoization（也叫 caching）已經把爆炸壓下來了，但表裡還有洞、邏輯像補丁。
-  真正的 DP 換一個角度：<strong>從 1 分開始，由小到大把每個金額的最佳解填進表格</strong>。
-  填到第 c 分時，所有更小的金額都已經有答案，每格只要看「扣掉一枚硬幣後查表」哪個最小。
-  下方 23 分互動才另外加入 21 分硬幣，用來重現前面的貪婪反例。</p>
-  <div class="viz-layout">
+<!-- gen:recursion-dp -->
+<p class="rec-skip">上課時略過本節，留給自學。</p>
+<p>電腦科學中有許多程式是在<strong>最佳化</strong>某個值，例如找兩點之間的最短路徑、找最符合一組點的直線，或找出滿足某些條件的最小物件集合。電腦科學家解這類問題有很多策略，<strong>動態規劃</strong>（dynamic programming）是其中之一。</p>
+<h3>找零錢與貪婪法</h3>
+<p>最佳化問題的經典例子，是用最少的硬幣找零。假設你在販賣機公司寫程式，公司希望每筆交易找的硬幣越少越好。顧客投入一元紙鈔，買了 37 分的東西，要找 63 分。最少要用幾枚硬幣？</p>
+<p>答案是 6 枚：兩個 25 分、一個 10 分、三個 1 分。怎麼得到的？從手上最大的硬幣（25 分）開始，能用幾枚就用幾枚，再換下一種較小的硬幣，依此類推。這種做法稱為<strong>貪婪法</strong>（greedy method），因為它每一步都想馬上解決盡量大的一部分問題。</p>
+<p>用美國硬幣時，貪婪法沒有問題。但假設公司把販賣機賣到另一個國家，那裡除了 1、5、10、25 分，還有 21 分硬幣。這時貪婪法找 63 分仍然給出 6 枚，最佳解卻是三枚 21 分。</p>
+<h3>遞迴寫法：makeChange1</h3>
+<p>改用遞迴，先找 base case：要找的金額剛好等於某種硬幣的面額，答案很簡單，就是一枚。金額不相等時有幾種選擇：1 分硬幣加上「原金額減 1 分」所需的硬幣數、5 分硬幣加上「原金額減 5 分」所需的硬幣數，依此類推，取其中最小的。所以原金額需要的硬幣數是：</p>
+$$num\_coins = \min\begin{cases}1 + num\_coins(original\ amount - 1)\\ 1 + num\_coins(original\ amount - 5)\\ 1 + num\_coins(original\ amount - 10)\\ 1 + num\_coins(original\ amount - 25)\end{cases}$$
+<details class="rec-detail"><summary>講義完整程式：makeChange1</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 天真遞迴（26 分）</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="2&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;climits&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">int</span> <span class="fn">makeChange1</span>(vector&lt;<span class="kw">int</span>&gt; coinDenoms, <span class="kw">int</span> change) {</span>
+<span class="line" data-l="8">    <span class="kw">if</span> (find(coinDenoms.begin(), coinDenoms.end(), change) != coinDenoms.end()) {</span>
+<span class="line" data-l="9">        <span class="kw">return</span> <span class="num">1</span>;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">    <span class="kw">int</span> minCoins = INT_MAX;</span>
+<span class="line" data-l="12">    <span class="kw">for</span> (<span class="kw">int</span> i : coinDenoms) {</span>
+<span class="line" data-l="13">        <span class="kw">if</span> (i &lt;= change) {</span>
+<span class="line" data-l="14">            <span class="kw">int</span> numCoins = <span class="num">1</span> + makeChange1(coinDenoms, change - i);</span>
+<span class="line" data-l="15">            minCoins = min(numCoins, minCoins);</span>
+<span class="line" data-l="16">        }</span>
+<span class="line" data-l="17">    }</span>
+<span class="line" data-l="18">    <span class="kw">return</span> minCoins;</span>
+<span class="line" data-l="19">}</span>
+<span class="line" data-l="20"> </span>
+<span class="line" data-l="21"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="22">    <span class="com">// 26 cents makes 377 total calls; 63 cents makes 67,716,925.</span></span>
+<span class="line" data-l="23">    cout &lt;&lt; makeChange1({<span class="num">1</span>, <span class="num">5</span>, <span class="num">10</span>, <span class="num">25</span>}, <span class="num">26</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="24">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="25">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2</pre></div><p class="dx-note">26 分最少要 2 枚（25 + 1）。函式一開始檢查 base case：金額是否剛好等於某一種硬幣。不是的話，對每一種不超過金額的硬幣各做一次遞迴呼叫，取最小值再加一。</p>
+<h3>問題：重複計算</h3>
+<p>這個演算法的問題是效率極差。用 4 種硬幣找 63 分，要做 67,716,925 次遞迴呼叫才找到最佳解。下圖是找 26 分所需的 377 次呼叫中的一小部分：</p>
+<figure class="rec-figure" id="rec-figure-dp1"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="以 26 為根的呼叫樹：箭頭上標示用掉的硬幣 1、5、10、25，節點是剩下的金額，例如 25、21、16、1；第二層的 21 又展開成 20、16、11，16 展開成 15、11、6。15、11、16、6 等節點在樹中重複出現多次。"><img src="assets/figures/ch6/dp1.png" alt="以 26 為根的呼叫樹：箭頭上標示用掉的硬幣 1、5、10、25，節點是剩下的金額，例如 25、21、16、1；第二層的 21 又展開成 20、16、11，16 展開成 15、11、6。15、11、16、6 等節點在樹中重複出現多次。" width="760" height="323" style="--figure-width:760px" loading="lazy"></div><figcaption>makeChange1 計算 26 分時的一小部分呼叫。節點是要找零的金額，箭頭上的數字是剛用掉的硬幣。同一個金額會在不同分支重複出現，例如 15 至少出現三次，每次都從頭重算。</figcaption></figure>
+<p>圖中每個節點是一次 <code>makeChange1()</code> 呼叫，節點上的數字是這次要找零的金額，箭頭上的數字是剛用掉的硬幣。主要的問題在於<strong>重複做太多計算</strong>。例如圖中可以看到，15 分的最佳硬幣數至少被重算三次，而每算一次 15 分，本身就要 52 次函式呼叫。重算舊結果，白白浪費了大量時間。</p>
+<details class="rec-detail"><summary>自己數一數呼叫次數（補充）</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">加上計數器的 makeChange1 與 makeChange2</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="makeChange1(26): 2 coins, 377 calls&#10;makeChange1(15): 2 coins, 52 calls&#10;makeChange2(63): 6 coins, 221 calls&#10;knownResults[0..10]: 0 1 0 0 0 1 2 3 4 5 1&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;climits&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">long</span> calls1 = <span class="num">0</span>;   <span class="com">// how many times makeChange1 runs</span></span>
+<span class="line" data-l="8"><span class="kw">long</span> calls2 = <span class="num">0</span>;   <span class="com">// how many times makeChange2 runs</span></span>
+<span class="line" data-l="9"> </span>
+<span class="line" data-l="10"><span class="kw">int</span> <span class="fn">makeChange1</span>(vector&lt;<span class="kw">int</span>&gt; coinDenoms, <span class="kw">int</span> change) {</span>
+<span class="line" data-l="11">    calls1++;</span>
+<span class="line" data-l="12">    <span class="kw">if</span> (find(coinDenoms.begin(), coinDenoms.end(), change) != coinDenoms.end()) {</span>
+<span class="line" data-l="13">        <span class="kw">return</span> <span class="num">1</span>;</span>
+<span class="line" data-l="14">    }</span>
+<span class="line" data-l="15">    <span class="kw">int</span> minCoins = INT_MAX;</span>
+<span class="line" data-l="16">    <span class="kw">for</span> (<span class="kw">int</span> i : coinDenoms) {</span>
+<span class="line" data-l="17">        <span class="kw">if</span> (i &lt;= change) {</span>
+<span class="line" data-l="18">            <span class="kw">int</span> numCoins = <span class="num">1</span> + makeChange1(coinDenoms, change - i);</span>
+<span class="line" data-l="19">            minCoins = min(numCoins, minCoins);</span>
+<span class="line" data-l="20">        }</span>
+<span class="line" data-l="21">    }</span>
+<span class="line" data-l="22">    <span class="kw">return</span> minCoins;</span>
+<span class="line" data-l="23">}</span>
+<span class="line" data-l="24"> </span>
+<span class="line" data-l="25"><span class="kw">int</span> <span class="fn">makeChange2</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; coins, <span class="kw">int</span> change,</span>
+<span class="line" data-l="26">                vector&lt;<span class="kw">int</span>&gt;&amp; knownResults) {</span>
+<span class="line" data-l="27">    calls2++;</span>
+<span class="line" data-l="28">    <span class="kw">int</span> minCoins = change;</span>
+<span class="line" data-l="29">    <span class="kw">for</span> (<span class="kw">int</span> coin : coins) {</span>
+<span class="line" data-l="30">        <span class="kw">if</span> (coin == change) {</span>
+<span class="line" data-l="31">            knownResults[change] = <span class="num">1</span>;</span>
+<span class="line" data-l="32">            <span class="kw">return</span> <span class="num">1</span>;</span>
+<span class="line" data-l="33">        } <span class="kw">else</span> <span class="kw">if</span> (knownResults[change] &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="34">            <span class="kw">return</span> knownResults[change];</span>
+<span class="line" data-l="35">        }</span>
+<span class="line" data-l="36">    }</span>
+<span class="line" data-l="37">    <span class="kw">for</span> (<span class="kw">int</span> coin : coins) {</span>
+<span class="line" data-l="38">        <span class="kw">if</span> (coin &lt;= change) {</span>
+<span class="line" data-l="39">            <span class="kw">int</span> candidate = <span class="num">1</span> + makeChange2(</span>
+<span class="line" data-l="40">                coins, change - coin, knownResults);</span>
+<span class="line" data-l="41">            <span class="kw">if</span> (candidate &lt; minCoins) {</span>
+<span class="line" data-l="42">                minCoins = candidate;</span>
+<span class="line" data-l="43">                knownResults[change] = minCoins;</span>
+<span class="line" data-l="44">            }</span>
+<span class="line" data-l="45">        }</span>
+<span class="line" data-l="46">    }</span>
+<span class="line" data-l="47">    <span class="kw">return</span> minCoins;</span>
+<span class="line" data-l="48">}</span>
+<span class="line" data-l="49"> </span>
+<span class="line" data-l="50"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="51">    <span class="kw">for</span> (<span class="kw">int</span> change : {<span class="num">26</span>, <span class="num">15</span>}) {</span>
+<span class="line" data-l="52">        calls1 = <span class="num">0</span>;</span>
+<span class="line" data-l="53">        <span class="kw">int</span> n = makeChange1({<span class="num">1</span>, <span class="num">5</span>, <span class="num">10</span>, <span class="num">25</span>}, change);</span>
+<span class="line" data-l="54">        cout &lt;&lt; <span class="str">"</span><span class="str">makeChange1(</span><span class="str">"</span> &lt;&lt; change &lt;&lt; <span class="str">"</span><span class="str">): </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str"> coins, </span><span class="str">"</span></span>
+<span class="line" data-l="55">             &lt;&lt; calls1 &lt;&lt; <span class="str">"</span><span class="str"> calls</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="56">    }</span>
+<span class="line" data-l="57">    vector&lt;<span class="kw">int</span>&gt; knownResults(<span class="num">64</span>, <span class="num">0</span>);</span>
+<span class="line" data-l="58">    <span class="kw">int</span> n = makeChange2({<span class="num">1</span>, <span class="num">5</span>, <span class="num">10</span>, <span class="num">25</span>}, <span class="num">63</span>, knownResults);</span>
+<span class="line" data-l="59">    cout &lt;&lt; <span class="str">"</span><span class="str">makeChange2(63): </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str"> coins, </span><span class="str">"</span> &lt;&lt; calls2 &lt;&lt; <span class="str">"</span><span class="str"> calls</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="60">    cout &lt;&lt; <span class="str">"</span><span class="str">knownResults[0..10]:</span><span class="str">"</span>;</span>
+<span class="line" data-l="61">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt;= <span class="num">10</span>; i++) cout &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; knownResults[i];</span>
+<span class="line" data-l="62">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="63">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="64">}</span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>makeChange1(26): 2 coins, 377 calls
+makeChange1(15): 2 coins, 52 calls
+makeChange2(63): 6 coins, 221 calls
+knownResults[0..10]: 0 1 0 0 0 1 2 3 4 5 1</pre></div>
+  <p class="dx-note">每進入函式一次就把計數器加一。26 分與 15 分的次數就是上面說的 377 與 52；記憶化版本找 63 分只要 221 次。最後一行是 knownResults 的前 11 格：2、3、4 分是 0，表示這幾格從沒被填過。</p>
+</div></div></details>
+<h3>記住算過的結果：makeChange2</h3>
+<p>減少計算量的關鍵，是記住過去的結果，避免重算已知的答案。簡單的做法是：每找到一個金額的最少硬幣數，就存進一張表。計算新的最小值之前，先查表；表裡已經有結果，就直接使用，不再重算。</p>
+<details class="rec-detail"><summary>講義完整程式：makeChange2</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 用 knownResults 記住結果</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="6&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">makeChange2</span>(<span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; coins, <span class="kw">int</span> change,</span>
+<span class="line" data-l="6">                vector&lt;<span class="kw">int</span>&gt;&amp; knownResults) {</span>
+<span class="line" data-l="7">    <span class="kw">int</span> minCoins = change;</span>
+<span class="line" data-l="8">    <span class="kw">for</span> (<span class="kw">int</span> coin : coins) {</span>
+<span class="line" data-l="9">        <span class="kw">if</span> (coin == change) {</span>
+<span class="line" data-l="10">            knownResults[change] = <span class="num">1</span>;</span>
+<span class="line" data-l="11">            <span class="kw">return</span> <span class="num">1</span>;</span>
+<span class="line" data-l="12">        } <span class="kw">else</span> <span class="kw">if</span> (knownResults[change] &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="13">            <span class="kw">return</span> knownResults[change];</span>
+<span class="line" data-l="14">        }</span>
+<span class="line" data-l="15">    }</span>
+<span class="line" data-l="16">    <span class="kw">for</span> (<span class="kw">int</span> coin : coins) {</span>
+<span class="line" data-l="17">        <span class="kw">if</span> (coin &lt;= change) {</span>
+<span class="line" data-l="18">            <span class="kw">int</span> candidate = <span class="num">1</span> + makeChange2(</span>
+<span class="line" data-l="19">                coins, change - coin, knownResults);</span>
+<span class="line" data-l="20">            <span class="kw">if</span> (candidate &lt; minCoins) {</span>
+<span class="line" data-l="21">                minCoins = candidate;</span>
+<span class="line" data-l="22">                knownResults[change] = minCoins;</span>
+<span class="line" data-l="23">            }</span>
+<span class="line" data-l="24">        }</span>
+<span class="line" data-l="25">    }</span>
+<span class="line" data-l="26">    <span class="kw">return</span> minCoins;</span>
+<span class="line" data-l="27">}</span>
+<span class="line" data-l="28"> </span>
+<span class="line" data-l="29"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="30">    vector&lt;<span class="kw">int</span>&gt; knownResults(<span class="num">64</span>, <span class="num">0</span>);</span>
+<span class="line" data-l="31">    cout &lt;&lt; makeChange2({<span class="num">1</span>, <span class="num">5</span>, <span class="num">10</span>, <span class="num">25</span>}, <span class="num">63</span>, knownResults) &lt;&lt; endl;</span>
+<span class="line" data-l="32">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>6</pre></div><p class="dx-note">63 分最少要 6 枚（25 + 25 + 10 + 1 + 1 + 1）。knownResults 的索引是金額，0 表示還不知道答案。</p>
+<p>以上面這份程式來說，查表把 4 種硬幣、63 分的計算降到總共 221 次呼叫。呼叫次數取決於查表與存表放在哪裡，所以組織方式不同、但同樣做記憶化的函式，次數可能不一樣。</p>
+<p>不過這看起來有點像拼湊出來的補丁。而且看看 knownResults 這張表，會發現表裡有些洞（例如 2、3、4 分始終沒有填）。嚴格說來，這樣做還不算動態規劃；我們是用一種叫做<strong>記憶化</strong>（memoization），更常稱為<strong>快取</strong>（caching）的技巧改善了程式的效能。</p>
+<h3>由下往上填表：動態規劃</h3>
+<p>真正的動態規劃演算法用更有系統的方式處理問題：從找 1 分開始，一路往上算到要找的金額。這樣保證演算法的每一步，都已經知道任何較小金額所需的最少硬幣數。看看找 11 分時，最少硬幣數的表格怎麼填：</p>
+<figure class="rec-figure" id="rec-figure-dp2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="表格的欄是 1 到 11 分，每一列是演算法的一個步驟；第 5 列填到 5 分時值是 1，最後一列為 1 2 3 4 1 2 3 4 5 1 2。"><img src="assets/figures/ch6/dp2.png" alt="表格的欄是 1 到 11 分，每一列是演算法的一個步驟；第 5 列填到 5 分時值是 1，最後一列為 1 2 3 4 1 2 3 4 5 1 2。" width="420" height="365" style="--figure-width:420px" loading="lazy"></div><figcaption>由下往上填 11 分的表：每一列多填一格。1 到 4 分只能用 1 分硬幣；5 分可以用一枚 5 分，所以是 1。最後一列是 1 到 11 分各自的最少硬幣數。</figcaption></figure>
+<p>從 1 分開始，唯一的找法是一枚硬幣。下一列是 1 分與 2 分的最小值，2 分同樣只能用兩個 1 分。第五列開始有意思：要考慮兩種選擇，五個 1 分或一個 5 分。怎麼決定哪個好？查表：4 分需要 4 枚，再加一個 1 分湊成 5 分，共 5 枚；或者 0 分再加一個 5 分，共 1 枚。1 與 5 取最小，表裡存 1。快轉到表的最後，看 11 分。</p>
+<figure class="rec-figure" id="rec-figure-dp3"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="1 到 10 分的值為 1 2 3 4 1 2 3 4 5 1，11 分那格是問號；三條弧線從 11 分連到 11−1、11−5、11−10 三格。"><img src="assets/figures/ch6/dp3.png" alt="1 到 10 分的值為 1 2 3 4 1 2 3 4 5 1，11 分那格是問號；三條弧線從 11 分連到 11−1、11−5、11−10 三格。" width="420" height="144" style="--figure-width:420px" loading="lazy"></div><figcaption>計算 11 分時要比較的三格：拿一枚 1 分之後剩 10 分（1 枚），拿一枚 5 分之後剩 6 分（2 枚），拿一枚 10 分之後剩 1 分（1 枚）。最少的是 1 枚再加上剛拿的那一枚，所以 11 分需要 2 枚。</figcaption></figure>
+<p>有三個選擇要考慮：</p>
+<ol class="rec-ul"><li>一個 1 分，加上找 11 − 1 = 10 分所需的最少硬幣數（1 枚）。</li><li>一個 5 分，加上找 11 − 5 = 6 分所需的最少硬幣數（2 枚）。</li><li>一個 10 分，加上找 11 − 10 = 1 分所需的最少硬幣數（1 枚）。</li></ol>
+<p>第 1 與第 3 個選擇都只要 1 + 1 = 2 枚，所以 11 分最少要 2 枚。</p>
+<h3>makeChange3：動態規劃版本</h3>
+<p><code>makeChange3()</code> 是由下往上的動態規劃版本。它接收合法的硬幣面額、要找的金額，以及一個 vector，存放 0 到目標金額每一個金額的最少硬幣數。</p>
+<details class="rec-detail"><summary>講義完整程式：makeChange3</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 由小到大填 minCoins</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="6&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">makeChange3</span>(vector&lt;<span class="kw">int</span>&gt;&amp; coinValueList, <span class="kw">int</span> change, vector&lt;<span class="kw">int</span>&gt;&amp; minCoins) {</span>
+<span class="line" data-l="6">    <span class="kw">for</span> (<span class="kw">int</span> cents = <span class="num">0</span>; cents &lt;= change; cents++) {</span>
+<span class="line" data-l="7">        <span class="kw">int</span> coinCount = cents;</span>
+<span class="line" data-l="8">        <span class="kw">for</span> (<span class="kw">int</span> j : coinValueList) {</span>
+<span class="line" data-l="9">            <span class="kw">if</span> (j &lt;= cents &amp;&amp; minCoins[cents - j] + <span class="num">1</span> &lt; coinCount) {</span>
+<span class="line" data-l="10">                coinCount = minCoins[cents - j] + <span class="num">1</span>;</span>
+<span class="line" data-l="11">            }</span>
+<span class="line" data-l="12">        }</span>
+<span class="line" data-l="13">        minCoins[cents] = coinCount;</span>
+<span class="line" data-l="14">    }</span>
+<span class="line" data-l="15">    <span class="kw">return</span> minCoins[change];</span>
+<span class="line" data-l="16">}</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="19">    vector&lt;<span class="kw">int</span>&gt; coins = {<span class="num">1</span>, <span class="num">5</span>, <span class="num">10</span>, <span class="num">25</span>};</span>
+<span class="line" data-l="20">    vector&lt;<span class="kw">int</span>&gt; minCoins(<span class="num">64</span>, <span class="num">0</span>);</span>
+<span class="line" data-l="21">    cout &lt;&lt; makeChange3(coins, <span class="num">63</span>, minCoins) &lt;&lt; endl;</span>
+<span class="line" data-l="22">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="23">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>6</pre></div><p class="dx-note">結果和 makeChange2 相同，都是 6 枚，但完全沒有遞迴。</p>
+<p><code>makeChange3()</code> 不是遞迴函式。對 0 到 <code>change</code> 的每個金額，內層迴圈檢查每一種面額，並存下由較小金額已算出的最佳結果。設目標金額為 $A$、硬幣種類數為 $C$，工作量是 $O(AC)$，表格使用 $O(A)$ 的空間。</p>
+<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>版本</th><th>策略</th><th>{1, 5, 10, 25} 找 63 分</th></tr></thead><tbody><tr><td><code>makeChange1</code></td><td>天真遞迴</td><td>67,716,925 次呼叫</td></tr><tr><td><code>makeChange2</code></td><td>記憶化（memoization），由上而下</td><td>221 次呼叫</td></tr><tr><td><code>makeChange3</code></td><td>動態規劃，由小到大填表，不遞迴</td><td>64 格 × 4 種硬幣的檢查，$O(AC)$</td></tr></tbody></table></div>
+<h3>記下用了哪些硬幣：makeChange4 與 printCoins</h3>
+<p>只要再記住表中每一格「最後加上的那枚硬幣」，就能把 makeChange3 擴充成能追蹤用了哪些硬幣。知道最後加的硬幣，把金額減去它的面額，就找到表中前一格，那一格又記著它最後加的硬幣。一路往回追，直到金額為 0。</p>
+<details class="rec-detail"><summary>講義完整程式：makeChange4 與 printCoins</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">講義 06 · 加入 21 分硬幣，找 63 分</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="Making change for 63 requires the following 3 coins: 21 21 21 &#10;The used list is as follows:&#10;1 1 1 1 1 5 1 1 1 1 10 1 1 1 1 5 1 1 1 1 10 21 1 1 1 25 1 1 1 1 5 10 1 1 1 10 1 1 1 1 5 10 21 1 1 10 21 1 1 1 25 1 10 1 1 5 10 1 1 1 10 1 10 21 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">makeChange4</span>(vector&lt;<span class="kw">int</span>&gt;&amp; coinValueList, <span class="kw">int</span> change,</span>
+<span class="line" data-l="6">                vector&lt;<span class="kw">int</span>&gt;&amp; minCoins, vector&lt;<span class="kw">int</span>&gt;&amp; coinsUsed) {</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> cents = <span class="num">0</span>; cents &lt;= change; cents++) {</span>
+<span class="line" data-l="8">        <span class="kw">int</span> coinCount = cents;</span>
+<span class="line" data-l="9">        <span class="kw">int</span> newCoin = <span class="num">1</span>;</span>
+<span class="line" data-l="10">        <span class="kw">for</span> (<span class="kw">int</span> j : coinValueList) {</span>
+<span class="line" data-l="11">            <span class="kw">if</span> (j &lt;= cents &amp;&amp; minCoins[cents - j] + <span class="num">1</span> &lt; coinCount) {</span>
+<span class="line" data-l="12">                coinCount = minCoins[cents - j] + <span class="num">1</span>;</span>
+<span class="line" data-l="13">                newCoin = j;</span>
+<span class="line" data-l="14">            }</span>
+<span class="line" data-l="15">        }</span>
+<span class="line" data-l="16">        minCoins[cents] = coinCount;</span>
+<span class="line" data-l="17">        coinsUsed[cents] = newCoin;</span>
+<span class="line" data-l="18">    }</span>
+<span class="line" data-l="19">    <span class="kw">return</span> minCoins[change];</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span>
+<span class="line" data-l="22"><span class="kw">void</span> <span class="fn">printCoins</span>(vector&lt;<span class="kw">int</span>&gt;&amp; coinsUsed, <span class="kw">int</span> change) {</span>
+<span class="line" data-l="23">    <span class="kw">int</span> coin = change;</span>
+<span class="line" data-l="24">    <span class="kw">while</span> (coin &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="25">        <span class="kw">int</span> thisCoin = coinsUsed[coin];</span>
+<span class="line" data-l="26">        cout &lt;&lt; thisCoin &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="27">        coin = coin - thisCoin;</span>
+<span class="line" data-l="28">    }</span>
+<span class="line" data-l="29">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="30">}</span>
+<span class="line" data-l="31"> </span>
+<span class="line" data-l="32"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="33">    <span class="kw">int</span> amnt = <span class="num">63</span>;</span>
+<span class="line" data-l="34">    vector&lt;<span class="kw">int</span>&gt; clist = {<span class="num">1</span>, <span class="num">5</span>, <span class="num">10</span>, <span class="num">21</span>, <span class="num">25</span>};</span>
+<span class="line" data-l="35">    vector&lt;<span class="kw">int</span>&gt; coinsUsed(amnt + <span class="num">1</span>, <span class="num">0</span>);</span>
+<span class="line" data-l="36">    vector&lt;<span class="kw">int</span>&gt; coinCount(amnt + <span class="num">1</span>, <span class="num">0</span>);</span>
+<span class="line" data-l="37"> </span>
+<span class="line" data-l="38">    cout &lt;&lt; <span class="str">"</span><span class="str">Making change for </span><span class="str">"</span> &lt;&lt; amnt &lt;&lt; <span class="str">"</span><span class="str"> requires the following </span><span class="str">"</span></span>
+<span class="line" data-l="39">         &lt;&lt; makeChange4(clist, amnt, coinCount, coinsUsed) &lt;&lt; <span class="str">"</span><span class="str"> coins: </span><span class="str">"</span>;</span>
+<span class="line" data-l="40">    printCoins(coinsUsed, amnt);</span>
+<span class="line" data-l="41">    cout &lt;&lt; <span class="str">"</span><span class="str">The used list is as follows:</span><span class="str">"</span> &lt;&lt; endl;</span>
+<span class="line" data-l="42">    <span class="kw">for</span> (<span class="kw">int</span> c : coinsUsed) cout &lt;&lt; c &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="43">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="44">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="45">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Making change for 63 requires the following 3 coins: 21 21 21&#32;
+The used list is as follows:
+1 1 1 1 1 5 1 1 1 1 10 1 1 1 1 5 1 1 1 1 10 21 1 1 1 25 1 1 1 1 5 10 1 1 1 10 1 1 1 1 5 10 21 1 1 10 21 1 1 1 25 1 10 1 1 5 10 1 1 1 10 1 10 21 </pre></div><p class="dx-note">這次的硬幣包含 21 分，最佳解是三枚 21 分。第二段輸出是 coinsUsed 的全部內容，索引 0 到 63。</p>
+<p><code>coinsUsed</code> 記錄每個金額最後選用的硬幣，<code>coinCount</code> 記錄每個金額的最少硬幣數，兩者都是以金額為索引的 vector。注意印出來的硬幣直接取自 coinsUsed：第一次從位置 63 開始，印出 21；接著看第 42 格，那裡也存著 21；最後第 21 格同樣是 21，於是得到三枚 21 分。</p>
+<details class="rec-detail"><summary>填表動畫：23 分（補充）</summary><div class="rec-detail-body"><p>下面的動畫用 makeChange4 的硬幣 {1, 5, 10, 21, 25} 填 0 到 23 分的表。每一格都是「試每一種硬幣，查剩下金額那一格，取最少」。填完後沿著每格記下的最後一枚硬幣往回走，就能還原答案。23 分最少要 3 枚（21 + 1 + 1）。</p><div class="viz-layout">
     <div>
       <div class="viz-panel">
         <div class="char-strip" id="dpStrip" style="max-width:100%;overflow-x:auto;flex-wrap:nowrap;"></div>
-        <div class="status-banner" id="dpStatus"><span class="status-icon">›</span><span class="status-text">按「開始」填 0~23 分的最少硬幣表（示範用 23 分）。</span></div>
+        <div class="status-banner" id="dpStatus"><span class="status-icon">›</span><span class="status-text">按「填表」填 0～23 分的最少硬幣表。</span></div>
         <div class="controls-bar">
-          <button class="btn" onclick="dpStart()">▶ 填表（coins = 1,5,10,21,25；target 23）</button>
+          <button class="btn" onclick="dpStart()">▶ 填表（coins = 1, 5, 10, 21, 25；23 分）</button>
           <button class="btn" onclick="dpPlayer &amp;&amp; dpPlayer.step()">→ 單步</button>
           <button class="btn" onclick="dpPlayer &amp;&amp; dpPlayer.toggle(this)">⏸ 暫停</button>
-          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="dpSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;"></span>
+          <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="dpSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
         </div>
       </div>
     </div>
     <div class="side-panel">
-      <div class="info-card"><div class="ic-title">makeChange3（DP 本體）<span class="ic-badge">CODE</span></div><div class="pseudo-code" id="dpCode">
-<span class="line" data-l="1"><span class="kw">int</span> <span class="fn">dpMakeChange</span>(const vector&lt;<span class="kw">int</span>&gt;&amp; coins, <span class="kw">int</span> change) {</span>
-<span class="line" data-l="2">    vector&lt;<span class="kw">int</span>&gt; minCoins(change + <span class="num">1</span>, <span class="num">0</span>);</span>
-<span class="line" data-l="3">    <span class="kw">for</span> (<span class="kw">int</span> cents=<span class="num">1</span>; cents&lt;=change; ++cents) {</span>
-<span class="line" data-l="4">        <span class="kw">int</span> best = cents;          <span class="com">// 全用 1 分硬幣</span></span>
-<span class="line" data-l="5">        <span class="kw">for</span> (<span class="kw">int</span> c : coins) <span class="kw">if</span> (c &lt;= cents)</span>
-<span class="line" data-l="6">            best = <span class="fn">min</span>(best, minCoins[cents-c] + <span class="num">1</span>);</span>
-<span class="line" data-l="7">        minCoins[cents] = best;</span>
-<span class="line" data-l="8">    } <span class="kw">return</span> minCoins[change];</span>
+      <div class="info-card"><div class="ic-title">makeChange3 <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="dpCode" style="font-size:.74rem;" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">int</span> <span class="fn">makeChange3</span>(vector&lt;<span class="kw">int</span>&gt;&amp; coinValueList, <span class="kw">int</span> change, vector&lt;<span class="kw">int</span>&gt;&amp; minCoins) {</span>
+<span class="line" data-l="2">    <span class="kw">for</span> (<span class="kw">int</span> cents = <span class="num">0</span>; cents &lt;= change; cents++) {</span>
+<span class="line" data-l="3">        <span class="kw">int</span> coinCount = cents;</span>
+<span class="line" data-l="4">        <span class="kw">for</span> (<span class="kw">int</span> j : coinValueList) {</span>
+<span class="line" data-l="5">            <span class="kw">if</span> (j &lt;= cents &amp;&amp; minCoins[cents - j] + <span class="num">1</span> &lt; coinCount) {</span>
+<span class="line" data-l="6">                coinCount = minCoins[cents - j] + <span class="num">1</span>;</span>
+<span class="line" data-l="7">            }</span>
+<span class="line" data-l="8">        }</span>
+<span class="line" data-l="9">        minCoins[cents] = coinCount;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">    <span class="kw">return</span> minCoins[change];</span>
+<span class="line" data-l="12">}</span></div></div>
+      <div class="info-card"><div class="ic-title">printCoins <span class="ic-badge">CODE</span></div><div class="pseudo-code" style="font-size:.74rem;" data-cpp="fragment">
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">printCoins</span>(vector&lt;<span class="kw">int</span>&gt;&amp; coinsUsed, <span class="kw">int</span> change) {</span>
+<span class="line" data-l="2">    <span class="kw">int</span> coin = change;</span>
+<span class="line" data-l="3">    <span class="kw">while</span> (coin &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="4">        <span class="kw">int</span> thisCoin = coinsUsed[coin];</span>
+<span class="line" data-l="5">        cout &lt;&lt; thisCoin &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="6">        coin = coin - thisCoin;</span>
+<span class="line" data-l="7">    }</span>
+<span class="line" data-l="8">    cout &lt;&lt; endl;</span>
 <span class="line" data-l="9">}</span></div></div>
-      <div class="info-card">
-        <div class="ic-title">makeChange4：把「用了哪些硬幣」也記下來 <span class="ic-badge">CODE</span></div>
-        <div class="pseudo-code" style="font-size:.74rem;">
-<span class="line"><span class="com">// 填表時多記一筆：這格最後拿的是哪枚硬幣</span></span>
-<span class="line">minCoins[cents] = coinCount;</span>
-<span class="line">coinsUsed[cents] = newCoin;</span>
-<span class="line"> </span>
-<span class="line"><span class="kw">void</span> <span class="fn">printCoins</span>(const vector&lt;<span class="kw">int</span>&gt;&amp; coinsUsed, <span class="kw">int</span> change) {</span>
-<span class="line">    <span class="kw">int</span> coin = change;</span>
-<span class="line">    <span class="kw">while</span> (coin &gt; <span class="num">0</span>) {</span>
-<span class="line">        cout &lt;&lt; coinsUsed[coin] &lt;&lt; <span class="str">&quot; &quot;</span>;</span>
-<span class="line">        coin = coin - coinsUsed[coin];  <span class="com">// 沿表回溯</span></span>
-<span class="line">    }</span>
-<span class="line">}</span></div>
-        <div style="font-size:.82rem;line-height:1.8;color:var(--muted);margin-top:.4rem;">63 那格記著 21，
-        跳到 42 又是 21，再跳到 21 還是 21：印出「21 21 21」。只多存一個陣列，就能把答案的內容也還原出來。</div>
-      </div>
     </div>
-  </div>
-  
+  </div></div></details>
 <div class="quiz-box">
-  <div class="quiz-label">QUIZ · DP vs 天真遞迴</div>
-  <p>天真遞迴解 63 分要約 6,772 萬次呼叫；DP 只需逐格檢查硬幣。DP 快的核心原因是？</p>
-  
+  <div class="quiz-label">QUIZ · DP 與天真遞迴</div>
+  <p>天真遞迴找 63 分要約 6,772 萬次呼叫，DP 只要逐格檢查硬幣。DP 快的核心原因是什麼？</p>
   <div class="quiz-options" id="qDpOptions">
-    <div class="quiz-opt" data-correct="true" data-fb="重疊子問題 + 最優子結構 = DP 的適用條件；表格（或 memo）消滅重複計算。" onclick="quizCheck('qDp', this)"><span class="opt-letter">(A)</span> 每個子問題只算一次（記住答案）</div><div class="quiz-opt" data-correct="false" data-fb="順序無關，快的關鍵是「不重算」，計算量從指數掉到多項式。" onclick="quizCheck('qDp', this)"><span class="opt-letter">(B)</span> DP 用了更聰明的硬幣順序</div><div class="quiz-opt" data-correct="false" data-fb="函式呼叫的常數差距沒那麼大；差在計算量的量級。" onclick="quizCheck('qDp', this)"><span class="opt-letter">(C)</span> 遞迴本身比迴圈慢 1000 倍</div>
+    <div class="quiz-opt" data-correct="true" data-fb="找零錢有重疊的子問題（例如 15 分會被重算很多次），把答案記在表裡就不必重算，計算量從指數級降到 $O(AC)$。" onclick="quizCheck('qDp', this)"><span class="opt-letter">(A)</span> <span class="opt-text">每個子問題只算一次，答案存在表裡</span></div><div class="quiz-opt" data-correct="false" data-fb="硬幣的順序不影響計算量；快的關鍵是不重算。" onclick="quizCheck('qDp', this)"><span class="opt-letter">(B)</span> <span class="opt-text">DP 用了比較聰明的硬幣順序</span></div><div class="quiz-opt" data-correct="false" data-fb="函式呼叫的固定成本沒有這麼大，差別在計算量的量級。makeChange2 也是遞迴，只要 221 次呼叫。" onclick="quizCheck('qDp', this)"><span class="opt-letter">(C)</span> <span class="opt-text">遞迴本身比迴圈慢上千倍</span></div><div class="quiz-opt" data-correct="false" data-fb="DP 每格都比較所有硬幣，不是貪婪法；貪婪法在有 21 分硬幣時找 63 分會給出 6 枚，不是最佳解。" onclick="quizCheck('qDp', this)"><span class="opt-letter">(D)</span> <span class="opt-text">DP 改用貪婪法，每次拿最大的硬幣</span></div>
   </div>
   <div class="quiz-feedback" id="qDpFeedback"></div>
 </div>
+<!-- /gen:recursion-dp -->
 </section>
 
 <section id="exercises">
   <div class="section-number">EXERCISES · 練習</div>
   <h2>動手驗證 <span class="sec-badge">cppds §5 綜合</span></h2>
-  
+<!-- gen:recursion-exercises -->
+<h3>追蹤遞迴</h3>
 <div class="quiz-box">
   <div class="quiz-label">EXERCISE 1 · 追蹤遞迴</div>
-  <p><code>toStr(10, 2)</code> 的回傳值是？（動畫可驗證）</p>
-  
+  <p><code>toStr(10, 2)</code> 的回傳值是什麼？（可以用 P02 的動畫驗證）</p>
   <div class="quiz-options" id="ex1Options">
-    <div class="quiz-opt" data-correct="true" data-fb="toStr(10,2)=toStr(5,2)+&quot;0&quot;=（toStr(2,2)+&quot;1&quot;）+&quot;0&quot;=（（toStr(1,2)+&quot;0&quot;）+&quot;1&quot;）+&quot;0&quot;=&quot;1010&quot;。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(A)</span> <code>"1010"</code></div><div class="quiz-opt" data-correct="false" data-fb="這是把餘數照產生順序串起來：遞迴版不會發生這種事，因為餘數是「回來之後」才接上。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(B)</span> <code>"0101"</code></div><div class="quiz-opt" data-correct="false" data-fb="少了最後一位 0：n%base 的餘數每一層都要接上。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(C)</span> <code>"101"</code></div>
+    <div class="quiz-opt" data-correct="true" data-fb="toStr(10,2) = toStr(5,2) + &quot;0&quot; = (toStr(2,2) + &quot;1&quot;) + &quot;0&quot; = ((toStr(1,2) + &quot;0&quot;) + &quot;1&quot;) + &quot;0&quot; = &quot;1010&quot;。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(A)</span> <span class="opt-text"><code>"1010"</code></span></div><div class="quiz-opt" data-correct="false" data-fb="這是把餘數照產生的順序串起來。遞迴版不會這樣，因為餘數是在呼叫「回來之後」才接上。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(B)</span> <span class="opt-text"><code>"0101"</code></span></div><div class="quiz-opt" data-correct="false" data-fb="少了最後一位 0：每一層都要接上 n % base 的餘數，包括最外層的 10 % 2。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(C)</span> <span class="opt-text"><code>"101"</code></span></div><div class="quiz-opt" data-correct="false" data-fb="&quot;10&quot; 是 toStr(2, 2) 的結果，外面還有兩層要接上 1 與 0。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(D)</span> <span class="opt-text"><code>"10"</code></span></div>
   </div>
   <div class="quiz-feedback" id="ex1Feedback"></div>
 </div>
-  
+<h3>河內塔的步數</h3>
 <div class="quiz-box">
   <div class="quiz-label">EXERCISE 2 · 河內塔</div>
-  <p>4 盤河內塔最少要移動幾次？其中「最大盤」移動幾次？</p>
-  
+  <p>4 個盤子的河內塔最少要搬幾次？其中最大的盤子搬了幾次？</p>
   <div class="quiz-options" id="ex2Options">
-    <div class="quiz-opt" data-correct="true" data-fb="2⁴−1 = 15；最大盤永遠只在「中間那一步」直達目的柱，1 次。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(A)</span> 15 次；最大盤 1 次</div><div class="quiz-opt" data-correct="false" data-fb="公式是 2ⁿ−1，不是 2ⁿ；最大盤只搬一次是遞迴分解的關鍵洞察。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(B)</span> 16 次；最大盤 2 次</div><div class="quiz-opt" data-correct="false" data-fb="次數對了，但最大盤只動 1 次：動它之前上面必須清空。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(C)</span> 15 次；最大盤 4 次</div>
+    <div class="quiz-opt" data-correct="true" data-fb="2⁴ − 1 = 15。最大盤只在「中間那一步」直接搬到目標柱，所以只搬 1 次。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(A)</span> <span class="opt-text">15 次；最大盤 1 次</span></div><div class="quiz-opt" data-correct="false" data-fb="公式是 2ⁿ − 1，不是 2ⁿ；最大盤只搬一次，這是遞迴分解的關鍵。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(B)</span> <span class="opt-text">16 次；最大盤 2 次</span></div><div class="quiz-opt" data-correct="false" data-fb="次數對了，但最大盤只動 1 次：要搬它之前，上面的盤子必須已經全部移開。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(C)</span> <span class="opt-text">15 次；最大盤 4 次</span></div><div class="quiz-opt" data-correct="false" data-fb="8 是 2³。4 盤要先搬走上面 3 盤（7 步）、搬最大盤（1 步）、再把 3 盤搬回來（7 步），共 15 步。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(D)</span> <span class="opt-text">8 次；最大盤 1 次</span></div>
   </div>
   <div class="quiz-feedback" id="ex2Feedback"></div>
 </div>
-  
+<h3>迷宮的 base case</h3>
 <div class="quiz-box">
-  <div class="quiz-label">EXERCISE 3 · 迷宮 base case</div>
-  <p>迷宮遞迴少寫「走過的格子直接 return false」會怎樣？</p>
-  
+  <div class="quiz-label">EXERCISE 3 · 迷宮的 base case</div>
+  <p>如果 searchFrom 少寫「走過的格子直接 return false」，會發生什麼事？</p>
   <div class="quiz-options" id="ex3Options">
-    <div class="quiz-opt" data-correct="true" data-fb="A 問 B、B 又問 A：沒有「走過」標記就沒有前進性，違反法則 2。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(A)</span> 相鄰兩格互相呼叫，無窮遞迴</div><div class="quiz-opt" data-correct="false" data-fb="不會停，這是最典型的無窮遞迴來源。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(B)</span> 答案錯但會停</div><div class="quiz-opt" data-correct="false" data-fb="沒有終止條件會持續遞迴，通常耗盡呼叫堆疊而終止；不能把它當成只是變慢。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(C)</span> 只是變慢</div>
+    <div class="quiz-opt" data-correct="true" data-fb="A 往北走到 B，B 往南又回到 A。沒有麵包屑標記，就不會朝 base case 前進，違反法則 2。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(A)</span> <span class="opt-text">相鄰兩格互相呼叫，形成無窮遞迴</span></div><div class="quiz-opt" data-correct="false" data-fb="程式不會停：兩格之間會一直互相呼叫，這是最典型的無窮遞迴。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(B)</span> <span class="opt-text">答案錯誤，但程式會停</span></div><div class="quiz-opt" data-correct="false" data-fb="沒有終止條件會持續遞迴，通常耗盡呼叫堆疊而終止；不能當成只是變慢。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(C)</span> <span class="opt-text">只是變慢</span></div><div class="quiz-opt" data-correct="false" data-fb="格子要等四個方向都試完才會標成 DEAD_END；在那之前，相鄰的格子早已互相呼叫下去了。" onclick="quizCheck('ex3', this)"><span class="opt-letter">(D)</span> <span class="opt-text">沒有影響，因為 DEAD_END 也會擋住</span></div>
   </div>
   <div class="quiz-feedback" id="ex3Feedback"></div>
 </div>
+<!-- /gen:recursion-exercises -->
 </section>
 
 <section id="reference">
   <div class="section-number">REFERENCE · 總覽</div>
   <h2>本章遞迴問題一覽 <span class="sec-badge">cppds §5 總覽</span></h2>
-  <div style="overflow-x:auto;">
-  <table class="cmp-table" style="width:100%;font-size:.88rem;">
-    <thead><tr><th>問題</th><th>base case</th><th>縮小方式</th><th>複雜度</th></tr></thead>
-    <tbody>
-      <tr><td>listSum</td><td>索引到 vector 尾端</td><td>索引加 1</td><td>O(n)</td></tr>
-      <tr><td>toStr(n, base)</td><td>n &lt; base</td><td>n / base</td><td>O(log n)</td></tr>
-      <tr><td>河內塔</td><td>height &lt; 1</td><td>height − 1（兩次）</td><td>O(2ⁿ)</td></tr>
-      <tr><td>迷宮</td><td>牆／走過／出口</td><td>相鄰格子</td><td>O(格子數)</td></tr>
-      <tr><td>找零錢（DP）</td><td>金額 0</td><td>金額 − 硬幣面額</td><td>O(金額×硬幣種)</td></tr>
-    </tbody>
-  </table>
-  </div>
-  <div class="info-box" style="margin-top:1rem;">
+<!-- gen:recursion-reference -->
+<h3>比較表</h3>
+<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>問題</th><th>base case</th><th>縮小方式</th><th>複雜度</th></tr></thead><tbody><tr><td>listSum</td><td>索引到達 vector 尾端</td><td>索引加 1</td><td>$O(n)$</td></tr><tr><td>toStr(n, base)</td><td>n &lt; base</td><td>n / base</td><td>$O(\log n)$</td></tr><tr><td>河內塔</td><td>height 為 0</td><td>height − 1（兩次）</td><td>$O(2^n)$</td></tr><tr><td>迷宮</td><td>牆、走過、出口、四方向皆失敗</td><td>相鄰格子</td><td>$O(\text{格子數})$</td></tr><tr><td>找零錢（makeChange3）</td><td>不遞迴；minCoins[0] = 0</td><td>金額 − 硬幣面額（查表）</td><td>$O(AC)$</td></tr></tbody></table></div>
+<h3>關鍵概念</h3>
+<div class="info-box" style="margin-top:1rem;">
     <span class="info-label">關鍵概念複習</span>
-    ① 三法則：base case、朝它前進、呼叫自己。<br>
-    ② call stack 是隱形的 stack：第 3 章手動管理的，遞迴讓系統代管。<br>
-    ③ 分支遞迴（河內塔 2 支、迷宮 4 支）容易指數爆炸；<strong>重疊子問題</strong>時用 DP/memoization 收服。<br>
-    ④ Sierpinski 三角形等碎形：圖形的自相似 = 視覺化的遞迴（見講義 §5.8 CTurtle 圖）。
+    ① 三法則：有 base case、朝它前進、呼叫自己。<br>
+    ② 呼叫堆疊是看不見的 stack：上一章自己管理的 stack，遞迴時交給系統代管。<br>
+    ③ 分支遞迴（河內塔 2 支、迷宮 4 支）容易產生大量呼叫；子問題<strong>重疊</strong>時，用記憶化或動態規劃避免重算。<br>
+    ④ Sierpinski 三角形等碎形：圖形的自我相似，就是看得見的遞迴。
   </div>
-</section><section id="cards">
+<!-- /gen:recursion-reference -->
+</section>
+<section id="recap">
+  <div class="section-number">RECAP · 重點回顧</div>
+  <h2>重點回顧 <span class="sec-badge">cppds §5 總結</span></h2>
+<!-- gen:recursion-recap -->
+<ul class="rec-ul rec-recap">
+<li>遞迴把問題拆成更小的同型問題，直到小到可以直接解決。listSum 可以用累加變數寫成迴圈，也可以寫成「目前這一項加上剩下範圍的總和」。</li>
+<li>遞迴三法則：必須有 base case、必須改變狀態朝 base case 前進、必須呼叫自己。base case 要涵蓋所有最小的合法輸入，例如 <code>size() &lt;= 1</code> 同時處理空字串與單一字元。</li>
+<li>toStr 用整數除法縮小問題、用餘數查表取得字元；把串接放在遞迴呼叫回來之後，位數的順序就正確。</li>
+<li>每個進行中的呼叫都有自己的 stack frame，存放參數、區域變數與返回資訊。呼叫堆疊取代了顯式的 stack，也讓每次呼叫有各自的作用域。</li>
+<li>碎形在各種尺度下自我相似；spiral、tree 與 sierpinski 用遞迴畫出這類圖形。多路遞迴會先把第一個分支整個做完，才輪到下一個。</li>
+<li>河內塔：搬 h−1 個到中間柱、搬最大盤、再搬 h−1 個到目標柱，共 $2^n - 1$ 步；暫停中的呼叫由呼叫堆疊記住。</li>
+<li>迷宮：四個 base case（牆、走過、出口、四方向皆失敗），用麵包屑避免繞圈，<code>||</code> 的短路求值讓找到路就停。退回就是從遞迴呼叫回傳。</li>
+<li>找零錢：貪婪法不保證最佳；天真遞迴重算重疊的子問題；記憶化由上而下把結果存起來；動態規劃由下往上填表，$O(AC)$ 時間、$O(A)$ 空間，再用 coinsUsed 還原用了哪些硬幣。</li>
+</ul>
+<h3>常見疑問</h3>
+<details class="rec-detail rec-faq"><summary>遞迴一定比迴圈慢嗎？（補充）</summary><div class="rec-detail-body"><p>不一定。每次函式呼叫都有固定的額外成本（建立 frame、傳參數、回傳），所以同樣的計算量，迴圈通常稍快一些。但真正的差距多半來自演算法：makeChange1 慢，是因為重算了大量相同的子問題，不是因為它用了遞迴；同樣是遞迴的 makeChange2 只要 221 次呼叫。</p></div></details><details class="rec-detail rec-faq"><summary>遞迴可以多深？（補充）</summary><div class="rec-detail-body"><p>每一層呼叫都佔用一個 stack frame，而呼叫堆疊的大小有限，上限取決於作業系統與編譯設定。像 listSumFrom 這種一層只處理一個元素的線性遞迴，對很長的 vector 可能用完堆疊；toStr 每層把 n 除以 base，深度只有對數級，不必擔心。</p></div></details><details class="rec-detail rec-faq"><summary>為什麼 makeChange2 的表裡會有洞？（補充）</summary><div class="rec-detail-body"><p>記憶化只在遞迴真的走到某個金額時才填表。makeChange2 遇到 1 分或 5 分這種「剛好一枚」的金額時直接回傳，不會往下算 2、3、4 分，所以那幾格始終是 0。動態規劃由小到大逐格填，每一格都會填到。</p></div></details><details class="rec-detail rec-faq"><summary>河內塔的步數為什麼是 $2^n - 1$？（補充）</summary><div class="rec-detail-body"><p>設 n 個盤子要 $T(n)$ 步。三步驟大綱是兩次搬 n−1 個盤子，加上一次搬最大盤，所以 $T(n) = 2T(n-1) + 1$，且 $T(0) = 0$。依序代入得到 1、3、7、15……，也就是 $T(n) = 2^n - 1$。</p></div></details><details class="rec-detail rec-faq"><summary>迷宮的搜尋一定找到最短路徑嗎？（補充）</summary><div class="rec-detail-body"><p>不一定。searchFrom 依固定順序試北、南、西、東，找到第一條通往邊緣的路就停下，這條路未必最短。要找最短路徑，需要逐層往外擴展的搜尋方式，例如之後圖論章節的廣度優先搜尋。</p></div></details>
+<!-- /gen:recursion-recap -->
+</section>
+<section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch6.json · 7 張</span></h2>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">題庫 ch6.json · 12 張</span></h2>
   <p>詞彙卡取自本章課程題庫，已譯為繁體中文，正面附英文原名。先看正面術語，心中默想定義再翻面對答案；洗牌後再過一輪，直到每張都能不假思索說出來。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>
@@ -1295,20 +1955,20 @@ function sumFrames() {
   const a = [1,3,5,7,9], frames = [], rows = [];
   for (let i = 0; i <= a.length; i++) {
     if (i < a.length) {
-      rows.push(`${'&nbsp;'.repeat(i*4)}listSumFrom(a, ${i}) = ${a[i]} + listSumFrom(a, ${i+1})`);
-      frames.push({html: rows.join('<br>'), msg: `展開：索引前進到 ${i+1}，vector 本身不複製`, line: 3});
+      rows.push(`${'&nbsp;'.repeat(i*4)}listSumFrom(numList, ${i}) = ${a[i]} + listSumFrom(numList, ${i+1})`);
+      frames.push({html: rows.join('<br>'), msg: `展開：索引前進到 ${i+1}，vector 本身不複製`, line: 5});
     } else {
-      rows.push(`${'&nbsp;'.repeat(i*4)}listSumFrom(a, ${i}) = 0　<span style="color:var(--accent3);">← 空尾段 base case</span>`);
-      frames.push({html: rows.join('<br>'), msg: '抵達 vector 尾端：空範圍的總和是 0', line: 2});
+      rows.push(`${'&nbsp;'.repeat(i*4)}listSumFrom(numList, ${i}) = 0　<span style="color:var(--accent3);">← 空範圍 base case</span>`);
+      frames.push({html: rows.join('<br>'), msg: '抵達 vector 尾端：空範圍的總和是 0', line: 3});
     }
   }
   let acc = 0;
   for (let i = a.length - 1; i >= 0; i--) {
     acc += a[i];
-    rows.push(`${'&nbsp;'.repeat(i*4)}<span style="color:var(--accent2);">↩ listSumFrom(a, ${i}) = ${a[i]} + ${acc-a[i]} = ${acc}</span>`);
-    frames.push({html: rows.join('<br>'), msg: `回收 index ${i} 的 stack frame，累計 ${acc}`, line: 3});
+    rows.push(`${'&nbsp;'.repeat(i*4)}<span style="color:var(--accent2);">↩ listSumFrom(numList, ${i}) = ${a[i]} + ${acc-a[i]} = ${acc}</span>`);
+    frames.push({html: rows.join('<br>'), msg: `回收 index ${i} 的 stack frame，累計 ${acc}`, line: 5});
   }
-  frames.push({html: rows.join('<br>'), msg: '<strong>listSum(a) = 25；listSum({}) = 0 ✓</strong>', line: 6});
+  frames.push({html: rows.join('<br>'), msg: '<strong>listSum(numList) = 25；listSum({}) = 0 ✓</strong>', line: 9});
   return frames;
 }
 function sumStart() {
@@ -1450,16 +2110,16 @@ function mazeFrames() {
     if (r < 0 || r >= R || c < 0 || c >= C) return false;
     if (g[r][c] === '+') { push([r,c], `(${r},${c}) 是牆 → false`, 2); return false; }
     if (state[r][c] === '.' || state[r][c] === '-') return false;
-    if (c === C - 1 || g[r][c] === 'E') { state[r][c] = 'P'; push([r,c], `(${r},${c}) 到達出口 → true！`, 4); return true; }
+    if (c === C - 1 || g[r][c] === 'E') { state[r][c] = 'P'; push([r,c], `(${r},${c}) 到達出口 → true！`, 5); return true; }
     state[r][c] = '.';
-    push([r,c], `走到 (${r},${c})，標記走過，依序試 北/南/西/東`, 5);
+    push([r,c], `走到 (${r},${c})，標記走過，依序試 北/南/西/東`, 8);
     const found = search(r-1,c) || search(r+1,c) || search(r,c-1) || search(r,c+1);
     state[r][c] = found ? 'P' : '-';
-    push([r,c], found ? `(${r},${c}) 在成功路徑上 ＋` : `(${r},${c}) 四方向皆敗 → 死路 −，回溯`, found ? 7 : 8);
+    push([r,c], found ? `(${r},${c}) 在成功路徑上 ＋` : `(${r},${c}) 四方向皆敗 → 死路 −，回溯`, found ? 13 : 14);
     return found;
   }
   search(sr, sc);
-  frames.push({grid: state.map(r=>[...r]), cur: null, msg: '<strong>綠色 ＋ 就是找到的路徑 ✓</strong>', line: 9});
+  frames.push({grid: state.map(r=>[...r]), cur: null, msg: '<strong>綠色 ＋ 就是找到的路徑 ✓</strong>', line: 15});
   return frames;
 }
 function mazeApply(f) {
@@ -1487,19 +2147,19 @@ let dpPlayer = null;
 function dpFrames() {
   const coins = [1,5,10,21,25], target = 23;
   const mc = [0], used = [0];
-  const frames = [{vals: [...mc], cur: -1, msg: 'minCoins[0] = 0（不用任何硬幣）。', line: 2}];
+  const frames = [{vals: [...mc], cur: -1, msg: 'minCoins[0] = 0（不用任何硬幣）。', line: 9}];
   for (let cents = 1; cents <= target; cents++) {
     let best = cents, pick = 1;
     for (const c of coins) if (c <= cents && mc[cents - c] + 1 < best) { best = mc[cents - c] + 1; pick = c; }
     mc.push(best); used.push(pick);
     frames.push({vals: [...mc], cur: cents,
-      msg: `minCoins[${cents}] = ${best}（最後拿一枚 ${pick}，剩 ${cents-pick} 分查表 = ${mc[cents-pick]} 枚）`, line: 6});
+      msg: `minCoins[${cents}] = ${best}（最後拿一枚 ${pick}，剩 ${cents-pick} 分查表 = ${mc[cents-pick]} 枚）`, line: 9});
   }
   // coinsUsed traceback
   let coin = target; const picks = [];
   while (coin > 0) { picks.push(used[coin]); coin -= used[coin]; }
   frames.push({vals: mc, cur: target,
-    msg: `<strong>23 分最少 ${mc[target]} 枚。coinsUsed 回溯：${picks.join(' → ')}（貪婪法會拿 5 枚：10+10+1+1+1）</strong>`, line: 8});
+    msg: `<strong>23 分最少 ${mc[target]} 枚。coinsUsed 回溯：${picks.join(' → ')}</strong>`, line: 11});
   return frames;
 }
 function dpApply(f) {
@@ -1583,8 +2243,46 @@ function sierDraw() {
 $('sierDeg').addEventListener('input', sierDraw);
 sierDraw();
 </script>
+<script id="recursion-extra-js">
+/* recursion-extra: toStr(10, 2) call stack (player-v2) */
+let tsfPlayer = null;
+function tsfFrames() {
+  const conv = '0123456789ABCDEF', base = 2, frames = [];
+  const chain = [10, 5, 2, 1];
+  const st = [];
+  chain.forEach((n, k) => {
+    st.forEach((_, j) => { st[j] = st[j].replace('（執行中）', '（等待中）'); });
+    st.push(`toStr(${n}, ${base})　n=${n}（執行中）`);
+    frames.push({stack: [...st], line: k === 0 ? 1 : 6,
+      msg: k === 0 ? 'main 呼叫 toStr(10, 2)：推入第一個 frame。'
+                   : `${chain[k-1]} ≥ 2：先呼叫 toStr(${n}, 2)，餘數 '${conv[chain[k-1] % base]}' 等它回來再接。`});
+  });
+  st[st.length - 1] = 'toStr(1, 2)　n=1 → 回傳 "1"';
+  frames.push({stack: [...st], line: 4, msg: '1 < 2：base case，直接查表回傳 "1"。'});
+  let s = '1';
+  for (let k = chain.length - 2; k >= 0; k--) {
+    st.pop();
+    const n = chain[k];
+    s = s + conv[n % base];
+    st[st.length - 1] = `toStr(${n}, 2)　n=${n} → "${s}"`;
+    frames.push({stack: [...st], line: 6,
+      msg: `彈出上一層；toStr(${n}, 2) 接上 convertString[${n} % 2] = '${conv[n % base]}'，得到 "${s}"。`});
+  }
+  st.pop();
+  frames.push({stack: [], line: 8, msg: '<strong>所有 frame 都已彈出，main 拿到 "1010"。</strong>'});
+  return frames;
+}
+function tsfStart() {
+  tsfPlayer = new Player({frames: tsfFrames(), apply: f => {
+    renderBoxStack('tsfVis', f.stack, {highlight: 0}); setStatus('tsfStatus', f.msg); hlLine('tsfCode', f.line);
+  }, delayInput: $('tsfSpeed')});
+  tsfPlayer.reset(); tsfPlayer.play();
+}
+renderBoxStack('tsfVis', []);
+/* /recursion-extra */
+</script>
 <script>
-const FLASHCARDS = [{"front": "遞迴（Recursion）", "back": "函式直接或間接呼叫自己來解決問題的程式技巧：把問題拆成更小、更好處理的部分，直到抵達可以直接解決的基底情況。"}, {"front": "基底情況（Base Case）", "back": "讓遞迴停止呼叫自己的條件，而且要涵蓋所有最小的合法輸入。例如反轉字串可用 size <= 1，讓空字串與單一字元都安全終止。"}, {"front": "堆疊框（Stack Frame）", "back": "堆疊記憶體中存放一次函式呼叫所需全部資訊的區段：參數、回返位址與區域變數。每次遞迴呼叫都會在呼叫堆疊上新開一個堆疊框。"}, {"front": "碎形（Fractals）", "back": "在不同尺度下自我相似的幾何圖形：用一個簡單流程不斷回饋重複而生，電腦圖學常用它產生自然景物。"}, {"front": "動態規劃（Dynamic Programming）", "back": "把複雜問題拆成較簡單且彼此重疊的子問題來解的方法：每個子問題只解一次，把答案存起來，避免重複計算。"}, {"front": "貪婪法（Greedy Method）", "back": "每一步都做局部最佳選擇、希望最後得到全域最佳解的策略：實作簡單，但不是所有問題都保證得到最佳解。"}, {"front": "記憶化（Memoization）", "back": "由上而下的快取：每個子問題算過後就保存答案，同樣輸入再出現時直接重用。由下而上的動態規劃則依相依順序填表。"}];
+const FLASHCARDS = [{"front": "遞迴（Recursion）", "back": "函式直接或間接呼叫自己來解決問題的程式技巧：把問題拆成更小、更好處理的部分，直到抵達可以直接解決的基底情況。"}, {"front": "基底情況（Base Case）", "back": "讓遞迴停止呼叫自己的條件，而且要涵蓋所有最小的合法輸入。例如反轉字串可用 size <= 1，讓空字串與單一字元都安全終止。"}, {"front": "堆疊框（Stack Frame）", "back": "堆疊記憶體中存放一次函式呼叫所需全部資訊的區段：參數、回返位址與區域變數。每次遞迴呼叫都會在呼叫堆疊上新開一個堆疊框。"}, {"front": "碎形（Fractals）", "back": "在不同尺度下自我相似的幾何圖形：用一個簡單流程不斷回饋重複而生，電腦圖學常用它產生自然景物。"}, {"front": "動態規劃（Dynamic Programming）", "back": "把複雜問題拆成較簡單且彼此重疊的子問題來解的方法：每個子問題只解一次，把答案存起來，避免重複計算。"}, {"front": "貪婪法（Greedy Method）", "back": "每一步都做局部最佳選擇、希望最後得到全域最佳解的策略：實作簡單，但不是所有問題都保證得到最佳解。"}, {"front": "記憶化（Memoization）", "back": "由上而下的快取：每個子問題算過後就保存答案，同樣輸入再出現時直接重用。由下而上的動態規劃則依相依順序填表。"}, {"front": "呼叫堆疊（Call Stack）", "back": "執行環境為進行中的函式呼叫維護的堆疊：每次呼叫推入一個堆疊框，函式回傳時彈出。遞迴時，呼叫堆疊取代了手動管理的 stack，記住每一層暫停中的呼叫。"}, {"front": "累加變數（Accumulator）", "back": "迴圈中保存累計結果的變數，例如迴圈版 listSum 的 theSum：從 0 開始，每輪加上一個元素。遞迴版不需要它，回傳值本身就扮演累加的角色。"}, {"front": "碎形的深度（Degree of a Fractal）", "back": "人為設定的分割次數，作為碎形遞迴的 base case。Sierpinski 三角形每遞迴一層 degree 減 1，減到 0 就不再呼叫自己。"}, {"front": "回溯（Backtracking）", "back": "走某個方向發現行不通時，退回上一步改試其他方向。在遞迴的迷宮搜尋中，退回就是從遞迴呼叫回傳 false。"}, {"front": "短路求值（Short-circuit Evaluation）", "back": "|| 的左邊已經是 true 時，右邊不再計算。searchFrom 用它串起四個方向：只要前面的方向找到出口，後面的方向就不必試。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

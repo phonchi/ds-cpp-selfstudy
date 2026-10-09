@@ -619,7 +619,7 @@ def unordered_section():
 {figure('empty')}
 <p>和 Node 一樣，這裡的 NULL 表示 head 沒有指向任何節點。加入元素之後，前面那六個整數最後會以下面的鏈結形式存放：</p>
 {figure('chain')}
-<p>head 指向第一個節點，第一個節點存放串列的第一項，並指向下一個節點，依此類推。要特別注意：<strong>UnorderedList 物件本身並不包含任何節點</strong>，它只保存一個指向鏈結結構中第一個節點的指標；節點都是用 new 另外配置在 heap 上的。</p>
+<p>head 指向第一個節點，第一個節點存放串列的第一項，並指向下一個節點，依此類推。<strong>UnorderedList 物件本身並不包含任何節點</strong>，它只保存一個指向鏈結結構中第一個節點的指標；節點都是用 new 另外配置在 heap 上的。</p>
 <p>isEmpty() 只要檢查 head 是否為 NULL：串列沒有任何節點時，正好回傳 true。它只看一個指標，所以是 $O(1)$。</p>
 {snippet("講義 04 · isEmpty", IS_EMPTY)}
 {lecture_program("完整程式：空串列與 isEmpty", "空串列的 isEmpty 與 size", UL_EMPTY, OUT['ul_empty'], note="剛建立的 myList 是空串列：isEmpty() 為 true、size() 為 0。加入 31 之後，head 指向一個節點，isEmpty() 變成 false。")}
@@ -638,7 +638,7 @@ def unordered_section():
 {widget("uSize", [("four", "四個節點"), ("empty", "空串列")], "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · size", UL_SIZE)], legend=("hl",))}
 <p>以六個節點的串列為例，current 依序停在每個節點，最後停在 NULL：</p>
 {figure('size')}
-<p>第 2 行讓 current 指向 head，這時還沒看過任何節點，所以 count 從 0 開始。第 4 至 6 行是走訪本身：只要 current 還沒走到串列結尾（NULL），就把 count 加一，再用第 6 行的指定敘述讓 current 移到下一個節點。能把指標拿來和 NULL 比較，是走訪能停下來的關鍵。迴圈結束後回傳 count。空串列時 current 一開始就是 NULL，迴圈一次也不執行，回傳 0。</p>
+<p>第 2 行讓 current 指向 head，這時還沒看過任何節點，所以 count 從 0 開始。第 4 至 6 行是走訪本身：只要 current 還沒走到串列結尾（NULL），就把 count 加一，再用第 6 行的指定敘述讓 current 移到下一個節點。迴圈靠 current 和 NULL 的比較，才知道何時停下。迴圈結束後回傳 count。空串列時 current 一開始就是 NULL，迴圈一次也不執行，回傳 0。</p>
 {lecture_program("完整程式：size 的三種情況", "size()：空串列、六個節點、刪除一個之後", UL_SIZE_MAIN, OUT['ul_size'])}
 <h3>search：找到就停</h3>
 <p>search 也從 head 開始走訪，每到一個節點就比對資料：相等就立刻回傳 true，不必再往後找；不相等才前進。走到 NULL 表示每個節點都比過了，回傳 false。</p>
@@ -716,7 +716,7 @@ def ordered_section():
 <p>較完整的有序串列 ADT 還有 index、pop 等依位置的操作，課程標頭的 OrderedList 沒有提供。實作方式與無序串列相同：空串列仍以 head == NULL 表示，isEmpty() 與 size() 的寫法不變。search、add、remove 則可以利用排序。</p>
 <p>前面的遞增串列 17、26、31、54、77、93 可以用下面的鏈結結構表示。節點與連結同樣適合表示元素的相對位置：</p>
 {figure('ordered')}
-<p>實作 OrderedList 的方法和無序串列相同，空串列一樣以 head 指向 NULL 表示：</p>
+<p>OrderedList 的資料成員與建構子也和無序串列一樣：</p>
 {snippet("講義 04 · OrderedList 的資料成員與建構子", OL_SKELETON)}
 <h3>search：越過目標就停止</h3>
 <p>無序串列的 search 要逐一走訪節點，直到找到目標或走到 NULL。有序串列沿用同一個方法也完全正確：目標在串列中時，做法不需要任何修改。差別在目標不在串列中的時候，<strong>可以利用排序盡早停下</strong>。</p>
@@ -729,7 +729,7 @@ def ordered_section():
 <h3>add：先找到位置再接上</h3>
 <p>改動最大的是 add。無序串列的 add 可以直接把新節點放在 head，因為那裡最容易存取；有序串列不能這樣做，必須先找出新元素在現有排序中的位置。例如在 17、26、54、77、93 中加入 31，add 要判斷出新節點屬於 26 與 54 之間：</p>
 {figure('ordered-add')}
-<p>和無序串列的 remove 一樣，光靠停在 54 的指標無法修改 26 的 next，所以需要知道插入點<strong>前一個</strong>節點。圖中用 previous 與 current 兩個指標標出這個位置；講義的程式則只用一個 current，改成每次先看下一個節點。</p>
+<p>和無序串列的 remove 一樣，光靠停在 54 的指標無法修改 26 的 next，所以需要知道插入點<strong>前一個</strong>節點。圖中用 previous 與 current 兩個指標標出這個位置。</p>
 <p>講義的 add 只用一個 current，並且每次<strong>先看下一個節點</strong>：若串列是空的，或 head 的值已經大於或等於 item，新節點直接放在最前面；否則 current 從 head 出發，只要 current-&gt;getNext() 不是 NULL，而且它的值小於 item，就前進一步。停下時，新節點要接在 current 後面：先 newNode-&gt;setNext(current-&gt;getNext())，再 current-&gt;setNext(newNode)。和相等的值比較時不會前進，所以重複值會插在原有相等值的前面。</p>
 {widget("oAdd", [("mid", "add(31)"), ("head", "add(10)：插在最前"), ("tail", "add(100)：插在最後"), ("empty", "空串列 add(31)")],
         "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · OrderedList::add", OL_ADD)], legend=("hl", "cmp", "new"))}
@@ -837,7 +837,7 @@ def variants_section():
 <p>每次插入都發生在兩個既有節點之間。例如把新元素放在最前面，就是把新節點放在 header 與目前 header 後面的節點之間。下圖把 77 插在 26 與 93 之間：pred 是左邊的鄰居，succ 是右邊的鄰居。</p>
 {figure('d-ins')}
 {steps("逐步圖：插入 77 的前後", ['d-ins-before', 'd-ins-after'])}
-<p>四行的順序有講究：前兩行只設定新節點自己的 prev 與 next，這時兩個鄰居都還沒改，原本的串列完整無缺；後兩行才讓 pred 的 next 與 succ 的 prev 改指新節點。下面的動畫照這四行逐步執行：先設定 newNode 自己的 prev、next，再讓 pred、succ 改指 newNode，共四個指標：</p>
+<p>四行的順序有講究：前兩行只設定新節點自己的 prev 與 next，這時兩個鄰居都還沒改，原本的串列完整無缺；後兩行才讓 pred 的 next 與 succ 的 prev 改指新節點。下面的動畫照這四行逐步執行：</p>
 {widget("dIns", [("mid", "插在 54 與 93 之間"), ("front", "插在最前面"), ("empty", "空串列插入")],
         "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · 插入四步", D_INSERT)], legend=("new", "sent"))}
 {lecture_program("完整程式：雙向串列的插入", "以 header、trailer 哨兵建立雙向串列並插入", DLL_INSERT, OUT['dll_insert'], note="每一行先由 header 往後印，直線後再由 trailer 往前印；兩個方向的結果正好相反，表示 next 與 prev 都接對了。第一行只有直線，表示空串列：header 與 trailer 直接相連。插在最前面時，pred 就是 header，不需要特別處理。")}
@@ -853,7 +853,7 @@ def variants_section():
 
 def exercises_section():
     ex1 = quiz('ex1', 'EXERCISE 1 · 走訪計數', '一條長度 n 的單向串列，size()（用走訪實作）與「取第 k 個元素」的成本分別是？', [
-        (True, '$O(n)$ 與 $O(k)$', '兩者都得從 head 一步步走；這是串列與陣列最根本的差別。'),
+        (True, '$O(n)$ 與 $O(k)$', '兩者都得從 head 一步步走；這是串列與陣列的主要差別。'),
         (False, '$O(1)$ 與 $O(1)$', '除非另外維護元素個數，否則 size 必須走訪；取第 k 個元素也要從 head 走 k 步。'),
         (False, '$O(n)$ 與 $O(\\log k)$', '依位置取值要從 head 沿 next 走到該位置；串列沒有可以直接跳到中間的索引。'),
         (False, '$O(1)$ 與 $O(k)$', '這份 size() 沒有另存個數，要逐一數過 n 個節點，所以是 O(n)。'),

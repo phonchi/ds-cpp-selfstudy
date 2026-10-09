@@ -469,18 +469,18 @@ CIRCULAR = '''if (head != nullptr) {
     } while (current != head);
 }'''
 
-D_INSERT = '''// Insert a newly allocated node x between adjacent nodes left and right.
-x->prev = left;
-x->next = right;
-left->next = x;
-right->prev = x;'''
+D_INSERT = '''// Insert newNode between adjacent nodes pred and succ.
+newNode->prev = pred;
+newNode->next = succ;
+pred->next = newNode;
+succ->prev = newNode;'''
 
-D_ERASE = '''// Erase a real data node x; never erase a sentinel.
-auto left = x->prev;
-auto right = x->next;
-left->next = right;
-right->prev = left;
-delete x;'''
+D_ERASE = '''// Erase a real data node; never erase a sentinel.
+auto pred = node->prev;
+auto succ = node->next;
+pred->next = succ;
+succ->prev = pred;
+delete node;'''
 
 # Outputs were obtained by compiling each program with g++ -std=c++17 against the course headers.
 OUT = {
@@ -837,16 +837,16 @@ def variants_section():
 <p>每次插入都發生在兩個既有節點之間。例如把新元素放在最前面，就是把新節點放在 header 與目前 header 後面的節點之間。下圖把 77 插在 26 與 93 之間：pred 是左邊的鄰居，succ 是右邊的鄰居。</p>
 {figure('d-ins')}
 {steps("逐步圖：插入 77 的前後", ['d-ins-before', 'd-ins-after'])}
-<p>四行的順序有講究：前兩行只設定新節點自己的 prev 與 next，這時兩個鄰居都還沒改，原本的串列完整無缺；後兩行才讓 pred 的 next 與 succ 的 prev 改指新節點。下面的動畫用 left、right、x 代表 pred、succ、newNode，先設定 x 自己的 prev、next，再讓左右鄰居改指 x，共四個指標：</p>
+<p>四行的順序有講究：前兩行只設定新節點自己的 prev 與 next，這時兩個鄰居都還沒改，原本的串列完整無缺；後兩行才讓 pred 的 next 與 succ 的 prev 改指新節點。下面的動畫照這四行逐步執行：先設定 newNode 自己的 prev、next，再讓 pred、succ 改指 newNode，共四個指標：</p>
 {widget("dIns", [("mid", "插在 54 與 93 之間"), ("front", "插在最前面"), ("empty", "空串列插入")],
-        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("插入四步（補充）", D_INSERT)], legend=("new", "sent"))}
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · 插入四步", D_INSERT)], legend=("new", "sent"))}
 {lecture_program("完整程式：雙向串列的插入", "以 header、trailer 哨兵建立雙向串列並插入", DLL_INSERT, OUT['dll_insert'], note="每一行先由 header 往後印，直線後再由 trailer 往前印；兩個方向的結果正好相反，表示 next 與 prev 都接對了。第一行只有直線，表示空串列：header 與 trailer 直接相連。插在最前面時，pred 就是 header，不需要特別處理。")}
 <h3>刪除：讓兩個鄰居直接相連</h3>
 <p>刪除的步驟與插入相反：讓要刪除節點的兩個鄰居直接互相連接、跳過它。只要改兩個鏈結，這個節點就不再屬於串列，接著釋放它。因為有哨兵，刪除第一項或最後一項時，要刪的節點兩側也一定有鄰居，可以用同一段程式。已知節點時刪除是 $O(1)$，但依值尋找它仍要 $O(n)$。</p>
 {figure('d-del')}
 {steps("逐步圖：刪除 77 的前後", ['d-del-before', 'd-del-after'])}
 {widget("dErase", [("mid", "刪除中間的 26"), ("first", "刪除第一項 54"), ("only", "刪除唯一的資料節點")],
-        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("刪除（補充）", D_ERASE)], legend=("found", "new", "del", "sent"))}
+        "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · 刪除", D_ERASE)], legend=("found", "new", "del", "sent"))}
 {lecture_program("完整程式：雙向串列的刪除", "刪除中間、第一項與最後一項", DLL_ERASE, OUT['dll_erase'], note="三次 erase 用的是同一個函式：刪 77 時兩側是 26 與 93；刪第一項 54 時左鄰居是 header；刪最後一項 93 時右鄰居是 trailer。每一行兩個方向的結果都互為反序。")}
 {q_var}'''
 

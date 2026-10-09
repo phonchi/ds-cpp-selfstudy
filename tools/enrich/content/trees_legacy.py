@@ -126,7 +126,7 @@ LEGACY['nodes-refs'] = r'''  <p>本課程用 <strong>nodes and references</stron
       </div>
       <div class="info-card">
         <div class="ic-title">BinaryTree 類別 <span class="ic-badge" style="background:var(--accent3)">CLASS</span></div>
-        <div class="pseudo-code" style="font-size:.72rem;">
+        <details class="tree-detail tree-code-fold"><summary>程式：BinaryTree 類別</summary><div class="pseudo-code" style="font-size:.72rem;">
 <span class="line"><span class="kw">class</span> <span class="fn">BinaryTree</span> {</span>
 <span class="line">  <span class="kw">public</span>:</span>
 <span class="line">    string key;</span>
@@ -147,7 +147,7 @@ LEGACY['nodes-refs'] = r'''  <p>本課程用 <strong>nodes and references</stron
 <span class="line">            leftChild = newChild;</span>
 <span class="line">        }</span>
 <span class="line">    }</span>
-<span class="line">};</span></div>
+<span class="line">};</span></div></details>
       </div>
     </div>
   </div>
@@ -327,13 +327,6 @@ LEGACY['heap'] = r'''  <p>優先佇列每次取出優先級最高的元素。若
     排程工作 <code>(2, compile)</code>、<code>(5, backup)</code>、<code>(1, interrupt)</code>、<code>(3, render)</code> 放進 min-heap 後，依序取出 interrupt、compile、render、backup。Heap 只保證 root 是當前最小者，不會把其餘元素完整排序。
   </div>
 
-  <div class="info-box">
-    <span class="info-label">堆積的兩個性質</span>
-    <strong>結構性質（structure property）：</strong>是一棵 <strong>complete binary tree</strong>（除最底層外每層填滿，最底層由左到右填）。<br>
-    <strong>順序性質（heap order property）：</strong>每個節點的 key $\le$ 其子節點 key（min-heap）；對稱地 max-heap 是 $\ge$。
-    <br><br>
-    結構性質讓我們可以用<strong>單一陣列</strong>儲存整棵樹：節點 $p$ 的左子在 $2p+1$、右子在 $2p+2$、父節點在 $\lfloor (p-1)/2 \rfloor$。完全不需要指標。
-  </div>
 {{slot:figs}}
 
   <div class="viz-layout">
@@ -530,7 +523,6 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
   </div>
 {{slot:cases}}
 
-  <p>為什麼 successor 一定有<strong>最多一個 child</strong>？因為它是右子樹中的<em>最左</em>節點：如果它還有左 child，那個 child 一定更小、應該才是 successor。所以 splice out successor 一定是 case 1 或 case 2，可以遞迴處理。</p>
 
   <div class="viz-layout">
     <div>
@@ -575,7 +567,7 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
       </div>
       <div class="info-card">
         <div class="ic-title">findSuccessor <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <div class="pseudo-code" style="font-size:.74rem;">
+        <details class="tree-detail tree-code-fold"><summary>程式：findSuccessor</summary><div class="pseudo-code" style="font-size:.74rem;">
 <span class="line">TreeNode* <span class="fn">findSuccessor</span>() {</span>
 <span class="line">    <span class="kw">if</span> (rightChild != <span class="num">NULL</span>) {</span>
 <span class="line">        <span class="kw">return</span> rightChild-&gt;<span class="fn">findMin</span>();</span>
@@ -588,7 +580,7 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
 <span class="line">        cur = cur-&gt;leftChild;</span>
 <span class="line">    }</span>
 <span class="line">    <span class="kw">return</span> cur;</span>
-<span class="line">}</span></div>
+<span class="line">}</span></div></details>
       </div>
       <div class="info-card">
         <div class="ic-title">圖例</div>
@@ -608,7 +600,7 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
   successor 保證最多一個 child，所以只有兩種縫法。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.8rem;">
     <div class="info-card"><div class="ic-title">findSuccessor 完整版（TreeNode 的方法） <span class="ic-badge">CODE</span></div>
-      <div class="pseudo-code" style="font-size:.72rem;">
+      <details class="tree-detail tree-code-fold"><summary>程式：findSuccessor 完整版</summary><div class="pseudo-code" style="font-size:.72rem;">
 <span class="line">TreeNode* <span class="fn">findSuccessor</span>() {</span>
 <span class="line">    TreeNode* successor = <span class="num">NULL</span>;</span>
 <span class="line">    <span class="kw">if</span> (rightChild != <span class="num">NULL</span>) {          <span class="com">// 情境 1：有右子樹</span></span>
@@ -623,10 +615,10 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
 <span class="line">        }</span>
 <span class="line">    }</span>
 <span class="line">    <span class="kw">return</span> successor;</span>
-<span class="line">}</span></div>
+<span class="line">}</span></div></details>
       <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">刪除只會用到情境 1：Case 3 的節點一定有右子樹。</div></div>
     <div class="info-card"><div class="ic-title">spliceOut ＋ Case 3 呼叫端 <span class="ic-badge">CODE</span></div>
-      <div class="pseudo-code" style="font-size:.72rem;">
+      <details class="tree-detail tree-code-fold"><summary>程式：spliceOut 與 Case 3 呼叫端</summary><div class="pseudo-code" style="font-size:.72rem;">
 <span class="line"><span class="kw">void</span> <span class="fn">spliceOut</span>() {</span>
 <span class="line">    <span class="kw">if</span> (<span class="fn">isLeaf</span>()) {                    <span class="com">// 縫法 1：葉節點直接拆</span></span>
 <span class="line">        <span class="kw">if</span> (<span class="fn">isLeftChild</span>()) parent-&gt;leftChild = <span class="num">NULL</span>;</span>
@@ -644,7 +636,7 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
 <span class="line">successor-&gt;<span class="fn">spliceOut</span>();</span>
 <span class="line">currentNode-&gt;key   = successor-&gt;key;   <span class="com">// 只搬 key/value</span></span>
 <span class="line">currentNode-&gt;value = successor-&gt;value; <span class="com">// 節點本身不動</span></span>
-<span class="line"><span class="kw">delete</span> successor;</span></div></div>
+<span class="line"><span class="kw">delete</span> successor;</span></div></details></div>
   </div>
 {{slot:inorder}}
 '''
@@ -793,11 +785,11 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
   一發現 |bf| &gt; 1 就地 <code>rebalance()</code>。旋轉最多兩次、每次 O(1)，
   往上修正最多走 log n 層，所以 <strong>put 整體仍是 O(log n)</strong>。
   上面的動畫可以對照著看：四個按鈕（LL/RR/LR/RL）正是 rebalance 的四個分支。刪除後的重平衡，講義留作練習。</p>
-  <p>這段的 <code>TreeNode*&amp; slot</code> 是「指標的參考」，修改 slot 會一起改到呼叫端保存的指標；<code>auto*</code> 讓編譯器推導指向的型別。<code>static_cast&lt;AVLTreeNode*&gt;(slot)</code> 把基底類別指標轉成衍生類別指標，前提是本樹的節點確實都由 AVLTreeNode 建立；它不會在執行時檢查型別，不能拿來轉換任意 TreeNode。<code>override</code> 要求編譯器確認此函式覆寫基底類別的 virtual 函式。</p>
+
 {{slot:rot}}
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:.8rem;">
     <div class="info-card"><div class="ic-title">insertOrAssign() 的差異 ＋ updateBalance <span class="ic-badge">CODE</span></div>
-      <div class="pseudo-code" style="font-size:.72rem;">
+      <details class="tree-detail tree-code-fold"><summary>程式：insertOrAssign() 的差異與 updateBalance</summary><p class="dx-note">這段的 <code>TreeNode*&amp; slot</code> 是「指標的參考」，修改 slot 會一起改到呼叫端保存的指標；<code>auto*</code> 讓編譯器推導指向的型別。<code>static_cast&lt;AVLTreeNode*&gt;(slot)</code> 把基底類別指標轉成衍生類別指標，前提是本樹的節點確實都由 AVLTreeNode 建立；它不會在執行時檢查型別，不能拿來轉換任意 TreeNode。<code>override</code> 要求編譯器確認此函式覆寫基底類別的 virtual 函式。</p><div class="pseudo-code" style="font-size:.72rem;">
 <span class="line" data-l="1"><span class="com">// insertOrAssign() 的差異：新葉掛上後多呼叫一次 updateBalance</span></span>
 <span class="line" data-l="2"><span class="kw">bool</span> <span class="fn">insertOrAssign</span>(string key, string value,</span>
 <span class="line" data-l="3">                    TreeNode*&amp; slot, TreeNode* parent) <span class="kw">override</span> {</span>
@@ -831,9 +823,9 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
 <span class="line" data-l="31">        <span class="kw">if</span> (node-&gt;parent-&gt;balanceFactor != <span class="num">0</span>)</span>
 <span class="line" data-l="32">            updateBalance(node-&gt;parent);  <span class="com">// 繼續往上</span></span>
 <span class="line" data-l="33">    }</span>
-<span class="line" data-l="34">}</span></div></div>
+<span class="line" data-l="34">}</span></div></details></div>
     <div class="info-card"><div class="ic-title">rotateLeft（rotateRight 對稱） <span class="ic-badge">CODE</span></div>
-      <div class="pseudo-code" style="font-size:.7rem;">
+      <details class="tree-detail tree-code-fold"><summary>程式：rotateLeft</summary><div class="pseudo-code" style="font-size:.7rem;">
 <span class="line"><span class="kw">void</span> <span class="fn">rotateLeft</span>(AVLTreeNode* rotationRoot) {</span>
 <span class="line">    AVLTreeNode* newRoot = rotationRoot-&gt;rightChild;</span>
 <span class="line">    rotationRoot-&gt;rightChild = newRoot-&gt;leftChild;</span>
@@ -852,11 +844,11 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
 <span class="line">        + <span class="num">1</span> - <span class="fn">min</span>(newRoot-&gt;balanceFactor, <span class="num">0</span>);</span>
 <span class="line">    newRoot-&gt;balanceFactor = newRoot-&gt;balanceFactor</span>
 <span class="line">        + <span class="num">1</span> + <span class="fn">max</span>(rotationRoot-&gt;balanceFactor, <span class="num">0</span>);</span>
-<span class="line">}</span></div>
+<span class="line">}</span></div></details>
       <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">難點有二：parent 指標要全部接對；
       最後兩行用 min/max 直接推出新的平衡因子，不用重算高度。</div></div>
     <div class="info-card"><div class="ic-title">rebalance：四情境對照動畫按鈕 <span class="ic-badge">CODE</span></div>
-      <div class="pseudo-code" style="font-size:.72rem;">
+      <details class="tree-detail tree-code-fold"><summary>程式：rebalance</summary><div class="pseudo-code" style="font-size:.72rem;">
 <span class="line"><span class="kw">void</span> <span class="fn">rebalance</span>(AVLTreeNode* node) {</span>
 <span class="line">    <span class="kw">if</span> (node-&gt;balanceFactor &lt; <span class="num">0</span>) {          <span class="com">// right-heavy</span></span>
 <span class="line">        <span class="kw">if</span> (node-&gt;rightChild-&gt;balanceFactor &gt; <span class="num">0</span>) {</span>
@@ -873,7 +865,7 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
 <span class="line">            <span class="fn">rotateRight</span>(node);               <span class="com">// LL：單一右旋</span></span>
 <span class="line">        }</span>
 <span class="line">    }</span>
-<span class="line">}</span></div>
+<span class="line">}</span></div></details>
       <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">先看「歪向哪邊」，再看「子節點歪向哪邊」決定要不要先轉子節點：跟上面動畫的四個 preset 一一對應。</div></div>
   </div>
 {{slot:bfd}}

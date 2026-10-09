@@ -1672,7 +1672,7 @@ count = 1</pre></div>
 <p>每次插入都發生在兩個既有節點之間。例如把新元素放在最前面，就是把新節點放在 <code>header</code> 與目前 <code>header</code> 後面的節點之間。下圖把 77 插在 26 與 93 之間：pred 是左邊的鄰居，succ 是右邊的鄰居。</p>
 <figure class="linked-figure" id="linked-figure-d-ins"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="pred 是 26、succ 是 93，新節點 newNode 為 77 放在兩者之間；下方列出四行：newNode-&gt;prev = pred; newNode-&gt;next = succ; pred-&gt;next = newNode; succ-&gt;prev = newNode;"><img src="assets/figures/ch4/double_list3.png" alt="pred 是 26、succ 是 93，新節點 newNode 為 77 放在兩者之間；下方列出四行：newNode-&gt;prev = pred; newNode-&gt;next = succ; pred-&gt;next = newNode; succ-&gt;prev = newNode;" width="1100" height="270" style="--figure-width:1100px" loading="lazy"></div><figcaption>雙向串列插入 77：pred 是左邊的鄰居 26，succ 是右邊的鄰居 93。橘色的前兩步先設定新節點自己的 <code>prev</code> 與 <code>next</code>，藍色的後兩步再讓兩個鄰居改指新節點，原本 26 與 93 之間的兩條連結就被取代。</figcaption></figure>
 <details class="linked-detail"><summary>逐步圖：插入 77 的前後</summary><div class="linked-detail-body"><figure class="linked-figure" id="linked-figure-d-ins-before"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="header、54、26、93、trailer 以雙向箭頭相連，下方註明 before: insert 77 between 26 and 93。"><img src="assets/figures/ch4/double_list2.png" alt="header、54、26、93、trailer 以雙向箭頭相連，下方註明 before: insert 77 between 26 and 93。" width="1100" height="154" style="--figure-width:1100px" loading="lazy"></div><figcaption>插入前：準備把 77 放在 26 與 93 之間。</figcaption></figure><figure class="linked-figure" id="linked-figure-d-ins-after"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="header、54、26、77、93、trailer 以雙向箭頭相連，下方註明 after: 77 sits between 26 and 93。"><img src="assets/figures/ch4/double_list4.png" alt="header、54、26、77、93、trailer 以雙向箭頭相連，下方註明 after: 77 sits between 26 and 93。" width="1100" height="149" style="--figure-width:1100px" loading="lazy"></div><figcaption>插入後：77 的前後鄰居分別是 26 與 93，每一對相鄰節點都互相指向對方。</figcaption></figure></div></details>
-<p>四行的順序有講究：前兩行只設定新節點自己的 <code>prev</code> 與 <code>next</code>，這時兩個鄰居都還沒改，原本的串列完整無缺；後兩行才讓 pred 的 <code>next</code> 與 succ 的 <code>prev</code> 改指新節點。下面的動畫用 <code>left</code>、<code>right</code>、x 代表 pred、succ、<code>newNode</code>，先設定 x 自己的 <code>prev</code>、<code>next</code>，再讓左右鄰居改指 x，共四個指標：</p>
+<p>四行的順序有講究：前兩行只設定新節點自己的 <code>prev</code> 與 <code>next</code>，這時兩個鄰居都還沒改，原本的串列完整無缺；後兩行才讓 pred 的 <code>next</code> 與 succ 的 <code>prev</code> 改指新節點。下面的動畫照這四行逐步執行：先設定 <code>newNode</code> 自己的 <code>prev</code>、<code>next</code>，再讓 pred、succ 改指 <code>newNode</code>，共四個指標：</p>
 <div class="viz-layout ll-widget"><div><div class="viz-panel">
   <div class="ll-canvas" id="dInsVis"></div>
   <div class="ll-legend"><span><i class="ll-sw" style="background:#e9f7ef;border-color:var(--accent3);"></i>新節點或剛改過的指標</span><span><i class="ll-sw" style="background:#eceff1;border-color:var(--muted);"></i>哨兵節點</span></div>
@@ -1685,11 +1685,11 @@ count = 1</pre></div>
     <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="dInsSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
     <span class="ll-count" id="dInsCount"></span>
   </div>
-</div></div><div class="side-panel"><div class="info-card" data-ll-code="dIns" data-idx="0"><div class="ic-title"><span>插入四步（補充）</span> <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="dInsCode0"><span class="line" data-l="1"><span class="com">// Insert a newly allocated node x between adjacent nodes left and right.</span></span>
-<span class="line" data-l="2">x-&gt;prev = left;</span>
-<span class="line" data-l="3">x-&gt;next = right;</span>
-<span class="line" data-l="4">left-&gt;next = x;</span>
-<span class="line" data-l="5">right-&gt;prev = x;</span></div></div></div></div>
+</div></div><div class="side-panel"><div class="info-card" data-ll-code="dIns" data-idx="0"><div class="ic-title"><span>講義 04 · 插入四步</span> <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="dInsCode0"><span class="line" data-l="1"><span class="com">// Insert newNode between adjacent nodes pred and succ.</span></span>
+<span class="line" data-l="2">newNode-&gt;prev = pred;</span>
+<span class="line" data-l="3">newNode-&gt;next = succ;</span>
+<span class="line" data-l="4">pred-&gt;next = newNode;</span>
+<span class="line" data-l="5">succ-&gt;prev = newNode;</span></div></div></div></div>
 <details class="linked-detail"><summary>完整程式：雙向串列的插入</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">以 <code>header</code>、<code>trailer</code> 哨兵建立雙向串列並插入</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="| &#10;54 26 93 | 93 26 54 &#10;54 26 77 93 | 93 77 26 54 &#10;10 54 26 77 93 | 93 77 26 54 10 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -1757,12 +1757,12 @@ count = 1</pre></div>
     <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="dEraseSpeed" type="range" min="120" max="1200" value="650" style="vertical-align:middle;" aria-label="每一步的間隔"></span>
     <span class="ll-count" id="dEraseCount"></span>
   </div>
-</div></div><div class="side-panel"><div class="info-card" data-ll-code="dErase" data-idx="0"><div class="ic-title"><span>刪除（補充）</span> <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="dEraseCode0"><span class="line" data-l="1"><span class="com">// Erase a real data node x; never erase a sentinel.</span></span>
-<span class="line" data-l="2"><span class="kw">auto</span> left = x-&gt;prev;</span>
-<span class="line" data-l="3"><span class="kw">auto</span> right = x-&gt;next;</span>
-<span class="line" data-l="4">left-&gt;next = right;</span>
-<span class="line" data-l="5">right-&gt;prev = left;</span>
-<span class="line" data-l="6"><span class="kw">delete</span> x;</span></div></div></div></div>
+</div></div><div class="side-panel"><div class="info-card" data-ll-code="dErase" data-idx="0"><div class="ic-title"><span>講義 04 · 刪除</span> <span class="ic-badge">CODE</span></div><div class="pseudo-code" id="dEraseCode0"><span class="line" data-l="1"><span class="com">// Erase a real data node; never erase a sentinel.</span></span>
+<span class="line" data-l="2"><span class="kw">auto</span> pred = node-&gt;prev;</span>
+<span class="line" data-l="3"><span class="kw">auto</span> succ = node-&gt;next;</span>
+<span class="line" data-l="4">pred-&gt;next = succ;</span>
+<span class="line" data-l="5">succ-&gt;prev = pred;</span>
+<span class="line" data-l="6"><span class="kw">delete</span> node;</span></div></div></div></div>
 <details class="linked-detail"><summary>完整程式：雙向串列的刪除</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">刪除中間、第一項與最後一項</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="54 26 77 93 | 93 77 26 54 &#10;54 26 93 | 93 26 54 &#10;26 93 | 93 26 &#10;26 | 26 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -2144,7 +2144,7 @@ function renderBoxQueue(containerId, items, opts={}) {
 const LL_C = {ink:'var(--ink)', blue:'var(--accent2)', green:'var(--accent3)', red:'var(--accent)',
   muted:'var(--muted)', orange:'#a84f00', purple:'#7d3c98'};
 const LL_PTR = {head:'blue', current:'orange', previous:'purple', temp:'green', newNode:'green',
-  x:'green', left:'purple', right:'orange'};
+  x:'green', left:'purple', right:'orange', node:'green', pred:'purple', succ:'orange'};
 const LL_NODE = {
   '':    ['var(--card)', 'var(--accent2)', 'var(--ink)', 2, ''],
   hl:    ['#fff3cd', '#d68910', 'var(--ink)', 3, ''],
@@ -2716,17 +2716,17 @@ LLB.dIns = k => {
   const st = llDouble(vals);
   const L = k === 'mid' ? 'd0' : 'h', R = st.next[L];
   st.nodes.push({id: 'x', v, col: llN(st, L).col + 0.5, row: 1, cls: 'new'});
-  st.ptr = {left: L, right: R, x: 'x'};
+  st.ptr = {pred: L, succ: R, newNode: 'x'};
   const nm = id => llN(st, id).v;
-  llSnap(frames, st, 1, `x 是新配置的節點 ${v}，要插在相鄰的 ${nm(L)} 與 ${nm(R)} 之間。`);
+  llSnap(frames, st, 1, `newNode 是新配置的節點 ${v}，要插在相鄰的 ${nm(L)} 與 ${nm(R)} 之間。`);
   st.prev.x = L; st.ps.x = 'new';
-  llSnap(frames, st, 2, `x->prev = left：新節點的 prev 指向 ${nm(L)}。`);
+  llSnap(frames, st, 2, `newNode->prev = pred：新節點的 prev 指向 ${nm(L)}。`);
   st.next.x = R; st.es.x = 'new'; st.ps.x = '';
-  llSnap(frames, st, 3, `x->next = right：新節點的 next 指向 ${nm(R)}。到這裡只改了新節點，原串列還沒變。`);
+  llSnap(frames, st, 3, `newNode->next = succ：新節點的 next 指向 ${nm(R)}。到這裡只改了新節點，原串列還沒變。`);
   st.next[L] = 'x'; st.es[L] = 'new'; st.es.x = '';
-  llSnap(frames, st, 4, `left->next = x：${nm(L)} 的 next 改指新節點。`);
+  llSnap(frames, st, 4, `pred->next = newNode：${nm(L)} 的 next 改指新節點。`);
   st.prev[R] = 'x'; st.ps[R] = 'new'; st.es[L] = '';
-  llSnap(frames, st, 5, `right->prev = x：${nm(R)} 的 prev 也改指新節點。共改四個指標，插入完成。`);
+  llSnap(frames, st, 5, `succ->prev = newNode：${nm(R)} 的 prev 也改指新節點。共改四個指標，插入完成。`);
   const s = llDoubleFinal(st);
   llSnap(frames, st, null, `結果：header ↔ ${s} ↔ trailer。不論插在最前、中間或空串列，都是同樣四步。`);
   return frames;
@@ -2737,19 +2737,19 @@ LLB.dErase = k => {
   const X = k === 'mid' ? 'd1' : 'd0';
   const st = llDouble(vals);
   const nm = id => llN(st, id).v;
-  st.ptr = {x: X};
-  llSnap(frames, st, 1, `要刪除資料節點 x（${nm(X)}）。它左右一定各有一個鄰居，即使鄰居是哨兵。`, {[X]: 'found'});
+  st.ptr = {node: X};
+  llSnap(frames, st, 1, `要刪除資料節點 node（${nm(X)}）。它左右一定各有一個鄰居，即使鄰居是哨兵。`, {[X]: 'found'});
   const L = st.prev[X], R = st.next[X];
-  st.ptr.left = L;
-  llSnap(frames, st, 2, `left = x->prev：取得左鄰 ${nm(L)}。`, {[X]: 'found'});
-  st.ptr.right = R;
-  llSnap(frames, st, 3, `right = x->next：取得右鄰 ${nm(R)}。`, {[X]: 'found'});
+  st.ptr.pred = L;
+  llSnap(frames, st, 2, `pred = node->prev：取得左鄰 ${nm(L)}。`, {[X]: 'found'});
+  st.ptr.succ = R;
+  llSnap(frames, st, 3, `succ = node->next：取得右鄰 ${nm(R)}。`, {[X]: 'found'});
   st.next[L] = R; st.es[L] = 'new';
-  llSnap(frames, st, 4, `left->next = right：${nm(L)} 的 next 跳過 x，直接指向 ${nm(R)}。`, {[X]: 'found'});
+  llSnap(frames, st, 4, `pred->next = succ：${nm(L)} 的 next 跳過 node，直接指向 ${nm(R)}。`, {[X]: 'found'});
   st.prev[R] = L; st.ps[R] = 'new'; st.es[L] = '';
-  llSnap(frames, st, 5, `right->prev = left：${nm(R)} 的 prev 也跳過 x。實際只改了兩個鏈結，x 已不在串列中。`, {[X]: 'found'});
+  llSnap(frames, st, 5, `succ->prev = pred：${nm(R)} 的 prev 也跳過 node。實際只改了兩個鏈結，node 已不在串列中。`, {[X]: 'found'});
   const n = llN(st, X); n.cls = 'del'; n.tag = '已釋放'; delete st.next[X]; delete st.prev[X]; st.ps = {};
-  llSnap(frames, st, 6, 'delete x：釋放節點，x 成為失效指標。');
+  llSnap(frames, st, 6, 'delete node：釋放節點，node 成為失效指標。');
   const s = llDoubleFinal(st);
   llSnap(frames, st, null, s ? `結果：header ↔ ${s} ↔ trailer。` : '結果：只剩 header ↔ trailer，回到空串列的樣子。');
   return frames;

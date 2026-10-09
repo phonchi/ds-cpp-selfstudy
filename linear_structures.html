@@ -2004,28 +2004,6 @@ winner: Susan</pre></div>
 <h3>用 mt19937 產生亂數</h3>
 <p>C++ 的 <code>&lt;random&gt;</code> 把產生亂數分成兩部分。<strong>引擎</strong> <code>std::mt19937</code> 產生一長串看起來隨機的整數；<strong>分佈</strong> <code>std::uniform_int_distribution&lt;int&gt;(a, b)</code> 把引擎的輸出轉成 a 到 b 之間、每個值機率相同的整數。用法是把引擎傳給分佈：<code>pages(rng)</code> 每呼叫一次，引擎就前進一步，得到下一個值。</p>
 <p>模擬中，<code>uniform_int_distribution&lt;int&gt;(1, 180)</code> 每秒產生 180 個等可能值中的一個；把其中一個值（180）當成「有新工作」，平均就是每小時 20 件。頁數由 <code>uniform_int_distribution&lt;int&gt;(1, 20)</code> 決定。引擎以固定的種子（seed）初始化，例如 <code>mt19937 rng(42)</code>，每次執行都得到同一串亂數，課堂示範才能重現。</p>
-<details class="linear-detail"><summary>單獨試用引擎與分佈（補充）</summary><div class="linear-detail-body"><div class="deck-extra">
-  <div class="dx-label">mt19937 與 uniform_int_distribution</div>
-  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="8 16 20 4 15 &#10;tasks in one hour: 21&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
-<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;random&gt;</span></span>
-<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
-<span class="line" data-l="4"> </span>
-<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">main</span>() {</span>
-<span class="line" data-l="6">    mt19937 rng(<span class="num">42</span>);                                  <span class="com">// engine with a fixed seed</span></span>
-<span class="line" data-l="7">    uniform_int_distribution&lt;<span class="kw">int</span>&gt; pages(<span class="num">1</span>, <span class="num">20</span>);       <span class="com">// 1..20, equally likely</span></span>
-<span class="line" data-l="8">    uniform_int_distribution&lt;<span class="kw">int</span>&gt; arrival(<span class="num">1</span>, <span class="num">180</span>);    <span class="com">// 1..180, equally likely</span></span>
-<span class="line" data-l="9">    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; <span class="num">5</span>; ++i) cout &lt;&lt; pages(rng) &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
-<span class="line" data-l="10">    cout &lt;&lt; endl;</span>
-<span class="line" data-l="11">    <span class="kw">int</span> created = <span class="num">0</span>;</span>
-<span class="line" data-l="12">    <span class="kw">for</span> (<span class="kw">int</span> now = <span class="num">0</span>; now &lt; <span class="num">3600</span>; ++now)</span>
-<span class="line" data-l="13">        <span class="kw">if</span> (arrival(rng) == <span class="num">180</span>) ++created;</span>
-<span class="line" data-l="14">    cout &lt;&lt; <span class="str">"</span><span class="str">tasks in one hour: </span><span class="str">"</span> &lt;&lt; created &lt;&lt; endl;</span>
-<span class="line" data-l="15">    <span class="kw">return</span> <span class="num">0</span>;</span>
-<span class="line" data-l="16">}</span></div>
-  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>8 16 20 4 15&#32;
-tasks in one hour: 21</pre></div>
-  <p class="dx-note">第一行是 5 份工作的頁數，都落在 1 到 20。第二行模擬一小時 3600 秒，每秒擲一次 1 到 180，擲到 180 的次數接近平均值 20。數列由種子 42 決定；分佈把引擎輸出轉成整數的方法由各家標準函式庫自行實作，換一套編譯器可能得到不同的數字。</p>
-</div></div></details>
 <p>完整的程式把這些組合起來。<code>simulation()</code> 跑指定的秒數，最後印出平均等待時間，以及時間到時還留在 queue 裡的工作數；同一個引擎以參考 <code>mt19937&amp;</code> 傳入，兩次模擬接續使用同一串亂數：</p>
 <details class="linear-detail"><summary>完整程式：印表機模擬</summary><div class="linear-detail-body"><div class="deck-extra">
   <div class="dx-label">Task、Printer 與 simulation()</div>
@@ -2091,7 +2069,7 @@ tasks in one hour: 21</pre></div>
 average wait = 34.45, tasks remaining = 0</pre></div><p class="dx-note">第一行是每分鐘 5 頁、第二行是每分鐘 10 頁，各模擬一小時（3600 秒）。tasks remaining 是一小時結束時還在 queue 裡、沒有開始印的工作數。這一次的亂數下兩者的平均等待差不多，只跑一次還看不出速度的影響。</p>
 <h3>討論</h3>
 <p>講義以每分鐘 5 頁跑了 10 次獨立的一小時試驗。因為模擬使用亂數，每次的結果都不同，平均等待時間的變化很大。把速度改成每分鐘 10 頁再跑 10 次，等待時間通常會下降：速度較快時，一小時內能完成更多工作。</p>
-<details class="linear-detail"><summary>連續跑 10 次試驗（補充）</summary><div class="linear-detail-body"><div class="deck-extra">
+<details class="linear-detail"><summary>完整程式：每種速度各跑 10 次</summary><div class="linear-detail-body"><div class="deck-extra">
   <div class="dx-label">simulation() 各跑 10 次</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="5 pages per minute&#10;average wait = 37.3, tasks remaining = 1&#10;average wait = 95.8889, tasks remaining = 2&#10;average wait = 119.579, tasks remaining = 0&#10;average wait = 173.72, tasks remaining = 0&#10;average wait = 48.7222, tasks remaining = 0&#10;average wait = 77.95, tasks remaining = 0&#10;average wait = 245, tasks remaining = 0&#10;average wait = 69.6087, tasks remaining = 0&#10;average wait = 135.778, tasks remaining = 3&#10;average wait = 43.3333, tasks remaining = 0&#10;10 pages per minute&#10;average wait = 107.424, tasks remaining = 0&#10;average wait = 7.31579, tasks remaining = 0&#10;average wait = 19.8462, tasks remaining = 0&#10;average wait = 11.6875, tasks remaining = 0&#10;average wait = 5.55556, tasks remaining = 0&#10;average wait = 4.375, tasks remaining = 0&#10;average wait = 13.1667, tasks remaining = 0&#10;average wait = 9.94737, tasks remaining = 0&#10;average wait = 42.7, tasks remaining = 0&#10;average wait = 11.3333, tasks remaining = 0&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;optional&gt;</span></span>

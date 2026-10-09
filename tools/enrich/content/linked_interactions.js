@@ -4,7 +4,7 @@
 const LL_C = {ink:'var(--ink)', blue:'var(--accent2)', green:'var(--accent3)', red:'var(--accent)',
   muted:'var(--muted)', orange:'#a84f00', purple:'#7d3c98'};
 const LL_PTR = {head:'blue', current:'orange', previous:'purple', temp:'green', newNode:'green',
-  x:'green', left:'purple', right:'orange'};
+  x:'green', left:'purple', right:'orange', node:'green', pred:'purple', succ:'orange'};
 const LL_NODE = {
   '':    ['var(--card)', 'var(--accent2)', 'var(--ink)', 2, ''],
   hl:    ['#fff3cd', '#d68910', 'var(--ink)', 3, ''],
@@ -576,17 +576,17 @@ LLB.dIns = k => {
   const st = llDouble(vals);
   const L = k === 'mid' ? 'd0' : 'h', R = st.next[L];
   st.nodes.push({id: 'x', v, col: llN(st, L).col + 0.5, row: 1, cls: 'new'});
-  st.ptr = {left: L, right: R, x: 'x'};
+  st.ptr = {pred: L, succ: R, newNode: 'x'};
   const nm = id => llN(st, id).v;
-  llSnap(frames, st, 1, `x 是新配置的節點 ${v}，要插在相鄰的 ${nm(L)} 與 ${nm(R)} 之間。`);
+  llSnap(frames, st, 1, `newNode 是新配置的節點 ${v}，要插在相鄰的 ${nm(L)} 與 ${nm(R)} 之間。`);
   st.prev.x = L; st.ps.x = 'new';
-  llSnap(frames, st, 2, `x->prev = left：新節點的 prev 指向 ${nm(L)}。`);
+  llSnap(frames, st, 2, `newNode->prev = pred：新節點的 prev 指向 ${nm(L)}。`);
   st.next.x = R; st.es.x = 'new'; st.ps.x = '';
-  llSnap(frames, st, 3, `x->next = right：新節點的 next 指向 ${nm(R)}。到這裡只改了新節點，原串列還沒變。`);
+  llSnap(frames, st, 3, `newNode->next = succ：新節點的 next 指向 ${nm(R)}。到這裡只改了新節點，原串列還沒變。`);
   st.next[L] = 'x'; st.es[L] = 'new'; st.es.x = '';
-  llSnap(frames, st, 4, `left->next = x：${nm(L)} 的 next 改指新節點。`);
+  llSnap(frames, st, 4, `pred->next = newNode：${nm(L)} 的 next 改指新節點。`);
   st.prev[R] = 'x'; st.ps[R] = 'new'; st.es[L] = '';
-  llSnap(frames, st, 5, `right->prev = x：${nm(R)} 的 prev 也改指新節點。共改四個指標，插入完成。`);
+  llSnap(frames, st, 5, `succ->prev = newNode：${nm(R)} 的 prev 也改指新節點。共改四個指標，插入完成。`);
   const s = llDoubleFinal(st);
   llSnap(frames, st, null, `結果：header ↔ ${s} ↔ trailer。不論插在最前、中間或空串列，都是同樣四步。`);
   return frames;
@@ -597,19 +597,19 @@ LLB.dErase = k => {
   const X = k === 'mid' ? 'd1' : 'd0';
   const st = llDouble(vals);
   const nm = id => llN(st, id).v;
-  st.ptr = {x: X};
-  llSnap(frames, st, 1, `要刪除資料節點 x（${nm(X)}）。它左右一定各有一個鄰居，即使鄰居是哨兵。`, {[X]: 'found'});
+  st.ptr = {node: X};
+  llSnap(frames, st, 1, `要刪除資料節點 node（${nm(X)}）。它左右一定各有一個鄰居，即使鄰居是哨兵。`, {[X]: 'found'});
   const L = st.prev[X], R = st.next[X];
-  st.ptr.left = L;
-  llSnap(frames, st, 2, `left = x->prev：取得左鄰 ${nm(L)}。`, {[X]: 'found'});
-  st.ptr.right = R;
-  llSnap(frames, st, 3, `right = x->next：取得右鄰 ${nm(R)}。`, {[X]: 'found'});
+  st.ptr.pred = L;
+  llSnap(frames, st, 2, `pred = node->prev：取得左鄰 ${nm(L)}。`, {[X]: 'found'});
+  st.ptr.succ = R;
+  llSnap(frames, st, 3, `succ = node->next：取得右鄰 ${nm(R)}。`, {[X]: 'found'});
   st.next[L] = R; st.es[L] = 'new';
-  llSnap(frames, st, 4, `left->next = right：${nm(L)} 的 next 跳過 x，直接指向 ${nm(R)}。`, {[X]: 'found'});
+  llSnap(frames, st, 4, `pred->next = succ：${nm(L)} 的 next 跳過 node，直接指向 ${nm(R)}。`, {[X]: 'found'});
   st.prev[R] = L; st.ps[R] = 'new'; st.es[L] = '';
-  llSnap(frames, st, 5, `right->prev = left：${nm(R)} 的 prev 也跳過 x。實際只改了兩個鏈結，x 已不在串列中。`, {[X]: 'found'});
+  llSnap(frames, st, 5, `succ->prev = pred：${nm(R)} 的 prev 也跳過 node。實際只改了兩個鏈結，node 已不在串列中。`, {[X]: 'found'});
   const n = llN(st, X); n.cls = 'del'; n.tag = '已釋放'; delete st.next[X]; delete st.prev[X]; st.ps = {};
-  llSnap(frames, st, 6, 'delete x：釋放節點，x 成為失效指標。');
+  llSnap(frames, st, 6, 'delete node：釋放節點，node 成為失效指標。');
   const s = llDoubleFinal(st);
   llSnap(frames, st, null, s ? `結果：header ↔ ${s} ↔ trailer。` : '結果：只剩 header ↔ trailer，回到空串列的樣子。');
   return frames;

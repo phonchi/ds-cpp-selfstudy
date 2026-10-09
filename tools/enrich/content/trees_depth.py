@@ -73,6 +73,11 @@ def card(label, code_text, kind='fragment', stdout=None, note=None, out_label='�
     return '\n'.join(parts)
 
 
+def snip(label, code_text, **kw):
+    """Lecture slide code: collapsed so the explanation stays readable; the label says what it holds."""
+    return details('程式：' + label, card(label, code_text, **kw))
+
+
 def program(summary, label, key, note=None, out_label='預期輸出'):
     """Lecture program: code collapsed, the output and note visible."""
     out = _expected_out(OUT[key], out_label)
@@ -168,7 +173,7 @@ cout << r.getRightChild()->getRootVal() << endl;'''
         ['<code>insertLeft(value)</code>／<code>insertRight(value)</code>', '配置一個新節點接成左（右）子節點；原本已經有子節點時，把它往下推一層（下一節說明）。'],
     ])}
 <p><code>getLeftChild()</code> 回傳的是一整棵子樹（<code>BinaryTree*</code>），所以可以接著用 <code>-&gt;</code> 呼叫子樹的操作，一路往下走到任何深度。</p>
-{card('Tree ADT 的呼叫方式', usage)}
+{snip('Tree ADT 的呼叫方式', usage)}
 <h3>從介面到實作</h3>
 <p>實作一棵樹時，最關鍵的決定是內部要用什麼方式儲存。本課程使用<strong>節點與參考</strong>（nodes and references）：每個節點是一個物件，用指標連到它的子樹。下一節就用這個方式寫出 <code>BinaryTree</code> 類別。</p>'''
 
@@ -226,12 +231,12 @@ def nodes_refs():
 <p>用節點與參考表示一棵樹時，定義一個類別，存放根的值以及左、右子樹。下圖的六個標籤就是六個 <code>BinaryTree</code> 物件，靠子指標連在一起。</p>
 {figure('treerecs')}
 <p>在 C++ 裡，<code>leftChild</code> 與 <code>rightChild</code> 是指向其他 <code>BinaryTree</code> 物件的指標；<code>NULL</code> 表示那一邊是空的子樹。節點的值可以是任何型別，這個教學版本用 <code>string</code>。</p>
-{card('BinaryTree 的資料成員與建構子', CLASS)}
+{snip('BinaryTree 的資料成員與建構子', CLASS)}
 <h3>insertLeft 與 insertRight</h3>
 <p>要加左子節點，就配置一個新的 <code>BinaryTree</code>，把位址存進 <code>leftChild</code>。插入分兩種情況：原本沒有左子節點時，直接接上；原本已經有左子節點時，新節點插在中間，原本的左子樹變成新節點的左子樹，等於被往下推一層。<code>insertRight</code> 對稱地處理右邊。</p>
-{card('insertLeft 與 insertRight', INSERT)}
+{snip('insertLeft 與 insertRight', INSERT)}
 <p>最後補上讀取子樹與讀寫根值的函式，一個簡單的二元樹類別就完成了。</p>
-{card('存取函式', ACCESSORS)}
+{snip('存取函式', ACCESSORS)}
 <p>下面的動畫用這些函式一步一步長出一棵樹。</p>'''
     run = f'''<h3 id="dx-voc">實際執行：建立根 a 與子節點 b、c</h3>
 <p>完整的類別在 <code>pythonds3/cppds/binarytree.hpp</code>。下面的程式建立根 <code>"a"</code>，再加上左子 <code>"b"</code> 與右子 <code>"c"</code>，最後把右子的值改成 <code>"hello"</code>。</p>
@@ -310,14 +315,14 @@ def parse_tree():
 {details('逐步圖：讀入 +、(、4、*、5', figrow(['buildExp4', 'buildExp5', 'buildExp6', 'buildExp7', 'buildExp8'], '每讀一個 token 就套用一條規則。最後的兩個 ) 只是往上回到父節點：先回到 +，+ 已經沒有父節點，建樹完成。', '建樹的後五步'))}'''
     build = f'''<h3>buildParseTree</h3>
 <p>四條規則就是程式中 <code>if</code>／<code>else if</code> 的四個分支。往下走到子節點用 <code>getLeftChild()</code>、<code>getRightChild()</code>；回到父節點則靠 <code>pStack</code>：往下走之前先把目前節點 push，要回去時再 pop。</p>
-{card('buildParseTree（binarytree.hpp）', BUILD)}
+{snip('buildParseTree（binarytree.hpp）', BUILD)}
 <p>這個教學版本假設輸入格式正確，而且 token 之間以空白分隔。實際使用的解析器遇到既不是括號、也不是運算子或數字的 token 時，應該丟出 <code>invalid_argument</code>。</p>
 {program('講義完整程式：建立解析樹並以中序印出', '講義 09 · buildParseTree', 'parse_inorder',
          note='<code>inorder</code> 依「左子樹、根、右子樹」的順序印出節點，下一節會說明。印出的運算式少了括號。')}'''
     ev = f'''<h3>evaluate：遞迴求值</h3>
 <p>建好解析樹之後，可以利用樹的階層性質，<strong>遞迴地計算每一棵子樹</strong>來求出整個運算式的值。</p>
 <p>樹的遞迴演算法常用葉節點當作 base case。解析樹的葉節點一定是運算元，數字不需要再處理，直接回傳葉節點存的值即可。遞迴步驟是對左右兩個子節點呼叫 <code>evaluate</code>，每次呼叫都往葉節點靠近一層。最後把兩個遞迴呼叫的結果，用父節點存的運算子合起來。</p>
-{card('evaluate（binarytree.hpp）', EVAL)}
+{snip('evaluate（binarytree.hpp）', EVAL)}
 <p>運算子存成 <code>string</code>，用 <code>if</code>／<code>else if</code> 決定要做哪一種運算；也可以改用字元和 <code>switch</code>。</p>
 {program('講義完整程式：evaluate', '講義 09 · evaluate', 'evaluate',
          note='在根節點，<code>evaluate()</code> 看到 <code>+</code>：左子樹是葉節點，回傳 3；右子樹的 <code>*</code> 把葉節點 4 和 5 相乘得到 20。最後根回傳 3 + 20 = 23。')}'''
@@ -390,29 +395,29 @@ def traversals():
 {figure('booktree')}
 <p>想從頭到尾讀完這本書，前序走訪的順序就是閱讀順序：從根 Book 開始，遞迴走左子樹 Chapter 1，再遞迴走它的左子樹 Section 1.1。Section 1.1 沒有子節點，回到 Chapter 1，接著走右子樹 Section 1.2，依序讀 Section 1.2.1、Section 1.2.2。Chapter 1 讀完後回到 Book，再用同樣的方式讀 Chapter 2。</p>
 <p>寫成外部函式的前序走訪很簡潔：base case 只有 <code>tree == NULL</code>；否則先印出根，再遞迴走左子樹與右子樹。對前面的解析樹，它印出 <code>+ 3 * 4 5</code>，也就是運算式的前序（prefix）形式。</p>
-{card('preorder（binarytree.hpp）', PREORDER)}
+{snip('preorder（binarytree.hpp）', PREORDER)}
 {program('講義的書本樹：以 BinaryTree 建立並做前序走訪', '書本樹的前序走訪', 'book',
          note='輸出就是閱讀順序。下方動畫選「講義：書的章節樹」，可以一步一步看這個順序與呼叫堆疊。')}
 <h3>成員函式版與外部函式版</h3>
 <p><code>preorder</code> 也可以寫成 <code>BinaryTree</code> 的成員函式，作用在 <code>this</code> 上。這時候不能對 <code>NULL</code> 呼叫成員函式，所以遞迴之前要先檢查 <code>leftChild</code>、<code>rightChild</code> 是不是 <code>NULL</code>：</p>
-{card('preorder 的成員函式版（課程標頭沒有收錄）', PREORDER_MEMBER)}
+{snip('preorder 的成員函式版（課程標頭沒有收錄）', PREORDER_MEMBER)}
 <p>這個例子比較適合寫成外部函式。很少有人只想把樹走一遍，通常是要在走訪的同時完成別的工作；外部函式比較容易改寫成其他用途。下一個例子會看到，後序走訪的寫法和前面計算解析樹的 <code>evaluate</code> 幾乎一樣，所以其餘的走訪都寫成外部函式。</p>'''
     code_html = f'''<h3>後序走訪與 postordereval</h3>
 <p>後序走訪和前序只差在印出根的位置：先遞迴走完左右子樹，最後才印根。對解析樹，它印出 <code>3 4 5 * +</code>，也就是後序（postfix）形式。</p>
-{card('postorder（binarytree.hpp）', POSTORDER)}
+{snip('postorder（binarytree.hpp）', POSTORDER)}
 <p>後序走訪的常見用途就是計算解析樹。假設樹裡只存運算式，照著後序走訪的骨架重寫求值函式：</p>
-{card('postordereval（binarytree.hpp）', POSTORDEREVAL)}
+{snip('postordereval（binarytree.hpp）', POSTORDEREVAL)}
 <p>和 <code>postorder</code> 相比，差別只在最後不是印出鍵，而是<strong>回傳</strong>值。兩個遞迴呼叫的回傳值存在 <code>result1</code>、<code>result2</code>，再用根的運算子合起來。</p>
 <h3>中序走訪</h3>
 <p>中序走訪先走左子樹，再拜訪根，最後走右子樹。對解析樹，它印出 <code>3 + 4 * 5</code>，是熟悉的中序（infix）形式，但少了括號。</p>
-{card('inorder（binarytree.hpp）', INORDER)}
+{snip('inorder（binarytree.hpp）', INORDER)}
 {program('講義的走訪函式：對解析樹做三種走訪與 postordereval', '三種走訪與 postordereval', 'traversals',
          note='前序得到 prefix、中序得到 infix、後序得到 postfix；<code>postordereval</code> 依後序的順序計算，結果和 <code>evaluate</code> 一樣是 23。')}'''
     ex1_extra = ('<p>葉節點的左右子樹都是 <code>NULL</code>。在加括號之前先檢查這件事，葉節點就直接回傳數字本身；'
                  '其他節點照原本的方式在兩側加括號。</p>')
     printexp = f'''<h3>printExp：還原完整括號</h3>
 <p>對解析樹做一般的中序走訪，得到的運算式沒有括號。稍微修改中序走訪的骨架，就能還原完整括號的版本：在遞迴走左子樹之前印左括號，走完右子樹之後印右括號。</p>
-{card('printExp（binarytree.hpp）', PRINTEXP)}
+{snip('printExp（binarytree.hpp）', PRINTEXP)}
 {program('講義完整程式：printExp', '講義 09 · printExp', 'printexp',
          note='每一棵子樹都包了一層括號，連只有一個數字的葉節點也被包起來，例如 <code>(3)</code>。')}
 {quiz('traversal')}
@@ -513,25 +518,25 @@ def heap():
 <p>完全二元樹可以存在一個 <code>vector</code> 裡，不需要節點指標。索引從 0 開始時，索引 $p$ 的左子在 $2p+1$、右子在 $2p+2$；非根節點 $i$ 的父節點，在 C++ 中用整數除法 <code>(i - 1) / 2</code> 算出。</p>
 {figure('heapOrder')}
 <p>堆積存放資料的方式依靠<strong>堆積順序性質</strong>（heap order property）：每個節點 $x$ 與它的父節點 $p$，$p$ 的鍵小於或等於 $x$ 的鍵。上圖的樹也滿足這個性質。因為樹的形狀完全由索引決定，類別只需要一個資料成員：</p>
-{card('BinaryHeap 的資料成員', HEAP_SHELL)}
+{snip('BinaryHeap 的資料成員', HEAP_SHELL)}
 <p>下面的動畫一開始就是圖中的 heap。用「講義」那一列按鈕可以直接載入插入 7、delMin 與 buildHeap 三個例子。</p>'''
     perc = f'''<h3>insert 與 percUp</h3>
 <p>插入時先把新元素接在 <code>vector</code> 的尾端，這樣仍然是完全二元樹，結構性質不變。但新元素可能比父節點小，破壞順序性質。這時拿它和父節點比較，比父節點小就交換，一路往上浮（percolate up），直到不再比父節點小，或已經到達根。</p>
 {figure('percUp1')}
 {steps('percUp 的兩次交換', ['percUp2', 'percUp3'])}
 <p>往上浮的時候，新元素和父節點之間的順序性質恢復了，兄弟節點那一側的順序性質也維持不變。新元素很小的話，可能要一路換到根。</p>
-{card('percUp 與 insert', PERCUP)}
+{snip('percUp 與 insert', PERCUP)}
 <h3>delMin 與 percDown</h3>
 <p>最小值就在 <code>heap[0]</code>，所以 <code>findMin()</code> 只要讀它。<code>delMin()</code> 的難處在於移除根之後，要同時恢復結構性質與順序性質，分兩步做：先把根和 <code>vector</code> 最後一個元素交換並移除最後一格，結構維持完整；再對新的根呼叫 <code>percDown(0)</code>，讓它和<strong>較小的子節點</strong>交換，一路往下沉，直到比兩個子節點都小。</p>
 {figure('percDown1')}
 {steps('percDown 的三次交換', ['percDown2', 'percDown3', 'percDown4'])}
-{card('percDown、getMinChild 與 delMin', PERCDOWN)}
+{snip('percDown、getMinChild 與 delMin', PERCDOWN)}
 {program('對照圖：在圖中的 heap 插入 7，以及執行 delMin', '圖中的 heap：insert 與 delMin', 'heap_figs',
          note='第一行是插入 7 之後的 vector：7 換到索引 1，9 和 18 各往下一層。第二、三行是另一份同樣的 heap 執行 delMin：回傳 5，27 從根沉到索引 8。')}'''
     build = f'''<h3>buildHeap：由下往上建堆</h3>
 <p>一種建堆的方法是逐一插入 $n$ 個鍵。每次 <code>insert()</code> 接在尾端，最壞要往上浮過整個樹高，所以每次 $O(\\log n)$，逐一插入共 $O(n\\log n)$。插入並不需要把元素塞進排序好的 vector 中間；順序性質只規範父節點和子節點。</p>
 <p>由下往上的 <code>buildHeap()</code>（舊名 <code>heapify()</code>）比較快：從最後一個非葉節點開始，往根的方向逐一呼叫 <code>percDown()</code>，總成本是 $O(n)$。索引大於等於 <code>heap.size() / 2</code> 的都是葉節點，不需要處理。</p>
-{card('heapify（buildHeap）', HEAPIFY_CODE)}
+{snip('heapify（buildHeap）', HEAPIFY_CODE)}
 {figure('buildheap')}
 <p>當 <code>i = 0</code> 時，從根往下沉可能要跨好幾層。<code>percDown()</code> 每次交換後都會再檢查較小的子節點，所以 9 會一直往下移，直到最底層。</p>
 {program('講義例子：buildHeap({9, 6, 5, 2, 3})', 'buildHeap 小例子', 'build_small',
@@ -661,22 +666,22 @@ def bst():
 <p>這棵樹是依序插入 $70, 31, 93, 94, 14, 23, 73$ 的結果。70 最先插入，所以是根。31 比 70 小，成為 70 的左子；93 比 70 大，成為右子。94 比 70 和 93 都大，成為 93 的右子；14 比 70 和 31 都小，成為 31 的左子。23 也比 31 小，但比 14 大，所以成為 14 的右子。</p>
 <h3>TreeNode 與 BinarySearchTree</h3>
 <p>BST 同樣用節點與參考實作。因為必須能建立並操作一棵空的樹，實作分成兩個類別：<code>BinarySearchTree</code> 保存指向根節點的指標，<code>TreeNode</code> 是樹中的節點。外層的公開函式大多先檢查樹是不是空的，再把工作交給以根為參數的輔助函式；樹是空的或要刪除根的時候，需要特別處理。</p>
-{card('BinarySearchTree 的外殼', BST_SHELL,
+{snip('BinarySearchTree 的外殼', BST_SHELL,
       note='完整的標頭還提供複製與移動指定，確保兩棵樹不會共用同一批節點。')}
 <p><code>TreeNode</code> 提供許多輔助函式，判斷自己是左子還是右子、有沒有子節點，讓 <code>BinarySearchTree</code> 的函式好寫很多。</p>
-{card('TreeNode', TREENODE)}
+{snip('TreeNode', TREENODE)}
 <p>每個 <code>TreeNode</code> 都存了 parent 指標，在 <code>remove()</code> 重新接上子節點、或拆出中序後繼者時特別有用。建構子的 parent 參數有預設值，所以可以建立根（<code>parent == NULL</code>），也可以建立連到父節點的子節點。</p>
 <h3>put 與 insertOrAssign</h3>
 <p><code>put()</code> 把每一次插入（包括建立根）都交給受保護的虛擬函式 <code>insertOrAssign()</code>。平衡樹的子類別可以覆寫這個函式，而不會繞過公開的 <code>put()</code> 與它對 <code>size</code> 的計算。插入的步驟是：</p>
 {ul(['從根開始比較新鍵與目前節點的鍵：比較小就往左子樹找，比較大就往右子樹找。',
      '找到沒有左（右）子節點可以再往下的位置，就是新節點應該放的地方。',
      '建立一個新的 <code>TreeNode</code>，接在上一步找到的位置。'])}
-{card('insertOrAssign 與 put', PUT)}
+{snip('insertOrAssign 與 put', PUT)}
 <p>鍵重複時採用 <strong>insert-or-assign</strong>：只替換既有的值，不建立新節點，<code>size</code> 也不變，符合 Map ADT 的語意。課程標頭用明確的 <code>put(key, value)</code>，例如 <code>myTree.put("a", "apple")</code>，再用 <code>myTree.get("a")</code> 取值；沒有提供 <code>operator[]</code>。</p>
 {figure('bstput')}'''
     get = f'''<h3>get 與 contains</h3>
 <p><code>get()</code> 比 <code>put()</code> 更簡單：遞迴往下找，找到相同的鍵就回傳節點的值，走到空指標就表示不存在。私有輔助函式 <code>_get()</code> 回傳的是 <code>TreeNode*</code>，所以 <code>get()</code>、<code>contains()</code> 與 <code>remove()</code> 都能重用同一段搜尋。</p>
-{card('get、_get 與 contains', GET)}'''
+{snip('get、_get 與 contains', GET)}'''
     return fill('bst', {'ops': ops, 'impl': impl, 'get': get})
 
 
@@ -744,28 +749,28 @@ BST_INORDER = '''void inorder(TreeNode* node) {
 def bst_delete():
     cases = f'''<h3>remove 的骨架</h3>
 <p>刪除的第一步是用 <code>_get()</code> 找到要刪的節點；找不到就丟出例外。樹只有一個節點時，要刪的就是根，但仍然要確認根的鍵和要刪的鍵相同，<code>_get()</code> 已經做了這個檢查。刪除根的情況在 <code>_delete()</code> 裡處理：刪掉最後一個節點時，把 <code>root</code> 設為 <code>NULL</code> 並釋放節點。</p>
-{card('remove', REMOVE)}
+{snip('remove', REMOVE)}
 <h3>情況一：沒有子節點</h3>
 {figure('bstdel1')}
 <p>目前節點沒有子節點時，只要刪掉它，並把父節點指向它的指標設為 <code>NULL</code>。</p>
-{card('情況一：刪除葉節點', CASE1)}
+{snip('情況一：刪除葉節點', CASE1)}
 <h3>情況二：只有一個子節點</h3>
 {figure('bstdel2')}
 <p>只有一個子節點時，直接把這個子節點提上來取代父節點。左右兩種情況對稱，這裡只看目前節點有左子節點的情形：</p>
 {ul(['目前節點是左子：把左子節點的 parent 改成目前節點的父節點，再把父節點的 <code>leftChild</code> 指向這個左子節點。',
      '目前節點是右子：把父節點的 <code>rightChild</code> 直接接到唯一的子節點，並更新子節點的 parent。',
      '目前節點是根：把 <code>root</code> 設為它唯一的子節點（或 <code>NULL</code>），並清掉新根的 parent 指標。每一種情況最後都要刪掉被移除的節點。'])}
-{card('情況二：刪除只有一個子節點的節點', CASE2)}
+{snip('情況二：刪除只有一個子節點的節點', CASE2)}
 <h3>情況三：有兩個子節點</h3>
 {figure('bstdel3')}
 <p>有兩個子節點時，不能直接把其中一個提上來。要在樹中找一個節點來取代被刪的節點，而且左右兩棵子樹的 BST 性質都要維持；這個節點就是鍵次大的那一個，稱為<strong>後繼者</strong>（successor）。後繼者最多只有一個子節點，所以用 <code>spliceOut()</code> 把它拆出、接好它的子節點，再把它的鍵和值複製到目標節點，最後刪掉後繼者節點。</p>
-{card('情況三：刪除有兩個子節點的節點', CASE3)}
+{snip('情況三：刪除有兩個子節點的節點', CASE3)}
 <p>刪除時目標節點一定有右子樹，所以後繼者就是右子樹的最小值。<code>findMin()</code> 沿著 <code>leftChild</code> 一直走到下一個是 <code>NULL</code> 為止，最左邊的節點就是子樹中最小的鍵。</p>
-{card('findSuccessor 與 findMin', SUCC)}
+{snip('findSuccessor 與 findMin', SUCC)}
 <p>這和中序走訪由小到大印出 BST 的性質是同一回事。一般而言找後繼者要考慮三種情況：節點有右子樹時，後繼者是右子樹的最小鍵；沒有右子樹且自己是左子時，父節點就是後繼者；沒有右子樹且自己是右子時，後繼者是父節點的後繼者（不算自己）。刪除時目標節點有兩個子節點，只會用到第一種。</p>'''
     inorder = f'''<h3 id="dx-bst">中序走訪：依鍵的順序處理</h3>
 <p>要依鍵的順序處理 BST 的每一個鍵，就用前面學過的中序走訪。課程的類別直接印出值；若要重複使用，可以改成把鍵依序放進一個輸出 vector。每次遞迴處理一棵較小的子樹，base case 是 <code>NULL</code> 指標；在左右兩次遞迴之間處理節點，得到的鍵就是排好的。走訪每個節點一次，時間 $O(n)$，遞迴深度 $O(h)$。</p>
-{card('inorder（BinarySearchTree 的成員函式）', BST_INORDER)}
+{snip('inorder（BinarySearchTree 的成員函式）', BST_INORDER)}
 {program('講義完整程式：BinarySearchTree 當 map 使用', '講義 09 · BinarySearchTree', 'bst',
          note='最後一行依鍵的順序印出值。刪掉 <code>"a"</code> 之後剩 8 個鍵，所以第一個值是 b 對應的 brown。')}
 <p>想看更多 BST 插入、搜尋與刪除的例子，可以參考 {VISUALGO_BST}。</p>
@@ -839,7 +844,7 @@ def avl():
 <p>$h_E - h_C$ 正好是 $-\\text{{old\\_bal}}(D)$。再用 $\\max(-a,-b) = -\\min(a,b)$：</p>
 <p>$$\\begin{{aligned}}\\text{{new\\_bal}}(B) &= \\text{{old\\_bal}}(B) + 1 + \\max(0,\\ -\\text{{old\\_bal}}(D))\\\\ &= \\text{{old\\_bal}}(B) + 1 - \\min(0,\\ \\text{{old\\_bal}}(D))\\end{{aligned}}$$</p>
 <p>B 是 <code>rotationRoot</code>、D 是 <code>newRoot</code>，這就是程式中的</p>
-{card('rotateLeft 的平衡因子更新', 'rotationRoot->balanceFactor = rotationRoot->balanceFactor + 1\n                              - min(newRoot->balanceFactor, 0);')}
+{snip('rotateLeft 的平衡因子更新', 'rotationRoot->balanceFactor = rotationRoot->balanceFactor + 1\n                              - min(newRoot->balanceFactor, 0);')}
 <p>新根 D 的公式，以及右旋時的兩個公式，可以用同樣的方法推導，留作練習。</p>
 <h3>需要兩次旋轉的情況</h3>
 <p>知道何時左旋、何時右旋似乎就夠了，但看下面左圖：A 的平衡因子是 -2，應該左旋；左旋之後卻變成右圖，往另一邊不平衡。再右旋一次，又回到原狀。</p>

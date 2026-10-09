@@ -47,7 +47,7 @@ _SPECS = {
                 '實驗室的電腦把列印工作送進同一個 print queue，印表機依先來先印的順序一次處理一個工作。學生等待的時間，就是工作在 queue 裡排隊的時間。'),
     'deque': ('deque.png', 760, 2400, 600,
               'std::deque<string> 中由左到右是 "dog"、"4"、"cat"、"true"；左邊 rear 端有 push_back 與 pop_back 兩個箭頭，右邊 front 端有 push_front 與 pop_front 兩個箭頭。',
-              'deque 的兩端都能加入與移除：front 端用 push_front／pop_front，rear 端用 push_back／pop_back。只用同一端時它像 stack，一端進、另一端出時像 queue。'),
+              'deque 的兩端都能加入與移除：front 端用 push_front／pop_front，rear 端用 push_back／pop_back。只用同一端時它像 stack，一端進、另一端出時像 queue。注意圖中 rear 在左、front 在右；後面的操作表與動畫依 STL 的習慣，把 front 畫在左邊。'),
     'palindrome': ('deque_2.png', 587, 587, 397,
                    '上半部把 "radar" 的字元依序加到 rear，deque 中由 rear 到 front 為 r a d a r；下半部從 front 與 rear 各取出一個 r。',
                    '先把 radar 的每個字元依序加到 rear；接著同時從 front 與 rear 各取出一個字元比較。兩端都是 r，相同就繼續往中間比。'),

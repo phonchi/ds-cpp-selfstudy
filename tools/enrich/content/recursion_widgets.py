@@ -222,10 +222,10 @@ def w_viz():
           <canvas id="spiralCv" width="300" height="300" style="background:#fff;border-radius:8px;max-width:100%;" aria-label="螺旋"></canvas>
           <canvas id="treeCv" width="330" height="300" style="background:#fff;border-radius:8px;max-width:100%;" aria-label="碎形樹"></canvas>
         </div>
-        <div class="status-banner" id="vizStatus"><span class="status-icon">›</span><span class="status-text">左邊是螺旋（spiral），右邊是碎形樹（tree）。拉樹深度滑桿，觀察「樹 = 樹幹 + 兩棵小樹」。</span></div>
+        <div class="status-banner" id="vizStatus"><span class="status-icon">›</span><span class="status-text">左邊是螺旋（spiral），右邊是碎形樹（tree）。拉動層數滑桿，觀察「樹 = 樹幹 + 兩棵小樹」。</span></div>
         <div class="controls-bar">
           <button class="btn" onclick="spiralStart()">▶ 畫螺旋</button>
-          <label class="mono" style="font-size:.8rem;">樹的深度 <input id="treeDepth" type="range" min="1" max="9" value="7" style="vertical-align:middle;"></label>
+          <label class="mono" style="font-size:.8rem;">樹畫到第幾層 <input id="treeDepth" type="range" min="1" max="5" value="5" style="vertical-align:middle;"></label>
           <button class="btn" onclick="treeDraw()">▶ 畫樹</button>
         </div>'''
     side = (_code_card('spiral', SPIRAL, size='.76rem') + '\n      ' + _code_card('tree', TREE, size='.76rem'))
@@ -244,7 +244,7 @@ def w_sierpinski():
 
 def w_hanoi():
     panel = '''<div style="display:flex;justify-content:space-around;align-items:flex-end;min-height:170px;overflow-x:auto;" id="hanoiVis"></div>
-        <div class="status-banner" id="hanoiStatus"><span class="status-icon">›</span><span class="status-text">選盤數後開始。A 是 fromPole、B 是 withPole、C 是 toPole。</span></div>
+        <div class="status-banner" id="hanoiStatus"><span class="status-icon">›</span><span class="status-text">選盤數後開始。和講義的 <code>moveTower(n, "A", "B", "C")</code> 一樣：A 是 fromPole、B 是 toPole、C 是 withPole。</span></div>
         <div class="controls-bar">
           <select id="hanoiN" class="mono" aria-label="盤數" style="padding:.35rem;border-radius:6px;border:1px solid var(--card-border);">
             <option value="3" selected>3 盤</option><option value="4">4 盤</option><option value="5">5 盤</option>

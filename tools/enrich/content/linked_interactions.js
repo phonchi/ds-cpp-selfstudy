@@ -571,10 +571,10 @@ function llDoubleFinal(st) {
 }
 LLB.dIns = k => {
   const frames = [];
-  const vals = k === 'empty' ? [] : [54, 93];
-  const v = {mid: 26, front: 17, empty: 54}[k];
+  const vals = k === 'empty' ? [] : k === 'mid' ? [54, 26, 93] : [54, 93];
+  const v = {mid: 77, front: 17, empty: 54}[k];
   const st = llDouble(vals);
-  const L = k === 'mid' ? 'd0' : 'h', R = st.next[L];
+  const L = k === 'mid' ? 'd1' : 'h', R = st.next[L];
   st.nodes.push({id: 'x', v, col: llN(st, L).col + 0.5, row: 1, cls: 'new'});
   st.ptr = {pred: L, succ: R, newNode: 'x'};
   const nm = id => llN(st, id).v;

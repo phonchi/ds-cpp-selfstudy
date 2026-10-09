@@ -1453,7 +1453,7 @@ false
 
 <section id="stl">
   <div class="section-number">PART 04 · STL 容器</div>
-  <h2>STL 鏈結串列：<code>std::forward_list</code> 與 <code>std::list</code> <span class="sec-badge">cppds §4.7</span></h2>
+  <h2>STL 鏈結串列：<code>std::forward_list</code> 與 <code>std::list</code> <span class="sec-badge">講義 04 延伸</span></h2>
 <!-- gen:linked-stl -->
 <p><code>UnorderedList</code> 與 <code>OrderedList</code> 讓你看清楚指標怎麼接、節點由誰釋放。實際寫程式時，優先使用 STL 容器：它們的解構、複製、迭代器與例外安全都已有明確規範並經過測試。</p>
 <p><code>std::forward_list&lt;T&gt;</code> 是單向串列，提供 <code>push_front</code>、<code>insert_after</code>、<code>erase_after</code>；<code>std::list&lt;T&gt;</code> 是雙向串列，可以用雙向迭代器在指定位置插入或刪除。兩者都不支援依索引的隨機存取。插入與刪除是 $O(1)$ 的前提是：手上已經有對應位置的迭代器。</p>
@@ -1677,7 +1677,7 @@ count = 1</pre></div>
   <div class="ll-canvas" id="dInsVis"></div>
   <div class="ll-legend"><span><i class="ll-sw" style="background:#e9f7ef;border-color:var(--accent3);"></i>新節點或剛改過的指標</span><span><i class="ll-sw" style="background:#eceff1;border-color:var(--muted);"></i>哨兵節點</span></div>
   <div class="status-banner" id="dInsStatus"><span class="status-icon">›</span><span class="status-text">選一個情況，再按 ▶ 播放或 → 單步。</span></div>
-  <div class="controls-bar"><button class="btn ll-case" data-ll="dIns" onclick="llCase('dIns', 'mid', this)">插在 54 與 93 之間</button><button class="btn ll-case" data-ll="dIns" onclick="llCase('dIns', 'front', this)">插在最前面</button><button class="btn ll-case" data-ll="dIns" onclick="llCase('dIns', 'empty', this)">空串列插入</button></div>
+  <div class="controls-bar"><button class="btn ll-case" data-ll="dIns" onclick="llCase('dIns', 'mid', this)">77 插在 26 與 93 之間</button><button class="btn ll-case" data-ll="dIns" onclick="llCase('dIns', 'front', this)">插在最前面</button><button class="btn ll-case" data-ll="dIns" onclick="llCase('dIns', 'empty', this)">空串列插入</button></div>
   <div class="controls-bar ll-play">
     <button class="btn btn-play" onclick="llPlay('dIns')">▶ 播放</button>
     <button class="btn btn-step" onclick="llStep('dIns')">→ 單步</button>
@@ -1836,7 +1836,7 @@ count = 1</pre></div>
 <!-- gen:linked-exercises -->
 <div class="quiz-box">
   <div class="quiz-label">EXERCISE 1 · 走訪計數</div>
-  <p>一條長度 n 的單向串列，<code>size()</code>（用走訪實作）與「取第 k 個元素」的成本分別是？</p>
+  <p>一條長度 n 的單向串列，<code>size()</code>（用走訪實作）與「取第 k 個元素」（k 從 0 起算）的成本分別是？</p>
   <div class="quiz-options" id="ex1Options">
     <div class="quiz-opt" data-correct="true" data-fb="兩者都得從 &lt;code&gt;head&lt;/code&gt; 一步步走；這是串列與陣列的主要差別。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(A)</span> <span class="opt-text">$O(n)$ 與 $O(k)$</span></div><div class="quiz-opt" data-correct="false" data-fb="除非另外維護元素個數，否則 &lt;code&gt;size&lt;/code&gt; 必須走訪；取第 k 個元素也要從 &lt;code&gt;head&lt;/code&gt; 走 k 步。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(B)</span> <span class="opt-text">$O(1)$ 與 $O(1)$</span></div><div class="quiz-opt" data-correct="false" data-fb="依位置取值要從 &lt;code&gt;head&lt;/code&gt; 沿 &lt;code&gt;next&lt;/code&gt; 走到該位置；串列沒有可以直接跳到中間的索引。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(C)</span> <span class="opt-text">$O(n)$ 與 $O(\log k)$</span></div><div class="quiz-opt" data-correct="false" data-fb="這份 &lt;code&gt;size()&lt;/code&gt; 沒有另存個數，要逐一數過 n 個節點，所以是 $O(n)$。" onclick="quizCheck('ex1', this)"><span class="opt-letter">(D)</span> <span class="opt-text">$O(1)$ 與 $O(k)$</span></div>
   </div>
@@ -1959,7 +1959,7 @@ count = 1</pre></div>
   <h2>總覽：各操作的成本 <span class="sec-badge">cppds §4 總覽</span></h2>
 <!-- gen:linked-reference -->
 <p>下表整理本章各操作的成本；最右欄說明成本從哪裡來。</p>
-<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>操作</th><th><code>vector</code>／連續陣列</th><th><code>UnorderedList</code></th><th><code>OrderedList</code></th><th>成本從哪裡來</th></tr></thead><tbody><tr><td><code>isEmpty()</code></td><td>$O(1)$</td><td>$O(1)$</td><td>$O(1)$</td><td>只檢查一個值（陣列看 <code>size</code>，串列看 <code>head</code>）</td></tr><tr><td><code>size()</code></td><td>$O(1)$</td><td>$O(n)$</td><td>$O(n)$</td><td>本課的串列沒有另存個數，要逐一計數</td></tr><tr><td>讀零起始的第 k 項</td><td>$O(1)$</td><td>$O(k+1)$</td><td>$O(k+1)$</td><td>陣列用位址公式；串列要從 <code>head</code> 走 k 步</td></tr><tr><td><code>add(item)</code></td><td>尾端攤銷 $O(1)$；頭插 $O(n)$</td><td>$O(1)$</td><td>最壞 $O(n)$</td><td>無序版插在 <code>head</code>；有序版要先找位置</td></tr><tr><td><code>search(item)</code></td><td>$O(n)$；已排序可二分 $O(\log n)$</td><td>$O(n)$</td><td>$O(n)$，可提早停止</td><td>串列只能依序走訪</td></tr><tr><td><code>remove(item)</code></td><td>$O(n)$</td><td>最壞 $O(n)$</td><td>最壞 $O(n)$</td><td>先找到節點；接線本身是 $O(1)$</td></tr><tr><td>已知前驅時插入或刪除一個節點</td><td>$O(n)$（要搬移）</td><td>$O(1)$</td><td>$O(1)$</td><td>只改固定幾個指標（有序串列另須維持排序）</td></tr><tr><td><code>append(item)</code>（練習）</td><td>攤銷 $O(1)$</td><td>$O(n)$；另存 <code>tail</code> 可 $O(1)$</td><td>不適用</td><td>要先走到最後一個節點</td></tr></tbody></table></div>
+<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>操作</th><th><code>vector</code>／連續陣列</th><th><code>UnorderedList</code></th><th><code>OrderedList</code></th><th>成本從哪裡來</th></tr></thead><tbody><tr><td><code>isEmpty()</code></td><td>$O(1)$</td><td>$O(1)$</td><td>$O(1)$</td><td>只檢查一個值（陣列看 <code>size</code>，串列看 <code>head</code>）</td></tr><tr><td><code>size()</code></td><td>$O(1)$</td><td>$O(n)$</td><td>$O(n)$</td><td>本課的串列沒有另存個數，要逐一計數</td></tr><tr><td>讀第 k 項（k 從 0 起算）</td><td>$O(1)$</td><td>$O(k)$</td><td>$O(k)$</td><td>陣列用位址公式；串列要從 <code>head</code> 走 k 步（k = 0 時直接讀 <code>head</code>）</td></tr><tr><td><code>add(item)</code></td><td>尾端攤銷 $O(1)$；頭插 $O(n)$</td><td>$O(1)$</td><td>最壞 $O(n)$</td><td>無序版插在 <code>head</code>；有序版要先找位置</td></tr><tr><td><code>search(item)</code></td><td>$O(n)$；已排序可二分 $O(\log n)$</td><td>$O(n)$</td><td>$O(n)$，可提早停止</td><td>串列只能依序走訪</td></tr><tr><td><code>remove(item)</code></td><td>$O(n)$</td><td>最壞 $O(n)$</td><td>最壞 $O(n)$</td><td>先找到節點；接線本身是 $O(1)$</td></tr><tr><td>已知前驅時插入或刪除一個節點</td><td>$O(n)$（要搬移）</td><td>$O(1)$</td><td>$O(1)$</td><td>只改固定幾個指標（有序串列另須維持排序）</td></tr><tr><td><code>append(item)</code>（練習）</td><td>攤銷 $O(1)$</td><td>$O(n)$；另存 <code>tail</code> 可 $O(1)$</td><td>不適用</td><td>要先走到最後一個節點</td></tr></tbody></table></div>
 <h3>從表格看取捨</h3>
 <p>同一列由左往右讀，可以看出兩種表示法互補：陣列的優勢在依位置讀取與尾端加入，串列的優勢在頭端或已知位置的插入與刪除。兩者的 <code>search</code> 都要逐一比較；陣列排序後可以二分搜尋，有序串列只能提早停止。選擇資料結構時，先列出程式最常執行的操作，再用這張表比較它們的成本。</p>
 <!-- /gen:linked-reference -->
@@ -2711,10 +2711,10 @@ function llDoubleFinal(st) {
 }
 LLB.dIns = k => {
   const frames = [];
-  const vals = k === 'empty' ? [] : [54, 93];
-  const v = {mid: 26, front: 17, empty: 54}[k];
+  const vals = k === 'empty' ? [] : k === 'mid' ? [54, 26, 93] : [54, 93];
+  const v = {mid: 77, front: 17, empty: 54}[k];
   const st = llDouble(vals);
-  const L = k === 'mid' ? 'd0' : 'h', R = st.next[L];
+  const L = k === 'mid' ? 'd1' : 'h', R = st.next[L];
   st.nodes.push({id: 'x', v, col: llN(st, L).col + 0.5, row: 1, cls: 'new'});
   st.ptr = {pred: L, succ: R, newNode: 'x'};
   const nm = id => llN(st, id).v;

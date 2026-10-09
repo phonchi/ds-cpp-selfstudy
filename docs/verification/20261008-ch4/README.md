@@ -14,6 +14,7 @@
 - `docs/verification/20261003-ch3-ch4/check_content.py`：修正失效 import（見下）
 
 `enrich_linked.py`、`data/flashcards_zh/ch4.json` 沒有改：字卡 11 張已逐一對應講義 Key terms 的 11 個詞。
+- 2026-10-09 讀者審閱修正（詳見 `docs/verification/20261009-reading/fixes-ch4-6.md`）：#stl 的 h2 徽章由「cppds §4.7」改為「講義 04 延伸」。
 
 ## 結果（全部實際執行，紀錄見 `run.log`）
 

@@ -838,7 +838,7 @@ def variants_section():
 {figure('d-ins')}
 {steps("逐步圖：插入 77 的前後", ['d-ins-before', 'd-ins-after'])}
 <p>四行的順序有講究：前兩行只設定新節點自己的 prev 與 next，這時兩個鄰居都還沒改，原本的串列完整無缺；後兩行才讓 pred 的 next 與 succ 的 prev 改指新節點。下面的動畫照這四行逐步執行：</p>
-{widget("dIns", [("mid", "插在 54 與 93 之間"), ("front", "插在最前面"), ("empty", "空串列插入")],
+{widget("dIns", [("mid", "77 插在 26 與 93 之間"), ("front", "插在最前面"), ("empty", "空串列插入")],
         "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · 插入四步", D_INSERT)], legend=("new", "sent"))}
 {lecture_program("完整程式：雙向串列的插入", "以 header、trailer 哨兵建立雙向串列並插入", DLL_INSERT, OUT['dll_insert'], note="每一行先由 header 往後印，直線後再由 trailer 往前印；兩個方向的結果正好相反，表示 next 與 prev 都接對了。第一行只有直線，表示空串列：header 與 trailer 直接相連。插在最前面時，pred 就是 header，不需要特別處理。")}
 <h3>刪除：讓兩個鄰居直接相連</h3>
@@ -852,7 +852,7 @@ def variants_section():
 
 
 def exercises_section():
-    ex1 = quiz('ex1', 'EXERCISE 1 · 走訪計數', '一條長度 n 的單向串列，size()（用走訪實作）與「取第 k 個元素」的成本分別是？', [
+    ex1 = quiz('ex1', 'EXERCISE 1 · 走訪計數', '一條長度 n 的單向串列，size()（用走訪實作）與「取第 k 個元素」（k 從 0 起算）的成本分別是？', [
         (True, '$O(n)$ 與 $O(k)$', '兩者都得從 head 一步步走；這是串列與陣列的主要差別。'),
         (False, '$O(1)$ 與 $O(1)$', '除非另外維護元素個數，否則 size 必須走訪；取第 k 個元素也要從 head 走 k 步。'),
         (False, '$O(n)$ 與 $O(\\log k)$', '依位置取值要從 head 沿 next 走到該位置；串列沒有可以直接跳到中間的索引。'),
@@ -906,7 +906,7 @@ def reference_section():
     rows = table(['操作', 'vector／連續陣列', 'UnorderedList', 'OrderedList', '成本從哪裡來'], [
         ('isEmpty()', '$O(1)$', '$O(1)$', '$O(1)$', '只檢查一個值（陣列看 size，串列看 head）'),
         ('size()', '$O(1)$', '$O(n)$', '$O(n)$', '本課的串列沒有另存個數，要逐一計數'),
-        ('讀零起始的第 k 項', '$O(1)$', '$O(k+1)$', '$O(k+1)$', '陣列用位址公式；串列要從 head 走 k 步'),
+        ('讀第 k 項（k 從 0 起算）', '$O(1)$', '$O(k)$', '$O(k)$', '陣列用位址公式；串列要從 head 走 k 步（k = 0 時直接讀 head）'),
         ('add(item)', '尾端攤銷 $O(1)$；頭插 $O(n)$', '$O(1)$', '最壞 $O(n)$', '無序版插在 head；有序版要先找位置'),
         ('search(item)', '$O(n)$；已排序可二分 $O(\\log n)$', '$O(n)$', '$O(n)$，可提早停止', '串列只能依序走訪'),
         ('remove(item)', '$O(n)$', '最壞 $O(n)$', '最壞 $O(n)$', '先找到節點；接線本身是 $O(1)$'),

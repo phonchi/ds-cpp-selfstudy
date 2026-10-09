@@ -16,6 +16,7 @@
 - `data/flashcards_zh/ch6.json`：7 → 12 張（原 7 張已對應講義 Key terms；新增呼叫堆疊、累加變數、碎形深度、回溯、短路求值）。
 
 未呼叫 `chapter_math.render_math`（公式直接寫成 MathJax）與 `course_recordings.apply_recording`（無第 6 章條目）。`teaching_copy.EDITS['recursion']` 維持空清單。
+  - 2026-10-09 讀者審閱修正（詳見 `docs/verification/20261009-reading/fixes-ch4-6.md`）：#viz、#sierpinski、#dp 徽章「講義補充」改「課堂略過・自學」，使用方式第 ④ 點重寫兩種標示的定義與字卡說明；主 `<script>` 的 spiral／tree 改用講義參數 `spiral(turtle, 100)`、`tree(75)`／`branchLen - 15` 並按比例放大；`hanoiFrames` 改為 `moveTower(n, "A", "B", "C")`（A→B、借 C）。
 
 ## 結果（全部實際執行，紀錄見 `run.log`）
 

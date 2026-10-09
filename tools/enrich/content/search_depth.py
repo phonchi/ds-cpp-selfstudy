@@ -202,7 +202,7 @@ def hashing():
 <p>這個函數有個缺點：字母相同、順序不同的字（anagram），例如 "cat"、"act"、"tac"，雜湊值一定相同。改善方法是用字元的位置當權重：</p>
 {figure('stringhash2')}
 {fold('把位置權重寫成程式', card('hashStr 與加權版 hashStrWeighted', HASH_STR_WEIGHTED, kind='run', stdout=OUT['hash_str_w'], show_out=True, out_label='預期輸出（字：一般版 加權版）', note='三個字的一般版都是 4；加權版分別是 3、5、2，不再撞在同一格。'))}
-<p><strong>雜湊函數本身必須有效率</strong>，不能讓計算雜湊值變成儲存與搜尋中最花時間的部分；否則還不如直接用前面的搜尋方法。</p>
+<p>雜湊函數本身<strong>必須有效率</strong>，不能讓計算雜湊值變成儲存與搜尋中最花時間的部分；否則還不如直接用前面的搜尋方法。</p>
 '''
     probing = f'''<p>回到碰撞的問題。兩個元素雜湊到同一個 slot 時，需要有系統的方法把第二個元素放進表裡，這個過程稱為<strong>碰撞解決</strong>（collision resolution）。簡單的做法是從原本的雜湊位置開始，一格一格往後找，直到碰到第一個空的 slot；走到表尾就繞回開頭，才能涵蓋整張表。</p>
 <p>這種「找下一個空位」的方法稱為<strong>開放定址</strong>（open addressing）；一次看一格的版本稱為<strong>線性探查</strong>（linear probing）。把 54, 26, 93, 17, 77, 31, 44, 55, 20 依序放進表裡：前六個直接落在自己的雜湊位置，接著 44 想進 slot 0 卻撞到 77，往後找到 slot 1；55 與 20 也一樣往後找：</p>
@@ -216,7 +216,7 @@ def hashing():
 {program("講義完整程式：用線性探查建表", "講義 07 · 線性探查", 'linear_probe',
          out_label='預期輸出（slot:元素，-1 是空槽）',
          note="結果和上面的圖一致：44、55、20 因為碰撞落在 1、2、3，slot 7、8 仍是空的。")}
-<p><strong>平方探查</strong>（quadratic probing）是線性探查的變形：重新雜湊時不加固定的格數，而是依序加 1、4、9……。第一個雜湊值是 $h$ 時，接著試的位置是 $h+1$、$h+4$、$h+9$ 等，跳的距離是連續的完全平方數。</p>
+<p><strong>平方探查</strong>（quadratic probing）是線性探查的變形：重新雜湊時依序加 1、4、9……，不加固定的格數。第一個雜湊值是 $h$ 時，接著試的位置是 $h+1$、$h+4$、$h+9$ 等，跳的距離是連續的完全平方數。</p>
 {figure('quadratic')}
 <p>另一種處理碰撞的方法是<strong>鏈結法</strong>（chaining）：每個 slot 存一個集合（鏈），同一個 slot 可以放很多個元素。碰撞時，元素一樣放在自己的雜湊位置；只是同一個位置的元素越多，在那個集合裡找東西就越費時。</p>
 {figure('chaining')}
@@ -232,7 +232,7 @@ def hashing():
 <p class="dx-note">第一個值 105 出現在 slot 0：105 的雜湊值是 6，依序試 7、10、4 都有資料，最後落在 (6 + 16) % 11 = 0。99 的雜湊值 0 已被 105 占用，依序試 1、4、9，落在 (0 + 16) % 11 = 5。和線性探查的測驗題比較，同一組鍵的落點不同。</p>
 '''
     frag_note = ('<p><code>hashFunction</code> 是簡單的餘數法，碰撞時用「加 1」的線性探查。<code>put</code> 假設最後一定會找到空位；'
-                 '<strong>如果某個非空 slot 裡已經是同一個 key，就用新的值取代舊的值</strong>。</p>'
+                 '如果某個非空 slot 裡已經是同一個 key，就<strong>用新的值取代舊的值</strong>。</p>'
                  '<p><code>get</code> 先算出起始的雜湊值，不在那一格就用 <code>rehash</code> 找下一個可能的位置。'
                  '迴圈裡檢查 <code>position == startSlot</code>，確保繞回起點時就停止：所有可能的 slot 都看過了，這個 key 一定不在表中。</p>')
     map_html = f'''<p>Map ADT 是由 key 與 data 的對應組成的無序集合。<code>HashTable</code> 用兩個平行的 vector 實作：<code>slots</code> 存整數 key，<code>data</code> 在相同的索引存對應的字串。<code>-1</code> 代表空槽，所以這個教學版保留 <code>-1</code>，不接受它當作 key。</p>
@@ -312,14 +312,14 @@ def insertion():
          headers=['insertionSort'], header_label='pythonds3/cppds/sorting.hpp · insertionSort',
          out_label='預期輸出（每次插入前一行，最後一行是排序結果）',
          note="每一行左邊排好的部分多一個元素。兩個 5 與兩個 9 的先後順序沒有改變：比較用的是嚴格的 <code>&gt;</code>，相等的元素不會被移到彼此前面。")}
-<p><strong>一次移動大約只有一次交換三分之一的工作量</strong>，因為移動只做一次指定。在實測中，插入排序的表現相當好。</p>
+<p>一次移動的工作量大約只有一次交換的三分之一，因為移動只做一次指定。在實測中，插入排序的表現相當好。</p>
 '''
     return fill('insertion', {'insertion-intro': intro, 'insertion-end': end})
 
 
 # ---------------------------------------------------------------- P07
 def shell():
-    intro = f'''<p>希爾排序又稱<strong>遞減增量排序</strong>（diminishing increment sort）。它不是把相鄰的元素分成子清單，而是用一個增量 $i$（稱為 <strong>gap</strong>），把相隔 $i$ 個位置的元素組成一個子清單。增量為 3 時有三個子清單，各自用插入排序排好：</p>
+    intro = f'''<p>希爾排序又稱<strong>遞減增量排序</strong>（diminishing increment sort）。它用一個增量 $i$（稱為 <strong>gap</strong>）切子清單：子清單裡的元素彼此相隔 $i$ 個位置，不是相鄰的元素。增量為 3 時有三個子清單，各自用插入排序排好：</p>
 {figure('shellsortA')}
 {figure('shellsortB')}
 <p>子清單排好後，元素已經移到靠近最終位置的地方。最後用增量 1，也就是一般的插入排序收尾；因為前面已經做過子清單排序，需要的移動次數少很多，這個例子只要再 4 次移動。增量怎麼選，是希爾排序最有特色的地方。</p>

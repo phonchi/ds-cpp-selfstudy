@@ -4,15 +4,15 @@ tools/enrich/enrich_trees.py."""
 
 LEGACY = {}
 
-LEGACY['prologue'] = r'''  <p>樹（tree）這個資料結構出現在作業系統、編譯器、資料庫、網路路由、機器學習等幾乎每一個領域。不同於我們前面學過的線性結構（list、stack、queue），樹是<strong>階層式</strong>的：一個節點可以連到多個子節點，整體組成一個由根（root）往下分支的層次。</p>
+LEGACY['prologue'] = r'''  <p>樹（tree）出現在作業系統、編譯器、資料庫、網路路由、機器學習等許多領域。和前面學過的線性結構（list、stack、queue）不同，樹是<strong>階層式</strong>的：一個節點可以連到多個子節點，整體組成一個由根（root）往下分支的層次。</p>
 {{slot:examples}}
 
   <div class="info-box">
-    <span class="info-label">本章你會學到的技術</span>
+    <span class="info-label">本章內容</span>
     <strong>1. 抽象結構：</strong>樹的術語、Tree ADT、用 nodes &amp; references 實作。<br>
-    <strong>2. 應用：</strong>解析樹（parse tree）將數學表達式轉成可遞迴計算的結構。<br>
-    <strong>3. 三種走訪：</strong>preorder、inorder、postorder，全部都是遞迴的優雅實作。<br>
-    <strong>4. 兩個經典樹型 ADT：</strong>用陣列實作的 <strong>Binary Heap</strong>（優先佇列）與用節點實作的 <strong>Binary Search Tree</strong>（map）。<br>
+    <strong>2. 應用：</strong>解析樹（parse tree）把數學運算式轉成可遞迴計算的結構。<br>
+    <strong>3. 三種走訪：</strong>preorder、inorder、postorder，都用遞迴實作。<br>
+    <strong>4. 兩個樹型 ADT：</strong>用陣列實作的 <strong>Binary Heap</strong>（優先佇列）與用節點實作的 <strong>Binary Search Tree</strong>（map）。<br>
     <strong>5. 平衡的代價：</strong>BST 在最差情況退化為 $O(n)$，AVL 樹用旋轉維持 $O(\log n)$ 上界。
   </div>
 
@@ -27,11 +27,11 @@ LEGACY['prologue'] = r'''  <p>樹（tree）這個資料結構出現在作業系�
     <span class="legend-item"><span class="lg-swatch" style="background:#e67e22"></span>路徑</span>
   </div>
 
-  <p>每一節都採相同的版面：左邊是<strong>視覺化畫布與控制列</strong>，右邊是<strong>即時統計、虛擬碼與複雜度分析</strong>。請大膽地按 <span class="pill pill-green">▶ 開始</span> 觀察完整動畫，或按 <span class="pill pill-blue">→ 單步</span> 一格一格觀察。</p>
+  <p>每一節都採相同的版面：左邊是<strong>視覺化畫布與控制列</strong>，右邊是<strong>即時統計、虛擬碼與複雜度分析</strong>。按 <span class="pill pill-green">▶ 開始</span> 看完整動畫，或按 <span class="pill pill-blue">→ 單步</span> 一格一格觀察。</p>
 '''
 
 LEGACY['vocabulary'] = r'''{{slot:terms}}
-  <p>在進入演算法之前，我們先把語言對齊。把滑鼠移到下方互動樹的任何一個節點上，<strong>右側面板會即時顯示該節點的所有屬性</strong>；點擊節點則會高亮它的「祖先路徑（path-to-root）」與「子樹（subtree）」。</p>
+  <p>進入演算法之前，先統一用語。把滑鼠移到下方互動樹的任何一個節點上，<strong>右側面板會即時顯示該節點的所有屬性</strong>；點擊節點則會高亮它的「祖先路徑（path-to-root）」與「子樹（subtree）」。</p>
 
   <div class="viz-layout">
     <div>
@@ -76,15 +76,15 @@ LEGACY['vocabulary'] = r'''{{slot:terms}}
 
   <div class="info-box">
     <span class="info-label">兩個等價的定義</span>
-    <strong>定義一（集合式）：</strong>樹是節點集合 $V$ 與邊集合 $E$ 的二元組，滿足：(1) 恰有一個 root，(2) 除 root 外每個節點恰有一個 incoming edge，(3) 從 root 到每個節點存在唯一路徑。<br>
+    <strong>定義一（集合式）：</strong>樹是節點集合 $V$ 與邊集合 $E$ 的二元組，滿足：（1）恰有一個 root，（2）除 root 外每個節點恰有一個 incoming edge，（3）從 root 到每個節點存在唯一路徑。<br>
     <strong>定義二（遞迴式）：</strong>樹要嘛是空的；要嘛由一個 root 連接到零或多個 subtree，每個 subtree 本身也是一棵樹。
     <br><br>
-    遞迴定義對寫程式特別友善：它直接告訴你 base case（空樹）和 recursive step（處理 root + 遞迴處理子樹），這也是後面所有走訪、評估、刪除演算法的骨架。
+    遞迴定義對寫程式特別友善：它直接告訴你 base case（空樹）和 recursive step（處理 root + 遞迴處理子樹），這也是後面所有走訪、求值、刪除演算法的骨架。
   </div>
 {{slot:defs}}
 
   <h3>二元樹（Binary Tree）</h3>
-  <p>本章我們專注於每個節點最多有<strong>兩個子節點</strong>的樹，稱為二元樹。我們特別命名為 <code>leftChild</code> 和 <code>rightChild</code>，這個順序在解析樹（運算子的左右運算元）和 BST（小的在左、大的在右）中是有語義的。</p>
+  <p>本章只討論每個節點最多有<strong>兩個子節點</strong>的樹，稱為二元樹。兩個子節點分別叫 <code>leftChild</code> 和 <code>rightChild</code>，左右的順序在解析樹（運算子的左右運算元）和 BST（小的在左、大的在右）中都有意義。</p>
 
 '''
 
@@ -162,10 +162,10 @@ LEGACY['nodes-refs'] = r'''  <p>本課程用 <strong>nodes and references</stron
 '''
 
 LEGACY['parse-tree'] = r'''{{slot:intro}}
-  <p>對於完全括號化（fully parenthesized）的表達式，例如 <code>((7 + 3) * (5 - 2))</code>，我們可以把它變成一棵樹：<strong>運算子放在內部節點、運算元放在葉子上</strong>。樹的階層自然就反映了運算優先序：評估時只要遞迴地<em>先算左子樹、再算右子樹、最後套用 root 的運算子</em>。</p>
+  <p>完全括號化（fully parenthesized）的運算式，例如 <code>((7 + 3) * (5 - 2))</code>，可以變成一棵樹：<strong>運算子放在內部節點、運算元放在葉子上</strong>。樹的階層反映了運算的優先順序：求值時只要遞迴地<em>先算左子樹、再算右子樹、最後套用 root 的運算子</em>。</p>
 {{slot:tree}}
 
-  <p>建構演算法用一個 <strong>stack 追蹤 parent</strong>：當我們往下走進一個 child（看到 <code>(</code> 或運算子）就把當前節點 push 進 stack；當需要回到 parent（看到 <code>)</code> 或讀完一個數字）就 pop。</p>
+  <p>建構演算法用一個 <strong>stack 追蹤 parent</strong>：往下走進一個 child（看到 <code>(</code> 或運算子）時，把目前節點 push 進 stack；需要回到 parent（看到 <code>)</code> 或讀完一個數字）時就 pop。</p>
 {{slot:build}}
 
   <div class="viz-layout">
@@ -228,8 +228,8 @@ LEGACY['parse-tree'] = r'''{{slot:intro}}
   </div>
 
   <div class="info-box green">
-    <span class="info-label">為什麼評估要用 postorder？</span>
-    要計算一個運算子節點的值，必須先有<strong>左右兩個子樹的值</strong>。這正好符合 <strong>postorder（後序）</strong>的訪問順序：先左子樹、再右子樹、最後 root。實際上<code>evaluate</code> 函式就是 postorder 走訪 + 在 root 執行運算：解析樹的計算演算法就是走訪演算法的特例。
+    <span class="info-label">為什麼求值要用 postorder？</span>
+    要計算一個運算子節點的值，必須先有<strong>左右兩個子樹的值</strong>。這正好是 <strong>postorder（後序）</strong>的拜訪順序：先左子樹、再右子樹、最後 root。<code>evaluate</code> 其實就是 postorder 走訪，再加上在 root 執行運算；解析樹的求值是走訪演算法的一個特例。
   </div>
 {{slot:eval}}
 '''
@@ -242,7 +242,7 @@ LEGACY['traversals'] = r'''  <p>「走訪」（traversal）就是按某種順序
     <strong>Inorder（中序）：</strong>左子樹 → root → 右子樹<br>
     <strong>Postorder（後序）：</strong>左子樹 → 右子樹 → root
     <br><br>
-    寫成程式碼<strong>幾乎是逐字翻譯</strong>定義，這正是樹的遞迴定義帶來的優雅。
+    寫成程式碼時，幾乎就是把定義<strong>逐字翻譯</strong>，因為樹本身就是遞迴定義的。
   </div>
 {{slot:book}}
 
@@ -300,8 +300,8 @@ LEGACY['traversals'] = r'''  <p>「走訪」（traversal）就是按某種順序
         <div class="ic-title">用途</div>
         <div style="font-size:.83rem;line-height:1.55;">
           <strong>Preorder</strong>：複製樹、序列化、目錄列表（先列父再進子）。<br>
-          <strong>Inorder</strong>：BST 上得到<strong>排序輸出</strong>；解析樹上得到中序表達式。<br>
-          <strong>Postorder</strong>：解析樹的<strong>表達式評估</strong>、刪除整棵樹（先刪 child 才能釋放 parent）。
+          <strong>Inorder</strong>：BST 上得到<strong>排序輸出</strong>；解析樹上得到中序運算式。<br>
+          <strong>Postorder</strong>：解析樹的<strong>運算式求值</strong>、刪除整棵樹（先刪 child 才能釋放 parent）。
         </div>
       </div>
     </div>
@@ -310,16 +310,16 @@ LEGACY['traversals'] = r'''  <p>「走訪」（traversal）就是按某種順序
   <div class="info-box warm">
     <span class="info-label">小實驗：對解析樹 (3+(4*5)) 做三種走訪</span>
     <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.86rem;margin-top:.4rem;">
-      <tr><td style="padding:.3rem;width:35%;"><strong>Preorder</strong></td><td>+ 3 * 4 5</td><td style="color:var(--muted);">前綴表達式</td></tr>
-      <tr style="background:#fef0e7;"><td style="padding:.3rem;"><strong>Inorder</strong></td><td>3 + 4 * 5</td><td style="color:var(--muted);">中序（沒括號會失精度）</td></tr>
-      <tr><td style="padding:.3rem;"><strong>Postorder</strong></td><td>3 4 5 * +</td><td style="color:var(--muted);">後綴表達式</td></tr>
+      <tr><td style="padding:.3rem;width:35%;"><strong>Preorder</strong></td><td>+ 3 * 4 5</td><td style="color:var(--muted);">前序（prefix）形式</td></tr>
+      <tr style="background:#fef0e7;"><td style="padding:.3rem;"><strong>Inorder</strong></td><td>3 + 4 * 5</td><td style="color:var(--muted);">中序（沒有括號，看不出運算順序）</td></tr>
+      <tr><td style="padding:.3rem;"><strong>Postorder</strong></td><td>3 4 5 * +</td><td style="color:var(--muted);">後序（postfix）形式</td></tr>
     </table></div>
-    這也說明了為什麼<strong>後綴表達式（RPN）</strong>能用 stack 直接計算：postorder 的順序就是「邊計算邊累積」的最佳順序。
+    這也是<strong>後序式（RPN）</strong>能用 stack 直接計算的原因：照 postorder 的順序，可以一邊讀一邊算。
   </div>
 {{slot:printexp}}
 '''
 
-LEGACY['heap'] = r'''  <p>優先佇列每次取出優先級最高的元素。若用 <code>vector</code>，維持排序會讓取最小為 $O(1)$、插入因搬移而為 $O(n)$；不排序則插入 $O(1)$、尋找並刪除最小值 $O(n)$。<strong>Binary heap</strong> 讓 insert 與 delete-min 都是 $O(\log n)$。</p>
+LEGACY['heap'] = r'''  <p>優先佇列每次取出優先權最高的元素。若用 <code>vector</code>，維持排序會讓取最小為 $O(1)$、插入因搬移而為 $O(n)$；不排序則插入 $O(1)$、尋找並刪除最小值 $O(n)$。<strong>Binary heap</strong> 讓 insert 與 delete-min 都是 $O(\log n)$。</p>
 {{slot:ops}}
 
   <div class="info-box">
@@ -406,7 +406,7 @@ LEGACY['heap'] = r'''  <p>優先佇列每次取出優先級最高的元素。若
 {{slot:perc}}
   <div class="info-box green">
     <span class="info-label">為什麼 heapify 是 O(n) 而不是 O(n log n)？</span>
-    Naïve 想法是對 $n$ 個元素逐一 <code>insert</code>，每個 $O(\log n)$，總共 $O(n \log n)$。但 <code>heapify</code> 從<strong>陣列中間 $\lfloor n/2 \rfloor - 1$ 倒著做 perc_down</strong>：底層大量節點高度只有 0 或 1，往下移的成本很小。嚴謹分析會用 $\sum_{h=0}^{\log n} \frac{n}{2^{h+1}} \cdot h = O(n)$。直觀上：<strong>樹底層節點多但移動少，頂層節點少但移動多，兩者相乘的總和是 $O(n)$</strong>。
+    直接的做法是對 $n$ 個元素逐一 <code>insert</code>，每個 $O(\log n)$，總共 $O(n \log n)$。但 <code>heapify</code> 從<strong>陣列中間 $\lfloor n/2 \rfloor - 1$ 倒著做 perc_down</strong>：底層大量節點高度只有 0 或 1，往下移的成本很小。嚴謹分析會用 $\sum_{h=0}^{\log n} \frac{n}{2^{h+1}} \cdot h = O(n)$。直觀上：<strong>樹底層節點多但移動少，頂層節點少但移動多，兩者相乘的總和是 $O(n)$</strong>。
   </div>
 {{slot:build}}
 
@@ -418,19 +418,19 @@ LEGACY['heap'] = r'''  <p>優先佇列每次取出優先級最高的元素。若
 
 '''
 
-LEGACY['bst'] = r'''  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>unordered_map</code>）。我們已經學過兩種實作：<strong>排序陣列 + binary search</strong>（搜尋 $O(\log n)$ 但插入 $O(n)$）和<strong>雜湊表</strong>（平均 $O(1)$ 但有衝突風險、無排序）。BST 提供第三條路。</p>
+LEGACY['bst'] = r'''  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>unordered_map</code>）。我們已經學過兩種實作：<strong>排序陣列 + binary search</strong>（搜尋 $O(\log n)$ 但插入 $O(n)$）和<strong>雜湊表</strong>（平均 $O(1)$，但有碰撞風險、鍵沒有順序）。BST 提供第三條路。</p>
 {{slot:ops}}
 
   <div class="info-box">
-    <span class="info-label">Map 與 ownership 契約</span>
-    <code>put(key, value)</code> 遇到重複 key 時<strong>更新 value、不增加 size</strong>。<code>remove()</code> 釋放被移除節點；整棵樹具備 destructor、deep copy 與 move 行為，避免兩個物件共同擁有同一批 pointers。
-    平衡樹子類別透過 protected virtual <code>insertOrAssign()</code> hook 延伸插入，不繞過公開 <code>put()</code> 的 size 契約。
+    <span class="info-label">Map 的規則與節點的擁有權</span>
+    <code>put(key, value)</code> 遇到重複的 key 時<strong>更新 value、不增加 size</strong>。<code>remove()</code> 會釋放被移除的節點；整棵樹有 destructor、deep copy 與 move，避免兩個物件共用同一批節點。
+    平衡樹的子類別透過 protected virtual 的 <code>insertOrAssign()</code> 擴充插入，不會繞過公開的 <code>put()</code> 對 size 的計算。
   </div>
 
   <div class="info-box">
     <span class="info-label">BST 性質（BST property）</span>
     對樹中每個節點 $x$：<strong>left subtree 內所有 key &lt; $x$.key &lt; right subtree 內所有 key</strong>。<br>
-    這個簡單的性質導致兩個強大結果：<br>
+    這個性質帶來兩個結果：<br>
     1. 從 root 出發比較 key，每一步會<strong>排除整個不可能的子樹，但不保證剛好一半</strong>；成本是 $O(h)$，平衡時才是 $O(\log n)$。<br>
     2. 對 BST 做 <strong>inorder traversal 直接得到排序的 key 序列</strong>。
   </div>
@@ -507,7 +507,7 @@ LEGACY['bst'] = r'''  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>
 
   <div class="info-box warm">
     <span class="info-label">build BST 的順序很重要</span>
-    把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵漂亮的「平衡」BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。這就是下一節要解決的問題。
+    把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵還算平衡的 BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。這就是下一節要解決的問題。
   </div>
 {{slot:get}}
 
@@ -519,7 +519,7 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
     <span class="info-label">三種刪除情境</span>
     <strong>Case 1：要刪的是葉節點。</strong>直接把 parent 的指標設為 <code>NULL</code>。最簡單。<br>
     <strong>Case 2：要刪的節點只有<em>一個</em>子節點。</strong>把這個 child「提升」上來取代被刪節點。<br>
-    <strong>Case 3：要刪的節點有<em>兩個</em>子節點。</strong>找它的 <strong>in-order successor（中序後繼）</strong>（也就是右子樹中 key 最小的節點），把它的 key 拷貝到當前節點，然後從原位置「splice out」 successor。
+    <strong>Case 3：要刪的節點有<em>兩個</em>子節點。</strong>找它的 <strong>in-order successor（中序後繼）</strong>（也就是右子樹中 key 最小的節點），把它的 key 複製到當前節點，然後從原位置「splice out」successor。
   </div>
 {{slot:cases}}
 
@@ -647,7 +647,7 @@ LEGACY['bst-analysis'] = r'''  <p>BST 的 <code>put</code>、<code>get</code>、
     <span class="info-label">高度與節點數的關係</span>
     完美平衡二元樹（每層填滿）有 $2^{h+1}-1$ 個節點，所以 $h \approx \log_2 n$。<br>
     若 keys 隨機插入，高度期望也是 $O(\log n)$，因為大概一半 key 進左、一半進右。<br>
-    但<strong>最差情況 $h = n - 1$</strong>：把已排序 keys 依序插入就會發生：每個新節點都比當前所有節點大（或小），永遠落到右（或左）這一支，BST 退化成連結串列。
+    但<strong>最差情況 $h = n - 1$</strong>：把已排序 keys 依序插入就會發生：每個新節點都比當前所有節點大（或小），永遠落到右（或左）這一支，BST 退化成鏈結串列。
   </div>
 {{slot:skew}}
 
@@ -706,12 +706,12 @@ LEGACY['bst-analysis'] = r'''  <p>BST 的 <code>put</code>、<code>get</code>、
   </div>
 '''
 
-LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。AVL 樹（Adelson-Velsky 和 Landis，1962）讓樹在每次插入/刪除時<strong>自動旋轉</strong>，保證它一直是「近似平衡」。代價只是常數因子的開銷。</p>
+LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。AVL 樹（Adelson-Velsky 和 Landis，1962）讓樹在每次插入／刪除時<strong>自動旋轉</strong>，保證它一直是「近似平衡」。代價只是常數因子的開銷。</p>
 
   <div class="info-box">
     <span class="info-label">balance factor（平衡因子）</span>
     對每個節點 $x$，定義 $\text{bf}(x) = \text{height}(x.\text{left}) - \text{height}(x.\text{right})$。<br>
-    AVL 規則：<strong>每個節點的 bf 必須是 $-1$、$0$ 或 $+1$</strong>。任何超出這個範圍的節點觸發旋轉來「修正」。<br>
+    AVL 規則：<strong>每個節點的 bf 必須是 $-1$、$0$ 或 $+1$</strong>。超出這個範圍的節點會觸發旋轉來修正。<br>
     bf $&gt; 0$：left-heavy；bf $&lt; 0$：right-heavy；bf $= 0$：完美平衡。
   </div>
 {{slot:bf}}
@@ -933,7 +933,6 @@ LEGACY['summary'] = r'''  <p>過去兩章我們學了四種實作 map ADT 的方
 
 {{slot:real}}
 
-  <p style="margin-top:1.5rem;text-align:center;font-style:italic;color:var(--muted);">「<strong>看到階層、想到遞迴、寫成樹</strong>」：這是這一章最值得帶走的思考方式。</p>
 '''
 
 # Folded （補充） parts split off the sections above.
@@ -954,13 +953,13 @@ LEGACY['lol'] = r'''  <p>巢狀串列版把「根的值」放在第 0 格、左�
   所以我們直接採用 nodes and references 表示法（對 C++ 來說本來就更自然）。</p>
 '''
 
-LEGACY['real'] = r'''  <p>這一章你學到的概念是現代軟體系統的基石：</p>
+LEGACY['real'] = r'''  <p>本章的樹結構在實際系統中很常見：</p>
   <ul style="margin-left:1.5rem;line-height:1.9;">
     <li><strong>檔案系統</strong>（樹）：每個目錄一個節點，檔案是葉子。</li>
     <li><strong>編譯器與直譯器</strong>（解析樹 / AST）：源碼解析成抽象語法樹，遞迴走訪做型別檢查、最佳化、產生機器碼。</li>
     <li><strong>資料庫索引</strong>（B-tree / B+tree）：BST 的多路推廣，每個節點容納上百個 keys，是磁碟導向的設計。</li>
     <li><strong>路由表 / IP lookup</strong>（Trie）：另一種樹型結構，依字元逐層走訪。</li>
-    <li><strong>Heap 在演算法中的核心地位</strong>：Dijkstra 最短路徑、Huffman 編碼、$k$ 路合併、top-$k$ 問題全都靠 priority queue。</li>
+    <li><strong>Heap 與優先佇列</strong>：Dijkstra 最短路徑、Huffman 編碼、$k$ 路合併、top-$k$ 問題都用到 priority queue。</li>
   </ul>
 '''
 

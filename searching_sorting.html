@@ -517,7 +517,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="section-number">PROLOGUE · 開場</div>
   <h2>先看懂：演算法分析的「比較」與「目標」 <span class="sec-badge">cppds §6.1–6.2</span></h2>
 <!-- gen:search-prologue -->
-  <p>本章探討兩件事：<strong>搜尋（searching）</strong> 從一堆資料中找出特定元素，<strong>排序（sorting）</strong> 把資料重新排列成有序狀態。我們會從最樸素的「逐一比對」開始，逐步揭開背後的演算法，並且<strong>用「比較次數」當作分析的單位</strong>。</p>
+  <p>本章談兩件事：<strong>搜尋</strong>（searching）是從一堆資料中找出特定元素，<strong>排序</strong>（sorting）是把資料重新排成有序狀態。我們從最基本的「逐一比對」開始，再介紹其他演算法；分析時一律以「比較次數」當單位。</p>
 <h3 id="dx-srch">先用標準函式庫：std::find</h3>
 <p><strong>搜尋</strong>（searching）是在一群資料中找出特定元素的過程。最常見的問法是「這個值在不在裡面」，答案是 <code>true</code> 或 <code>false</code>。</p>
 <p>C++ 做一般的線性成員檢查，可以用 <code>&lt;algorithm&gt;</code> 的 <code>std::find(first, last, item)</code>：它從 <code>first</code> 一路往後比到 <code>last</code> 之前，找到就回傳指向那個元素的迭代器，找不到就回傳 <code>last</code>。所以對 <code>vector&lt;int&gt; aList</code>，判斷式寫成 <code>find(aList.begin(), aList.end(), item) != aList.end()</code>。</p>
@@ -554,7 +554,7 @@ true</pre></div><p class="dx-note">15 不在 {3, 5, 2, 4, 1} 裡，find 回傳 v
     <span class="legend-item"><span class="lg-swatch" style="background:var(--bar-found)"></span>找到目標</span>
   </div>
 
-  <p>每一節都採用相同的版面：左邊是「視覺化畫布」與「控制列」，右邊是「即時統計」、「對應虛擬碼（pseudo-code）」與「複雜度分析」。請大膽地按 <span class="pill pill-green">▶ 開始</span> 看完整動畫，或按 <span class="pill pill-blue">→ 單步</span> 一格一格觀察。</p>
+  <p>每一節都採用相同的版面：左邊是「視覺化畫布」與「控制列」，右邊是「即時統計」、「對應虛擬碼（pseudo-code）」與「複雜度分析」。按 <span class="pill pill-green">▶ 開始</span> 看完整動畫，或按 <span class="pill pill-blue">→ 單步</span> 一格一格觀察。</p>
 <!-- /gen:search-prologue -->
 </section>
 
@@ -683,7 +683,7 @@ false</pre></div><p class="dx-note">44 在索引 4 找到；找 50 時比到 54 
 
 
   <div class="info-box green" style="margin-top:.8rem;">
-    <span class="info-label">關鍵差異對比表</span>
+    <span class="info-label">比較次數對照表</span>
     <div style="font-size:.86rem;line-height:1.65;margin-top:.4rem;">
       <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.78rem;">
         <thead><tr><th style="text-align:left;padding:.3rem;">情境</th><th style="padding:.3rem;">最佳</th><th style="padding:.3rem;">最差</th><th style="padding:.3rem;">平均</th></tr></thead>
@@ -694,14 +694,14 @@ false</pre></div><p class="dx-note">44 在索引 4 找到；找 50 時比到 54 
         </tbody>
       </table></div>
     </div>
-    結論：兩種版本的<strong>大 $O$ 都是 $O(n)$</strong>，有序版只是<strong>常數變小</strong>。要真正快，得換演算法 → 二分搜尋。
+    兩種版本的大 $O$ 都是 $O(n)$，有序版只是<strong>常數變小</strong>。要更快就得換演算法，也就是下一節的二分搜尋。
   </div>
 <div class="sq-item srch-quiz" id="quiz-sequential">
     <div class="sq-q"><span class="sq-num">QUIZ</span>對有序串列 [3, 5, 6, 8, 11, 12, 14, 15, 17, 18] 做循序搜尋，要判定 key 13 不在裡面，需要幾次比較？</div>
     <div class="sq-opts">
       <button class="sq-opt" data-c="0" data-fb="不對。無序串列的循序搜尋才需要看完全部 10 個；有序串列一碰到比目標大的值就能提前停止。">10</button>
       <button class="sq-opt" data-c="0" data-fb="不對。比較 5 次後只走到 11；11 比 13 小，還得繼續往後找。">5</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！有序串列的搜尋會逐一比較，直到找到目標或碰到比目標大的值：13 依序跟 3, 5, 6, 8, 11, 12, 14 比較，共 7 次。比到 14 時發現 14 &gt; 13，就能斷定 13 不可能在後面，搜尋停止。">7</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。有序串列的搜尋會逐一比較，直到找到目標或碰到比目標大的值：13 依序跟 3, 5, 6, 8, 11, 12, 14 比較，共 7 次。比到 14 時發現 14 &gt; 13，就能斷定 13 不可能在後面，搜尋停止。">7</button>
       <button class="sq-opt" data-c="0" data-fb="不對。比較 6 次後走到 12；12 比 13 小，還需要第 7 次跟 14 比較，才能確定 13 不在串列裡。">6</button>
     </div>
     <div class="sq-fb"></div>
@@ -716,7 +716,7 @@ false</pre></div><p class="dx-note">44 在索引 4 找到；找 50 時比到 54 
   <div class="section-number">PART 02 · 二分搜尋</div>
   <h2>二分搜尋：每次砍掉一半的可能位置 <span class="sec-badge">cppds §6.4</span></h2>
 <!-- gen:search-bin-search -->
-  <p>當 list <strong>已排序</strong>，可以用更聰明的策略：直接看<strong>正中間</strong>那一個。比目標大就往左半找；比目標小就往右半找；剛好相等就找到了。每次比較<strong>排除掉一半</strong>，所以總比較次數最多 $\lceil \log_2 n \rceil + 1$。</p>
+  <p>list <strong>已排序</strong>時，可以直接看正中間那一個：比目標大就往左半找，比目標小就往右半找，剛好相等就找到了。每次比較都<strong>排除一半</strong>，所以總比較次數最多 $\lceil \log_2 n \rceil + 1$。</p>
 <figure class="srch-figure" id="srch-figure-binsearch"><div class="srch-figure-scroll" tabindex="0" role="region" aria-label="已排序的 vector：17, 20, 26, 31, 44, 54, 55, 65, 77, 93。Start 箭頭指向中間的 44，再彎到 65，最後彎回 54。"><img src="assets/figures/ch7/binsearch.png" alt="已排序的 vector：17, 20, 26, 31, 44, 54, 55, 65, 77, 93。Start 箭頭指向中間的 44，再彎到 65，最後彎回 54。" width="384" height="117" style="--figure-width:384px" loading="lazy"></div><figcaption>用二分搜尋找 54：先比中間的 44，54 比較大，左半邊連同 44 都可以丟掉；再比右半邊中間的 65，54 比較小，丟掉 65 和它右邊的數；第三次比到 54，找到了。</figcaption></figure>
 <p>如果中間的值不是要找的值，就利用「有序」這個性質排除一半：要找的值比中間大，左半邊連同中間那個都不可能是答案，只要在右半邊繼續找；比中間小就換成左半邊。在剩下的一半重複同樣的動作。</p>
 <h3>課程標頭裡的 binarySearch</h3>
@@ -854,7 +854,7 @@ false</pre></div><p class="dx-note">標頭的遞迴版印出每次比較的值�
   <div class="info-box green">
     <span class="info-label">為何是 log n？</span>
     每次比較讓搜尋範圍變成原本的一半。$n \to n/2 \to n/4 \to \cdots \to 1$，要做 $\log_2 n$ 次切割。<br>
-    <strong>數值感受：</strong> $n=1{,}000{,}000$ 的 list，循序搜尋最多 $10^6$ 次比較，二分搜尋只要 $\lceil \log_2 10^6 \rceil = 20$ 次！
+    <strong>實際算一下：</strong>$n=1{,}000{,}000$ 的 list，循序搜尋最多 $10^6$ 次比較，二分搜尋只要 $\lceil \log_2 10^6 \rceil = 20$ 次。
   </div>
 
   <div class="info-box warm">
@@ -1017,7 +1017,7 @@ false</pre></div>
           例：item = 44 → $44^2 = 1936$ → 取中間兩位 <code>93</code> → $93 \bmod 11 = 5$。<br>
           <span class="pill pill-blue">範例對照表</span> &nbsp; <code>54→3, 26→1, 93→9, 17→6, 77→4, 31→8</code>
           <p style="font-size:.78rem;color:var(--muted);margin-top:.4rem;font-style:italic;">
-            ⓘ 對 17, 31 這類平方後位數不夠的情況，先補 0 至偶數位再取「正中間兩位」做 mod 11 是統一的做法。例如 $17^2 = 289$ → 補成 <code>0289</code> → 取 <code>28</code> → $28 \bmod 11 = 6$；$31^2 = 961$ → 補成 <code>0961</code> → 取 <code>96</code> → $96 \bmod 11 = 8$。
+            ⓘ 17、31 這類平方後位數不夠、湊不成偶數位的情況，統一先補 0 成偶數位，再取「正中間兩位」做 mod 11。例如 $17^2 = 289$ → 補成 <code>0289</code> → 取 <code>28</code> → $28 \bmod 11 = 6$；$31^2 = 961$ → 補成 <code>0961</code> → 取 <code>96</code> → $96 \bmod 11 = 8$。
           </p>
         </div>
       </div>
@@ -1028,7 +1028,7 @@ false</pre></div>
         <div class="ic-title">字串雜湊 string hashing</div>
         <div style="font-size:.84rem;line-height:1.65;">
           字串可以用每個字元的 <strong>ordinal value</strong>（ASCII 碼）相加再取餘數，程式見下方的 <code>hashStr</code>。<br>
-          <strong>陷阱：</strong>"cat"、"act"、"tac" 全是同樣 ord 總和，會撞在一起（anagrams 衝突）。改良：<strong>用位置當權重</strong>，例如 $\sum i \cdot \text{ord}(c_i) \bmod m$。
+          <strong>陷阱：</strong>"cat"、"act"、"tac" 的 ord 總和都一樣，會撞在一起（anagram 碰撞）。改良：<strong>用位置當權重</strong>，例如 $\sum i \cdot \text{ord}(c_i) \bmod m$。
         </div>
       </div>
       <div class="info-card">
@@ -1125,7 +1125,7 @@ act: 4 5
 tac: 4 2</pre></div>
   <p class="dx-note">三個字的一般版都是 4；加權版分別是 3、5、2，不再撞在同一格。</p>
 </div></div></details>
-<p><strong>雜湊函數本身必須有效率</strong>，不能讓計算雜湊值變成儲存與搜尋中最花時間的部分；否則還不如直接用前面的搜尋方法。</p>
+<p>雜湊函數本身<strong>必須有效率</strong>，不能讓計算雜湊值變成儲存與搜尋中最花時間的部分；否則還不如直接用前面的搜尋方法。</p>
 
   <h3 style="margin-top:1.5rem;">碰撞解決：除了線性探查還有什麼？</h3>
 <p>回到碰撞的問題。兩個元素雜湊到同一個 slot 時，需要有系統的方法把第二個元素放進表裡，這個過程稱為<strong>碰撞解決</strong>（collision resolution）。簡單的做法是從原本的雜湊位置開始，一格一格往後找，直到碰到第一個空的 slot；走到表尾就繞回開頭，才能涵蓋整張表。</p>
@@ -1158,7 +1158,7 @@ tac: 4 2</pre></div>
 <span class="line" data-l="17">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="18">}</span></div>
 </div></div></details><div class="expected-out"><span class="eo-tag">預期輸出（slot:元素，-1 是空槽）</span><pre>0:77  1:44  2:55  3:20  4:26  5:93  6:17  7:-1  8:-1  9:31  10:54  </pre></div><p class="dx-note">結果和上面的圖一致：44、55、20 因為碰撞落在 1、2、3，slot 7、8 仍是空的。</p>
-<p><strong>平方探查</strong>（quadratic probing）是線性探查的變形：重新雜湊時不加固定的格數，而是依序加 1、4、9……。第一個雜湊值是 $h$ 時，接著試的位置是 $h+1$、$h+4$、$h+9$ 等，跳的距離是連續的完全平方數。</p>
+<p><strong>平方探查</strong>（quadratic probing）是線性探查的變形：重新雜湊時依序加 1、4、9……，不加固定的格數。第一個雜湊值是 $h$ 時，接著試的位置是 $h+1$、$h+4$、$h+9$ 等，跳的距離是連續的完全平方數。</p>
 <figure class="srch-figure" id="srch-figure-quadratic"><div class="srch-figure-scroll" tabindex="0" role="region" aria-label="雜湊表依序為 77, 44, 20, 55, 26, 93, 17, -1, -1, 31, 54；44、20、55 三格是橘色。下方寫著 collision → (h + 1), (h + 4), (h + 9), … % 11。"><img src="assets/figures/ch7/quadratic.png" alt="雜湊表依序為 77, 44, 20, 55, 26, 93, 17, -1, -1, 31, 54；44、20、55 三格是橘色。下方寫著 collision → (h + 1), (h + 4), (h + 9), … % 11。" width="720" height="125" style="--figure-width:720px" loading="lazy"></div><figcaption>平方探查：碰撞後依序試 h + 1、h + 4、h + 9……。44 試一次就落在 1；55 試過 1、4、9、5 都有資料，最後落在 (0 + 25) % 11 = 3；20 試過 10 之後落在 (9 + 4) % 11 = 2。</figcaption></figure>
 <p>另一種處理碰撞的方法是<strong>鏈結法</strong>（chaining）：每個 slot 存一個集合（鏈），同一個 slot 可以放很多個元素。碰撞時，元素一樣放在自己的雜湊位置；只是同一個位置的元素越多，在那個集合裡找東西就越費時。</p>
 <figure class="srch-figure" id="srch-figure-chaining"><div class="srch-figure-scroll" tabindex="0" role="region" aria-label="11 格的表，每格是一條 list：slot 0 接著 77 → 44 → 55，slot 9 接著 31 → 20，slot 4、5、6、10 各接一個數，其餘是空的 {}。下方寫著 vector&lt;list&lt;int&gt;&gt; table(11);。"><img src="assets/figures/ch7/chaining.png" alt="11 格的表，每格是一條 list：slot 0 接著 77 → 44 → 55，slot 9 接著 31 → 20，slot 4、5、6、10 各接一個數，其餘是空的 {}。下方寫著 vector&lt;list&lt;int&gt;&gt; table(11);。" width="720" height="290" style="--figure-width:720px" loading="lazy"></div><figcaption>鏈結法（chaining）：每個 slot 存一條 list，碰撞的數直接接在同一條 list 後面，不會占用別的格子。搜尋時先算出 slot，再在那條 list 裡循序找。</figcaption></figure>
@@ -1166,17 +1166,17 @@ tac: 4 2</pre></div>
 
   <div class="info-box">
     <span class="info-label">rehash 通式：$\text{rehash}(\text{pos}) = (\text{pos} + \text{skip}) \bmod m$</span>
-    <strong>線性探查 (linear probing)</strong>：skip = 1，每次往後找下一格。簡單但容易產生<em>聚集 (clustering)</em>：許多碰撞在同一段連續 slot 累積，後續插入會被牽連。<br><br>
-    <strong>+3 探查 (plus-3)</strong>：skip = 3，跳格搜尋。要求 skip 與 $m$ 互質，否則會循環走不完整個表（這也是為何 $m$ 常選<strong>質數</strong>）。<br><br>
-    <strong>平方探查 (quadratic probing)</strong>：skip 不是定值，而是 $1, 4, 9, 16, \ldots$（連續完全平方數）。即 $h, h+1, h+4, h+9, \ldots$。能有效打散聚集。<br><br>
-    <strong>鏈結法 (chaining)</strong>：每個 slot 存一條 list（或其他 collection），所有 hash 到該 slot 的 item 都掛在同一條鏈上。$\lambda$ 可以超過 1。
+    <strong>線性探查（linear probing）</strong>：skip = 1，每次往後找下一格。簡單，但容易產生<em>群聚（clustering）</em>：許多碰撞在同一段連續 slot 累積，後續插入會被牽連。<br><br>
+    <strong>+3 探查（plus-3）</strong>：skip = 3，跳格搜尋。要求 skip 與 $m$ 互質，否則會循環走不完整個表（這也是為何 $m$ 常選<strong>質數</strong>）。<br><br>
+    <strong>平方探查（quadratic probing）</strong>：skip 依序是 $1, 4, 9, 16, \ldots$（連續完全平方數），也就是試 $h, h+1, h+4, h+9, \ldots$，能打散群聚。<br><br>
+    <strong>鏈結法（chaining）</strong>：每個 slot 存一條 list（或其他 collection），所有 hash 到該 slot 的 item 都掛在同一條鏈上。$\lambda$ 可以超過 1。
   </div>
 <div class="sq-item srch-quiz" id="quiz-hash1">
     <div class="sq-q"><span class="sq-num">QUIZ</span>大小為 13 的雜湊表，鍵 27 與 130 分別會對應到哪個索引位置？</div>
     <div class="sq-opts">
       <button class="sq-opt" data-c="0" data-fb="不對。27 對應到 1 沒錯，但 130 不會對應到 10。">1, 10</button>
       <button class="sq-opt" data-c="0" data-fb="不對。大小 13 的表不可能有索引 13：索引範圍是 0 到 12。">13, 0</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！用餘數法（key % 大小）：27 % 13 = 1、130 % 13 = 0。">1, 0</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。用餘數法（key % 大小）：27 % 13 = 1、130 % 13 = 0。">1, 0</button>
       <button class="sq-opt" data-c="0" data-fb="不對。請重新算一次兩個鍵的模運算。">2, 3</button>
     </div>
     <div class="sq-fb"></div>
@@ -1185,7 +1185,7 @@ tac: 4 2</pre></div>
     <div class="sq-q"><span class="sq-num">QUIZ</span>把這組鍵依序插入恰好 11 格的雜湊表：113, 117, 97, 100, 114, 108, 116, 105, 99，用線性探查解決碰撞。全部插完後，表的內容最接近下列哪一個？</div>
     <div class="sq-opts">
       <button class="sq-opt" data-c="0" data-fb="不對。這一組把 100 放在索引 0，但 100 % 11 = 1，應該在索引 1。">100, __, __, 113, 114, 105, 116, 117, 97, 108, 99</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！各鍵對應：99→0、100→1、113→3、114→4、116→6、117→7、105 碰撞後探查到 8、97→9、108 碰撞後探查到 10。">99, 100, __, 113, 114, __, 116, 117, 105, 97, 108</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。各鍵對應：99→0、100→1、113→3、114→4、116→6、117→7、105 碰撞後探查到 8、97→9、108 碰撞後探查到 10。">99, 100, __, 113, 114, __, 116, 117, 105, 97, 108</button>
       <button class="sq-opt" data-c="0" data-fb="不對。這個排列不符合各鍵取餘數後的結果。">100, 113, 117, 97, 14, 108, 116, 105, 99, __, __</button>
       <button class="sq-opt" data-c="0" data-fb="不對。這個鍵的分布不符合 mod 11 的運算結果。">117, 114, 108, 116, 105, 99, __, __, 97, 100, 113</button>
     </div>
@@ -1238,7 +1238,7 @@ tac: 4 2</pre></div>
 <p class="dx-note">第一個值 105 出現在 slot 0：105 的雜湊值是 6，依序試 7、10、4 都有資料，最後落在 (6 + 16) % 11 = 0。99 的雜湊值 0 已被 105 占用，依序試 1、4、9，落在 (0 + 16) % 11 = 5。和線性探查的測驗題比較，同一組鍵的落點不同。</p>
 
 
-  <h3 style="margin-top:1.5rem;">應用：Map ADT (字典/HashTable)</h3>
+  <h3 style="margin-top:1.5rem;">應用：Map ADT（字典／HashTable）</h3>
   <div class="info-box warm">
     <span class="info-label">用 hash 表實作 key-value 字典</span>
     Map ADT 是介面概念；<code>std::unordered_map</code> 是標準函式庫的具體 hash-table 容器。本頁的固定容量 <code>HashTable</code> 只實作 <code>put/get</code> 與顯示輔助，下面同時列出完整 ADT 常見操作作為對照：
@@ -1265,7 +1265,7 @@ tac: 4 2</pre></div>
 <span class="line">    vector&lt;string&gt; data;</span>
 <span class="line">};</span>
 <span class="line"><span class="com">// put 探查一圈仍無空位時 throw overflow_error</span></span></div>
-    <strong>關鍵：</strong>用兩個平行 vector (<code>slots</code>、<code>data</code>) 分別存 key 和 value，索引位置必須對齊。<code>get</code> 時要走和 <code>put</code> 一樣的 rehash 路徑，且要偵測「<strong>繞回起點</strong>」(<code>position == startSlot</code>) 以結束搜尋（代表整個探查鏈都沒有該 key）。
+    <strong>重點：</strong>用兩個平行 vector（<code>slots</code>、<code>data</code>）分別存 key 和 value，索引位置必須對齊。<code>get</code> 時要走和 <code>put</code> 一樣的 rehash 路徑，並在<strong>繞回起點</strong>（<code>position == startSlot</code>）時結束搜尋，這表示整個探查鏈都沒有這個 key。
   </div>
 <p>Map ADT 是由 key 與 data 的對應組成的無序集合。<code>HashTable</code> 用兩個平行的 vector 實作：<code>slots</code> 存整數 key，<code>data</code> 在相同的索引存對應的字串。<code>-1</code> 代表空槽，所以這個教學版保留 <code>-1</code>，不接受它當作 key。</p>
 <details class="srch-detail"><summary>講義程式片段：HashTable 的骨架、put 與 get</summary><div class="srch-detail-body"><div class="deck-extra">
@@ -1329,7 +1329,7 @@ tac: 4 2</pre></div>
 <span class="line" data-l="13">    }</span>
 <span class="line" data-l="14">    <span class="kw">return</span> <span class="str">"</span><span class="str">"</span>;</span>
 <span class="line" data-l="15">}</span></div>
-</div><p><code>hashFunction</code> 是簡單的餘數法，碰撞時用「加 1」的線性探查。<code>put</code> 假設最後一定會找到空位；<strong>如果某個非空 slot 裡已經是同一個 key，就用新的值取代舊的值</strong>。</p><p><code>get</code> 先算出起始的雜湊值，不在那一格就用 <code>rehash</code> 找下一個可能的位置。迴圈裡檢查 <code>position == startSlot</code>，確保繞回起點時就停止：所有可能的 slot 都看過了，這個 key 一定不在表中。</p></div></details>
+</div><p><code>hashFunction</code> 是簡單的餘數法，碰撞時用「加 1」的線性探查。<code>put</code> 假設最後一定會找到空位；如果某個非空 slot 裡已經是同一個 key，就<strong>用新的值取代舊的值</strong>。</p><p><code>get</code> 先算出起始的雜湊值，不在那一格就用 <code>rehash</code> 找下一個可能的位置。迴圈裡檢查 <code>position == startSlot</code>，確保繞回起點時就停止：所有可能的 slot 都看過了，這個 key 一定不在表中。</p></div></details>
 <h3 id="dx-hash">使用 hashtable.hpp</h3>
 <p>完整的教學類別放在 <code>pythonds3/cppds/hashtable.hpp</code>。標頭版的 <code>put</code> 最多探查一整圈，表滿時丟出 <code>std::overflow_error</code>；<code>get</code> 一樣探查一圈就停。下面依序放入九組 key 與 value：</p>
 <details class="srch-detail"><summary>講義完整程式：建表並印出 slots 與 data</summary><div class="srch-detail-body"><div class="deck-extra">
@@ -1378,16 +1378,16 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 []</pre></div><p class="dx-note">get(20) 沿著探查鏈在 slot 3 找到 chicken；put(20, "duck") 找到同一個 key，只改 data，slots 不變。get(99) 找不到，回傳空字串，所以印出 []。</p>
 
 
-  <h3 style="margin-top:1.5rem;">分析：載入因子 $\lambda$ 與比較次數</h3>
+  <h3 style="margin-top:1.5rem;">分析：負載因子 $\lambda$ 與比較次數</h3>
   <div class="info-box green">
     <span class="info-label">當 $\lambda$ 變大，效能如何下降？</span>
-    <strong>線性探查 + 開放定址 (open addressing)：</strong><br>
+    <strong>線性探查 + 開放定址（open addressing）：</strong><br>
     　・成功搜尋平均比較次數 $\approx \dfrac{1}{2}\!\left(1 + \dfrac{1}{1-\lambda}\right)$<br>
     　・失敗搜尋平均比較次數 $\approx \dfrac{1}{2}\!\left(1 + \left(\dfrac{1}{1-\lambda}\right)^2\right)$<br><br>
-    <strong>鏈結法 (chaining)：</strong><br>
+    <strong>鏈結法（chaining）：</strong><br>
     　・成功搜尋平均比較次數 $\approx 1 + \dfrac{\lambda}{2}$<br>
     　・失敗搜尋平均比較次數 $\approx \lambda$<br><br>
-    當 $\lambda \to 1$ 時，線性探查的失敗搜尋會爆炸性增加；鏈結法則是線性增加，較為穩定。
+    當 $\lambda \to 1$ 時，線性探查失敗搜尋的比較次數會急遽上升；鏈結法則只是線性增加，比較穩定。
   </div>
 
   <div class="info-box warm">
@@ -1469,7 +1469,7 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 
   <div class="info-box green">
     <span class="info-label">短路最佳化 short bubble</span>
-    若某一輪<strong>都沒發生交換</strong>，代表已經完全排序了，可以提早結束！這時最佳情況變成 $O(n)$（已排序時只需一輪）。但平均與最差仍是 $O(n^2)$。
+    若某一輪<strong>都沒發生交換</strong>，代表已經完全排序了，可以提早結束。這時最佳情況變成 $O(n)$（已排序時只需一輪）。但平均與最差仍是 $O(n^2)$。
   </div>
 <h3 id="dx-bub">講義程式：bubbleSort</h3>
 <p>本章所有排序函式都在課程標頭 <code>pythonds3/cppds/sorting.hpp</code>，<code>printl</code> 用來印出整個 vector。標頭版的 <code>bubbleSort</code> 在每一輪開始前印一行。</p>
@@ -1564,7 +1564,7 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
   <div class="section-number">PART 05 · 選擇排序</div>
   <h2>選擇排序：每一輪挑出最大者放到後面 <span class="sec-badge">cppds §7.4</span></h2>
 <!-- gen:search-selection -->
-  <p><strong>Selection sort</strong> 跟氣泡排序的<strong>比較次數一樣多</strong>，但聰明在「<strong>每一輪只交換一次</strong>」：先掃一遍找出未排序區裡<strong>最大</strong>的元素，再把它和未排序區的<strong>最後一格</strong>直接交換，就完成一輪。氣泡排序每比一次就可能交換，selection sort 把交換成本壓到最低。<small>（與 cppds 與 HW4 一致：找最大值放到未排序區尾端。）</small></p>
+  <p><strong>Selection sort</strong> 的比較次數跟氣泡排序一樣多，差別在<strong>每一輪只交換一次</strong>：先掃一遍找出未排序區裡最大的元素，再把它和未排序區的最後一格交換，這一輪就結束了。氣泡排序每比一次就可能交換，selection sort 每輪只換一次。<small>（這裡的版本和 cppds、HW4 一樣，找最大值放到未排序區尾端。）</small></p>
 <p>和氣泡排序一樣，第一輪之後最大值就位，第二輪之後第二大的值就位；$n$ 個元素需要 $n-1$ 輪，因為前 $n-1$ 輪結束後，最後一個元素一定也在正確位置。</p>
 <figure class="srch-figure" id="srch-figure-selectionsortnew"><div class="srch-figure-scroll" tabindex="0" role="region" aria-label="九列陣列，每列一個陰影格是最大值，箭頭把它換到未排序部分的最後一格；右邊依序標示 93、77、55、54、44（stays in place）、31、26、20 is largest，最後 17 ok list is sorted。"><img src="assets/figures/ch7/selectionsortnew.png" alt="九列陣列，每列一個陰影格是最大值，箭頭把它換到未排序部分的最後一格；右邊依序標示 93、77、55、54、44（stays in place）、31、26、20 is largest，最後 17 ok list is sorted。" width="400" height="494" style="--figure-width:400px" loading="lazy"></div><figcaption>選擇排序：每一輪掃過未排序的部分，找出最大值（陰影），和未排序部分的最後一格交換。每輪最多交換一次；44 那一輪已經在正確位置，不用換。</figcaption></figure>
 
@@ -1616,7 +1616,7 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 
   <div class="info-box">
     <span class="info-label">vs. 氣泡</span>
-    <strong>比較次數相同</strong>都是 $O(n^2)$，但 selection sort <strong>每輪最多交換一次</strong>，氣泡排序每輪可能交換很多次。當「交換成本」很高（例如要移動的物件很大）時，selection sort 表現會比 bubble sort 好。
+    兩者的比較次數相同，都是 $O(n^2)$；但 selection sort <strong>每輪最多交換一次</strong>，氣泡排序每輪可能交換很多次。交換成本很高（例如要移動的物件很大）時，selection sort 會比 bubble sort 好。
   </div>
 <h3 id="dx-sel">講義程式：selectionSort</h3>
 <details class="srch-detail"><summary>講義完整程式：selectionSort（含標頭裡的函式）</summary><div class="srch-detail-body"><div class="deck-extra">
@@ -1721,7 +1721,7 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 
   <div class="info-box green">
     <span class="info-label">為什麼適合「幾乎排序好」的資料？</span>
-    insertion sort 處理已排序資料時非常快：每個 key 只需要一次比較就能確認位置，時間複雜度降到 $O(n)$。如果你正在「<strong>插入新資料到已排序的 list</strong>」這個情境，insertion sort 是最自然的選擇。
+    資料已排序時，insertion sort 每個 key 只要比較一次就能確認位置，時間複雜度降到 $O(n)$。要把新資料插入已排序的 list 時，insertion sort 是最自然的選擇。
   </div>
 <h3 id="dx-ins">講義程式：insertionSort</h3>
 <p><code>insertionSort()</code> 同樣要跑 $n-1$ 輪。迴圈從位置 1 走到 $n-1$，這些就是要插回子清單的元素。</p>
@@ -1758,7 +1758,7 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 2 5 5 7 9 9 1&#32;
 2 5 5 7 9 9 1&#32;
 1 2 5 5 7 9 9 </pre></div><p class="dx-note">每一行左邊排好的部分多一個元素。兩個 5 與兩個 9 的先後順序沒有改變：比較用的是嚴格的 <code>&gt;</code>，相等的元素不會被移到彼此前面。</p>
-<p><strong>一次移動大約只有一次交換三分之一的工作量</strong>，因為移動只做一次指定。在實測中，插入排序的表現相當好。</p>
+<p>一次移動的工作量大約只有一次交換的三分之一，因為移動只做一次指定。在實測中，插入排序的表現相當好。</p>
 <!-- /gen:search-insertion -->
 </section>
 
@@ -1770,8 +1770,8 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
   <div class="section-number">PART 07 · 希爾排序</div>
   <h2>希爾排序：插入排序的「跳格」加速版 <span class="sec-badge">cppds §7.6</span></h2>
 <!-- gen:search-shell -->
-  <p><strong>Shell sort</strong> 是 1959 年 Donald Shell 提出的方法。觀察到 insertion sort 對「幾乎排序好」的資料很快，但對亂序資料慢。Shell sort 的策略：先用一個<strong>較大的 gap</strong> 把陣列拆成數個「子陣列」（每個子陣列的元素彼此相距 gap），對每個子陣列各自做插入排序；接著縮小 gap 再做一次；最後 gap = 1（變成普通的 insertion sort），但<strong>此時資料已經幾乎排序好</strong>。</p>
-<p>希爾排序又稱<strong>遞減增量排序</strong>（diminishing increment sort）。它不是把相鄰的元素分成子清單，而是用一個增量 $i$（稱為 <strong>gap</strong>），把相隔 $i$ 個位置的元素組成一個子清單。增量為 3 時有三個子清單，各自用插入排序排好：</p>
+  <p><strong>Shell sort</strong> 是 Donald Shell 在 1959 年提出的方法，出發點是：insertion sort 對「幾乎排序好」的資料很快，對亂序資料卻很慢。做法是先用一個<strong>較大的 gap</strong> 把陣列拆成數個「子陣列」（每個子陣列的元素彼此相距 gap），對每個子陣列各自做插入排序；接著縮小 gap 再做一次；最後 gap = 1（變成普通的 insertion sort），但<strong>此時資料已經幾乎排序好</strong>。</p>
+<p>希爾排序又稱<strong>遞減增量排序</strong>（diminishing increment sort）。它用一個增量 $i$（稱為 <strong>gap</strong>）切子清單：子清單裡的元素彼此相隔 $i$ 個位置，不是相鄰的元素。增量為 3 時有三個子清單，各自用插入排序排好：</p>
 <figure class="srch-figure" id="srch-figure-shellsortA"><div class="srch-figure-scroll" tabindex="0" role="region" aria-label="三列陣列 54, 26, 93, 17, 77, 31, 44, 55, 20，每列標出相隔 3 格的三個數，分別是 sublist 1、2、3。"><img src="assets/figures/ch7/shellsortA.png" alt="三列陣列 54, 26, 93, 17, 77, 31, 44, 55, 20，每列標出相隔 3 格的三個數，分別是 sublist 1、2、3。" width="406" height="174" style="--figure-width:406px" loading="lazy"></div><figcaption>增量（gap）為 3：每隔 3 個取一個數，組成三個子清單。第一個子清單是 54、17、44。</figcaption></figure>
 <figure class="srch-figure" id="srch-figure-shellsortB"><div class="srch-figure-scroll" tabindex="0" role="region" aria-label="三個子清單各自排好之後合併成 17, 26, 20, 44, 55, 31, 54, 77, 93，標示 after sorting sublists at increment 3。"><img src="assets/figures/ch7/shellsortB.png" alt="三個子清單各自排好之後合併成 17, 26, 20, 44, 55, 31, 54, 77, 93，標示 after sorting sublists at increment 3。" width="465" height="262" style="--figure-width:465px" loading="lazy"></div><figcaption>三個子清單各自用插入排序排好後的結果。整個 list 還沒排序完成，但大部分的數已經靠近最終位置。</figcaption></figure>
 <p>子清單排好後，元素已經移到靠近最終位置的地方。最後用增量 1，也就是一般的插入排序收尾；因為前面已經做過子清單排序，需要的移動次數少很多，這個例子只要再 4 次移動。增量怎麼選，是希爾排序最有特色的地方。</p>
@@ -1829,10 +1829,10 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
   </div>
 
   <div class="info-box">
-    <span class="info-label">關鍵直覺</span>
-    當 gap 大時：每個子陣列很短，<strong>大跨度的調整很快</strong>，亂度迅速降低。<br>
-    當 gap 小時：陣列已接近排好，<strong>小範圍的微調很便宜</strong>。<br>
-    Shell sort 不像 merge / quick sort 那麼快，但<strong>程式碼短、不需要遞迴、空間 $O(1)$</strong>，是嵌入式系統與小型應用常見的選擇。
+    <span class="info-label">為什麼有效</span>
+    gap 大時，每個子陣列很短，元素一次能移動很遠，亂度很快降低。<br>
+    gap 小時，陣列已接近排好，只剩小範圍的微調，成本很低。<br>
+    Shell sort 沒有 merge / quick sort 那麼快，但程式碼短、不需要遞迴、空間 $O(1)$，常用在嵌入式系統與小型應用。
   </div>
 <h3 id="dx-shl">講義程式：shellSort</h3>
 <details class="srch-detail"><summary>講義完整程式：shellSort（含標頭裡的函式）</summary><div class="srch-detail-body"><div class="deck-extra">
@@ -1919,7 +1919,7 @@ After increments of size 1 the list is 17 20 26 31 44 54 55 77 93&#32;
         </div>
       </div>
 
-      <h3>遞迴呼叫樹 (recursion tree)</h3>
+      <h3>遞迴呼叫樹（recursion tree）</h3>
       <div class="tree-canvas" id="mergeTree"></div>
     </div>
 
@@ -1947,13 +1947,13 @@ After increments of size 1 the list is 17 20 26 31 44 54 55 77 93&#32;
 
   <div class="info-box green">
     <span class="info-label">為何是 n log n？</span>
-    每一層遞迴把問題切成兩半 → 共 $\log_2 n$ 層；每一層的「merge 動作」總共要看過所有 $n$ 個元素 → 每層 $O(n)$。整體 $O(n) \times O(\log n) = O(n \log n)$。<br>
+    每一層遞迴把問題切成兩半，共 $\log_2 n$ 層；每一層的 merge 總共要看過所有 $n$ 個元素，所以每層 $O(n)$。整體 $O(n) \times O(\log n) = O(n \log n)$。<br>
     這是<strong>比較式排序的下界</strong>：任何只透過比較來排序的演算法都至少要 $\Omega(n\log n)$，merge sort 達到這個下界。
   </div>
 
   <div class="info-box warm">
     <span class="info-label">代價：額外空間</span>
-    merge sort 需要<strong>額外 $O(n)$ 的暫存空間</strong>來存 L、R 半段（實作中需額外配置 L、R 兩段暫存 vector）。處理超大資料時，這個記憶體開銷可能成為問題。
+    merge sort 需要<strong>額外 $O(n)$ 的暫存空間</strong>，實作中要另外配置 L、R 兩段暫存 vector。處理超大資料時，這個記憶體開銷可能成為問題。
   </div>
 <h3 id="dx-mrg">講義程式：mergeSort</h3>
 <details class="srch-detail"><summary>講義完整程式：mergeSort（含標頭裡的函式）</summary><div class="srch-detail-body"><div class="deck-extra">
@@ -2012,7 +2012,7 @@ Merging 17 26 54 93 </pre></div><p class="dx-note">Splitting 一路把 vector �
     <div class="sq-q"><span class="sq-num">QUIZ</span>串列 [21, 1, 26, 45, 29, 28, 2, 9, 16, 49, 39, 27, 43, 34, 46, 40] 執行 mergesort。第 3 次遞迴呼叫時要排序的串列是下列哪一個？</div>
     <div class="sq-opts">
       <button class="sq-opt" data-c="0" data-fb="不對。這是原串列的右半，要等整個左半處理並合併完才會輪到。">[16, 49, 39, 27, 43, 34, 46, 40]</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！mergesort 先對半切、再先遞迴左半：16 個元素的串列，第 1 次遞迴拿前 8 個、第 2 次拿前 4 個、第 3 次拿前 2 個，也就是 [21, 1]。">[21, 1]</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。mergesort 先對半切、再先遞迴左半：16 個元素的串列，第 1 次遞迴拿前 8 個、第 2 次拿前 4 個、第 3 次拿前 2 個，也就是 [21, 1]。">[21, 1]</button>
       <button class="sq-opt" data-c="0" data-fb="不對。這個 4 元素串列是第 2 次遞迴呼叫的輸入。">[21, 1, 26, 45]</button>
       <button class="sq-opt" data-c="0" data-fb="不對。單一元素的串列是第 4 次遞迴呼叫的輸入，它會直接觸發基底情況。">[21]</button>
     </div>
@@ -2099,7 +2099,7 @@ Merging 17 26 54 93 </pre></div><p class="dx-note">Splitting 一路把 vector �
 
   <div class="info-box warm">
     <span class="info-label">最差情況：當 pivot 是極端值</span>
-    若每次選的 pivot 剛好是最大或最小（例如已排序的陣列 + 「選第一個當 pivot」策略），每次只能切下 1 個元素 → 退化成 $O(n^2)$。<strong>median-of-three</strong> 取「first、middle、last 三者中位數」當 pivot，能大幅降低最差情況的機率，對「幾乎排序好」的資料尤其有效。
+    若每次選的 pivot 剛好是最大或最小（例如已排序的陣列 + 「選第一個當 pivot」策略），每次只能切下 1 個元素，退化成 $O(n^2)$。<strong>median-of-three</strong> 取「first、middle、last 三者中位數」當 pivot，能大幅降低最差情況的機率，對「幾乎排序好」的資料尤其有效。
   </div>
 
   <div class="info-box">
@@ -2164,7 +2164,7 @@ Merging 17 26 54 93 </pre></div><p class="dx-note">Splitting 一路把 vector �
       <button class="sq-opt" data-c="0" data-fb="不對。這只是第二次分割後的左子串列，不是整條串列的狀態。">[9, 3, 10, 13, 12]</button>
       <button class="sq-opt" data-c="0" data-fb="不對。這條串列被截掉了，少了右邊分割區的元素。">[9, 3, 10, 13, 12, 14]</button>
       <button class="sq-opt" data-c="0" data-fb="不對。右半（19, 16, 15, 17）在輪到它自己的遞迴呼叫之前，會維持第一次分割後的狀態。">[9, 3, 10, 13, 12, 14, 17, 16, 15, 19]</button>
-      <button class="sq-opt" data-c="1" data-fb="正確！第一次以 pivot 14 分割後，串列是 [10, 12, 13, 9, 3, 14, 19, 16, 15, 17]。第二次分割處理左子串列 [10, 12, 13, 9, 3]、pivot 是 10，得到 [9, 3, 10, 13, 12]；放回整條串列就是這個答案。">[9, 3, 10, 13, 12, 14, 19, 16, 15, 17]</button>
+      <button class="sq-opt" data-c="1" data-fb="正確。第一次以 pivot 14 分割後，串列是 [10, 12, 13, 9, 3, 14, 19, 16, 15, 17]。第二次分割處理左子串列 [10, 12, 13, 9, 3]、pivot 是 10，得到 [9, 3, 10, 13, 12]；放回整條串列就是這個答案。">[9, 3, 10, 13, 12, 14, 19, 16, 15, 17]</button>
     </div>
     <div class="sq-fb"></div>
   </div>
@@ -2263,7 +2263,7 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
   <div class="section-number">PART 10 · 依賴的資料結構</div>
   <h2>每個演算法需要什麼底層支援？ <span class="sec-badge">課程補充</span></h2>
 <!-- gen:search-depends -->
-  <p>同樣的演算法，搬到不同的資料結構上效能可能截然不同，甚至根本跑不動。本節整理本章九個演算法各自<strong>能在哪些資料結構上有效執行</strong>，重點放在「為什麼某些演算法<em>必須</em>用 Array 而不能用 Linked List」這個關鍵差異上。</p>
+  <p>同樣的演算法換一種資料結構，效能可能差很多，甚至根本行不通。本節整理本章九個演算法各自<strong>能在哪些資料結構上有效執行</strong>，重點是：為什麼某些演算法<em>必須</em>用 Array，不能用 Linked List。</p>
 
 <details class="srch-detail"><summary>完整內容：存取模式、對照表與選擇底層結構（補充）</summary><div class="srch-detail-body">  <h3>兩種基本存取模式</h3>
   <div class="viz-layout">
@@ -2271,7 +2271,7 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
       <div class="info-card">
         <div class="ic-title">Random Access — 隨機存取 <span class="ic-badge" style="background:#2980b9;">FAST</span></div>
         <div style="font-size:.86rem;line-height:1.7;">
-          可以用「索引」<strong>$O(1)$ 跳到任意位置</strong>。陣列 (Array) 最典型：記憶體連續，<code>a[i]</code> 直接用 <code>base + i × sizeof(T)</code> 算出位址即可。<br><br>
+          可以用「索引」<strong>$O(1)$ 跳到任意位置</strong>。陣列（Array）最典型：記憶體連續，<code>a[i]</code> 直接用 <code>base + i × sizeof(T)</code> 算出位址即可。<br><br>
           <span class="pill pill-blue">代表結構</span> C++ <code>vector</code>、C 風格 array、Java <code>ArrayList</code><br>
           <span class="pill pill-green">關鍵動作</span> <code>a[i]</code> = $O(1)$，<code>a[i] = v</code> = $O(1)$，連續走訪 cache 友善
         </div>
@@ -2281,7 +2281,7 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
       <div class="info-card">
         <div class="ic-title">Sequential Access — 循序存取 <span class="ic-badge" style="background:var(--accent);">SLOW INDEX</span></div>
         <div style="font-size:.86rem;line-height:1.7;">
-          只能<strong>從頭往後一個一個走</strong>（透過 <code>node.next</code>）；想跳到第 $k$ 個必須走過前 $k-1$ 個 → $O(k)$。<br><br>
+          只能<strong>從頭往後一個一個走</strong>（透過 <code>node.next</code>）；想跳到第 $k$ 個必須走過前 $k-1$ 個，所以是 $O(k)$。<br><br>
           <span class="pill pill-purple">代表結構</span> Linked List (鏈結串列)、Iterator、Generator、Stream<br>
           <span class="pill pill-orange">優勢</span> 中間插入/刪除 $O(1)$（已知前一節點時）、不用連續記憶體
         </div>
@@ -2289,7 +2289,7 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
     </div>
   </div>
 
-  <h3>核心對照表：每個演算法所需的資料結構</h3>
+  <h3>對照表：每個演算法需要的資料結構</h3>
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead>
       <tr>
@@ -2297,7 +2297,7 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
         <th>必要屬性</th>
         <th style="background:#2980b9;">Array</th>
         <th style="background:#8e44ad;">Linked List</th>
-        <th>關鍵原因</th>
+        <th>原因</th>
       </tr>
     </thead>
     <tbody>
@@ -2379,33 +2379,33 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
     <span class="pill" style="background:var(--accent);color:#fff;">✗</span> 演算法的核心動作做不到，必須換結構
   </p>
 
-  <h3>三個值得記住的關鍵案例</h3>
+  <h3>三個例子：二分搜尋、快速排序、合併排序</h3>
 
   <div class="info-box warm">
     <span class="info-label">為何「Binary Search 必須要 Array」？</span>
     Binary search 每次跳到 <code>midpoint = first + (last-first)/2</code>。<br>
     　・在 Array：用記憶體位址計算就能 $O(1)$ 取到 a[midpoint]<br>
     　・在 Linked List：要走到第 midpoint 個 node 必須<strong>從頭走 midpoint 步</strong>，每次比較都要 $O(n)$<br><br>
-    這樣總時間就從 $O(\log n)$ 退化成 $O(n \log n)$，比循序搜尋還慢！結論：<strong>排序好的資料若以 Linked List 儲存，binary search 沒有意義</strong>，必須轉成 Array（或一開始就用 Array）。
+    這樣總時間就從 $O(\log n)$ 退化成 $O(n \log n)$，比循序搜尋還慢。所以<strong>排序好的資料若存在 Linked List 裡，binary search 沒有意義</strong>，必須轉成 Array，或一開始就用 Array。
   </div>
 
   <div class="info-box warm">
     <span class="info-label">為何「Quick Sort 不能用 Singly Linked List」？</span>
     Partition 需要兩個指標 <code>leftMark</code>、<code>rightMark</code>：一個從左往右、一個<strong>從右往左</strong>走。<br><br>
     但<strong>單向鏈結串列只能從左往右</strong>（每個 node 只有 <code>next</code>，沒有 <code>prev</code>），<code>rightMark--</code> 沒有有效率的實作方式。雖然 <em>doubly-linked list</em> 可以雙向走，但每次比較都要追指標、cache miss 嚴重，常數係數比 Array 大太多。<br><br>
-    這就是為什麼<strong>快速排序的教科書版本永遠用 Array 來講</strong>：partition 的優美只在 Array 上才成立。
+    這也是<strong>教科書都用 Array 講快速排序</strong>的原因：partition 的雙指標寫法，只有在 Array 上才簡潔又有效率。
   </div>
 
   <div class="info-box green">
-    <span class="info-label">為何「Merge Sort 反而<em>更</em>適合 Linked List」？★ 反直覺！</span>
+    <span class="info-label">為何「Merge Sort 反而<em>更</em>適合 Linked List」？</span>
     Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，額外空間只有 $O(1)$（幾個指標變數而已）。<br><br>
-    換句話說，merge sort 在 linked list 上反而<strong>更省記憶體、更乾淨</strong>。所以當資料天生就是 linked list 形式（functional 語言、stream pipeline、某些 OS 內部資料結構），merge sort 是首選排序法。<br><br>
+    所以 merge sort 在 linked list 上反而<strong>更省記憶體</strong>，寫起來也更乾淨。資料本來就是 linked list 形式時（functional 語言、stream pipeline、某些 OS 內部資料結構），merge sort 是首選的排序法。<br><br>
     <strong>實務小知識：</strong>Java 的 <code>java.util.LinkedList.sort()</code> 內部就是先轉成 Array 再用 mergesort，因為 cache 表現更好；但概念上 linked list mergesort 是經典範例。
   </div>
 
   <h3>Hash Table 自身的內部結構</h3>
   <div class="info-box">
-    <span class="info-label">Hash Table 是什麼底層結構？答：仍然是 Array！</span>
+    <span class="info-label">Hash Table 的底層結構：仍然是 Array</span>
     Hash table <strong>本身的底層</strong>就是一個固定大小（$m$）的 Array：
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.5rem;">
       <div style="background:#fff;padding:.7rem;border-radius:6px;border:1px solid var(--card-border);">
@@ -2451,7 +2451,6 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
       <li><strong>Linked List：</strong>chaining 法雜湊表的 collision bucket、merge sort 的最佳載體。</li>
       <li><strong>Tree：</strong>合併排序的遞迴呼叫關係本身就是一棵<strong>二元樹</strong>（PART 08 的視覺化就是把這棵樹畫出來）。</li>
     </ul>
-    搜尋與排序不是孤立的章節：它們是建立在前面所有資料結構之上的<strong>應用範例</strong>。
   </div></div></details>
 <!-- /gen:search-depends -->
 </section>
@@ -2576,8 +2575,8 @@ val : 77    .    .    .   26   93   17    .    .   31    54</pre>
     </tbody>
   </table></div>
   <div class="info-box warm">
-    <span class="info-label">關鍵</span>
-    skip 序列是「<strong>連續完全平方數本身</strong>」（$1, 4, 9, 16, 25$），<strong>不是累加</strong>。每次都從原始 hash 位置 $h$ 起算，所以第 4 次跳到 $(0+16) \bmod 11 = 5$、第 5 次跳到 $(0+25) \bmod 11 = 3$：兩次都「跨過」了表的另一端。這正是 quadratic probing 能打散 linear probing 那種連續聚集（clustering）的原因。
+    <span class="info-label">注意</span>
+    skip 序列是「<strong>連續完全平方數本身</strong>」（$1, 4, 9, 16, 25$），<strong>不是累加</strong>。每次都從原始 hash 位置 $h$ 起算，所以第 4 次跳到 $(0+16) \bmod 11 = 5$、第 5 次跳到 $(0+25) \bmod 11 = 3$：兩次都「跨過」了表的另一端。quadratic probing 就是靠這種跳法，打散 linear probing 那種連續的群聚（clustering）。
   </div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">Step 4：插 20（20 % 11 = 9，撞 31）</h4>
@@ -2600,18 +2599,18 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
 
   <div class="info-box warm">
     <span class="info-label">先講清楚：什麼是 collision、什麼不是？</span>
-    <strong style="display:block;font-size:1.05em;color:var(--accent);">Collision 的判準是「<u>hash 值</u>相同」，不是「key 相同」，千萬別搞反。</strong>
+    <strong style="display:block;font-size:1.05em;color:var(--accent);">Collision 的判準是「<u>hash 值</u>相同」，不是「key 相同」。</strong>
     <p style="margin-top:.5rem;">正式定義：<strong>兩個<u>不同的 item</u> 經過 <code>hashFunction</code> 後得到<u>同一個 hash 值</u></strong>（也就是 <code>hash(k₁) == hash(k₂)</code>，因此被映射到同一個 slot），這才叫 collision。判 collision 看的是「hash 值」這個運算結果，不是「key 本身」。</p>
     <p>同一個 key 重複 <code>put</code>（如 <code>h.put(77, "bird")</code> 然後 <code>h.put(77, "eagle")</code>）：hash 值當然會相同，<strong>但兩次塞的是同一個 item</strong>，只是更新同一個 entry，<strong>這不是 collision，也不會觸發任何 rehash</strong>。collision 必須是「兩個不同 item 撞到同一格」。</p>
     <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table" style="margin-top:.8rem;">
       <thead><tr><th>狀況</th><th>兩個 item 的 hash 值</th><th>是同一個 key 嗎？</th><th>這算 collision 嗎？</th><th><code>put</code> 要做的事</th></tr></thead>
       <tbody>
-        <tr><td>情況一</td><td>相同（必然）</td><td>是（同 key 重複 put）</td><td><span class="pill pill-green">不是</span></td><td>直接覆寫舊值（字典「同 key 重新賦值」的語意）</td></tr>
+        <tr><td>情況一</td><td>相同（必然）</td><td>是（同 key 重複 put）</td><td><span class="pill pill-green">不是</span></td><td>直接覆寫舊值（字典「同 key 重新指定值」的語意）</td></tr>
         <tr><td>情況二</td><td><strong>相同</strong>（hash 撞到了）</td><td><strong>否</strong>（不同 key）</td><td><span class="pill pill-orange">是</span></td><td>啟動 rehash 探查，找下一個位置</td></tr>
         <tr><td>情況三</td><td>不同</td><td>否</td><td><span class="pill pill-green">不是</span></td><td>各走各的 slot，互不相干</td></tr>
       </tbody>
     </table></div>
-    <p style="margin-top:.5rem;font-size:.92em;">情況一、二 在程式裡都會「<code>slots[hash]</code> 已經有東西」，但只有情況二才是真 collision：差別就在那個被佔的 slot 裡放的 key 跟我「是不是同一個 item」。</p>
+    <p style="margin-top:.5rem;font-size:.92em;">情況一、二在程式裡都會遇到「<code>slots[hash]</code> 已經有東西」，但只有情況二是真正的 collision：差別在於被佔的 slot 裡放的 key，跟要放入的 key 是不是同一個。</p>
   </div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">課程強化版本的 <code>put()</code>：探查一圈就停</h4>
@@ -2648,7 +2647,7 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
     <thead><tr><th>步驟</th><th>操作</th><th>hash</th><th>slots[hash]</th><th>走哪條分支</th><th>是 collision 嗎？</th><th>為何</th></tr></thead>
     <tbody>
       <tr><td>1</td><td><code>h.put(77, "bird")</code></td><td>0</td><td><code>-1</code></td><td><strong>① 起始槽直接插入</strong></td><td>—</td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">slot 0 空，直接寫入，不必探查</td></tr>
-      <tr><td>2</td><td><code>h.put(77, "eagle")</code></td><td>0</td><td><code>77</code></td><td><strong>② 起始槽直接更新</strong></td><td><span class="pill pill-green">否</span></td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">slot 0 已有的 key 就是 77 → 同 key 重新賦值，直接覆寫，<strong>不啟動 rehash</strong></td></tr>
+      <tr><td>2</td><td><code>h.put(77, "eagle")</code></td><td>0</td><td><code>77</code></td><td><strong>② 起始槽直接更新</strong></td><td><span class="pill pill-green">否</span></td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">slot 0 已有的 key 就是 77，屬於同 key 重新指定值，直接覆寫，<strong>不啟動 rehash</strong></td></tr>
       <tr><td>3</td><td><code>h.put(44, "goat")</code></td><td>0</td><td><code>77</code> (≠ 44)</td><td><strong>③ 探查後遇空槽</strong></td><td><span class="pill pill-orange">是</span></td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">44 和 77 hash 值都是 0（不同 key、相同 hash） → collision → 探查到 slot 1 的空槽後插入</td></tr>
       <tr><td>4</td><td><code>h.put(44, "lamb")</code></td><td>0</td><td><code>77</code> (≠ 44)</td><td><strong>④ 探查後遇同 key</strong></td><td><span class="pill pill-green">不是新的 collision</span></td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">44 真正存於 slot 1；沿既有碰撞探查鏈找到同 key 後覆寫 value</td></tr>
     </tbody>
@@ -2673,7 +2672,7 @@ step 3 (③ h.put(44, "goat")):   ← collision，rehash 到 slot 1
 step 4 (④ h.put(44, "lamb")):   ← 不是 collision，沿著 rehash 路徑找到既存 key 44 並覆寫
             slots = [77 , 44 , . , . , . , . , . , . , . , . , . ]
             data  = ["eagle","lamb", . , . , . , . , . , . , . , . , . ]</pre>
-  <p style="font-size:.86rem;color:var(--muted);">注意 <code>slots</code> 在第 4 步<strong>完全沒動</strong>，只動 <code>data</code>：這正是「同一個 key 永遠只占一格」的保證。</p>
+  <p style="font-size:.86rem;color:var(--muted);">注意 <code>slots</code> 在第 4 步<strong>完全沒動</strong>，只改了 <code>data</code>，所以同一個 key 永遠只占一格。</p>
 
   <div class="info-box green">
     <span class="info-label">結論</span>
@@ -4092,7 +4091,7 @@ window.addEventListener('resize', () => {
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "搜尋（Searching）", "back": "依照事先定義的條件或特徵，在一群資料中定位特定元素的動作。"}, {"front": "排序（Sorting）", "back": "把資料集內的元素依值排成特定次序（通常是遞增或遞減）的過程。"}, {"front": "循序搜尋（Sequential Search）", "back": "從串列開頭一個一個往後檢查，直到找到目標或走完整個串列為止的搜尋方式。"}, {"front": "二分搜尋（Binary Search）", "back": "在已排序的陣列上反覆把搜尋範圍砍半的演算法：拿中間元素跟目標比較，決定往左半或右半繼續找。"}, {"front": "分而治之（Divide and Conquer）", "back": "把問題拆成同類的較小子問題各自解決，再把子問題的答案組合成原問題答案的策略。"}, {"front": "雜湊（Hashing）", "back": "把鍵交給雜湊函數以選出表格索引的技術；不同鍵可能算出同一格，因此還需要碰撞解決策略。"}, {"front": "雜湊表（Hash Table）", "back": "以雜湊實作關聯式容器的資料結構：值由鍵透過雜湊函數對應到表中的槽位（slot），達成高效率查找。"}, {"front": "槽（Slot）", "back": "雜湊表中的一個位置，從 0 開始編號，可以存放一個元素；課程的實作用 -1 表示空槽。"}, {"front": "碰撞（Collision）", "back": "兩個不同的鍵經雜湊函數算出同一個表索引時發生的狀況。"}, {"front": "完美雜湊函數（Perfect Hash Function）", "back": "對輸入集合中每個鍵都算出獨一無二索引的雜湊函數：完全不會發生碰撞。"}, {"front": "餘數法（Remainder Method）", "back": "把鍵除以表格大小、取餘數當雜湊值的方法：h(key) = key % m。"}, {"front": "折疊法（Folding Method）", "back": "把鍵切成幾段、各段相加，再由總和導出雜湊值的技巧。"}, {"front": "平方取中法（Mid-square Method）", "back": "先把鍵平方，再取結果的中間幾位當雜湊值的技巧。"}, {"front": "碰撞解決（Collision Resolution）", "back": "處理「兩個鍵雜湊到同一格」的各種策略，例如鏈結法（chaining）與開放定址（open addressing）。"}, {"front": "開放定址（Open Addressing）", "back": "碰撞時依預定的探查序列在表內找下一個空槽的解決方法。"}, {"front": "線性探查（Linear Probing）", "back": "開放定址的一種：碰撞後逐格往下找可用的槽位。"}, {"front": "群聚（Clustering）", "back": "線性探查時，同一個雜湊值碰撞多次，使附近的 slot 被連續填滿；之後雜湊到這一段的元素都得走過整段才找得到空位。"}, {"front": "重新雜湊／再探查（Rehashing）", "back": "本章的開放定址實作中，指碰撞後算出下一個候選槽位的探查步驟，例如 (oldHash + 1) % size。正式容器擴表時重新插入所有鍵則是另一種常見用法。"}, {"front": "平方探查（Quadratic Probing）", "back": "開放定址的一種：用二次函數（+1、+4、+9、…）決定下一個探查位置，比線性探查更能減少群聚（clustering）。"}, {"front": "鏈結法（Chaining）", "back": "雜湊表的碰撞解決技巧之一：每個表索引掛一條串列（鏈），雜湊到同一格的元素全部串在該鏈上。"}, {"front": "映射（Map）", "back": "儲存鍵值配對的資料結構，可依鍵高效率取回對應的值。"}, {"front": "負載因子（Load Factor）", "back": "衡量雜湊表有多滿的指標：已存元素個數除以總槽位數（λ = n / m）。"}, {"front": "氣泡排序（Bubble Sort）", "back": "反覆走訪串列、比較相鄰兩元素、順序錯了就交換的簡單排序法：每一輪把最大值「浮」到尾端。"}, {"front": "短路氣泡排序（Short Bubble）", "back": "氣泡排序的變形：某一輪完全沒有交換時，表示 list 已經排好，立即結束，不必跑完 n − 1 輪。"}, {"front": "選擇排序（Selection Sort）", "back": "原地比較排序法：每一輪在未排序前綴找最大值，再把它交換到尾端最後一個尚未就位的位置。"}, {"front": "插入排序（Insertion Sort）", "back": "一次拿一個新元素、插進前面已排序部分正確位置的簡單排序法，就像整理手上的撲克牌。"}, {"front": "希爾排序（Shell Sort）", "back": "先比較與交換相隔某個間距（gap）的元素、逐步縮小間距到 1 的排序法：是插入排序的加速版。"}, {"front": "間距（Gap）", "back": "希爾排序中被互相比較與排序的元素之間相隔的距離。"}, {"front": "合併排序（Merge Sort）", "back": "分而治之的經典排序法：把未排序串列一路對半拆到剩單一元素，再反覆合併成已排序的串列。"}, {"front": "穩定排序（Stable Sort）", "back": "排序後值相等的元素仍維持原本相對順序的排序演算法性質。"}, {"front": "快速排序（Quick Sort）", "back": "分而治之的高效率排序法：選一個 pivot，把陣列分割成「比它小」與「比它大」兩塊，再分別遞迴處理。"}, {"front": "樞紐值（Pivot Value）", "back": "快速排序分割階段選定的基準值：其他元素依「比它小或比它大」被重新安排位置。"}, {"front": "分割點（Split Point）", "back": "pivot 在排序後陣列中落定的位置：左邊全是比它小的元素、右邊全是比它大的。"}, {"front": "分割程序（Partition Process）", "back": "快速排序的關鍵步驟：依元素與 pivot 的大小關係重新排列陣列。"}, {"front": "三數取中（Median of Three）", "back": "快速排序挑 pivot 的策略：取區段第一個、中間、最後一個元素三者的中位數，避開最壞情況。"}];
+const FLASHCARDS = [{"front": "搜尋（Searching）", "back": "依照事先定義的條件或特徵，在一群資料中定位特定元素的動作。"}, {"front": "排序（Sorting）", "back": "把資料集內的元素依值排成特定次序（通常是遞增或遞減）的過程。"}, {"front": "循序搜尋（Sequential Search）", "back": "從串列開頭一個一個往後檢查，直到找到目標或走完整個串列為止的搜尋方式。"}, {"front": "二分搜尋（Binary Search）", "back": "在已排序的陣列上反覆把搜尋範圍砍半的演算法：拿中間元素跟目標比較，決定往左半或右半繼續找。"}, {"front": "分而治之（Divide and Conquer）", "back": "把問題拆成同類的較小子問題各自解決，再把子問題的答案組合成原問題答案的策略。"}, {"front": "雜湊（Hashing）", "back": "把鍵交給雜湊函數以選出表格索引的技術；不同鍵可能算出同一格，因此還需要碰撞解決策略。"}, {"front": "雜湊表（Hash Table）", "back": "以雜湊實作關聯式容器的資料結構：值由鍵透過雜湊函數對應到表中的槽位（slot），可以快速查詢。"}, {"front": "槽（Slot）", "back": "雜湊表中的一個位置，從 0 開始編號，可以存放一個元素；課程的實作用 -1 表示空槽。"}, {"front": "碰撞（Collision）", "back": "兩個不同的鍵經雜湊函數算出同一個表索引時發生的狀況。"}, {"front": "完美雜湊函數（Perfect Hash Function）", "back": "對輸入集合中每個鍵都算出獨一無二索引的雜湊函數，完全不會發生碰撞。"}, {"front": "餘數法（Remainder Method）", "back": "把鍵除以表格大小、取餘數當雜湊值的方法：h(key) = key % m。"}, {"front": "折疊法（Folding Method）", "back": "把鍵切成幾段、各段相加，再由總和導出雜湊值的技巧。"}, {"front": "平方取中法（Mid-square Method）", "back": "先把鍵平方，再取結果的中間幾位當雜湊值的技巧。"}, {"front": "碰撞解決（Collision Resolution）", "back": "處理「兩個鍵雜湊到同一格」的各種策略，例如鏈結法（chaining）與開放定址（open addressing）。"}, {"front": "開放定址（Open Addressing）", "back": "碰撞時依預定的探查序列在表內找下一個空槽的解決方法。"}, {"front": "線性探查（Linear Probing）", "back": "開放定址的一種：碰撞後逐格往下找可用的槽位。"}, {"front": "群聚（Clustering）", "back": "線性探查時，同一個雜湊值碰撞多次，使附近的 slot 被連續填滿；之後雜湊到這一段的元素都得走過整段才找得到空位。"}, {"front": "重新雜湊／再探查（Rehashing）", "back": "本章的開放定址實作中，指碰撞後算出下一個候選槽位的探查步驟，例如 (oldHash + 1) % size。正式容器擴表時重新插入所有鍵則是另一種常見用法。"}, {"front": "平方探查（Quadratic Probing）", "back": "開放定址的一種：用二次函數（+1、+4、+9、…）決定下一個探查位置，比線性探查更能減少群聚（clustering）。"}, {"front": "鏈結法（Chaining）", "back": "雜湊表的碰撞解決技巧之一：每個表索引掛一條串列（鏈），雜湊到同一格的元素全部串在該鏈上。"}, {"front": "映射（Map）", "back": "儲存鍵值配對的資料結構，可以依鍵快速取回對應的值。"}, {"front": "負載因子（Load Factor）", "back": "衡量雜湊表有多滿的指標：已存元素個數除以總槽位數（λ = n / m）。"}, {"front": "氣泡排序（Bubble Sort）", "back": "反覆走訪串列、比較相鄰兩元素、順序錯了就交換的簡單排序法：每一輪把最大值「浮」到尾端。"}, {"front": "短路氣泡排序（Short Bubble）", "back": "氣泡排序的變形：某一輪完全沒有交換時，表示 list 已經排好，立即結束，不必跑完 n − 1 輪。"}, {"front": "選擇排序（Selection Sort）", "back": "就地比較排序法：每一輪在未排序前綴找最大值，再把它交換到尾端最後一個尚未就位的位置。"}, {"front": "插入排序（Insertion Sort）", "back": "一次拿一個新元素、插進前面已排序部分正確位置的簡單排序法，就像整理手上的撲克牌。"}, {"front": "希爾排序（Shell Sort）", "back": "先比較與交換相隔某個間距（gap）的元素、逐步縮小間距到 1 的排序法，可以看成插入排序的加速版。"}, {"front": "間距（Gap）", "back": "希爾排序中被互相比較與排序的元素之間相隔的距離。"}, {"front": "合併排序（Merge Sort）", "back": "分而治之的經典排序法：把未排序串列一路對半拆到剩單一元素，再反覆合併成已排序的串列。"}, {"front": "穩定排序（Stable Sort）", "back": "排序後值相等的元素仍維持原本相對順序的排序演算法性質。"}, {"front": "快速排序（Quick Sort）", "back": "分而治之的高效率排序法：選一個 pivot，把陣列分割成「比它小」與「比它大」兩塊，再分別遞迴處理。"}, {"front": "樞紐值（Pivot Value）", "back": "快速排序分割階段選定的基準值：其他元素依「比它小或比它大」被重新安排位置。"}, {"front": "分割點（Split Point）", "back": "pivot 在排序後陣列中落定的位置：左邊全是比它小的元素、右邊全是比它大的。"}, {"front": "分割程序（Partition Process）", "back": "快速排序的關鍵步驟：依元素與 pivot 的大小關係重新排列陣列。"}, {"front": "三數取中（Median of Three）", "back": "快速排序挑 pivot 的策略：取區段第一個、中間、最後一個元素三者的中位數，避開最差情況。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

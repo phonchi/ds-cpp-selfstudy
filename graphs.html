@@ -479,7 +479,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#representation" data-target="representation"><span class="fn-num">P01</span><span class="fn-name">圖的表示</span></a>
   <a href="#word-ladder" data-target="word-ladder"><span class="fn-num">P02</span><span class="fn-name">Word Ladder</span></a>
   <a href="#bfs" data-target="bfs"><span class="fn-num">P03</span><span class="fn-name">廣度優先 BFS</span></a>
-  <a href="#knight" data-target="knight"><span class="fn-num">P04</span><span class="fn-name">騎士巡邏</span></a>
+  <a href="#knight" data-target="knight"><span class="fn-num">P04</span><span class="fn-name">騎士巡遊</span></a>
   <a href="#dfs" data-target="dfs"><span class="fn-num">P05</span><span class="fn-name">深度優先 DFS</span></a>
   <a href="#topsort" data-target="topsort"><span class="fn-num">P06</span><span class="fn-name">拓撲排序（官方選讀）</span></a>
   <a href="#scc" data-target="scc"><span class="fn-num">P07</span><span class="fn-name">強連通元件（官方選讀）</span></a>
@@ -540,7 +540,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#representation"><span class="toc-num">P01</span>圖的表示方法</a>
     <a href="#word-ladder"><span class="toc-num">P02</span>Word Ladder</a>
     <a href="#bfs"><span class="toc-num">P03</span>廣度優先搜尋 BFS</a>
-    <a href="#knight"><span class="toc-num">P04</span>騎士巡邏 Knight's Tour</a>
+    <a href="#knight"><span class="toc-num">P04</span>騎士巡遊 Knight's Tour</a>
     <a href="#dfs"><span class="toc-num">P05</span>深度優先搜尋 DFS</a>
     <a href="#topsort"><span class="toc-num">P06</span>拓撲排序（官方選讀）</a>
     <a href="#scc"><span class="toc-num">P07</span>強連通元件（官方選讀）</a>
@@ -560,11 +560,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <section id="prologue">
   <div class="section-number">PROLOGUE · 開場</div>
   <h2>圖是什麼？先把術語都講清楚 <span class="sec-badge">cppds §9.1–9.2</span></h2>
-  <p><strong>圖（graph）</strong>可以用來描述許多現實世界的關係：道路系統、航班、網際網路連線、課程先修關係等等。一旦我們把問題用圖表示出來，就可以套用<strong>標準的圖演算法</strong>解決原本看似困難的問題！</p>
+  <p><strong>圖（graph）</strong>可以用來描述許多現實世界的關係：道路系統、航班、網際網路連線、課程先修關係等等。把問題用圖表示出來之後，就可以套用<strong>標準的圖演算法</strong>，解決原本看似困難的問題。</p>
 
   <div class="info-box">
-    <span class="info-label">三個核心元素</span>
-    <strong>頂點（Vertex / Node）：</strong>圖的基本單位，有一個 <code>key</code>（名稱），可選擇性地附帶 <code>value</code> 或 <code>payload</code>。<br>
+    <span class="info-label">圖的三個元素</span>
+    <strong>頂點（Vertex / Node）：</strong>圖的基本單位，有一個 <code>key</code>（名稱），也可以附帶 <code>value</code> 或 <code>payload</code>。<br>
     <strong>邊（Edge / Arc）：</strong>連接兩個頂點，表示兩者之間有關係。邊可以是<strong>單向</strong>（有向圖 digraph）或<strong>雙向</strong>。<br>
     <strong>權重（Weight）：</strong>邊上可附加成本，例如兩城市間的距離、網路延遲等。
   </div>
@@ -606,7 +606,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
         <div class="ic-title">關鍵概念</div>
         <p style="font-size:.82rem;line-height:1.6;margin:0;">
           <span class="pill pill-blue">Path</span> 由邊串聯的頂點序列 $w_1, w_2, \ldots, w_n$，每個相鄰對 $(w_i, w_{i+1}) \in E$。<br><br>
-          <span class="pill pill-orange">Cycle</span> 起點＝終點的 path 。<br><br>
+          <span class="pill pill-orange">Cycle</span> 起點＝終點的 path。<br><br>
           <span class="pill pill-green">DAG</span> Directed Acyclic Graph：沒有 cycle 的有向圖；可解決許多排程／依賴問題。<br><br>
           <span class="pill pill-purple">Tree</span> 連通且無 cycle 的圖；下一章專題討論。
         </p>
@@ -716,7 +716,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
       <div class="info-card">
         <div class="ic-title">真實世界：稀疏為主</div>
         <p style="font-size:.82rem;line-height:1.55;margin:0;color:var(--ink);">
-          以 Word Ladder 為例：5,110 個字的矩陣有 26,112,100 格；實作儲存 53,286 條有向 adjacency entries（26,643 組無向單字對），約占 <strong>0.20%</strong>。
+          以 Word Ladder 為例：5,110 個字的矩陣有 26,112,100 格；實作儲存 53,286 筆有向的相鄰資料（26,643 組無向單字對），約占 <strong>0.20%</strong>。
         </p>
       </div>
     </div>
@@ -958,10 +958,10 @@ SAGE</div>
 <section id="bfs">
   <div class="section-number">PART 03 · 廣度優先搜尋</div>
   <h2>BFS：一層一層往外擴散 <span class="sec-badge">cppds §9.9–9.10</span></h2>
-  <p>給定起點 $s$，<strong>廣度優先搜尋（Breadth-First Search）</strong>會找出圖中所有從 $s$ 可達的頂點。它最迷人的性質是：<strong>會先找到所有距離 $s$ 為 $k$ 的頂點，才開始找距離 $k+1$ 的</strong>。換句話說，BFS 自動產生「最少邊數路徑」（在無權圖上就是最短路徑）。</p>
+  <p>給定起點 $s$，<strong>廣度優先搜尋（Breadth-First Search）</strong>會找出圖中所有從 $s$ 可達的頂點。它最重要的性質是：<strong>會先找到所有距離 $s$ 為 $k$ 的頂點，才開始找距離 $k+1$ 的</strong>。所以 BFS 找到的就是「最少邊數路徑」（在無權圖上就是最短路徑）。</p>
 
   <div class="info-box">
-    <span class="info-label">核心資料結構</span>
+    <span class="info-label">用到的資料結構</span>
     BFS 用 <strong>Queue（先進先出）</strong>決定下一個頂點。每次執行前先把所有頂點重設為 white、<code>distance = INT_MAX</code>（尚不可達）、空 previous；起點在 enqueue 前設為 gray 與 distance 0，避免被鄰居重複加入。
   </div>
 
@@ -1192,7 +1192,7 @@ SAGE</div>
 <!-- PART 04: Knight's Tour -->
 <!-- ============================================================ -->
 <section id="knight">
-  <div class="section-number">PART 04 · 騎士巡邏</div>
+  <div class="section-number">PART 04 · 騎士巡遊</div>
   <h2>Knight's Tour：DFS + Warnsdorff 啟發式 <span class="sec-badge">cppds §9.11–9.14</span></h2>
 <!-- gen:graphs-knight -->
 <p>另一個經典問題叫<strong>騎士巡遊</strong>（knight's tour），可以用來說明第二種常見的圖演算法。這個謎題在西洋棋盤上只用一個棋子：騎士。目標是找出一串走法，讓騎士<strong>每一格恰好走過一次</strong>，這樣的一串走法稱為一個 <strong>tour</strong>。8×8 棋盤上合法的 tour 數量上限已知約為 $10^{35}$，而走到死路的走法更多。</p>
@@ -1320,7 +1320,7 @@ SAGE</div>
 <figure class="gr-figure" id="gr-figure-8arrayTree"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="一棵搜尋樹：根節點有 8 個子節點，下一層的節點又各有數個子節點，越往下越多。"><img src="assets/figures/ch8/8arrayTree.png" alt="一棵搜尋樹：根節點有 8 個子節點，下一層的節點又各有數個子節點，越往下越多。" width="640" height="220" style="--figure-width:640px" loading="lazy"></div><figcaption>把搜尋過程畫成樹：根是起點，每個子節點是一種下一步走法。每一層的分支數在 2 到 8 之間，樹的節點數隨深度以指數成長。</figcaption></figure>
 <p>每個節點最多有八個子節點，節點總數很大。因為每個節點的分支數不同，可以用<strong>平均分支因子</strong>估計：節點數是 $\frac{k^{N+1}-1}{k-1}$，$k$ 是這個棋盤的平均分支因子，這個式子隨 $N$ 指數成長。</p>
 <p>5×5 的棋盤深度是 25 層，平均分支因子 $k = 3.8$，搜尋樹的節點數約為 $3.8^{25} - 1$，也就是 $3.12 \times 10^{14}$。6×6 的棋盤 $k = 4.4$，約有 $1.5 \times 10^{23}$ 個節點；一般 8×8 的棋盤 $k = 5.25$，多達 $1.2 \times 10^{46}$ 個。</p>
-<p>當然，問題有很多解，不必探索每一個節點；但真正要探索的比例只是一個常數倍，不會改變指數成長的本質。</p>
+<p>問題有很多解，所以不必探索每一個節點；但實際要探索的比例只是一個常數倍，搜尋量仍然是指數成長。</p>
 <h3>Warnsdorff 啟發式</h3>
 <p><code>orderByAvail()</code> 依每個候選鄰居「還剩幾個白色鄰居」排序，先試剩下走法最少的那一格。這就是 Warnsdorff 規則，它讓 8×8 的情況變得實際可行，但最壞情況仍然是指數時間。</p>
 <details class="gr-detail"><summary>講義程式：orderByAvail</summary><div class="gr-detail-body"><div class="deck-extra">
@@ -1604,7 +1604,7 @@ SAGE</div>
     DFS 與 BFS 的程式碼<strong>幾乎一模一樣</strong>，差別只在內層迴圈最後一行：<br>
     BFS：<code>vertQueue.push(n.first)</code>：先把鄰居放進佇列，等以後處理。<br>
     DFS：<code>dfsVisit(n.first)</code>：立刻遞迴下去處理鄰居。<br>
-    這個小差異就決定了「廣度優先 vs 深度優先」的搜尋順序！
+    這一行的差別，決定了搜尋是廣度優先還是深度優先。
   </div>
 
 <!-- gen:graphs-dfs-trace -->
@@ -1662,11 +1662,11 @@ SAGE</div>
 <section id="topsort">
   <div class="section-number">PART 06 · 拓撲排序</div>
   <h2>拓撲排序：把 DAG 攤平成一條合法的待辦順序 <span class="sec-badge">cppds §9.17 · 官方選讀</span></h2>
-  <p style="font-size:.88rem;color:var(--muted);">這是 cppds 正文章節；課程標為 Optional，但保留完整可見摘要供自學。</p>
+  <p style="font-size:.88rem;color:var(--muted);">這是 cppds 正文的章節，課程列為選讀（Optional），可以自學。</p>
   <p>講義用煎鬆餅開場：食譜很簡單（1 顆蛋、1 杯鬆餅粉、1 匙油、3/4 杯牛奶），
   難的是<strong>先做哪一步</strong>。加熱煎鍋和打蛋都可以先做，但「倒麵糊」一定要等鍋熱了、糊攪好了。
-  把每個步驟當頂點、「必須先做」當有向邊，就得到一張 <strong>DAG</strong>（有向無環圖）。
-  <strong>拓撲排序</strong>（topological sort）吃進一張 DAG，吐出一個線性順序，
+  把每個步驟當頂點、「必須先做」當有向邊，就得到一張 <strong>DAG</strong>（有向無循環圖）。
+  <strong>拓撲排序</strong>（topological sort）把一張 DAG 的頂點排成一個線性順序，
   保證圖中每條邊 $(v, w)$ 的 $v$ 都排在 $w$ 前面。凡是「事件有先後依賴」的問題都用得上：
   軟體專案排程、資料庫查詢最佳化、矩陣連乘的順序安排。</p>
   <div class="info-box">
@@ -1680,7 +1680,7 @@ SAGE</div>
 <figure class="gr-figure" id="gr-figure-pancakes"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="煎鬆餅步驟的有向圖：3/4 cup milk、1 egg、1 Tbl Oil 指向 1 cup mix；1 cup mix 指向 pour 1/4 cup 與 heat syrup；heat griddle 指向 pour 1/4 cup；pour 1/4 cup→turn when bubbly→eat；heat syrup→eat。"><img src="assets/figures/ch8/pancakes.png" alt="煎鬆餅步驟的有向圖：3/4 cup milk、1 egg、1 Tbl Oil 指向 1 cup mix；1 cup mix 指向 pour 1/4 cup 與 heat syrup；heat griddle 指向 pour 1/4 cup；pour 1/4 cup→turn when bubbly→eat；heat syrup→eat。" width="400" height="320" style="--figure-width:400px" loading="lazy"></div><figcaption>煎鬆餅的步驟圖。邊 (v, w) 表示 v 必須在 w 之前完成，例如牛奶、蛋、油都要先加進鬆餅粉才能攪拌。圖中沒有循環，是一張 DAG。</figcaption></figure>
 <p>煎鬆餅的難處在於知道先做什麼。從圖上可以看到，可以先熱煎鍋，也可以先把任何一樣材料加進鬆餅粉。為了決定每個步驟的確切順序，我們用一個叫做<strong>拓撲排序</strong>（topological sort）的圖演算法。拓撲排序把一張 DAG 的所有頂點排成一條線性順序：只要圖中有邊 $(v, w)$，$v$ 就排在 $w$ 前面。DAG 常用來表示<strong>事件的先後順序</strong>，煎鬆餅只是一個例子，其他例子還有軟體專案的排程、資料庫查詢最佳化的優先順序圖，以及矩陣連乘。</p>
 <figure class="gr-figure" id="gr-figure-pancakesTS"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="九個步驟排成一列：1 Tbl Oil、1 egg、heat griddle、3/4 cup milk、1 cup mix、heat syrup、pour 1/4 cup、turn when bubbly、eat，所有箭頭都由左指向右。"><img src="assets/figures/ch8/pancakesTS.png" alt="九個步驟排成一列：1 Tbl Oil、1 egg、heat griddle、3/4 cup milk、1 cup mix、heat syrup、pour 1/4 cup、turn when bubbly、eat，所有箭頭都由左指向右。" width="760" height="105" style="--figure-width:760px" loading="lazy"></div><figcaption>依 closing 時間由大到小排列的結果。原圖的每條邊都從左指向右，所以照這個順序做，每一步的前置步驟都已經完成。</figcaption></figure>
-<details class="gr-detail"><summary>DFS 在鬆餅圖上的結果</summary><div class="gr-detail-body"><p>依 closing 時間由大到小排列，就得到上面那一列順序：所有的模糊都消除了，每個步驟該在什麼時候做一清二楚。</p><div class="gr-steps"><figure class="gr-figure" id="gr-figure-pancakesDFS"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="同一張圖，每個頂點都塗成黑色並標上兩個時間，例如 3/4 cup milk 1/12、heat griddle 13/14、1 Tbl Oil 17/18。"><img src="assets/figures/ch8/pancakesDFS.png" alt="同一張圖，每個頂點都塗成黑色並標上兩個時間，例如 3/4 cup milk 1/12、heat griddle 13/14、1 Tbl Oil 17/18。" width="400" height="320" style="--figure-width:400px" loading="lazy"></div><figcaption>對鬆餅圖跑 dfs() 之後，每個步驟都有 discovery/closing 時間。這張圖從 3/4 cup milk 開始搜尋；起點順序不同，時間也會不同。</figcaption></figure></div></div></details>
+<details class="gr-detail"><summary>DFS 在鬆餅圖上的結果</summary><div class="gr-detail-body"><p>依 closing 時間由大到小排列，就得到上面那一列順序，每個步驟該在什麼時候做都確定了。</p><div class="gr-steps"><figure class="gr-figure" id="gr-figure-pancakesDFS"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="同一張圖，每個頂點都塗成黑色並標上兩個時間，例如 3/4 cup milk 1/12、heat griddle 13/14、1 Tbl Oil 17/18。"><img src="assets/figures/ch8/pancakesDFS.png" alt="同一張圖，每個頂點都塗成黑色並標上兩個時間，例如 3/4 cup milk 1/12、heat griddle 13/14、1 Tbl Oil 17/18。" width="400" height="320" style="--figure-width:400px" loading="lazy"></div><figcaption>對鬆餅圖跑 dfs() 之後，每個步驟都有 discovery/closing 時間。這張圖從 3/4 cup milk 開始搜尋；起點順序不同，時間也會不同。</figcaption></figure></div></div></details>
 <details class="gr-detail"><summary>用 DFSGraph 寫出拓撲排序（補充）</summary><div class="gr-detail-body"><div class="deck-extra">
   <div class="dx-label">拓撲排序：照演算法的三個步驟寫</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="17/18  heat griddle&#10;15/16  3/4 cup milk&#10;13/14  1 egg&#10;1/12  1 Tbl oil&#10;2/11  1 cup mix&#10;7/10  pour 1/4 cup&#10;8/9  turn when bubbly&#10;3/6  heat syrup&#10;4/5  eat&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
@@ -1778,18 +1778,18 @@ SAGE</div>
 <section id="scc">
   <div class="section-number">PART 07 · 強連通元件</div>
   <h2>強連通元件（SCC）：找出「彼此都到得了」的頂點群 <span class="sec-badge">cppds §9.18 · 官方選讀</span></h2>
-  <p style="font-size:.88rem;color:var(--muted);">這是 cppds 正文章節；課程標為 Optional，但保留完整可見摘要供自學。</p>
+  <p style="font-size:.88rem;color:var(--muted);">這是 cppds 正文的章節，課程列為選讀（Optional），可以自學。</p>
   <p>把全球資訊網當成一張超大的有向圖：網頁是頂點、超連結是邊。Google 這類搜尋引擎正是在這張圖上做演算法。
   觀察這種圖會發現：內容相近的網站常常<strong>互相連來連去</strong>，形成高度互連的群集。
   抓出這種群集的工具就是<strong>強連通元件</strong>演算法。
   正式定義：SCC 是頂點的最大子集 $C \subseteq V$，使得其中任兩點 $v, w$ 都<strong>互相可達</strong>
   （$v$ 到得了 $w$，$w$ 也到得了 $v$）。找到 SCC 之後，把每個 SCC 縮成一顆大點，
-  就得到一張簡化的「元件圖」，原圖的巨觀結構一眼可見。</p>
+  就得到一張簡化的「元件圖」，原圖的整體結構就容易看出來了。</p>
   <div class="info-box">
     <span class="info-label">先備定義：轉置圖 $G^T$</span>
     把 $G$ 的每條邊反向就得到 $G^T$（A→B 變成 B→A）。
     關鍵觀察：<strong>$G$ 和 $G^T$ 的 SCC 一模一樣</strong>（「互相可達」反向後仍互相可達），
-    但「跨 SCC」的單向連結會反向。演算法要鑽的正是這個縫。
+    但「跨 SCC」的單向連結會反向。演算法利用的就是這一點。
   </div>
   <div class="info-box">
     <span class="info-label">SCC 演算法四步（Kosaraju）</span>
@@ -1843,7 +1843,7 @@ SAGE</div>
   </div>
 
   <div class="quiz-box">
-    <div class="quiz-label">QUIZ · 第二次 DFS 的兩個講究</div>
+    <div class="quiz-label">QUIZ · 第二次 DFS 的兩個條件</div>
     <p>SCC 演算法的第二次 DFS 為什麼要（i）換到 $G^T$ 上跑、（ii）依 closing time 遞減挑起點？</p>
     <div class="quiz-options" id="scc1Options">
       <div class="quiz-opt" data-correct="true" data-fb="第一次 DFS 中，位在上游的 SCC（能通往別的元件、別的元件回不來）一定含有最大的 closing time。換到 G&lt;sup&gt;T&lt;/sup&gt; 之後，跨元件的邊全部反向；從剩下 closing time 最大的頂點出發，DFS 只能在自己的元件裡走，進不了其他元件。走完一棵樹就收掉一個 SCC，再從剩下 closing time 最大的頂點開新的樹。" onclick="quizCheck('scc1', this)"><span class="opt-letter">(A)</span> 兩個條件合起來，讓每棵 DFS 樹恰好「困」在一個 SCC 裡</div>
@@ -1958,7 +1958,7 @@ SAGE</div>
   </div>
 
   <div class="info-box green">
-    <span class="info-label">關鍵概念：邊鬆弛 (relaxation)</span>
+    <span class="info-label">關鍵概念：邊鬆弛（relaxation）</span>
     程式中計算 <code>newDistance</code> 並比較、更新的那一段稱為<strong>邊鬆弛</strong>：對 $u$ 的每個鄰居 $v$，檢查是否可以透過 $u$ 走到 $v$ 比目前已知更近：
     $$\text{new\_d} = d(u) + w(u,v),\quad \text{若 new\_d} < d(v)\text{，更新 } d(v) \text{ 並把 }u\text{ 設為 previous}.$$
     本課程採 lazy priority queue：改善距離時直接 push 新 pair；舊 pair 出列時若距離較大就略過。最多 $O(|E|)$ 次 push/pop；簡單圖上 $\log|E|=O(\log|V|)$，總時間 $O((|V|+|E|)\log|V|)$。
@@ -2259,16 +2259,16 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
   </div>
 
   <div class="info-box warm">
-    <span class="info-label">Prim vs Dijkstra：一個關鍵差異</span>
+    <span class="info-label">Prim 和 Dijkstra 的差別</span>
     結構幾乎一樣，但<strong>更新規則不同</strong>：<br>
     <strong>Dijkstra：</strong> <code>newD = u-&gt;distance + w(u,v)</code>：累加從起點走到 v 的<strong>整條路徑</strong>權重。<br>
     <strong>Prim：</strong> <code>newD = w(u,v)</code>：只看 u 到 v 的<strong>單一邊權</strong>。<br>
-    為什麼？因為 MST 不在乎「離起點多遠」，只在乎「下一個要連入樹的最便宜邊」。
+    原因是 MST 不管「離起點多遠」，只看「下一個要連入樹的最便宜邊」。
   </div>
 
 <!-- gen:graphs-prim-run -->
 <h3>在廣播圖上追蹤 Prim</h3>
-<p>從 A 開始，其他頂點的 key 都初始化為無限大。看 A 的鄰居，B 和 C 經過 A 的成本小於無限大，所以更新它們的 key。這讓 B 和 C 移到優先佇列的前面，並把它們的 previous 設為 A。要注意的是，B 和 C 還沒有正式加入生成樹：<strong>頂點要從優先佇列取出之後，才算是生成樹的一部分</strong>。</p>
+<p>從 A 開始，其他頂點的 key 都初始化為無限大。看 A 的鄰居，B 和 C 經過 A 的成本小於無限大，所以更新它們的 key。這讓 B 和 C 移到優先佇列的前面，並把它們的 previous 設為 A。不過 B 和 C 還沒有正式加入生成樹：<strong>頂點要從優先佇列取出之後，才算是生成樹的一部分</strong>。</p>
 <figure class="gr-figure" id="gr-figure-prima"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="Prim after A：A 的 k=0；B k=2、C k=3，其餘 k=∞；PQ 為 (2,&quot;B&quot;)、(3,&quot;C&quot;)。"><img src="assets/figures/ch8/prima.png" alt="Prim after A：A 的 k=0；B k=2、C k=3，其餘 k=∞；PQ 為 (2,&quot;B&quot;)、(3,&quot;C&quot;)。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>從 A 開始：A 進入樹，它的鄰居 B、C 得到 key（連到樹的那條邊的權重）2 與 3。B、C 這時還不算在樹裡，要等它們從佇列取出才算。</figcaption></figure>
 <p>B 的距離最小，所以接著看 B。檢查 B 的鄰居，D 和 E 可以更新，兩者都得到新的距離，previous 也跟著更新。佇列裡的下一個是 C，C 的鄰居中還在佇列裡的只有 F，於是更新 F 的距離。接著檢查 D 的鄰居，發現 E 的距離可以從 4 降到 1，E 的 previous 改指向 D，準備接到生成樹的另一個位置。之後的過程就照這樣，把每個新頂點加進樹裡。</p>
 <details class="gr-detail"><summary>逐步圖：依序加入 B、C、D、E、F</summary><div class="gr-detail-body"><div class="gr-steps"><figure class="gr-figure" id="gr-figure-primb"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after B：A–B 為藍色樹邊；C 的 k 改為 1，D=1、E=4；PQ 為 (1,&quot;C&quot;)、(1,&quot;D&quot;)、(3,&quot;C&quot;)、(4,&quot;E&quot;)。"><img src="assets/figures/ch8/primb.png" alt="after B：A–B 為藍色樹邊；C 的 k 改為 1，D=1、E=4；PQ 為 (1,&quot;C&quot;)、(1,&quot;D&quot;)、(3,&quot;C&quot;)、(4,&quot;E&quot;)。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 B，加入邊 A–B。經 B 連到 C 只要 1，比 3 便宜，C 的 key 改成 1；D、E 第一次得到 key。</figcaption></figure><figure class="gr-figure" id="gr-figure-primc"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after C：B–C 為樹邊；F 的 k=5。"><img src="assets/figures/ch8/primc.png" alt="after C：B–C 為樹邊；F 的 k=5。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 C（key 1），加入邊 B–C；C 的鄰居 F 得到 key 5。</figcaption></figure><figure class="gr-figure" id="gr-figure-primd"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after D：B–D 為樹邊；E 的 k 由 4 改為 1。"><img src="assets/figures/ch8/primd.png" alt="after D：B–D 為樹邊；E 的 k 由 4 改為 1。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 D，加入邊 B–D。經 D 連到 E 只要 1，E 的 key 從 4 改成 1，previous 也改指向 D。</figcaption></figure><figure class="gr-figure" id="gr-figure-prime"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after E：D–E 為樹邊；F 的 k 由 5 改為 1。"><img src="assets/figures/ch8/prime.png" alt="after E：D–E 為樹邊；F 的 k 由 5 改為 1。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 E，加入邊 D–E；F 的 key 從 5 改成 1。</figcaption></figure><figure class="gr-figure" id="gr-figure-primf"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after F：E–F 為樹邊；G 的 k=1。"><img src="assets/figures/ch8/primf.png" alt="after F：E–F 為樹邊；G 的 k=1。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 F，加入邊 E–F；G 得到 key 1。</figcaption></figure></div></div></details>
@@ -2347,13 +2347,13 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
   <div class="section-number">REFERENCE · 總覽比較</div>
   <h2>所有圖演算法一覽</h2>
 
-  <h3>核心演算法比較表</h3>
+  <h3>演算法比較表</h3>
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead>
       <tr>
         <th>演算法</th>
         <th>解決問題</th>
-        <th>關鍵 DS</th>
+        <th>主要資料結構</th>
         <th>時間複雜度</th>
         <th>適用條件</th>
       </tr>
@@ -2413,8 +2413,8 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
     <span class="info-label">學習路線建議</span>
     <strong>1.</strong> 先牢記三色語義（white/gray/black），這是 BFS 與 DFS 共通的骨架。<br>
     <strong>2.</strong> 動手追幾遍 BFS 與 DFS 的虛擬碼：它們<strong>程式碼幾乎一樣</strong>，差別只在 queue/stack。<br>
-    <strong>3.</strong> Dijkstra 與 Prim 同樣是 PQ-based 演算法，只差在<strong>更新規則</strong>，一起記憶事半功倍。<br>
-    <strong>4.</strong> Knight's Tour 是欣賞「啟發式排序」威力的最佳範例：同樣的 DFS 骨架，加上 Warnsdorff 規則就能把 8x8 從「跑不完」變「秒解」。<br>
+    <strong>3.</strong> Dijkstra 與 Prim 同樣是 PQ-based 演算法，只差在<strong>更新規則</strong>，放在一起記比較省力。<br>
+    <strong>4.</strong> Knight's Tour 示範了啟發式排序的效果：同樣的 DFS 骨架，加上 Warnsdorff 規則，8x8 棋盤就從「跑不完」變成很快就能解出。<br>
     <strong>5.</strong> 讀完本頁去 <a href="#secretsofmaps">Google Maps Explained</a> 把 BFS、DFS、A* 在真實地圖上各跑一次：觀察加入到終點的估計後，搜尋順序如何改變，再回頭對照本章的距離與優先佇列模型。
   </div>
 </section>
@@ -4214,7 +4214,7 @@ function quizCheck(quizId, optEl) {
 }
 </script>
 <script>
-const FLASHCARDS = [{"front": "圖（Graph）", "back": "由頂點（節點）集合與連接頂點配對的邊組成的資料結構，用來建模複雜系統中的關係。"}, {"front": "頂點（Vertex）", "back": "也叫節點（node）：代表圖中的一個實體，是圖結構的基本單位。"}, {"front": "邊（Edge）", "back": "兩個頂點之間的連接。在有向圖中，邊帶有方向，表示特定方向的關係。"}, {"front": "權重（Weight）", "back": "指定給邊的數值，代表成本、距離或其他影響走訪的度量。"}, {"front": "路徑（Path）", "back": "由邊串起來的一串頂點：從某頂點出發，沿著邊走到另一個頂點的序列。"}, {"front": "循環（Cycle）", "back": "起點與終點是同一個頂點的路徑：至少包含一條邊，且不重複使用邊或中間頂點。"}, {"front": "無循環圖（Acyclic Graph）", "back": "不含任何循環的圖：沿著邊走，不可能回到出發的頂點。"}, {"front": "有向圖（Directed Graph）", "back": "邊帶有方向的圖：每條邊表示從一個頂點到另一個頂點的單向關係。"}, {"front": "有向無循環圖（DAG, Directed Acyclic Graph）", "back": "不含循環的有向圖，常用於工作排程等「任務不重複」的先後關係建模。"}, {"front": "樹（Tree）", "back": "有指定根頂點的無循環圖：其他每個頂點到根都恰好只有一條路徑。"}, {"front": "相鄰矩陣（Adjacency Matrix）", "back": "用方陣表示圖的方法：矩陣元素標記兩兩頂點是否相鄰（有邊）。"}, {"front": "相鄰串列／map（Adjacency List）", "back": "只儲存實際鄰居的稀疏表示；本課程用有序 map 儲存頂點與鄰居權重。"}, {"front": "廣度優先搜尋（BFS, Breadth-First Search）", "back": "先把目前深度的所有鄰居探索完，才前進到下一層的搜尋演算法：像水波一層一層往外擴散。"}, {"front": "騎士巡遊（Knight's Tour）", "back": "在西洋棋盤上讓騎士每一格都恰好走過一次的移動序列。"}, {"front": "深度優先搜尋（DFS, Depth-First Search）", "back": "沿著一條分支盡量往深處探索、碰壁才回頭（backtrack）的走訪演算法。"}, {"front": "搜尋樹（Search Tree）", "back": "搜尋過程中由 previous 連結構成的樹：BFS 一次建一層，DFS 沿一個分支盡量往深處建。根是起點，從任一頂點沿 previous 往上走就回到根。"}, {"front": "啟發式（Heuristic）", "back": "在傳統方法太慢或不可行時，用來快速求解或找近似解的技巧。"}, {"front": "Warnsdorff 法則（Warnsdorff's Algorithm）", "back": "騎士巡遊的啟發式：騎士永遠先跳到「後續可走步數最少」的那一格。"}, {"front": "深度優先森林（Depth-First Forest）", "back": "深度優先搜尋過程中形成的一群樹：每棵樹對應一段連續探索到的頂點集合。"}, {"front": "括號性質（Parenthesis Property）", "back": "DFS 的性質：任兩個頂點的「發現時間、完成時間」區間，要嘛完全不相交，要嘛一個完全包住另一個。"}, {"front": "拓撲排序（Topological Sorting）", "back": "把有向圖的頂點排成一條線性順序：對每條邊 u→v，u 都排在 v 前面。只有 DAG 做得到。"}, {"front": "強連通元件（Strongly Connected Components）", "back": "有向圖中「任兩頂點彼此都有有向路徑可達」的極大子圖。"}, {"front": "最短路徑問題（Shortest Path Problems）", "back": "在兩頂點之間找一條「邊權重總和最小」的路徑的問題。"}, {"front": "Dijkstra 演算法（Dijkstra's Algorithm）", "back": "在非負邊權圖上求單源最短路徑；本課程的 lazy PQ 版本會推入改善後的 pair，並略過 stale entries。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的資料結構：出隊順序由優先權決定，而不是單純的先來後到。"}, {"front": "無控制氾濫（Uncontrolled Flooding）", "back": "網路技術：把封包往除了來源連線以外的所有出口連線轉送，會造成大量重複流量。"}, {"front": "最小生成樹（MST, Minimum Spanning Tree）", "back": "連接圖中所有頂點、不含循環、且邊權重總和最小的邊子集合。"}, {"front": "Prim 演算法（Prim's Algorithm）", "back": "反覆加入跨越目前 cut 的最小權重邊。課程 prim() 要求圖連通，否則丟出 invalid_argument。"}, {"front": "貪婪演算法（Greedy Algorithms）", "back": "每一步都選「當下看起來最有利」的選項來組出解的一類演算法。"}, {"front": "回溯（Backtracking）", "back": "DFS 走到死路時退回上一層再試別的選擇。knightTour 中遞迴呼叫回傳 false 時，把頂點移出 path 並塗回白色。"}, {"front": "轉置圖（Transpose）", "back": "把圖 G 的每條邊反向得到的圖，記作 Gᵀ。G 與它的轉置圖有相同的強連通元件。"}, {"front": "邊鬆弛（Relaxation）", "back": "檢查經過 u 走到鄰居 v 是否比目前已知的距離更短；更短就更新 v 的距離與 previous。Dijkstra 的核心步驟。"}, {"front": "過期項目（Stale Entry）", "back": "lazy 優先佇列裡，距離已被後來的更新取代的舊 pair。取出時發現它的距離大於頂點目前的距離，就直接略過。"}, {"front": "安全邊（Safe Edge）", "back": "跨過「已在樹中的頂點」與「樹外頂點」之間分界的最小權重邊。Prim 每一步加入一條安全邊。"}, {"front": "存活時間（TTL, Time To Live）", "back": "訊息帶著的計數，每轉送一次減一，減到 0 就不再轉送。無控制氾濫用它讓訊息最後停止傳播。"}];
+const FLASHCARDS = [{"front": "圖（Graph）", "back": "由頂點（節點）集合與連接頂點配對的邊組成的資料結構，用來建模複雜系統中的關係。"}, {"front": "頂點（Vertex）", "back": "也叫節點（node），代表圖中的一個實體，是圖結構的基本單位。"}, {"front": "邊（Edge）", "back": "兩個頂點之間的連接。在有向圖中，邊帶有方向，表示特定方向的關係。"}, {"front": "權重（Weight）", "back": "指定給邊的數值，代表成本、距離或其他影響走訪的度量。"}, {"front": "路徑（Path）", "back": "由邊串起來的一串頂點：從某頂點出發，沿著邊走到另一個頂點的序列。"}, {"front": "循環（Cycle）", "back": "起點與終點是同一個頂點的路徑：至少包含一條邊，且不重複使用邊或中間頂點。"}, {"front": "無循環圖（Acyclic Graph）", "back": "不含任何循環的圖：沿著邊走，不可能回到出發的頂點。"}, {"front": "有向圖（Directed Graph）", "back": "邊帶有方向的圖：每條邊表示從一個頂點到另一個頂點的單向關係。"}, {"front": "有向無循環圖（DAG, Directed Acyclic Graph）", "back": "不含循環的有向圖，常用於工作排程等「任務不重複」的先後關係建模。"}, {"front": "樹（Tree）", "back": "有指定根頂點的無循環圖：其他每個頂點到根都恰好只有一條路徑。"}, {"front": "相鄰矩陣（Adjacency Matrix）", "back": "用方陣表示圖的方法：矩陣元素標記兩兩頂點是否相鄰（有邊）。"}, {"front": "相鄰串列／map（Adjacency List）", "back": "只儲存實際鄰居的稀疏表示；本課程用有序 map 儲存頂點與鄰居權重。"}, {"front": "廣度優先搜尋（BFS, Breadth-First Search）", "back": "先把目前深度的所有鄰居探索完，才前進到下一層的搜尋演算法，像水波一層一層往外擴散。"}, {"front": "騎士巡遊（Knight's Tour）", "back": "在西洋棋盤上讓騎士每一格都恰好走過一次的移動序列。"}, {"front": "深度優先搜尋（DFS, Depth-First Search）", "back": "沿著一條分支盡量往深處探索、碰壁才回頭（backtrack）的走訪演算法。"}, {"front": "搜尋樹（Search Tree）", "back": "搜尋過程中由 previous 連結構成的樹：BFS 一次建一層，DFS 沿一個分支盡量往深處建。根是起點，從任一頂點沿 previous 往上走就回到根。"}, {"front": "啟發式（Heuristic）", "back": "在傳統方法太慢或不可行時，用來快速求解或找近似解的技巧。"}, {"front": "Warnsdorff 法則（Warnsdorff's Algorithm）", "back": "騎士巡遊的啟發式：騎士永遠先跳到「後續可走步數最少」的那一格。"}, {"front": "深度優先森林（Depth-First Forest）", "back": "深度優先搜尋過程中形成的一群樹：每棵樹對應一段連續探索到的頂點集合。"}, {"front": "括號性質（Parenthesis Property）", "back": "DFS 的性質：任兩個頂點的「發現時間、完成時間」區間，要嘛完全不相交，要嘛一個完全包住另一個。"}, {"front": "拓撲排序（Topological Sorting）", "back": "把有向圖的頂點排成一條線性順序：對每條邊 u→v，u 都排在 v 前面。只有 DAG 做得到。"}, {"front": "強連通元件（Strongly Connected Components）", "back": "有向圖中「任兩頂點彼此都有有向路徑可達」的極大子圖。"}, {"front": "最短路徑問題（Shortest Path Problems）", "back": "在兩頂點之間找一條「邊權重總和最小」的路徑的問題。"}, {"front": "Dijkstra 演算法（Dijkstra's Algorithm）", "back": "在非負邊權圖上求單源最短路徑；本課程的 lazy PQ 版本會推入改善後的 pair，並略過過期項目（stale entry）。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的資料結構：取出的順序由優先權決定，不是單純的先來後到。"}, {"front": "無控制氾濫（Uncontrolled Flooding）", "back": "網路技術：把封包往除了來源連線以外的所有出口連線轉送，會造成大量重複流量。"}, {"front": "最小生成樹（MST, Minimum Spanning Tree）", "back": "連接圖中所有頂點、不含循環、且邊權重總和最小的邊子集合。"}, {"front": "Prim 演算法（Prim's Algorithm）", "back": "反覆加入跨越目前 cut 的最小權重邊。課程 prim() 要求圖連通，否則丟出 invalid_argument。"}, {"front": "貪婪演算法（Greedy Algorithms）", "back": "每一步都選「當下看起來最有利」的選項來組出解的一類演算法。"}, {"front": "回溯（Backtracking）", "back": "DFS 走到死路時退回上一層再試別的選擇。knightTour 中遞迴呼叫回傳 false 時，把頂點移出 path 並塗回白色。"}, {"front": "轉置圖（Transpose）", "back": "把圖 G 的每條邊反向得到的圖，記作 Gᵀ。G 與它的轉置圖有相同的強連通元件。"}, {"front": "邊鬆弛（Relaxation）", "back": "檢查經過 u 走到鄰居 v 是否比目前已知的距離更短；更短就更新 v 的距離與 previous。Dijkstra 的核心步驟。"}, {"front": "過期項目（Stale Entry）", "back": "lazy 優先佇列裡，距離已被後來的更新取代的舊 pair。取出時發現它的距離大於頂點目前的距離，就直接略過。"}, {"front": "安全邊（Safe Edge）", "back": "跨過「已在樹中的頂點」與「樹外頂點」之間分界的最小權重邊。Prim 每一步加入一條安全邊。"}, {"front": "存活時間（TTL, Time To Live）", "back": "訊息帶著的計數，每轉送一次減一，減到 0 就不再轉送。無控制氾濫用它讓訊息最後停止傳播。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

@@ -86,24 +86,11 @@ LEGACY['seq-search'] = r'''  <p>把資料想像成一排櫃子，要找某個物
 
 {{slot:seq-ordered}}
 
-  <div class="info-box green" style="margin-top:.8rem;">
-    <span class="info-label">比較次數對照表</span>
-    <div style="font-size:.86rem;line-height:1.65;margin-top:.4rem;">
-      <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.78rem;">
-        <thead><tr><th style="text-align:left;padding:.3rem;">情境</th><th style="padding:.3rem;">最佳</th><th style="padding:.3rem;">最差</th><th style="padding:.3rem;">平均</th></tr></thead>
-        <tbody>
-          <tr><td style="padding:.3rem;">item 在 list 中（兩種版本）</td><td style="text-align:center;">$1$</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n/2$</td></tr>
-          <tr style="background:#fef0e7;"><td style="padding:.3rem;">item <strong>不在</strong>（普通版）</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n$</td></tr>
-          <tr style="background:#eafaf1;"><td style="padding:.3rem;">item <strong>不在</strong>（有序版）</td><td style="text-align:center;">$1$</td><td style="text-align:center;">$n$</td><td style="text-align:center;">$n/2$</td></tr>
-        </tbody>
-      </table></div>
-    </div>
-    兩種版本的大 $O$ 都是 $O(n)$，有序版只是<strong>常數變小</strong>。要更快就得換演算法，也就是下一節的二分搜尋。
-  </div>
+  <p>兩種版本的大 $O$ 都是 $O(n)$，有序版只是<strong>常數變小</strong>。要更快就得換演算法，也就是下一節的二分搜尋。</p>
 {{slot:seq-quiz}}
 '''
 
-LEGACY['bin-search'] = r'''  <p>list <strong>已排序</strong>時，可以直接看正中間那一個：比目標大就往左半找，比目標小就往右半找，剛好相等就找到了。每次比較都<strong>排除一半</strong>，所以總比較次數最多 $\lceil \log_2 n \rceil + 1$。</p>
+LEGACY['bin-search'] = r'''  <p>list <strong>已排序</strong>時，可以直接看正中間那一個：比目標大就往左半找，比目標小就往右半找，剛好相等就找到了。每次比較都<strong>排除一半</strong>，所以總比較次數最多 $\lfloor \log_2 n \rfloor + 1$。</p>
 {{slot:bin-program}}
 
   <div class="viz-layout">
@@ -156,7 +143,7 @@ LEGACY['bin-search'] = r'''  <p>list <strong>已排序</strong>時，可以直�
   <div class="info-box green">
     <span class="info-label">為何是 log n？</span>
     每次比較讓搜尋範圍變成原本的一半。$n \to n/2 \to n/4 \to \cdots \to 1$，要做 $\log_2 n$ 次切割。<br>
-    <strong>實際算一下：</strong>$n=1{,}000{,}000$ 的 list，循序搜尋最多 $10^6$ 次比較，二分搜尋只要 $\lceil \log_2 10^6 \rceil = 20$ 次。
+    <strong>實際算一下：</strong>$n=1{,}000{,}000$ 的 list，循序搜尋最多 $10^6$ 次比較，二分搜尋最多只要 $\lfloor \log_2 10^6 \rfloor + 1 = 20$ 次。
   </div>
 
   <div class="info-box warm">
@@ -266,7 +253,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
         <div class="ic-title">字串雜湊 string hashing</div>
         <div style="font-size:.84rem;line-height:1.65;">
           字串可以用每個字元的 <strong>ordinal value</strong>（ASCII 碼）相加再取餘數，程式見下方的 <code>hashStr</code>。<br>
-          <strong>陷阱：</strong>"cat"、"act"、"tac" 的 ord 總和都一樣，會撞在一起（anagram 碰撞）。改良：<strong>用位置當權重</strong>，例如 $\sum i \cdot \text{ord}(c_i) \bmod m$。
+          <strong>陷阱：</strong>"cat"、"act"、"tac" 的 ord 總和都一樣，會撞在一起（anagram 碰撞）。改良：<strong>用位置當權重</strong>，例如 $\sum (i+1) \cdot \text{ord}(c_i) \bmod m$。
         </div>
       </div>
       <div class="info-card">
@@ -398,7 +385,7 @@ LEGACY['bubble'] = r'''  <p><strong>Bubble sort</strong> 的想法很單純：�
 {{slot:bubble-end}}
 '''
 
-LEGACY['selection'] = r'''  <p><strong>Selection sort</strong> 的比較次數跟氣泡排序一樣多，差別在<strong>每一輪只交換一次</strong>：先掃一遍找出未排序區裡最大的元素，再把它和未排序區的最後一格交換，這一輪就結束了。氣泡排序每比一次就可能交換，selection sort 每輪只換一次。<small>（這裡的版本和 cppds、HW4 一樣，找最大值放到未排序區尾端。）</small></p>
+LEGACY['selection'] = r'''  <p><strong>Selection sort</strong> 的比較次數跟氣泡排序一樣多，差別在<strong>每一輪只交換一次</strong>：先掃一遍找出未排序區裡最大的元素，再把它和未排序區的最後一格交換，這一輪就結束了。氣泡排序每比一次就可能交換，selection sort 每輪只換一次。<small>（本章的版本每一輪找最大值，放到未排序區的尾端。）</small></p>
 {{slot:selection-intro}}
 
   <div class="viz-layout">
@@ -544,11 +531,11 @@ LEGACY['shell'] = r'''  <p><strong>Shell sort</strong> 是 Donald Shell 在 1959
         <div class="ic-row"><span class="ic-label">當前 gap</span><span class="ic-value highlight" id="shellGap" style="font-size:1.2rem;">—</span></div>
         <div class="stats-grid" style="margin-top:.4rem;">
           <div class="stat-tile compare"><div class="stat-label">比較</div><div class="stat-value" id="shellCmp">0</div></div>
-          <div class="stat-tile swap"><div class="stat-label">交換</div><div class="stat-value" id="shellSwp">0</div></div>
+          <div class="stat-tile swap"><div class="stat-label">位移</div><div class="stat-value" id="shellSwp">0</div></div>
         </div>
       </div>
       <div class="info-card">
-        <div class="ic-title">虛擬碼 (對齊講義 §7.6)</div>
+        <div class="ic-title">虛擬碼</div>
         <div class="pseudo-code" id="shellCode"><span class="line"><span class="kw">void</span> <span class="fn">gapInsertionSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp;, <span class="kw">int</span>, <span class="kw">int</span>);</span><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">shellSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a) {</span><span class="line" data-l="2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> gap = a.<span class="fn">size</span>() / <span class="num">2</span>;</span><span class="line" data-l="3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (gap &gt; <span class="num">0</span>) {</span><span class="line" data-l="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> start = <span class="num">0</span>; start &lt; gap; ++start)</span><span class="line" data-l="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">gapInsertionSort</span>(a, start, gap);</span><span class="line" data-l="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gap /= <span class="num">2</span>;</span><span class="line" data-l="7">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line" data-l="8">}</span><span class="line"><span class="kw">void</span> <span class="fn">gapInsertionSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a, <span class="kw">int</span> start, <span class="kw">int</span> gap) {</span><span class="line" data-l="9">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> i = start + gap; i &lt; a.<span class="fn">size</span>(); i += gap) {</span><span class="line" data-l="10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> curVal = a[i];</span><span class="line" data-l="11">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> curPos = i;</span><span class="line" data-l="12">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (curPos &gt;= gap &amp;&amp; a[curPos-gap] &gt; curVal) {</span><span class="line" data-l="13">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[curPos] = a[curPos-gap];</span><span class="line" data-l="14">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;curPos -= gap;</span><span class="line" data-l="15">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} a[curPos] = curVal;</span><span class="line" data-l="16">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line">}</span></div>
       </div>
       <div class="info-card">
@@ -800,8 +787,8 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
         <td><strong>希爾排序</strong></td>
         <td>隨機存取（gap 跳格）</td>
         <td class="best">✓ <strong>必須</strong></td>
-        <td class="worst">✗ 不行</td>
-        <td>需要 a[pos − gap]，鏈結串列做不到「跳 gap 格」</td>
+        <td>△ 可做但很慢</td>
+        <td>需要 a[pos − gap]；鏈結串列每次都得從頭走過去才能「跳 gap 格」</td>
       </tr>
       <tr style="background:#eafaf1;">
         <td><strong>合併排序</strong></td>
@@ -812,16 +799,16 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
       </tr>
       <tr style="background:#fef0e7;">
         <td><strong>快速排序</strong></td>
-        <td>雙向隨機存取（雙指標）</td>
-        <td class="best">✓ <strong>必須</strong></td>
-        <td class="worst">✗ 不行</td>
-        <td>partition 需要左右雙指標雙向走，singly-linked 無法</td>
+        <td>可交換（本章的 partition 用左右雙指標）</td>
+        <td class="best">✓</td>
+        <td>△ 需改寫 partition</td>
+        <td>本章的雙指標 partition 要從右往左走，singly-linked 做不到；需改用由左往右的單向掃描</td>
       </tr>
     </tbody>
   </table></div>
   <p style="font-size:.82rem;color:var(--muted);margin-top:.4rem;">
     <span class="pill" style="background:var(--accent3);color:#fff;">✓</span> 自然支援　
-    <span class="pill" style="background:#f39c12;color:#fff;">△</span> 可以但效能下降　
+    <span class="pill" style="background:#f39c12;color:#fff;">△</span> 可以，但效能下降或要改寫部分步驟　
     <span class="pill" style="background:var(--accent);color:#fff;">✗</span> 演算法的核心動作做不到，必須換結構
   </p>
 
@@ -836,10 +823,10 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
   </div>
 
   <div class="info-box warm">
-    <span class="info-label">為何「Quick Sort 不能用 Singly Linked List」？</span>
-    Partition 需要兩個指標 <code>leftMark</code>、<code>rightMark</code>：一個從左往右、一個<strong>從右往左</strong>走。<br><br>
-    但<strong>單向鏈結串列只能從左往右</strong>（每個 node 只有 <code>next</code>，沒有 <code>prev</code>），<code>rightMark--</code> 沒有有效率的實作方式。雖然 <em>doubly-linked list</em> 可以雙向走，但每次比較都要追指標、cache miss 嚴重，常數係數比 Array 大太多。<br><br>
-    這也是<strong>教科書都用 Array 講快速排序</strong>的原因：partition 的雙指標寫法，只有在 Array 上才簡潔又有效率。
+    <span class="info-label">為何「Quick Sort 用在 Singly Linked List 要改寫 partition」？</span>
+    本章的 partition 用兩個指標 <code>leftMark</code>、<code>rightMark</code>：一個從左往右、一個<strong>從右往左</strong>走。<br><br>
+    但<strong>單向鏈結串列只能從左往右</strong>（每個 node 只有 <code>next</code>，沒有 <code>prev</code>），<code>rightMark--</code> 沒有有效率的實作方式，所以這個寫法不能直接搬過去。改用<strong>單向掃描</strong>的 partition（Lomuto 式）就可以：只用一個指標由左往右走，把比 pivot 小的元素依序移到前段，整個過程不必往回走。快速排序本身仍然做得到，只是 partition 要換寫法。<br><br>
+    在 Array 上，雙指標寫法簡潔又有效率，這也是<strong>教科書多半用 Array 講快速排序</strong>的原因。
   </div>
 
   <div class="info-box green">
@@ -919,12 +906,12 @@ LEGACY['reference'] = r'''
       <tr><td>氣泡排序 Bubble</td><td>$O(n)$ ★</td><td>$O(n^2)$</td><td class="worst">$O(n^2)$</td><td>$O(1)$</td><td>✓</td><td>✓</td></tr>
       <tr><td>選擇排序 Selection</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td class="worst">$O(n^2)$</td><td>$O(1)$</td><td>✗</td><td>✓</td></tr>
       <tr><td>插入排序 Insertion</td><td class="best">$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td><td>✓</td><td>✓</td></tr>
-      <tr><td>希爾排序 Shell</td><td>$O(n\log n)$</td><td>$O(n^{3/2})$</td><td>$O(n^2)$</td><td>$O(1)$</td><td>✗</td><td>✓</td></tr>
+      <tr><td>希爾排序 Shell</td><td>$O(n\log n)$</td><td>依 gap 序列而定 †</td><td>$O(n^2)$</td><td>$O(1)$</td><td>✗</td><td>✓</td></tr>
       <tr><td>合併排序 Merge</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="worst">$O(n)$</td><td>✓</td><td>✗</td></tr>
       <tr><td>快速排序 Quick</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="worst">$O(n^2)$</td><td>$O(\log n)$</td><td>✗</td><td>✓</td></tr>
     </tbody>
   </table></div>
-  <p style="font-size:.82rem;color:var(--muted);">★ 氣泡排序的 $O(n)$ 最佳情況需要使用<strong>「短路最佳化」</strong>（一輪沒交換就停）。</p>
+  <p style="font-size:.82rem;color:var(--muted);">★ 氣泡排序的 $O(n)$ 最佳情況需要使用<strong>「短路最佳化」</strong>（一輪沒交換就停）。<br>† 希爾排序的複雜度取決於 gap 序列。本章程式每次把 gap 折半（$n/2, n/4, \ldots, 1$），最差是 $O(n^2)$；改用 Hibbard 序列 $2^k-1$ 時，最差可降到 $O(n^{3/2})$。</p>
 
   <h3>選擇指南</h3>
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">

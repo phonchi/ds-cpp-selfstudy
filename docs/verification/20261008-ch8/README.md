@@ -74,3 +74,7 @@
 ## 2026-10-09 潤稿
 
 speak-human-tw 潤稿有 26 處直接改在 `graphs.html` 的 gen 區外（資訊框、目錄、導覽、節標、頁內 quiz 標題、比較表表頭），逐條見 `docs/verification/20261009-polish/ch8-polish.md`。這些文字不會被產生器覆蓋。
+
+## 2026-10-09 讀者審閱修正（gen 區外）
+
+- PART 00 關鍵概念面板：Path 補「互不相同」，Cycle 改成封閉序列 $(w_1, \ldots, w_n, w_1)$ 的定義，Tree 補「無向圖」。其餘修正都在產生器來源，見 `docs/verification/20261009-reading/fixes-ch7-9.md`。

@@ -294,15 +294,14 @@ def knight():
 <p>講義把 <code>knightTour</code> 的迴圈改成依 <code>orderByAvail</code> 的順序走訪鄰居；標頭裡這個版本另外取名為 <code>knightTourWarnsdorff</code>，兩個版本可以並存：</p>
 {listing('課程標頭的 knightTourWarnsdorff', 'pythonds3/cppds/graph_algos.hpp · knightTourWarnsdorff', HEADER_KTW, kind='header')}
 {lecture_program('講義完整程式：Warnsdorff 走 8×8 棋盤', '講義 08 · orderByAvail + knightTourWarnsdorff', KT8_MAIN, OUT['kt8'],
-                 note='同樣從 0 號格出發，64 格全部走過。比較四個角落：數字都很小或接近 0 的那一側先被走掉，這就是先處理邊角的效果。')}
+                 note='同樣從 0 號格出發，64 格全部走過，格子裡的數字是第幾步走到。四個角落分別在第 0、15、21、46 步走到，沒有一個留到最後；最後的 61、62、63 步都落在棋盤中間。走法少的邊角先處理，中間的格子留到後面，這就是 Warnsdorff 規則的效果。')}
 <h3>互動：有沒有 Warnsdorff 差多少</h3>
 <p>選棋盤大小，切換「使用 Warnsdorff」再按「開始」，比較兩種排序要回溯幾次。動畫裡關閉 Warnsdorff 時，候選格依列、行順序由小到大嘗試。</p>'''
 
 
 # ---------------------------------------------------------------- P05 general DFS
 def dfs_intro():
-    return f'''<p>騎士巡遊用深度優先的回溯，找一條走過每一格的簡單路徑。一般的 DFS 目標不同：它探索每一個走得到的頂點，記錄一棵深度優先樹；再從每個還是白色的頂點重新開始，就得到一片<strong>深度優先森林</strong>（depth-first forest），森林裡的樹可以有很多分支。</p>
-<p>一般的深度優先搜尋反而更簡單。它的目標是盡量往深處搜尋，在圖中連起越多頂點越好，必要時才分岔。DFS 也可能建出不只一棵樹，這一群樹就是深度優先森林。</p>
+    return f'''<p>騎士巡遊用深度優先的回溯，找一條走過每一格的簡單路徑。一般的 DFS 目標不同，也更簡單：它盡量往深處搜尋，探索每一個走得到的頂點，必要時才分岔，並記錄一棵深度優先樹；再從每個還是白色的頂點重新開始，就得到一片<strong>深度優先森林</strong>（depth-first forest），森林裡的樹可以有很多分支。</p>
 <h3>discovery 與 closing 時間</h3>
 <p>和 BFS 一樣，DFS 用 previous 連結建構搜尋樹。此外，DFS 替每個頂點記錄兩個時間，存在 <code>DFSGraph</code> 的成員 <code>discovery</code> 與 <code>closing</code> 裡：</p>
 {ul(['<strong>discovery</strong>：第一次遇到這個頂點之前，演算法走了幾步。',
@@ -342,7 +341,7 @@ def dfs_trace():
 def topsort():
     return f'''<h3>煎鬆餅的步驟圖</h3>
 {figure('pancakes')}
-<p>煎鬆餅的難處在於知道先做什麼。從圖上可以看到，可以先熱煎鍋，也可以先把任何一樣材料加進鬆餅粉。為了決定每個步驟的確切順序，我們用一個叫做<strong>拓撲排序</strong>（topological sort）的圖演算法。拓撲排序把一張 DAG 的所有頂點排成一條線性順序：只要圖中有邊 $(v, w)$，$v$ 就排在 $w$ 前面。DAG 常用來表示<strong>事件的先後順序</strong>，煎鬆餅只是一個例子，其他例子還有軟體專案的排程、資料庫查詢最佳化的優先順序圖，以及矩陣連乘。</p>
+<p>從圖上可以看到，可以先熱煎鍋，也可以先把任何一樣材料加進鬆餅粉。要決定每個步驟的確切順序，就用上面介紹的拓撲排序。</p>
 {figure('pancakesTS')}
 {steps('DFS 在鬆餅圖上的結果', ['pancakesDFS'], '依 closing 時間由大到小排列，就得到上面那一列順序，每個步驟該在什麼時候做都確定了。')}
 {fold('用 DFSGraph 寫出拓撲排序', snippet('拓撲排序：照演算法的三個步驟寫', TOPSORT_SUPP, OUT['topsort'], kind='run',
@@ -471,7 +470,7 @@ def prim_run():
     return f'''<h3>在廣播圖上追蹤 Prim</h3>
 <p>從 A 開始，其他頂點的 key 都初始化為無限大。看 A 的鄰居，B 和 C 經過 A 的成本小於無限大，所以更新它們的 key。這讓 B 和 C 移到優先佇列的前面，並把它們的 previous 設為 A。不過 B 和 C 還沒有正式加入生成樹：<strong>頂點要從優先佇列取出之後，才算是生成樹的一部分</strong>。</p>
 {figure('prima')}
-<p>B 的距離最小，所以接著看 B。檢查 B 的鄰居，D 和 E 可以更新，兩者都得到新的距離，previous 也跟著更新。佇列裡的下一個是 C，C 的鄰居中還在佇列裡的只有 F，於是更新 F 的距離。接著檢查 D 的鄰居，發現 E 的距離可以從 4 降到 1，E 的 previous 改指向 D，準備接到生成樹的另一個位置。之後的過程就照這樣，把每個新頂點加進樹裡。</p>
+<p>B 的距離最小，所以接著看 B。檢查 B 的鄰居，C、D、E 都可以更新：經 B 到 C 只要 1，比原本經 A 的 3 便宜；D 和 E 則是第一次得到距離。三者的 previous 都改指向 B。佇列裡的下一個是 C，C 的鄰居中還在佇列裡的只有 F，於是更新 F 的距離。接著檢查 D 的鄰居，發現 E 的距離可以從 4 降到 1，E 的 previous 改指向 D，準備接到生成樹的另一個位置。之後的過程就照這樣，把每個新頂點加進樹裡。</p>
 {steps('逐步圖：依序加入 B、C、D、E、F', ['primb', 'primc', 'primd', 'prime', 'primf'])}
 {figure('primg')}
 {lecture_program('講義完整程式：prim 印出最小生成樹的邊', '講義 08 · prim', PRIM_MAIN, OUT['prim'],

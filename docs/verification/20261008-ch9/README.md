@@ -63,3 +63,7 @@
 - AVL 旋轉面板（補充）與 BST 面板的既有 JS 文字未逐字檢查講義一致性。
 - 一次性腳本 `place_markers.py`、`legacy_edits.py`、`hand_edits.py`、`hand_edits_delete.py` 內含防重跑保護。
 - 字卡區導語「詞彙卡取自本章課程題庫，已譯為繁體中文」由 `tools/apply_zh.py`（第 59 行）產生；ch9 新加的 4 張字卡不是課程題庫的，這句已不精確，需主控決定是否調整（共用檔，未修改）。
+
+## 2026-10-09 讀者審閱修正（gen 區外）
+
+- 主 script 中 heap 動畫的三則狀態訊息 `perc_down` 改成 `percDown`。其餘修正都在產生器來源，見 `docs/verification/20261009-reading/fixes-ch7-9.md`。

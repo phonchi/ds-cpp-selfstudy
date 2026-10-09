@@ -333,7 +333,7 @@ INSERTION = sort_main('', '{9, 2, 5, 5, 7, 9, 1}',
 SHELL = sort_main('   // gapInsertionSort + shellSort', '{54, 26, 93, 17, 77, 31, 44, 55, 20}', 'shellSort(aList);')
 MERGE = sort_main('', '{54, 26, 93, 17}', 'mergeSort(aList);   // the final Merging line is the sorted result',
                   final_printl=False)
-QUICK = sort_main('   // partition + quickSort (md listing above)', '{54, 26, 93, 17, 77, 31, 44, 55, 20}',
+QUICK = sort_main('   // partition, quickSortHelper, quickSort (header listing above)', '{54, 26, 93, 17, 77, 31, 44, 55, 20}',
                   'quickSort(aList);   // prints the vector after every partition')
 
 QDESC_SKETCH = '''void quickSort(vector<int>& aList, bool descending = false) {
@@ -349,7 +349,7 @@ void quickSortHelper(vector<int>& aList, int first, int last, bool descending) {
 }'''
 
 QDESC = '''#include <iostream>
-#include "pythonds3/cppds/sorting.hpp"   // quickSortDesc (solution listing above)
+#include "pythonds3/cppds/sorting.hpp"   // partitionDesc, quickSortHelperDesc, quickSortDesc (header listing above)
 using namespace std;
 
 int main() {

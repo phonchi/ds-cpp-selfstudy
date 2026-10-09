@@ -282,7 +282,7 @@ PRIM_B = r'''    ...
 }'''
 
 SETVERTEX_MAIN = r'''#include <iostream>
-#include "pythonds3/cppds/graph.hpp"   // Vertex + Graph (md listing above)
+#include "pythonds3/cppds/graph.hpp"   // Vertex, Graph (graph.hpp listing above)
 using namespace std;
 
 int main() {
@@ -373,7 +373,7 @@ int main() {
 }'''
 
 DFS_MAIN = r'''#include <iostream>
-#include "pythonds3/cppds/graph_algos.hpp"   // DFSGraph (md listing above)
+#include "pythonds3/cppds/graph_algos.hpp"   // DFSGraph: dfs, dfsVisit (DFSGraph listing above)
 using namespace std;
 
 int main() {
@@ -391,7 +391,7 @@ int main() {
 }'''
 
 DIJ_MAIN = r'''#include <iostream>
-#include "pythonds3/cppds/graph_algos.hpp"   // dijkstra (md listing above)
+#include "pythonds3/cppds/graph_algos.hpp"   // dijkstra (dijkstra listing above)
 using namespace std;
 
 int main() {
@@ -426,7 +426,7 @@ int main() {
 }'''
 
 PRIM_MAIN = r'''#include <iostream>
-#include "pythonds3/cppds/graph_algos.hpp"   // prim (md listing above)
+#include "pythonds3/cppds/graph_algos.hpp"   // prim (prim listing above)
 using namespace std;
 
 int main() {

@@ -62,3 +62,7 @@
 - quick 面板的「虛擬碼」區塊沒有 `data-l` 行號，動畫無法高亮程式行（既有設計，未改）。seq 面板的結果欄顯示 Python 式的 `True`／`False`（既有 JS 文字，未改）。
 - 題庫改為非講義題目，但 `tools/apply_zh.py` 對 ch* 題庫固定輸出「課程題庫 ch7」徽章與「題目取自課程題庫（已譯為繁體中文）」導語，這句現在不精確；需主控決定是否調整 apply_zh（第 8、9 章也有同樣問題）。
 - `place_markers.py`、`hand_edits.py` 為一次性腳本，內含防重跑保護。
+
+## 2026-10-09 讀者審閱修正（gen 區外）
+
+- `searching_sorting.html` 的 TOC 末段改成 REF → SUP → SUM → QUIZ → CARD，與 DOM 順序一致。其餘修正都在產生器來源，見 `docs/verification/20261009-reading/fixes-ch7-9.md`。

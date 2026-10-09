@@ -850,7 +850,7 @@ hello</pre></div><p class="dx-note">第二行的 0 是空的左子指標：<code
 <li>目前 token 是 <code>)</code>：回到目前節點的父節點。</li>
 </ol>
 <p>以 $(3 + (4 * 5))$ 為例，切出的 token 是 <code>{"(", "3", "+", "(", "4", "*", "5", ")", ")"}</code>。從一個空的根開始，一次套用一條規則。下圖的灰色節點是目前節點：</p>
-<figure class="tree-figure tree-figrow" id="tree-figure-buildExp1"><div class="tree-figure-scroll tree-figrow-cells" tabindex="0" role="region" aria-label="建樹的前三步"><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp1.png" alt="一個灰色的空節點。" width="62" height="62" style="--figure-width:62px" loading="lazy"><span>開始：只有一個空的根，它就是目前節點（灰色）。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp2.png" alt="白色的根，左下方接一個灰色的空節點。" width="96" height="145" style="--figure-width:96px" loading="lazy"><span>讀到 (：新增左子節點，往下移到它。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp3.png" alt="灰色的根，左子節點是 3。" width="97" height="145" style="--figure-width:97px" loading="lazy"><span>讀到 3：把目前節點設為 3，回到父節點。</span></div></div><figcaption>前三個 token：(、3、+ 之前的狀態。讀 ( 往左下走，讀 3 填值後回到根。</figcaption></figure>
+<figure class="tree-figure tree-figrow" id="tree-figure-buildExp1"><div class="tree-figure-scroll tree-figrow-cells" tabindex="0" role="region" aria-label="建樹的前三步"><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp1.png" alt="一個灰色的空節點。" width="62" height="62" style="--figure-width:62px" loading="lazy"><span>開始：只有一個空的根，它就是目前節點（灰色）。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp2.png" alt="白色的根，左下方接一個灰色的空節點。" width="96" height="145" style="--figure-width:96px" loading="lazy"><span>讀到 (：新增左子節點，往下移到它。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp3.png" alt="灰色的根，左子節點是 3。" width="97" height="145" style="--figure-width:97px" loading="lazy"><span>讀到 3：把目前節點設為 3，回到父節點。</span></div></div><figcaption>從空的根開始，讀入 ( 與 3 之後、讀 + 之前的狀態。讀 ( 往左下走，讀 3 填值後回到根。</figcaption></figure>
 <details class="tree-detail"><summary>逐步圖：讀入 +、(、4、*、5</summary><div class="tree-detail-body"><figure class="tree-figure tree-figrow" id="tree-figure-buildExp4"><div class="tree-figure-scroll tree-figrow-cells" tabindex="0" role="region" aria-label="建樹的後五步"><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp4.png" alt="根是 +，左子節點 3，右子節點是灰色的空節點。" width="130" height="145" style="--figure-width:130px" loading="lazy"><span>讀到 +：根設為 +，新增右子節點並往下移。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp5.png" alt="根 +，左 3；右子節點底下又接一個灰色的左子節點。" width="130" height="228" style="--figure-width:130px" loading="lazy"><span>讀到 (：在目前節點新增左子節點，往下移。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp6.png" alt="根 +，左 3；右子節點是灰色，它的左子節點是 4。" width="130" height="228" style="--figure-width:130px" loading="lazy"><span>讀到 4：設為 4，回到父節點。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp7.png" alt="根 +，左 3；右子節點是 *，它的左子節點 4，右子節點是灰色的空節點。" width="170" height="228" style="--figure-width:170px" loading="lazy"><span>讀到 *：設為 *，新增右子節點並往下移。</span></div><div class="tree-figrow-cell"><img src="assets/figures/ch9/buildExp8.png" alt="根 +，左 3；右子節點 * 是灰色，底下是 4 和 5。" width="169" height="228" style="--figure-width:169px" loading="lazy"><span>讀到 5：設為 5，回到 *。接著兩個 ) 再往上回到根，建樹完成。</span></div></div><figcaption>每讀一個 token 就套用一條規則。最後的兩個 ) 只是往上回到父節點：先回到 +，+ 已經沒有父節點，建樹完成。</figcaption></figure></div></details>
 
   <p>建構演算法用一個 <strong>stack 追蹤 parent</strong>：往下走進一個 child（看到 <code>(</code> 或運算子）時，把目前節點 push 進 stack；需要回到 parent（看到 <code>)</code> 或讀完一個數字）時就 pop。</p>
@@ -1309,7 +1309,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
   <p>優先佇列每次取出優先權最高的元素。若用 <code>vector</code>，維持排序會讓取最小為 $O(1)$、插入因搬移而為 $O(n)$；不排序則插入 $O(1)$、尋找並刪除最小值 $O(n)$。<strong>Binary heap</strong> 讓 insert 與 delete-min 都是 $O(\log n)$。</p>
 <p>binary heap 畫出來像一棵完全二元樹，實際上存在一個 <code>vector</code> 裡；在最小堆積（min-heap）中，最小的鍵在索引 0。插入與刪除都是 $O(\log n)$，讀取最小值是 $O(1)$。</p>
 <h3 id="dx-hp">BinaryHeap 的操作</h3>
-<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinaryHeap()</code></td><td>建立空的最小堆積。</td></tr><tr><td><code>insert(k)</code></td><td>插入一個鍵，$O(\log n)$。</td></tr><tr><td><code>findMin()</code></td><td>回傳最小值但不移除，$O(1)$。</td></tr><tr><td><code>delMin()</code></td><td>移除並回傳最小值，$O(\log n)$。舊版的課程程式把同一個操作叫做 <code>delet()</code>。</td></tr><tr><td><code>isEmpty()</code>、<code>size()</code></td><td>回報堆積是否為空、有幾個元素。</td></tr><tr><td><code>buildHeap(values)</code></td><td>由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。</td></tr></tbody></table></div>
+<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinaryHeap()</code></td><td>建立空的最小堆積。</td></tr><tr><td><code>insert(k)</code></td><td>插入一個鍵，$O(\log n)$。</td></tr><tr><td><code>findMin()</code></td><td>回傳最小值但不移除，$O(1)$。</td></tr><tr><td><code>delMin()</code></td><td>移除並回傳最小值，$O(\log n)$。舊版的課程程式把同一個操作叫做 <code>delet()</code>。</td></tr><tr><td><code>isEmpty()</code>、<code>size()</code></td><td>回報堆積是否為空、有幾個元素。</td></tr><tr><td><code>print()</code></td><td>依 vector 的順序印出堆積裡的所有鍵，以空白分隔。</td></tr><tr><td><code>buildHeap(values)</code></td><td>由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。</td></tr></tbody></table></div>
 <details class="tree-detail"><summary>講義完整程式：插入 5、7、3、11 再逐一取出</summary><div class="tree-detail-body"><div class="deck-extra">
   <div class="dx-label">講義 09 · BinaryHeap</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="3&#10;5&#10;7&#10;11&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -1517,10 +1517,6 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 </div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5 7 11 14 9 19 21 33 17 27 18&#32;
 5
 9 14 11 17 18 19 21 33 27 </pre></div><p class="dx-note">第一行是插入 7 之後的 vector：7 換到索引 1，9 和 18 各往下一層。第二、三行是另一份同樣的 heap 執行 delMin：回傳 5，27 從根沉到索引 8。</p>
-  <div class="info-box green">
-    <span class="info-label">為什麼 heapify 是 O(n) 而不是 O(n log n)？</span>
-    直接的做法是對 $n$ 個元素逐一 <code>insert</code>，每個 $O(\log n)$，總共 $O(n \log n)$。但 <code>heapify</code> 從<strong>陣列中間 $\lfloor n/2 \rfloor - 1$ 倒著做 perc_down</strong>：底層大量節點高度只有 0 或 1，往下移的成本很小。嚴謹分析會用 $\sum_{h=0}^{\log n} \frac{n}{2^{h+1}} \cdot h = O(n)$。直觀上：<strong>樹底層節點多但移動少，頂層節點少但移動多，兩者相乘的總和是 $O(n)$</strong>。
-  </div>
 <h3>buildHeap：由下往上建堆</h3>
 <p>一種建堆的方法是逐一插入 $n$ 個鍵。每次 <code>insert()</code> 接在尾端，最壞要往上浮過整個樹高，所以每次 $O(\log n)$，逐一插入共 $O(n\log n)$。插入並不需要把元素塞進排序好的 vector 中間；順序性質只規範父節點和子節點。</p>
 <p>由下往上的 <code>buildHeap()</code>（舊名 <code>heapify()</code>）比較快：從最後一個非葉節點開始，往根的方向逐一呼叫 <code>percDown()</code>，總成本是 $O(n)$。索引大於等於 <code>heap.size() / 2</code> 的都是葉節點，不需要處理。</p>
@@ -1563,7 +1559,10 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <span class="line" data-l="9">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="10">}</span></div>
 </div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>3 4 9 5 12 15 10 8 14 18 </pre></div><p class="dx-note">每個父節點都不大於子節點，例如索引 1 的 4 小於索引 3、4 的 5 和 12；但整個 vector 並沒有排序。</p>
-<p>$O(n)$ 的上界可以依節點高度計算工作量：大約一半的節點是葉節點，不必移動；約 $n/4$ 個節點最多下沉一層，$n/8$ 個最多兩層，依此類推。總和 $\sum_{h\ge0}(n/2^{h+1})h=O(n)$，不是 $O(n\log n)$。</p>
+<div class="info-box green">
+    <span class="info-label">為什麼 buildHeap 是 O(n) 而不是 O(n log n)？</span>
+    <code>buildHeap</code> 從索引 $\lfloor n/2 \rfloor - 1$ 往根的方向逐一做 <code>percDown</code>，每個節點最多下沉到它的高度。依節點高度計算工作量：大約一半的節點是葉節點，不必移動；約 $n/4$ 個節點最多下沉一層，$n/8$ 個最多兩層，依此類推。總和 $\sum_{h\ge0}(n/2^{h+1})h=O(n)$，不是 $O(n\log n)$。直觀上：<strong>樹底層節點多但移動少，頂層節點少但移動多，加起來的總工作量是 $O(n)$</strong>。
+  </div>
 <div class="sq-item tree-quiz" id="quiz-heap1">
     <div class="sq-q"><span class="sq-num">QUIZ</span>用二元堆積（Binary Heap）實作優先佇列，最主要的理由是什麼？</div>
     <div class="sq-opts">
@@ -2272,7 +2271,7 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
           <tbody>
             <tr><td>put</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
             <tr><td>get</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
-            <tr><td>del</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
+            <tr><td>remove</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
           </tbody>
         </table></div>
       </div>
@@ -2566,7 +2565,7 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
   <div class="section-number">REFERENCE · 總覽比較</div>
   <h2>Map ADT 四種實作的對照表 <span class="sec-badge">cppds §8.18</span></h2>
 <!-- gen:trees-summary -->
-  <p>過去兩章我們學了四種實作 map ADT 的方式。下表整理 worst-case 複雜度；注意 hash table 的 $O(1)$ 是<strong>平均</strong>，最差情況（全部碰撞）會退化到 $O(n)$。</p>
+  <p>第 7 章與本章我們學了四種實作 map ADT 的方式。下表整理 worst-case 複雜度；注意 hash table 的 $O(1)$ 是<strong>平均</strong>，最差情況（全部碰撞）會退化到 $O(n)$。</p>
 
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead>
@@ -3836,7 +3835,7 @@ function initHeap() {
     [a[0], a[last]] = [a[last], a[0]];
     steps.push({arr:a.slice(), hl:{active:0}, status:`移除原 root（現在在最後位置）`, line:null, swap:1, cmp:0, idx:0, par:'—'});
     a.pop();
-    steps.push({arr:a.slice(), hl:{active:0}, status:'對 root 做 perc_down 修復 heap 性質', line:null, swap:1, cmp:0, idx:0, par:'—'});
+    steps.push({arr:a.slice(), hl:{active:0}, status:'對 root 做 percDown 修復 heap 性質', line:null, swap:1, cmp:0, idx:0, par:'—'});
     const r = genPercDown(a, 0, a.length-1, 1, 0);
     steps.push(...r.steps);
     steps.push({arr:r.finalArr.slice(), hl:{}, status:'delete-min 完成 ✓', line:null, swap:r.swapCnt, cmp:r.cmpCnt, idx:'—', par:'—', commit:true, finalArr:r.finalArr.slice()});
@@ -3847,12 +3846,12 @@ function initHeap() {
     const a = arr.slice();
     const steps = [];
     const start = Math.floor(a.length / 2) - 1;
-    steps.push({arr:a.slice(), hl:{}, status:`從中間 i = ⌊n/2⌋ - 1 = ${start} 開始倒著做 perc_down`, line:null, swap:0, cmp:0, idx:start, par:'—'});
+    steps.push({arr:a.slice(), hl:{}, status:`從中間 i = ⌊n/2⌋ - 1 = ${start} 開始倒著做 percDown`, line:null, swap:0, cmp:0, idx:start, par:'—'});
     let totalSwap = 0, totalCmp = 0;
     let cur = a.slice();
     const fixed = [];
     for (let i = start; i >= 0; i--) {
-      steps.push({arr:cur.slice(), hl:{active:i, fixed:fixed.slice()}, status:`對 heap[${i}]=${cur[i]} 做 perc_down`, line:null, swap:totalSwap, cmp:totalCmp, idx:i, par:'—'});
+      steps.push({arr:cur.slice(), hl:{active:i, fixed:fixed.slice()}, status:`對 heap[${i}]=${cur[i]} 做 percDown`, line:null, swap:totalSwap, cmp:totalCmp, idx:i, par:'—'});
       const r = genPercDown(cur, i, cur.length-1, totalSwap, totalCmp);
       // Inject fixed indices into each step
       r.steps.forEach(s => {
@@ -4699,7 +4698,7 @@ window.addEventListener('resize', debounce(() => {
 }, 200));
 </script>
 <script>
-const FLASHCARDS = [{"front": "樹（Trees）", "back": "由節點組成的階層式資料結構：每個節點存放資料，並持有指向子節點的參考。"}, {"front": "節點（Node）", "back": "樹的基本組成：存放資料，並持有指向其他節點（子節點）的參考。每個節點代表一筆資料或結構中的一個位置。"}, {"front": "邊（Edge）", "back": "樹中兩節點之間的連接，代表父節點到子節點的關係或連結。"}, {"front": "根（Root）", "back": "樹最頂端的節點：所有其他節點都由它往下衍生，它自己沒有父節點。"}, {"front": "路徑（Path）", "back": "連接某節點與其子孫的一串節點與邊，描述在樹中從一個節點走到另一個節點的路線。"}, {"front": "子節點（Children）", "back": "在樹中直接連在某節點（父節點）底下、由它衍生的節點。"}, {"front": "父節點（Parent）", "back": "在階層中直接帶有一個以上子節點的節點。"}, {"front": "兄弟節點（Sibling）", "back": "擁有同一個父節點、位於樹中同一層的節點。"}, {"front": "子樹（Subtree）", "back": "由某節點與其全部子孫構成的樹的一部分，本身也是一棵樹。"}, {"front": "葉節點（Leaf node）", "back": "沒有任何子節點的節點，是樹的端點。"}, {"front": "層（Level）", "back": "節點的深度層次：根是第 0 層，往下每走一步加一。"}, {"front": "高度（Height）", "back": "根到最遠葉節點路徑上的最大邊數；只有根的一節點樹高度為 0。"}, {"front": "二元樹（Binary Tree）", "back": "每個節點最多兩個子節點的樹，兩個子節點通常稱為左子與右子。"}, {"front": "串列的串列（List of Lists）", "back": "Python 原書的巢狀串列表示；C++ 課程使用節點與子節點指標。"}, {"front": "節點與參考（Nodes and References）", "back": "樹的實作方法之一：每個節點物件存放自己的資料，以及指向子節點的明確連結。"}, {"front": "解析樹（Parse Tree）", "back": "依形式文法表示一個字串語法結構的樹，是編譯器裡重要的資料結構。"}, {"front": "運算式樹（Expression Tree）", "back": "表示運算式的二元樹：內部節點是運算子，葉節點是運算元。"}, {"front": "前序走訪（Preorder）", "back": "「先處理節點本身、再處理子節點」的樹走訪：順序是根、左、右。"}, {"front": "後序走訪（Postorder）", "back": "「先處理子節點、最後處理節點本身」的樹走訪：順序是左、右、根。"}, {"front": "中序走訪（Inorder）", "back": "二元樹的走訪方式：順序是左子、根、右子。用在 BST 上會得到由小到大的序列。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的抽象資料型別：取出的順序由優先權決定，不是先來後到。"}, {"front": "二元堆積（Binary Heap）", "back": "存在索引從 0 開始的 vector 裡的完全二元樹；min-heap 中每個父節點都不大於它的子節點。"}, {"front": "完全二元樹（Complete Binary Tree）", "back": "除了最後一層外每層都填滿、且最後一層節點盡量靠左的二元樹。"}, {"front": "堆積結構性質（Heap Structure Property）", "back": "堆積必須是完全二元樹的要求，用來保證樹的平衡。"}, {"front": "堆積順序性質（Heap Order Property）", "back": "節點與子節點之間必須維持的特定大小關係（max-heap 或 min-heap）。"}, {"front": "最大堆積（Max-Heap）", "back": "每個節點的值都大於等於其子節點的堆積：最大值永遠在根。"}, {"front": "最小堆積（Min-Heap）", "back": "每個節點的值都小於等於其子節點的堆積：最小值永遠在根。"}, {"front": "上浮與下沉（percUp／percDown）", "back": "堆積恢復順序性質的兩個動作：insert 把新元素接在尾端再往上和父節點交換（percUp）；delMin 把最後一個元素搬到根，再和較小的子節點交換往下沉（percDown）。各為 O(log n)。"}, {"front": "二元搜尋樹（BST, Binary Search Tree）", "back": "每個節點的鍵都大於左子樹所有鍵、小於右子樹所有鍵的二元樹。"}, {"front": "BST 性質（BST Property）", "back": "BST 的定義規則：每個節點左子樹的鍵都比它小，右子樹的鍵都比它大。"}, {"front": "後繼者（Successor）", "back": "在 BST 的中序走訪中，緊接在某節點之後的那個節點；刪除有兩個子節點的節點時用它來替補。"}, {"front": "遞迴中序走訪（Recursive Inorder Traversal）", "back": "遞迴地依序處理左子樹、節點本身、右子樹；用在 BST 上會依鍵由小到大輸出，時間 O(n)，遞迴深度 O(h)。"}, {"front": "平衡二元搜尋樹（Balanced Binary Search Tree）", "back": "會自動調整以維持低高度的 BST，讓樹高維持在對數量級。"}, {"front": "平衡因子（Balance Factor）", "back": "AVL 樹中，一個節點左子樹高度減右子樹高度的差值。"}, {"front": "旋轉（Rotation）", "back": "AVL 樹重新平衡的局部操作：左旋把右子提為新根、右旋把左子提為新根，BST 的大小順序不變，每次 O(1)。子節點偏向另一邊時要先旋轉子節點，共兩次。"}, {"front": "AVL 樹（AVL Tree）", "back": "自我平衡的 BST：任一節點兩側子樹高度差最多為 1，樹高為 O(log n)；旋轉實作列為選讀。"}, {"front": "Bottom-up buildHeap", "back": "從最後一個非葉節點往 root 做 percDown，可在 O(n) 建 heap；逐一 insert 則為 O(n log n)。"}];
+const FLASHCARDS = [{"front": "樹（Trees）", "back": "由節點組成的階層式資料結構：每個節點存放資料，並持有指向子節點的參考。"}, {"front": "節點（Node）", "back": "樹的基本組成：存放資料，並持有指向其他節點（子節點）的參考。每個節點代表一筆資料或結構中的一個位置。"}, {"front": "邊（Edge）", "back": "樹中兩節點之間的連接，代表父節點到子節點的關係或連結。"}, {"front": "根（Root）", "back": "樹最頂端的節點：所有其他節點都由它往下衍生，它自己沒有父節點。"}, {"front": "路徑（Path）", "back": "連接某節點與其子孫的一串節點與邊，描述在樹中從一個節點走到另一個節點的路線。"}, {"front": "子節點（Children）", "back": "在樹中直接連在某節點（父節點）底下、由它衍生的節點。"}, {"front": "父節點（Parent）", "back": "在階層中直接帶有一個以上子節點的節點。"}, {"front": "兄弟節點（Sibling）", "back": "擁有同一個父節點、位於樹中同一層的節點。"}, {"front": "子樹（Subtree）", "back": "由某節點與其全部子孫構成的樹的一部分，本身也是一棵樹。"}, {"front": "葉節點（Leaf node）", "back": "沒有任何子節點的節點，是樹的端點。"}, {"front": "層（Level）", "back": "節點的深度層次：根是第 0 層，往下每走一步加一。"}, {"front": "高度（Height）", "back": "根到最遠葉節點路徑上的最大邊數；只有根的一節點樹高度為 0。"}, {"front": "二元樹（Binary Tree）", "back": "每個節點最多兩個子節點的樹，兩個子節點通常稱為左子與右子。"}, {"front": "串列的串列（List of Lists）", "back": "Python 原書的巢狀串列表示；C++ 課程使用節點與子節點指標。"}, {"front": "節點與參考（Nodes and References）", "back": "樹的實作方法之一：每個節點物件存放自己的資料，以及指向子節點的明確連結。"}, {"front": "解析樹（Parse Tree）", "back": "依形式文法表示一個字串語法結構的樹，是編譯器裡重要的資料結構。"}, {"front": "運算式樹（Expression Tree）", "back": "表示運算式的二元樹：內部節點是運算子，葉節點是運算元。"}, {"front": "前序走訪（Preorder）", "back": "「先處理節點本身、再處理子節點」的樹走訪：順序是根、左、右。"}, {"front": "後序走訪（Postorder）", "back": "「先處理子節點、最後處理節點本身」的樹走訪：順序是左、右、根。"}, {"front": "中序走訪（Inorder）", "back": "二元樹的走訪方式：順序是左子、根、右子。用在 BST 上會得到由小到大的序列。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的抽象資料型別：取出的順序由優先權決定，不是先來後到。"}, {"front": "二元堆積（Binary Heap）", "back": "存在索引從 0 開始的 vector 裡的完全二元樹；min-heap 中每個父節點都不大於它的子節點。"}, {"front": "完全二元樹（Complete Binary Tree）", "back": "除了最後一層外每層都填滿、且最後一層節點盡量靠左的二元樹。"}, {"front": "堆積結構性質（Heap Structure Property）", "back": "堆積必須是完全二元樹的要求，用來保證樹的平衡。"}, {"front": "堆積順序性質（Heap Order Property）", "back": "節點與子節點之間必須維持的特定大小關係（max-heap 或 min-heap）。"}, {"front": "最大堆積（Max-Heap）", "back": "每個節點的值都大於等於其子節點的堆積：最大值永遠在根。"}, {"front": "最小堆積（Min-Heap）", "back": "每個節點的值都小於等於其子節點的堆積：最小值永遠在根。"}, {"front": "上浮與下沉（percUp／percDown）", "back": "堆積恢復順序性質的兩個動作：insert 把新元素接在尾端再往上和父節點交換（percUp）；delMin 把最後一個元素搬到根，再和較小的子節點交換往下沉（percDown）。各為 O(log n)。"}, {"front": "二元搜尋樹（BST, Binary Search Tree）", "back": "每個節點的鍵都大於左子樹所有鍵、小於右子樹所有鍵的二元樹。"}, {"front": "BST 性質（BST Property）", "back": "BST 的定義規則：每個節點左子樹的鍵都比它小，右子樹的鍵都比它大。"}, {"front": "後繼者（Successor）", "back": "在 BST 的中序走訪中，緊接在某節點之後的那個節點；刪除有兩個子節點的節點時用它來替補。"}, {"front": "遞迴中序走訪（Recursive Inorder Traversal）", "back": "遞迴地依序處理左子樹、節點本身、右子樹；用在 BST 上會依鍵由小到大輸出，時間 O(n)，遞迴深度 O(h)。"}, {"front": "平衡二元搜尋樹（Balanced Binary Search Tree）", "back": "會自動調整以維持低高度的 BST，讓樹高維持在對數量級。"}, {"front": "平衡因子（Balance Factor）", "back": "AVL 樹中，一個節點左子樹高度減右子樹高度的差值。"}, {"front": "旋轉（Rotation）", "back": "AVL 樹重新平衡的局部操作：左旋把右子提為新根、右旋把左子提為新根，BST 的大小順序不變，每次 O(1)。子節點偏向另一邊時要先旋轉子節點，共兩次。"}, {"front": "AVL 樹（AVL Tree）", "back": "自我平衡的 BST：任一節點兩側子樹高度差最多為 1，樹高為 O(log n)；旋轉實作列為選讀。"}, {"front": "由下往上建堆（Bottom-up buildHeap）", "back": "從最後一個非葉節點往 root 做 percDown，可在 O(n) 建 heap；逐一 insert 則為 O(n log n)。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

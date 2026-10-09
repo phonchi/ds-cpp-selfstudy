@@ -404,10 +404,6 @@ LEGACY['heap'] = r'''  <p>優先佇列每次取出優先權最高的元素。若
     </div>
   </div>
 {{slot:perc}}
-  <div class="info-box green">
-    <span class="info-label">為什麼 heapify 是 O(n) 而不是 O(n log n)？</span>
-    直接的做法是對 $n$ 個元素逐一 <code>insert</code>，每個 $O(\log n)$，總共 $O(n \log n)$。但 <code>heapify</code> 從<strong>陣列中間 $\lfloor n/2 \rfloor - 1$ 倒著做 perc_down</strong>：底層大量節點高度只有 0 或 1，往下移的成本很小。嚴謹分析會用 $\sum_{h=0}^{\log n} \frac{n}{2^{h+1}} \cdot h = O(n)$。直觀上：<strong>樹底層節點多但移動少，頂層節點少但移動多，兩者相乘的總和是 $O(n)$</strong>。
-  </div>
 {{slot:build}}
 
 {{slot:heapclass}}
@@ -692,7 +688,7 @@ LEGACY['bst-analysis'] = r'''  <p>BST 的 <code>put</code>、<code>get</code>、
           <tbody>
             <tr><td>put</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
             <tr><td>get</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
-            <tr><td>del</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
+            <tr><td>remove</td><td class="best">$O(\log n)$</td><td class="worst">$O(n)$</td></tr>
           </tbody>
         </table></div>
       </div>
@@ -871,7 +867,7 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
 {{slot:bfd}}
 '''
 
-LEGACY['summary'] = r'''  <p>過去兩章我們學了四種實作 map ADT 的方式。下表整理 worst-case 複雜度；注意 hash table 的 $O(1)$ 是<strong>平均</strong>，最差情況（全部碰撞）會退化到 $O(n)$。</p>
+LEGACY['summary'] = r'''  <p>第 7 章與本章我們學了四種實作 map ADT 的方式。下表整理 worst-case 複雜度；注意 hash table 的 $O(1)$ 是<strong>平均</strong>，最差情況（全部碰撞）會退化到 $O(n)$。</p>
 
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead>

@@ -311,7 +311,7 @@ def parse_tree():
 <li>目前 token 是 <code>)</code>：回到目前節點的父節點。</li>
 </ol>
 <p>以 $(3 + (4 * 5))$ 為例，切出的 token 是 <code>{{"(", "3", "+", "(", "4", "*", "5", ")", ")"}}</code>。從一個空的根開始，一次套用一條規則。下圖的灰色節點是目前節點：</p>
-{figrow(['buildExp1', 'buildExp2', 'buildExp3'], '前三個 token：(、3、+ 之前的狀態。讀 ( 往左下走，讀 3 填值後回到根。', '建樹的前三步')}
+{figrow(['buildExp1', 'buildExp2', 'buildExp3'], '從空的根開始，讀入 ( 與 3 之後、讀 + 之前的狀態。讀 ( 往左下走，讀 3 填值後回到根。', '建樹的前三步')}
 {details('逐步圖：讀入 +、(、4、*、5', figrow(['buildExp4', 'buildExp5', 'buildExp6', 'buildExp7', 'buildExp8'], '每讀一個 token 就套用一條規則。最後的兩個 ) 只是往上回到父節點：先回到 +，+ 已經沒有父節點，建樹完成。', '建樹的後五步'))}'''
     build = f'''<h3>buildParseTree</h3>
 <p>四條規則就是程式中 <code>if</code>／<code>else if</code> 的四個分支。往下走到子節點用 <code>getLeftChild()</code>、<code>getRightChild()</code>；回到父節點則靠 <code>pStack</code>：往下走之前先把目前節點 push，要回去時再 pop。</p>
@@ -508,6 +508,7 @@ def heap():
         ['<code>findMin()</code>', '回傳最小值但不移除，$O(1)$。'],
         ['<code>delMin()</code>', '移除並回傳最小值，$O(\\log n)$。舊版的課程程式把同一個操作叫做 <code>delet()</code>。'],
         ['<code>isEmpty()</code>、<code>size()</code>', '回報堆積是否為空、有幾個元素。'],
+        ['<code>print()</code>', '依 vector 的順序印出堆積裡的所有鍵，以空白分隔。'],
         ['<code>buildHeap(values)</code>', '由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。'],
     ])}
 {program('講義完整程式：插入 5、7、3、11 再逐一取出', '講義 09 · BinaryHeap', 'heap_basic',
@@ -543,7 +544,10 @@ def heap():
          note='輸出和圖的最後一棵樹一致。在上面的動畫按「講義：buildHeap [9, 6, 5, 2, 3]」可以逐步看 <code>i = 1</code>、<code>i = 0</code> 兩輪。')}
 {program('講義完整程式：heapify 十個數', '講義 09 · heapify', 'heapify',
          note='每個父節點都不大於子節點，例如索引 1 的 4 小於索引 3、4 的 5 和 12；但整個 vector 並沒有排序。')}
-<p>$O(n)$ 的上界可以依節點高度計算工作量：大約一半的節點是葉節點，不必移動；約 $n/4$ 個節點最多下沉一層，$n/8$ 個最多兩層，依此類推。總和 $\\sum_{{h\\ge0}}(n/2^{{h+1}})h=O(n)$，不是 $O(n\\log n)$。</p>
+<div class="info-box green">
+    <span class="info-label">為什麼 buildHeap 是 O(n) 而不是 O(n log n)？</span>
+    <code>buildHeap</code> 從索引 $\\lfloor n/2 \\rfloor - 1$ 往根的方向逐一做 <code>percDown</code>，每個節點最多下沉到它的高度。依節點高度計算工作量：大約一半的節點是葉節點，不必移動；約 $n/4$ 個節點最多下沉一層，$n/8$ 個最多兩層，依此類推。總和 $\\sum_{{h\\ge0}}(n/2^{{h+1}})h=O(n)$，不是 $O(n\\log n)$。直觀上：<strong>樹底層節點多但移動少，頂層節點少但移動多，加起來的總工作量是 $O(n)$</strong>。
+  </div>
 {quiz('heap1')}
 {quiz('heap2')}'''
     sort = f'''<h3 id="ex-heapsort">練習 2：heapSort</h3>

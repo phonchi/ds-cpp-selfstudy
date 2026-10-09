@@ -78,3 +78,9 @@ speak-human-tw 潤稿有 26 處直接改在 `graphs.html` 的 gen 區外（資�
 ## 2026-10-09 讀者審閱修正（gen 區外）
 
 - PART 00 關鍵概念面板：Path 補「互不相同」，Cycle 改成封閉序列 $(w_1, \ldots, w_n, w_1)$ 的定義，Tree 補「無向圖」。其餘修正都在產生器來源，見 `docs/verification/20261009-reading/fixes-ch7-9.md`。
+
+## 2026-10-09 讀者審閱第二輪修正（gen 區外）
+
+- 主 script：拓撲排序與 SCC 加上「① 播完才能按 ②／③」的檢查，以及 `tsStep()`／`sccStep()`（剛載入時按單步會建立 ① 並前進一格）；騎士巡遊預設 5×5，奇數邊長只列 (r+c) 為偶數的起點，上限訊息依原因說明，格內步數從 0 起算，程式面板加 `data-l` 高亮；Prim 略過過期項目時高亮 `continue` 那一行（`data-l="9"`）；Dijkstra 用語改成「展開」「已展開」。
+- HTML：DFS 起點選單改為「第一棵樹的根」並加說明；相鄰串列卡、word ladder 複雜度框、BFS vs DFS 對照框、Google Maps 框、拓撲排序側欄、頁首（補充）定義、footer。
+- 逐項與驗證見 `docs/verification/20261009-reading/fixes-ch8-round2.md`。

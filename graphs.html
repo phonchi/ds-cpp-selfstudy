@@ -525,7 +525,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <div class="study-guide">
   <div class="sg-title">📌 本頁使用方式（cppds Ch.9｜講義 08）</div>
   <p>① <strong>照節次讀</strong>：每一節先讀說明、動手玩互動元件，預測結果再按按鈕驗證。
-  ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；講義的完整程式收在各節的收合區，預期輸出放在收合區外，可以先猜輸出再展開程式對照。
+  ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；講義的完整程式收在各節的收合區，預期輸出放在收合區外，可以先猜輸出再展開程式對照。標「（補充）」的內容是講義以外的延伸說明，跳過不影響主線。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
   ④ 最後翻 <a href="#cards">關鍵詞彙卡（35 張）</a>自測術語（中文為主、術語附英文），並用 REF 總覽區與<a href="#recap">重點回顧</a>當速查表。標「官方選讀」的節屬 cppds 正文，但課程第一輪可略過。</p>
   <div class="sg-links"><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/08_Graphs%20and%20Graphing%20Algorithms.html#/" target="_blank" rel="noopener">🖥 講義 08 線上閱讀 HTML</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/08_Graphs%20and%20Graphing%20Algorithms.pdf" target="_blank" rel="noopener">📑 講義 08 閱讀 PDF</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/08_Graphs%20and%20Graphing%20Algorithms.pdf" download="08_Graphs and Graphing Algorithms.pdf">⬇ 講義 08 下載 PDF</a><a href="https://runestone.academy/ns/books/published/cppds/Graphs/toctree.html" target="_blank" rel="noopener">📖 課本 cppds（Graphs）</a><a href="https://github.com/phonchi/pythonds3/tree/master/cppds" target="_blank" rel="noopener">💾 課程標頭 pythonds3/cppds</a><a href="https://www.hello-algo.com/zh-hant/chapter_graph/" target="_blank" rel="noopener">📘 Hello 演算法（圖）</a><a href="index.html">🏠 章節總覽</a></div>
@@ -615,7 +615,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 
 <!-- gen:graphs-prologue-legend -->
-<details class="gr-detail"><summary>動畫的顏色與操作方式（補充）</summary><div class="gr-detail-body"><p>BFS 與 DFS 都用「白／灰／黑」三種顏色記錄每個頂點被造訪到什麼程度，本頁的動畫也用同一套顏色：</p>
+<details class="gr-detail"><summary>動畫的顏色與操作方式（補充）</summary><div class="gr-detail-body"><p>後面的 BFS 與 DFS 會用「白／灰／黑」三種顏色記錄每個頂點被造訪到什麼程度，本頁的動畫也用同一套顏色：</p>
   <div class="legend">
     <span class="legend-item"><span class="lg-swatch" style="background:var(--node-white)"></span>White：尚未發現</span>
     <span class="legend-item"><span class="lg-swatch" style="background:var(--node-gray)"></span>Gray：已發現、尚未完成</span>
@@ -707,7 +707,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           適合<strong>稀疏圖</strong>（sparse，邊數遠小於 $|V|^2$）。<br>
           ✅ 空間 $O(|V|+|E|)$<br>
           ✅ 列出鄰居只需 $O(\deg(v))$<br>
-          ❌ 查特定邊需走過鄰居清單
+          ❌ 查特定邊是 $O(\log\deg(v))$，不是 $O(1)$
         </p>
         <div class="ic-row" style="margin-top:.6rem;"><span class="ic-label">空間</span><span class="ic-value highlight">$O(|V|+|E|)$</span></div>
         <div class="ic-row"><span class="ic-label">查邊（std::map）</span><span class="ic-value">$O(\log\deg(v))$</span></div>
@@ -941,9 +941,10 @@ SAGE</div>
       </div>
       <div class="info-card">
         <div class="ic-title">演算法複雜度</div>
-        <div class="ic-row"><span class="ic-label">建圖（bucket）</span><span class="ic-value">$O(n \cdot L)$</span></div>
+        <div class="ic-row"><span class="ic-label">放入 bucket</span><span class="ic-value">$O(n \cdot L)$</span></div>
+        <div class="ic-row"><span class="ic-label">同 bucket 兩兩連邊</span><span class="ic-value">$O(\sum_b |b|^2)$，最壞 $\Theta(n^2)$</span></div>
         <div class="ic-row"><span class="ic-label">BFS</span><span class="ic-value">$O(\lvert V\rvert + \lvert E\rvert)$</span></div>
-        <div class="ic-row" style="border-top:1px solid var(--card-border);margin-top:.3rem;padding-top:.4rem;"><span class="ic-label">$n$ = 字數, $L$ = 字長</span></div>
+        <div class="ic-row" style="border-top:1px solid var(--card-border);margin-top:.3rem;padding-top:.4rem;"><span class="ic-label">$n$ = 字數, $L$ = 字長, $|b|$ = 一個 bucket 的字數</span></div>
       </div>
     </div>
   </div>
@@ -1115,7 +1116,7 @@ SAGE</div>
 <p>下一步，BFS 從佇列前端取出下一個頂點 <code>pool</code>，對它的每個鄰居重複同樣的處理。檢查到 <code>cool</code> 時，發現它已經是灰色：這表示有更短的路徑能到 <code>cool</code>，而且它已經在佇列裡等著被展開。所以檢查 <code>pool</code> 只新增了 <code>poll</code>。接著是 <code>foil</code>，它唯一能加入樹的新頂點是 <code>fail</code>；再往後的兩個頂點都沒有新增任何東西。</p>
 <details class="gr-detail"><summary>逐步圖：處理 pool 與第一層之後</summary><div class="gr-detail-body"><div class="gr-steps"><figure class="gr-figure" id="gr-figure-bfs2"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="pool 變成黑色，下方新增灰色的 poll，距離 2；佇列變成 foil、foul、cool、poll。"><img src="assets/figures/ch8/bfs2.png" alt="pool 變成黑色，下方新增灰色的 poll，距離 2；佇列變成 foil、foul、cool、poll。" width="320" height="336" style="--figure-width:320px" loading="lazy"></div><figcaption>取出佇列最前面的 pool。它的鄰居 cool 已經是灰色，不再處理；只有 poll 是新發現的頂點，距離 2，排到佇列最後面。</figcaption></figure><figure class="gr-figure" id="gr-figure-bfs3"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="第一層四個節點都變黑；第二層有灰色的 poll 與 fail，距離 2；圖中佇列畫成 pole、pall，這是原圖的錯誤，正確內容是 poll、fail。"><img src="assets/figures/ch8/bfs3.png" alt="第一層四個節點都變黑；第二層有灰色的 poll 與 fail，距離 2；圖中佇列畫成 pole、pall，這是原圖的錯誤，正確內容是 poll、fail。" width="320" height="304" style="--figure-width:320px" loading="lazy"></div><figcaption>第一層的四個頂點都處理完：foil 帶出 fail，foul 和 cool 沒有新鄰居。第二層目前有 poll 與 fail 兩個灰色頂點。圖下方的佇列畫成 pole、pall 是原圖的錯誤：這時佇列裡應該是 poll、fail，也就是剛才排進去的兩個灰色頂點。</figcaption></figure></div></div></details>
 <p>自己繼續往下追蹤，直到熟悉整個過程。下圖是所有頂點都處理完之後的 BFS 樹：</p>
-<figure class="gr-figure" id="gr-figure-bfsDone"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="完整的 BFS 樹：fool 為根，往下依序是距離 1 到 6 的單字，sage 在最底下，距離 6；佇列為空。"><img src="assets/figures/ch8/bfsDone.png" alt="完整的 BFS 樹：fool 為根，往下依序是距離 1 到 6 的單字，sage 在最底下，距離 6；佇列為空。" width="300" height="395" style="--figure-width:300px" loading="lazy"></div><figcaption>BFS 結束時的搜尋樹。每個節點下方是它與 fool 的距離，箭頭就是 previous 指標。從任何一個單字沿箭頭往上走到 fool，就是它最短的 word ladder；sage 需要 6 步。</figcaption></figure>
+<figure class="gr-figure" id="gr-figure-bfsDone"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="BFS 樹：fool 為根，往下依序是距離 1 到 6 的單字，sage 在最底下，距離 6，畫成灰色；佇列為空。圖中只有 14 個頂點，沒有畫出 fall。"><img src="assets/figures/ch8/bfsDone.png" alt="BFS 樹：fool 為根，往下依序是距離 1 到 6 的單字，sage 在最底下，距離 6，畫成灰色；佇列為空。圖中只有 14 個頂點，沒有畫出 fall。" width="300" height="395" style="--figure-width:300px" loading="lazy"></div><figcaption>BFS 結束時的搜尋樹。每個節點下方是它與 fool 的距離，箭頭就是 previous 指標。從任何一個單字沿箭頭往上走到 fool，就是它最短的 word ladder；sage 需要 6 步。原圖只畫了 14 個頂點，少了 fall：fall 和 fail 只差一個字母，在程式的 BFS 樹裡掛在 fail 下面，距離 3，所以下方的預期輸出有 fall(3)。原圖的 sage 還是灰色，程式跑完時它和其他頂點一樣是黑色。</figcaption></figure>
 <p>圖中的鄰居是依課本的順序畫的；C++ 的 <code>neighbors</code> 是 map，會依 key 的字母順序走訪（<code>cool</code>、<code>foil</code>、<code>foul</code>、<code>pool</code>），所以佇列的順序不同，但每個頂點的距離一樣。</p>
 <h3>沿 previous 往回走：traverse</h3>
 <p>跑完這次 BFS，除了一開始的 FOOL 到 SAGE，其他單字的問題也一起解決了：從 BFS 樹上任何一個頂點出發，沿著 previous 往回走到根，就是從那個單字回到 <code>fool</code> 最短的 word ladder。</p>
@@ -1170,7 +1171,6 @@ SAGE</div>
 <h3>BFS 的分析</h3>
 <p>先看 <code>while</code> 迴圈：每個頂點必須是白色才會被檢查並加進佇列，所以迴圈最多對每個頂點執行一次，也就是最多 $|V|$ 次，得到 $O(|V|)$。巢狀在裡面的 <code>for</code> 迴圈，對每條邊最多執行一次，最多 $|E|$ 次：每個頂點最多出列一次，而從 $u$ 到 $v$ 的邊只在 $u$ 出列時被檢查。這部分是 $O(|E|)$，兩個迴圈合起來是 $O(|V| + |E|)$。</p>
 <p>BFS 只是工作的一部分。沿著 previous 從目標走回起點是另一部分，最壞的情況是整張圖是一條長鏈，要走過所有頂點，花 $O(|V|)$；一般情況只會走過 $|V|$ 的一部分。最後，至少在這個問題裡，還要加上建立整張圖的時間。</p>
-<details class="gr-detail"><summary>一次 BFS 得到的兩樣東西（補充）</summary><div class="gr-detail-body"><p>沿著 previous 往回走，可以從任何一個可達的頂點走回起點，而且走的是邊數最少的路徑。一次 BFS 就同時得到起點到所有可達頂點的最短距離，不必對每個目標各跑一次。</p></div></details>
 <!-- /gen:graphs-bfs-trace -->
 
   <div class="info-box purple" id="secretsofmaps">
@@ -1179,7 +1179,7 @@ SAGE</div>
     把本節的 BFS 搬到<strong>真實道路網</strong>上：地圖上左鍵點起點、右鍵點終點（或按 <code>Select 2 Random Points</code>），再按播放，就能看到 BFS 像<strong>水面漣漪一樣一圈一圈往外擴散</strong>，直到碰到終點。
     網站的頂點是 OpenStreetMap 的路口、邊是路段，資料透過 Overpass API 即時抓取，和本頁的 <code>Graph</code>／<code>Vertex</code> 是同一套抽象。<br>
     <strong>建議玩法：</strong>先跑 BFS，觀察它如何逐層搜尋，而不優先朝終點前進；接著依序解鎖 DFS（一頭鑽進去、找到的不一定最短）、Greedy（只看離終點多遠，遇到河就繞遠路）、A*（同時考慮已走成本與到終點的估計成本）、Bidirectional BFS／A*（從起點與終點兩側搜尋，實際縮減幅度依路網與位置而異）、最後的 A* + 查表（觀察預先整理路網資訊如何減少查詢工作）。
-    <strong>看完再回頭讀 PART 08：A* 在已走成本上加入到終點的啟發式估計，決定搜尋優先順序。</strong> 路段距離不同時，BFS 找到的最少邊數不一定是最短路程；這裡先比較搜尋方式。<br>
+    <strong>看完再回頭對照 PART 08 的 Dijkstra：它依「已走成本」決定搜尋順序；A* 是在這個優先順序上，再加上到終點的估計。</strong> 路段距離不同時，BFS 找到的最少邊數不一定是最短路程；這裡先比較搜尋方式。<br>
     <span style="font-size:.85rem;color:var(--muted);">小提醒：介面為英文；地圖資料第一次載入可能要一、兩分鐘，Overpass 偶爾會限流，請稍等再試；廣告阻擋器可能讓地圖載不出來。演算法預設隨導覽角色 Geo 的對話逐一解鎖，想直接玩可按 <code>Unlock All Algorithms</code>。
     作者 Adam Kulikowski，改作自 honzaap/Pathfinding，MIT 授權；
     <a href="https://github.com/Adas4044/How-Google-Maps-Works-1" target="_blank" rel="noopener">原始碼</a>。</span>
@@ -1319,7 +1319,7 @@ SAGE</div>
 <p>樹的下一層，同樣有 2 到 8 種可能的走法。要檢查的位置數，就是搜尋樹的節點數。</p>
 <figure class="gr-figure" id="gr-figure-8arrayTree"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="一棵搜尋樹：根節點有 8 個子節點，下一層的節點又各有數個子節點，越往下越多。"><img src="assets/figures/ch8/8arrayTree.png" alt="一棵搜尋樹：根節點有 8 個子節點，下一層的節點又各有數個子節點，越往下越多。" width="640" height="220" style="--figure-width:640px" loading="lazy"></div><figcaption>把搜尋過程畫成樹：根是起點，每個子節點是一種下一步走法。每一層的分支數在 2 到 8 之間，樹的節點數隨深度以指數成長。</figcaption></figure>
 <p>每個節點最多有八個子節點，節點總數很大。因為每個節點的分支數不同，可以用<strong>平均分支因子</strong>估計：節點數是 $\frac{k^{N+1}-1}{k-1}$，$k$ 是這個棋盤的平均分支因子，這個式子隨 $N$ 指數成長。</p>
-<p>5×5 的棋盤深度是 25 層，平均分支因子 $k = 3.8$，搜尋樹的節點數約為 $3.8^{25} - 1$，也就是 $3.12 \times 10^{14}$。6×6 的棋盤 $k = 4.4$，約有 $1.5 \times 10^{23}$ 個節點；一般 8×8 的棋盤 $k = 5.25$，多達 $1.2 \times 10^{46}$ 個。</p>
+<p>這個式子的量級約是 $k^N$。5×5 的棋盤深度是 25 層，平均分支因子 $k = 3.8$，$3.8^{25} \approx 3.12 \times 10^{14}$，搜尋樹的節點數就是這個量級。6×6 的棋盤 $k = 4.4$，$4.4^{36} \approx 1.5 \times 10^{23}$；一般 8×8 的棋盤 $k = 5.25$，$5.25^{64} \approx 1.2 \times 10^{46}$。</p>
 <p>問題有很多解，所以不必探索每一個節點；但實際要探索的比例只是一個常數倍，搜尋量仍然是指數成長。</p>
 <h3>Warnsdorff 啟發式</h3>
 <p><code>orderByAvail()</code> 依每個候選鄰居「還剩幾個白色鄰居」排序，先試剩下走法最少的那一格。這就是 Warnsdorff 規則，它讓 8×8 的情況變得實際可行，但最壞情況仍然是指數時間。</p>
@@ -1394,7 +1394,8 @@ SAGE</div>
   12  59  14  29  10  47  24  27
   15  30  11  60  25  28   9  46</pre></div><p class="dx-note">同樣從 0 號格出發，64 格全部走過，格子裡的數字是第幾步走到。四個角落分別在第 0、15、21、46 步走到，沒有一個留到最後；最後的 61、62、63 步都落在棋盤中間。走法少的邊角先處理，中間的格子留到後面，這就是 Warnsdorff 規則的效果。</p>
 <h3>互動：有沒有 Warnsdorff 差多少</h3>
-<p>選棋盤大小，切換「使用 Warnsdorff」再按「開始」，比較兩種排序要回溯幾次。動畫裡關閉 Warnsdorff 時，候選格依列、行順序由小到大嘗試。</p>
+<p>選棋盤大小，切換「使用 Warnsdorff」再按「開始」，比較兩種排序要回溯幾次。動畫裡關閉 Warnsdorff 時，候選格依列、行順序由小到大嘗試。格子裡的數字是第幾步走到，起點是 0。</p>
+<p>預設的 5×5 最適合比較：從 (0,0) 出發，Warnsdorff 一次都不用回溯，不用 Warnsdorff 則要回溯幾千次。6×6 以上不用 Warnsdorff 時，回溯次數動輒十幾萬次，動畫要播好幾個小時，甚至超過 80 萬步的上限而停止。奇數邊長的棋盤只提供 (r+c) 為偶數的起點：騎士每走一步就換一次格子顏色，7×7 有 25 個淺色格、24 個深色格，巡遊必須從淺色格出發、在淺色格結束，從深色格出發不可能走完。</p>
 <!-- /gen:graphs-knight -->
 
   <div class="viz-layout">
@@ -1405,8 +1406,8 @@ SAGE</div>
         <div class="slider-row">
           <span class="slider-label">大小</span>
           <select id="knightSize" style="font-family:'JetBrains Mono',monospace;padding:.3rem .5rem;border-radius:6px;border:1px solid var(--card-border);background:#fff;">
-            <option value="5">5×5</option>
-            <option value="6" selected>6×6</option>
+            <option value="5" selected>5×5</option>
+            <option value="6">6×6</option>
             <option value="7">7×7</option>
             <option value="8">8×8</option>
           </select>
@@ -1429,7 +1430,7 @@ SAGE</div>
       <div class="info-card">
         <div class="ic-title">即時統計 <span class="ic-badge">LIVE</span></div>
         <div class="stats-grid">
-          <div class="stat-tile"><div class="stat-label">已走步數</div><div class="stat-value" id="knightSteps">0</div></div>
+          <div class="stat-tile"><div class="stat-label">已走格數</div><div class="stat-value" id="knightSteps">0</div></div>
           <div class="stat-tile"><div class="stat-label">回退次數</div><div class="stat-value" id="knightBack">0</div></div>
         </div>
         <div class="ic-row" style="margin-top:.6rem;"><span class="ic-label">總探索節點</span><span class="ic-value highlight" id="knightExplored">0</span></div>
@@ -1437,26 +1438,26 @@ SAGE</div>
       </div>
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <div class="pseudo-code" id="knightCode"><span class="line"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/graph_algos.hpp"</span></span>
-<span class="line"><span class="kw">bool</span> <span class="fn">knightTourWarnsdorff</span>(<span class="kw">int</span> n, vector&lt;string&gt;&amp; path, string uKey, <span class="kw">int</span> limit, Graph&amp; g) {</span>
-<span class="line">    g.vertices[uKey].color = <span class="str">"</span><span class="str">gray</span><span class="str">"</span>;</span>
-<span class="line">    path.push_back(uKey);</span>
-<span class="line">    <span class="kw">if</span> (n &lt; limit) {</span>
-<span class="line">        <span class="kw">bool</span> done = <span class="fn">false</span>;</span>
-<span class="line">        <span class="kw">for</span> (string nbKey : orderByAvail(g, uKey)) {   <span class="com">// Warnsdorff order</span></span>
-<span class="line">            <span class="kw">if</span> (done) <span class="kw">break</span>;</span>
-<span class="line">            <span class="kw">if</span> (g.vertices[nbKey].color == <span class="str">"</span><span class="str">white</span><span class="str">"</span>) {</span>
-<span class="line">                done = knightTourWarnsdorff(n + <span class="num">1</span>, path, nbKey, limit, g);</span>
-<span class="line">            }</span>
-<span class="line">        }</span>
-<span class="line">        <span class="kw">if</span> (!done) {   <span class="com">// backtrack</span></span>
-<span class="line">            path.pop_back();</span>
-<span class="line">            g.vertices[uKey].color = <span class="str">"</span><span class="str">white</span><span class="str">"</span>;</span>
-<span class="line">        }</span>
-<span class="line">        <span class="kw">return</span> done;</span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">return</span> <span class="fn">true</span>;</span>
-<span class="line">}</span></div>
+        <div class="pseudo-code" id="knightCode"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/graph_algos.hpp"</span></span>
+<span class="line" data-l="2"><span class="kw">bool</span> <span class="fn">knightTourWarnsdorff</span>(<span class="kw">int</span> n, vector&lt;string&gt;&amp; path, string uKey, <span class="kw">int</span> limit, Graph&amp; g) {</span>
+<span class="line" data-l="3">    g.vertices[uKey].color = <span class="str">"</span><span class="str">gray</span><span class="str">"</span>;</span>
+<span class="line" data-l="4">    path.push_back(uKey);</span>
+<span class="line" data-l="5">    <span class="kw">if</span> (n &lt; limit) {</span>
+<span class="line" data-l="6">        <span class="kw">bool</span> done = <span class="fn">false</span>;</span>
+<span class="line" data-l="7">        <span class="kw">for</span> (string nbKey : orderByAvail(g, uKey)) {   <span class="com">// Warnsdorff order</span></span>
+<span class="line" data-l="8">            <span class="kw">if</span> (done) <span class="kw">break</span>;</span>
+<span class="line" data-l="9">            <span class="kw">if</span> (g.vertices[nbKey].color == <span class="str">"</span><span class="str">white</span><span class="str">"</span>) {</span>
+<span class="line" data-l="10">                done = knightTourWarnsdorff(n + <span class="num">1</span>, path, nbKey, limit, g);</span>
+<span class="line" data-l="11">            }</span>
+<span class="line" data-l="12">        }</span>
+<span class="line" data-l="13">        <span class="kw">if</span> (!done) {   <span class="com">// backtrack</span></span>
+<span class="line" data-l="14">            path.pop_back();</span>
+<span class="line" data-l="15">            g.vertices[uKey].color = <span class="str">"</span><span class="str">white</span><span class="str">"</span>;</span>
+<span class="line" data-l="16">        }</span>
+<span class="line" data-l="17">        <span class="kw">return</span> done;</span>
+<span class="line" data-l="18">    }</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line" data-l="20">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">複雜度</div>
@@ -1531,7 +1532,7 @@ SAGE</div>
         <div class="graph-canvas" id="canvas-dfs"></div>
         <div class="status-banner"><span class="status-icon">›</span><span class="status-text" id="dfsStatus">按「開始」跑完整 DFS（會走遍整個 forest）</span></div>
         <div class="slider-row">
-          <span class="slider-label">起點</span>
+          <span class="slider-label">第一棵樹的根</span>
           <select id="dfsStart" style="font-family:'JetBrains Mono',monospace;padding:.3rem .5rem;border-radius:6px;border:1px solid var(--card-border);background:#fff;">
             <option value="A" selected>A</option><option value="B">B</option><option value="C">C</option>
             <option value="D">D</option><option value="E">E</option><option value="F">F</option>
@@ -1539,6 +1540,7 @@ SAGE</div>
           <span style="font-size:.78rem;color:var(--muted);">速度</span>
           <input type="range" id="dfsSpeed" min="200" max="1500" step="50" value="700" style="flex:1;accent-color:var(--accent3);">
         </div>
+        <p style="font-size:.8rem;color:var(--muted);margin:.3rem 0 .5rem;">課程的 <code>dfs()</code> 一律依 key 的順序（A、B、C…）挑根，所以一定從 A 開始。這裡可以改選第一棵樹的根，看看森林會怎麼變；之後仍依 key 的順序，從還是白色的頂點挑下一個根。選 A 就和 <code>dfs()</code> 的結果相同。</p>
         <div class="controls-bar">
           <button class="btn btn-play" id="dfsPlay">▶ 開始</button>
           <button class="btn btn-step" id="dfsStep">→ 單步</button>
@@ -1600,10 +1602,10 @@ SAGE</div>
 
   <div class="info-box green">
     <span class="info-label">BFS vs DFS 的程式碼對照</span>
-    DFS 與 BFS 的程式碼<strong>幾乎一模一樣</strong>，差別只在內層迴圈最後一行：<br>
-    BFS：<code>vertQueue.push(n.first)</code>：先把鄰居放進佇列，等以後處理。<br>
-    DFS：<code>dfsVisit(n.first)</code>：立刻遞迴下去處理鄰居。<br>
-    這一行的差別，決定了搜尋是廣度優先還是深度優先。
+    兩者都用白／灰／黑記錄進度、用 previous 串成搜尋樹，<strong>核心差別在排程</strong>：碰到白色鄰居時怎麼安排它。<br>
+    BFS：<code>vertQueue.push(n.first)</code>：在 if 裡設好鄰居的 color、distance、previous，放進佇列，等以後處理。<br>
+    DFS：<code>dfsVisit(n.first)</code>：只設 previous，立刻遞迴下去；著色與計時在 <code>dfsVisit</code> 開頭做。<br>
+    此外 DFS 還多了 discovery／closing 時間，以及外層「對每個白色頂點都啟動一次」的迴圈。排程方式的差別，決定了搜尋是廣度優先還是深度優先。
   </div>
 
 <!-- gen:graphs-dfs-trace -->
@@ -1726,11 +1728,11 @@ SAGE</div>
     <div>
       <div class="viz-panel">
         <div class="graph-canvas" id="canvas-ts" style="height:400px;"></div>
-        <div class="status-banner"><span class="status-icon">›</span><span class="status-text" id="tsStatus">按「① 跑 DFS」開始：節點上會標出 start/close 時間。</span></div>
+        <div class="status-banner"><span class="status-icon">›</span><span class="status-text" id="tsStatus">按「① 跑 DFS」開始：節點上會標出 discovery/closing time。</span></div>
         <div class="controls-bar">
           <button class="btn btn-play" onclick="tsRunDFS()">▶ ① 跑 DFS 標 closing time</button>
           <button class="btn btn-step" onclick="tsOrder()">② 依 closing 遞減排出順序</button>
-          <button class="btn" onclick="tsPlayer &amp;&amp; tsPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="tsStep()">→ 單步</button>
           <button class="btn" onclick="tsPlayer &amp;&amp; tsPlayer.toggle(this)">⏸ 暫停</button>
           <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="tsSpeed" type="range" min="150" max="1200" value="550" style="vertical-align:middle;"></span>
           <button class="btn btn-reset" onclick="tsReset()">↺ 重置</button>
@@ -1750,7 +1752,7 @@ SAGE</div>
       <div class="info-card">
         <div class="ic-title">怎麼讀動畫</div>
         <div style="font-size:.84rem;line-height:1.9;">
-        節點下方的 <span class="mono">s/f</span> 是 DFS 的 start／closing time。
+        節點下方的 <span class="mono">d/f</span> 是 DFS 的 discovery／closing time。
         灰＝已發現、黑＝已完成。第 ② 步只是把黑點照 f 由大到小唸出來，
         合法的做事順序就出現了。</div>
       </div>
@@ -1804,8 +1806,8 @@ SAGE</div>
 <p>找出強連通元件之後，把同一個元件的頂點合併成一個大頂點，就能畫出簡化的圖。對這張圖照上面四個步驟走一遍：第一次 DFS 得到每個頂點的 closing 時間，第二次在轉置圖上依 closing 時間由大到小挑起點，最後得到三棵樹。</p>
 <details class="gr-detail"><summary>逐步圖：簡化圖與兩次 DFS 的時間</summary><div class="gr-detail-body"><div class="gr-steps"><figure class="gr-figure" id="gr-figure-scc2"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="三個大節點 ABDEG、C、FHI，ABDEG 指向 C，C 指向 FHI，C 有一條指向自己的邊。"><img src="assets/figures/ch8/scc2.png" alt="三個大節點 ABDEG、C、FHI，ABDEG 指向 C，C 指向 FHI，C 有一條指向自己的邊。" width="300" height="164" style="--figure-width:300px" loading="lazy"></div><figcaption>把每個強連通元件縮成一個頂點後的簡化圖，比較容易看出原圖的整體結構。</figcaption></figure><figure class="gr-figure" id="gr-figure-scc1a"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="原圖上每個頂點標著 discovery/closing 時間，例如 A 1/18、B 2/17、C 3/10。"><img src="assets/figures/ch8/scc1a.png" alt="原圖上每個頂點標著 discovery/closing 時間，例如 A 1/18、B 2/17、C 3/10。" width="420" height="297" style="--figure-width:420px" loading="lazy"></div><figcaption>步驟 1：對原圖 G 跑 dfs()，得到每個頂點的 closing 時間。A 的 closing 時間 18 最大。</figcaption></figure><figure class="gr-figure" id="gr-figure-scc1b"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="轉置圖上每條邊方向相反，頂點時間為第二次 DFS 的結果，例如 A 1/10、F 13/18。"><img src="assets/figures/ch8/scc1b.png" alt="轉置圖上每條邊方向相反，頂點時間為第二次 DFS 的結果，例如 A 1/10、F 13/18。" width="420" height="297" style="--figure-width:420px" loading="lazy"></div><figcaption>步驟 3：在轉置圖 Gᵀ 上跑 dfs()，主迴圈依第一次的 closing 時間由大到小挑起點。</figcaption></figure></div></div></details>
 <figure class="gr-figure" id="gr-figure-sccforest"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="三棵樹：A→E→G→D 加上 E→B 一棵；C 單獨一棵；F→I→H 一棵。"><img src="assets/figures/ch8/sccforest.png" alt="三棵樹：A→E→G→D 加上 E→B 一棵；C 單獨一棵；F→I→H 一棵。" width="360" height="306" style="--figure-width:360px" loading="lazy"></div><figcaption>步驟 3 產生的深度優先森林。三棵樹 {A, E, G, D, B}、{C}、{F, I, H} 正好是三個強連通元件。</figcaption></figure>
-<p>下方的互動圖用另一張八個頂點的圖示範同樣的三個步驟。</p>
-<h3>互動：三個步驟走一遍</h3>
+<p>下方的互動圖用另一張八個頂點的圖走一遍同樣的四個步驟：按鈕 ① 是第一步，② 是第二步，③ 跑第三步的 DFS，長出的每一棵樹就是第四步的一個 SCC。</p>
+<h3>互動：四個步驟走一遍</h3>
 <!-- /gen:graphs-scc -->
   <div class="viz-layout">
     <div>
@@ -1816,7 +1818,7 @@ SAGE</div>
           <button class="btn btn-play" onclick="sccStep1()">▶ ① DFS on G</button>
           <button class="btn btn-step" onclick="sccStep2()">② 轉置成 G&#7488;</button>
           <button class="btn btn-step" onclick="sccStep3()">③ G&#7488; 上依 closing 遞減 DFS</button>
-          <button class="btn" onclick="sccPlayer &amp;&amp; sccPlayer.step()">→ 單步</button>
+          <button class="btn" onclick="sccStep()">→ 單步</button>
           <button class="btn" onclick="sccPlayer &amp;&amp; sccPlayer.toggle(this)">⏸ 暫停</button>
           <span class="mono" style="font-size:.8rem;color:var(--muted);">速度 <input id="sccSpeed" type="range" min="150" max="1200" value="550" style="vertical-align:middle;"></span>
           <button class="btn btn-reset" onclick="sccReset()">↺ 重置</button>
@@ -2016,7 +2018,7 @@ SAGE</div>
 <h3>在路由圖上追蹤 Dijkstra</h3>
 <p>從 $u$ 開始，<code>distance = 0</code>；其他頂點一開始都是 <code>INT_MAX</code>（還走不到）。鬆弛 $u$ 的每條邊，鄰居第一次得到有限的候選距離，並把 $u$ 記為前一個頂點：</p>
 <figure class="gr-figure" id="gr-figure-dijkstraa"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="Dijkstra after u：u 的距離 0；v=2、x=1、w=5，藍色是 previous 邊；下方 PQ 為 (1,&quot;x&quot;)、(2,&quot;v&quot;)、(5,&quot;w&quot;)。"><img src="assets/figures/ch8/dijkstraa.png" alt="Dijkstra after u：u 的距離 0；v=2、x=1、w=5，藍色是 previous 邊；下方 PQ 為 (1,&quot;x&quot;)、(2,&quot;v&quot;)、(5,&quot;w&quot;)。" width="440" height="381" style="--figure-width:440px" loading="lazy"></div><figcaption>處理完 u 之後：u 的三個鄰居第一次得到有限的距離，previous 都指向 u（藍線）。下方列出優先佇列裡的 pair，最左邊的會最先被取出。</figcaption></figure>
-<p>接下來 $x$ 的總成本最低，所以浮到優先佇列的最前面。取出 $x$ 時檢查它的鄰居 $u$、$v$、$w$、$y$：鬆弛讓 $y$ 第一次得到有限的距離，也讓 $w$ 的候選距離變小。lazy 佇列推入改善後的 pair；被取代的、比較大的那筆，之後到了最上面就被略過。下一步看 $v$ 的鄰居，圖沒有任何變化，於是換到 $y$。在 $y$ 發現到 $w$ 和 $z$ 都更便宜，就調整距離與 previous。最後檢查 $w$ 和 $z$，沒有新的變化，優先佇列也空了，演算法結束。</p>
+<p>接下來 $x$ 的總成本最低，所以浮到優先佇列的最前面。取出 $x$ 時檢查它的鄰居 $u$、$v$、$w$、$y$：鬆弛讓 $y$ 第一次得到有限的距離，也讓 $w$ 的候選距離變小。lazy 佇列推入改善後的 pair；被取代的、比較大的那筆，之後到了最上面就被略過。下一步看 $v$ 的鄰居，圖沒有任何變化，於是換到 $y$。在 $y$ 發現到 $w$ 和 $z$ 都更便宜，就調整距離與 previous。最後檢查 $w$ 和 $z$，沒有新的變化；佇列裡只剩 $w$ 的兩筆過期項目 (4, w) 與 (5, w)，取出時一一略過，佇列空了，演算法結束。</p>
 <details class="gr-detail"><summary>逐步圖：依序處理 x、v、y、w</summary><div class="gr-detail-body"><div class="gr-steps"><figure class="gr-figure" id="gr-figure-dijkstrab"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after x：w 由 5 降為 4，y=2；PQ 為 (2,&quot;v&quot;)、(2,&quot;y&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。"><img src="assets/figures/ch8/dijkstrab.png" alt="after x：w 由 5 降為 4，y=2；PQ 為 (2,&quot;v&quot;)、(2,&quot;y&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。" width="440" height="381" style="--figure-width:440px" loading="lazy"></div><figcaption>處理 x：經過 x 到 w 只要 1 + 3 = 4，比 5 小，所以更新 w 並推入 (4, "w")；舊的 (5, "w") 留在佇列裡。y 第一次得到距離 2。</figcaption></figure><figure class="gr-figure" id="gr-figure-dijkstrac"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after v：距離沒有變化；PQ 為 (2,&quot;y&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。"><img src="assets/figures/ch8/dijkstrac.png" alt="after v：距離沒有變化；PQ 為 (2,&quot;y&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。" width="440" height="381" style="--figure-width:440px" loading="lazy"></div><figcaption>處理 v：經過 v 到鄰居都不會更短，什麼都不變。</figcaption></figure><figure class="gr-figure" id="gr-figure-dijkstrad"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after y：w 降為 3、z=3；PQ 為 (3,&quot;w&quot;)、(3,&quot;z&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。"><img src="assets/figures/ch8/dijkstrad.png" alt="after y：w 降為 3、z=3；PQ 為 (3,&quot;w&quot;)、(3,&quot;z&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。" width="440" height="381" style="--figure-width:440px" loading="lazy"></div><figcaption>處理 y：w 再降到 3，z 第一次得到距離 3，兩者的 previous 都改成 y。</figcaption></figure><figure class="gr-figure" id="gr-figure-dijkstrae"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after w：距離不變；PQ 為 (3,&quot;z&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。"><img src="assets/figures/ch8/dijkstrae.png" alt="after w：距離不變；PQ 為 (3,&quot;z&quot;)、(4,&quot;w&quot;)、(5,&quot;w&quot;)。" width="440" height="381" style="--figure-width:440px" loading="lazy"></div><figcaption>處理 w（距離 3 的那一筆）：沒有更短的路。</figcaption></figure></div></div></details>
 <figure class="gr-figure" id="gr-figure-dijkstraf"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after z：所有距離確定，u=0、v=2、x=1、y=2、w=3、z=3；PQ 剩 (4,&quot;w&quot;)、(5,&quot;w&quot;)，標註略過剩下的過期項目直到佇列為空。"><img src="assets/figures/ch8/dijkstraf.png" alt="after z：所有距離確定，u=0、v=2、x=1、y=2、w=3、z=3；PQ 剩 (4,&quot;w&quot;)、(5,&quot;w&quot;)，標註略過剩下的過期項目直到佇列為空。" width="440" height="381" style="--figure-width:440px" loading="lazy"></div><figcaption>處理完 z：每個頂點的距離都確定了，藍線是最短路徑樹。佇列裡還剩 (4, "w") 與 (5, "w")，它們的距離大於 w 目前的距離，是過期的項目，取出後直接略過。</figcaption></figure>
 <details class="gr-detail" id="dx-dij"><summary>講義完整程式：每個頂點的距離與 previous</summary><div class="gr-detail-body"><div class="deck-extra">
@@ -2235,7 +2237,7 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
 <span class="line" data-l="5">    pq.push({<span class="num">0</span>, startKey});</span>
 <span class="line">    <span class="kw">while</span> (!pq.empty()) {</span>
 <span class="line" data-l="8">        <span class="kw">auto</span> [distance, currentKey] = pq.top(); pq.pop();</span>
-<span class="line">        <span class="kw">if</span> (inTree.count(currentKey)) <span class="kw">continue</span>;   <span class="com">// stale entry</span></span>
+<span class="line" data-l="9">        <span class="kw">if</span> (inTree.count(currentKey)) <span class="kw">continue</span>;   <span class="com">// stale entry</span></span>
 <span class="line">        inTree.insert(currentKey);</span>
 <span class="line">        <span class="kw">for</span> (<span class="kw">auto</span>&amp; n : g.vertices[currentKey].neighbors) {</span>
 <span class="line" data-l="10">            <span class="kw">int</span> newDistance = n.second;   <span class="com">// edge weight only</span></span>
@@ -2269,7 +2271,7 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
 <h3>在廣播圖上追蹤 Prim</h3>
 <p>從 A 開始，其他頂點的 key 都初始化為無限大。看 A 的鄰居，B 和 C 經過 A 的成本小於無限大，所以更新它們的 key。這讓 B 和 C 移到優先佇列的前面，並把它們的 previous 設為 A。不過 B 和 C 還沒有正式加入生成樹：<strong>頂點要從優先佇列取出之後，才算是生成樹的一部分</strong>。</p>
 <figure class="gr-figure" id="gr-figure-prima"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="Prim after A：A 的 k=0；B k=2、C k=3，其餘 k=∞；PQ 為 (2,&quot;B&quot;)、(3,&quot;C&quot;)。"><img src="assets/figures/ch8/prima.png" alt="Prim after A：A 的 k=0；B k=2、C k=3，其餘 k=∞；PQ 為 (2,&quot;B&quot;)、(3,&quot;C&quot;)。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>從 A 開始：A 進入樹，它的鄰居 B、C 得到 key（連到樹的那條邊的權重）2 與 3。B、C 這時還不算在樹裡，要等它們從佇列取出才算。</figcaption></figure>
-<p>B 的距離最小，所以接著看 B。檢查 B 的鄰居，C、D、E 都可以更新：經 B 到 C 只要 1，比原本經 A 的 3 便宜；D 和 E 則是第一次得到距離。三者的 previous 都改指向 B。佇列裡的下一個是 C，C 的鄰居中還在佇列裡的只有 F，於是更新 F 的距離。接著檢查 D 的鄰居，發現 E 的距離可以從 4 降到 1，E 的 previous 改指向 D，準備接到生成樹的另一個位置。之後的過程就照這樣，把每個新頂點加進樹裡。</p>
+<p>B 的距離最小，所以接著看 B。檢查 B 的鄰居，C、D、E 都可以更新：經 B 到 C 只要 1，比原本經 A 的 3 便宜；D 和 E 則是第一次得到距離。三者的 previous 都改指向 B。佇列裡的下一個是 C，C 的鄰居中還不在樹裡的只有 F，於是更新 F 的距離。接著檢查 D 的鄰居，發現 E 的距離可以從 4 降到 1，E 的 previous 改指向 D，準備接到生成樹的另一個位置。之後的過程就照這樣，把每個新頂點加進樹裡。</p>
 <details class="gr-detail"><summary>逐步圖：依序加入 B、C、D、E、F</summary><div class="gr-detail-body"><div class="gr-steps"><figure class="gr-figure" id="gr-figure-primb"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after B：A–B 為藍色樹邊；C 的 k 改為 1，D=1、E=4；PQ 為 (1,&quot;C&quot;)、(1,&quot;D&quot;)、(3,&quot;C&quot;)、(4,&quot;E&quot;)。"><img src="assets/figures/ch8/primb.png" alt="after B：A–B 為藍色樹邊；C 的 k 改為 1，D=1、E=4；PQ 為 (1,&quot;C&quot;)、(1,&quot;D&quot;)、(3,&quot;C&quot;)、(4,&quot;E&quot;)。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 B，加入邊 A–B。經 B 連到 C 只要 1，比 3 便宜，C 的 key 改成 1；D、E 第一次得到 key。</figcaption></figure><figure class="gr-figure" id="gr-figure-primc"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after C：B–C 為樹邊；F 的 k=5。"><img src="assets/figures/ch8/primc.png" alt="after C：B–C 為樹邊；F 的 k=5。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 C（key 1），加入邊 B–C；C 的鄰居 F 得到 key 5。</figcaption></figure><figure class="gr-figure" id="gr-figure-primd"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after D：B–D 為樹邊；E 的 k 由 4 改為 1。"><img src="assets/figures/ch8/primd.png" alt="after D：B–D 為樹邊；E 的 k 由 4 改為 1。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 D，加入邊 B–D。經 D 連到 E 只要 1，E 的 key 從 4 改成 1，previous 也改指向 D。</figcaption></figure><figure class="gr-figure" id="gr-figure-prime"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after E：D–E 為樹邊；F 的 k 由 5 改為 1。"><img src="assets/figures/ch8/prime.png" alt="after E：D–E 為樹邊；F 的 k 由 5 改為 1。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 E，加入邊 D–E；F 的 key 從 5 改成 1。</figcaption></figure><figure class="gr-figure" id="gr-figure-primf"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after F：E–F 為樹邊；G 的 k=1。"><img src="assets/figures/ch8/primf.png" alt="after F：E–F 為樹邊；G 的 k=1。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>取出 F，加入邊 E–F；G 得到 key 1。</figcaption></figure></div></div></details>
 <figure class="gr-figure" id="gr-figure-primg"><div class="gr-figure-scroll" tabindex="0" role="region" aria-label="after G：六條藍色樹邊 A–B、B–C、B–D、D–E、E–F、F–G；略過剩下的過期項目，MST total weight = 7。"><img src="assets/figures/ch8/primg.png" alt="after G：六條藍色樹邊 A–B、B–C、B–D、D–E、E–F、F–G；略過剩下的過期項目，MST total weight = 7。" width="380" height="412" style="--figure-width:380px" loading="lazy"></div><figcaption>G 加入之後，七個頂點都在樹裡，藍線就是最小生成樹，總權重 7。佇列裡剩下的 (3, "C")、(4, "E")、(5, "F") 都是過期的項目，取出後略過。</figcaption></figure>
 <details class="gr-detail" id="dx-prm"><summary>講義完整程式：prim 印出最小生成樹的邊</summary><div class="gr-detail-body"><div class="deck-extra">
@@ -2334,7 +2336,7 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
   </div>
   <div class="quiz-feedback" id="ex2Feedback"></div>
 </div>
-<details class="gr-detail"><summary>看完整的追蹤</summary><div class="gr-detail-body"><div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>步驟</th><th>取出</th><th>加入的邊</th><th>key 的更新</th></tr></thead><tbody><tr><td>1</td><td>F（起點）</td><td>—</td><td>A = 8、E = 9</td></tr><tr><td>2</td><td>A</td><td>F–A (8)</td><td>B = 1、G = 2</td></tr><tr><td>3</td><td>B</td><td>A–B (1)</td><td>C = 7</td></tr><tr><td>4</td><td>G</td><td>A–G (2)</td><td>C 由 7 降為 5、E 由 9 降為 3</td></tr><tr><td>5</td><td>E</td><td>G–E (3)</td><td>D = 4</td></tr><tr><td>6</td><td>D</td><td>E–D (4)</td><td>D–C 的 6 不比 5 小，不更新</td></tr><tr><td>7</td><td>C</td><td>G–C (5)</td><td>—</td></tr></tbody></table></div><p>最小生成樹的總權重是 8 + 1 + 2 + 3 + 4 + 5 = 23。原因是 Prim 的更新規則只看單一條邊的權重：G 進樹時，C 改由 G–C（5）連進來，比原本的 B–C（7）便宜。</p></div></details>
+<details class="gr-detail"><summary>看完整的追蹤（補充）</summary><div class="gr-detail-body"><div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>步驟</th><th>取出</th><th>加入的邊</th><th>key 的更新</th></tr></thead><tbody><tr><td>1</td><td>F（起點）</td><td>—</td><td>A = 8、E = 9</td></tr><tr><td>2</td><td>A</td><td>F–A (8)</td><td>B = 1、G = 2</td></tr><tr><td>3</td><td>B</td><td>A–B (1)</td><td>C = 7</td></tr><tr><td>4</td><td>G</td><td>A–G (2)</td><td>C 由 7 降為 5、E 由 9 降為 3</td></tr><tr><td>5</td><td>E</td><td>G–E (3)</td><td>D = 4</td></tr><tr><td>6</td><td>D</td><td>E–D (4)</td><td>D–C 的 6 不比 5 小，不更新</td></tr><tr><td>7</td><td>C</td><td>G–C (5)</td><td>—</td></tr></tbody></table></div><p>最小生成樹的總權重是 8 + 1 + 2 + 3 + 4 + 5 = 23。原因是 Prim 的更新規則只看單一條邊的權重：G 進樹時，C 改由 G–C（5）連進來，比原本的 B–C（7）便宜。</p></div></details>
 <!-- /gen:graphs-exercises -->
 </section>
 
@@ -2434,7 +2436,7 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
 <li>Prim：在連通的無向加權圖上，每一步加入跨過「樹內／樹外」分界的最小權重邊；更新規則只看單一條邊的權重。最小生成樹解決廣播時重複傳送的問題。</li>
 </ul>
 <h3>常見疑問</h3>
-<details class="gr-detail gr-faq"><summary>為什麼 BFS 的路徑和題目開頭的解法不一樣？（補充）</summary><div class="gr-detail-body"><p>從 fool 到 sage 有不只一條 6 步的路徑。BFS 保證找到的路徑步數最少，但同樣短的路徑有好幾條時，它找到哪一條取決於鄰居的走訪順序。C++ 的 map 依 key 排序，page 比 sale 先被處理，所以 sage 的 previous 是 page。</p></div></details><details class="gr-detail gr-faq"><summary>DFS 為什麼不能保證找到最短路徑？（補充）</summary><div class="gr-detail-body"><p>DFS 第一次碰到某個頂點時，走的是目前這條分支，可能繞了很遠；它不像 BFS 那樣先把近的頂點全部處理完。要找最少邊數的路徑用 BFS，邊有權重時用 Dijkstra。</p></div></details><details class="gr-detail gr-faq"><summary>騎士巡遊用了 Warnsdorff 就一定很快嗎？（補充）</summary><div class="gr-detail-body"><p>Warnsdorff 只是改變嘗試的順序，讓搜尋通常很快找到解；遇到不幸的情況，回溯仍然可能非常多，最壞情況還是指數時間。啟發式加快的是常見情況，不改變最壞情況的保證。</p></div></details><details class="gr-detail gr-faq"><summary>Dijkstra 的佇列裡同一個頂點出現好幾次，不會出錯嗎？（補充）</summary><div class="gr-detail-body"><p>不會。每一筆都帶著推入時的距離；取出時如果這個距離比頂點目前存的距離大，代表後來已經找到更短的路，這筆就是過期的，直接略過。只有和目前距離相同的那一筆會真正展開鄰居。</p></div></details><details class="gr-detail gr-faq"><summary>Prim 和 Dijkstra 的程式幾乎一樣，結果差在哪裡？（補充）</summary><div class="gr-detail-body"><p>差在 newDistance 的算法。Dijkstra 用 d(u) + w(u, v)，每個頂點存的是到起點的總距離；Prim 只用 w(u, v)，每個頂點存的是把它接上樹的那條邊的權重。同一張圖，最短路徑樹和最小生成樹不一定相同。</p></div></details>
+<details class="gr-detail gr-faq"><summary>DFS 為什麼不能保證找到最短路徑？（補充）</summary><div class="gr-detail-body"><p>DFS 第一次碰到某個頂點時，走的是目前這條分支，可能繞了很遠；它不像 BFS 那樣先把近的頂點全部處理完。要找最少邊數的路徑用 BFS，邊有權重時用 Dijkstra。</p></div></details><details class="gr-detail gr-faq"><summary>騎士巡遊用了 Warnsdorff 就一定很快嗎？（補充）</summary><div class="gr-detail-body"><p>Warnsdorff 只是改變嘗試的順序，讓搜尋通常很快找到解；遇到不幸的情況，回溯仍然可能非常多，最壞情況還是指數時間。啟發式加快的是常見情況，不改變最壞情況的保證。</p></div></details><details class="gr-detail gr-faq"><summary>Dijkstra 的佇列裡同一個頂點出現好幾次，不會出錯嗎？（補充）</summary><div class="gr-detail-body"><p>不會。每一筆都帶著推入時的距離；取出時如果這個距離比頂點目前存的距離大，代表後來已經找到更短的路，這筆就是過期的，直接略過。只有和目前距離相同的那一筆會真正展開鄰居。</p></div></details><details class="gr-detail gr-faq"><summary>Prim 和 Dijkstra 的程式幾乎一樣，結果差在哪裡？（補充）</summary><div class="gr-detail-body"><p>差在 newDistance 的算法。Dijkstra 用 d(u) + w(u, v)，每個頂點存的是到起點的總距離；Prim 只用 w(u, v)，每個頂點存的是把它接上樹的那條邊的權重。同一張圖，最短路徑樹和最小生成樹不一定相同。</p></div></details>
 <!-- /gen:graphs-recap -->
 </section>
 
@@ -2538,7 +2540,7 @@ z: 3 (y)</pre></div><p class="dx-note">格式是「頂點: 距離 (previous)」�
 </div>
 
 <footer>
-  <p>圖與圖演算法 · Interactive Visualization · Chapter 9</p>
+  <p>圖與圖演算法 · Interactive Visualization · 第 8 章</p>
   <p style="margin-top:.4rem;font-size:.78rem;">Based on <em>Problem Solving with Algorithms and Data Structures using C++ (cppds)</em> · 互動視覺化版本</p>
 </footer>
 
@@ -3465,7 +3467,7 @@ function legalMoves(r, c, n, visited) {
 
 class KnightController {
   constructor() {
-    this.size = 6;
+    this.size = 5;
     this.useHeur = true;
     this.path = [];
     this.visited = null;
@@ -3496,8 +3498,11 @@ class KnightController {
     const sel = document.getElementById('knightStart');
     sel.innerHTML = '';
     const n = this.size;
-    // 只列出幾個典型起點
-    const starts = [[0,0],[0, Math.floor(n/2)], [Math.floor(n/2), Math.floor(n/2)], [n-1, n-1]];
+    // 只列出幾個典型起點。奇數邊長時騎士每步換色，淺色格（r+c 為偶數）比深色格多一格，
+    // 巡遊必須從淺色格出發，所以只提供 (r+c) 為偶數的起點。
+    const mid = Math.floor(n/2);
+    const starts = [[0,0],[0, n % 2 && mid % 2 ? mid - 1 : mid], [mid, mid], [n-1, n-1]]
+      .filter(([r, c]) => n % 2 === 0 || (r + c) % 2 === 0);
     starts.forEach((s,i) => {
       sel.innerHTML += `<option value="${s[0]*n+s[1]}" ${i===0?'selected':''}>(${s[0]},${s[1]})</option>`;
     });
@@ -3593,10 +3598,10 @@ class KnightController {
         el.innerHTML = `<div class="knight">♞</div>`;
       } else if (i === 0) {
         el.classList.add('start');
-        el.innerHTML = `<div class="step-num">${i+1}</div>`;
+        el.innerHTML = `<div class="step-num">${i}</div>`;
       } else {
         el.classList.add('visited');
-        el.innerHTML = `<div class="step-num">${i+1}</div>`;
+        el.innerHTML = `<div class="step-num">${i}</div>`;
       }
     });
     // 統計
@@ -3610,13 +3615,21 @@ class KnightController {
     else if (s.kind === 'success') {
       msg = `完成！成功走完所有 ${n*n} 格`; result = '<span style="color:var(--accent3);">SUCCESS ✓</span>';
       // 標所有格為 visited
-      path.forEach(([r,c],i) => { this.setCell(r,c,'visited',`<div class="step-num">${i+1}</div>`); });
-      this.setCell(this.startR, this.startC, 'start', `<div class="step-num">1</div>`);
+      path.forEach(([r,c],i) => { this.setCell(r,c,'visited',`<div class="step-num">${i}</div>`); });
+      this.setCell(this.startR, this.startC, 'start', `<div class="step-num">0</div>`);
     } else if (s.kind === 'fail') {
-      msg = `沒有可行解`; result = '<span style="color:var(--accent);">FAIL</span>';
+      msg = `這個起點沒有巡遊：所有走法都試過了，沒有一條能走完 ${n*n} 格`; result = '<span style="color:var(--accent);">FAIL</span>';
     } else if (s.kind === 'aborted') {
-      msg = `步數超出上限（80 萬步），請改用 Warnsdorff 或縮小棋盤`; result = '<span style="color:var(--accent);">超時</span>';
+      if (n % 2 === 1 && (this.startR + this.startC) % 2 === 1) {
+        msg = `動畫在 80 萬步的上限停止。這個起點沒有巡遊：騎士每步換色，${n}×${n} 的淺色格比深色格多一格，從深色格出發不可能走完`;
+      } else if (!this.useHeur) {
+        msg = `動畫在 80 萬步的上限停止，還沒找到巡遊。不用 Warnsdorff 時，${n}×${n} 的搜尋樹太大，回溯次數會超過上限；要比較兩種排序的回溯次數，請用 5×5`;
+      } else {
+        msg = `動畫在 80 萬步的上限停止，還沒找到巡遊：Warnsdorff 的排序在這個起點也需要大量回溯`;
+      }
+      result = '<span style="color:var(--accent);">超過上限</span>';
     }
+    highlightCode('knightCode', { start: 3, move: 10, back: 14, success: 19, fail: 17 }[s.kind] ?? null);
     document.getElementById('knightStatus').innerHTML = msg;
     document.getElementById('knightResult').innerHTML = result;
   }
@@ -3629,6 +3642,7 @@ class KnightController {
     document.getElementById('knightBack').textContent = '0';
     document.getElementById('knightExplored').textContent = '0';
     document.getElementById('knightResult').textContent = '—';
+    highlightCode('knightCode', null);
   }
   step() {
     if (this.steps.length === 0) {
@@ -3740,7 +3754,7 @@ class DijkstraController {
       }
       visited[u] = true;
 
-      steps.push({ kind:'pop', codeLine:6, current:u, pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`從 PQ 取出最小：${u} (distance = ${d})，標記為 visited`, treeEdges: snapshotTree() });
+      steps.push({ kind:'pop', codeLine:6, current:u, pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`從 PQ 取出最小：${u} (distance = ${d})，展開它的鄰居`, treeEdges: snapshotTree() });
       for (const { to: vv, w: weight } of adj[u]) {
         const newD = dist[u] + weight;
         steps.push({ kind:'relax-check', codeLine:10, current:u, neighbor:vv, edge:[u,vv], pq:[...pq], dist:{...dist}, prev:{...prev}, visited:{...visited}, msg:`鬆弛邊 ${u}—${vv}：newD = ${d} + ${weight} = ${newD}，目前 d(${vv}) = ${isFinite(dist[vv])?dist[vv]:'∞'}`, treeEdges: snapshotTree() });
@@ -3787,7 +3801,7 @@ class DijkstraController {
   }
   updateTable(s) {
     const verts = Object.keys(dijGraphConfig.vertices);
-    let html = '<table class="vert-table"><thead><tr><th>v</th><th>distance</th><th>prev</th><th>visited</th></tr></thead><tbody>';
+    let html = '<table class="vert-table"><thead><tr><th>v</th><th>distance</th><th>prev</th><th>已展開</th></tr></thead><tbody>';
     for (const v of verts) {
       const cls = (s.current === v) ? 'tcell-current' : (s.visited[v] ? 'tcell-done' : '');
       const d = isFinite(s.dist[v]) ? s.dist[v] : '<span class="tcell-inf">∞</span>';
@@ -3882,7 +3896,7 @@ class PrimController {
       const [d, u] = pq.shift();
 
       if (inTree[u]) {
-        steps.push({ kind:'stale', codeLine:8, current:u, pq:[...pq], dist:{...dist}, prev:{...prev}, inTree:{...inTree}, mstEdges:[...mstEdges], total, msg:`略過 stale entry：${u}:${d}；${u} 已在 MST 中，保留目前 MST` });
+        steps.push({ kind:'stale', codeLine:9, current:u, pq:[...pq], dist:{...dist}, prev:{...prev}, inTree:{...inTree}, mstEdges:[...mstEdges], total, msg:`略過 stale entry：${u}:${d}；${u} 已在 MST 中，保留目前 MST` });
         continue;
       }
       inTree[u] = true;
@@ -4038,7 +4052,10 @@ let tsPlayer = null, tsClose = null;
 function tsStatus(html) {
   document.querySelector('#tsStatus').innerHTML = html;
 }
-function tsRunDFS() {
+function tsDfsComplete() {
+  return !!tsClose && Object.keys(tsClose).length === Object.keys(tsConfig.vertices).length;
+}
+function tsRunDFS(autoplay = true) {
   tsReset(true);
   const events = dfsCloseEvents(Object.keys(tsConfig.vertices), tsAdj);
   const startT = {};
@@ -4060,13 +4077,20 @@ function tsRunDFS() {
     frames: events,
     apply,
     delayInput: document.getElementById('tsSpeed'),
-    onDone: () => tsStatus('DFS 完成：每個節點都有 start/close time。接著按 ②。'),
+    onDone: () => tsStatus('DFS 完成：每個節點都有 discovery/closing time。接著按 ②。'),
   });
-  tsPlayer.play();
+  if (autoplay) tsPlayer.play(); else tsPlayer.step();
+}
+function tsStep() {
+  // 還沒開始時，單步＝建立 ① 的 DFS 並只前進一格
+  if (!tsPlayer) tsRunDFS(false); else tsPlayer.step();
 }
 function tsOrder() {
-  if (!tsClose || !Object.keys(tsClose).length) {
+  if (!tsClose) {
     tsStatus('要先按 ① 跑 DFS，才有 closing time 可排。'); return;
+  }
+  if (!tsDfsComplete()) {
+    tsStatus('① 的 DFS 還沒播完：還有頂點沒有 closing time。按「→ 單步」或「⏸ 暫停／▶ 繼續」把 ① 播完，再按 ②。'); return;
   }
   if (tsPlayer) tsPlayer.pause();
   const order = Object.keys(tsClose).sort((a, b) => tsClose[b] - tsClose[a]);
@@ -4093,7 +4117,7 @@ function tsReset(keepStatus) {
   tsR.resetAll();
   tsClose = null;
   document.getElementById('tsOrderOut').innerHTML = '';
-  if (!keepStatus) tsStatus('按「① 跑 DFS」開始：節點上會標出 start/close 時間。');
+  if (!keepStatus) tsStatus('按「① 跑 DFS」開始：節點上會標出 discovery/closing time。');
 }
 
 /* =============================================================
@@ -4121,7 +4145,10 @@ function sccAdjOf(edges) {
   edges.forEach(([u, v]) => { (adj[u] = adj[u] || []).push(v); });
   return adj;
 }
-function sccStep1() {
+function sccDfsComplete() {
+  return !!sccCloseT && Object.keys(sccCloseT).length === Object.keys(sccPos).length;
+}
+function sccStep1(autoplay = true) {
   sccReset(true);
   const events = dfsCloseEvents(Object.keys(sccPos), sccAdjOf(sccEdges));
   const startT = {};
@@ -4144,11 +4171,21 @@ function sccStep1() {
     delayInput: document.getElementById('sccSpeed'),
     onDone: () => sccStatus('第 ① 步完成：每個頂點都有 closing time。接著按 ② 轉置。'),
   });
-  sccPlayer.play();
+  if (autoplay) sccPlayer.play(); else sccPlayer.step();
+}
+function sccStep() {
+  // 還沒開始時，單步＝建立 ① 並只前進一格；② 轉置完、③ 還沒開始時，單步＝建立 ③ 並前進一格
+  if (sccPlayer) sccPlayer.step();
+  else if (sccOnGT) sccStep3(false);
+  else sccStep1(false);
 }
 function sccStep2() {
-  if (!sccCloseT || !Object.keys(sccCloseT).length) {
+  if (sccOnGT) { sccStatus('已經是轉置圖 G&#7488; 了，接著按 ③。'); return; }
+  if (!sccCloseT) {
     sccStatus('要先按 ① 在 G 上跑 DFS。'); return;
+  }
+  if (!sccDfsComplete()) {
+    sccStatus('① 的 DFS 還沒播完：還有頂點沒有 closing time。按「→ 單步」或「⏸ 暫停／▶ 繼續」把 ① 播完，再按 ②。'); return;
   }
   if (sccPlayer) { sccPlayer.pause(); sccPlayer = null; }  // 換到 G^T 之後，① 的 frames 不能再重播
   const rev = sccEdges.map(([u, v]) => [v, u]);
@@ -4157,8 +4194,13 @@ function sccStep2() {
   sccOnGT = true;
   sccStatus('這是轉置圖 G&#7488;：所有邊都反向了，closing time 保留在節點下方。接著按 ③。');
 }
-function sccStep3() {
-  if (!sccOnGT) { sccStatus('要先按 ② 轉置成 G&#7488;。'); return; }
+function sccStep3(autoplay = true) {
+  if (!sccOnGT) {
+    sccStatus(sccCloseT && !sccDfsComplete()
+      ? '① 的 DFS 還沒播完，也還沒轉置：先把 ① 播完，再依序按 ② 與 ③。'
+      : '要先按 ② 轉置成 G&#7488;。');
+    return;
+  }
   if (sccPlayer) sccPlayer.pause();
   const revAdj = sccAdjOf(sccEdges.map(([u, v]) => [v, u]));
   const roots = Object.keys(sccCloseT).sort((a, b) => sccCloseT[b] - sccCloseT[a]);
@@ -4189,7 +4231,7 @@ function sccStep3() {
       sccStatus(`完成：${trees.length} 棵樹＝${trees.length} 個強連通元件。跨元件的邊在 G&#7488; 裡走不出去，樹被「困」在元件內。`);
     },
   });
-  sccPlayer.play();
+  if (autoplay) sccPlayer.play(); else sccPlayer.step();
 }
 function sccReset(keepStatus) {
   if (sccPlayer) { sccPlayer.pause(); sccPlayer = null; }  // 同 tsReset：清掉指向舊圖狀態的 player
@@ -4213,7 +4255,7 @@ function quizCheck(quizId, optEl) {
 }
 </script>
 <script>
-const FLASHCARDS = [{"front": "圖（Graph）", "back": "由頂點（節點）集合與連接頂點配對的邊組成的資料結構，用來建模複雜系統中的關係。"}, {"front": "頂點（Vertex）", "back": "也叫節點（node），代表圖中的一個實體，是圖結構的基本單位。"}, {"front": "邊（Edge）", "back": "兩個頂點之間的連接。在有向圖中，邊帶有方向，表示特定方向的關係。"}, {"front": "權重（Weight）", "back": "指定給邊的數值，代表成本、距離或其他影響走訪的度量。"}, {"front": "路徑（Path）", "back": "由邊串起來的一串頂點：從某頂點出發，沿著邊走到另一個頂點的序列。"}, {"front": "循環（Cycle）", "back": "起點與終點是同一個頂點的路徑：至少包含一條邊，且不重複使用邊或中間頂點。"}, {"front": "無循環圖（Acyclic Graph）", "back": "不含任何循環的圖：沿著邊走，不可能回到出發的頂點。"}, {"front": "有向圖（Directed Graph）", "back": "邊帶有方向的圖：每條邊表示從一個頂點到另一個頂點的單向關係。"}, {"front": "有向無循環圖（DAG, Directed Acyclic Graph）", "back": "不含循環的有向圖，常用於工作排程等「任務不重複」的先後關係建模。"}, {"front": "樹（Tree）", "back": "連通、無循環的無向圖：任兩個頂點之間都有路徑，而且圖中沒有循環。"}, {"front": "相鄰矩陣（Adjacency Matrix）", "back": "用方陣表示圖的方法：矩陣元素標記兩兩頂點是否相鄰（有邊）。"}, {"front": "相鄰串列／map（Adjacency List）", "back": "只儲存實際鄰居的稀疏表示；本課程用有序 map 儲存頂點與鄰居權重。"}, {"front": "廣度優先搜尋（BFS, Breadth-First Search）", "back": "先把目前深度的所有鄰居探索完，才前進到下一層的搜尋演算法，像水波一層一層往外擴散。"}, {"front": "騎士巡遊（Knight's Tour）", "back": "在西洋棋盤上讓騎士每一格都恰好走過一次的移動序列。"}, {"front": "深度優先搜尋（DFS, Depth-First Search）", "back": "沿著一條分支盡量往深處探索、碰壁才回頭（backtrack）的走訪演算法。"}, {"front": "搜尋樹（Search Tree）", "back": "搜尋過程中由 previous 連結構成的樹：BFS 一次建一層，DFS 沿一個分支盡量往深處建。根是起點，從任一頂點沿 previous 往上走就回到根。"}, {"front": "啟發式（Heuristic）", "back": "在傳統方法太慢或不可行時，用來快速求解或找近似解的技巧。"}, {"front": "Warnsdorff 法則（Warnsdorff's Algorithm）", "back": "騎士巡遊的啟發式：騎士永遠先跳到「後續可走步數最少」的那一格。"}, {"front": "深度優先森林（Depth-First Forest）", "back": "深度優先搜尋過程中形成的一群樹：每棵樹對應一段連續探索到的頂點集合。"}, {"front": "括號性質（Parenthesis Property）", "back": "DFS 的性質：任兩個頂點的「發現時間、完成時間」區間，要嘛完全不相交，要嘛一個完全包住另一個。"}, {"front": "拓撲排序（Topological Sorting）", "back": "把有向圖的頂點排成一條線性順序：對每條邊 u→v，u 都排在 v 前面。只有 DAG 做得到。"}, {"front": "強連通元件（Strongly Connected Components）", "back": "有向圖中「任兩頂點彼此都有有向路徑可達」的極大子圖。"}, {"front": "最短路徑問題（Shortest Path Problems）", "back": "在兩頂點之間找一條「邊權重總和最小」的路徑的問題。"}, {"front": "Dijkstra 演算法（Dijkstra's Algorithm）", "back": "在非負邊權圖上求單源最短路徑；本課程的 lazy PQ 版本會推入改善後的 pair，並略過過期項目（stale entry）。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的資料結構：取出的順序由優先權決定，不是單純的先來後到。"}, {"front": "無控制氾濫（Uncontrolled Flooding）", "back": "廣播的暴力做法：每台路由器收到訊息後轉送給所有相鄰的路由器，並把 TTL 減一，會造成大量重複流量。"}, {"front": "最小生成樹（MST, Minimum Spanning Tree）", "back": "連接圖中所有頂點、不含循環、且邊權重總和最小的邊子集合。"}, {"front": "Prim 演算法（Prim's Algorithm）", "back": "反覆加入跨越目前 cut 的最小權重邊。課程 prim() 要求圖連通，否則丟出 invalid_argument。"}, {"front": "貪婪演算法（Greedy Algorithms）", "back": "每一步都選「當下看起來最有利」的選項來組出解的一類演算法。"}, {"front": "回溯（Backtracking）", "back": "DFS 走到死路時退回上一層再試別的選擇。knightTour 中遞迴呼叫回傳 false 時，把頂點移出 path 並塗回白色。"}, {"front": "轉置圖（Transpose）", "back": "把圖 G 的每條邊反向得到的圖，記作 Gᵀ。G 與它的轉置圖有相同的強連通元件。"}, {"front": "邊鬆弛（Relaxation）", "back": "檢查經過 u 走到鄰居 v 是否比目前已知的距離更短；更短就更新 v 的距離與 previous。Dijkstra 的核心步驟。"}, {"front": "過期項目（Stale Entry）", "back": "lazy 優先佇列裡，距離已被後來的更新取代的舊 pair。取出時發現它的距離大於頂點目前的距離，就直接略過。"}, {"front": "安全邊（Safe Edge）", "back": "跨過「已在樹中的頂點」與「樹外頂點」之間分界的最小權重邊。Prim 每一步加入一條安全邊。"}, {"front": "存活時間（TTL, Time To Live）", "back": "訊息帶著的計數，每轉送一次減一，減到 0 就不再轉送。無控制氾濫用它讓訊息最後停止傳播。"}];
+const FLASHCARDS = [{"front": "圖（Graph）", "back": "由頂點（節點）集合與連接頂點配對的邊組成的資料結構，用來建模複雜系統中的關係。"}, {"front": "頂點（Vertex）", "back": "也叫節點（node），代表圖中的一個實體，是圖結構的基本單位。"}, {"front": "邊（Edge）", "back": "兩個頂點之間的連接。在有向圖中，邊帶有方向，表示特定方向的關係。"}, {"front": "權重（Weight）", "back": "指定給邊的數值，代表成本、距離或其他影響走訪的度量。"}, {"front": "路徑（Path）", "back": "由邊串起來的一串頂點：從某頂點出發，沿著邊走到另一個頂點的序列，序列中的頂點互不相同。"}, {"front": "循環（Cycle）", "back": "起點與終點是同一個頂點的路徑：至少包含一條邊，且不重複使用邊或中間頂點。"}, {"front": "無循環圖（Acyclic Graph）", "back": "不含任何循環的圖：沿著邊走，不可能回到出發的頂點。"}, {"front": "有向圖（Directed Graph）", "back": "邊帶有方向的圖：每條邊表示從一個頂點到另一個頂點的單向關係。"}, {"front": "有向無循環圖（DAG, Directed Acyclic Graph）", "back": "不含循環的有向圖，常用於工作排程等「任務不重複」的先後關係建模。"}, {"front": "樹（Tree）", "back": "連通、無循環的無向圖：任兩個頂點之間都有路徑，而且圖中沒有循環。"}, {"front": "相鄰矩陣（Adjacency Matrix）", "back": "用方陣表示圖的方法：矩陣元素標記兩兩頂點是否相鄰（有邊）。"}, {"front": "相鄰串列／map（Adjacency List）", "back": "只儲存實際鄰居的稀疏表示；本課程用有序 map 儲存頂點與鄰居權重。"}, {"front": "廣度優先搜尋（BFS, Breadth-First Search）", "back": "先把目前深度的所有鄰居探索完，才前進到下一層的搜尋演算法，像水波一層一層往外擴散。"}, {"front": "騎士巡遊（Knight's Tour）", "back": "在西洋棋盤上讓騎士每一格都恰好走過一次的移動序列。"}, {"front": "深度優先搜尋（DFS, Depth-First Search）", "back": "沿著一條分支盡量往深處探索、碰壁才回頭（backtrack）的走訪演算法。"}, {"front": "搜尋樹（Search Tree）", "back": "搜尋過程中由 previous 連結構成的樹：BFS 一次建一層，DFS 沿一個分支盡量往深處建。根是起點，從任一頂點沿 previous 往上走就回到根。"}, {"front": "啟發式（Heuristic）", "back": "在傳統方法太慢或不可行時，用來快速求解或找近似解的技巧。"}, {"front": "Warnsdorff 法則（Warnsdorff's Algorithm）", "back": "騎士巡遊的啟發式：騎士永遠先跳到「後續可走步數最少」的那一格。"}, {"front": "深度優先森林（Depth-First Forest）", "back": "深度優先搜尋過程中形成的一群樹：每棵樹對應一段連續探索到的頂點集合。"}, {"front": "括號性質（Parenthesis Property）", "back": "DFS 的性質：任兩個頂點的「發現時間、完成時間」區間，要嘛完全不相交，要嘛一個完全包住另一個。"}, {"front": "拓撲排序（Topological Sorting）", "back": "把有向圖的頂點排成一條線性順序：對每條邊 u→v，u 都排在 v 前面。只有 DAG 做得到。"}, {"front": "強連通元件（Strongly Connected Components）", "back": "有向圖中「任兩頂點彼此都有有向路徑可達」的極大子圖。"}, {"front": "最短路徑問題（Shortest Path Problems）", "back": "在兩頂點之間找一條「邊權重總和最小」的路徑的問題。"}, {"front": "Dijkstra 演算法（Dijkstra's Algorithm）", "back": "在非負邊權圖上求單源最短路徑；本課程的 lazy PQ 版本會推入改善後的 pair，並略過過期項目（stale entry）。"}, {"front": "優先佇列（Priority Queue）", "back": "每個元素帶優先權的資料結構：取出的順序由優先權決定，不是單純的先來後到。"}, {"front": "無控制氾濫（Uncontrolled Flooding）", "back": "廣播的暴力做法：每台路由器收到訊息後轉送給所有相鄰的路由器，並把 TTL 減一，會造成大量重複流量。"}, {"front": "最小生成樹（MST, Minimum Spanning Tree）", "back": "連接圖中所有頂點、不含循環、且邊權重總和最小的邊子集合。"}, {"front": "Prim 演算法（Prim's Algorithm）", "back": "反覆加入跨越目前 cut 的最小權重邊。課程 prim() 要求圖連通，否則丟出 invalid_argument。"}, {"front": "貪婪演算法（Greedy Algorithms）", "back": "每一步都選「當下看起來最有利」的選項來組出解的一類演算法。"}, {"front": "回溯（Backtracking）", "back": "DFS 走到死路時退回上一層再試別的選擇。knightTour 中遞迴呼叫回傳 false 時，把頂點移出 path 並塗回白色。"}, {"front": "轉置圖（Transpose）", "back": "把圖 G 的每條邊反向得到的圖，記作 Gᵀ。G 與它的轉置圖有相同的強連通元件。"}, {"front": "邊鬆弛（Relaxation）", "back": "檢查經過 u 走到鄰居 v 是否比目前已知的距離更短；更短就更新 v 的距離與 previous。Dijkstra 的核心步驟。"}, {"front": "過期項目（Stale Entry）", "back": "lazy 優先佇列裡，距離已被後來的更新取代的舊 pair。取出時發現它的距離大於頂點目前的距離，就直接略過。"}, {"front": "安全邊（Safe Edge）", "back": "跨過「已在樹中的頂點」與「樹外頂點」之間分界的最小權重邊。Prim 每一步加入一條安全邊。"}, {"front": "存活時間（TTL, Time To Live）", "back": "訊息帶著的計數，每轉送一次減一，減到 0 就不再轉送。無控制氾濫用它讓訊息最後停止傳播。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

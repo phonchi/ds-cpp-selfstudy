@@ -603,7 +603,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   ② <strong>對照講義</strong>：§ 徽章對應課本 cppds 第 4 章的小節；完整內容請回講義 04 與課本原文。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
   ④ 最後讀<a href="#recap">重點回顧</a>，再翻<a href="#cards">關鍵詞彙卡（11 張）</a>自測術語，並用 REF 總覽當速查表。</p>
-  <p>標題中的標記：「（補充）」是講義沒有的延伸內容，收合起來，第一輪可以略過；「（課本）」是課本有、講義沒有的內容；「（課本寫法）」是課本與講義寫法不同時的課本版本。</p>
+  <p>標題中的標記：標「課堂略過・自學」的是講義內容，只是上課沒有細講，請自己讀完；「（補充）」是講義沒有的延伸內容，收合起來，第一輪可以略過；「（課本）」是課本有、講義沒有的內容；「（課本寫法）」是課本與講義寫法不同時的課本版本。</p>
   <div class="sg-links"><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/04_Linear_Linked_Structure.html#/" target="_blank" rel="noopener">🖥 講義 04 線上閱讀 HTML</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/04_Linear_Linked_Structure.pdf" target="_blank" rel="noopener">📑 講義 04 閱讀 PDF</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/04_Linear_Linked_Structure.pdf" download="04_Linear_Linked_Structure.pdf">⬇ 講義 04 下載 PDF</a><a id="recording-linked_lists" href="https://youtube.com/playlist?list=PLY4RRB8N-iEY&amp;si=c1vywZ2WNu8th2hE" target="_blank" rel="noopener">▶ 課程錄影</a><a href="https://runestone.academy/ns/books/published/cppds/LinearLinked/toctree.html" target="_blank" rel="noopener">📖 課本 cppds（LinearLinked）</a><a href="https://github.com/phonchi/pythonds3/tree/master/cppds" target="_blank" rel="noopener">💾 課程標頭 pythonds3/cppds</a><a href="https://www.hello-algo.com/zh-hant/chapter_array_and_linkedlist/linked_list/" target="_blank" rel="noopener">📘 Hello 演算法（鏈結串列）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
@@ -751,7 +751,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 0</pre></div><p class="dx-note">第一行是節點的資料 93。第二行印出 <code>next</code> 指標：新節點的 <code>next</code> 是 <code>NULL</code>，用 <code>cout</code> 印出空指標時會顯示 0。</p>
 <figure class="linked-figure" id="linked-figure-node93"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="指標 temp 指向一個節點，節點的資料是 93，next 欄位畫成接地符號。"><img src="assets/figures/ch4/head_list.png" alt="指標 temp 指向一個節點，節點的資料是 93，next 欄位畫成接地符號。" width="246" height="62" style="--figure-width:246px" loading="lazy"></div><figcaption><code>new</code> <code>Node&lt;int&gt;(93)</code> 建立的節點：<code>temp</code> 存的是節點的位址，資料欄位是 93；<code>next</code> 由建構子設成 <code>NULL</code>，圖中以接地符號表示「後面沒有節點」。</figcaption></figure>
 <h3><code>NULL</code>：沒有下一個節點</h3>
-<p>C++ 的特殊指標值 <code>NULL</code> 在 <code>Node</code> 類別與之後的串列中都很重要：<code>next</code> 等於 <code>NULL</code>，表示這個節點後面沒有節點。之後的 <code>size</code>、<code>search</code>、<code>remove</code> 都是走到 <code>NULL</code> 才停下，串列的 <code>head</code> 等於 <code>NULL</code> 則表示串列是空的。</p>
+<p>C++ 的特殊指標值 <code>NULL</code> 在 <code>Node</code> 類別與之後的串列中都很重要：<code>next</code> 等於 <code>NULL</code>，表示這個節點後面沒有節點。之後的 <code>size</code>、<code>search</code>、<code>remove</code> 都會沿 <code>next</code> 前進，最遲走到 <code>NULL</code> 時停下；串列的 <code>head</code> 等於 <code>NULL</code> 則表示串列是空的。</p>
 <p>注意建構子把 <code>next</code> 明確設成 <code>NULL</code>。指標若沒有初始化，裡面是無法預測的值；把它當成位址去讀取，結果是未定義行為，程式可能當掉，也可能看似正常卻讀到錯誤的資料。所以建立指標時，一律先給它明確的初值。課本把 <code>next</code> 為空的節點稱為 grounded（接地），圖中用電路的接地符號表示（課本）。</p>
 <details class="linked-detail"><summary>指標語法速記（補充）</summary><div class="linked-detail-body"><div style="font-size:.9rem;line-height:2;" class="mono">
 <code>Node&lt;int&gt; *p = new Node&lt;int&gt;(93);</code><br>
@@ -1169,13 +1169,16 @@ true
 20&#32;
 10 20 </pre></div>
 </div></div></details>
-<details class="linked-detail"><summary>所有權與深層複製（補充）</summary><div class="linked-detail-body"><div class="deck-extra">
-  <div class="dx-label">所有權與深層複製</div>
+<h3>所有權與深層複製</h3>
+<p>串列物件擁有它用 <code>new</code> 配置的每個節點。<code>remove</code> 把節點從鏈上拆下之後要 <code>delete</code> 它；解構子對串列裡剩下的每個節點做同樣的事，串列消失時節點也一起釋放。</p>
+<p>複製串列時要做<strong>深層複製</strong>（deep copy）：把每個節點都複製一份，放進新串列自己擁有的記憶體，而不是只複製 <code>head</code> 指標。</p>
+<details class="linked-detail"><summary>複製建構子與複製指派（補充）</summary><div class="linked-detail-body"><div class="deck-extra">
+  <div class="dx-label">複製一個串列</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1">UnorderedList&lt;<span class="kw">int</span>&gt; a;</span>
 <span class="line" data-l="2">a.add(<span class="num">1</span>); a.add(<span class="num">2</span>);</span>
 <span class="line" data-l="3">UnorderedList&lt;<span class="kw">int</span>&gt; b = a;  <span class="com">// copies the whole chain</span></span>
 <span class="line" data-l="4">b.remove(<span class="num">2</span>);               <span class="com">// must not change a</span></span></div>
-  <p class="dx-note">串列物件擁有它用 <code>new</code> 配置的節點：解構子要逐一 <code>delete</code>；複製建構子與複製指派要複製整條鏈（deep copy）。若只複製 <code>head</code>，兩個串列會共用同一批節點，之後可能重複釋放。課程標頭已依這個規則實作。</p>
+  <p class="dx-note">複製建構子與複製指派都要複製整條鏈：b 拿到自己的一組節點，之後 <code>b.remove(2)</code> 不會影響 a。若只複製 <code>head</code>，兩個串列會共用同一批節點，其中一個解構時釋放了節點，另一個就指向已經釋放的記憶體，最後還會重複釋放。課程標頭已依這個規則實作。</p>
 </div></div></details>
 <!-- /gen:linked-unordered -->
 </section>
@@ -1265,7 +1268,6 @@ false</pre></div><p class="dx-note">四個呼叫的比較次數不同：<code>se
 <h3><code>add</code>：先找到位置再接上</h3>
 <p>改動最大的是 <code>add</code>。無序串列的 <code>add</code> 可以直接把新節點放在 <code>head</code>，因為那裡最容易存取；有序串列不能這樣做，必須先找出新元素在現有排序中的位置。例如在 17、26、54、77、93 中加入 31，<code>add</code> 要判斷出新節點屬於 26 與 54 之間：</p>
 <figure class="linked-figure" id="linked-figure-ordered-add"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="在 17、26、54、77、93 中加入 31：previous 指向 26，current 指向 54，temp 指向新節點 31；Step 1 讓 31 的 next 指向 54，Step 2 讓 26 的 next 改指 31，26 到 54 的舊連結畫成虛線。"><img src="assets/figures/ch4/add_order_list.png" alt="在 17、26、54、77、93 中加入 31：previous 指向 26，current 指向 54，temp 指向新節點 31；Step 1 讓 31 的 next 指向 54，Step 2 讓 26 的 next 改指 31，26 到 54 的舊連結畫成虛線。" width="680" height="268" style="--figure-width:680px" loading="lazy"></div><figcaption>把 31 插在 26 與 54 之間。圖中以 <code>previous</code>、<code>current</code> 兩個指標標出插入點，課本的寫法也用這兩個名稱：Step 1 先讓新節點接上後段的 54，Step 2 再讓 26 改指新節點。講義的 <code>add</code> 只用一個 <code>current</code>，它停在 26，用 <code>current-&gt;getNext()</code> 看到 54，接線順序一樣是先接後段、再接前段。</figcaption></figure>
-<p>和無序串列的 <code>remove</code> 一樣，光靠停在 54 的指標無法修改 26 的 <code>next</code>，所以需要知道插入點<strong>前一個</strong>節點。圖中用 <code>previous</code> 與 <code>current</code> 兩個指標標出這個位置。</p>
 <p>講義的 <code>add</code> 只用一個 <code>current</code>，並且每次<strong>先看下一個節點</strong>：若串列是空的，或 <code>head</code> 的值已經大於或等於 <code>item</code>，新節點直接放在最前面；否則 <code>current</code> 從 <code>head</code> 出發，只要 <code>current-&gt;getNext()</code> 不是 <code>NULL</code>，而且它的值小於 <code>item</code>，就前進一步。停下時，新節點要接在 <code>current</code> 後面：先 <code>newNode-&gt;setNext(current-&gt;getNext())</code>，再 <code>current-&gt;setNext(newNode)</code>。和相等的值比較時不會前進，所以重複值會插在原有相等值的前面。</p>
 <div class="viz-layout ll-widget"><div><div class="viz-panel">
   <div class="ll-canvas" id="oAddVis"></div>
@@ -1453,7 +1455,7 @@ false
 
 <section id="stl">
   <div class="section-number">PART 04 · STL 容器</div>
-  <h2>STL 鏈結串列：<code>std::forward_list</code> 與 <code>std::list</code> <span class="sec-badge">講義 04 延伸</span></h2>
+  <h2>STL 鏈結串列：<code>std::forward_list</code> 與 <code>std::list</code> <span class="sec-badge">講義 04</span></h2>
 <!-- gen:linked-stl -->
 <p><code>UnorderedList</code> 與 <code>OrderedList</code> 讓你看清楚指標怎麼接、節點由誰釋放。實際寫程式時，優先使用 STL 容器：它們的解構、複製、迭代器與例外安全都已有明確規範並經過測試。</p>
 <p><code>std::forward_list&lt;T&gt;</code> 是單向串列，提供 <code>push_front</code>、<code>insert_after</code>、<code>erase_after</code>；<code>std::list&lt;T&gt;</code> 是雙向串列，可以用雙向迭代器在指定位置插入或刪除。兩者都不支援依索引的隨機存取。插入與刪除是 $O(1)$ 的前提是：手上已經有對應位置的迭代器。</p>
@@ -1858,7 +1860,7 @@ count = 1</pre></div>
   </div>
   <div class="quiz-feedback" id="ex3Feedback"></div>
 </div>
-<h3>練習：實作 <code>append()</code></h3>
+<h3>練習：實作 <code>append()</code>（課堂略過・自學）</h3>
 <p>替 <code>UnorderedList</code> 加上 <code>append(item)</code>，把新元素接在<strong>尾端</strong>，使它成為最後一項。先自己寫寫看，再思考：你的方法時間複雜度是多少？</p>
 <details class="linked-detail"><summary>參考解答（講義）</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">講義 04 · <code>append</code> 的一種寫法</div>

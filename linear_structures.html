@@ -541,7 +541,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="info-box">
     <span class="info-label">本章你會學到的技術</span>
     <strong>1. 三種 ADT：</strong>stack（LIFO）、queue（FIFO）、deque（兩端皆可）。<br>
-    <strong>2. C++ 實作：</strong>正文使用 STL <code>stack/queue/deque</code>；課程自製 API 明標為作業補充。<br>
+    <strong>2. C++ 實作：</strong>正文使用 STL <code>stack/queue/deque</code>；課程標頭的 <code>Stack</code>、<code>Queue</code>、<code>Deque</code> 是作業用介面。<br>
     <strong>3. 經典應用：</strong>括號配對、進位轉換、中序轉後序、約瑟夫問題、模擬、迴文。
   </div>
   <div class="viz-layout">
@@ -586,7 +586,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>結構</th><th>加入的位置</th><th>移除的位置</th><th>順序原則</th><th>C++ 標準函式庫</th><th>課程標頭</th></tr></thead><tbody><tr><td>Stack 堆疊</td><td>top</td><td>top（同一端）</td><td>LIFO：後進先出</td><td><code>std::stack&lt;T&gt;</code></td><td><code>stack.hpp</code> 的 <code>Stack&lt;T&gt;</code></td></tr><tr><td>Queue 佇列</td><td>rear</td><td>front</td><td>FIFO：先進先出</td><td><code>std::queue&lt;T&gt;</code></td><td><code>queue.hpp</code> 的 <code>Queue&lt;T&gt;</code></td></tr><tr><td>Deque 雙端佇列</td><td>兩端皆可</td><td>兩端皆可</td><td>不限定，由使用者決定</td><td><code>std::deque&lt;T&gt;</code></td><td><code>deque.hpp</code> 的 <code>Deque&lt;T&gt;</code></td></tr></tbody></table></div>
 <h3>本章程式使用的兩套介面</h3>
 <p>本章的程式以 C++ 標準函式庫（STL）為主：<code>std::stack</code>、<code>std::queue</code>、<code>std::deque</code>。它們的 <code>pop()</code> 只移除元素、不回傳值，需要值的時候要先用 <code>top()</code> 或 <code>front()</code> 讀出來。</p>
-<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張兩者的對照表。</p>
+<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張 API 對照表。</p>
 <!-- /gen:linear-prologue -->
 </section>
 
@@ -1010,7 +1010,7 @@ false</pre></div><p class="dx-note">前兩個字串平衡，輸出 true；"(()" 
       <div class="info-card">
         <div class="ic-title">三種失敗方式</div>
         <div style="font-size:.85rem;line-height:1.9;">
-        ① 閉符號來了但 stack 空（<code>())(</code> 的第 3 步）。<br>
+        ① 閉符號來了但 stack 空（<code>())(</code> 讀到第 3 個符號時）。<br>
         ② pop 出來的開符號<strong>種類不合</strong>（<code>[)</code>）。<br>
         ③ 掃完字串 stack 還有剩（<code>(()</code>）。</div>
       </div>
@@ -1308,22 +1308,15 @@ $$14\times16^{1} + 9\times16^{0}$$</p>
     </svg>
     <div class="mono" style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:.5rem;">圖 2：綠色是內層的 <b style="color:var(--accent3)">*</b>、紅色是外層的 <b style="color:var(--accent)">+</b>；三列的欄位是對齊的，可以直接看出誰搬到哪裡。</div>
   </div>
-  <p style="margin-top:.8rem;">機器轉換用 stack：<strong>運算元照抄、運算子進 stack 等待</strong>。
-  關鍵觀察是後序式裡運算子的出現順序，可能跟中序相反（+ 先讀到卻最後輸出），
-  「需要反轉的暫存」正是 stack 的主場。演算法四步：</p>
-  <ol style="line-height:2;margin:.3rem 0 .6rem 1.6rem;font-size:.92rem;">
-    <li>開一個空的 opStack、一個空的輸出串列。</li>
-    <li>把中序字串切成 token（C++ 用 stringstream 逐個抽出來）。</li>
-    <li>由左到右掃：運算元直接輸出；<code>(</code> 進 stack；<code>)</code> 一路 pop 輸出直到遇見 <code>(</code>；
-        一般運算子先把 stack 上「優先權大於等於自己」的全部 pop 輸出，再把自己 push 進去。</li>
-    <li>掃完把 stack 剩下的全部 pop 輸出。</li>
-  </ol>
 <!-- gen:linear-infix-convert -->
 <h3>為什麼用 stack 保存運算子</h3>
 <p>再看一次 <code>A + B * C</code>，它的後序是 <code>A B C * +</code>。運算元 A、B、C 的相對位置沒有改變，移動的只有運算子。由左往右，第一個出現的運算子是 +，但在後序中 + 排在最後，因為後面的 * 優先權比較高。<strong>原式中運算子的順序，在後序中反轉了</strong>。</p>
 <p>處理運算式時，運算子的右運算元還沒讀到，運算子必須先存起來；而且因為優先權，存起來的運算子可能要反轉順序。所以用 stack 保存運算子，等到需要時再取出。</p>
 <p><code>(A + B) * C</code> 的後序是 <code>A B + C *</code>。由左往右處理時同樣先看到 +；不同的是，讀到 * 的時候，+ 已經輸出了，因為括號讓它的優先權高於 *。轉換演算法讀到左括號時把它存起來，表示之後會有一個高優先權的運算子；這個運算子要等對應的右括號出現，才決定它的位置。右括號出現時，就從 stack 把運算子 pop 出來。</p>
-<p>假設中序式是一串以空白分隔的 token，運算子有 *、/、+、-，以及左右括號。演算法的核心迴圈如下：運算元直接輸出，運算子在 stack 上等待，直到讀到優先權較低的運算子：</p>
+<p>假設中序式是一串以空白分隔的 token，運算子有 *、/、+、-，以及左右括號。stack 頂端永遠是最近存入的運算子，讀到新的運算子時，就拿它和頂端的運算子比較優先權。下面四步會得到後序的 token 串：</p>
+<ol class="linear-ol"><li>建立空的 <code>std::stack&lt;string&gt; opStack</code> 與空的 <code>vector&lt;string&gt; postfixList</code>。</li><li>用 <code>std::istringstream</code> 把中序字串切成 token。</li><li>由左到右掃描 token：運算元直接加到 postfixList；<code>(</code> push 進 opStack；<code>)</code> 則一路 pop opStack，把運算子加到 postfixList，直到移除對應的 <code>(</code>；運算子 *、/、+、- 先把 opStack 上優先權大於或等於自己的運算子全部 pop 到 postfixList，再把自己 push 進去。</li><li>輸入處理完後，把 opStack 剩下的運算子全部 pop，依序加到 postfixList。</li></ol>
+<figure class="linear-figure" id="linear-figure-i2p-trace"><div class="linear-figure-scroll" tabindex="0" role="region" aria-label="infixToPostfix(&quot;A * B + C * D&quot;) 的追蹤表，欄位為 token、opStack（top 在右）、postfixList。讀到 + 時，* 先離開 stack；最後 pop 剩下的 + * ，結果是 A B * C D * +。"><img src="assets/figures/ch5/convert_4.png" alt="infixToPostfix(&quot;A * B + C * D&quot;) 的追蹤表，欄位為 token、opStack（top 在右）、postfixList。讀到 + 時，* 先離開 stack；最後 pop 剩下的 + * ，結果是 A B * C D * +。" width="900" height="303" style="--figure-width:900px" loading="lazy"></div><figcaption>轉換 A * B + C * D：運算元直接放進 postfixList；讀到 + 時，stack 上的 * 優先權較高，先被 pop 到輸出，+ 才 push 進去；第二個 * 比 + 高，直接疊上去。讀完後把 stack 剩下的 * 與 + 依序 pop 出來。</figcaption></figure>
+<p>演算法的核心迴圈如下：運算元直接輸出，運算子在 stack 上等待，直到讀到優先權較低的運算子：</p>
 <div class="deck-extra">
   <div class="dx-label">infixToPostfix 的核心迴圈</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">for</span> (string token : tokenList) {</span>
@@ -1346,7 +1339,6 @@ $$14\times16^{1} + 9\times16^{0}$$</p>
 <span class="line" data-l="18">    }</span>
 <span class="line" data-l="19">}</span></div>
 </div>
-<figure class="linear-figure" id="linear-figure-i2p-trace"><div class="linear-figure-scroll" tabindex="0" role="region" aria-label="infixToPostfix(&quot;A * B + C * D&quot;) 的追蹤表，欄位為 token、opStack（top 在右）、postfixList。讀到 + 時，* 先離開 stack；最後 pop 剩下的 + * ，結果是 A B * C D * +。"><img src="assets/figures/ch5/convert_4.png" alt="infixToPostfix(&quot;A * B + C * D&quot;) 的追蹤表，欄位為 token、opStack（top 在右）、postfixList。讀到 + 時，* 先離開 stack；最後 pop 剩下的 + * ，結果是 A B * C D * +。" width="900" height="303" style="--figure-width:900px" loading="lazy"></div><figcaption>轉換 A * B + C * D：運算元直接放進 postfixList；讀到 + 時，stack 上的 * 優先權較高，先被 pop 到輸出，+ 才 push 進去；第二個 * 比 + 高，直接疊上去。讀完後把 stack 剩下的 * 與 + 依序 pop 出來。</figcaption></figure>
 <details class="linear-detail"><summary>逐 token 追蹤 A * B + C * D 的文字表（補充）</summary><div class="linear-detail-body"><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>token</th><th>opStack（top 在右）</th><th>postfixList</th></tr></thead><tbody><tr><td>A</td><td></td><td>A</td></tr><tr><td>*</td><td>*</td><td>A</td></tr><tr><td>B</td><td>*</td><td>A B</td></tr><tr><td>+</td><td>+（* 優先權較高，先 pop 到輸出）</td><td>A B *</td></tr><tr><td>C</td><td>+</td><td>A B * C</td></tr><tr><td>*</td><td>+ *（* 比 + 高，直接 push）</td><td>A B * C</td></tr><tr><td>D</td><td>+ *</td><td>A B * C D</td></tr><tr><td>結束</td><td>依序 pop 剩下的運算子</td><td>A B * C D * +</td></tr></tbody></table></div></div></details>
 <p>下面的動畫可以逐步觀察三個例子；右側的程式是動畫所用的簡化流程。</p>
 <!-- /gen:linear-infix-convert -->
@@ -1664,7 +1656,7 @@ A B + C * D E - F G + * -</pre></div><p class="dx-note">token 之間必須有空
   <p>佇列在 <strong>rear 加入、front 移除</strong>，先來的先被服務（FIFO）。
   作業系統的工作排程、印表機隊伍、BFS 的「下一層名單」全是 queue。cppds C++ 正文使用
   <code>std::queue</code>：<code>push</code> 從 rear 加入，<code>front</code> 讀取最前端，
-  <code>pop</code> 移除但不回傳。作業的 <code>enqueue/dequeue/isEmpty</code> 是課程實作補充。</p>
+  <code>pop</code> 移除但不回傳。<code>enqueue/dequeue/isEmpty</code> 是課程實作 <code>Queue&lt;T&gt;</code> 的作業用介面。</p>
 <!-- gen:linear-queue-intro -->
 <h3>front 與 rear</h3>
 <p>queue 是一個有順序的集合，新元素從一端加入，這一端叫 <strong>rear</strong>；既有的元素從另一端移除，這一端叫 <strong>front</strong>。元素從 rear 進入後，一路往 front 移動，直到輪到它被移除。在集合中待得最久的元素位於 front。這個原則叫 <strong>FIFO</strong>（first in, first out，先進先出）。</p>
@@ -2179,7 +2171,7 @@ average wait = 11.3333, tasks remaining = 0</pre></div>
   <p>雙端佇列（deque，唸作 deck）兩端都能加入與移除，一個人就能扮演 stack 或 queue。
   代價是使用者要自己維持紀律，結構不再幫你防呆。cppds C++ 正文使用 <code>std::deque</code>：
   <code>push_front/push_back</code> 與 <code>pop_front/pop_back</code> 都是常數時間。
-  課程的 <code>addFront/removeFront</code> API 是作業用補充。</p>
+  <code>addFront/removeFront</code> 是課程實作 <code>Deque&lt;T&gt;</code> 的作業用介面。</p>
 <!-- gen:linear-deque-intro -->
 <h3>兩端都能進出</h3>
 <p>deque 也叫 double-ended queue（雙端佇列），是一個和 queue 類似的有序集合，有 front 與 rear 兩端。它的不同之處在於加入與移除不受限制：新元素可以加在 front 或 rear，既有元素也可以從任一端移除。因此一個 deque 就能當 stack 用，也能當 queue 用。</p>
@@ -2228,7 +2220,7 @@ average wait = 11.3333, tasks remaining = 0</pre></div>
       <tr><td class="mono">d.pop_front()</td><td class="mono">[4]</td><td>void</td></tr>
     </tbody>
   </table></div>
-  <p style="font-size:.9rem;color:var(--muted);"><strong>課程實作補充：</strong>教學版把 front 放在 vector 尾端，所以
+  <p style="font-size:.9rem;color:var(--muted);"><strong>課程實作：</strong>教學版把 front 放在 vector 尾端，所以
   addFront／removeFront 是 O(1)，addRear／removeRear 是 O(n)：兩端的成本並不對稱。
   STL 的 <code>std::deque</code> 用分段連續的儲存做到兩端都 O(1)，實戰直接用它。</p>
   <div class="viz-layout">
@@ -2319,7 +2311,7 @@ true</pre></div><p class="dx-note">"lsdkjfskf" 第一次比較 l 與 f 就不同
 
 <div class="quiz-box">
   <div class="quiz-label">EXERCISE 2 · 中序轉後序＋求值</div>
-  <p><code>10 + 3 * 5 / ( 16 - 4 )</code> 的後序是 <code>10 3 5 * 16 4 - / +</code>。用後序求值，答案是？（整數除法）</p>
+  <p><code>10 + 3 * 5 / ( 16 - 4 )</code> 的後序是 <code>10 3 5 * 16 4 - / +</code>。若用 int 運算（整數除法）做後序求值，答案是？</p>
 
   <div class="quiz-options" id="ex2Options">
     <div class="quiz-opt" data-correct="true" data-fb="3*5=15；16−4=12；15/12=1（整數除法）；10+1=11。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(A)</span> <code>11</code></div><div class="quiz-opt" data-correct="false" data-fb="C++ 的 int 除法會截斷：15/12 = 1，不是 1.25。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(B)</span> <code>11.25</code></div><div class="quiz-opt" data-correct="false" data-fb="檢查運算順序：先 3*5，再 16−4，相除後才加 10。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(C)</span> <code>13</code></div><div class="quiz-opt" data-correct="false" data-fb="1 只是 15/12 的整數商，最後還要再加上 10。" onclick="quizCheck('ex2', this)"><span class="opt-letter">(D)</span> <code>1</code></div>
@@ -2460,6 +2452,17 @@ class Player {
 }
 /* /player-v2 */
 
+/* 建好播放器並顯示第 0 格：載入時就建立，「→ 單步」不必先按 ▶。
+   play = true 時從頭播放；換掉舊實例前先暫停它，避免舊的 timer 繼續跑。 */
+function freshPlayer(old, opts, play) {
+  if (old) old.pause();
+  const p = new Player(opts);
+  if (old && old._btn) p._btn = old._btn;
+  p.reset();
+  if (play) p.play(); else p.i = 0;   // 第 0 格已顯示，下一次「單步」直接到第 1 格
+  return p;
+}
+
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
 }
@@ -2540,16 +2543,11 @@ function introApply(f) {
   renderBoxQueue('introQueue', f.q);
   setStatus('introStatus', f.msg);
 }
-function introStart() {
-  if (introPlayer) introPlayer.pause();   // 連按 ▶ 時先收掉舊實例的 timer
-  introPlayer = new Player({frames: introFrames(), apply: introApply, delayInput: $('introSpeed')});
-  introPlayer.reset(); introPlayer.play();
+function introMake(play) {
+  introPlayer = freshPlayer(introPlayer, {frames: introFrames(), apply: introApply, delayInput: $('introSpeed')}, play);
 }
-function introReset() {
-  if (!introPlayer) introPlayer = new Player({frames: introFrames(), apply: introApply, delayInput: $('introSpeed')});
-  else introPlayer.pause();
-  introPlayer.reset();
-}
+function introStart() { introMake(true); }
+function introReset() { introMake(false); }
 introReset();
 
 /* ---------- P01 stack ---------- */
@@ -2577,8 +2575,9 @@ stackRender();
 let parPlayer = null;
 const OPENS = '([{', CLOSES = ')]}';
 const MATCH = { ')':'(', ']':'[', '}':'{' };
-function parFrames(s) {
-  const frames = [{stack:[], i:-1, cls:{}, msg:'開始掃描。', line:1}];
+function parFrames(s, dropped) {
+  const frames = [{stack:[], i:-1, cls:{}, line:1,
+    msg: dropped ? '輸入框只保留括號 ( ) [ ] { }：parChecker 假設字串只有括號，其他字元會被當成閉符號。開始掃描。' : '開始掃描。'}];
   const st = [];
   const cls = {};
   for (let i = 0; i < s.length; i++) {
@@ -2597,9 +2596,6 @@ function parFrames(s) {
         return frames; }
       cls[i]='done';
       frames.push({stack:[...st], i, cls:{...cls}, msg:`'${c}' 與 pop 出的 '${top}' 配對成功`, line:8});
-    } else {
-      cls[i]='done';
-      frames.push({stack:[...st], i, cls:{...cls}, msg:`忽略非括號字元 '${c}'`, line:3});
     }
   }
   const ok = st.length === 0;
@@ -2619,10 +2615,14 @@ function parApply(f) {
   renderBoxStack('parStack', f.stack);
   setStatus('parStatus', f.msg); hlLine('parCode', f.line);
 }
-function parStart() {
-  parPlayer = new Player({frames: parFrames($('parInput').value), apply: parApply, delayInput: $('parSpeed')});
-  parPlayer.reset(); parPlayer.play();
+function parMake(play) {
+  const el = $('parInput'), raw = el.value;
+  el.value = raw.replace(/[^()[\]{}]/g, '');
+  parPlayer = freshPlayer(parPlayer, {frames: parFrames(el.value, el.value !== raw), apply: parApply, delayInput: $('parSpeed')}, play);
 }
+function parStart() { parMake(true); }
+$('parInput').addEventListener('change', () => parMake(false));
+parMake(false);
 function parLoad(s) { $('parInput').value = s; parStart(); }
 
 /* ---------- P03 base ---------- */
@@ -2652,12 +2652,15 @@ function baseApply(f) {
   renderBoxStack('baseStack', f.stack);
   setStatus('baseStatus', f.msg); hlLine('baseCode', f.line);
 }
-function baseStart() {
+function baseMake(play) {
   const n = Math.max(1, parseInt($('baseInput').value || '233', 10));
   const b = parseInt($('baseSel').value, 10);
-  basePlayer = new Player({frames: baseFrames(n, b), apply: baseApply, delayInput: $('baseSpeed')});
-  basePlayer.reset(); basePlayer.play();
+  basePlayer = freshPlayer(basePlayer, {frames: baseFrames(n, b), apply: baseApply, delayInput: $('baseSpeed')}, play);
 }
+function baseStart() { baseMake(true); }
+$('baseInput').addEventListener('change', () => baseMake(false));
+$('baseSel').addEventListener('change', () => baseMake(false));
+baseMake(false);
 
 /* ---------- P04 infix→postfix ---------- */
 let i2pPlayer = null, pevalPlayer = null;
@@ -2716,10 +2719,12 @@ function i2pApply(f) {
   });
   setStatus('i2pStatus', f.msg); hlLine('i2pCode', f.line);
 }
-function i2pStart() {
-  i2pPlayer = new Player({frames: i2pFrames($('i2pSel').value), apply: i2pApply, delayInput: $('i2pSpeed')});
-  i2pPlayer.reset(); i2pPlayer.play();
+function i2pMake(play) {
+  i2pPlayer = freshPlayer(i2pPlayer, {frames: i2pFrames($('i2pSel').value), apply: i2pApply, delayInput: $('i2pSpeed')}, play);
 }
+function i2pStart() { i2pMake(true); }
+$('i2pSel').addEventListener('change', () => i2pMake(false));
+i2pMake(false);
 function pevalFrames() {
   const tokens = '7 8 + 3 2 + /'.split(' ');
   const frames = [{i:-1, stack:[], msg:'後序求值開始。', line:1}];
@@ -2744,10 +2749,11 @@ function pevalApply(f) {
   renderBoxStack('pevalStack', f.stack);
   setStatus('pevalStatus', f.msg); hlLine('pevalCode', f.line);
 }
-function pevalStart() {
-  pevalPlayer = new Player({frames: pevalFrames(), apply: pevalApply, delayInput: $('pevalSpeed')});
-  pevalPlayer.reset(); pevalPlayer.play();
+function pevalMake(play) {
+  pevalPlayer = freshPlayer(pevalPlayer, {frames: pevalFrames(), apply: pevalApply, delayInput: $('pevalSpeed')}, play);
 }
+function pevalStart() { pevalMake(true); }
+pevalMake(false);
 
 /* ---------- P05 queue ---------- */
 let queueItems = ['4', 'dog', 'true'];
@@ -2784,12 +2790,14 @@ function hpApply(f) {
   renderBoxQueue('hpVis', f.q);
   setStatus('hpStatus', f.msg); hlLine('hpCode', f.line);
 }
-function hpStart() {
+function hpMake(play) {
   const names = ['Bill','David','Susan','Jane','Kent','Brad'];
   const num = Math.max(1, parseInt($('hpNum').value||'7',10));
-  hpPlayer = new Player({frames: hpFrames(names, num), apply: hpApply, delayInput: $('hpSpeed')});
-  hpPlayer.reset(); hpPlayer.play();
+  hpPlayer = freshPlayer(hpPlayer, {frames: hpFrames(names, num), apply: hpApply, delayInput: $('hpSpeed')}, play);
 }
+function hpStart() { hpMake(true); }
+$('hpNum').addEventListener('change', () => hpMake(false));
+hpMake(false);
 
 
 /* ---------- P08 deque / palindrome ---------- */
@@ -2824,10 +2832,12 @@ function palApply(f) {
   renderBoxQueue('palVis', f.dq);
   setStatus('palStatus', f.msg); hlLine('palCode', f.line);
 }
-function palStart() {
-  palPlayer = new Player({frames: palFrames($('palInput').value.trim()), apply: palApply, delayInput: $('palSpeed')});
-  palPlayer.reset(); palPlayer.play();
+function palMake(play) {
+  palPlayer = freshPlayer(palPlayer, {frames: palFrames($('palInput').value.trim()), apply: palApply, delayInput: $('palSpeed')}, play);
 }
+function palStart() { palMake(true); }
+$('palInput').addEventListener('change', () => palMake(false));
+palMake(false);
 </script>
 <script>
 const FLASHCARDS = [{"front": "線性抽象資料型別（Linear ADT）", "back": "資料元素按序排列、每個元素在單一層次上只跟前後元素相連的抽象資料型別，例子有堆疊與佇列。"}, {"front": "堆疊（Stack）", "back": "遵循「後進先出」順序操作的線性資料結構：最後加入的元素最先被移除（LIFO）。"}, {"front": "前端（Front）", "back": "佇列的起點：最早進來的元素所在位置。STL 用 front() 讀值、pop() 移除；課程 API 稱 dequeue。"}, {"front": "後端（Rear）", "back": "佇列的終點：STL 用 push() 加入新元素；課程 API 稱 enqueue。"}, {"front": "頂端（Top）", "back": "堆疊最後加入的元素、也是結構目前的端點。因為後進先出，它會最先被移除。"}, {"front": "底部（Base）", "back": "堆疊的最底層：最早放進來的元素所在的位置。"}, {"front": "後進先出（LIFO, Last In First Out）", "back": "堆疊採用的原則：最後放進結構的元素最先被取出。"}, {"front": "中序記法（Infix）", "back": "運算子寫在運算元中間的記法，例如 A + B。"}, {"front": "前序記法（Prefix）", "back": "運算子寫在運算元前面的記法，中序的 A + B 寫成 +AB。"}, {"front": "後序記法（Postfix）", "back": "運算子寫在運算元後面的記法，中序的 A + B 寫成 AB+。"}, {"front": "完全括號運算式（Fully Parenthesized Expression）", "back": "每一個二元或一元運算都用括號明確包住的運算式，運算順序完全沒有歧義。"}, {"front": "佇列（Queue）", "back": "遵循「先進先出」原則的線性資料結構：最先加入的元素最先被移除（FIFO）。"}, {"front": "先進先出（FIFO, First In First Out）", "back": "佇列採用的原則：最先放進結構的元素最先被取出。"}, {"front": "雙端佇列（Deque）", "back": "double-ended queue 的簡稱：前後兩端都能插入與移除元素的資料結構，比標準的佇列或堆疊更有彈性。"}, {"front": "STL 容器轉接器（Container Adapter）", "back": "std::stack 與 std::queue 把底層容器限制成 LIFO 或 FIFO 介面。pop() 只移除並回傳 void，要先用 top()／front() 讀值。"}, {"front": "三套 Stack API", "back": "STL std::stack 用 top()/empty() 與 void pop()；pythonds3 Stack<T> 用 peek()/isEmpty() 與回傳值的 pop()；HW3 Stack<T>(capacity) 用 stackTop() 或 peek(index)，另有 isFull()。"}];

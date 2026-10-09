@@ -570,7 +570,7 @@ def node_section():
 {lecture_program("講義完整程式：建立一個 Node", "講義 04 · Node 的使用", NODE_MAIN, OUT['node'], note="第一行是節點的資料 93。第二行印出 next 指標：新節點的 next 是 NULL，用 cout 印出空指標時會顯示 0。")}
 {figure('node93')}
 <h3>NULL：沒有下一個節點</h3>
-<p>C++ 的特殊指標值 NULL 在 Node 類別與之後的串列中都很重要：next 等於 NULL，表示這個節點後面沒有節點。之後的 size、search、remove 都是走到 NULL 才停下，串列的 head 等於 NULL 則表示串列是空的。</p>
+<p>C++ 的特殊指標值 NULL 在 Node 類別與之後的串列中都很重要：next 等於 NULL，表示這個節點後面沒有節點。之後的 size、search、remove 都會沿 next 前進，最遲走到 NULL 時停下；串列的 head 等於 NULL 則表示串列是空的。</p>
 <p>注意建構子把 next 明確設成 NULL。指標若沒有初始化，裡面是無法預測的值；把它當成位址去讀取，結果是未定義行為，程式可能當掉，也可能看似正常卻讀到錯誤的資料。所以建立指標時，一律先給它明確的初值。課本把 next 為空的節點稱為 grounded（接地），圖中用電路的接地符號表示（課本）。</p>
 {fold("指標語法速記", pointer_note)}
 {fold("用 setNext 手動接起三個節點", snippet("三個節點接成 54 → 26 → 93", NODE_CHAIN, OUT['node_chain'], note="setNext 決定誰接在誰後面；setData(27) 只改了第二個節點的值，鏈結不變。while 迴圈用 current 沿 next 前進、遇到 NULL 停下，這就是下一節 size 與 search 使用的走訪寫法。"))}'''
@@ -600,7 +600,7 @@ def unordered_section():
         ('找不到', '不更新', '串列不變'),
         ('多個相同值', '只跳過第一個命中的節點', '其餘相同值保留'),
     ])
-    ownership = snippet("所有權與深層複製", OWNERSHIP, note="串列物件擁有它用 new 配置的節點：解構子要逐一 delete；複製建構子與複製指派要複製整條鏈（deep copy）。若只複製 head，兩個串列會共用同一批節點，之後可能重複釋放。課程標頭已依這個規則實作。")
+    ownership = snippet("複製一個串列", OWNERSHIP, note="複製建構子與複製指派都要複製整條鏈：b 拿到自己的一組節點，之後 b.remove(2) 不會影響 a。若只複製 head，兩個串列會共用同一批節點，其中一個解構時釋放了節點，另一個就指向已經釋放的記憶體，最後還會重複釋放。課程標頭已依這個規則實作。")
     q_order = quiz('qUll', 'QUIZ · add 的兩行順序',
                    'add 裡若把兩行寫反（先 head = temp，再 temp-&gt;setNext(head)），會發生什麼事？', [
                        (True, 'temp 的 next 指向自己，原本的節點全部無法到達',
@@ -669,7 +669,10 @@ def unordered_section():
 {lecture_program("講義完整程式：UnorderedList 的 add、size、search、remove", "講義 04 · UnorderedList 全套操作", UL_MAIN, OUT['ul'], note="第一行可以看出 add 採用頭插：最後加入的 54 排在最前面。三次 remove 分別刪除頭端、中間與尾端的節點。")}
 {fold("<code>cout &lt;&lt; myList</code> 如何印出串列", snippet("課程標頭 · operator&lt;&lt;", UL_PRINT, note="範例中的 <code>cout &lt;&lt; myList</code> 使用標頭裡的 operator&lt;&lt;：它同樣從 head 走訪，每個值後面接一個空格，所以輸出的行尾有一個空格。"))}
 {fold("空串列、重複值與頭尾刪除的完整程式", snippet("邊界情況", EDGES, OUT['edges']))}
-{fold("所有權與深層複製", ownership)}'''
+<h3>所有權與深層複製</h3>
+<p>串列物件擁有它用 new 配置的每個節點。remove 把節點從鏈上拆下之後要 delete 它；解構子對串列裡剩下的每個節點做同樣的事，串列消失時節點也一起釋放。</p>
+<p>複製串列時要做<strong>深層複製</strong>（deep copy）：把每個節點都複製一份，放進新串列自己擁有的記憶體，而不是只複製 head 指標。</p>
+{fold("複製建構子與複製指派", ownership)}'''
 
 
 def ordered_section():
@@ -729,7 +732,6 @@ def ordered_section():
 <h3>add：先找到位置再接上</h3>
 <p>改動最大的是 add。無序串列的 add 可以直接把新節點放在 head，因為那裡最容易存取；有序串列不能這樣做，必須先找出新元素在現有排序中的位置。例如在 17、26、54、77、93 中加入 31，add 要判斷出新節點屬於 26 與 54 之間：</p>
 {figure('ordered-add')}
-<p>和無序串列的 remove 一樣，光靠停在 54 的指標無法修改 26 的 next，所以需要知道插入點<strong>前一個</strong>節點。圖中用 previous 與 current 兩個指標標出這個位置。</p>
 <p>講義的 add 只用一個 current，並且每次<strong>先看下一個節點</strong>：若串列是空的，或 head 的值已經大於或等於 item，新節點直接放在最前面；否則 current 從 head 出發，只要 current-&gt;getNext() 不是 NULL，而且它的值小於 item，就前進一步。停下時，新節點要接在 current 後面：先 newNode-&gt;setNext(current-&gt;getNext())，再 current-&gt;setNext(newNode)。和相等的值比較時不會前進，所以重複值會插在原有相等值的前面。</p>
 {widget("oAdd", [("mid", "add(31)"), ("head", "add(10)：插在最前"), ("tail", "add(100)：插在最後"), ("empty", "空串列 add(31)")],
         "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("講義 04 · OrderedList::add", OL_ADD)], legend=("hl", "cmp", "new"))}
@@ -893,7 +895,7 @@ def exercises_section():
     return f'''{ex1}
 {ex2}
 {ex3}
-<h3>練習：實作 append()</h3>
+<h3>練習：實作 append()（課堂略過・自學）</h3>
 <p>替 UnorderedList 加上 append(item)，把新元素接在<strong>尾端</strong>，使它成為最後一項。先自己寫寫看，再思考：你的方法時間複雜度是多少？</p>
 {details("參考解答（講義）", snippet("講義 04 · append 的一種寫法", APPEND, note="這個寫法要走到最後一個節點，所以是 $O(n)$；若類別另存 tail 指標，可以做到 $O(1)$。") + "<p>UnorderedList 的 head 是 private，無法在類別外替它加成員函式。下面的 MyList 只保留 add 與 append，用來試跑這個寫法：</p>" + snippet("試用 append：MyList", APPEND_MAIN, OUT['append'], note="append(31) 時串列是空的，新節點直接成為 head；add(77) 放到最前面；append(17) 從 77 走到 31，再接在 31 後面。"))}
 {ex4}

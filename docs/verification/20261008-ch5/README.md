@@ -25,6 +25,7 @@ gen 區以外的一次性手改（`place_markers.py` 的內容，僅執行一次
 - 使用方式第 ② 點改為「講義的完整程式收在各節的收合區…」（原句要學生回講義看完整程式，已不符）。
 - REF 的 h2 改為「參考資料與三種 ADT 比較」；新增 `<section id="recap">`（重點回顧與常見疑問）及其 float-nav、目錄連結；使用方式第 ④ 點加回顧連結。
 - 2026-10-09 讀者審閱修正（詳見 `docs/verification/20261009-reading/fixes-ch4-6.md`）：#parens、#printer 徽章「講義補充」改「課堂略過・自學」，使用方式第 ④ 點重寫兩種標示的定義；stack 互動區提示改寫；主 `<script>` 的 parFrames／baseFrames／i2pFrames／pevalFrames／palFrames 行號依程式面板 `data-l` 修正，parFrames 的閉符號多一格 top/pop（第 7 行），palFrames 訊息改用 push_back／pop_front／pop_back。
+- 2026-10-09 第二輪讀者審閱修正（詳見 `docs/verification/20261009-reading/fixes-ch4-6-round2.md`）：主 `<script>` 加 `freshPlayer`，七個播放器載入時就建好並顯示第 0 格，輸入改變時重建；parFrames 只接受括號字元（輸入框去掉其他字元），刪掉「忽略非括號字元」分支；開場 info-box、#queue、#deque 引言與「課程實作」說明不再稱課程 API 為「補充」；括號失敗方式 ① 改「讀到第 3 個符號時」；EXERCISE 2 題幹改「若用 int 運算（整數除法）」；#infix 刪除手寫的「演算法四步」段落（四步移入 gen 區 `infix_convert()`，放在動機之後）。
 
 ## 結果（全部實際執行，紀錄見 `run.log`）
 

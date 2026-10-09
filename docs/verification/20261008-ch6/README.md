@@ -17,6 +17,7 @@
 
 未呼叫 `chapter_math.render_math`（公式直接寫成 MathJax）與 `course_recordings.apply_recording`（無第 6 章條目）。`teaching_copy.EDITS['recursion']` 維持空清單。
   - 2026-10-09 讀者審閱修正（詳見 `docs/verification/20261009-reading/fixes-ch4-6.md`）：#viz、#sierpinski、#dp 徽章「講義補充」改「課堂略過・自學」，使用方式第 ④ 點重寫兩種標示的定義與字卡說明；主 `<script>` 的 spiral／tree 改用講義參數 `spiral(turtle, 100)`、`tree(75)`／`branchLen - 15` 並按比例放大；`hanoiFrames` 改為 `moveTower(n, "A", "B", "C")`（A→B、借 C）。
+  - 2026-10-09 第二輪讀者審閱修正（詳見 `docs/verification/20261009-reading/fixes-ch4-6-round2.md`）：主 `<script>` 加 `freshPlayer`，六個播放器載入時就建好並顯示第 0 格（toStr(10, 2) 的在 `recursion_widgets.EXTRA_JS`）；河內塔柱下標出 fromPole／toPole／withPole、完成格不高亮；`MAZE_ROWS` 打通 (5,2) 與 (4,9)，結尾訊息依 `found`；填表動畫移除 coinsUsed 回溯訊息；Sierpinski 顏色改依講義 `colors[]` 順序。
 
 ## 結果（全部實際執行，紀錄見 `run.log`）
 
@@ -60,4 +61,4 @@
 - 瀏覽器測試封鎖外部請求，MathJax 與 Google Fonts 未載入，未驗證公式排版。
 - 講義 quiz `recursive1.json`（{2,4,6,8,10} 有 4 次遞迴呼叫）是依「只剩一個元素為 base case」的舊版寫的；本頁改寫成符合 `listSumFrom`（空範圍 base case）的題目 `qSumCalls`，答案 6 次呼叫。講義題目本身與講義程式不一致，需講義端決定是否修正。
 - 迷宮動畫用頁面自有的小迷宮，不是 maze2.txt；講義程式的實際輸出另以 run 區塊呈現。
-- 播放器「→ 單步」需先按「▶ 開始」建立播放器（既有設計，未改）。
+- 播放器載入時即建立並顯示第 0 格，「→ 單步」可直接使用（2026-10-09 第二輪修正）。

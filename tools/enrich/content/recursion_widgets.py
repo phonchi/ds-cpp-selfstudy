@@ -315,11 +315,11 @@ function tsfFrames() {
   frames.push({stack: [], line: 8, msg: '<strong>所有 frame 都已彈出，main 拿到 "1010"。</strong>'});
   return frames;
 }
-function tsfStart() {
-  tsfPlayer = new Player({frames: tsfFrames(), apply: f => {
+function tsfMake(play) {
+  tsfPlayer = freshPlayer(tsfPlayer, {frames: tsfFrames(), apply: f => {
     renderBoxStack('tsfVis', f.stack, {highlight: 0}); setStatus('tsfStatus', f.msg); hlLine('tsfCode', f.line);
-  }, delayInput: $('tsfSpeed')});
-  tsfPlayer.reset(); tsfPlayer.play();
+  }, delayInput: $('tsfSpeed')}, play);
 }
-renderBoxStack('tsfVis', []);
+function tsfStart() { tsfMake(true); }
+tsfMake(false);
 /* /recursion-extra */'''

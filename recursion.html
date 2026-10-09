@@ -851,7 +851,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <p>這樣看來，C++ 的呼叫堆疊取代了我們剛才明確使用的 stack。在 vector 加總的例子裡，也可以把堆疊上的回傳值想成取代了累加變數的角色。</p>
 <p>stack frame 也為函式的變數提供了<strong>作用域</strong>。雖然一再呼叫的是同一個函式，每次呼叫都會建立新的作用域，存放這次呼叫自己的區域變數：toStr(10, 2) 與 toStr(5, 2) 各有一個 n，彼此不會互相覆蓋。</p>
 <h3>動畫：toStr(10, 2) 的呼叫堆疊</h3>
-<p>按「→ 單步」看每一次呼叫推入一個 frame，碰到 base case 之後再一格一格彈出。第 5 步就是上圖的狀態。</p>
+<p>按「→ 單步」看每一次呼叫推入一個 frame，碰到 base case 之後再一格一格彈出。堆疊頂端顯示 toStr(2, 2) 得到 "10"、下面兩格還在等待的那一格，就是上圖的狀態。</p>
 <div class="viz-layout">
     <div>
       <div class="viz-panel">
@@ -883,7 +883,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   </div>
 <h3>印出遞迴深度</h3>
 <p>在函式裡用一個全域變數記錄目前是第幾次呼叫，就能在輸出中看到堆疊長高的過程。</p>
-<details class="rec-detail"><summary>講義程式：印出遞迴深度（上課略過）</summary><div class="rec-detail-body"><div class="deck-extra">
+<details class="rec-detail"><summary>講義程式：印出遞迴深度（課堂略過・自學）</summary><div class="rec-detail-body"><div class="deck-extra">
   <div class="dx-label">講義 06 · 用 depth 追蹤呼叫</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="  depth=1, n=10&#10;  depth=2, n=5&#10;  depth=3, n=2&#10;  depth=4, n=1&#10;1010&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
 <span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
@@ -1154,15 +1154,16 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <p>河內塔是法國數學家 Édouard Lucas 在 1883 年發明的謎題。他的靈感來自一個傳說：一座印度教寺廟裡，年輕的僧侶被交付這個謎題。一開始他們拿到三根柱子，以及疊成一疊的 64 個金盤，每個盤子都比下面那個小一點。他們要把 64 個盤子從一根柱子全部搬到另一根，並遵守兩條規則：</p>
 <ol class="rec-ul"><li>一次只能搬一個盤子。</li><li>大盤子永遠不能放在小盤子上面。</li></ol>
 <p>傳說僧侶日夜不停，每秒搬一個盤子，搬完的那天，寺廟會化為塵土，世界也將消失。不必擔心：正確搬完 64 個盤子需要 $2^{64}-1 = 18{,}446{,}744{,}073{,}709{,}551{,}615$ 步，每秒一步要花 $584{,}942{,}417{,}355$ 年。</p>
-<p>下圖是從第一根柱子搬到第三根的過程中，某個時刻的樣子。依照規則，每根柱子上都是小盤在上、大盤在下：</p>
+<p>下圖是把整疊盤子從起始柱（fromPole）搬到目標柱（toPole）的過程中，某個時刻的樣子；另一根是借用的中間柱（withPole）。依照規則，每根柱子上都是小盤在上、大盤在下：</p>
 <figure class="rec-figure" id="rec-figure-hanoi"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="三根柱子 fromPole、withPole、toPole。最大的盤子留在 fromPole，四個較小的盤子疊在 withPole，toPole 是空的。"><img src="assets/figures/ch6/Hanoi.png" alt="三根柱子 fromPole、withPole、toPole。最大的盤子留在 fromPole，四個較小的盤子疊在 withPole，toPole 是空的。" width="760" height="266" style="--figure-width:760px" loading="lazy"></div><figcaption>五盤河內塔進行到一半：上面四個盤子已經搬到 withPole，fromPole 只剩最大的盤子，下一步就是把它搬到 toPole。每根柱子上都是小盤在上、大盤在下。</figcaption></figure>
 <h3>由下往上想</h3>
-<p>假設第一根柱子上有五個盤子。如果你已經知道怎麼把四個盤子的塔搬到第二根柱子，就能把最下面的盤子搬到第三根，再把那四個盤子從第二根搬到第三根。</p>
-<p>可是如果不知道怎麼搬四個盤子呢？假設你知道怎麼把三個盤子的塔搬到第三根柱子，那就能把第四個盤子搬到第二根，再把三個盤子從第三根疊到它上面。如果連三個盤子都還不會呢？至少把一個盤子搬到第三根柱子很容易，簡單到不值一提。這聽起來就是 base case。</p>
+<p>假設 fromPole 上有五個盤子。如果你已經知道怎麼把四個盤子的塔搬到 withPole，就能把最下面的盤子搬到 toPole，再把那四個盤子從 withPole 搬到 toPole。</p>
+<p>可是如果不知道怎麼搬四個盤子呢？假設你知道怎麼把三個盤子的塔搬到 toPole，那就能把第四個盤子搬到 withPole，再把三個盤子從 toPole 疊到它上面。如果連三個盤子都還不會呢？至少把一個盤子搬到 toPole 很容易，簡單到不值一提。這聽起來就是 base case。</p>
 <h3>三步驟大綱</h3>
 <p>把高度 h 的塔從起始柱（fromPole）搬到目標柱（toPole），中途借用中間柱（withPole）：</p>
 <ol class="rec-ul"><li>借用目標柱，把上面高度 h−1 的塔從起始柱搬到中間柱。</li><li>把剩下的一個盤子從起始柱搬到目標柱。</li><li>借用起始柱，把高度 h−1 的塔從中間柱搬到目標柱。</li></ol>
 <p>最簡單的非空河內塔只有一個盤子：直接把它搬到目的地。程式中的 base case 是高度 0 的塔，什麼都不用搬。步驟 1 與步驟 3 都讓塔的高度減一，所以會朝 base case 前進。每一層各搬一個盤子，搬 n 個盤子總共要 $2^n - 1$ 步。</p>
+<p>下面的動畫照講義程式的呼叫 <code>moveTower(n, "A", "B", "C")</code> 擺放柱子：A 是 fromPole、B 是 toPole、C 是 withPole，所以目標柱 B 在中間，和上圖目標柱在右邊不同。每根柱子下方都標出它的角色。</p>
 <div class="viz-layout">
     <div>
       <div class="viz-panel">
@@ -1427,7 +1428,7 @@ OOOOOO+OOO  ++++++++++
 +++++-+++--+-+OO++   +
 +----------+-+ O+ +  +
 +++++-+--+-+-+     + +
-++++++++++++++++++++++</pre></div><p class="dx-note">印出的結果中，<code>O</code> 是成功的路徑，<code>-</code> 是死路，<code>.</code> 是走過的格子。這次的結果裡沒有 <code>.</code>：每一格離開 searchFrom 之前，都會從 TRIED 改成 PART_OF_PATH 或 DEAD_END。路徑從 S 往北走，最後在左邊第 2 列的邊緣找到出口；左下方那一大片 <code>-</code>，是往南與往西探索後退回來的痕跡。</p>
+++++++++++++++++++++++</pre></div><p class="dx-note">印出的結果中，<code>O</code> 是成功的路徑，<code>-</code> 是死路，<code>.</code> 是走過的格子。這次的結果裡沒有 <code>.</code>：每一格離開 searchFrom 之前，都會從 TRIED 改成 PART_OF_PATH 或 DEAD_END。路徑從 S 往北走，最後在左邊界、第 2 列（從第 0 列算起，也就是輸出的第 3 行）找到出口；左下方那一大片 <code>-</code>，是往南與往西探索後退回來的痕跡。</p>
 <!-- /gen:recursion-maze -->
 </section>
 
@@ -1894,6 +1895,17 @@ class Player {
 }
 /* /player-v2 */
 
+/* 建好播放器並顯示第 0 格：載入時就建立，「→ 單步」不必先按 ▶。
+   play = true 時從頭播放；換掉舊實例前先暫停它，避免舊的 timer 繼續跑。 */
+function freshPlayer(old, opts, play) {
+  if (old) old.pause();
+  const p = new Player(opts);
+  if (old && old._btn) p._btn = old._btn;
+  p.reset();
+  if (play) p.play(); else p.i = 0;   // 第 0 格已顯示，下一次「單步」直接到第 1 格
+  return p;
+}
+
 function setStatus(id, html) {
   const el = $(id); if (el) el.querySelector('.status-text').innerHTML = html;
 }
@@ -1971,12 +1983,13 @@ function sumFrames() {
   frames.push({html: rows.join('<br>'), msg: '<strong>listSum(numList) = 25；listSum({}) = 0 ✓</strong>', line: 9});
   return frames;
 }
-function sumStart() {
-  sumPlayer = new Player({frames: sumFrames(), apply: f => {
+function sumMake(play) {
+  sumPlayer = freshPlayer(sumPlayer, {frames: sumFrames(), apply: f => {
     $('sumTrace').innerHTML = f.html; setStatus('sumStatus', f.msg); hlLine('sumCode', f.line);
-  }, delayInput: $('sumSpeed')});
-  sumPlayer.reset(); sumPlayer.play();
+  }, delayInput: $('sumSpeed')}, play);
 }
+function sumStart() { sumMake(true); }
+sumMake(false);
 
 /* ---------- P02 toStr ---------- */
 let tostrPlayer = null;
@@ -2005,14 +2018,17 @@ function tostrFrames(n0, base) {
   frames.push({html: rows.join('<br>'), msg: `<strong>toStr(${n0}, ${base}) = "${s}" ✓（高位天然在前）</strong>`, line: 6});
   return frames;
 }
-function tostrStart() {
+function tostrMake(play) {
   const n = Math.max(0, parseInt($('tostrN').value || '769', 10));
   const b = parseInt($('tostrB').value, 10);
-  tostrPlayer = new Player({frames: tostrFrames(n, b), apply: f => {
+  tostrPlayer = freshPlayer(tostrPlayer, {frames: tostrFrames(n, b), apply: f => {
     $('tostrTrace').innerHTML = f.html; setStatus('tostrStatus', f.msg); hlLine('tostrCode', f.line);
-  }, delayInput: $('tostrSpeed')});
-  tostrPlayer.reset(); tostrPlayer.play();
+  }, delayInput: $('tostrSpeed')}, play);
 }
+function tostrStart() { tostrMake(true); }
+$('tostrN').addEventListener('change', () => tostrMake(false));
+$('tostrB').addEventListener('change', () => tostrMake(false));
+tostrMake(false);
 
 /* ---------- P03 call stack fact(4) ---------- */
 let framePlayer = null;
@@ -2034,23 +2050,25 @@ function frameFrames() {
   frames.push({stack: [], msg: '<strong>fact(4) = 24；call stack 清空。</strong>'});
   return frames;
 }
-function frameStart() {
-  framePlayer = new Player({frames: frameFrames(), apply: f => {
+function frameMake(play) {
+  framePlayer = freshPlayer(framePlayer, {frames: frameFrames(), apply: f => {
     renderBoxStack('frameVis', f.stack); setStatus('frameStatus', f.msg);
-  }, delayInput: $('frameSpeed')});
-  framePlayer.reset(); framePlayer.play();
+  }, delayInput: $('frameSpeed')}, play);
 }
+function frameStart() { frameMake(true); }
+frameMake(false);
 
 /* ---------- P04 hanoi ---------- */
 let hanoiPlayer = null;
 function hanoiRender(pegs, msg) {
   const el = $('hanoiVis'); el.innerHTML = '';
+  const roles = ['fromPole', 'toPole', 'withPole'];   // moveTower(n, "A", "B", "C") 的三個參數
   ['A','B','C'].forEach((name, pi) => {
     const col = document.createElement('div');
     col.style.cssText = 'display:flex;flex-direction:column-reverse;align-items:center;gap:3px;min-width:130px;';
     const base = document.createElement('div');
-    base.className = 'mono'; base.style.cssText = 'font-size:.8rem;color:var(--muted);';
-    base.textContent = name;
+    base.className = 'mono hanoi-pole'; base.style.cssText = 'font-size:.8rem;color:var(--muted);text-align:center;line-height:1.35;';
+    base.innerHTML = `<strong>${name}</strong><br>${roles[pi]}`;
     col.appendChild(base);
     pegs[pi].forEach(d => {
       const disk = document.createElement('div');
@@ -2064,7 +2082,7 @@ function hanoiRender(pegs, msg) {
 }
 function hanoiFrames(n) {
   const pegs = [[...Array(n)].map((_,i)=>n-i), [], []];
-  const frames = [{pegs: pegs.map(p=>[...p]), msg: `開始：moveTower(${n}, A, B, C)，${n} 個盤子在 A，要搬到 B，借用 C。共需 ${2**n - 1} 步。`, line: 1}];
+  const frames = [{pegs: pegs.map(p=>[...p]), msg: `開始：moveTower(${n}, A, B, C)，${n} 個盤子在 A（fromPole），要搬到 B（toPole），借用 C（withPole）。共需 ${2**n - 1} 步。`, line: 1}];
   let step = 0;
   function move(h, from, to, via) {
     if (h < 1) return;
@@ -2075,17 +2093,18 @@ function hanoiFrames(n) {
     move(h-1, via, to, from);
   }
   move(n, 0, 1, 2);   // moveTower(n, "A", "B", "C")：A → B，借用 C
-  frames.push({pegs: pegs.map(p=>[...p]), msg: `<strong>完成！${n} 個盤子都到了 B，共 ${step} 步 = 2^${n} − 1 ✓</strong>`, line: 5});
+  frames.push({pegs: pegs.map(p=>[...p]), msg: `<strong>完成！${n} 個盤子都到了 B，共 ${step} 步 = 2^${n} − 1 ✓</strong>`, line: null});
   return frames;
 }
-function hanoiStart() {
+function hanoiMake(play) {
   const n = parseInt($('hanoiN').value, 10);
-  hanoiPlayer = new Player({frames: hanoiFrames(n), apply: f => {
+  hanoiPlayer = freshPlayer(hanoiPlayer, {frames: hanoiFrames(n), apply: f => {
     hanoiRender(f.pegs, f.msg); hlLine('hanoiCode', f.line);
-  }, delayInput: $('hanoiSpeed')});
-  hanoiPlayer.reset(); hanoiPlayer.play();
+  }, delayInput: $('hanoiSpeed')}, play);
 }
-hanoiRender([[3,2,1],[],[]], null);
+function hanoiStart() { hanoiMake(true); }
+$('hanoiN').addEventListener('change', () => hanoiMake(false));
+hanoiMake(false);
 
 /* ---------- P05 maze ---------- */
 let mazePlayer = null;
@@ -2094,8 +2113,8 @@ const MAZE_ROWS = [
   '+   +   ++ +',
   '+ +++ + ++ +',
   '+ +   +    +',
-  '+ + +++ ++++',
-  '+S+     +  E',
+  '+ + +++ + ++',
+  '+S      +  E',
   '++++++++++++',
 ];
 function mazeFrames() {
@@ -2104,7 +2123,7 @@ function mazeFrames() {
   let sr, sc;
   for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (g[r][c] === 'S') { sr = r; sc = c; }
   const state = g.map(r => [...r]);
-  const frames = [{grid: state.map(r=>[...r]), cur: [sr,sc], msg: '從 S 出發。', line: 1}];
+  const frames = [{grid: state.map(r=>[...r]), cur: [sr,sc], msg: '從 S 出發，目標是右邊的出口 E。', line: 1}];
   function push(cur, msg, line) { frames.push({grid: state.map(r=>[...r]), cur, msg, line}); }
   function search(r, c) {
     if (r < 0 || r >= R || c < 0 || c >= C) return false;
@@ -2118,8 +2137,10 @@ function mazeFrames() {
     push([r,c], found ? `(${r},${c}) 在成功路徑上 ＋` : `(${r},${c}) 四方向皆敗 → 死路 −，回溯`, found ? 13 : 14);
     return found;
   }
-  search(sr, sc);
-  frames.push({grid: state.map(r=>[...r]), cur: null, msg: '<strong>綠色 ＋ 就是找到的路徑 ✓</strong>', line: 15});
+  const found = search(sr, sc);
+  frames.push({grid: state.map(r=>[...r]), cur: null, line: 15,
+    msg: found ? '<strong>searchFrom 回傳 true：綠色 ＋ 連成從 S 到 E 的路徑 ✓</strong>'
+               : '<strong>searchFrom 回傳 false：這個迷宮從 S 走不到出口。</strong>'});
   return frames;
 }
 function mazeApply(f) {
@@ -2136,30 +2157,27 @@ function mazeApply(f) {
   $('mazeVis').innerHTML = html;
   setStatus('mazeStatus', f.msg); hlLine('mazeCode', f.line);
 }
-function mazeStart() {
-  mazePlayer = new Player({frames: mazeFrames(), apply: mazeApply, delayInput: $('mazeSpeed')});
-  mazePlayer.reset(); mazePlayer.play();
+function mazeMake(play) {
+  mazePlayer = freshPlayer(mazePlayer, {frames: mazeFrames(), apply: mazeApply, delayInput: $('mazeSpeed')}, play);
 }
-mazeApply({grid: MAZE_ROWS.map(r=>r.split('')), cur: null, msg: 'S=起點、E=出口。', line: 1});
+function mazeStart() { mazeMake(true); }
+mazeMake(false);
 
-/* ---------- P08 DP make change (with coinsUsed traceback) ---------- */
+/* ---------- P08 DP make change (makeChange3) ---------- */
 let dpPlayer = null;
 function dpFrames() {
   const coins = [1,5,10,21,25], target = 23;
-  const mc = [0], used = [0];
-  const frames = [{vals: [...mc], cur: -1, msg: 'minCoins[0] = 0（不用任何硬幣）。', line: 9}];
+  const mc = [0];
+  const frames = [{vals: [...mc], cur: -1, msg: '硬幣 1、5、10、21、25，要找 23 分。minCoins[0] = 0（不用任何硬幣）。', line: 9}];
   for (let cents = 1; cents <= target; cents++) {
     let best = cents, pick = 1;
     for (const c of coins) if (c <= cents && mc[cents - c] + 1 < best) { best = mc[cents - c] + 1; pick = c; }
-    mc.push(best); used.push(pick);
+    mc.push(best);
     frames.push({vals: [...mc], cur: cents,
       msg: `minCoins[${cents}] = ${best}（最後拿一枚 ${pick}，剩 ${cents-pick} 分查表 = ${mc[cents-pick]} 枚）`, line: 9});
   }
-  // coinsUsed traceback
-  let coin = target; const picks = [];
-  while (coin > 0) { picks.push(used[coin]); coin -= used[coin]; }
   frames.push({vals: mc, cur: target,
-    msg: `<strong>23 分最少 ${mc[target]} 枚。coinsUsed 回溯：${picks.join(' → ')}</strong>`, line: 11});
+    msg: `<strong>表填完了：makeChange3 回傳 minCoins[23] = ${mc[target]}，23 分最少要 ${mc[target]} 枚。</strong>`, line: 11});
   return frames;
 }
 function dpApply(f) {
@@ -2172,10 +2190,11 @@ function dpApply(f) {
   });
   setStatus('dpStatus', f.msg); hlLine('dpCode', f.line);
 }
-function dpStart() {
-  dpPlayer = new Player({frames: dpFrames(), apply: dpApply, delayInput: $('dpSpeed')});
-  dpPlayer.reset(); dpPlayer.play();
+function dpMake(play) {
+  dpPlayer = freshPlayer(dpPlayer, {frames: dpFrames(), apply: dpApply, delayInput: $('dpSpeed')}, play);
 }
+function dpStart() { dpMake(true); }
+dpMake(false);
 
 /* ---------- P04 spiral + fractal tree ---------- */
 /* 參數與講義相同：spiral(turtle, 100)、tree(75)；畫布按比例放大。 */
@@ -2226,7 +2245,8 @@ function sierDraw() {
   ctx.clearRect(0, 0, cv.width, cv.height);
   const degree = parseInt($('sierDeg').value, 10);
   $('sierDegLbl').textContent = degree;
-  const colors = ['#2c3e7a', '#c0392b', '#1a6b4a', '#8e44ad', '#e67e22', '#16a085', '#5b7eb8'];
+  // 與講義 colors[] 同順序：blue, red, green, white（用淺灰，白底上才看得見）, yellow, violet, orange
+  const colors = ['#2f5fd0', '#d0352b', '#2e9e4f', '#d9d9d9', '#f2c80f', '#9b59d0', '#f08a24'];
   let count = 0;
   const mid = (a, b) => [(a[0]+b[0])/2, (a[1]+b[1])/2];
   function drawTri(p, color) {
@@ -2279,13 +2299,13 @@ function tsfFrames() {
   frames.push({stack: [], line: 8, msg: '<strong>所有 frame 都已彈出，main 拿到 "1010"。</strong>'});
   return frames;
 }
-function tsfStart() {
-  tsfPlayer = new Player({frames: tsfFrames(), apply: f => {
+function tsfMake(play) {
+  tsfPlayer = freshPlayer(tsfPlayer, {frames: tsfFrames(), apply: f => {
     renderBoxStack('tsfVis', f.stack, {highlight: 0}); setStatus('tsfStatus', f.msg); hlLine('tsfCode', f.line);
-  }, delayInput: $('tsfSpeed')});
-  tsfPlayer.reset(); tsfPlayer.play();
+  }, delayInput: $('tsfSpeed')}, play);
 }
-renderBoxStack('tsfVis', []);
+function tsfStart() { tsfMake(true); }
+tsfMake(false);
 /* /recursion-extra */
 </script>
 <script>

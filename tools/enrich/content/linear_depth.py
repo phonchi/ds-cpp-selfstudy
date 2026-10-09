@@ -99,7 +99,7 @@ def prologue():
 {rows}
 <h3>本章程式使用的兩套介面</h3>
 <p>本章的程式以 C++ 標準函式庫（STL）為主：<code>std::stack</code>、<code>std::queue</code>、<code>std::deque</code>。它們的 <code>pop()</code> 只移除元素、不回傳值，需要值的時候要先用 <code>top()</code> 或 <code>front()</code> 讀出來。</p>
-<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張兩者的對照表。</p>'''
+<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張 API 對照表。</p>'''
 
 
 # ---------------------------------------------------------------- P01 stack
@@ -268,13 +268,21 @@ def infix_convert():
         ('+', '+（* 優先權較高，先 pop 到輸出）', 'A B *'), ('C', '+', 'A B * C'),
         ('*', '+ *（* 比 + 高，直接 push）', 'A B * C'), ('D', '+ *', 'A B * C D'),
         ('結束', '依序 pop 剩下的運算子', 'A B * C D * +')])
+    steps = ol([
+        '建立空的 <code>std::stack&lt;string&gt; opStack</code> 與空的 <code>vector&lt;string&gt; postfixList</code>。',
+        '用 <code>std::istringstream</code> 把中序字串切成 token。',
+        '由左到右掃描 token：運算元直接加到 postfixList；<code>(</code> push 進 opStack；<code>)</code> 則一路 pop opStack，把運算子加到 postfixList，直到移除對應的 <code>(</code>；運算子 *、/、+、- 先把 opStack 上優先權大於或等於自己的運算子全部 pop 到 postfixList，再把自己 push 進去。',
+        '輸入處理完後，把 opStack 剩下的運算子全部 pop，依序加到 postfixList。',
+    ])
     return f'''<h3>為什麼用 stack 保存運算子</h3>
 <p>再看一次 <code>A + B * C</code>，它的後序是 <code>A B C * +</code>。運算元 A、B、C 的相對位置沒有改變，移動的只有運算子。由左往右，第一個出現的運算子是 +，但在後序中 + 排在最後，因為後面的 * 優先權比較高。<strong>原式中運算子的順序，在後序中反轉了</strong>。</p>
 <p>處理運算式時，運算子的右運算元還沒讀到，運算子必須先存起來；而且因為優先權，存起來的運算子可能要反轉順序。所以用 stack 保存運算子，等到需要時再取出。</p>
 <p><code>(A + B) * C</code> 的後序是 <code>A B + C *</code>。由左往右處理時同樣先看到 +；不同的是，讀到 * 的時候，+ 已經輸出了，因為括號讓它的優先權高於 *。轉換演算法讀到左括號時把它存起來，表示之後會有一個高優先權的運算子；這個運算子要等對應的右括號出現，才決定它的位置。右括號出現時，就從 stack 把運算子 pop 出來。</p>
-<p>假設中序式是一串以空白分隔的 token，運算子有 *、/、+、-，以及左右括號。演算法的核心迴圈如下：運算元直接輸出，運算子在 stack 上等待，直到讀到優先權較低的運算子：</p>
-{snippet('infixToPostfix 的核心迴圈', I2P_CORE, kind='fragment')}
+<p>假設中序式是一串以空白分隔的 token，運算子有 *、/、+、-，以及左右括號。stack 頂端永遠是最近存入的運算子，讀到新的運算子時，就拿它和頂端的運算子比較優先權。下面四步會得到後序的 token 串：</p>
+{steps}
 {figure('i2p-trace')}
+<p>演算法的核心迴圈如下：運算元直接輸出，運算子在 stack 上等待，直到讀到優先權較低的運算子：</p>
+{snippet('infixToPostfix 的核心迴圈', I2P_CORE, kind='fragment')}
 {fold('逐 token 追蹤 A * B + C * D 的文字表', trace)}
 <p>下面的動畫可以逐步觀察三個例子；右側的程式是動畫所用的簡化流程。</p>'''
 

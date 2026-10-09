@@ -66,3 +66,7 @@
 ## 2026-10-09 讀者審閱修正（gen 區外）
 
 - `searching_sorting.html` 的 TOC 末段改成 REF → SUP → SUM → QUIZ → CARD，與 DOM 順序一致。其餘修正都在產生器來源，見 `docs/verification/20261009-reading/fixes-ch7-9.md`。
+
+## 2026-10-09 第二輪讀者審閱修正（gen 區外）
+
+- 主 script 的動畫產生器（`genBinarySearch`、`genSelectionSort`、`genShellSort`、`genMergeSort`、`genQuickSort`）改了狀態列訊息與 `pcLine`，對齊面板新的 `data-l`；`initShell` 切換 Hibbard 時改寫 `#shellCode` 第 2 行；雜湊鏈結法搜尋空鏈時比較次數為 0。面板 HTML 本身在 `search_legacy.py`。細節見 `docs/verification/20261009-reading/fixes-ch7-9-round2.md`。

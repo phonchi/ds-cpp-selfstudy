@@ -411,7 +411,11 @@ def supplement():
     k = k if k > a else b
     lead, part_a, part_b = body[:a], body[a:k], body[k:]
     return (lead + fold('A. 平方探查全程追蹤', part_a.rstrip('\n'))
-            + '\n' + fold('B. put() 的 4 個分支', part_b.rstrip('\n')))
+            + '\n' + fold('B. put() 會遇到的 4 種情況', part_b.rstrip('\n')))
+
+
+# FAQ entries that come straight from the lecture notes (no （補充） tag).
+IN_NOTES = {'二分搜尋一定比循序搜尋好嗎？', 'get 回傳空字串，怎麼知道 key 到底在不在？'}
 
 
 def recap():
@@ -427,7 +431,7 @@ def recap():
         ('哪些排序是穩定的？',
          '<p>本章的實作中，氣泡排序、插入排序與合併排序是穩定的：相等的元素不會被交換或移到彼此前面。選擇排序、希爾排序與快速排序會把元素跨過一段距離交換，相等元素的順序可能改變。</p>'),
     ]
-    faq = ''.join(details(f'{q}（補充）', a, cls='srch-detail srch-faq') for q, a in qa)
+    faq = ''.join(details(q if q in IN_NOTES else f'{q}（補充）', a, cls='srch-detail srch-faq') for q, a in qa)
     return f'''<ul class="srch-ul srch-recap">
 <li>搜尋回答「在不在」。<code>std::find</code> 與循序搜尋逐一比對，都是 $O(n)$；資料已排序時，循序搜尋可以提前停止，但仍是 $O(n)$。</li>
 <li>二分搜尋每次比較中間的值，排除一半的範圍，是 $O(\\log n)$；前提是資料已排序。遞迴版傳索引範圍 <code>first</code>、<code>last</code>，不複製子 vector。</li>

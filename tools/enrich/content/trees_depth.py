@@ -396,7 +396,7 @@ def traversals():
 <p>想從頭到尾讀完這本書，前序走訪的順序就是閱讀順序：從根 Book 開始，遞迴走左子樹 Chapter 1，再遞迴走它的左子樹 Section 1.1。Section 1.1 沒有子節點，回到 Chapter 1，接著走右子樹 Section 1.2，依序讀 Section 1.2.1、Section 1.2.2。Chapter 1 讀完後回到 Book，再用同樣的方式讀 Chapter 2。</p>
 <p>寫成外部函式的前序走訪很簡潔：base case 只有 <code>tree == NULL</code>；否則先印出根，再遞迴走左子樹與右子樹。對前面的解析樹，它印出 <code>+ 3 * 4 5</code>，也就是運算式的前序（prefix）形式。</p>
 {snip('preorder（binarytree.hpp）', PREORDER)}
-{program('講義的書本樹：以 BinaryTree 建立並做前序走訪', '書本樹的前序走訪', 'book',
+{program('完整程式：以 BinaryTree 建立書本樹並做前序走訪', '書本樹的前序走訪', 'book',
          note='輸出就是閱讀順序。下方動畫選「講義：書的章節樹」，可以一步一步看這個順序與呼叫堆疊。')}
 <h3>成員函式版與外部函式版</h3>
 <p><code>preorder</code> 也可以寫成 <code>BinaryTree</code> 的成員函式，作用在 <code>this</code> 上。這時候不能對 <code>NULL</code> 呼叫成員函式，所以遞迴之前要先檢查 <code>leftChild</code>、<code>rightChild</code> 是不是 <code>NULL</code>：</p>
@@ -411,7 +411,7 @@ def traversals():
 <h3>中序走訪</h3>
 <p>中序走訪先走左子樹，再拜訪根，最後走右子樹。對解析樹，它印出 <code>3 + 4 * 5</code>，是熟悉的中序（infix）形式，但少了括號。</p>
 {snip('inorder（binarytree.hpp）', INORDER)}
-{program('講義的走訪函式：對解析樹做三種走訪與 postordereval', '三種走訪與 postordereval', 'traversals',
+{program('完整程式：對解析樹做三種走訪與 postordereval', '三種走訪與 postordereval', 'traversals',
          note='前序得到 prefix、中序得到 infix、後序得到 postfix；<code>postordereval</code> 依後序的順序計算，結果和 <code>evaluate</code> 一樣是 23。')}'''
     ex1_extra = ('<p>葉節點的左右子樹都是 <code>NULL</code>。在加括號之前先檢查這件事，葉節點就直接回傳數字本身；'
                  '其他節點照原本的方式在兩側加括號。</p>')
@@ -512,7 +512,9 @@ def heap():
         ['<code>buildHeap(values)</code>', '由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。'],
     ])}
 {program('講義完整程式：插入 5、7、3、11 再逐一取出', '講義 09 · BinaryHeap', 'heap_basic',
-         note='不管以什麼順序插入，每次取出的都是目前最小的值。')}'''
+         note='不管以什麼順序插入，每次取出的都是目前最小的值。')}
+{program('講義完整程式：buildHeap 之後用 findMin、size 與 delMin', '講義 09 · findMin、size 與 delMin', 'heap_ops',
+         note='第一行是 <code>findMin()</code> 與 <code>size()</code>：最小值 3 在根，堆積裡有 10 個元素，<code>findMin()</code> 不會移除它。第二行反覆呼叫 <code>delMin()</code>，每次取出剩下的最小值，所以剛好由小到大印出。')}'''
     figs = f'''<h3>完全二元樹與 vector 表示法</h3>
 <p>為了保證對數時間，樹必須保持<strong>平衡</strong>：根的左右子樹節點數大致相同。堆積用<strong>完全二元樹</strong>（complete binary tree）來維持平衡：除了最底層之外每一層都填滿，最底層由左往右填。</p>
 {figure('compTree')}
@@ -532,7 +534,7 @@ def heap():
 {figure('percDown1')}
 {steps('percDown 的三次交換', ['percDown2', 'percDown3', 'percDown4'])}
 {snip('percDown、getMinChild 與 delMin', PERCDOWN)}
-{program('對照圖：在圖中的 heap 插入 7，以及執行 delMin', '圖中的 heap：insert 與 delMin', 'heap_figs',
+{program('完整程式：在圖中的 heap 插入 7，以及執行 delMin', '圖中的 heap：insert 與 delMin', 'heap_figs',
          note='第一行是插入 7 之後的 vector：7 換到索引 1，9 和 18 各往下一層。第二、三行是另一份同樣的 heap 執行 delMin：回傳 5，27 從根沉到索引 8。')}'''
     build = f'''<h3>buildHeap：由下往上建堆</h3>
 <p>一種建堆的方法是逐一插入 $n$ 個鍵。每次 <code>insert()</code> 接在尾端，最壞要往上浮過整個樹高，所以每次 $O(\\log n)$，逐一插入共 $O(n\\log n)$。插入並不需要把元素塞進排序好的 vector 中間；順序性質只規範父節點和子節點。</p>
@@ -540,7 +542,7 @@ def heap():
 {snip('heapify（buildHeap）', HEAPIFY_CODE)}
 {figure('buildheap')}
 <p>當 <code>i = 0</code> 時，從根往下沉可能要跨好幾層。<code>percDown()</code> 每次交換後都會再檢查較小的子節點，所以 9 會一直往下移，直到最底層。</p>
-{program('講義例子：buildHeap({9, 6, 5, 2, 3})', 'buildHeap 小例子', 'build_small',
+{program('完整程式：buildHeap({9, 6, 5, 2, 3})', 'buildHeap 小例子', 'build_small',
          note='輸出和圖的最後一棵樹一致。在上面的動畫按「講義：buildHeap [9, 6, 5, 2, 3]」可以逐步看 <code>i = 1</code>、<code>i = 0</code> 兩輪。')}
 {program('講義完整程式：heapify 十個數', '講義 09 · heapify', 'heapify',
          note='每個父節點都不大於子節點，例如索引 1 的 4 小於索引 3、4 的 5 和 12；但整個 vector 並沒有排序。')}
@@ -594,14 +596,14 @@ TREENODE = '''class TreeNode {
         bool isRightChild() {
             return parent != NULL && parent->rightChild == this;
         }
-        bool isRoot() {
-            return parent == NULL;
-        }
         bool isLeaf() {
             return leftChild == NULL && rightChild == NULL;
         }
         bool hasAnyChild() {
             return leftChild != NULL || rightChild != NULL;
+        }
+        bool hasBothChildren() {
+            return leftChild != NULL && rightChild != NULL;
         }
 };'''
 
@@ -684,7 +686,7 @@ def bst():
 <p>鍵重複時採用 <strong>insert-or-assign</strong>：只替換既有的值，不建立新節點，<code>size</code> 也不變，符合 Map ADT 的語意。課程標頭用明確的 <code>put(key, value)</code>，例如 <code>myTree.put("a", "apple")</code>，再用 <code>myTree.get("a")</code> 取值；沒有提供 <code>operator[]</code>。</p>
 {figure('bstput')}'''
     get = f'''<h3>get 與 contains</h3>
-<p><code>get()</code> 比 <code>put()</code> 更簡單：遞迴往下找，找到相同的鍵就回傳節點的值，走到空指標就表示不存在。私有輔助函式 <code>_get()</code> 回傳的是 <code>TreeNode*</code>，所以 <code>get()</code>、<code>contains()</code> 與 <code>remove()</code> 都能重用同一段搜尋。</p>
+<p><code>get()</code> 比 <code>put()</code> 更簡單：遞迴往下找，找到相同的鍵就回傳節點的值，走到空指標就表示不存在。輔助函式 <code>_get()</code> 回傳的是 <code>TreeNode*</code>，所以 <code>get()</code>、<code>contains()</code> 與 <code>remove()</code> 都能重用同一段搜尋。</p>
 {snip('get、_get 與 contains', GET)}'''
     return fill('bst', {'ops': ops, 'impl': impl, 'get': get})
 
@@ -859,7 +861,7 @@ def avl():
 <li>子樹需要右旋時，先檢查左子的平衡因子。左子是右重的話，先對左子做左旋，再做原本的右旋。</li>
 </ol>
 {figure('rotatelr')}
-<p>右欄的 <code>rebalance</code> 就是這兩條規則。重新平衡的成本：新節點插在葉節點，往上更新平衡因子最多 $\\log_2 n$ 次，每層一次；發現不平衡時最多兩次旋轉，每次 $O(1)$。所以 <code>put</code> 仍然是 $O(\\log_2 n)$，<code>get</code> 也保持 $O(\\log_2 n)$。刪除節點以及之後的更新與重新平衡，留作練習。</p>
+<p>右欄的 <code>rebalance</code> 就是這兩條規則。重新平衡的成本：新節點插在葉節點，往上更新平衡因子最多走過樹高 $h = O(\\log n)$ 層，每層一次（AVL 樹的高度最多約 $1.44\\log_2 n$）；發現不平衡時最多兩次旋轉，每次 $O(1)$。所以 <code>put</code> 仍然是 $O(\\log_2 n)$，<code>get</code> 也保持 $O(\\log_2 n)$。刪除節點以及之後的更新與重新平衡，留作練習。</p>
 {quiz('avl1')}
 {quiz('avl2')}'''
     return fill('avl', {'bf': bf, 'perf': perf, 'rot': rot, 'bfd': bfd})
@@ -890,7 +892,7 @@ def recap():
 <li>二元樹的每個節點最多兩個子節點。課程用節點與參考實作 <code>BinaryTree</code>：<code>key</code> 加上 <code>leftChild</code>、<code>rightChild</code> 兩個指標，<code>NULL</code> 表示空子樹；<code>insertLeft</code>／<code>insertRight</code> 遇到既有子節點時把它往下推一層。</li>
 <li>解析樹把運算式的結構表示成樹：運算子在內部節點、數字在葉節點。<code>buildParseTree</code> 用四條規則加上一個 parent stack 建樹，<code>evaluate</code> 遞迴地先算左右子樹再套用運算子。</li>
 <li>三種走訪只差在拜訪根的時機：前序（根、左、右）、中序（左、根、右）、後序（左、右、根）。解析樹的後序就是求值的順序（<code>postordereval</code>），中序加括號就是 <code>printExp</code>。</li>
-<li>二元堆積是存在 vector 裡的完全二元樹：索引 $p$ 的子節點在 $2p+1$、$2p+2$，父節點在 <code>(i - 1) / 2</code>。<code>insert</code> 接在尾端再 <code>percUp</code>，<code>delMin</code> 把最後一個搬到根再 <code>percDown</code>，都是 $O(\\log n)$；由下往上的 <code>buildHeap</code> 是 $O(n)$。</li>
+<li>二元堆積是存在 vector 裡的完全二元樹：索引 $i$ 的子節點在 $2i+1$、$2i+2$，父節點在 <code>(i - 1) / 2</code>。<code>insert</code> 接在尾端再 <code>percUp</code>，<code>delMin</code> 把最後一個搬到根再 <code>percDown</code>，都是 $O(\\log n)$；由下往上的 <code>buildHeap</code> 是 $O(n)$。</li>
 <li>BST 滿足左子樹的鍵都比較小、右子樹的鍵都比較大。<code>put</code>、<code>get</code>、<code>contains</code>、<code>remove</code> 都沿著一條路徑走，成本是 $O(h)$；鍵重複時 <code>put</code> 只更新值。刪除分三種情況：葉節點、一個子節點、兩個子節點（用後繼者取代）。</li>
 <li>隨機插入時 BST 的高度約為 $\\log_2 n$，但依排序好的順序插入會退化成高度 $n-1$ 的鏈，操作變成 $O(n)$。</li>
 <li>AVL 樹要求每個節點的平衡因子（左子樹高度減右子樹高度）是 -1、0 或 1，用旋轉維持平衡，高度上界約 $1.44\\log_2 n$，所有 map 操作都是 $O(\\log n)$。</li>

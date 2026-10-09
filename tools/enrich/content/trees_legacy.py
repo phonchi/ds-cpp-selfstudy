@@ -382,17 +382,21 @@ LEGACY['heap'] = r'''  <p>優先佇列每次取出優先權最高的元素。若
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
         <div class="pseudo-code" id="heapCode" style="font-size:.74rem;"><span class="line"><span class="com">// BinaryHeap 的成員函式（binaryheap.hpp）</span></span>
-<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">percUp</span>(<span class="kw">int</span> i) {</span>
-<span class="line" data-l="2">    <span class="kw">while</span> (i &gt; <span class="num">0</span>) {</span>
-<span class="line" data-l="3">        <span class="kw">int</span> parentIdx = (i - <span class="num">1</span>) / <span class="num">2</span>;</span>
-<span class="line" data-l="4">        <span class="kw">if</span> (heap[i] &lt; heap[parentIdx]) {</span>
-<span class="line" data-l="5">            <span class="fn">swap</span>(heap[i], heap[parentIdx]);</span>
-<span class="line">        } <span class="kw">else</span> {</span>
-<span class="line">            <span class="kw">break</span>;</span>
-<span class="line">        }</span>
-<span class="line" data-l="6">        i = parentIdx;</span>
-<span class="line">    }</span>
-<span class="line">}</span></div>
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> item) {</span>
+<span class="line" data-l="2">    heap.<span class="fn">push_back</span>(item);</span>
+<span class="line" data-l="3">    <span class="fn">percUp</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);</span>
+<span class="line" data-l="4">}</span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">percUp</span>(<span class="kw">int</span> i) {</span>
+<span class="line" data-l="6">    <span class="kw">while</span> (i &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="7">        <span class="kw">int</span> parentIdx = (i - <span class="num">1</span>) / <span class="num">2</span>;</span>
+<span class="line" data-l="8">        <span class="kw">if</span> (heap[i] &lt; heap[parentIdx]) {</span>
+<span class="line" data-l="9">            <span class="fn">swap</span>(heap[i], heap[parentIdx]);</span>
+<span class="line" data-l="10">        } <span class="kw">else</span> {</span>
+<span class="line" data-l="11">            <span class="kw">break</span>;</span>
+<span class="line" data-l="12">        }</span>
+<span class="line" data-l="13">        i = parentIdx;</span>
+<span class="line" data-l="14">    }</span>
+<span class="line" data-l="15">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">複雜度</div>
@@ -503,7 +507,7 @@ LEGACY['bst'] = r'''  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>
 
   <div class="info-box warm">
     <span class="info-label">build BST 的順序很重要</span>
-    把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵還算平衡的 BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。這就是下一節要解決的問題。
+    把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵還算平衡的 BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。<a href="#bst-analysis">BST 的限制</a>一節會分析這種退化，<a href="#avl">AVL Tree</a> 一節再說明怎麼避免。
   </div>
 {{slot:get}}
 
@@ -562,21 +566,27 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
         <div class="ic-row"><span class="ic-label">階段</span><span class="ic-value" id="delPhase">—</span></div>
       </div>
       <div class="info-card">
-        <div class="ic-title">findSuccessor <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <details class="tree-detail tree-code-fold"><summary>程式：findSuccessor</summary><div class="pseudo-code" style="font-size:.74rem;">
-<span class="line">TreeNode* <span class="fn">findSuccessor</span>() {</span>
-<span class="line">    <span class="kw">if</span> (rightChild != <span class="num">NULL</span>) {</span>
-<span class="line">        <span class="kw">return</span> rightChild-&gt;<span class="fn">findMin</span>();</span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">return</span> <span class="num">NULL</span>;</span>
-<span class="line">}</span>
-<span class="line">TreeNode* <span class="fn">findMin</span>() {</span>
-<span class="line">    TreeNode* cur = <span class="kw">this</span>;</span>
-<span class="line">    <span class="kw">while</span> (cur-&gt;leftChild != <span class="num">NULL</span>) {</span>
-<span class="line">        cur = cur-&gt;leftChild;</span>
-<span class="line">    }</span>
-<span class="line">    <span class="kw">return</span> cur;</span>
-<span class="line">}</span></div></details>
+        <div class="ic-title">刪除流程與 findSuccessor <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
+        <div class="pseudo-code" id="delCode" style="font-size:.72rem;"><span class="line" data-l="1">TreeNode* currentNode = <span class="fn">_get</span>(key, root);</span>
+<span class="line" data-l="2"><span class="kw">if</span> (currentNode-&gt;<span class="fn">isLeaf</span>()) {               <span class="com">// Case 1</span></span>
+<span class="line" data-l="3">    <span class="com">// 父節點指向它的指標改成 NULL</span></span>
+<span class="line" data-l="4">} <span class="kw">else if</span> (currentNode-&gt;<span class="fn">hasBothChildren</span>()) { <span class="com">// Case 3</span></span>
+<span class="line" data-l="5">    TreeNode* successor = currentNode-&gt;<span class="fn">findSuccessor</span>();</span>
+<span class="line" data-l="6">    successor-&gt;<span class="fn">spliceOut</span>();</span>
+<span class="line" data-l="7">    currentNode-&gt;key = successor-&gt;key;   <span class="com">// value 也一起搬</span></span>
+<span class="line" data-l="8">} <span class="kw">else</span> {                                  <span class="com">// Case 2</span></span>
+<span class="line" data-l="9">    <span class="com">// 唯一的子節點接到父節點原本指向它的位置</span></span>
+<span class="line" data-l="10">}</span>
+<span class="line" data-l="11">TreeNode* <span class="fn">findSuccessor</span>() {</span>
+<span class="line" data-l="12">    <span class="kw">if</span> (rightChild != <span class="num">NULL</span>) <span class="kw">return</span> rightChild-&gt;<span class="fn">findMin</span>();</span>
+<span class="line" data-l="13">    <span class="kw">return</span> <span class="num">NULL</span>;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15">TreeNode* <span class="fn">findMin</span>() {</span>
+<span class="line" data-l="16">    TreeNode* cur = <span class="kw">this</span>;</span>
+<span class="line" data-l="17">    <span class="kw">while</span> (cur-&gt;leftChild != <span class="num">NULL</span>)</span>
+<span class="line" data-l="18">        cur = cur-&gt;leftChild;</span>
+<span class="line" data-l="19">    <span class="kw">return</span> cur;</span>
+<span class="line" data-l="20">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">圖例</div>
@@ -743,7 +753,7 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
         <div class="ic-title">當前情境 <span class="ic-badge">CASE</span></div>
         <div class="ic-row"><span class="ic-label">不平衡類型</span><span class="ic-value highlight" id="avlCase">LL</span></div>
         <div class="ic-row"><span class="ic-label">解法</span><span class="ic-value" id="avlFix">右旋 (Right Rotate)</span></div>
-        <div class="ic-row"><span class="ic-label">當前節點 bf</span><span class="ic-value" id="avlBf">—</span></div>
+        <div class="ic-row"><span class="ic-label">平衡因子 bf</span><span class="ic-value" id="avlBf">—</span></div>
         <div class="ic-row"><span class="ic-label">階段</span><span class="ic-value" id="avlPhase">—</span></div>
       </div>
       <div class="info-card">

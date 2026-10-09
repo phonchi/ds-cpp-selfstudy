@@ -190,7 +190,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
         </div>
         <div class="input-row">
           <label>批次：</label>
-          <input type="text" id="hashBatch" value="54, 26, 93, 17, 77, 31" style="flex:1;">
+          <input type="text" id="hashBatch" value="54, 26, 93, 17, 77, 31, 44, 55, 20" style="flex:1;">
           <button class="btn btn-shuffle" id="hashBatchInsert">全部插入</button>
         </div>
       </div>
@@ -219,8 +219,8 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
       <div class="info-card">
         <div class="ic-title">複雜度</div>
         <div class="ic-row"><span class="ic-label">理想 (無碰撞)</span><span class="ic-value">$O(1)$</span></div>
-        <div class="ic-row"><span class="ic-label">線性探查 search</span><span class="ic-value">$\frac{1}{2}\!\left(1+\frac{1}{1-\lambda}\right)$</span></div>
-        <div class="ic-row"><span class="ic-label">鏈結法 search</span><span class="ic-value">$1 + \lambda/2$</span></div>
+        <div class="ic-row"><span class="ic-label">線性探查成功搜尋</span><span class="ic-value">$\frac{1}{2}\!\left(1+\frac{1}{1-\lambda}\right)$</span></div>
+        <div class="ic-row"><span class="ic-label">鏈結法成功搜尋</span><span class="ic-value">$1 + \lambda/2$</span></div>
       </div>
     </div>
   </div>
@@ -232,7 +232,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
         <div class="ic-title">折疊法 folding method</div>
         <div style="font-size:.84rem;line-height:1.65;">
           把 item 切成<strong>等長的片段</strong>，加總後再取餘數。例如電話號碼 <code>436-555-4601</code> 切成 <code>43, 65, 55, 46, 01</code>，加總得 $210$；除以 11 得 $h = 210 \bmod 11 = 1$。<br>
-          進階：<strong>反轉版本</strong>把每隔一片反過來再相加，例如 <code>34 + 56 + 55 + 64 + 10 = 219 → 219 mod 11 = 10</code>。
+          進階：<strong>反轉版本</strong>把每隔一片反過來再相加，例如 <code>43 + 56 + 55 + 64 + 01 = 219 → 219 mod 11 = 10</code>。
         </div>
       </div>
       <div class="info-card">
@@ -422,7 +422,7 @@ LEGACY['selection'] = r'''  <p><strong>Selection sort</strong> 的比較次數�
       </div>
       <div class="info-card">
         <div class="ic-title">虛擬碼</div>
-        <div class="pseudo-code" id="selCode"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">selectionSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a) {</span><span class="line" data-l="2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> fill = a.<span class="fn">size</span>() - <span class="num">1</span>; fill &gt; <span class="num">0</span>; --fill) {</span><span class="line" data-l="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> maxPos = <span class="num">0</span>;</span><span class="line" data-l="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">1</span>; j &lt;= fill; ++j) {</span><span class="line" data-l="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (a[j] &gt; a[maxPos])</span><span class="line" data-l="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxPos = j;</span><span class="line" data-l="7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line" data-l="8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">swap</span>(a[maxPos], a[fill]);</span><span class="line" data-l="9">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line" data-l="10">}</span></div>
+        <div class="pseudo-code" id="selCode"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">selectionSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a) {</span><span class="line" data-l="2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> fill = a.<span class="fn">size</span>() - <span class="num">1</span>; fill &gt; <span class="num">0</span>; --fill) {</span><span class="line" data-l="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> maxPos = <span class="num">0</span>;</span><span class="line" data-l="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">1</span>; j &lt;= fill; ++j) {</span><span class="line" data-l="5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (a[j] &gt; a[maxPos])</span><span class="line" data-l="6">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxPos = j;</span><span class="line" data-l="7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line" data-l="8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (maxPos != fill)</span><span class="line" data-l="9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">swap</span>(a[maxPos], a[fill]);</span><span class="line" data-l="10">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line" data-l="11">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">複雜度</div>
@@ -599,7 +599,7 @@ LEGACY['merge'] = r'''  <p><strong>Merge sort</strong> 是一個遞迴演算法�
       </div>
       <div class="info-card">
         <div class="ic-title">虛擬碼</div>
-        <div class="pseudo-code" id="mergeCode"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">mergeSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a) {</span><span class="line" data-l="2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (a.<span class="fn">size</span>() &lt;= <span class="num">1</span>) <span class="kw">return</span>;</span><span class="line" data-l="3">&nbsp;&nbsp;&nbsp;&nbsp;size_t mid = a.<span class="fn">size</span>() / <span class="num">2</span>;</span><span class="line" data-l="4">&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;<span class="kw">int</span>&gt; left(a.<span class="fn">begin</span>(), a.<span class="fn">begin</span>() + mid);</span><span class="line" data-l="5">&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">mergeSort</span>(left);</span><span class="line" data-l="6">&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;<span class="kw">int</span>&gt; right(a.<span class="fn">begin</span>() + mid, a.<span class="fn">end</span>()); <span class="fn">mergeSort</span>(right);</span><span class="line" data-l="7">&nbsp;&nbsp;&nbsp;&nbsp;<span class="com">// merge left and right back into a</span></span><span class="line" data-l="8">&nbsp;&nbsp;&nbsp;&nbsp;size_t i = <span class="num">0</span>, j = <span class="num">0</span>, k = <span class="num">0</span>;</span><span class="line" data-l="9">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (i &lt; left.<span class="fn">size</span>() &amp;&amp; j &lt; right.<span class="fn">size</span>()) {</span><span class="line" data-l="10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (left[i] &lt;= right[j])</span><span class="line" data-l="11">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[k++] = left[i++];</span><span class="line" data-l="12">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span></span><span class="line" data-l="13">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[k++] = right[j++];</span><span class="line" data-l="14">&nbsp;&nbsp;&nbsp;&nbsp;} <span class="com">// then copy either remaining tail</span></span><span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (i &lt; left.<span class="fn">size</span>()) a[k++] = left[i++];</span><span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (j &lt; right.<span class="fn">size</span>()) a[k++] = right[j++];</span><span class="line" data-l="15">}</span></div>
+        <div class="pseudo-code" id="mergeCode"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">mergeSort</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a) {</span><span class="line" data-l="2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (a.<span class="fn">size</span>() &lt;= <span class="num">1</span>) <span class="kw">return</span>;</span><span class="line" data-l="3">&nbsp;&nbsp;&nbsp;&nbsp;size_t mid = a.<span class="fn">size</span>() / <span class="num">2</span>;</span><span class="line" data-l="4">&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;<span class="kw">int</span>&gt; left(a.<span class="fn">begin</span>(), a.<span class="fn">begin</span>() + mid);</span><span class="line" data-l="5">&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">mergeSort</span>(left);</span><span class="line" data-l="6">&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;<span class="kw">int</span>&gt; right(a.<span class="fn">begin</span>() + mid, a.<span class="fn">end</span>()); <span class="fn">mergeSort</span>(right);</span><span class="line" data-l="7">&nbsp;&nbsp;&nbsp;&nbsp;<span class="com">// merge left and right back into a</span></span><span class="line" data-l="8">&nbsp;&nbsp;&nbsp;&nbsp;size_t i = <span class="num">0</span>, j = <span class="num">0</span>, k = <span class="num">0</span>;</span><span class="line" data-l="9">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (i &lt; left.<span class="fn">size</span>() &amp;&amp; j &lt; right.<span class="fn">size</span>()) {</span><span class="line" data-l="10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (left[i] &lt;= right[j])</span><span class="line" data-l="11">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[k++] = left[i++];</span><span class="line" data-l="12">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span></span><span class="line" data-l="13">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a[k++] = right[j++];</span><span class="line" data-l="14">&nbsp;&nbsp;&nbsp;&nbsp;} <span class="com">// then copy either remaining tail</span></span><span class="line" data-l="15">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (i &lt; left.<span class="fn">size</span>()) a[k++] = left[i++];</span><span class="line" data-l="16">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (j &lt; right.<span class="fn">size</span>()) a[k++] = right[j++];</span><span class="line" data-l="17">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">複雜度</div>
@@ -673,7 +673,7 @@ LEGACY['quick'] = r'''  <p><strong>Quicksort</strong> 也是分而治之，但�
       </div>
       <div class="info-card">
         <div class="ic-title">虛擬碼</div>
-        <div class="pseudo-code" id="quickCode"><span class="line"><span class="kw">void</span> <span class="fn">quickSortHelper</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a, <span class="kw">int</span> first, <span class="kw">int</span> last) {</span><span class="line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (first &lt; last) {</span><span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> split = <span class="fn">partition</span>(a, first, last);</span><span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">quickSortHelper</span>(a, first, split - <span class="num">1</span>);</span><span class="line">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">quickSortHelper</span>(a, split + <span class="num">1</span>, last);</span><span class="line">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line">}</span></div>
+        <div class="pseudo-code" id="quickCode"><span class="line" data-l="1"><span class="kw">int</span> <span class="fn">partition</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a, <span class="kw">int</span> first, <span class="kw">int</span> last) {</span><span class="line" data-l="2">&nbsp;&nbsp;&nbsp;&nbsp;<span class="com">// median-of-three: move the median to a[first]</span></span><span class="line" data-l="3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> pivotVal = a[first];</span><span class="line" data-l="4">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> leftMark = first + <span class="num">1</span>, rightMark = last;</span><span class="line" data-l="5">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">bool</span> done = <span class="kw">false</span>;</span><span class="line" data-l="6">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (!done) {</span><span class="line" data-l="7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (leftMark &lt;= rightMark &amp;&amp; a[leftMark] &lt;= pivotVal) ++leftMark;</span><span class="line" data-l="8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (leftMark &lt;= rightMark &amp;&amp; a[rightMark] &gt;= pivotVal) --rightMark;</span><span class="line" data-l="9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (rightMark &lt; leftMark) done = <span class="kw">true</span>;</span><span class="line" data-l="10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span> <span class="fn">swap</span>(a[leftMark], a[rightMark]);</span><span class="line" data-l="11">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line" data-l="12">&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">swap</span>(a[first], a[rightMark]);</span><span class="line" data-l="13">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> rightMark;</span><span class="line" data-l="14">}</span><span class="line" data-l="15"><span class="kw">void</span> <span class="fn">quickSortHelper</span>(vector&lt;<span class="kw">int</span>&gt;&amp; a, <span class="kw">int</span> first, <span class="kw">int</span> last) {</span><span class="line" data-l="16">&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (first &lt; last) {</span><span class="line" data-l="17">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> split = <span class="fn">partition</span>(a, first, last);</span><span class="line" data-l="18">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">quickSortHelper</span>(a, first, split - <span class="num">1</span>);</span><span class="line" data-l="19">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">quickSortHelper</span>(a, split + <span class="num">1</span>, last);</span><span class="line" data-l="20">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span class="line" data-l="21">}</span></div>
       </div>
       <div class="info-card">
         <div class="ic-title">複雜度</div>
@@ -908,7 +908,7 @@ LEGACY['reference'] = r'''
       <tr><td>插入排序 Insertion</td><td class="best">$O(n)$</td><td>$O(n^2)$</td><td>$O(n^2)$</td><td>$O(1)$</td><td>✓</td><td>✓</td></tr>
       <tr><td>希爾排序 Shell</td><td>$O(n\log n)$</td><td>依 gap 序列而定 †</td><td>$O(n^2)$</td><td>$O(1)$</td><td>✗</td><td>✓</td></tr>
       <tr><td>合併排序 Merge</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="worst">$O(n)$</td><td>✓</td><td>✗</td></tr>
-      <tr><td>快速排序 Quick</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="worst">$O(n^2)$</td><td>$O(\log n)$</td><td>✗</td><td>✓</td></tr>
+      <tr><td>快速排序 Quick</td><td class="best">$O(n\log n)$</td><td class="best">$O(n\log n)$</td><td class="worst">$O(n^2)$</td><td>$O(\log n)$ 期望，最差 $O(n)$</td><td>✗</td><td>✓</td></tr>
     </tbody>
   </table></div>
   <p style="font-size:.82rem;color:var(--muted);">★ 氣泡排序的 $O(n)$ 最佳情況需要使用<strong>「短路最佳化」</strong>（一輪沒交換就停）。<br>† 希爾排序的複雜度取決於 gap 序列。本章程式每次把 gap 折半（$n/2, n/4, \ldots, 1$），最差是 $O(n^2)$；改用 Hibbard 序列 $2^k-1$ 時，最差可降到 $O(n^{3/2})$。</p>
@@ -942,7 +942,7 @@ LEGACY['reference'] = r'''
   </div>
 '''
 
-LEGACY['supplement'] = r'''  <p>這一節把兩個容易卡住的地方一步一步追蹤一次：（A）平方探查把 44、55、20 放進表裡時，為什麼會落在那些位置；（B）Map ADT 的 <code>put()</code> 為什麼有 4 個 if/else 分支、每個分支什麼時候會被觸發，以及哪一種才是真正的 collision。</p>
+LEGACY['supplement'] = r'''  <p>這一節把兩個容易卡住的地方一步一步追蹤一次：（A）平方探查把 44、55、20 放進表裡時，為什麼會落在那些位置；（B）Map ADT 的 <code>put()</code> 會遇到的 4 種情況、每種情況什麼時候會發生，以及哪一種才是真正的 collision。</p>
 
   <!-- ============= PART A : quadratic probing trace ============= -->
   <h3 id="sup-quadratic" style="margin-top:1.5rem;">A. Quadratic probing 全程追蹤（m = 11）</h3>
@@ -1009,7 +1009,7 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
 
 
   <!-- ============= PART B : Map ADT put() 4 branches ============= -->
-  <h3 id="sup-put" style="margin-top:2rem;">B. Map ADT <code>put()</code> 的 4 個分支（最容易跟 collision 搞混的地方）</h3>
+  <h3 id="sup-put" style="margin-top:2rem;">B. Map ADT <code>put()</code> 會遇到的 4 種情況（最容易跟 collision 搞混的地方）</h3>
 
   <div class="info-box warm">
     <span class="info-label">先講清楚：什麼是 collision、什麼不是？</span>
@@ -1019,12 +1019,12 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
     <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table" style="margin-top:.8rem;">
       <thead><tr><th>狀況</th><th>兩個 item 的 hash 值</th><th>是同一個 key 嗎？</th><th>這算 collision 嗎？</th><th><code>put</code> 要做的事</th></tr></thead>
       <tbody>
-        <tr><td>情況一</td><td>相同（必然）</td><td>是（同 key 重複 put）</td><td><span class="pill pill-green">不是</span></td><td>直接覆寫舊值（字典「同 key 重新指定值」的語意）</td></tr>
-        <tr><td>情況二</td><td><strong>相同</strong>（hash 撞到了）</td><td><strong>否</strong>（不同 key）</td><td><span class="pill pill-orange">是</span></td><td>啟動 rehash 探查，找下一個位置</td></tr>
-        <tr><td>情況三</td><td>不同</td><td>否</td><td><span class="pill pill-green">不是</span></td><td>各走各的 slot，互不相干</td></tr>
+        <tr><td>狀況一</td><td>相同（必然）</td><td>是（同 key 重複 put）</td><td><span class="pill pill-green">不是</span></td><td>直接覆寫舊值（字典「同 key 重新指定值」的語意）</td></tr>
+        <tr><td>狀況二</td><td><strong>相同</strong>（hash 撞到了）</td><td><strong>否</strong>（不同 key）</td><td><span class="pill pill-orange">是</span></td><td>啟動 rehash 探查，找下一個位置</td></tr>
+        <tr><td>狀況三</td><td>不同</td><td>否</td><td><span class="pill pill-green">不是</span></td><td>各走各的 slot，互不相干</td></tr>
       </tbody>
     </table></div>
-    <p style="margin-top:.5rem;font-size:.92em;">情況一、二在程式裡都會遇到「<code>slots[hash]</code> 已經有東西」，但只有情況二是真正的 collision：差別在於被佔的 slot 裡放的 key，跟要放入的 key 是不是同一個。</p>
+    <p style="margin-top:.5rem;font-size:.92em;">狀況一、二在程式裡都會遇到「<code>slots[hash]</code> 已經有東西」，但只有狀況二是真正的 collision：差別在於被佔的 slot 裡放的 key，跟要放入的 key 是不是同一個。</p>
   </div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">課程強化版本的 <code>put()</code>：探查一圈就停</h4>
@@ -1045,7 +1045,7 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
 <span class="line">}</span></div>
   <p style="font-size:.9rem;color:var(--muted);">教科書的基本版若只寫「找到空槽或同 key 才停」，滿表時會無限繞圈。課程 header 用起點作哨兵：完整探查一圈後明確丟出 <code>overflow_error</code>。</p>
 
-  <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">把 4 個分支按「碰撞 / 探查」分類</h4>
+  <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">把 4 種情況按「碰撞 / 探查」分類</h4>
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th></th><th>hash 第一次命中（無探查）</th><th>rehash 探查之後</th></tr></thead>
     <tbody>
@@ -1054,11 +1054,11 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
     </tbody>
   </table></div>
 
-  <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">情境設定：4 步剛好走 4 個分支</h4>
-  <p><code>HashTable h(11);</code>，<code>hash = key % 11</code>，<code>rehash = (p+1) % 11</code>。依序執行下列 4 條 <code>h.put(key, value)</code>，每一條剛好觸發一個分支：</p>
+  <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">情境設定：4 步剛好走過 4 種情況</h4>
+  <p><code>HashTable h(11);</code>，<code>hash = key % 11</code>，<code>rehash = (p+1) % 11</code>。依序執行下列 4 條 <code>h.put(key, value)</code>，每一條剛好遇到一種情況：</p>
 
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
-    <thead><tr><th>步驟</th><th>操作</th><th>hash</th><th>slots[hash]</th><th>走哪條分支</th><th>是 collision 嗎？</th><th>為何</th></tr></thead>
+    <thead><tr><th>步驟</th><th>操作</th><th>hash</th><th>slots[hash]</th><th>屬於哪種情況</th><th>是 collision 嗎？</th><th>為何</th></tr></thead>
     <tbody>
       <tr><td>1</td><td><code>h.put(77, "bird")</code></td><td>0</td><td><code>-1</code></td><td><strong>① 起始槽直接插入</strong></td><td>—</td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">slot 0 空，直接寫入，不必探查</td></tr>
       <tr><td>2</td><td><code>h.put(77, "eagle")</code></td><td>0</td><td><code>77</code></td><td><strong>② 起始槽直接更新</strong></td><td><span class="pill pill-green">否</span></td><td style="text-align:left;font-family:'Noto Sans TC',sans-serif;">slot 0 已有的 key 就是 77，屬於同 key 重新指定值，直接覆寫，<strong>不啟動 rehash</strong></td></tr>
@@ -1097,8 +1097,8 @@ step 4 (④ h.put(44, "lamb")):   ← 不是 collision，沿著 rehash 路徑找
     <span class="info-label">每個探查位置都要檢查哪兩件事？</span>
     每到一格都依序判斷：
     <ul style="margin:.4rem 0 .4rem 1.4rem;line-height:1.8;">
-      <li>撞到 <code>-1</code>（空槽）停 → 落到分支 ③（新插入）</li>
-      <li>撞到 <code>== key</code> 停 → 落到分支 ④（覆寫）</li>
+      <li>撞到 <code>-1</code>（空槽）停 → 屬於情況 ③（新插入）</li>
+      <li>撞到 <code>== key</code> 停 → 屬於情況 ④（覆寫）</li>
     </ul>
     <strong>不能只檢查空槽</strong>：否則「同 key 已在路徑上」時會繼續往下走，在另一格再寫一次，製造重複 key。也不能忘記「繞回起點」：滿表且 key 不存在時必須丟出 <code>overflow_error</code>，不能無限迴圈。
   </div>

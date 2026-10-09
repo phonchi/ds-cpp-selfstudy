@@ -171,6 +171,19 @@ int main() {
     return 0;
 }'''
 
+HEAP_OPS = '''#include <iostream>
+#include "pythonds3/cppds/binaryheap.hpp"
+using namespace std;
+
+int main() {
+    BinaryHeap heap;
+    heap.buildHeap({10, 4, 9, 8, 12, 15, 3, 5, 14, 18});
+    cout << heap.findMin() << " " << heap.size() << endl;
+    while (!heap.isEmpty()) cout << heap.delMin() << " ";
+    cout << endl;
+    return 0;
+}'''
+
 BUILD_SMALL = '''#include <iostream>
 #include "pythonds3/cppds/binaryheap.hpp"
 using namespace std;
@@ -298,7 +311,7 @@ int main() {
 
 RUN = {'binarytree': BINARYTREE, 'parse_inorder': PARSE_INORDER, 'evaluate': EVALUATE, 'book': BOOK,
        'traversals': TRAVERSALS, 'printexp': PRINTEXP, 'ex1_start': EX1_START, 'ex1': EX1_SOL,
-       'heap_basic': HEAP_BASIC, 'heap_figs': HEAP_FIGS, 'build_small': BUILD_SMALL, 'heapify': HEAPIFY,
+       'heap_basic': HEAP_BASIC, 'heap_ops': HEAP_OPS, 'heap_figs': HEAP_FIGS, 'build_small': BUILD_SMALL, 'heapify': HEAPIFY,
        'ex2': EX2_SOL, 'bst': BST, 'ex3': EX3_SOL}
 
 OUT = {  # exact stdout (trailing newline included when the program prints one)
@@ -311,6 +324,7 @@ OUT = {  # exact stdout (trailing newline included when the program prints one)
     'ex1_start': '((3)+((4)*(5)))\n',
     'ex1': '(3+(4*5))\n',
     'heap_basic': '3\n5\n7\n11\n',
+    'heap_ops': '3 10\n3 4 5 8 9 10 12 14 15 18 \n',
     'heap_figs': '5 7 11 14 9 19 21 33 17 27 18 \n5\n9 14 11 17 18 19 21 33 27 \n',
     'build_small': '2 3 5 6 9 \n',
     'heapify': '3 4 9 5 12 15 10 8 14 18 \n',

@@ -67,3 +67,8 @@
 ## 2026-10-09 讀者審閱修正（gen 區外）
 
 - 主 script 中 heap 動畫的三則狀態訊息 `perc_down` 改成 `percDown`。其餘修正都在產生器來源，見 `docs/verification/20261009-reading/fixes-ch7-9.md`。
+
+## 2026-10-09 第二輪讀者審閱修正（gen 區外）
+
+- 使用方式框：「選讀」「（補充）」的說明改為涵蓋 AVL 高度上界、段落與互動示範。
+- 主 script：nodes-refs 狀態列改用 C++ 寫法；走訪動畫逐格高亮；heap 依操作切換程式面板並逐格高亮、單步到最後一格停住；BST put/get 可從剛載入就單步；刪除動畫 target 欄、Case 3 先 splice 再搬 key、`#delCode` 高亮；AVL 每格文字描述當格的樹，bf 欄由樹算出。細節見 `docs/verification/20261009-reading/fixes-ch7-9-round2.md`。

@@ -582,7 +582,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
         <div class="ic-row"><span class="ic-label">subtree height</span><span class="ic-value" id="vocabHeight">—</span></div>
         <div class="ic-row"><span class="ic-label">is leaf?</span><span class="ic-value" id="vocabLeaf">—</span></div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>關鍵術語的整理</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">關鍵術語</div>
         <div style="font-size:.83rem;line-height:1.55;color:var(--ink);">
           <strong>Root</strong>：唯一沒有 parent 的節點。<br>
@@ -593,7 +593,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
           <strong>Level</strong>：root 到該節點的邊數。<br>
           <strong>Height</strong>：樹中任何節點的最大 level。
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 
@@ -778,11 +778,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     </div>
   </div>
 
-  <div class="info-box warm">
+  <details class="tree-detail"><summary>insertLeft 兩種情況的整理</summary><div class="tree-detail-body"><div class="info-box warm">
     <span class="info-label">注意 insertLeft 的兩種情況</span>
     <strong>Case 1（左邊空）：</strong>直接把新節點掛上去。<br>
     <strong>Case 2（左邊已有東西）：</strong>新節點插在中間，<strong>把原本的左子樹整個推到新節點的左邊一層</strong>。這個「往下推」的設計避免了破壞原本的子結構。<code>insertRight</code> 對稱地處理右邊。
-  </div>
+  </div></div></details>
 <h3 id="dx-voc">實際執行：建立根 a 與子節點 b、c</h3>
 <p>完整的類別在 <code>pythonds3/cppds/binarytree.hpp</code>。下面的程式建立根 <code>"a"</code>，再加上左子 <code>"b"</code> 與右子 <code>"c"</code>，最後把右子的值改成 <code>"hello"</code>。</p>
 <details class="tree-detail"><summary>講義完整程式：BinaryTree 的基本操作</summary><div class="tree-detail-body"><div class="deck-extra">
@@ -962,10 +962,10 @@ hello</pre></div><p class="dx-note">第二行的 0 是空的左子指標：<code
     </div>
   </div>
 
-  <div class="info-box green">
+  <details class="tree-detail"><summary>為什麼求值要用 postorder？（補充）</summary><div class="tree-detail-body"><div class="info-box green">
     <span class="info-label">為什麼求值要用 postorder？</span>
     要計算一個運算子節點的值，必須先有<strong>左右兩個子樹的值</strong>。這正好是 <strong>postorder（後序）</strong>的拜訪順序：先左子樹、再右子樹、最後 root。<code>evaluate</code> 其實就是 postorder 走訪，再加上在 root 執行運算；解析樹的求值是走訪演算法的一個特例。
-  </div>
+  </div></div></details>
 <h3>evaluate：遞迴求值</h3>
 <p>建好解析樹之後，可以利用樹的階層性質，<strong>遞迴地計算每一棵子樹</strong>來求出整個運算式的值。</p>
 <p>樹的遞迴演算法常用葉節點當作 base case。解析樹的葉節點一定是運算元，數字不需要再處理，直接回傳葉節點存的值即可。遞迴步驟是對左右兩個子節點呼叫 <code>evaluate</code>，每次呼叫都往葉節點靠近一層。最後把兩個遞迴呼叫的結果，用父節點存的運算子合起來。</p>
@@ -1126,14 +1126,14 @@ hello</pre></div><p class="dx-note">第二行的 0 是空的左子指標：<code
           <div class="stack-label">call stack ↓</div>
         </div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>三種走訪的用途（補充）</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">用途</div>
         <div style="font-size:.83rem;line-height:1.55;">
           <strong>Preorder</strong>：複製樹、序列化、目錄列表（先列父再進子）。<br>
           <strong>Inorder</strong>：BST 上得到<strong>排序輸出</strong>；解析樹上得到中序運算式。<br>
           <strong>Postorder</strong>：解析樹的<strong>運算式求值</strong>、刪除整棵樹（先刪 child 才能釋放 parent）。
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 <h3>後序走訪與 postordereval</h3>
@@ -1199,7 +1199,7 @@ hello</pre></div><p class="dx-note">第二行的 0 是空的左子指標：<code
 inorder:   3 + 4 * 5&#32;
 postorder: 3 4 5 * +&#32;
 postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得到 infix、後序得到 postfix；<code>postordereval</code> 依後序的順序計算，結果和 <code>evaluate</code> 一樣是 23。</p>
-  <div class="info-box warm">
+  <details class="tree-detail"><summary>小實驗：對解析樹 (3+(4*5)) 做三種走訪（補充）</summary><div class="tree-detail-body"><div class="info-box warm">
     <span class="info-label">小實驗：對解析樹 (3+(4*5)) 做三種走訪</span>
     <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.86rem;margin-top:.4rem;">
       <tr><td style="padding:.3rem;width:35%;"><strong>Preorder</strong></td><td>+ 3 * 4 5</td><td style="color:var(--muted);">前序（prefix）形式</td></tr>
@@ -1207,7 +1207,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
       <tr><td style="padding:.3rem;"><strong>Postorder</strong></td><td>3 4 5 * +</td><td style="color:var(--muted);">後序（postfix）形式</td></tr>
     </table></div>
     這也是<strong>後序式（RPN）</strong>能用 stack 直接計算的原因：照 postorder 的順序，可以一邊讀一邊算。
-  </div>
+  </div></div></details>
 <h3>printExp：還原完整括號</h3>
 <p>對解析樹做一般的中序走訪，得到的運算式沒有括號。稍微修改中序走訪的骨架，就能還原完整括號的版本：在遞迴走左子樹之前印左括號，走完右子樹之後印右括號。</p>
 <details class="tree-detail"><summary>程式：printExp（binarytree.hpp）</summary><div class="tree-detail-body"><div class="deck-extra">
@@ -1725,11 +1725,11 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <h3>Map ADT 的操作</h3>
 <div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinarySearchTree()</code></td><td>建立空的 map。</td></tr><tr><td><code>put(key, value)</code></td><td>插入一組鍵值對；鍵已經存在時，改成新的值。</td></tr><tr><td><code>get(key)</code></td><td>回傳鍵對應的值；這個簡化的字串版本在鍵不存在時回傳 <code>""</code>。</td></tr><tr><td><code>remove(key)</code></td><td>刪除一組鍵值對；鍵不存在時丟出 <code>invalid_argument</code>。</td></tr><tr><td><code>length()</code></td><td>回傳不同鍵的個數。</td></tr><tr><td><code>contains(key)</code></td><td>回傳 <code>bool</code>，表示鍵在不在樹中。</td></tr></tbody></table></div>
 
-  <div class="info-box">
+  <details class="tree-detail"><summary>Map 的規則與節點的擁有權（補充）</summary><div class="tree-detail-body"><div class="info-box">
     <span class="info-label">Map 的規則與節點的擁有權</span>
     <code>put(key, value)</code> 遇到重複的 key 時<strong>更新 value、不增加 size</strong>。<code>remove()</code> 會釋放被移除的節點；整棵樹有 destructor、deep copy 與 move，避免兩個物件共用同一批節點。
     平衡樹的子類別透過 protected virtual 的 <code>insertOrAssign()</code> 擴充插入，不會繞過公開的 <code>put()</code> 對 size 的計算。
-  </div>
+  </div></div></details>
 
   <div class="info-box">
     <span class="info-label">BST 性質（BST property）</span>
@@ -1866,7 +1866,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
       </div>
       <div class="info-card">
         <div class="ic-title" id="bstCodeTitle">虛擬碼 — put <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <div class="pseudo-code" id="bstCode" style="font-size:.73rem;">
+        <details class="tree-detail tree-code-fold"><summary>程式：put 的簡化版（展開後可看動畫逐行高亮）</summary><div class="pseudo-code" id="bstCode" style="font-size:.73rem;">
 <span class="line"><span class="kw">#include</span> &lt;string&gt;</span>
 <span class="line"><span class="kw">struct</span> TreeNode {</span>
 <span class="line">    std::string key, value;</span>
@@ -1887,15 +1887,15 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <span class="line" data-l="11">            currentNode->rightChild = <span class="kw">new</span> <span class="fn">TreeNode</span>(key, value, currentNode);</span>
 <span class="line">    }</span>
 <span class="line">}</span>
-</div>
+</div></details>
       </div>
     </div>
   </div>
 
-  <div class="info-box warm">
+  <details class="tree-detail"><summary>build BST 的順序很重要（補充）</summary><div class="tree-detail-body"><div class="info-box warm">
     <span class="info-label">build BST 的順序很重要</span>
     把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵還算平衡的 BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。<a href="#bst-analysis">BST 的限制</a>一節會分析這種退化，<a href="#avl">AVL Tree</a> 一節再說明怎麼避免。
-  </div>
+  </div></div></details>
 <h3>get 與 contains</h3>
 <p><code>get()</code> 比 <code>put()</code> 更簡單：遞迴往下找，找到相同的鍵就回傳節點的值，走到空指標就表示不存在。輔助函式 <code>_get()</code> 回傳的是 <code>TreeNode*</code>，所以 <code>get()</code>、<code>contains()</code> 與 <code>remove()</code> 都能重用同一段搜尋。</p>
 <details class="tree-detail"><summary>程式：get、_get 與 contains</summary><div class="tree-detail-body"><div class="deck-extra">
@@ -1939,12 +1939,12 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <!-- gen:trees-bst-delete -->
   <p>BST 的 <code>put</code> 與 <code>get</code> 直觀，但<strong>刪除是最麻煩的操作</strong>，因為刪掉一個內部節點後，必須維持 BST 性質。我們把情境分成三類：</p>
 
-  <div class="info-box red">
+  <details class="tree-detail"><summary>三種刪除情境的整理</summary><div class="tree-detail-body"><div class="info-box red">
     <span class="info-label">三種刪除情境</span>
     <strong>Case 1：要刪的是葉節點。</strong>直接把 parent 的指標設為 <code>NULL</code>。最簡單。<br>
     <strong>Case 2：要刪的節點只有<em>一個</em>子節點。</strong>把這個 child「提升」上來取代被刪節點。<br>
     <strong>Case 3：要刪的節點有<em>兩個</em>子節點。</strong>找它的 <strong>in-order successor（中序後繼）</strong>（也就是右子樹中 key 最小的節點），把它的 key 複製到當前節點，然後從原位置「splice out」successor。
-  </div>
+  </div></div></details>
 <h3>remove 的骨架</h3>
 <p>刪除的第一步是用 <code>_get()</code> 找到要刪的節點；找不到就丟出例外。樹只有一個節點時，要刪的就是根，但仍然要確認根的鍵和要刪的鍵相同，<code>_get()</code> 已經做了這個檢查。刪除根的情況在 <code>_delete()</code> 裡處理：刪掉最後一個節點時，把 <code>root</code> 設為 <code>NULL</code> 並釋放節點。</p>
 <details class="tree-detail"><summary>程式：remove</summary><div class="tree-detail-body"><div class="deck-extra">
@@ -2065,7 +2065,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
       </div>
       <div class="info-card">
         <div class="ic-title">刪除流程與 findSuccessor <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <div class="pseudo-code" id="delCode" style="font-size:.72rem;"><span class="line" data-l="1">TreeNode* currentNode = <span class="fn">_get</span>(key, root);</span>
+        <details class="tree-detail tree-code-fold"><summary>程式：刪除流程與 findSuccessor（展開後可看動畫逐行高亮）</summary><div class="pseudo-code" id="delCode" style="font-size:.72rem;"><span class="line" data-l="1">TreeNode* currentNode = <span class="fn">_get</span>(key, root);</span>
 <span class="line" data-l="2"><span class="kw">if</span> (currentNode-&gt;<span class="fn">isLeaf</span>()) {               <span class="com">// Case 1</span></span>
 <span class="line" data-l="3">    <span class="com">// 父節點指向它的指標改成 NULL</span></span>
 <span class="line" data-l="4">} <span class="kw">else if</span> (currentNode-&gt;<span class="fn">hasBothChildren</span>()) { <span class="com">// Case 3</span></span>
@@ -2084,7 +2084,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <span class="line" data-l="17">    <span class="kw">while</span> (cur-&gt;leftChild != <span class="num">NULL</span>)</span>
 <span class="line" data-l="18">        cur = cur-&gt;leftChild;</span>
 <span class="line" data-l="19">    <span class="kw">return</span> cur;</span>
-<span class="line" data-l="20">}</span></div>
+<span class="line" data-l="20">}</span></div></details>
       </div>
       <div class="info-card">
         <div class="ic-title">圖例</div>
@@ -2242,12 +2242,12 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
 <!-- gen:trees-bst-analysis -->
   <p>BST 的 <code>put</code>、<code>get</code>、<code>contains</code>、<code>remove</code> 都沿 root-to-leaf path 前進，時間複雜度正比於<strong>樹高 $h$</strong>。所以關鍵問題是：給定 $n$ 個節點，$h$ 會是多少？</p>
 
-  <div class="info-box">
+  <details class="tree-detail"><summary>高度與節點數的關係（補充）</summary><div class="tree-detail-body"><div class="info-box">
     <span class="info-label">高度與節點數的關係</span>
     完美平衡二元樹（每層填滿）有 $2^{h+1}-1$ 個節點，所以 $h \approx \log_2 n$。<br>
     若 keys 隨機插入，高度期望也是 $O(\log n)$，因為大概一半 key 進左、一半進右。<br>
     但<strong>最差情況 $h = n - 1$</strong>：把已排序 keys 依序插入就會發生：每個新節點都比當前所有節點大（或小），永遠落到右（或左）這一支，BST 退化成鏈結串列。
-  </div>
+  </div></div></details>
 <h3>高度決定 put 的成本</h3>
 <p>先看 <code>put()</code>。限制它效能的是樹的高度：高度是根到最深的葉節點之間的邊數，而找插入位置時每一層最多比較一次。鍵以隨機順序加入時，大約一半比根小、一半比根大，樹高大約是 $\log_2 n$。</p>
 <p>二元樹的根那一層有 1 個節點，下一層 2 個，再下一層 4 個，深度 $d$ 那一層有 $2^d$ 個。完美平衡、高度為 $h$ 的二元樹共有 $2^{h+1}-1$ 個節點，反過來說高度就是 $\log_2 n$，也就是 <code>put()</code> 最多要做的比較次數。</p>
@@ -2301,12 +2301,12 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
           </tbody>
         </table></div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>應用：Tree Sort（補充）</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">應用：Tree Sort</div>
         <div style="font-size:.83rem;line-height:1.55;">
           把 $n$ 個 keys 全部 <code>put</code> 進 BST 再做 inorder traversal，平均得到 $O(n \log n)$ 的排序。但最差情況退化為 $O(n^2)$，這也是 quick sort 在最差情況下退化的同一個原因（pivot 選不好等於插入排序好的 keys 進 BST）。
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 <div class="sq-item tree-quiz" id="quiz-bst1">
@@ -2387,7 +2387,7 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
         <div class="ic-row"><span class="ic-label">平衡因子 bf</span><span class="ic-value" id="avlBf">—</span></div>
         <div class="ic-row"><span class="ic-label">階段</span><span class="ic-value" id="avlPhase">—</span></div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>四種旋轉的整理</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">四種旋轉</div>
         <div style="font-size:.8rem;line-height:1.55;">
           <strong>LL（左左不平衡）：</strong>對 root 做<strong>單一右旋</strong>。<br>
@@ -2395,18 +2395,20 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
           <strong>LR（左右不平衡）：</strong>先對 left child 左旋，再對 root 右旋。<br>
           <strong>RL（右左不平衡）：</strong>先對 right child 右旋，再對 root 左旋。
         </div>
-      </div>
-      <div class="info-card">
+      </div></div></details>
+      <details class="tree-detail"><summary>高度上界的整理</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">高度上界</div>
         <div class="eq-card">
           <div class="eq-label">AVL HEIGHT BOUND</div>
           <div class="eq-formula">$h &lt; 1.44 \log_2(n+1)$</div>
           <div class="eq-sub">由 Fibonacci 樹（最瘦的 AVL 樹）推導</div>
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 
+<p style="font-size:.88rem;color:var(--muted);">AVL 的效能分析與實作細節屬於選讀內容。課堂上只要知道：插入後沿路更新平衡因子，LL、RR 不平衡做一次旋轉，LR、RL 做兩次，每次旋轉 $O(1)$。</p>
+<details class="tree-detail tree-optional"><summary>選讀：AVL 樹的效能分析與實作（cppds §8.16–8.17）</summary><div class="tree-detail-body">
 <h3>AVL 樹的高度上界 <span class="sec-badge">cppds §8.16 · 選讀</span></h3>
 <p>要求每個平衡因子都是 -1、0、1，能把 AVL 樹的高度限制在 $O(\log n)$。先看在這個條件下最不平衡的樹長什麼樣子。下圖是高度 0、1、2、3 時，節點最少的左重樹：</p>
 <figure class="tree-figure" id="tree-figure-worstAVL"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="四棵左重的樹，高度 0 到 3：只有 A；B 接 A；C 接 B（下接 A）與 D；E 接 C（C 接 B、D，B 接 A）與 G（G 接 F）。每個節點標著平衡因子。"><img src="assets/figures/ch9/worstAVL.png" alt="四棵左重的樹，高度 0 到 3：只有 A；B 接 A；C 接 B（下接 A）與 D；E 接 C（C 接 B、D，B 接 A）與 G（G 接 F）。每個節點標著平衡因子。" width="480" height="240" style="--figure-width:480px" loading="lazy"></div><figcaption>高度 0、1、2、3 時節點數最少的左重 AVL 樹，分別有 1、2、4、7 個節點。高度 h 的這種樹由根、一棵高度 h - 1 的最瘦樹與一棵高度 h - 2 的最瘦樹組成。</figcaption></figure>
@@ -2425,7 +2427,6 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
   </div>
 
   <h3>實作內幕：updateBalance、rotateLeft、rebalance <span class="sec-badge">cppds §8.17 · 選讀</span></h3>
-  <p style="font-size:.88rem;color:var(--muted);">AVL 的效能分析與實作細節屬於選讀內容。課堂上只要知道：插入後沿路更新平衡因子，LL、RR 不平衡做一次旋轉，LR、RL 做兩次，每次旋轉 $O(1)$。</p>
   <p>AVL 的 <code>insertOrAssign()</code> 跟 BST 幾乎一樣，唯一差別是掛上新節點後多呼叫一次
   <code>updateBalance()</code>：它沿著 parent 指標往上修正平衡因子，
   一發現 |bf| &gt; 1 就地 <code>rebalance()</code>。旋轉最多兩次、每次 O(1)，
@@ -2561,6 +2562,8 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
 </ol>
 <figure class="tree-figure" id="tree-figure-rotatelr"><div class="tree-figure-scroll" tabindex="0" role="region" aria-label="三棵樹：A（-2）右子 C（1）、C 左子 B；先右旋 C 得到 A（-2）右子 B（-1）、B 右子 C；再左旋 A 得到 B 為根、A 和 C 為子節點，平衡因子都是 0。"><img src="assets/figures/ch9/rotatelr.png" alt="三棵樹：A（-2）右子 C（1）、C 左子 B；先右旋 C 得到 A（-2）右子 B（-1）、B 右子 C；再左旋 A 得到 B 為根、A 和 C 為子節點，平衡因子都是 0。" width="480" height="189" style="--figure-width:480px" loading="lazy"></div><figcaption>雙旋轉：先對右子 C 做右旋，把形狀變成一條往右的鏈，再對 A 做左旋，整棵子樹恢復平衡。</figcaption></figure>
 <p>右欄的 <code>rebalance</code> 就是這兩條規則。重新平衡的成本：新節點插在葉節點，往上更新平衡因子最多走過樹高 $h = O(\log n)$ 層，每層一次（AVL 樹的高度最多約 $1.44\log_2 n$）；發現不平衡時最多兩次旋轉，每次 $O(1)$。所以 <code>put</code> 仍然是 $O(\log_2 n)$，<code>get</code> 也保持 $O(\log_2 n)$。刪除節點以及之後的更新與重新平衡，留作練習。</p>
+
+</div></details>
 <div class="sq-item tree-quiz" id="quiz-avl1">
     <div class="sq-q"><span class="sq-num">QUIZ</span>AVL 樹改良了標準二元搜尋樹的哪一點？</div>
     <div class="sq-opts">

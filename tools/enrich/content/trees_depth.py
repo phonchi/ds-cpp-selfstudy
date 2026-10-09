@@ -862,9 +862,10 @@ def avl():
 </ol>
 {figure('rotatelr')}
 <p>右欄的 <code>rebalance</code> 就是這兩條規則。重新平衡的成本：新節點插在葉節點，往上更新平衡因子最多走過樹高 $h = O(\\log n)$ 層，每層一次（AVL 樹的高度最多約 $1.44\\log_2 n$）；發現不平衡時最多兩次旋轉，每次 $O(1)$。所以 <code>put</code> 仍然是 $O(\\log_2 n)$，<code>get</code> 也保持 $O(\\log_2 n)$。刪除節點以及之後的更新與重新平衡，留作練習。</p>
-{quiz('avl1')}
+'''
+    avlquiz = f'''{quiz('avl1')}
 {quiz('avl2')}'''
-    return fill('avl', {'bf': bf, 'perf': perf, 'rot': rot, 'bfd': bfd})
+    return fill('avl', {'bf': bf, 'perf': perf, 'rot': rot, 'bfd': bfd, 'avlquiz': avlquiz})
 
 
 # ---------------------------------------------------------------- REF summary

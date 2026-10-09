@@ -59,7 +59,7 @@ LEGACY['vocabulary'] = r'''{{slot:terms}}
         <div class="ic-row"><span class="ic-label">subtree height</span><span class="ic-value" id="vocabHeight">—</span></div>
         <div class="ic-row"><span class="ic-label">is leaf?</span><span class="ic-value" id="vocabLeaf">—</span></div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>關鍵術語的整理</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">關鍵術語</div>
         <div style="font-size:.83rem;line-height:1.55;color:var(--ink);">
           <strong>Root</strong>：唯一沒有 parent 的節點。<br>
@@ -70,7 +70,7 @@ LEGACY['vocabulary'] = r'''{{slot:terms}}
           <strong>Level</strong>：root 到該節點的邊數。<br>
           <strong>Height</strong>：樹中任何節點的最大 level。
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 
@@ -152,11 +152,11 @@ LEGACY['nodes-refs'] = r'''  <p>本課程用 <strong>nodes and references</stron
     </div>
   </div>
 
-  <div class="info-box warm">
+  <details class="tree-detail"><summary>insertLeft 兩種情況的整理</summary><div class="tree-detail-body"><div class="info-box warm">
     <span class="info-label">注意 insertLeft 的兩種情況</span>
     <strong>Case 1（左邊空）：</strong>直接把新節點掛上去。<br>
     <strong>Case 2（左邊已有東西）：</strong>新節點插在中間，<strong>把原本的左子樹整個推到新節點的左邊一層</strong>。這個「往下推」的設計避免了破壞原本的子結構。<code>insertRight</code> 對稱地處理右邊。
-  </div>
+  </div></div></details>
 {{slot:run}}
 {{slot:lol}}
 '''
@@ -227,10 +227,10 @@ LEGACY['parse-tree'] = r'''{{slot:intro}}
     </div>
   </div>
 
-  <div class="info-box green">
+  <details class="tree-detail"><summary>為什麼求值要用 postorder？（補充）</summary><div class="tree-detail-body"><div class="info-box green">
     <span class="info-label">為什麼求值要用 postorder？</span>
     要計算一個運算子節點的值，必須先有<strong>左右兩個子樹的值</strong>。這正好是 <strong>postorder（後序）</strong>的拜訪順序：先左子樹、再右子樹、最後 root。<code>evaluate</code> 其實就是 postorder 走訪，再加上在 root 執行運算；解析樹的求值是走訪演算法的一個特例。
-  </div>
+  </div></div></details>
 {{slot:eval}}
 '''
 
@@ -296,18 +296,18 @@ LEGACY['traversals'] = r'''  <p>「走訪」（traversal）就是按某種順序
           <div class="stack-label">call stack ↓</div>
         </div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>三種走訪的用途（補充）</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">用途</div>
         <div style="font-size:.83rem;line-height:1.55;">
           <strong>Preorder</strong>：複製樹、序列化、目錄列表（先列父再進子）。<br>
           <strong>Inorder</strong>：BST 上得到<strong>排序輸出</strong>；解析樹上得到中序運算式。<br>
           <strong>Postorder</strong>：解析樹的<strong>運算式求值</strong>、刪除整棵樹（先刪 child 才能釋放 parent）。
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 {{slot:code}}
-  <div class="info-box warm">
+  <details class="tree-detail"><summary>小實驗：對解析樹 (3+(4*5)) 做三種走訪（補充）</summary><div class="tree-detail-body"><div class="info-box warm">
     <span class="info-label">小實驗：對解析樹 (3+(4*5)) 做三種走訪</span>
     <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table style="width:100%;font-family:'JetBrains Mono',monospace;font-size:.86rem;margin-top:.4rem;">
       <tr><td style="padding:.3rem;width:35%;"><strong>Preorder</strong></td><td>+ 3 * 4 5</td><td style="color:var(--muted);">前序（prefix）形式</td></tr>
@@ -315,7 +315,7 @@ LEGACY['traversals'] = r'''  <p>「走訪」（traversal）就是按某種順序
       <tr><td style="padding:.3rem;"><strong>Postorder</strong></td><td>3 4 5 * +</td><td style="color:var(--muted);">後序（postfix）形式</td></tr>
     </table></div>
     這也是<strong>後序式（RPN）</strong>能用 stack 直接計算的原因：照 postorder 的順序，可以一邊讀一邊算。
-  </div>
+  </div></div></details>
 {{slot:printexp}}
 '''
 
@@ -421,11 +421,11 @@ LEGACY['heap'] = r'''  <p>優先佇列每次取出優先權最高的元素。若
 LEGACY['bst'] = r'''  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>unordered_map</code>）。我們已經學過兩種實作：<strong>排序陣列 + binary search</strong>（搜尋 $O(\log n)$ 但插入 $O(n)$）和<strong>雜湊表</strong>（平均 $O(1)$，但有碰撞風險、鍵沒有順序）。BST 提供第三條路。</p>
 {{slot:ops}}
 
-  <div class="info-box">
+  <details class="tree-detail"><summary>Map 的規則與節點的擁有權（補充）</summary><div class="tree-detail-body"><div class="info-box">
     <span class="info-label">Map 的規則與節點的擁有權</span>
     <code>put(key, value)</code> 遇到重複的 key 時<strong>更新 value、不增加 size</strong>。<code>remove()</code> 會釋放被移除的節點；整棵樹有 destructor、deep copy 與 move，避免兩個物件共用同一批節點。
     平衡樹的子類別透過 protected virtual 的 <code>insertOrAssign()</code> 擴充插入，不會繞過公開的 <code>put()</code> 對 size 的計算。
-  </div>
+  </div></div></details>
 
   <div class="info-box">
     <span class="info-label">BST 性質（BST property）</span>
@@ -479,7 +479,7 @@ LEGACY['bst'] = r'''  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>
       </div>
       <div class="info-card">
         <div class="ic-title" id="bstCodeTitle">虛擬碼 — put <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <div class="pseudo-code" id="bstCode" style="font-size:.73rem;">
+        <details class="tree-detail tree-code-fold"><summary>程式：put 的簡化版（展開後可看動畫逐行高亮）</summary><div class="pseudo-code" id="bstCode" style="font-size:.73rem;">
 <span class="line"><span class="kw">#include</span> &lt;string&gt;</span>
 <span class="line"><span class="kw">struct</span> TreeNode {</span>
 <span class="line">    std::string key, value;</span>
@@ -500,27 +500,27 @@ LEGACY['bst'] = r'''  <p>Map ADT 把 key 對應到 value（就像 C++ 的 <code>
 <span class="line" data-l="11">            currentNode->rightChild = <span class="kw">new</span> <span class="fn">TreeNode</span>(key, value, currentNode);</span>
 <span class="line">    }</span>
 <span class="line">}</span>
-</div>
+</div></details>
       </div>
     </div>
   </div>
 
-  <div class="info-box warm">
+  <details class="tree-detail"><summary>build BST 的順序很重要（補充）</summary><div class="tree-detail-body"><div class="info-box warm">
     <span class="info-label">build BST 的順序很重要</span>
     把 keys $70, 31, 93, 94, 14, 23, 73$ 依序插入會得到一棵還算平衡的 BST；但若插入順序是 $14, 23, 31, 70, 73, 93, 94$（已排序），<strong>新樹會退化成一條鏈</strong>：高度從 $O(\log n)$ 變成 $O(n)$。試試上面的「隨機」按鈕和輸入排序的 keys 比較看看。<a href="#bst-analysis">BST 的限制</a>一節會分析這種退化，<a href="#avl">AVL Tree</a> 一節再說明怎麼避免。
-  </div>
+  </div></div></details>
 {{slot:get}}
 
 '''
 
 LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> 直觀，但<strong>刪除是最麻煩的操作</strong>，因為刪掉一個內部節點後，必須維持 BST 性質。我們把情境分成三類：</p>
 
-  <div class="info-box red">
+  <details class="tree-detail"><summary>三種刪除情境的整理</summary><div class="tree-detail-body"><div class="info-box red">
     <span class="info-label">三種刪除情境</span>
     <strong>Case 1：要刪的是葉節點。</strong>直接把 parent 的指標設為 <code>NULL</code>。最簡單。<br>
     <strong>Case 2：要刪的節點只有<em>一個</em>子節點。</strong>把這個 child「提升」上來取代被刪節點。<br>
     <strong>Case 3：要刪的節點有<em>兩個</em>子節點。</strong>找它的 <strong>in-order successor（中序後繼）</strong>（也就是右子樹中 key 最小的節點），把它的 key 複製到當前節點，然後從原位置「splice out」successor。
-  </div>
+  </div></div></details>
 {{slot:cases}}
 
 
@@ -567,7 +567,7 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
       </div>
       <div class="info-card">
         <div class="ic-title">刪除流程與 findSuccessor <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
-        <div class="pseudo-code" id="delCode" style="font-size:.72rem;"><span class="line" data-l="1">TreeNode* currentNode = <span class="fn">_get</span>(key, root);</span>
+        <details class="tree-detail tree-code-fold"><summary>程式：刪除流程與 findSuccessor（展開後可看動畫逐行高亮）</summary><div class="pseudo-code" id="delCode" style="font-size:.72rem;"><span class="line" data-l="1">TreeNode* currentNode = <span class="fn">_get</span>(key, root);</span>
 <span class="line" data-l="2"><span class="kw">if</span> (currentNode-&gt;<span class="fn">isLeaf</span>()) {               <span class="com">// Case 1</span></span>
 <span class="line" data-l="3">    <span class="com">// 父節點指向它的指標改成 NULL</span></span>
 <span class="line" data-l="4">} <span class="kw">else if</span> (currentNode-&gt;<span class="fn">hasBothChildren</span>()) { <span class="com">// Case 3</span></span>
@@ -586,7 +586,7 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
 <span class="line" data-l="17">    <span class="kw">while</span> (cur-&gt;leftChild != <span class="num">NULL</span>)</span>
 <span class="line" data-l="18">        cur = cur-&gt;leftChild;</span>
 <span class="line" data-l="19">    <span class="kw">return</span> cur;</span>
-<span class="line" data-l="20">}</span></div>
+<span class="line" data-l="20">}</span></div></details>
       </div>
       <div class="info-card">
         <div class="ic-title">圖例</div>
@@ -649,12 +649,12 @@ LEGACY['bst-delete'] = r'''  <p>BST 的 <code>put</code> 與 <code>get</code> �
 
 LEGACY['bst-analysis'] = r'''  <p>BST 的 <code>put</code>、<code>get</code>、<code>contains</code>、<code>remove</code> 都沿 root-to-leaf path 前進，時間複雜度正比於<strong>樹高 $h$</strong>。所以關鍵問題是：給定 $n$ 個節點，$h$ 會是多少？</p>
 
-  <div class="info-box">
+  <details class="tree-detail"><summary>高度與節點數的關係（補充）</summary><div class="tree-detail-body"><div class="info-box">
     <span class="info-label">高度與節點數的關係</span>
     完美平衡二元樹（每層填滿）有 $2^{h+1}-1$ 個節點，所以 $h \approx \log_2 n$。<br>
     若 keys 隨機插入，高度期望也是 $O(\log n)$，因為大概一半 key 進左、一半進右。<br>
     但<strong>最差情況 $h = n - 1$</strong>：把已排序 keys 依序插入就會發生：每個新節點都比當前所有節點大（或小），永遠落到右（或左）這一支，BST 退化成鏈結串列。
-  </div>
+  </div></div></details>
 {{slot:skew}}
 
   <div class="viz-layout">
@@ -702,12 +702,12 @@ LEGACY['bst-analysis'] = r'''  <p>BST 的 <code>put</code>、<code>get</code>、
           </tbody>
         </table></div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>應用：Tree Sort（補充）</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">應用：Tree Sort</div>
         <div style="font-size:.83rem;line-height:1.55;">
           把 $n$ 個 keys 全部 <code>put</code> 進 BST 再做 inorder traversal，平均得到 $O(n \log n)$ 的排序。但最差情況退化為 $O(n^2)$，這也是 quick sort 在最差情況下退化的同一個原因（pivot 選不好等於插入排序好的 keys 進 BST）。
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 '''
@@ -756,7 +756,7 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
         <div class="ic-row"><span class="ic-label">平衡因子 bf</span><span class="ic-value" id="avlBf">—</span></div>
         <div class="ic-row"><span class="ic-label">階段</span><span class="ic-value" id="avlPhase">—</span></div>
       </div>
-      <div class="info-card">
+      <details class="tree-detail"><summary>四種旋轉的整理</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">四種旋轉</div>
         <div style="font-size:.8rem;line-height:1.55;">
           <strong>LL（左左不平衡）：</strong>對 root 做<strong>單一右旋</strong>。<br>
@@ -764,18 +764,20 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
           <strong>LR（左右不平衡）：</strong>先對 left child 左旋，再對 root 右旋。<br>
           <strong>RL（右左不平衡）：</strong>先對 right child 右旋，再對 root 左旋。
         </div>
-      </div>
-      <div class="info-card">
+      </div></div></details>
+      <details class="tree-detail"><summary>高度上界的整理</summary><div class="tree-detail-body"><div class="info-card">
         <div class="ic-title">高度上界</div>
         <div class="eq-card">
           <div class="eq-label">AVL HEIGHT BOUND</div>
           <div class="eq-formula">$h &lt; 1.44 \log_2(n+1)$</div>
           <div class="eq-sub">由 Fibonacci 樹（最瘦的 AVL 樹）推導</div>
         </div>
-      </div>
+      </div></div></details>
     </div>
   </div>
 
+<p style="font-size:.88rem;color:var(--muted);">AVL 的效能分析與實作細節屬於選讀內容。課堂上只要知道：插入後沿路更新平衡因子，LL、RR 不平衡做一次旋轉，LR、RL 做兩次，每次旋轉 $O(1)$。</p>
+<details class="tree-detail tree-optional"><summary>選讀：AVL 樹的效能分析與實作（cppds §8.16–8.17）</summary><div class="tree-detail-body">
 {{slot:perf}}
   <div class="info-box green">
     <span class="info-label">為什麼是 1.44 log n？</span>
@@ -785,7 +787,6 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
   </div>
 
   <h3>實作內幕：updateBalance、rotateLeft、rebalance <span class="sec-badge">cppds §8.17 · 選讀</span></h3>
-  <p style="font-size:.88rem;color:var(--muted);">AVL 的效能分析與實作細節屬於選讀內容。課堂上只要知道：插入後沿路更新平衡因子，LL、RR 不平衡做一次旋轉，LR、RL 做兩次，每次旋轉 $O(1)$。</p>
   <p>AVL 的 <code>insertOrAssign()</code> 跟 BST 幾乎一樣，唯一差別是掛上新節點後多呼叫一次
   <code>updateBalance()</code>：它沿著 parent 指標往上修正平衡因子，
   一發現 |bf| &gt; 1 就地 <code>rebalance()</code>。旋轉最多兩次、每次 O(1)，
@@ -875,6 +876,8 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
       <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem;">先看「歪向哪邊」，再看「子節點歪向哪邊」決定要不要先轉子節點：跟上面動畫的四個 preset 一一對應。</div></div>
   </div>
 {{slot:bfd}}
+</div></details>
+{{slot:avlquiz}}
 '''
 
 LEGACY['summary'] = r'''  <p>第 7 章與本章我們學了四種實作 map ADT 的方式。下表整理 worst-case 複雜度；注意 hash table 的 $O(1)$ 是<strong>平均</strong>，最差情況（全部碰撞）會退化到 $O(n)$。</p>

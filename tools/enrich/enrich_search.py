@@ -36,7 +36,7 @@ for sid, css in (('search-depth-style', STYLE), ('search-figures-style', FIG_STY
 n_cards = len(json.loads((ROOT / "data/flashcards_zh/ch7.json").read_text()))
 n_qs = len(json.loads((ROOT / "data/questions_zh/ch7.json").read_text()))
 s, n1 = re.subn(r'關鍵詞彙卡（\d+ 張）', f'關鍵詞彙卡（{n_cards} 張）', s)
-s, n2 = re.subn(r'題庫 ch7\.json · \d+ 張', f'題庫 ch7.json · {n_cards} 張', s)
+s, n2 = re.subn(r'sec-badge">\d+ 張', f'sec-badge">{n_cards} 張', s)
 s, n3 = re.subn(r'自我檢測（\d+ 題）', f'自我檢測（{n_qs} 題）', s)
 if (n1, n2, n3) != (2, 1, 2):
     raise SystemExit(f"count labels not found: {n1}, {n2}, {n3}")

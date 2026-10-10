@@ -45,7 +45,7 @@ else:
 # Flashcard count shown in the table of contents and the cards heading.
 n_cards = len(json.loads((ROOT / "data/flashcards_zh/ch6.json").read_text()))
 s, n1 = re.subn(r'關鍵詞彙卡（\d+ 張）', f'關鍵詞彙卡（{n_cards} 張）', s)
-s, n2 = re.subn(r'題庫 ch6\.json · \d+ 張', f'題庫 ch6.json · {n_cards} 張', s)
+s, n2 = re.subn(r'sec-badge">\d+ 張', f'sec-badge">{n_cards} 張', s)
 if (n1, n2) != (2, 1):
     raise SystemExit(f"flashcard count labels not found: {n1}, {n2}")
 

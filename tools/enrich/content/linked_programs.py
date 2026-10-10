@@ -359,6 +359,133 @@ int main() {
     return 0;
 }'''
 
+STL_ORDERED_MAIN = '''#include <forward_list>
+#include <iostream>
+using namespace std;
+
+template <typename T>
+class OrderedList {
+    private:
+        forward_list<T> items;   // the STL singly linked list stores the nodes
+    public:
+        void add(T item) {
+            auto prev = items.before_begin();   // "node" before the first element
+            auto cur = items.begin();
+            while (cur != items.end() && *cur < item) {
+                prev = cur;
+                ++cur;
+            }
+            items.insert_after(prev, item);     // link the new node after prev
+        }
+        bool search(T item) const {
+            for (auto cur = items.begin(); cur != items.end(); ++cur) {
+                if (*cur == item) return true;
+                if (*cur > item) return false;  // passed the spot: stop early
+            }
+            return false;
+        }
+        void remove(T item) {
+            auto prev = items.before_begin();
+            auto cur = items.begin();
+            while (cur != items.end() && *cur < item) {
+                prev = cur;
+                ++cur;
+            }
+            if (cur != items.end() && *cur == item) {
+                items.erase_after(prev);        // unlink and free the node
+            }
+        }
+        void print() const {
+            for (const T& x : items) cout << x << ' ';
+            cout << endl;
+        }
+};
+
+int main() {
+    OrderedList<int> myList;
+    for (int value : {31, 77, 17, 93, 26, 54}) myList.add(value);
+    myList.print();
+    cout << boolalpha << myList.search(93) << endl;
+    cout << myList.search(45) << endl;   // stops at 54
+    myList.remove(17);                    // first element: prev is before_begin()
+    myList.remove(45);                    // missing value: no change
+    myList.print();
+    return 0;
+}'''
+
+HEADER_LIST_MAIN = '''#include <iostream>
+#include "pythonds3/cppds/linked_list.hpp"
+using namespace std;
+
+template <typename T>
+class HeaderList {
+    private:
+        Node<T> *header;   // dummy node: its data is never used
+    public:
+        HeaderList() {
+            header = new Node<T>(T());   // the list always has this node
+        }
+        ~HeaderList() {
+            Node<T> *current = header;   // free the data nodes AND the header
+            while (current != NULL) {
+                Node<T> *next = current->getNext();
+                delete current;
+                current = next;
+            }
+        }
+        bool isEmpty() const {
+            return header->getNext() == NULL;
+        }
+        void add(T item) {               // insert right after the header
+            Node<T> *temp = new Node<T>(item);
+            temp->setNext(header->getNext());
+            header->setNext(temp);
+        }
+        int size() const {
+            int count = 0;
+            for (Node<T> *current = header->getNext(); current != NULL; current = current->getNext())
+                count++;
+            return count;
+        }
+        bool search(T item) const {
+            for (Node<T> *current = header->getNext(); current != NULL; current = current->getNext())
+                if (current->getData() == item) return true;
+            return false;
+        }
+        void remove(T item) {
+            Node<T> *previous = header;  // never NULL
+            Node<T> *current = header->getNext();
+            while (current != NULL && current->getData() != item) {
+                previous = current;
+                current = current->getNext();
+            }
+            if (current != NULL) {       // same two lines for the first node, too
+                previous->setNext(current->getNext());
+                delete current;
+            }
+        }
+        void print() const {
+            for (Node<T> *current = header->getNext(); current != NULL; current = current->getNext())
+                cout << current->getData() << " ";
+            cout << endl;
+        }
+};
+
+int main() {
+    HeaderList<int> myList;
+    cout << boolalpha << myList.isEmpty() << endl;
+    for (int value : {31, 77, 17, 93, 26, 54}) myList.add(value);
+    myList.print();
+    myList.remove(54);   // first data node: no special case
+    myList.remove(17);   // middle
+    myList.remove(31);   // last
+    myList.remove(45);   // missing: no change
+    myList.print();
+    cout << myList.size() << endl;
+    cout << myList.search(93) << endl;
+    return 0;
+}'''
+
 OUTPUT = {
     'ul_empty': 'true\n0\nfalse\n1',
     'ul_adds': '31 \n77 31 \n17 77 31 \n93 17 77 31 \n26 93 17 77 31 \n54 26 93 17 77 31 ',
@@ -374,4 +501,6 @@ OUTPUT = {
     'dll_erase': '54 26 77 93 | 93 77 26 54 \n54 26 93 | 93 26 54 \n26 93 | 93 26 \n26 | 26 ',
     'append': '77 31 17 ',
     'ol_remove': '17 26 31 77 93 \n26 31 77 93 \n26 31 77 93 \n4',
+    'stl_ordered': '17 26 31 54 77 93 \ntrue\nfalse\n26 31 54 77 93 ',
+    'header_list': 'true\n54 26 93 17 77 31 \n26 93 77 \n3\ntrue',
 }

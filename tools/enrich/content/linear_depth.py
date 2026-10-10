@@ -97,6 +97,13 @@ def prologue():
 <p>線性結構是一群依加入或移除的方式而有順序的資料。一個元素加入之後，相對於比它早來和比它晚來的元素，它的位置就固定了。這類集合稱為<strong>線性 ADT</strong>（linear ADT）。</p>
 <p>線性 ADT 可以想成有兩端，有時叫左端與右端，有時叫 front（前端）與 rear（後端）。各種線性結構的差別，在於元素從<strong>哪一端加入、從哪一端移除</strong>：</p>
 {rows}
+<h3>已經有陣列和鏈結串列，為什麼還要 stack、queue？</h3>
+<p>stack、queue、deque 都能用陣列、<code>vector</code> 或鏈結串列做出來。把它們另外定義成線性 ADT，是因為「只能從哪一端加入、從哪一端移除」這條限制本身就有用處：</p>
+{ul([
+    '<strong>意圖清楚。</strong>看到 stack 就知道是 LIFO，看到 queue 就知道是 FIFO。設計演算法時可以直接用這個性質思考，例如<a href="#parens">括號配對</a>用 stack 記住還沒配對的左括號，圖的廣度優先搜尋（BFS）用 queue 依序處理等待拜訪的節點。',
+    '<strong>防止誤用。</strong>介面只開放 <code>push</code>／<code>pop</code>／<code>top</code>（queue 則是 enqueue／dequeue），不能從中間插入或刪除，也就不會不小心破壞存取順序。',
+    '<strong>抽象化。</strong>使用者只依賴介面，底層可以換成陣列、<code>vector</code>、<code>deque</code> 或鏈結串列，使用者的程式不用改。例如 <code>std::stack</code> 預設的底層是 <code>std::deque</code>，也可以寫成 <code>std::stack&lt;int, std::vector&lt;int&gt;&gt;</code> 指定用 <code>vector</code>，或指定用 <code>list</code>。',
+])}
 <h3>本章程式使用的兩套介面</h3>
 <p>本章的程式以 C++ 標準函式庫（STL）為主：<code>std::stack</code>、<code>std::queue</code>、<code>std::deque</code>。它們的 <code>pop()</code> 只移除元素、不回傳值，需要值的時候要先用 <code>top()</code> 或 <code>front()</code> 讀出來。</p>
 <p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張 API 對照表。</p>'''

@@ -527,7 +527,12 @@ def prologue():
 <p>較完整的 ADT 也寫明了各操作的前提：append 與 insert 假設元素原本不在串列中；index 假設元素一定在串列中；insert(pos, item) 假設串列已有足夠的元素，位置 pos 才存在；pop() 假設串列至少有一個元素。實作這些操作時，要先決定違反前提時怎麼處理，例如課程標頭的 remove 在找不到元素時，選擇讓串列保持不變。</p>
 <h3>為什麼需要另一種表示法</h3>
 <p>ArrayList 把元素放在一段連續的陣列裡，依位置讀取很快，代價是要維持「連續」：在最前面插入一項，後面每一項都得往後搬一格；容量用完時，還要配置更大的陣列並把元素全部複製過去。如果程式經常在前端或中間插入、刪除，這些搬移就會成為主要成本。</p>
-<p>串列真正需要維持的只有元素之間的<strong>相對順序</strong>，並不要求它們在記憶體中相鄰。只要每個元素記得下一個元素在哪裡，順序就保存下來了；找到位置之後，插入或刪除只要改幾個指標，不必搬動其他元素。</p>
+<p>串列真正需要維持的只有元素之間的<strong>相對順序</strong>，並不要求它們在記憶體中相鄰。只要每個元素記得下一個元素在哪裡，順序就保存下來了。不要求相鄰，讓鏈結串列在下面三種情況比陣列有利：</p>
+<ul class="linked-ul">
+<li id="linked-scattered-memory"><strong>記憶體分散時。</strong>在複雜系統的執行環境中，空閒的記憶體常常零散分布在各處。陣列需要一整塊連續空間，陣列很大時，系統可能找不到夠大的連續區塊；鏈結串列的節點可以分散存放在各個空位，這時就看得出它的彈性。</li>
+<li id="linked-known-position"><strong>已經知道位置時。</strong>一旦拿到節點的位置，插入或刪除只要改幾個指標，不必搬動其他元素。若再用雜湊表（hash table）記住每個 key 對應的節點，連找位置的步驟都省掉，add 與 remove 都能在常數時間內完成（刪除要用雙向串列，才能直接找到前一個節點，見<a href="#linked-doubly">雙向串列</a>）。LRU 快取就是這樣做：用雙向鏈結串列記錄資料的使用順序，用雜湊表從 key 直接找到節點。作業系統把空閒的記憶體區塊串成空閒串列（free-list）來管理，也是類似的做法。要注意，優勢只在「已知位置的插入與刪除」：從頭走訪鏈結串列仍是 $O(n)$，而且每走一步都要跟著指標跳到記憶體的另一處，對快取不友善，實際執行通常比走訪陣列慢。</li>
+<li id="linked-bulk-update"><strong>大量插入與刪除時。</strong>每次只配置或釋放一個節點，不需要像陣列那樣把後面整段元素往前或往後搬，也不需要在容量用完時重新配置更大的陣列、再把全部元素複製過去。</li>
+</ul>
 <h3>鏈結表示：每一項記住下一項在哪裡</h3>
 <p>下面六個整數放在記憶體中的不同位置。只看它們的位置，看不出誰是第一項、誰排在誰後面。</p>
 {figure('scatter')}
@@ -540,6 +545,16 @@ def prologue():
         "選一種表示法，再按 ▶ 播放或 → 單步。", legend=("hl", "found"),
         extra='<label class="mono" style="font-size:.85rem;">k = <input id="memK" type="number" min="0" max="4" value="3" style="width:56px;padding:.3rem .4rem;border:1px solid var(--card-border);border-radius:6px;" onchange="llRecase(\'mem\')"></label>',
         aside=aside)}'''
+
+
+TEMPLATE_NOTE = (
+    '<p><code>template &lt;typename T&gt;</code> 宣告接下來的 Node 是<strong>類別模板</strong>。'
+    'T 是<strong>型別參數</strong>：寫類別時先不決定元素的型別，用 T 代替；使用時才在角括號裡填入實際的型別，'
+    '例如 Node&lt;int&gt;、Node&lt;string&gt;、UnorderedList&lt;string&gt;。'
+    '所以同一份 Node 與串列的程式碼，可以存放任意型別的元素。</p>'
+    '<p>模板本身不會直接變成機器碼。編譯器看到程式用了 Node&lt;int&gt; 與 Node&lt;string&gt;，'
+    '會依照模板替每個用到的型別各產生一份類別，效果就像分別手寫了存 int 與存 string 的兩個 Node。'
+    '模板的完整寫法見先備知識 <a href="p9_oop_advanced.html#tmpl">P9 的模板一節</a>。</p>')
 
 
 def node_section():
@@ -559,6 +574,7 @@ def node_section():
     ])
     return f'''<p>節點是鏈結串列的基本單位。每個節點至少保存兩項資訊：<strong>資料欄位</strong> data 存放元素本身，next 指向下一個節點。講義把 Node 寫成類別模板，T 是元素的型別：Node&lt;int&gt; 存整數，Node&lt;string&gt; 存字串，鏈結的寫法完全相同。</p>
 {snippet("講義 04 · Node 類別（pythonds3/cppds/linked_list.hpp）", NODE_CLASS)}
+{fold("<code>template &lt;typename T&gt;</code> 的作用", TEMPLATE_NOTE, did="linked-template-note")}
 <h3>封裝：只能透過四個成員函式存取</h3>
 <p>data 與 next 兩個欄位都是 private。串列的程式與使用者的程式都只能透過 getData()、getNext()、setData()、setNext() 存取節點；直接寫 node-&gt;next 是刻意不允許的寫法，無法通過編譯。</p>
 {methods}
@@ -574,6 +590,17 @@ def node_section():
 <p>注意建構子把 next 明確設成 NULL。指標若沒有初始化，裡面是無法預測的值；把它當成位址去讀取，結果是未定義行為，程式可能當掉，也可能看似正常卻讀到錯誤的資料。所以建立指標時，一律先給它明確的初值。課本把 next 為空的節點稱為 grounded（接地），圖中用電路的接地符號表示（課本）。</p>
 {fold("指標語法速記", pointer_note)}
 {fold("用 setNext 手動接起三個節點", snippet("三個節點接成 54 → 26 → 93", NODE_CHAIN, OUT['node_chain'], note="setNext 決定誰接在誰後面；setData(27) 只改了第二個節點的值，鏈結不變。while 迴圈用 current 沿 next 前進、遇到 NULL 停下，這就是下一節 size 與 search 使用的走訪寫法。"))}'''
+
+
+HEADER_NOTE = '''<p>做法是讓串列永遠保有一個<strong>不存資料的 dummy 節點</strong>，稱為 header，由它取代原本 head 的位置：</p>
+<ul class="linked-ul">
+<li>建構子先 new 一個 header 節點。真正的資料從 header-&gt;getNext() 開始；header-&gt;getNext() == NULL 就表示串列是空的。</li>
+<li>remove 時，previous 一開始就指向 header，current 指向 header-&gt;getNext()。第一個資料節點前面也有節點，所以刪除它和刪除中間的節點一樣，都是 previous-&gt;setNext(current-&gt;getNext())，不必再檢查 previous == NULL。</li>
+<li>add 改成把新節點接在 header 後面：先 temp-&gt;setNext(header-&gt;getNext())，再 header-&gt;setNext(temp)。</li>
+<li>size、search 與印出串列的走訪，都從 header-&gt;getNext() 出發，header 不算在元素裡。</li>
+<li>解構子從 header 開始逐一 delete，連 header 一起釋放；漏掉它，每個串列都會留下一個無法釋放的節點。</li>
+</ul>
+<p>代價是每個串列多一個節點；建立 header 時用 T() 產生一個用不到的預設值，所以元素型別要能預設建構。<a href="#variants">雙向串列</a>的 header、trailer 哨兵節點，用的也是同一個想法。</p>'''
 
 
 def unordered_section():
@@ -658,6 +685,7 @@ def unordered_section():
 {figure('remove-head')}
 <p>第 16 行檢查這個情況：previous 沒有移動過，迴圈結束時仍是 NULL，就讓 head 改指 current 的下一個節點（第 17 行），等於把第一個節點從串列中移除；否則要刪的節點在串列中段或尾端，previous 就是 next 需要修改的節點（第 19 行）。兩種情況的新目標都是 current-&gt;getNext()。節點脫離鏈結後，第 21 行 delete current 釋放它；C++ 沒有垃圾回收，少了這一行就會留下無法再釋放的記憶體。串列的解構子也用同樣方式釋放剩下的所有節點。另一種做法是在最前面放一個不存資料的 header 節點，讓第一個資料節點也有前一個節點，就不需要這個特殊情況；這留作練習。</p>
 {figure('remove')}
+{fold("參考做法：加上 header 節點", HEADER_NOTE + snippet("加上 header 節點的串列：HeaderList", HEADER_LIST_MAIN, OUT['header_list'], note="remove(54) 刪的是第一個資料節點，這時 previous 就是 header，和 remove(17)、remove(31) 走的是同一段程式。remove(45) 找不到，串列不變。"), did="linked-header-node")}
 {lecture_program("完整程式：刪除中間的 17", "remove(17) 前後的串列", UL_REMOVE_MID, OUT['ul_remove_mid'], note="17 被跳過後，93 直接接到 77，串列剩 5 個節點，再搜尋 17 得到 false。")}
 <div class="info-box"><span class="info-label">ADT 的假設與實作的行為</span><p>ADT 說明假設串列沒有重複元素。課程標頭的實作其實接受重複值：add 不檢查，remove 只刪第一個相等的節點。課本的 remove 假設要刪的項目一定在串列中；講義與課程標頭則在找不到時不做任何修改。</p></div>
 {trace}
@@ -755,6 +783,14 @@ def ordered_section():
 {fold("元素的比較、複製與解構成本", "<p>上面的分析把單一元素的比較、複製與解構視為 $O(1)$，只計算走訪多少個節點、更新多少次指標。若節點存放的物件需要較多時間才能比較、複製或解構，還要把這些成本加進去。</p>")}'''
 
 
+STL_ORDERED_NOTE = '''<p>類別只保存一個 std::forward_list&lt;T&gt;，節點的配置與釋放都交給它，所以不必自己寫解構子。三個操作和前面的 OrderedList 一一對應：</p>
+<ul class="linked-ul">
+<li>add：prev 從 before_begin() 出發，cur 從 begin() 出發；只要 *cur 小於 item，兩者就一起前進。停下後用 insert_after(prev, item) 把新元素接在 prev 後面。要插在最前面時，prev 仍是 before_begin()，同一行程式就能處理，不必另外修改 head。</li>
+<li>search：遇到等於 item 的值就回傳 true；遇到比 item 大的值，後面只會更大，提前回傳 false。</li>
+<li>remove：用和 add 相同的方式找位置；cur 指向的值等於 item 時，呼叫 erase_after(prev) 刪除它，找不到就不做任何事。</li>
+</ul>'''
+
+
 def stl_section():
     q_stl = quiz('qStl', 'QUIZ · 為什麼叫 insert_after？',
                  'forward_list 只提供 insert_after，不提供 insert（插在某個節點前面）。原因是？', [
@@ -780,6 +816,14 @@ def stl_section():
     </tbody>
   </table>
 </div>'''
+    course_vs_stl = table(['特性', '課程的 UnorderedList&lt;T&gt;', '課程的 OrderedList&lt;T&gt;', 'STL std::forward_list&lt;T&gt;', 'STL std::list&lt;T&gt;'], [
+        ('鏈結串列類型', '單向', '單向', '單向', '雙向'),
+        ('自動維持排序', '否', '是', '否', '否'),
+        ('頭部插入', 'add()', '由 add() 依大小決定位置', 'push_front()', 'push_front()'),
+        ('任意位置插入', '未提供', 'add() 自動尋找位置', 'insert_after()', 'insert()'),
+        ('刪除元素', 'remove()', 'remove()', 'remove()、erase_after()', 'remove()、erase()'),
+        ('搜尋', 'search()', 'search()（可提前停止）', '可使用 std::find()', '可使用 std::find()'),
+    ]).replace('<table class="cmp-table">', '<table class="cmp-table" style="min-width:680px;">', 1)
     ops = table(['操作', '說明'], [
         ('forward_list&lt;T&gt; a;', '建立空的 forward_list'),
         ('push_front(x)／emplace_front(...)', '在最前面加入元素；emplace 版就地建構元素'),
@@ -794,6 +838,11 @@ def stl_section():
 <p>std::forward_list&lt;T&gt; 是單向串列，提供 push_front、insert_after、erase_after；std::list&lt;T&gt; 是雙向串列，可以用雙向迭代器在指定位置插入或刪除。兩者都不支援依索引的隨機存取。插入與刪除是 $O(1)$ 的前提是：手上已經有對應位置的迭代器。</p>
 {snippet("講義 04 · forward_list 與 list", STL_MAIN, OUT['stl'], note="singly.insert_after(singly.before_begin(), 17) 插在「第一項之前的位置」後面，也就是成為新的第一項。next(doubly.begin()) 指向 31，doubly.insert(pos, 26) 把 26 插在 31 前面。")}
 {compare}
+<h3>課程的串列與 STL 串列</h3>
+<p>把本章的兩個類別和 STL 的兩種串列放在一起比較：</p>
+{course_vs_stl}
+<p>表中的「自動維持排序」只表示容器不會自己替你排序，並不是說 std::forward_list 只能用在無序串列。它有 sort() 成員函式，可以把整個串列排好；也可以像 OrderedList 的 add 一樣，先找到位置，再用 insert_after() 插入，自己維持排序。</p>
+{fold("用 STL 實作 OrderedList", STL_ORDERED_NOTE + snippet("forward_list 版的 OrderedList", STL_ORDERED_MAIN, OUT['stl_ordered'], note="六個值不論加入的順序，印出來都由小到大。search(45) 比到 54 就停下，回傳 false。remove(17) 刪的是第一個元素，prev 停在 before_begin()，和刪除中間元素用的是同一個 erase_after。"), did="linked-stl-ordered")}
 <h3>forward_list 的常用操作（課本）</h3>
 <p>forward_list 的插入與刪除都作用在指定元素的<strong>後面</strong>：insert_after、erase_after。課本列出的常用操作如下：</p>
 {ops}
@@ -824,14 +873,19 @@ def variants_section():
 {widget("cTrav", [("four", "四個節點"), ("one", "單一節點"), ("empty", "空串列")],
         "選一個情況，再按 ▶ 播放或 → 單步。", codes=[("環狀走訪（補充）", CIRCULAR)], legend=("hl", "cmp"))}
 <h3>環狀串列的用途：輪流與 append</h3>
-<p>講義指出，環狀串列適合輪流分配資源，也方便實作 append 一類的操作：若保存最後一個節點 tail，tail-&gt;getNext() 就是第一個節點，在頭端或尾端加入都只要 $O(1)$。只保存 tail 就夠了，不必另外保存 head。</p>
-<p>以輪流使用資源為例：current 指向目前輪到的工作，處理完一段時間後執行 current = current-&gt;getNext()，就換到下一個工作；走到最後一個工作之後，會自然回到第一個，不需要另外判斷「是否到尾端、要不要回到開頭」。</p>
+<p>講義指出，環狀串列<strong>很適合用來有效率地分配與管理資源，也適合 append() 這類操作</strong>，理由如下：</p>
+<ul class="linked-ul">
+<li>從任何一個節點出發，沿 next 一直走，都能走遍整個串列，再回到出發點。</li>
+<li>只要保存最後一個節點 tail，tail-&gt;getNext() 就是第一個節點，頭與尾都能在 $O(1)$ 時間取得，所以 append 很方便：在尾端或頭端加入都只要 $O(1)$。只保存 tail 就夠了，不必另外保存 head。</li>
+<li>適合有循環性質的資料與資源分配，例如 CPU 的輪流排程（round-robin）與多人遊戲的輪流順序。</li>
+</ul>
+<p>以 CPU 的輪流排程為例：current 指向目前輪到的工作，處理完一段時間後執行 current = current-&gt;getNext()，就換到下一個工作；走到最後一個工作之後，會自然回到第一個，不需要另外判斷「是否到尾端、要不要回到開頭」。</p>
 <p>環狀只改變結尾的接法，並沒有增加反向走訪的能力：要刪除某個節點，仍然需要它前一個節點。另外，因為串列中沒有 NULL，任何以「走到 NULL 為止」寫成的迴圈，在環狀串列上都不會結束；釋放節點時，也要先把環斷開，或改用「回到起點為止」的條件。</p>
 {fold("完整程式：建立環狀串列、走訪與用 tail 做 append", snippet("環狀串列：以 Node 建立、do-while 走訪", CIRC_MAIN, OUT['circ'], note="printCircular 用 do-while：先印出起點，再前進，回到起點時停止。第二行確認 tail-&gt;getNext() 就是 54。append(11) 只改兩個指標，11 成為新的 tail，並指回 54。最後一行從 93 開始走，也能走完一整圈。釋放前先把 tail 的 next 設成 NULL，就能用一般串列的方式逐一 delete。"))}
 <h3>單向串列的限制</h3>
 <p>單向串列可以有效率地在頭端插入與刪除，也能在保存 tail 時快速加到尾端，但<strong>刪除尾端</strong>不容易：必須先找到倒數第二個節點。問題其實更普遍：只拿到某個節點的指標時，找不到它的前驅，也就無法立刻刪除它。</p>
-<h3>雙向串列與哨兵節點</h3>
-<p>為了讓兩個方向對稱，<strong>雙向鏈結串列</strong>（Doubly Linked List）讓每個節點同時保存指向後一個節點的 next 與指向前一個節點的 prev，因此能在任意位置以 $O(1)$ 完成更多種更新；需要反向走訪的演算法（例如檢查回文）也適合使用。</p>
+<h3 id="linked-doubly">雙向串列與哨兵節點</h3>
+<p>為了讓兩個方向對稱，<strong>雙向鏈結串列</strong>（Doubly Linked List）讓每個節點同時保存指向後一個節點的 next 與指向前一個節點的 prev。只拿到某個內部節點的指標時，prev 就是它的前一個節點，可以直接把前後兩個鄰居接起來，所以刪除任意已知節點只要 $O(1)$。有了 prev，才真正做到<a href="#linked-known-position">本章開頭</a>所說鏈結串列相對於陣列的優勢：已知位置時，插入與刪除只改幾個指標。需要反向走訪的演算法（例如檢查回文）也適合使用雙向串列。</p>
 <p>講義的設計在兩端各放一個不存使用者資料的<strong>哨兵節點</strong>（sentinel）：header 與 trailer。非空串列中，header 的 next 指向第一個資料節點，trailer 的 prev 指向最後一個資料節點；空串列時兩者直接相連。這樣每次插入都發生在兩個既有節點之間，每個要刪除的資料節點兩側也一定有鄰居，所以頭端、尾端與中間都能用同一套接線。走訪時要在 trailer 停下，哨兵不能當成資料讀取或刪除。</p>
 {figure('sentinels')}
 <p>哨兵的代價是每個串列多兩個不存資料的節點，換來的是程式裡不再需要「是不是第一個節點」「是不是最後一個節點」這類特殊情況。對照單向串列的 remove：刪除第一個節點時 previous 是 NULL，必須改成修改 head；有了 header，第一個資料節點前面永遠有一個節點，特殊情況就消失了。</p>
@@ -900,7 +954,7 @@ def exercises_section():
 {details("參考解答（講義）", snippet("講義 04 · append 的一種寫法", APPEND, note="這個寫法要走到最後一個節點，所以是 $O(n)$；若類別另存 tail 指標，可以做到 $O(1)$。") + "<p>UnorderedList 的 head 是 private，無法在類別外替它加成員函式。下面的 MyList 只保留 add 與 append，用來試跑這個寫法：</p>" + snippet("試用 append：MyList", APPEND_MAIN, OUT['append'], note="append(31) 時串列是空的，新節點直接成為 head；add(77) 放到最前面；append(17) 從 77 走到 31，再接在 31 後面。"))}
 {ex4}
 <h3>練習：加入 header 節點</h3>
-<p>講義提到，可以在串列最前面放一個不存資料的 header 節點來簡化 remove。改寫 UnorderedList，讓 head 永遠指向這個 header：remove 還需要「previous == NULL」的特殊情況嗎？add、size、search 與 isEmpty 要怎麼跟著調整？</p>
+<p>講義提到，可以在串列最前面放一個不存資料的 header 節點來簡化 remove。改寫 UnorderedList，讓 head 永遠指向這個 header：remove 還需要「previous == NULL」的特殊情況嗎？add、size、search 與 isEmpty 要怎麼跟著調整？想好之後，再對照 remove 一節的<a href="#linked-header-node">參考做法</a>。</p>
 {book}'''
 
 

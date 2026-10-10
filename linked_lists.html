@@ -635,7 +635,12 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <p>較完整的 ADT 也寫明了各操作的前提：<code>append</code> 與 <code>insert</code> 假設元素原本不在串列中；<code>index</code> 假設元素一定在串列中；<code>insert(pos, item)</code> 假設串列已有足夠的元素，位置 <code>pos</code> 才存在；<code>pop()</code> 假設串列至少有一個元素。實作這些操作時，要先決定違反前提時怎麼處理，例如課程標頭的 <code>remove</code> 在找不到元素時，選擇讓串列保持不變。</p>
 <h3>為什麼需要另一種表示法</h3>
 <p><code>ArrayList</code> 把元素放在一段連續的陣列裡，依位置讀取很快，代價是要維持「連續」：在最前面插入一項，後面每一項都得往後搬一格；容量用完時，還要配置更大的陣列並把元素全部複製過去。如果程式經常在前端或中間插入、刪除，這些搬移就會成為主要成本。</p>
-<p>串列真正需要維持的只有元素之間的<strong>相對順序</strong>，並不要求它們在記憶體中相鄰。只要每個元素記得下一個元素在哪裡，順序就保存下來了；找到位置之後，插入或刪除只要改幾個指標，不必搬動其他元素。</p>
+<p>串列真正需要維持的只有元素之間的<strong>相對順序</strong>，並不要求它們在記憶體中相鄰。只要每個元素記得下一個元素在哪裡，順序就保存下來了。不要求相鄰，讓鏈結串列在下面三種情況比陣列有利：</p>
+<ul class="linked-ul">
+<li id="linked-scattered-memory"><strong>記憶體分散時。</strong>在複雜系統的執行環境中，空閒的記憶體常常零散分布在各處。陣列需要一整塊連續空間，陣列很大時，系統可能找不到夠大的連續區塊；鏈結串列的節點可以分散存放在各個空位，這時就看得出它的彈性。</li>
+<li id="linked-known-position"><strong>已經知道位置時。</strong>一旦拿到節點的位置，插入或刪除只要改幾個指標，不必搬動其他元素。若再用雜湊表（hash table）記住每個 key 對應的節點，連找位置的步驟都省掉，<code>add</code> 與 <code>remove</code> 都能在常數時間內完成（刪除要用雙向串列，才能直接找到前一個節點，見<a href="#linked-doubly">雙向串列</a>）。LRU 快取就是這樣做：用雙向鏈結串列記錄資料的使用順序，用雜湊表從 key 直接找到節點。作業系統把空閒的記憶體區塊串成空閒串列（free-list）來管理，也是類似的做法。要注意，優勢只在「已知位置的插入與刪除」：從頭走訪鏈結串列仍是 $O(n)$，而且每走一步都要跟著指標跳到記憶體的另一處，對快取不友善，實際執行通常比走訪陣列慢。</li>
+<li id="linked-bulk-update"><strong>大量插入與刪除時。</strong>每次只配置或釋放一個節點，不需要像陣列那樣把後面整段元素往前或往後搬，也不需要在容量用完時重新配置更大的陣列、再把全部元素複製過去。</li>
+</ul>
 <h3>鏈結表示：每一項記住下一項在哪裡</h3>
 <p>下面六個整數放在記憶體中的不同位置。只看它們的位置，看不出誰是第一項、誰排在誰後面。</p>
 <figure class="linked-figure" id="linked-figure-scatter"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="六個整數 54、26、93、17、77、31 散落在不同位置，彼此之間沒有任何連線。"><img src="assets/figures/ch4/unordered.png" alt="六個整數 54、26、93、17、77、31 散落在不同位置，彼此之間沒有任何連線。" width="323" height="195" style="--figure-width:323px" loading="lazy"></div><figcaption>只看位置，這六個值像是隨意擺放：記憶體裡的相對位置沒有透露誰是第一項、誰是下一項。</figcaption></figure>
@@ -700,6 +705,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="22">        }</span>
 <span class="line" data-l="23">};</span></div>
 </div>
+<details class="linked-detail" id="linked-template-note"><summary><code>template &lt;typename T&gt;</code> 的作用（補充）</summary><div class="linked-detail-body"><p><code>template &lt;typename T&gt;</code> 宣告接下來的 <code>Node</code> 是<strong>類別模板</strong>。T 是<strong>型別參數</strong>：寫類別時先不決定元素的型別，用 T 代替；使用時才在角括號裡填入實際的型別，例如 <code>Node&lt;int&gt;</code>、<code>Node&lt;string&gt;</code>、<code>UnorderedList&lt;string&gt;</code>。所以同一份 <code>Node</code> 與串列的程式碼，可以存放任意型別的元素。</p><p>模板本身不會直接變成機器碼。編譯器看到程式用了 <code>Node&lt;int&gt;</code> 與 <code>Node&lt;string&gt;</code>，會依照模板替每個用到的型別各產生一份類別，效果就像分別手寫了存 <code>int</code> 與存 <code>string</code> 的兩個 <code>Node</code>。模板的完整寫法見先備知識 <a href="p9_oop_advanced.html#tmpl">P9 的模板一節</a>。</p></div></details>
 <h3>封裝：只能透過四個成員函式存取</h3>
 <p><code>data</code> 與 <code>next</code> 兩個欄位都是 <code>private</code>。串列的程式與使用者的程式都只能透過 <code>getData()</code>、<code>getNext()</code>、<code>setData()</code>、<code>setNext()</code> 存取節點；直接寫 <code>node-&gt;next</code> 是刻意不允許的寫法，無法通過編譯。</p>
 <div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>成員函式</th><th>作用</th><th>會不會改變節點</th></tr></thead><tbody><tr><td><code>Node(T initdata)</code></td><td>建構子：<code>data</code> 設成 initdata，<code>next</code> 設成 <code>NULL</code></td><td>建立新節點</td></tr><tr><td><code>getData()</code> <code>const</code></td><td>回傳資料欄位的值</td><td>不會（<code>const</code>）</td></tr><tr><td><code>getNext()</code> <code>const</code></td><td>回傳 <code>next</code> 指標，也就是下一個節點的位址；沒有下一個節點時回傳 <code>NULL</code></td><td>不會（<code>const</code>）</td></tr><tr><td><code>setData(newData)</code></td><td>把資料欄位改成 newData</td><td>只改資料，不改鏈結</td></tr><tr><td><code>setNext(newnext)</code></td><td>把 <code>next</code> 改成指向 newnext</td><td>改變鏈結</td></tr></tbody></table></div>
@@ -1035,6 +1041,95 @@ false</pre></div><p class="dx-note">17 在第四個節點，比較四次就回�
 <figure class="linked-figure" id="linked-figure-remove-head"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="previous 仍是 NULL，current 指向 54；head 原本指向 54 的箭頭改成虛線，新箭頭從 head 跨過 54 指向 26。"><img src="assets/figures/ch4/remove_unorder_list4.png" alt="previous 仍是 NULL，current 指向 54；head 原本指向 54 的箭頭改成虛線，新箭頭從 head 跨過 54 指向 26。" width="680" height="180" style="--figure-width:680px" loading="lazy"></div><figcaption>要刪的是第一個節點 54 時，迴圈一開始就找到目標，<code>previous</code> 仍是 <code>NULL</code>。這時沒有前一個節點可以修改，要改的是 <code>head</code>：讓 <code>head</code> 改指 54 的下一個節點 26。</figcaption></figure>
 <p>第 16 行檢查這個情況：<code>previous</code> 沒有移動過，迴圈結束時仍是 <code>NULL</code>，就讓 <code>head</code> 改指 <code>current</code> 的下一個節點（第 17 行），等於把第一個節點從串列中移除；否則要刪的節點在串列中段或尾端，<code>previous</code> 就是 <code>next</code> 需要修改的節點（第 19 行）。兩種情況的新目標都是 <code>current-&gt;getNext()</code>。節點脫離鏈結後，第 21 行 <code>delete</code> <code>current</code> 釋放它；C++ 沒有垃圾回收，少了這一行就會留下無法再釋放的記憶體。串列的解構子也用同樣方式釋放剩下的所有節點。另一種做法是在最前面放一個不存資料的 <code>header</code> 節點，讓第一個資料節點也有前一個節點，就不需要這個特殊情況；這留作練習。</p>
 <figure class="linked-figure" id="linked-figure-remove"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="原串列為 54、26、93、17、77、31；previous 位於 93，current 位於 17，93 的 next 跨過 17 接到 77。"><img src="assets/figures/ch4/remove_unorder_list3.png" alt="原串列為 54、26、93、17、77、31；previous 位於 93，current 位於 17，93 的 next 跨過 17 接到 77。" width="680" height="150" style="--figure-width:680px" loading="lazy"></div><figcaption>從 54 → 26 → 93 → 17 → 77 → 31 刪除 17：<code>previous</code> 位於 93，<code>current</code> 位於 17。讓 93 的 <code>next</code> 改指向 77，串列便跳過 17；接好後再釋放 17 的節點。</figcaption></figure>
+<details class="linked-detail" id="linked-header-node"><summary>參考做法：加上 <code>header</code> 節點（補充）</summary><div class="linked-detail-body"><p>做法是讓串列永遠保有一個<strong>不存資料的 dummy 節點</strong>，稱為 <code>header</code>，由它取代原本 <code>head</code> 的位置：</p>
+<ul class="linked-ul">
+<li>建構子先 <code>new</code> 一個 <code>header</code> 節點。真正的資料從 <code>header-&gt;getNext()</code> 開始；<code>header-&gt;getNext() == NULL</code> 就表示串列是空的。</li>
+<li><code>remove</code> 時，<code>previous</code> 一開始就指向 <code>header</code>，<code>current</code> 指向 <code>header-&gt;getNext()</code>。第一個資料節點前面也有節點，所以刪除它和刪除中間的節點一樣，都是 <code>previous-&gt;setNext(current-&gt;getNext())</code>，不必再檢查 <code>previous == NULL</code>。</li>
+<li><code>add</code> 改成把新節點接在 <code>header</code> 後面：先 <code>temp-&gt;setNext(header-&gt;getNext())</code>，再 <code>header-&gt;setNext(temp)</code>。</li>
+<li><code>size</code>、<code>search</code> 與印出串列的走訪，都從 <code>header-&gt;getNext()</code> 出發，<code>header</code> 不算在元素裡。</li>
+<li>解構子從 <code>header</code> 開始逐一 <code>delete</code>，連 <code>header</code> 一起釋放；漏掉它，每個串列都會留下一個無法釋放的節點。</li>
+</ul>
+<p>代價是每個串列多一個節點；建立 <code>header</code> 時用 <code>T()</code> 產生一個用不到的預設值，所以元素型別要能預設建構。<a href="#variants">雙向串列</a>的 <code>header</code>、<code>trailer</code> 哨兵節點，用的也是同一個想法。</p><div class="deck-extra">
+  <div class="dx-label">加上 <code>header</code> 節點的串列：HeaderList</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="true&#10;54 26 93 17 77 31 &#10;26 93 77 &#10;3&#10;true&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">"pythonds3/cppds/linked_list.hpp"</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
+<span class="line" data-l="6"><span class="kw">class</span> HeaderList {</span>
+<span class="line" data-l="7">    <span class="kw">private</span>:</span>
+<span class="line" data-l="8">        Node&lt;T&gt; *header;   <span class="com">// dummy node: its data is never used</span></span>
+<span class="line" data-l="9">    <span class="kw">public</span>:</span>
+<span class="line" data-l="10">        HeaderList() {</span>
+<span class="line" data-l="11">            header = <span class="kw">new</span> Node&lt;T&gt;(T());   <span class="com">// the list always has this node</span></span>
+<span class="line" data-l="12">        }</span>
+<span class="line" data-l="13">        ~HeaderList() {</span>
+<span class="line" data-l="14">            Node&lt;T&gt; *current = header;   <span class="com">// free the data nodes AND the header</span></span>
+<span class="line" data-l="15">            <span class="kw">while</span> (current != <span class="fn">NULL</span>) {</span>
+<span class="line" data-l="16">                Node&lt;T&gt; *next = current-&gt;getNext();</span>
+<span class="line" data-l="17">                <span class="kw">delete</span> current;</span>
+<span class="line" data-l="18">                current = next;</span>
+<span class="line" data-l="19">            }</span>
+<span class="line" data-l="20">        }</span>
+<span class="line" data-l="21">        <span class="kw">bool</span> isEmpty() <span class="kw">const</span> {</span>
+<span class="line" data-l="22">            <span class="kw">return</span> header-&gt;getNext() == <span class="fn">NULL</span>;</span>
+<span class="line" data-l="23">        }</span>
+<span class="line" data-l="24">        <span class="kw">void</span> add(T item) {               <span class="com">// insert right after the header</span></span>
+<span class="line" data-l="25">            Node&lt;T&gt; *temp = <span class="kw">new</span> Node&lt;T&gt;(item);</span>
+<span class="line" data-l="26">            temp-&gt;setNext(header-&gt;getNext());</span>
+<span class="line" data-l="27">            header-&gt;setNext(temp);</span>
+<span class="line" data-l="28">        }</span>
+<span class="line" data-l="29">        <span class="kw">int</span> size() <span class="kw">const</span> {</span>
+<span class="line" data-l="30">            <span class="kw">int</span> count = <span class="num">0</span>;</span>
+<span class="line" data-l="31">            <span class="kw">for</span> (Node&lt;T&gt; *current = header-&gt;getNext(); current != <span class="fn">NULL</span>; current = current-&gt;getNext())</span>
+<span class="line" data-l="32">                count++;</span>
+<span class="line" data-l="33">            <span class="kw">return</span> count;</span>
+<span class="line" data-l="34">        }</span>
+<span class="line" data-l="35">        <span class="kw">bool</span> search(T item) <span class="kw">const</span> {</span>
+<span class="line" data-l="36">            <span class="kw">for</span> (Node&lt;T&gt; *current = header-&gt;getNext(); current != <span class="fn">NULL</span>; current = current-&gt;getNext())</span>
+<span class="line" data-l="37">                <span class="kw">if</span> (current-&gt;getData() == item) <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line" data-l="38">            <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="39">        }</span>
+<span class="line" data-l="40">        <span class="kw">void</span> remove(T item) {</span>
+<span class="line" data-l="41">            Node&lt;T&gt; *previous = header;  <span class="com">// never NULL</span></span>
+<span class="line" data-l="42">            Node&lt;T&gt; *current = header-&gt;getNext();</span>
+<span class="line" data-l="43">            <span class="kw">while</span> (current != <span class="fn">NULL</span> &amp;&amp; current-&gt;getData() != item) {</span>
+<span class="line" data-l="44">                previous = current;</span>
+<span class="line" data-l="45">                current = current-&gt;getNext();</span>
+<span class="line" data-l="46">            }</span>
+<span class="line" data-l="47">            <span class="kw">if</span> (current != <span class="fn">NULL</span>) {       <span class="com">// same two lines for the first node, too</span></span>
+<span class="line" data-l="48">                previous-&gt;setNext(current-&gt;getNext());</span>
+<span class="line" data-l="49">                <span class="kw">delete</span> current;</span>
+<span class="line" data-l="50">            }</span>
+<span class="line" data-l="51">        }</span>
+<span class="line" data-l="52">        <span class="kw">void</span> pri<span></span>nt() <span class="kw">const</span> {</span>
+<span class="line" data-l="53">            <span class="kw">for</span> (Node&lt;T&gt; *current = header-&gt;getNext(); current != <span class="fn">NULL</span>; current = current-&gt;getNext())</span>
+<span class="line" data-l="54">                cout &lt;&lt; current-&gt;getData() &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span>;</span>
+<span class="line" data-l="55">            cout &lt;&lt; endl;</span>
+<span class="line" data-l="56">        }</span>
+<span class="line" data-l="57">};</span>
+<span class="line" data-l="58"> </span>
+<span class="line" data-l="59"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="60">    HeaderList&lt;<span class="kw">int</span>&gt; myList;</span>
+<span class="line" data-l="61">    cout &lt;&lt; boolalpha &lt;&lt; myList.isEmpty() &lt;&lt; endl;</span>
+<span class="line" data-l="62">    <span class="kw">for</span> (<span class="kw">int</span> value : {<span class="num">31</span>, <span class="num">77</span>, <span class="num">17</span>, <span class="num">93</span>, <span class="num">26</span>, <span class="num">54</span>}) myList.add(value);</span>
+<span class="line" data-l="63">    myList.pri<span></span>nt();</span>
+<span class="line" data-l="64">    myList.remove(<span class="num">54</span>);   <span class="com">// first data node: no special case</span></span>
+<span class="line" data-l="65">    myList.remove(<span class="num">17</span>);   <span class="com">// middle</span></span>
+<span class="line" data-l="66">    myList.remove(<span class="num">31</span>);   <span class="com">// last</span></span>
+<span class="line" data-l="67">    myList.remove(<span class="num">45</span>);   <span class="com">// missing: no change</span></span>
+<span class="line" data-l="68">    myList.pri<span></span>nt();</span>
+<span class="line" data-l="69">    cout &lt;&lt; myList.size() &lt;&lt; endl;</span>
+<span class="line" data-l="70">    cout &lt;&lt; myList.search(<span class="num">93</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="71">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="72">}</span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>true
+54 26 93 17 77 31&#32;
+26 93 77&#32;
+3
+true</pre></div>
+  <p class="dx-note"><code>remove(54)</code> 刪的是第一個資料節點，這時 <code>previous</code> 就是 <code>header</code>，和 <code>remove(17)</code>、<code>remove(31)</code> 走的是同一段程式。<code>remove(45)</code> 找不到，串列不變。</p>
+</div></div></details>
 <details class="linked-detail"><summary>完整程式：刪除中間的 17</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label"><code>remove(17)</code> 前後的串列</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="54 26 93 17 77 31 &#10;54 26 93 77 31 &#10;5&#10;false&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -1494,6 +1589,76 @@ false
     </tbody>
   </table>
 </div>
+<h3>課程的串列與 STL 串列</h3>
+<p>把本章的兩個類別和 STL 的兩種串列放在一起比較：</p>
+<div style="overflow-x:auto"><table class="cmp-table" style="min-width:680px;"><thead><tr><th>特性</th><th>課程的 <code>UnorderedList&lt;T&gt;</code></th><th>課程的 <code>OrderedList&lt;T&gt;</code></th><th>STL <code>std::forward_list&lt;T&gt;</code></th><th>STL <code>std::list&lt;T&gt;</code></th></tr></thead><tbody><tr><td>鏈結串列類型</td><td>單向</td><td>單向</td><td>單向</td><td>雙向</td></tr><tr><td>自動維持排序</td><td>否</td><td>是</td><td>否</td><td>否</td></tr><tr><td>頭部插入</td><td><code>add()</code></td><td>由 <code>add()</code> 依大小決定位置</td><td><code>push_front()</code></td><td><code>push_front()</code></td></tr><tr><td>任意位置插入</td><td>未提供</td><td><code>add()</code> 自動尋找位置</td><td><code>insert_after()</code></td><td><code>insert()</code></td></tr><tr><td>刪除元素</td><td><code>remove()</code></td><td><code>remove()</code></td><td><code>remove()</code>、<code>erase_after()</code></td><td><code>remove()</code>、<code>erase()</code></td></tr><tr><td>搜尋</td><td><code>search()</code></td><td><code>search()</code>（可提前停止）</td><td>可使用 <code>std::find()</code></td><td>可使用 <code>std::find()</code></td></tr></tbody></table></div>
+<p>表中的「自動維持排序」只表示容器不會自己替你排序，並不是說 <code>std::forward_list</code> 只能用在無序串列。它有 <code>sort()</code> 成員函式，可以把整個串列排好；也可以像 <code>OrderedList</code> 的 <code>add</code> 一樣，先找到位置，再用 <code>insert_after()</code> 插入，自己維持排序。</p>
+<details class="linked-detail" id="linked-stl-ordered"><summary>用 STL 實作 <code>OrderedList</code>（補充）</summary><div class="linked-detail-body"><p>類別只保存一個 <code>std::forward_list&lt;T&gt;</code>，節點的配置與釋放都交給它，所以不必自己寫解構子。三個操作和前面的 <code>OrderedList</code> 一一對應：</p>
+<ul class="linked-ul">
+<li><code>add</code>：<code>prev</code> 從 <code>before_begin()</code> 出發，<code>cur</code> 從 <code>begin()</code> 出發；只要 <code>*cur</code> 小於 <code>item</code>，兩者就一起前進。停下後用 <code>insert_after(prev, item)</code> 把新元素接在 <code>prev</code> 後面。要插在最前面時，<code>prev</code> 仍是 <code>before_begin()</code>，同一行程式就能處理，不必另外修改 <code>head</code>。</li>
+<li><code>search</code>：遇到等於 <code>item</code> 的值就回傳 <code>true</code>；遇到比 <code>item</code> 大的值，後面只會更大，提前回傳 <code>false</code>。</li>
+<li><code>remove</code>：用和 <code>add</code> 相同的方式找位置；<code>cur</code> 指向的值等於 <code>item</code> 時，呼叫 <code>erase_after(prev)</code> 刪除它，找不到就不做任何事。</li>
+</ul><div class="deck-extra">
+  <div class="dx-label"><code>forward_list</code> 版的 <code>OrderedList</code></div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="17 26 31 54 77 93 &#10;true&#10;false&#10;26 31 54 77 93 &#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;forward_list&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
+<span class="line" data-l="6"><span class="kw">class</span> OrderedList {</span>
+<span class="line" data-l="7">    <span class="kw">private</span>:</span>
+<span class="line" data-l="8">        forward_list&lt;T&gt; items;   <span class="com">// the STL singly linked list stores the nodes</span></span>
+<span class="line" data-l="9">    <span class="kw">public</span>:</span>
+<span class="line" data-l="10">        <span class="kw">void</span> add(T item) {</span>
+<span class="line" data-l="11">            <span class="kw">auto</span> prev = items.before_begin();   <span class="com">// "node" before the first element</span></span>
+<span class="line" data-l="12">            <span class="kw">auto</span> cur = items.begin();</span>
+<span class="line" data-l="13">            <span class="kw">while</span> (cur != items.end() &amp;&amp; *cur &lt; item) {</span>
+<span class="line" data-l="14">                prev = cur;</span>
+<span class="line" data-l="15">                ++cur;</span>
+<span class="line" data-l="16">            }</span>
+<span class="line" data-l="17">            items.insert_after(prev, item);     <span class="com">// link the new node after prev</span></span>
+<span class="line" data-l="18">        }</span>
+<span class="line" data-l="19">        <span class="kw">bool</span> search(T item) <span class="kw">const</span> {</span>
+<span class="line" data-l="20">            <span class="kw">for</span> (<span class="kw">auto</span> cur = items.begin(); cur != items.end(); ++cur) {</span>
+<span class="line" data-l="21">                <span class="kw">if</span> (*cur == item) <span class="kw">return</span> <span class="fn">true</span>;</span>
+<span class="line" data-l="22">                <span class="kw">if</span> (*cur &gt; item) <span class="kw">return</span> <span class="fn">false</span>;  <span class="com">// passed the spot: stop early</span></span>
+<span class="line" data-l="23">            }</span>
+<span class="line" data-l="24">            <span class="kw">return</span> <span class="fn">false</span>;</span>
+<span class="line" data-l="25">        }</span>
+<span class="line" data-l="26">        <span class="kw">void</span> remove(T item) {</span>
+<span class="line" data-l="27">            <span class="kw">auto</span> prev = items.before_begin();</span>
+<span class="line" data-l="28">            <span class="kw">auto</span> cur = items.begin();</span>
+<span class="line" data-l="29">            <span class="kw">while</span> (cur != items.end() &amp;&amp; *cur &lt; item) {</span>
+<span class="line" data-l="30">                prev = cur;</span>
+<span class="line" data-l="31">                ++cur;</span>
+<span class="line" data-l="32">            }</span>
+<span class="line" data-l="33">            <span class="kw">if</span> (cur != items.end() &amp;&amp; *cur == item) {</span>
+<span class="line" data-l="34">                items.erase_after(prev);        <span class="com">// unlink and free the node</span></span>
+<span class="line" data-l="35">            }</span>
+<span class="line" data-l="36">        }</span>
+<span class="line" data-l="37">        <span class="kw">void</span> pri<span></span>nt() <span class="kw">const</span> {</span>
+<span class="line" data-l="38">            <span class="kw">for</span> (<span class="kw">const</span> T&amp; x : items) cout &lt;&lt; x &lt;&lt; <span class="str">'</span><span class="str"> </span><span class="str">'</span>;</span>
+<span class="line" data-l="39">            cout &lt;&lt; endl;</span>
+<span class="line" data-l="40">        }</span>
+<span class="line" data-l="41">};</span>
+<span class="line" data-l="42"> </span>
+<span class="line" data-l="43"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="44">    OrderedList&lt;<span class="kw">int</span>&gt; myList;</span>
+<span class="line" data-l="45">    <span class="kw">for</span> (<span class="kw">int</span> value : {<span class="num">31</span>, <span class="num">77</span>, <span class="num">17</span>, <span class="num">93</span>, <span class="num">26</span>, <span class="num">54</span>}) myList.add(value);</span>
+<span class="line" data-l="46">    myList.pri<span></span>nt();</span>
+<span class="line" data-l="47">    cout &lt;&lt; boolalpha &lt;&lt; myList.search(<span class="num">93</span>) &lt;&lt; endl;</span>
+<span class="line" data-l="48">    cout &lt;&lt; myList.search(<span class="num">45</span>) &lt;&lt; endl;   <span class="com">// stops at 54</span></span>
+<span class="line" data-l="49">    myList.remove(<span class="num">17</span>);                    <span class="com">// first element: prev is before_begin()</span></span>
+<span class="line" data-l="50">    myList.remove(<span class="num">45</span>);                    <span class="com">// missing value: no change</span></span>
+<span class="line" data-l="51">    myList.pri<span></span>nt();</span>
+<span class="line" data-l="52">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="53">}</span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>17 26 31 54 77 93&#32;
+true
+false
+26 31 54 77 93 </pre></div>
+  <p class="dx-note">六個值不論加入的順序，印出來都由小到大。<code>search(45)</code> 比到 54 就停下，回傳 <code>false</code>。<code>remove(17)</code> 刪的是第一個元素，<code>prev</code> 停在 <code>before_begin()</code>，和刪除中間元素用的是同一個 <code>erase_after</code>。</p>
+</div></div></details>
 <h3><code>forward_list</code> 的常用操作（課本）</h3>
 <p><code>forward_list</code> 的插入與刪除都作用在指定元素的<strong>後面</strong>：<code>insert_after</code>、<code>erase_after</code>。課本列出的常用操作如下：</p>
 <div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>操作</th><th>說明</th></tr></thead><tbody><tr><td><code>forward_list&lt;T&gt;</code> a;</td><td>建立空的 <code>forward_list</code></td></tr><tr><td><code>push_front(x)</code>／<code>emplace_front(...)</code></td><td>在最前面加入元素；emplace 版就地建構元素</td></tr><tr><td><code>pop_front()</code></td><td>移除第一個元素</td></tr><tr><td><code>insert_after(it, x)</code>／<code>emplace_after(it, ...)</code></td><td>在 <code>it</code> 指向的元素後面加入</td></tr><tr><td><code>erase_after(it)</code></td><td>刪除 <code>it</code> 後面的元素（也可以刪除一段範圍）</td></tr><tr><td><code>clear()</code></td><td>移除所有元素</td></tr></tbody></table></div>
@@ -1611,8 +1776,13 @@ count = 1</pre></div>
 <span class="line" data-l="6">    } <span class="kw">while</span> (current != head);</span>
 <span class="line" data-l="7">}</span></div></div></div></div>
 <h3>環狀串列的用途：輪流與 <code>append</code></h3>
-<p>講義指出，環狀串列適合輪流分配資源，也方便實作 <code>append</code> 一類的操作：若保存最後一個節點 <code>tail</code>，<code>tail-&gt;getNext()</code> 就是第一個節點，在頭端或尾端加入都只要 $O(1)$。只保存 <code>tail</code> 就夠了，不必另外保存 <code>head</code>。</p>
-<p>以輪流使用資源為例：<code>current</code> 指向目前輪到的工作，處理完一段時間後執行 <code>current = current-&gt;getNext()</code>，就換到下一個工作；走到最後一個工作之後，會自然回到第一個，不需要另外判斷「是否到尾端、要不要回到開頭」。</p>
+<p>講義指出，環狀串列<strong>很適合用來有效率地分配與管理資源，也適合 <code>append()</code> 這類操作</strong>，理由如下：</p>
+<ul class="linked-ul">
+<li>從任何一個節點出發，沿 <code>next</code> 一直走，都能走遍整個串列，再回到出發點。</li>
+<li>只要保存最後一個節點 <code>tail</code>，<code>tail-&gt;getNext()</code> 就是第一個節點，頭與尾都能在 $O(1)$ 時間取得，所以 <code>append</code> 很方便：在尾端或頭端加入都只要 $O(1)$。只保存 <code>tail</code> 就夠了，不必另外保存 <code>head</code>。</li>
+<li>適合有循環性質的資料與資源分配，例如 CPU 的輪流排程（round-robin）與多人遊戲的輪流順序。</li>
+</ul>
+<p>以 CPU 的輪流排程為例：<code>current</code> 指向目前輪到的工作，處理完一段時間後執行 <code>current = current-&gt;getNext()</code>，就換到下一個工作；走到最後一個工作之後，會自然回到第一個，不需要另外判斷「是否到尾端、要不要回到開頭」。</p>
 <p>環狀只改變結尾的接法，並沒有增加反向走訪的能力：要刪除某個節點，仍然需要它前一個節點。另外，因為串列中沒有 <code>NULL</code>，任何以「走到 <code>NULL</code> 為止」寫成的迴圈，在環狀串列上都不會結束；釋放節點時，也要先把環斷開，或改用「回到起點為止」的條件。</p>
 <details class="linked-detail"><summary>完整程式：建立環狀串列、走訪與用 <code>tail</code> 做 <code>append</code>（補充）</summary><div class="linked-detail-body"><div class="deck-extra">
   <div class="dx-label">環狀串列：以 <code>Node</code> 建立、do-while 走訪</div>
@@ -1665,8 +1835,8 @@ count = 1</pre></div>
 </div></div></details>
 <h3>單向串列的限制</h3>
 <p>單向串列可以有效率地在頭端插入與刪除，也能在保存 <code>tail</code> 時快速加到尾端，但<strong>刪除尾端</strong>不容易：必須先找到倒數第二個節點。問題其實更普遍：只拿到某個節點的指標時，找不到它的前驅，也就無法立刻刪除它。</p>
-<h3>雙向串列與哨兵節點</h3>
-<p>為了讓兩個方向對稱，<strong>雙向鏈結串列</strong>（Doubly Linked List）讓每個節點同時保存指向後一個節點的 <code>next</code> 與指向前一個節點的 <code>prev</code>，因此能在任意位置以 $O(1)$ 完成更多種更新；需要反向走訪的演算法（例如檢查回文）也適合使用。</p>
+<h3 id="linked-doubly">雙向串列與哨兵節點</h3>
+<p>為了讓兩個方向對稱，<strong>雙向鏈結串列</strong>（Doubly Linked List）讓每個節點同時保存指向後一個節點的 <code>next</code> 與指向前一個節點的 <code>prev</code>。只拿到某個內部節點的指標時，<code>prev</code> 就是它的前一個節點，可以直接把前後兩個鄰居接起來，所以刪除任意已知節點只要 $O(1)$。有了 <code>prev</code>，才真正做到<a href="#linked-known-position">本章開頭</a>所說鏈結串列相對於陣列的優勢：已知位置時，插入與刪除只改幾個指標。需要反向走訪的演算法（例如檢查回文）也適合使用雙向串列。</p>
 <p>講義的設計在兩端各放一個不存使用者資料的<strong>哨兵節點</strong>（sentinel）：<code>header</code> 與 <code>trailer</code>。非空串列中，<code>header</code> 的 <code>next</code> 指向第一個資料節點，<code>trailer</code> 的 <code>prev</code> 指向最後一個資料節點；空串列時兩者直接相連。這樣每次插入都發生在兩個既有節點之間，每個要刪除的資料節點兩側也一定有鄰居，所以頭端、尾端與中間都能用同一套接線。走訪時要在 <code>trailer</code> 停下，哨兵不能當成資料讀取或刪除。</p>
 <figure class="linked-figure" id="linked-figure-sentinels"><div class="linked-figure-scroll" tabindex="0" role="region" aria-label="header 與 trailer 哨兵之間依序是 54、26、93，每個資料節點有 prev、data、next，鄰居以雙向箭頭連接。"><img src="assets/figures/ch4/double_list.png" alt="header 與 trailer 哨兵之間依序是 54、26、93，每個資料節點有 prev、data、next，鄰居以雙向箭頭連接。" width="1100" height="193" style="--figure-width:1100px" loading="lazy"></div><figcaption>資料節點依序為 54、26、93，左右另有 <code>header</code> 與 <code>trailer</code> 哨兵。每個資料節點都有前後兩個鄰居；刪除第一項或最後一項時，也能把兩側鄰居接回。哨兵本身不代表資料。</figcaption></figure>
 <p>哨兵的代價是每個串列多兩個不存資料的節點，換來的是程式裡不再需要「是不是第一個節點」「是不是最後一個節點」這類特殊情況。對照單向串列的 <code>remove</code>：刪除第一個節點時 <code>previous</code> 是 <code>NULL</code>，必須改成修改 <code>head</code>；有了 <code>header</code>，第一個資料節點前面永遠有一個節點，特殊情況就消失了。</p>
@@ -1940,7 +2110,7 @@ count = 1</pre></div>
   <div class="quiz-feedback" id="ex4Feedback"></div>
 </div>
 <h3>練習：加入 <code>header</code> 節點</h3>
-<p>講義提到，可以在串列最前面放一個不存資料的 <code>header</code> 節點來簡化 <code>remove</code>。改寫 <code>UnorderedList</code>，讓 <code>head</code> 永遠指向這個 <code>header</code>：<code>remove</code> 還需要「<code>previous == NULL</code>」的特殊情況嗎？<code>add</code>、<code>size</code>、<code>search</code> 與 <code>isEmpty</code> 要怎麼跟著調整？</p>
+<p>講義提到，可以在串列最前面放一個不存資料的 <code>header</code> 節點來簡化 <code>remove</code>。改寫 <code>UnorderedList</code>，讓 <code>head</code> 永遠指向這個 <code>header</code>：<code>remove</code> 還需要「<code>previous == NULL</code>」的特殊情況嗎？<code>add</code>、<code>size</code>、<code>search</code> 與 <code>isEmpty</code> 要怎麼跟著調整？想好之後，再對照 <code>remove</code> 一節的<a href="#linked-header-node">參考做法</a>。</p>
 <div class="deck-extra" id="dx-exx">
   <div class="dx-label">課本 Programming Exercises 精選（課本）</div>
   <ol style="font-size:.92rem;line-height:1.9;padding-left:1.4rem;">

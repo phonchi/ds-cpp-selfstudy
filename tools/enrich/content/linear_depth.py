@@ -146,7 +146,7 @@ def stack_stl():
                  note='"true" 最後 push，所以在 top；pop 移除它之後，top 變成 "dog"。<code>boolalpha</code> 讓 bool 值印成 true／false 而不是 1／0。')}
 <h3>課程中的兩套 stack 介面</h3>
 {apis}
-<p>作業也使用同一個課程標頭的 <code>Stack&lt;T&gt;</code>（<code>pythonds3/cppds/stack.hpp</code>）。兩套介面的方法名稱不同，寫程式時要看清楚用的是哪一套。課程標頭的 <code>Stack&lt;T&gt;</code> 以 vector 的尾端當 top，push 與 pop 都只動最後一格：</p>
+<p>課程標頭的 <code>Stack&lt;T&gt;</code> 比 <code>std::stack</code> 更方便、更直覺：<code>pop()</code> 移除 top 的同時就把它回傳（STL 要先 <code>top()</code> 再 <code>pop()</code>），方法名稱 <code>push</code>、<code>pop</code>、<code>peek</code>、<code>isEmpty</code>、<code>size</code> 也和本章的 Stack ADT 一致。作業也使用同一個課程標頭的 <code>Stack&lt;T&gt;</code>（<code>pythonds3/cppds/stack.hpp</code>）。兩套介面的方法名稱不同，寫程式時要看清楚用的是哪一套。課程標頭的 <code>Stack&lt;T&gt;</code> 以 vector 的尾端當 top，push 與 pop 都只動最後一格：</p>
 {details('課程標頭 stack.hpp 的 Stack&lt;T&gt;', snippet('pythonds3/cppds/stack.hpp · Stack', STACK_HPP, kind='header'))}
 <h3>把 top 放在 vector 開頭：Stack2</h3>
 <p>也可以把 top 放在 vector 的<strong>開頭</strong>。這時 <code>push_back()</code> 與 <code>pop_back()</code> 碰不到 top，只能改用 <code>insert(begin())</code> 與 <code>erase(begin())</code>。每次 push 和 pop 都要把其餘元素搬動一格，原本 $O(1)$ 的操作變成 $O(n)$。</p>
@@ -375,7 +375,7 @@ def queue_stl():
 {lecture_program('完整程式：使用 std::queue', 'std::queue&lt;string&gt; 的基本操作', 'stl_queue',
                  note='"4" 最先 push，所以在 front；pop 移除它之後，front 變成 "dog"。和 stack 的例子用同樣的三個字串，取出的順序正好相反。')}
 <h3>課程標頭的 Queue&lt;T&gt;</h3>
-<p>課程標頭 <code>pythonds3/cppds/queue.hpp</code> 為了作業使用 <code>enqueue</code>、會回傳值的 <code>dequeue</code> 與 <code>isEmpty</code>。它把 rear 放在 vector 的開頭、front 放在尾端：<code>dequeue</code> 是 <code>pop_back</code>，$O(1)$；<code>enqueue</code> 要 <code>insert(begin())</code>，把所有元素往後搬一格，$O(n)$。</p>
+<p>課程標頭 <code>pythonds3/cppds/queue.hpp</code> 用 <code>enqueue</code>、會回傳值的 <code>dequeue</code> 與 <code>isEmpty</code>，比 STL 的 <code>front()</code> 加 <code>pop()</code> 兩步更直接，作業用的也是這個 <code>Queue&lt;T&gt;</code>。它把 rear 放在 vector 的開頭、front 放在尾端：<code>dequeue</code> 是 <code>pop_back</code>，$O(1)$；<code>enqueue</code> 要 <code>insert(begin())</code>，把所有元素往後搬一格，$O(n)$。</p>
 {trans}
 {details('課程標頭 queue.hpp 的 Queue&lt;T&gt;', snippet('pythonds3/cppds/queue.hpp · Queue', QUEUE_HPP, kind='header'))}
 {quiz('qQueue', 'QUIZ · queue 剩下哪些元素',

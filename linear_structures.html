@@ -739,7 +739,7 @@ true
 dog</pre></div><p class="dx-note">"true" 最後 push，所以在 top；pop 移除它之後，top 變成 "dog"。<code>boolalpha</code> 讓 bool 值印成 true／false 而不是 1／0。</p>
 <h3>課程中的兩套 stack 介面</h3>
 <div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>介面</th><th>建立</th><th>讀取 top</th><th>移除 top</th></tr></thead><tbody><tr><td>STL <code>std::stack&lt;T&gt;</code></td><td><code>std::stack&lt;T&gt; s;</code></td><td><code>top()</code></td><td><code>pop()</code>，回傳 <code>void</code></td></tr><tr><td>課程標頭 <code>stack.hpp</code> 的 <code>Stack&lt;T&gt;</code></td><td><code>Stack&lt;T&gt; s;</code></td><td><code>peek()</code></td><td><code>pop()</code>，回傳 <code>T</code></td></tr></tbody></table></div>
-<p>作業也使用同一個課程標頭的 <code>Stack&lt;T&gt;</code>（<code>pythonds3/cppds/stack.hpp</code>）。兩套介面的方法名稱不同，寫程式時要看清楚用的是哪一套。課程標頭的 <code>Stack&lt;T&gt;</code> 以 vector 的尾端當 top，push 與 pop 都只動最後一格：</p>
+<p>課程標頭的 <code>Stack&lt;T&gt;</code> 比 <code>std::stack</code> 更方便、更直覺：<code>pop()</code> 移除 top 的同時就把它回傳（STL 要先 <code>top()</code> 再 <code>pop()</code>），方法名稱 <code>push</code>、<code>pop</code>、<code>peek</code>、<code>isEmpty</code>、<code>size</code> 也和本章的 Stack ADT 一致。作業也使用同一個課程標頭的 <code>Stack&lt;T&gt;</code>（<code>pythonds3/cppds/stack.hpp</code>）。兩套介面的方法名稱不同，寫程式時要看清楚用的是哪一套。課程標頭的 <code>Stack&lt;T&gt;</code> 以 vector 的尾端當 top，push 與 pop 都只動最後一格：</p>
 <details class="linear-detail"><summary>課程標頭 stack.hpp 的 Stack&lt;T&gt;</summary><div class="linear-detail-body"><div class="deck-extra">
   <div class="dx-label">pythonds3/cppds/stack.hpp · Stack</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="header"><span class="line" data-l="1"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;</span>
@@ -1744,7 +1744,7 @@ false
 4
 dog</pre></div><p class="dx-note">"4" 最先 push，所以在 front；pop 移除它之後，front 變成 "dog"。和 stack 的例子用同樣的三個字串，取出的順序正好相反。</p>
 <h3>課程標頭的 Queue&lt;T&gt;</h3>
-<p>課程標頭 <code>pythonds3/cppds/queue.hpp</code> 為了作業使用 <code>enqueue</code>、會回傳值的 <code>dequeue</code> 與 <code>isEmpty</code>。它把 rear 放在 vector 的開頭、front 放在尾端：<code>dequeue</code> 是 <code>pop_back</code>，$O(1)$；<code>enqueue</code> 要 <code>insert(begin())</code>，把所有元素往後搬一格，$O(n)$。</p>
+<p>課程標頭 <code>pythonds3/cppds/queue.hpp</code> 用 <code>enqueue</code>、會回傳值的 <code>dequeue</code> 與 <code>isEmpty</code>，比 STL 的 <code>front()</code> 加 <code>pop()</code> 兩步更直接，作業用的也是這個 <code>Queue&lt;T&gt;</code>。它把 rear 放在 vector 的開頭、front 放在尾端：<code>dequeue</code> 是 <code>pop_back</code>，$O(1)$；<code>enqueue</code> 要 <code>insert(begin())</code>，把所有元素往後搬一格，$O(n)$。</p>
 <div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>std::queue&lt;T&gt;</th><th>課程標頭 Queue&lt;T&gt;</th><th>說明</th></tr></thead><tbody><tr><td><code>push(x)</code></td><td><code>enqueue(x)</code></td><td>加到 rear</td></tr><tr><td><code>front()</code> 再 <code>pop()</code></td><td><code>dequeue()</code></td><td>dequeue 移除 front 並回傳它的值</td></tr><tr><td><code>empty()</code></td><td><code>isEmpty()</code></td><td>是否為空</td></tr><tr><td><code>size()</code></td><td><code>size()</code></td><td>元素個數</td></tr><tr><td><code>back()</code></td><td>沒有對應的方法</td><td>Queue&lt;T&gt; 不提供讀取 rear</td></tr></tbody></table></div>
 <details class="linear-detail"><summary>課程標頭 queue.hpp 的 Queue&lt;T&gt;</summary><div class="linear-detail-body"><div class="deck-extra">
   <div class="dx-label">pythonds3/cppds/queue.hpp · Queue</div>

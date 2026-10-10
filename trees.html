@@ -1309,7 +1309,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
   <p>優先佇列每次取出優先權最高的元素。若用 <code>vector</code>，維持排序會讓取最小為 $O(1)$、插入因搬移而為 $O(n)$；不排序則插入 $O(1)$、尋找並刪除最小值 $O(n)$。<strong>Binary heap</strong> 讓 insert 與 delete-min 都是 $O(\log n)$。</p>
 <p>binary heap 畫出來像一棵完全二元樹，實際上存在一個 <code>vector</code> 裡；在最小堆積（min-heap）中，最小的鍵在索引 0。插入與刪除都是 $O(\log n)$，讀取最小值是 $O(1)$。</p>
 <h3 id="dx-hp">BinaryHeap 的操作</h3>
-<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinaryHeap()</code></td><td>建立空的最小堆積。</td></tr><tr><td><code>insert(k)</code></td><td>插入一個鍵，$O(\log n)$。</td></tr><tr><td><code>findMin()</code></td><td>回傳最小值但不移除，$O(1)$。</td></tr><tr><td><code>delMin()</code></td><td>移除並回傳最小值，$O(\log n)$。舊版的課程程式把同一個操作叫做 <code>delet()</code>。</td></tr><tr><td><code>isEmpty()</code>、<code>size()</code></td><td>回報堆積是否為空、有幾個元素。</td></tr><tr><td><code>print()</code></td><td>依 vector 的順序印出堆積裡的所有鍵，以空白分隔。</td></tr><tr><td><code>buildHeap(values)</code></td><td>由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。</td></tr></tbody></table></div>
+<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th></tr></thead><tbody><tr><td><code>BinaryHeap()</code></td><td>建立空的最小堆積。</td></tr><tr><td><code>insert(k)</code></td><td>插入一個鍵，$O(\log n)$。</td></tr><tr><td><code>findMin()</code></td><td>回傳最小值但不移除，$O(1)$。</td></tr><tr><td><code>delMin()</code></td><td>移除並回傳最小值，$O(\log n)$。舊版的課程程式把同一個操作叫做 <code>delet()</code>。</td></tr><tr><td><code>isEmpty()</code>、<code>size()</code></td><td>回報堆積是否為空、有幾個元素。</td></tr><tr><td><code>print()</code></td><td>依 vector 的順序印出堆積裡的所有鍵，以空白分隔。</td></tr><tr><td><code>buildHeap(values)</code></td><td>由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。</td></tr><tr><td><code>PriorityQueue&lt;K&gt;</code></td><td>同一個標頭檔裡的優先佇列，存放 <code>(priority, item)</code> 配對：<code>insert(priority, item)</code>、<code>delMin()</code> 回傳優先值最小的配對，另有 <code>findMin()</code>、<code>isEmpty()</code>、<code>size()</code>、<code>changePriority(item, p)</code>、<code>contains(item)</code>。</td></tr></tbody></table></div>
 <details class="tree-detail"><summary>講義完整程式：插入 5、7、3、11 再逐一取出</summary><div class="tree-detail-body"><div class="deck-extra">
   <div class="dx-label">講義 09 · BinaryHeap</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="3&#10;5&#10;7&#10;11&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -1363,15 +1363,16 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <p>堆積存放資料的方式依靠<strong>堆積順序性質</strong>（heap order property）：每個節點 $x$ 與它的父節點 $p$，$p$ 的鍵小於或等於 $x$ 的鍵。上圖的樹也滿足這個性質。因為樹的形狀完全由索引決定，類別只需要一個資料成員：</p>
 <details class="tree-detail"><summary>程式：BinaryHeap 的資料成員</summary><div class="tree-detail-body"><div class="deck-extra">
   <div class="dx-label">BinaryHeap 的資料成員</div>
-  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">class</span> BinaryHeap {</span>
-<span class="line" data-l="2">    <span class="kw">public</span>:</span>
-<span class="line" data-l="3">        vector&lt;<span class="kw">int</span>&gt; heap;   <span class="com">// the complete tree, stored flat</span></span>
-<span class="line" data-l="4"> </span>
-<span class="line" data-l="5">        BinaryHeap() {}</span>
-<span class="line" data-l="6">        <span class="kw">bool</span> isEmpty() {</span>
-<span class="line" data-l="7">            <span class="kw">return</span> heap.empty();</span>
-<span class="line" data-l="8">        }</span>
-<span class="line" data-l="9">};</span></div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">template</span> &lt;<span class="kw">typename</span> T = <span class="kw">int</span>&gt;   <span class="com">// T defaults to int: BinaryHeap heap; is an int heap</span></span>
+<span class="line" data-l="2"><span class="kw">class</span> BinaryHeap {</span>
+<span class="line" data-l="3">    <span class="kw">public</span>:</span>
+<span class="line" data-l="4">        vector&lt;T&gt; heap;   <span class="com">// the complete tree, stored flat</span></span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6">        BinaryHeap() {}</span>
+<span class="line" data-l="7">        <span class="kw">bool</span> isEmpty() {</span>
+<span class="line" data-l="8">            <span class="kw">return</span> heap.empty();</span>
+<span class="line" data-l="9">        }</span>
+<span class="line" data-l="10">};</span></div>
 </div></div></details>
 <p>下面的動畫一開始就是圖中的 heap。用「講義」那一列按鈕可以直接載入插入 7、delMin 與 buildHeap 三個例子。</p>
 
@@ -1428,7 +1429,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
         <div class="pseudo-code" id="heapCode" style="font-size:.74rem;"><span class="line"><span class="com">// BinaryHeap 的成員函式（binaryheap.hpp）</span></span>
-<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> item) {</span>
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insert</span>(T item) {</span>
 <span class="line" data-l="2">    heap.<span class="fn">push_back</span>(item);</span>
 <span class="line" data-l="3">    <span class="fn">percUp</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);</span>
 <span class="line" data-l="4">}</span>
@@ -1472,7 +1473,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <span class="line" data-l="10">    }</span>
 <span class="line" data-l="11">}</span>
 <span class="line" data-l="12"> </span>
-<span class="line" data-l="13"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> item) {</span>
+<span class="line" data-l="13"><span class="kw">void</span> <span class="fn">insert</span>(T item) {</span>
 <span class="line" data-l="14">    heap.push_back(item);</span>
 <span class="line" data-l="15">    percUp(heap.size() - <span class="num">1</span>);</span>
 <span class="line" data-l="16">}</span></div>
@@ -1505,16 +1506,16 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <span class="line" data-l="20">    <span class="kw">return</span> <span class="num">2</span> * i + <span class="num">2</span>;</span>
 <span class="line" data-l="21">}</span>
 <span class="line" data-l="22"> </span>
-<span class="line" data-l="23"><span class="kw">int</span> <span class="fn">delet</span>() {   <span class="com">// legacy name; delete is a C++ keyword</span></span>
+<span class="line" data-l="23">T <span class="fn">delet</span>() {   <span class="com">// legacy name; delete is a C++ keyword</span></span>
 <span class="line" data-l="24">    <span class="kw">if</span> (heap.empty()) <span class="kw">throw</span> underflow_error(<span class="str">"</span><span class="str">empty heap</span><span class="str">"</span>);</span>
 <span class="line" data-l="25">    swap(heap[<span class="num">0</span>], heap.back());</span>
-<span class="line" data-l="26">    <span class="kw">int</span> result = heap.back();</span>
+<span class="line" data-l="26">    T result = heap.back();</span>
 <span class="line" data-l="27">    heap.pop_back();</span>
 <span class="line" data-l="28">    <span class="kw">if</span> (!heap.empty()) percDown(<span class="num">0</span>);</span>
 <span class="line" data-l="29">    <span class="kw">return</span> result;</span>
 <span class="line" data-l="30">}</span>
 <span class="line" data-l="31"> </span>
-<span class="line" data-l="32"><span class="kw">int</span> <span class="fn">delMin</span>() { <span class="kw">return</span> delet(); }</span></div>
+<span class="line" data-l="32">T <span class="fn">delMin</span>() { <span class="kw">return</span> delet(); }</span></div>
 </div></div></details>
 <details class="tree-detail"><summary>完整程式：在圖中的 heap 插入 7，以及執行 delMin</summary><div class="tree-detail-body"><div class="deck-extra">
   <div class="dx-label">圖中的 heap：insert 與 delMin</div>
@@ -1542,7 +1543,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <p>由下往上的 <code>buildHeap()</code>（舊名 <code>heapify()</code>）比較快：從最後一個非葉節點開始，往根的方向逐一呼叫 <code>percDown()</code>，總成本是 $O(n)$。索引大於等於 <code>heap.size() / 2</code> 的都是葉節點，不需要處理。</p>
 <details class="tree-detail"><summary>程式：heapify（buildHeap）</summary><div class="tree-detail-body"><div class="deck-extra">
   <div class="dx-label">heapify（buildHeap）</div>
-  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">heapify</span>(vector&lt;<span class="kw">int</span>&gt; notAHeap) {</span>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">void</span> <span class="fn">heapify</span>(vector&lt;T&gt; notAHeap) {</span>
 <span class="line" data-l="2">    heap = notAHeap;               <span class="com">// copy the vector</span></span>
 <span class="line" data-l="3">    <span class="kw">int</span> i = heap.size() / <span class="num">2</span> - <span class="num">1</span>;   <span class="com">// last non-leaf node</span></span>
 <span class="line" data-l="4">    <span class="kw">while</span> (i &gt;= <span class="num">0</span>) {</span>
@@ -1605,7 +1606,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
   </div>
 
 <h3>完整的 BinaryHeap 類別</h3>
-<details class="tree-detail"><summary>展開：percUp、percDown、delet、heapify 等成員函式並列</summary><div class="tree-detail-body">  <p>把前面的函式放在一起看。整個類別只有一個成員 <code>vector&lt;int&gt; heap</code>：樹形是用索引「算」出來的
+<details class="tree-detail"><summary>展開：percUp、percDown、delet、heapify 等成員函式並列</summary><div class="tree-detail-body">  <p>把前面的函式放在一起看。整個類別只有一個成員 <code>vector&lt;T&gt; heap</code>（<code>T</code> 預設是 <code>int</code>）：樹形是用索引「算」出來的
   （左子 2i+1、右子 2i+2、父 (i-1)/2），從頭到尾不需要指標。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.8rem;">
     <div class="info-card"><div class="ic-title">percUp ＋ insert：新元素往上浮 <span class="ic-badge">CODE</span></div>
@@ -1619,7 +1620,7 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <span class="line">        i = parentIdx;</span>
 <span class="line">    }</span>
 <span class="line">}</span>
-<span class="line"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> item) {</span>
+<span class="line"><span class="kw">void</span> <span class="fn">insert</span>(T item) {</span>
 <span class="line">    heap.<span class="fn">push_back</span>(item);      <span class="com">// 先掛最尾（保結構性質）</span></span>
 <span class="line">    <span class="fn">percUp</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);  <span class="com">// 再浮上去（修順序性質）</span></span>
 <span class="line">}</span></div></div>
@@ -1643,15 +1644,15 @@ postordereval: 23</pre></div><p class="dx-note">前序得到 prefix、中序得�
 <span class="line">}</span></div></div>
     <div class="info-card"><div class="ic-title">delet ＋ heapify：取最小、批次建堆 <span class="ic-badge">CODE</span></div>
       <div class="pseudo-code" style="font-size:.72rem;">
-<span class="line"><span class="kw">int</span> <span class="fn">delet</span>() {                <span class="com">// 取出最小值</span></span>
+<span class="line">T <span class="fn">delet</span>() {                  <span class="com">// 取出最小值</span></span>
 <span class="line">    <span class="kw">if</span> (heap.<span class="fn">empty</span>()) <span class="kw">throw</span> underflow_error(<span class="str">&quot;empty heap&quot;</span>);</span>
 <span class="line">    <span class="fn">swap</span>(heap[<span class="num">0</span>], heap[heap.<span class="fn">size</span>() - <span class="num">1</span>]);</span>
-<span class="line">    <span class="kw">int</span> result = heap.<span class="fn">back</span>();</span>
+<span class="line">    T result = heap.<span class="fn">back</span>();</span>
 <span class="line">    heap.<span class="fn">pop_back</span>();</span>
 <span class="line">    <span class="kw">if</span> (!heap.<span class="fn">empty</span>()) <span class="fn">percDown</span>(<span class="num">0</span>);</span>
 <span class="line">    <span class="kw">return</span> result;</span>
 <span class="line">}</span>
-<span class="line"><span class="kw">void</span> <span class="fn">heapify</span>(vector&lt;<span class="kw">int</span>&gt; notAHeap) {</span>
+<span class="line"><span class="kw">void</span> <span class="fn">heapify</span>(vector&lt;T&gt; notAHeap) {</span>
 <span class="line">    heap = notAHeap;</span>
 <span class="line">    <span class="kw">int</span> i = heap.<span class="fn">size</span>() / <span class="num">2</span> - <span class="num">1</span>;  <span class="com">// 最後一個非葉</span></span>
 <span class="line">    <span class="kw">while</span> (i &gt;= <span class="num">0</span>) {</span>

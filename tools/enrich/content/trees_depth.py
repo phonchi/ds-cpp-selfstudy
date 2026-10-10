@@ -429,9 +429,10 @@ def traversals():
 
 
 # ---------------------------------------------------------------- P06 binary heap
-HEAP_SHELL = '''class BinaryHeap {
+HEAP_SHELL = '''template <typename T = int>   // T defaults to int: BinaryHeap heap; is an int heap
+class BinaryHeap {
     public:
-        vector<int> heap;   // the complete tree, stored flat
+        vector<T> heap;   // the complete tree, stored flat
 
         BinaryHeap() {}
         bool isEmpty() {
@@ -451,7 +452,7 @@ PERCUP = '''void percUp(int i) {
     }
 }
 
-void insert(int item) {
+void insert(T item) {
     heap.push_back(item);
     percUp(heap.size() - 1);
 }'''
@@ -478,18 +479,18 @@ int getMinChild(int i) {
     return 2 * i + 2;
 }
 
-int delet() {   // legacy name; delete is a C++ keyword
+T delet() {   // legacy name; delete is a C++ keyword
     if (heap.empty()) throw underflow_error("empty heap");
     swap(heap[0], heap.back());
-    int result = heap.back();
+    T result = heap.back();
     heap.pop_back();
     if (!heap.empty()) percDown(0);
     return result;
 }
 
-int delMin() { return delet(); }'''
+T delMin() { return delet(); }'''
 
-HEAPIFY_CODE = '''void heapify(vector<int> notAHeap) {
+HEAPIFY_CODE = '''void heapify(vector<T> notAHeap) {
     heap = notAHeap;               // copy the vector
     int i = heap.size() / 2 - 1;   // last non-leaf node
     while (i >= 0) {
@@ -510,6 +511,7 @@ def heap():
         ['<code>isEmpty()</code>、<code>size()</code>', '回報堆積是否為空、有幾個元素。'],
         ['<code>print()</code>', '依 vector 的順序印出堆積裡的所有鍵，以空白分隔。'],
         ['<code>buildHeap(values)</code>', '由下往上一次建好整個堆積，$O(n)$。<code>heapify(values)</code> 是保留下來的同義舊名。'],
+        ['<code>PriorityQueue&lt;K&gt;</code>', '同一個標頭檔裡的優先佇列，存放 <code>(priority, item)</code> 配對：<code>insert(priority, item)</code>、<code>delMin()</code> 回傳優先值最小的配對，另有 <code>findMin()</code>、<code>isEmpty()</code>、<code>size()</code>、<code>changePriority(item, p)</code>、<code>contains(item)</code>。'],
     ])}
 {program('講義完整程式：插入 5、7、3、11 再逐一取出', '講義 09 · BinaryHeap', 'heap_basic',
          note='不管以什麼順序插入，每次取出的都是目前最小的值。')}

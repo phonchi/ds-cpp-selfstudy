@@ -382,7 +382,7 @@ LEGACY['heap'] = r'''  <p>優先佇列每次取出優先權最高的元素。若
       <div class="info-card">
         <div class="ic-title">虛擬碼 <span class="ic-badge" style="background:var(--accent2)">CODE</span></div>
         <div class="pseudo-code" id="heapCode" style="font-size:.74rem;"><span class="line"><span class="com">// BinaryHeap 的成員函式（binaryheap.hpp）</span></span>
-<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> item) {</span>
+<span class="line" data-l="1"><span class="kw">void</span> <span class="fn">insert</span>(T item) {</span>
 <span class="line" data-l="2">    heap.<span class="fn">push_back</span>(item);</span>
 <span class="line" data-l="3">    <span class="fn">percUp</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);</span>
 <span class="line" data-l="4">}</span>
@@ -972,7 +972,7 @@ LEGACY['real'] = r'''  <p>本章的樹結構在實際系統中很常見：</p>
   </ul>
 '''
 
-LEGACY['heapclass'] = r'''  <p>把前面的函式放在一起看。整個類別只有一個成員 <code>vector&lt;int&gt; heap</code>：樹形是用索引「算」出來的
+LEGACY['heapclass'] = r'''  <p>把前面的函式放在一起看。整個類別只有一個成員 <code>vector&lt;T&gt; heap</code>（<code>T</code> 預設是 <code>int</code>）：樹形是用索引「算」出來的
   （左子 2i+1、右子 2i+2、父 (i-1)/2），從頭到尾不需要指標。</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:.8rem;">
     <div class="info-card"><div class="ic-title">percUp ＋ insert：新元素往上浮 <span class="ic-badge">CODE</span></div>
@@ -986,7 +986,7 @@ LEGACY['heapclass'] = r'''  <p>把前面的函式放在一起看。整個類別�
 <span class="line">        i = parentIdx;</span>
 <span class="line">    }</span>
 <span class="line">}</span>
-<span class="line"><span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">int</span> item) {</span>
+<span class="line"><span class="kw">void</span> <span class="fn">insert</span>(T item) {</span>
 <span class="line">    heap.<span class="fn">push_back</span>(item);      <span class="com">// 先掛最尾（保結構性質）</span></span>
 <span class="line">    <span class="fn">percUp</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);  <span class="com">// 再浮上去（修順序性質）</span></span>
 <span class="line">}</span></div></div>
@@ -1010,15 +1010,15 @@ LEGACY['heapclass'] = r'''  <p>把前面的函式放在一起看。整個類別�
 <span class="line">}</span></div></div>
     <div class="info-card"><div class="ic-title">delet ＋ heapify：取最小、批次建堆 <span class="ic-badge">CODE</span></div>
       <div class="pseudo-code" style="font-size:.72rem;">
-<span class="line"><span class="kw">int</span> <span class="fn">delet</span>() {                <span class="com">// 取出最小值</span></span>
+<span class="line">T <span class="fn">delet</span>() {                  <span class="com">// 取出最小值</span></span>
 <span class="line">    <span class="kw">if</span> (heap.<span class="fn">empty</span>()) <span class="kw">throw</span> underflow_error(<span class="str">&quot;empty heap&quot;</span>);</span>
 <span class="line">    <span class="fn">swap</span>(heap[<span class="num">0</span>], heap[heap.<span class="fn">size</span>() - <span class="num">1</span>]);</span>
-<span class="line">    <span class="kw">int</span> result = heap.<span class="fn">back</span>();</span>
+<span class="line">    T result = heap.<span class="fn">back</span>();</span>
 <span class="line">    heap.<span class="fn">pop_back</span>();</span>
 <span class="line">    <span class="kw">if</span> (!heap.<span class="fn">empty</span>()) <span class="fn">percDown</span>(<span class="num">0</span>);</span>
 <span class="line">    <span class="kw">return</span> result;</span>
 <span class="line">}</span>
-<span class="line"><span class="kw">void</span> <span class="fn">heapify</span>(vector&lt;<span class="kw">int</span>&gt; notAHeap) {</span>
+<span class="line"><span class="kw">void</span> <span class="fn">heapify</span>(vector&lt;T&gt; notAHeap) {</span>
 <span class="line">    heap = notAHeap;</span>
 <span class="line">    <span class="kw">int</span> i = heap.<span class="fn">size</span>() / <span class="num">2</span> - <span class="num">1</span>;  <span class="com">// 最後一個非葉</span></span>
 <span class="line">    <span class="kw">while</span> (i &gt;= <span class="num">0</span>) {</span>

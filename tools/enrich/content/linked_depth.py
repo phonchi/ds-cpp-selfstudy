@@ -517,10 +517,10 @@ def prologue():
 </div>
 <div class="info-card">
   <div class="ic-title">分時系統的例子（課本）</div>
-  <div style="font-size:.86rem;line-height:1.9;">作業系統讓多個工作輪流使用 CPU，每個工作分到一小段時間後換下一個。課本以這種分時（timesharing）說明鏈結結構：輪流的順序可以用環狀鏈結串列表示。</div>
+  <div style="font-size:.86rem;line-height:1.9;">作業系統讓多個工作輪流使用中央處理器（Central Processing Unit，CPU），每個工作分到一小段時間後換下一個。課本以這種分時（timesharing）說明鏈結結構：輪流的順序可以用環狀鏈結串列表示。</div>
 </div>'''
     return f'''<p>前面的 ArrayList 建立在連續的原生陣列上。本章改用<strong>節點（node）與指標（pointer）</strong>組成集合：元素不必放在相鄰的記憶體位置，每個節點記得下一個節點在哪裡。只要知道第一個節點（<strong>head</strong>），就能沿著指標依序找到其他元素。</p>
-<h3>串列 ADT：元素之間有相對位置</h3>
+<h3>串列 ADT（Abstract Data Type，抽象資料型別）：元素之間有相對位置</h3>
 <p>串列（List）是一群元素的集合，每個元素相對於其他元素有固定的位置：有第一項、第二項、第三項……。若這個順序與元素的值無關，就稱為<strong>無序串列</strong>（Unordered List）。定義 ADT 時，講義與課本為了簡化，假設串列中沒有重複的元素。無序串列 ADT 可能包含下列操作：</p>
 {adt}
 <p>後四項屬於較完整的串列 ADT。課程標頭 <code>pythonds3/cppds/linked_list.hpp</code> 的 UnorderedList 只實作前六項；append 留到本頁的練習區。</p>
@@ -530,7 +530,7 @@ def prologue():
 <p>串列真正需要維持的只有元素之間的<strong>相對順序</strong>，並不要求它們在記憶體中相鄰。只要每個元素記得下一個元素在哪裡，順序就保存下來了。不要求相鄰，讓鏈結串列在下面三種情況比陣列有利：</p>
 <ul class="linked-ul">
 <li id="linked-scattered-memory"><strong>記憶體分散時。</strong>在複雜系統的執行環境中，空閒的記憶體常常零散分布在各處。陣列需要一整塊連續空間，陣列很大時，系統可能找不到夠大的連續區塊；鏈結串列的節點可以分散存放在各個空位，這時就看得出它的彈性。</li>
-<li id="linked-known-position"><strong>已經知道位置時。</strong>一旦拿到節點的位置，插入或刪除只要改幾個指標，不必搬動其他元素。若再用雜湊表（hash table）記住每個 key 對應的節點，連找位置的步驟都省掉，add 與 remove 都能在常數時間內完成（刪除要用雙向串列，才能直接找到前一個節點，見<a href="#linked-doubly">雙向串列</a>）。LRU 快取就是這樣做：用雙向鏈結串列記錄資料的使用順序，用雜湊表從 key 直接找到節點。作業系統把空閒的記憶體區塊串成空閒串列（free-list）來管理，也是類似的做法。要注意，優勢只在「已知位置的插入與刪除」：從頭走訪鏈結串列仍是 $O(n)$，而且每走一步都要跟著指標跳到記憶體的另一處，對快取不友善，實際執行通常比走訪陣列慢。</li>
+<li id="linked-known-position"><strong>已經知道位置時。</strong>一旦拿到節點的位置，插入或刪除只要改幾個指標，不必搬動其他元素。若再用雜湊表（hash table）記住每個 key 對應的節點，連找位置的步驟都省掉，add 與 remove 都能在常數時間內完成（刪除要用雙向串列，才能直接找到前一個節點，見<a href="#linked-doubly">雙向串列</a>）。最近最少使用（Least Recently Used，LRU）快取就是這樣做：用雙向鏈結串列記錄資料的使用順序，用雜湊表從 key 直接找到節點。作業系統把空閒的記憶體區塊串成空閒串列（free-list）來管理，也是類似的做法。要注意，優勢只在「已知位置的插入與刪除」：從頭走訪鏈結串列仍是 $O(n)$，而且每走一步都要跟著指標跳到記憶體的另一處，對快取不友善，實際執行通常比走訪陣列慢。</li>
 <li id="linked-bulk-update"><strong>大量插入與刪除時。</strong>每次只配置或釋放一個節點，不需要像陣列那樣把後面整段元素往前或往後搬，也不需要在容量用完時重新配置更大的陣列、再把全部元素複製過去。</li>
 </ul>
 <h3>鏈結表示：每一項記住下一項在哪裡</h3>
@@ -834,7 +834,7 @@ def stl_section():
     ])
     iter_note = '<p>begin() 指向第一項，end() 是尾後位置，不能解參考。list 的 insert(pos, x) 插在 pos 前面並回傳新元素的位置；erase(it) 回傳被刪元素的下一個位置，迴圈中刪除時要用這個回傳值繼續，不能對已刪除的 it 做 ++it。</p><p>forward_list 的 before_begin() 是「第一項前面」的位置，不能解參考，但可以傳給 insert_after／erase_after，讓頭端也用同一套寫法。刪除 current 時 previous 留在原地，current 接回 erase_after 的回傳值；保留 current 時兩者才一起前進，這正是前面 previous／current 的關係。forward_list 沒有 size()；std::distance(begin(), end()) 需要 $O(n)$。</p>'
     algos = '<p>兩種串列都有成員函式 remove(x)、unique()、sort()。remove(x) 刪掉<strong>所有</strong>等於 x 的元素，和本課 remove 只刪第一個不同；unique() 只合併<strong>相鄰</strong>的相等值；sort() 是穩定排序，約需 $O(n \\log n)$ 次比較。std::sort 需要隨機存取迭代器，不能用在這兩種串列上。插入不會使其他元素的迭代器失效；刪除只會使被刪元素的迭代器失效。</p>'
-    return f'''<p>UnorderedList 與 OrderedList 讓你看清楚指標怎麼接、節點由誰釋放。實際寫程式時，優先使用 STL 容器：它們的解構、複製、迭代器與例外安全都已有明確規範並經過測試。</p>
+    return f'''<p>UnorderedList 與 OrderedList 讓你看清楚指標怎麼接、節點由誰釋放。實際寫程式時，優先使用 C++ 標準模板函式庫（Standard Template Library，STL）的容器：它們的解構、複製、迭代器與例外安全都已有明確規範並經過測試。</p>
 <p>std::forward_list&lt;T&gt; 是單向串列，提供 push_front、insert_after、erase_after；std::list&lt;T&gt; 是雙向串列，可以用雙向迭代器在指定位置插入或刪除。兩者都不支援依索引的隨機存取。插入與刪除是 $O(1)$ 的前提是：手上已經有對應位置的迭代器。</p>
 {snippet("講義 04 · forward_list 與 list", STL_MAIN, OUT['stl'], note="singly.insert_after(singly.before_begin(), 17) 插在「第一項之前的位置」後面，也就是成為新的第一項。next(doubly.begin()) 指向 31，doubly.insert(pos, 26) 把 26 插在 31 前面。")}
 {compare}

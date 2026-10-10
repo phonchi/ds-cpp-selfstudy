@@ -106,7 +106,7 @@ def prologue():
 ])}
 <h3>本章程式使用的兩套介面</h3>
 <p>本章的程式以 C++ 標準函式庫（STL）為主：<code>std::stack</code>、<code>std::queue</code>、<code>std::deque</code>。它們的 <code>pop()</code> 只移除元素、不回傳值，需要值的時候要先用 <code>top()</code> 或 <code>front()</code> 讀出來。</p>
-<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張 API 對照表。</p>'''
+<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張應用程式介面（Application Programming Interface，API）對照表。</p>'''
 
 
 # ---------------------------------------------------------------- P01 stack
@@ -125,7 +125,7 @@ def stack_stl():
     apis = table(['介面', '建立', '讀取 top', '移除 top'], [
         ('STL <code>std::stack&lt;T&gt;</code>', '<code>std::stack&lt;T&gt; s;</code>', '<code>top()</code>', '<code>pop()</code>，回傳 <code>void</code>'),
         ('課程標頭 <code>stack.hpp</code> 的 <code>Stack&lt;T&gt;</code>', '<code>Stack&lt;T&gt; s;</code>', '<code>peek()</code>', '<code>pop()</code>，回傳 <code>T</code>'),
-        ('HW3 定容量 stack', '<code>Stack&lt;T&gt; s(capacity);</code>', '<code>stackTop()</code> 或 <code>peek(index)</code>', '<code>pop()</code>，回傳 <code>T</code>'),
+        ('作業三（HW3）的定容量 stack', '<code>Stack&lt;T&gt; s(capacity);</code>', '<code>stackTop()</code> 或 <code>peek(index)</code>', '<code>pop()</code>，回傳 <code>T</code>'),
     ])
     moves = table(['n（push n 次、再全部 pop）', 'Stack（top 在尾端）搬移元素數', 'Stack2（top 在開頭）搬移元素數'], [
         ('n = 10', '0', '90'), ('n = 100', '0', '9,900'), ('n = 1,000', '0', '999,000')])
@@ -513,7 +513,7 @@ def exercises():
 
 def reference():
     adts = table(['ADT', '進', '出', '順序', '典型應用'], [
-        ('<strong>Stack</strong>', 'top', 'top', 'LIFO', '括號配對、進位轉換、undo、函式呼叫堆疊、DFS'),
+        ('<strong>Stack</strong>', 'top', 'top', 'LIFO', '括號配對、進位轉換、undo、函式呼叫堆疊、深度優先搜尋（Depth-First Search，DFS）'),
         ('<strong>Queue</strong>', 'rear', 'front', 'FIFO', '排程、模擬（燙手山芋、印表機）、BFS'),
         ('<strong>Deque</strong>', '兩端', '兩端', '由使用者決定', '迴文、滑動視窗'),
     ])

@@ -540,8 +540,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   新增與移除發生在<strong>端點</strong>。差別只在「哪一端進、哪一端出」：這個小差別決定了它們完全不同的用途。</p>
   <div class="info-box">
     <span class="info-label">本章你會學到的技術</span>
-    <strong>1. 三種 ADT：</strong>stack（LIFO）、queue（FIFO）、deque（兩端皆可）。<br>
-    <strong>2. C++ 實作：</strong>正文使用 STL <code>stack/queue/deque</code>；課程標頭的 <code>Stack</code>、<code>Queue</code>、<code>Deque</code> 是作業用介面。<br>
+    <strong>1. 三種抽象資料型別（Abstract Data Type，ADT）：</strong>stack（後進先出，Last In First Out，LIFO）、queue（先進先出，First In First Out，FIFO）、deque（兩端皆可）。<br>
+    <strong>2. C++ 實作：</strong>正文使用 C++ 標準模板函式庫（Standard Template Library，STL）的 <code>stack/queue/deque</code>；課程標頭的 <code>Stack</code>、<code>Queue</code>、<code>Deque</code> 是作業用介面。<br>
     <strong>3. 經典應用：</strong>括號配對、進位轉換、中序轉後序、約瑟夫問題、模擬、迴文。
   </div>
   <div class="viz-layout">
@@ -568,7 +568,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
         <div class="ic-title">一句話記住</div>
         <div style="font-size:.9rem;line-height:2;">
           <strong>Stack</strong>：後進先出：<em>復原（undo）、呼叫堆疊、括號配對</em>。<br>
-          <strong>Queue</strong>：先進先出：<em>排隊、工作佇列、BFS</em>。<br>
+          <strong>Queue</strong>：先進先出：<em>排隊、工作佇列、廣度優先搜尋（Breadth-First Search，BFS）</em>。<br>
           <strong>Deque</strong>：兩端皆可：<em>滑動視窗、迴文檢查</em>。
         </div>
       </div>
@@ -589,7 +589,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <ul class="linear-ul"><li><strong>意圖清楚。</strong>看到 stack 就知道是 LIFO，看到 queue 就知道是 FIFO。設計演算法時可以直接用這個性質思考，例如<a href="#parens">括號配對</a>用 stack 記住還沒配對的左括號，圖的廣度優先搜尋（BFS）用 queue 依序處理等待拜訪的節點。</li><li><strong>防止誤用。</strong>介面只開放 <code>push</code>／<code>pop</code>／<code>top</code>（queue 則是 enqueue／dequeue），不能從中間插入或刪除，也就不會不小心破壞存取順序。</li><li><strong>抽象化。</strong>使用者只依賴介面，底層可以換成陣列、<code>vector</code>、<code>deque</code> 或鏈結串列，使用者的程式不用改。例如 <code>std::stack</code> 預設的底層是 <code>std::deque</code>，也可以寫成 <code>std::stack&lt;int, std::vector&lt;int&gt;&gt;</code> 指定用 <code>vector</code>，或指定用 <code>list</code>。</li></ul>
 <h3>本章程式使用的兩套介面</h3>
 <p>本章的程式以 C++ 標準函式庫（STL）為主：<code>std::stack</code>、<code>std::queue</code>、<code>std::deque</code>。它們的 <code>pop()</code> 只移除元素、不回傳值，需要值的時候要先用 <code>top()</code> 或 <code>front()</code> 讀出來。</p>
-<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張 API 對照表。</p>
+<p>課程標頭 <code>pythonds3/cppds/</code> 另外提供以 <code>vector</code> 實作的 <code>Stack&lt;T&gt;</code>、<code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code>，方法名稱是 <code>peek</code>、<code>isEmpty</code>、<code>enqueue</code>、<code>dequeue</code>、<code>addFront</code> 這一類，<code>pop</code>／<code>dequeue</code> 會回傳被移除的值。作業明確要求時才用課程標頭；兩套介面的方法名稱不同，不能混用。stack、queue、deque 三節各附一張應用程式介面（Application Programming Interface，API）對照表。</p>
 <!-- /gen:linear-prologue -->
 </section>
 
@@ -738,7 +738,7 @@ false
 true
 dog</pre></div><p class="dx-note">"true" 最後 push，所以在 top；pop 移除它之後，top 變成 "dog"。<code>boolalpha</code> 讓 bool 值印成 true／false 而不是 1／0。</p>
 <h3>課程中的三套 stack 介面</h3>
-<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>介面</th><th>建立</th><th>讀取 top</th><th>移除 top</th></tr></thead><tbody><tr><td>STL <code>std::stack&lt;T&gt;</code></td><td><code>std::stack&lt;T&gt; s;</code></td><td><code>top()</code></td><td><code>pop()</code>，回傳 <code>void</code></td></tr><tr><td>課程標頭 <code>stack.hpp</code> 的 <code>Stack&lt;T&gt;</code></td><td><code>Stack&lt;T&gt; s;</code></td><td><code>peek()</code></td><td><code>pop()</code>，回傳 <code>T</code></td></tr><tr><td>HW3 定容量 stack</td><td><code>Stack&lt;T&gt; s(capacity);</code></td><td><code>stackTop()</code> 或 <code>peek(index)</code></td><td><code>pop()</code>，回傳 <code>T</code></td></tr></tbody></table></div>
+<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>介面</th><th>建立</th><th>讀取 top</th><th>移除 top</th></tr></thead><tbody><tr><td>STL <code>std::stack&lt;T&gt;</code></td><td><code>std::stack&lt;T&gt; s;</code></td><td><code>top()</code></td><td><code>pop()</code>，回傳 <code>void</code></td></tr><tr><td>課程標頭 <code>stack.hpp</code> 的 <code>Stack&lt;T&gt;</code></td><td><code>Stack&lt;T&gt; s;</code></td><td><code>peek()</code></td><td><code>pop()</code>，回傳 <code>T</code></td></tr><tr><td>作業三（HW3）的定容量 stack</td><td><code>Stack&lt;T&gt; s(capacity);</code></td><td><code>stackTop()</code> 或 <code>peek(index)</code></td><td><code>pop()</code>，回傳 <code>T</code></td></tr></tbody></table></div>
 <p>HW3 的類別另外提供 <code>isFull()</code>。三套介面的方法名稱不同，寫程式時要看清楚用的是哪一套。課程標頭的 <code>Stack&lt;T&gt;</code> 以 vector 的尾端當 top，push 與 pop 都只動最後一格：</p>
 <details class="linear-detail"><summary>課程標頭 stack.hpp 的 Stack&lt;T&gt;</summary><div class="linear-detail-body"><div class="deck-extra">
   <div class="dx-label">pythonds3/cppds/stack.hpp · Stack</div>
@@ -2345,7 +2345,7 @@ true</pre></div><p class="dx-note">"lsdkjfskf" 第一次比較 l 與 f 就不同
 <h3>參考資料</h3>
 <p>課本：<em>Problem Solving with Algorithms and Data Structures using C++</em>（cppds），第 3 章 Linear Structures：<a href="https://runestone.academy/ns/books/published/cppds/index.html" target="_blank" rel="noopener">Runestone 線上版</a>。</p>
 <h3>三種 ADT 對照</h3>
-<details class="linear-detail"><summary>三種線性 ADT 一次比較（補充）</summary><div class="linear-detail-body"><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>ADT</th><th>進</th><th>出</th><th>順序</th><th>典型應用</th></tr></thead><tbody><tr><td><strong>Stack</strong></td><td>top</td><td>top</td><td>LIFO</td><td>括號配對、進位轉換、undo、函式呼叫堆疊、DFS</td></tr><tr><td><strong>Queue</strong></td><td>rear</td><td>front</td><td>FIFO</td><td>排程、模擬（燙手山芋、印表機）、BFS</td></tr><tr><td><strong>Deque</strong></td><td>兩端</td><td>兩端</td><td>由使用者決定</td><td>迴文、滑動視窗</td></tr></tbody></table></div></div></details>
+<details class="linear-detail"><summary>三種線性 ADT 一次比較（補充）</summary><div class="linear-detail-body"><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>ADT</th><th>進</th><th>出</th><th>順序</th><th>典型應用</th></tr></thead><tbody><tr><td><strong>Stack</strong></td><td>top</td><td>top</td><td>LIFO</td><td>括號配對、進位轉換、undo、函式呼叫堆疊、深度優先搜尋（Depth-First Search，DFS）</td></tr><tr><td><strong>Queue</strong></td><td>rear</td><td>front</td><td>FIFO</td><td>排程、模擬（燙手山芋、印表機）、BFS</td></tr><tr><td><strong>Deque</strong></td><td>兩端</td><td>兩端</td><td>由使用者決定</td><td>迴文、滑動視窗</td></tr></tbody></table></div></div></details>
 <details class="linear-detail"><summary>課程標頭的實作成本（以 vector 為底）（補充）</summary><div class="linear-detail-body"><div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>操作</th><th>vector 尾端</th><th>vector 開頭</th></tr></thead><tbody><tr><td>加入／移除</td><td>$O(1)$（加入為攤銷）</td><td>$O(n)$（其餘元素整體搬移）</td></tr><tr><td>課程標頭放在這一端的</td><td>Stack 的 top、Queue 的 front、Deque 的 front</td><td>Stack2 的 top、Queue 的 rear、Deque 的 rear</td></tr></tbody></table></div><p>STL 的 <code>std::stack</code>、<code>std::queue</code>、<code>std::deque</code> 預設都以分段連續儲存的 deque 為底層，兩端的操作都是 $O(1)$。</p></div></details>
 <!-- /gen:linear-reference -->
 </section>

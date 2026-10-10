@@ -628,7 +628,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <h2>用指標連接節點：資料不必連續存放 <span class="sec-badge">cppds §4.2–4.3</span></h2>
 <!-- gen:linked-prologue -->
 <p>前面的 <code>ArrayList</code> 建立在連續的原生陣列上。本章改用<strong>節點（node）與指標（pointer）</strong>組成集合：元素不必放在相鄰的記憶體位置，每個節點記得下一個節點在哪裡。只要知道第一個節點（<strong><code>head</code></strong>），就能沿著指標依序找到其他元素。</p>
-<h3>串列 ADT：元素之間有相對位置</h3>
+<h3>串列 ADT（Abstract Data Type，抽象資料型別）：元素之間有相對位置</h3>
 <p>串列（List）是一群元素的集合，每個元素相對於其他元素有固定的位置：有第一項、第二項、第三項……。若這個順序與元素的值無關，就稱為<strong>無序串列</strong>（Unordered List）。定義 ADT 時，講義與課本為了簡化，假設串列中沒有重複的元素。無序串列 ADT 可能包含下列操作：</p>
 <div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>操作</th><th>作用</th><th>課程標頭的 <code>UnorderedList</code></th></tr></thead><tbody><tr><td><code>UnorderedList()</code></td><td>建立空串列</td><td>提供</td></tr><tr><td><code>isEmpty()</code></td><td>檢查 <code>head == NULL</code></td><td>提供</td></tr><tr><td><code>add(item)</code></td><td>在 <code>head</code> 加入新元素，$O(1)$</td><td>提供</td></tr><tr><td><code>size()</code></td><td>回傳元素個數</td><td>提供</td></tr><tr><td><code>search(item)</code></td><td>回傳 <code>item</code> 是否在串列中</td><td>提供</td></tr><tr><td><code>remove(item)</code></td><td>移除第一個相等的元素；找不到時串列不變</td><td>提供</td></tr><tr><td><code>append(item)</code></td><td>把新元素加到尾端，成為最後一項</td><td>未提供，留作練習</td></tr><tr><td><code>index(item)</code></td><td>回傳 <code>item</code> 的位置</td><td>未提供</td></tr><tr><td><code>insert(pos, item)</code></td><td>在位置 <code>pos</code> 加入新元素</td><td>未提供</td></tr><tr><td><code>pop()</code>／<code>pop(pos)</code></td><td>移除並回傳最後一項／位置 <code>pos</code> 的項</td><td>未提供</td></tr></tbody></table></div>
 <p>後四項屬於較完整的串列 ADT。課程標頭 <code>pythonds3/cppds/linked_list.hpp</code> 的 <code>UnorderedList</code> 只實作前六項；<code>append</code> 留到本頁的練習區。</p>
@@ -638,7 +638,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <p>串列真正需要維持的只有元素之間的<strong>相對順序</strong>，並不要求它們在記憶體中相鄰。只要每個元素記得下一個元素在哪裡，順序就保存下來了。不要求相鄰，讓鏈結串列在下面三種情況比陣列有利：</p>
 <ul class="linked-ul">
 <li id="linked-scattered-memory"><strong>記憶體分散時。</strong>在複雜系統的執行環境中，空閒的記憶體常常零散分布在各處。陣列需要一整塊連續空間，陣列很大時，系統可能找不到夠大的連續區塊；鏈結串列的節點可以分散存放在各個空位，這時就看得出它的彈性。</li>
-<li id="linked-known-position"><strong>已經知道位置時。</strong>一旦拿到節點的位置，插入或刪除只要改幾個指標，不必搬動其他元素。若再用雜湊表（hash table）記住每個 key 對應的節點，連找位置的步驟都省掉，<code>add</code> 與 <code>remove</code> 都能在常數時間內完成（刪除要用雙向串列，才能直接找到前一個節點，見<a href="#linked-doubly">雙向串列</a>）。LRU 快取就是這樣做：用雙向鏈結串列記錄資料的使用順序，用雜湊表從 key 直接找到節點。作業系統把空閒的記憶體區塊串成空閒串列（free-list）來管理，也是類似的做法。要注意，優勢只在「已知位置的插入與刪除」：從頭走訪鏈結串列仍是 $O(n)$，而且每走一步都要跟著指標跳到記憶體的另一處，對快取不友善，實際執行通常比走訪陣列慢。</li>
+<li id="linked-known-position"><strong>已經知道位置時。</strong>一旦拿到節點的位置，插入或刪除只要改幾個指標，不必搬動其他元素。若再用雜湊表（hash table）記住每個 key 對應的節點，連找位置的步驟都省掉，<code>add</code> 與 <code>remove</code> 都能在常數時間內完成（刪除要用雙向串列，才能直接找到前一個節點，見<a href="#linked-doubly">雙向串列</a>）。最近最少使用（Least Recently Used，LRU）快取就是這樣做：用雙向鏈結串列記錄資料的使用順序，用雜湊表從 key 直接找到節點。作業系統把空閒的記憶體區塊串成空閒串列（free-list）來管理，也是類似的做法。要注意，優勢只在「已知位置的插入與刪除」：從頭走訪鏈結串列仍是 $O(n)$，而且每走一步都要跟著指標跳到記憶體的另一處，對快取不友善，實際執行通常比走訪陣列慢。</li>
 <li id="linked-bulk-update"><strong>大量插入與刪除時。</strong>每次只配置或釋放一個節點，不需要像陣列那樣把後面整段元素往前或往後搬，也不需要在容量用完時重新配置更大的陣列、再把全部元素複製過去。</li>
 </ul>
 <h3>鏈結表示：每一項記住下一項在哪裡</h3>
@@ -669,7 +669,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 </div>
 <div class="info-card">
   <div class="ic-title">分時系統的例子（課本）</div>
-  <div style="font-size:.86rem;line-height:1.9;">作業系統讓多個工作輪流使用 CPU，每個工作分到一小段時間後換下一個。課本以這種分時（timesharing）說明鏈結結構：輪流的順序可以用環狀鏈結串列表示。</div>
+  <div style="font-size:.86rem;line-height:1.9;">作業系統讓多個工作輪流使用中央處理器（Central Processing Unit，CPU），每個工作分到一小段時間後換下一個。課本以這種分時（timesharing）說明鏈結結構：輪流的順序可以用環狀鏈結串列表示。</div>
 </div></div></div>
 <!-- /gen:linked-prologue -->
 </section>
@@ -1552,7 +1552,7 @@ false
   <div class="section-number">PART 04 · STL 容器</div>
   <h2>STL 鏈結串列：<code>std::forward_list</code> 與 <code>std::list</code> <span class="sec-badge">講義 04</span></h2>
 <!-- gen:linked-stl -->
-<p><code>UnorderedList</code> 與 <code>OrderedList</code> 讓你看清楚指標怎麼接、節點由誰釋放。實際寫程式時，優先使用 STL 容器：它們的解構、複製、迭代器與例外安全都已有明確規範並經過測試。</p>
+<p><code>UnorderedList</code> 與 <code>OrderedList</code> 讓你看清楚指標怎麼接、節點由誰釋放。實際寫程式時，優先使用 C++ 標準模板函式庫（Standard Template Library，STL）的容器：它們的解構、複製、迭代器與例外安全都已有明確規範並經過測試。</p>
 <p><code>std::forward_list&lt;T&gt;</code> 是單向串列，提供 <code>push_front</code>、<code>insert_after</code>、<code>erase_after</code>；<code>std::list&lt;T&gt;</code> 是雙向串列，可以用雙向迭代器在指定位置插入或刪除。兩者都不支援依索引的隨機存取。插入與刪除是 $O(1)$ 的前提是：手上已經有對應位置的迭代器。</p>
 <div class="deck-extra">
   <div class="dx-label">講義 04 · <code>forward_list</code> 與 <code>list</code></div>

@@ -125,7 +125,6 @@ def stack_stl():
     apis = table(['介面', '建立', '讀取 top', '移除 top'], [
         ('STL <code>std::stack&lt;T&gt;</code>', '<code>std::stack&lt;T&gt; s;</code>', '<code>top()</code>', '<code>pop()</code>，回傳 <code>void</code>'),
         ('課程標頭 <code>stack.hpp</code> 的 <code>Stack&lt;T&gt;</code>', '<code>Stack&lt;T&gt; s;</code>', '<code>peek()</code>', '<code>pop()</code>，回傳 <code>T</code>'),
-        ('作業三（HW3）的定容量 stack', '<code>Stack&lt;T&gt; s(capacity);</code>', '<code>stackTop()</code> 或 <code>peek(index)</code>', '<code>pop()</code>，回傳 <code>T</code>'),
     ])
     moves = table(['n（push n 次、再全部 pop）', 'Stack（top 在尾端）搬移元素數', 'Stack2（top 在開頭）搬移元素數'], [
         ('n = 10', '0', '90'), ('n = 100', '0', '9,900'), ('n = 1,000', '0', '999,000')])
@@ -145,9 +144,9 @@ def stack_stl():
 <p>下面的程式依序 push 三個字串，再檢查大小、是否為空，以及 top 的元素：</p>
 {lecture_program('完整程式：使用 std::stack', 'std::stack&lt;string&gt; 的基本操作', 'stl_stack',
                  note='"true" 最後 push，所以在 top；pop 移除它之後，top 變成 "dog"。<code>boolalpha</code> 讓 bool 值印成 true／false 而不是 1／0。')}
-<h3>課程中的三套 stack 介面</h3>
+<h3>課程中的兩套 stack 介面</h3>
 {apis}
-<p>HW3 的類別另外提供 <code>isFull()</code>。三套介面的方法名稱不同，寫程式時要看清楚用的是哪一套。課程標頭的 <code>Stack&lt;T&gt;</code> 以 vector 的尾端當 top，push 與 pop 都只動最後一格：</p>
+<p>作業也使用同一個課程標頭的 <code>Stack&lt;T&gt;</code>（<code>pythonds3/cppds/stack.hpp</code>）。兩套介面的方法名稱不同，寫程式時要看清楚用的是哪一套。課程標頭的 <code>Stack&lt;T&gt;</code> 以 vector 的尾端當 top，push 與 pop 都只動最後一格：</p>
 {details('課程標頭 stack.hpp 的 Stack&lt;T&gt;', snippet('pythonds3/cppds/stack.hpp · Stack', STACK_HPP, kind='header'))}
 <h3>把 top 放在 vector 開頭：Stack2</h3>
 <p>也可以把 top 放在 vector 的<strong>開頭</strong>。這時 <code>push_back()</code> 與 <code>pop_back()</code> 碰不到 top，只能改用 <code>insert(begin())</code> 與 <code>erase(begin())</code>。每次 push 和 pop 都要把其餘元素搬動一格，原本 $O(1)$ 的操作變成 $O(n)$。</p>

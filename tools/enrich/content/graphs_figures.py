@@ -28,7 +28,7 @@ _SPECS = {
              '第一層四個節點 pool、foil、foul、cool 都變黑；第二層有灰色的 poll 與 fail，距離 2；佇列裡依序是 poll、fail。',
              '第一層的四個頂點都處理完：foil 帶出 fail，foul 和 cool 沒有新鄰居。第二層目前有 poll 與 fail 兩個灰色頂點，它們就是佇列裡等著展開的兩個頂點。'),
     'bfsDone': ('bfsDone.png', 500, 1800, 1860,
-                'BFS 樹：fool 為根，下方是距離 1 到 6 的 15 個單字，全部是黑色；fall 掛在 fail 下面，pale 掛在 pall 下面，sage 在最底下，距離 6；佇列為空。',
+                'BFS 樹：fool 為根，下方是距離 1 到 6 的 14 個單字，全部是黑色；fall 掛在 fail 下面，pale 掛在 pall 下面，sage 在最底下，距離 6；佇列為空。',
                 'BFS 結束時的搜尋樹。每個節點下方是它與 fool 的距離，箭頭就是 previous 指標。從任何一個單字沿箭頭往上走到 fool，就是它最短的 word ladder；sage 需要 6 步。所有頂點都處理完，全部是黑色，佇列也空了。'),
     'knightmoves': ('knightmoves.png', 460, 540, 306,
                     '左邊是 5×5 棋盤，格子編號 0 到 24，騎士在 12 號格，八個可跳到的格子標上圓點；右邊是以 12 為中心、連到 1、3、5、9、15、19、21、23 的星狀圖。',

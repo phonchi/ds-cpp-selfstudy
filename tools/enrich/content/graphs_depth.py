@@ -225,7 +225,7 @@ def bfs_trace():
 {steps('逐步圖：處理 pool 與第一層之後', ['bfs2', 'bfs3'])}
 <p>自己繼續往下追蹤，直到熟悉整個過程。下圖是所有頂點都處理完之後的 BFS 樹：</p>
 {figure('bfsDone')}
-<p>圖中的鄰居是依課本的順序畫的；C++ 的 <code>neighbors</code> 是 map，會依 key 的字母順序走訪（<code>cool</code>、<code>foil</code>、<code>foul</code>、<code>pool</code>），所以佇列的順序不同，但每個頂點的距離一樣。</p>
+<p>前面的逐步圖是依課本的鄰居順序畫的；C++ 的 <code>neighbors</code> 是 map，會依 key 的字母順序走訪（<code>cool</code>、<code>foil</code>、<code>foul</code>、<code>pool</code>），所以佇列的順序不同，但每個頂點的距離一樣。上面這棵 BFS 樹照程式的走訪順序畫：<code>poll</code> 的鄰居裡 <code>pall</code> 排在 <code>pole</code> 前面，所以 <code>pale</code> 的 previous 是 <code>pall</code>，和下面 <code>traverse</code> 印出的路徑一致。</p>
 <h3>沿 previous 往回走：traverse</h3>
 <p>跑完這次 BFS，除了一開始的 FOOL 到 SAGE，其他單字的問題也一起解決了：從 BFS 樹上任何一個頂點出發，沿著 previous 往回走到根，就是從那個單字回到 <code>fool</code> 最短的 word ladder。</p>
 {listing('講義程式：traverse', '講義 08 · traverse', TRAVERSE)}

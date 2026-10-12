@@ -33,6 +33,8 @@ s = re.sub(r'<pre>.*?</pre>', lambda m: re.sub(r' +(?=\n)', lambda w: '&#32;' * 
 s = re.sub(r'(?m)^[ \t]+$', '', s)
 from content.teaching_copy import polish_preserved
 s = polish_preserved("linear_structures", s)
+from content.course_recordings import apply_recording
+s = apply_recording(s, "linear_structures")
 # chapter_math.render_math is not applied here: on this page it rewrites postfix examples such as
 # "7 8 + 3 2 + /" into broken inline math. Formulas in the generated text are written as $...$ directly.
 PAGE.write_text(s)

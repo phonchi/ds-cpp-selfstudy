@@ -703,6 +703,208 @@ int main() {
     return 0;
 }'''
 
+NO_SPACE = '''#include <iostream>
+#include "pythonds3/cppds/expression.hpp"   // infixToPostfix
+using namespace std;
+
+int main() {
+    cout << infixToPostfix("( A + B ) * C") << endl;   // tokens separated by spaces
+    cout << infixToPostfix("(A+B)*C") << endl;         // no spaces: one single token
+    cout << infixToPostfix("A+B * C") << endl;         // "A+B" is read as one operand
+    return 0;
+}'''
+
+STOD_DEMO = '''#include <iostream>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
+int main() {
+    double x = stod("3.5");
+    double y = stod("4");
+    cout << x + y << endl;
+    cout << 15 / 4 << " " << stod("15") / stod("4") << endl;
+    try {
+        stod("+");
+    } catch (const invalid_argument& e) {
+        cout << "invalid_argument" << endl;
+    }
+    return 0;
+}'''
+
+POSTFIX_TO_INFIX = '''#include <iostream>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <cctype>
+using namespace std;
+
+string postfixToInfix(string postfixExpr) {
+    stack<string> s;
+    istringstream ss(postfixExpr);
+    string token;
+    while (ss >> token) {
+        if (isalnum(token[0])) {
+            s.push(token);
+        } else {
+            string op2 = s.top(); s.pop();   // first pop: right operand
+            string op1 = s.top(); s.pop();   // second pop: left operand
+            s.push("(" + op1 + " " + token + " " + op2 + ")");
+        }
+    }
+    return s.top();
+}
+
+int main() {
+    cout << postfixToInfix("A B * C D * +") << endl;
+    cout << postfixToInfix("A B + C *") << endl;
+    cout << postfixToInfix("7 8 + 3 2 + /") << endl;
+    return 0;
+}'''
+
+PREFIX_TO_INFIX = '''#include <iostream>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <vector>
+#include <cctype>
+using namespace std;
+
+string prefixToInfix(string prefixExpr) {
+    vector<string> tokens;
+    istringstream ss(prefixExpr);
+    string token;
+    while (ss >> token) tokens.push_back(token);
+
+    stack<string> s;
+    for (int i = (int)tokens.size() - 1; i >= 0; i--) {   // scan right to left
+        if (isalnum(tokens[i][0])) {
+            s.push(tokens[i]);
+        } else {
+            string op1 = s.top(); s.pop();   // first pop: left operand
+            string op2 = s.top(); s.pop();   // second pop: right operand
+            s.push("(" + op1 + " " + tokens[i] + " " + op2 + ")");
+        }
+    }
+    return s.top();
+}
+
+int main() {
+    cout << prefixToInfix("+ * A B * C D") << endl;
+    cout << prefixToInfix("* + A B C") << endl;
+    cout << prefixToInfix("- - A B C") << endl;
+    return 0;
+}'''
+
+INFIX_TO_PREFIX = '''#include <iostream>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <cctype>
+using namespace std;
+
+string infixToPrefix(string infixExpr) {
+    map<string, int> prec = {{"*", 3}, {"/", 3}, {"+", 2}, {"-", 2}, {"(", 1}};
+    vector<string> tokens;
+    istringstream ss(infixExpr);
+    string token;
+    while (ss >> token) tokens.push_back(token);
+
+    // 1. reverse the tokens and swap ( with )
+    reverse(tokens.begin(), tokens.end());
+    for (string& t : tokens) {
+        if (t == "(") t = ")";
+        else if (t == ")") t = "(";
+    }
+
+    // 2. shunting yard; equal precedence does NOT pop (> instead of >=)
+    stack<string> opStack;
+    vector<string> output;
+    for (string t : tokens) {
+        if (isalnum(t[0])) {
+            output.push_back(t);
+        } else if (t == "(") {
+            opStack.push(t);
+        } else if (t == ")") {
+            while (opStack.top() != "(") {
+                output.push_back(opStack.top());
+                opStack.pop();
+            }
+            opStack.pop();
+        } else {
+            while (!opStack.empty() && prec[opStack.top()] > prec[t]) {
+                output.push_back(opStack.top());
+                opStack.pop();
+            }
+            opStack.push(t);
+        }
+    }
+    while (!opStack.empty()) {
+        output.push_back(opStack.top());
+        opStack.pop();
+    }
+
+    // 3. reverse the output
+    reverse(output.begin(), output.end());
+    string result = "";
+    for (unsigned i = 0; i < output.size(); i++) {
+        if (i > 0) result += " ";
+        result += output[i];
+    }
+    return result;
+}
+
+int main() {
+    cout << infixToPrefix("A * B + C * D") << endl;
+    cout << infixToPrefix("( A + B ) * C") << endl;
+    cout << infixToPrefix("A - B - C") << endl;
+    return 0;
+}'''
+
+PREFIX_EVAL = '''#include <iostream>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <vector>
+#include <cctype>
+using namespace std;
+
+double doMath(string op, double op1, double op2) {
+    if (op == "*") return op1 * op2;
+    if (op == "/") return op1 / op2;
+    if (op == "+") return op1 + op2;
+    return op1 - op2;
+}
+
+double prefixEval(string prefixExpr) {
+    vector<string> tokens;
+    istringstream ss(prefixExpr);
+    string token;
+    while (ss >> token) tokens.push_back(token);
+
+    stack<double> operandStack;
+    for (int i = (int)tokens.size() - 1; i >= 0; i--) {   // scan right to left
+        if (isdigit(tokens[i][0])) {
+            operandStack.push(stod(tokens[i]));
+        } else {
+            double operand1 = operandStack.top(); operandStack.pop();   // first pop: left operand
+            double operand2 = operandStack.top(); operandStack.pop();   // second pop: right operand
+            operandStack.push(doMath(tokens[i], operand1, operand2));
+        }
+    }
+    return operandStack.top();
+}
+
+int main() {
+    cout << prefixEval("* + 3 4 5") << endl;
+    cout << prefixEval("- 10 / 6 2") << endl;
+    cout << prefixEval("/ + 7 8 + 3 2") << endl;
+    return 0;
+}'''
+
 PROGRAMS = {
     'stl_stack': STL_STACK, 'stack2_main': STACK2_MAIN, 'rev_solution': REV_SOLUTION,
     'par_checker': PAR_CHECKER, 'balance_checker': BALANCE_CHECKER,
@@ -712,6 +914,8 @@ PROGRAMS = {
     'hot_potato_course': HOT_POTATO_COURSE,
     'random_demo': RANDOM_DEMO, 'simulation': SIMULATION, 'simulation_trials': SIMULATION_TRIALS,
     'pal_checker': PAL_CHECKER,
+    'no_space': NO_SPACE, 'stod_demo': STOD_DEMO, 'postfix_to_infix': POSTFIX_TO_INFIX,
+    'prefix_to_infix': PREFIX_TO_INFIX, 'infix_to_prefix': INFIX_TO_PREFIX, 'prefix_eval': PREFIX_EVAL,
 }
 
 OUTPUT = {
@@ -733,4 +937,10 @@ OUTPUT = {
     'simulation': 'average wait = 37.3, tasks remaining = 1\naverage wait = 34.45, tasks remaining = 0',
     'simulation_trials': '5 pages per minute\naverage wait = 37.3, tasks remaining = 1\naverage wait = 95.8889, tasks remaining = 2\naverage wait = 119.579, tasks remaining = 0\naverage wait = 173.72, tasks remaining = 0\naverage wait = 48.7222, tasks remaining = 0\naverage wait = 77.95, tasks remaining = 0\naverage wait = 245, tasks remaining = 0\naverage wait = 69.6087, tasks remaining = 0\naverage wait = 135.778, tasks remaining = 3\naverage wait = 43.3333, tasks remaining = 0\n10 pages per minute\naverage wait = 107.424, tasks remaining = 0\naverage wait = 7.31579, tasks remaining = 0\naverage wait = 19.8462, tasks remaining = 0\naverage wait = 11.6875, tasks remaining = 0\naverage wait = 5.55556, tasks remaining = 0\naverage wait = 4.375, tasks remaining = 0\naverage wait = 13.1667, tasks remaining = 0\naverage wait = 9.94737, tasks remaining = 0\naverage wait = 42.7, tasks remaining = 0\naverage wait = 11.3333, tasks remaining = 0',
     'pal_checker': 'false\ntrue',
+    'no_space': 'A B + C *\n(A+B)*C\nA+B C *',
+    'stod_demo': '7.5\n3 3.75\ninvalid_argument',
+    'postfix_to_infix': '((A * B) + (C * D))\n((A + B) * C)\n((7 + 8) / (3 + 2))',
+    'prefix_to_infix': '((A * B) + (C * D))\n((A + B) * C)\n((A - B) - C)',
+    'infix_to_prefix': '+ * A B * C D\n* + A B C\n- - A B C',
+    'prefix_eval': '35\n7\n3',
 }

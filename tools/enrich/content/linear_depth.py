@@ -115,6 +115,7 @@ def stack_intro():
 <p>stack（也叫 push-down stack）是一個有順序的集合，新增元素與移除元素<strong>永遠在同一端</strong>進行，這一端叫 <strong>top</strong>，另一端叫 <strong>base</strong>。越靠近 base 的元素在 stack 裡待得越久；最近加入的元素，會最先被移除。這個原則叫 <strong>LIFO</strong>（last in, first out，後進先出）。所以 stack 依「在集合中待了多久」排列元素：新的靠近 top，舊的靠近 base。</p>
 <p>餐廳裡疊起來的餐盤就是一例：客人拿走最上面的一個，下面的一個才露出來。桌上的一疊書也一樣，只看得到最上面那本的封面；要拿下面的書，得先把壓在上面的書拿走。</p>
 {figure('books')}
+<div class="info-box"><strong>寫作業與考試時：</strong>用 [ ] 把 stack 的內容寫成一列時，一定要註明哪一端是 top、哪一端是 base。例如依序 push x、y、z，再 pop 一次，寫成 <code>[x, y]（左 base、右 top）</code>，表示下一個被 pop 的是 y。只寫 <code>[x, y]</code> 的話，讀的人也可以把 x 當成 top，以為下一個被 pop 的是 x。本頁的追蹤表一律是左 base、右 top。</div>
 <h3>stack 會反轉順序</h3>
 <p>從空桌面開始，一本一本把書往上疊，就是在建立一個 stack。開始拿書時，拿走的順序正好和放上去的順序相反。stack 的一個重要用途就是<strong>反轉順序</strong>：移除的順序是加入順序的反向。</p>
 {figure('reverse')}
@@ -160,7 +161,7 @@ def stack_stl():
       '執行下列程式之後，top 的元素是什麼？', [
           (False, '<code>"x"</code>', '"x" 還在 stack 裡，但壓在最底下；push("z") 之後，top 是 "z"。'),
           (False, '<code>"y"</code>', '"y" 已經被 pop() 移除了。'),
-          (True, '<code>"z"</code>', '追蹤一次：push("x") 得到 [x]；push("y") 得到 [x, y]；pop() 移除 y，剩 [x]；push("z") 得到 [x, z]，所以 top() 是 "z"。'),
+          (True, '<code>"z"</code>', '追蹤一次（左 base、右 top）：push("x") 得到 [x]；push("y") 得到 [x, y]；pop() 移除 y，剩 [x]；push("z") 得到 [x, z]，所以 top() 是 "z"。'),
           (False, 'stack 是空的', '最後 stack 裡還有 "x" 與 "z" 兩個元素。'),
       ], code='std::stack<std::string> m;\nm.push("x");\nm.push("y");\nm.pop();\nm.push("z");\nm.top();')}
 {quiz('qStack2', 'QUIZ · 連續 pop',
@@ -258,7 +259,25 @@ $$14\\times16^{{1}} + 9\\times16^{{0}}$$</p>
 
 # ---------------------------------------------------------------- P04 expressions
 def infix_paren():
-    return f'''<h3>完全括號化</h3>
+    why = table(['表示法', '$(3 + 4) \\times 5$ 的寫法', '需要優先權規則', '需要括號', '擅長的事'], [
+        ('中序', '<code>( 3 + 4 ) * 5</code>', '需要', '有時需要', '人閱讀最直覺'),
+        ('前序', '<code>* + 3 4 5</code>', '不需要', '不需要', '表達函式呼叫與遞迴的結構'),
+        ('後序', '<code>3 4 + 5 *</code>', '不需要', '不需要', '用 stack 直接計算'),
+    ])
+    uses = table(['表示法', '實際應用', '原因'], [
+        ('中序', 'C++、Python 等多數程式語言的算術式，以及數學課本', '符合人的閱讀習慣'),
+        ('前序', 'Lisp、Scheme 的 <code>(* (+ 3 4) 5)</code>；一般的函式呼叫 <code>max(a, b)</code>',
+         '運算子或函式名稱寫在參數前面，算術和函式呼叫用同一種語法'),
+        ('後序', 'Forth、PostScript、HP 計算機的逆波蘭表示法（Reverse Polish Notation，RPN）；Java 虛擬機器（Java Virtual Machine，JVM）等以 stack 執行的虛擬機器',
+         '讀到運算子就能用 stack 頂端的值計算'),
+    ])
+    return f'''<h3>為什麼需要前序與後序</h3>
+<p>中序是寫給人看的：<code>A + B * C</code> 一眼就懂，前提是知道「乘除先於加減、同級由左到右」，必要時還要加括號。電腦處理中序式時，也得把這套規則寫進程式。前序與後序把運算子放在運算元的前面或後面，每個運算子作用在哪些運算元，由位置直接決定。</p>
+{why}
+<p>後序特別適合 stack：由左往右掃描一次，遇到數字就 push，遇到二元運算子就 pop 兩個數字計算，再把結果 push 回去，掃完時 stack 上剩下的就是答案。<code>3 4 + 5 *</code> 依序是 push 3、push 4、遇到 + 算出 7、push 5、遇到 * 算出 35。每個 token 只處理一次，n 個 token 的運算式在 $O(n)$ 時間內算完。中序式也能在線性時間內解析，只是要同時處理優先權與括號，程式比較複雜；本節後面的 infixToPostfix 做的就是這件事。</p>
+{uses}
+<p><a href="#parens">括號配對</a>一節的 <code>(defun square(n) (* n n))</code> 就是 Lisp，裡面的 <code>(* n n)</code> 是前序。第 9 章的<a href="trees.html#parse-tree">運算式樹</a>還會再看到這三種寫法：對同一棵樹做前序、中序、後序走訪，分別得到前序式、中序式與後序式。</p>
+<h3>完全括號化</h3>
 <p>寫 <code>B * C</code> 時，運算子 * 出現在兩個運算元之間，所以知道是 B 乘以 C；運算子夾在運算元中間的寫法叫<strong>中序</strong>（infix）。<code>A + B * C</code> 就有歧義了：+ 作用在 A 與 B，還是 * 作用在 B 與 C？每個運算子都有<strong>優先權</strong>（precedence level），優先權高的先算；只有括號能改變這個順序。乘除的優先權高於加減；優先權相同時，依<strong>結合律</strong>（associativity）由左到右計算。所以 <code>A + B * C</code> 先算 B 乘 C 再加 A；<code>(A + B) * C</code> 先算 A 加 B；<code>A + B + C</code> 先算左邊的 +。</p>
 <p>電腦必須確切知道要做哪些運算、以什麼順序做。一種保證沒有歧義的寫法叫<strong>完全括號運算式</strong>（fully parenthesized expression）：每個運算子都有一對括號，括號決定運算的順序。例如 <code>A + B * C + D</code> 寫成 <code>((A + (B * C)) + D)</code>，表示先乘、再算左邊的加法；<code>A + B + C + D</code> 寫成 <code>(((A + B) + C) + D)</code>，因為加法由左往右結合。</p>
 <h3>用括號的位置轉成前序與後序</h3>
@@ -286,6 +305,7 @@ def infix_convert():
 <p><code>(A + B) * C</code> 的後序是 <code>A B + C *</code>。由左往右處理時同樣先看到 +；不同的是，讀到 * 的時候，+ 已經輸出了，因為括號讓它的優先權高於 *。轉換演算法讀到左括號時把它存起來，表示之後會有一個高優先權的運算子；這個運算子要等對應的右括號出現，才決定它的位置。右括號出現時，就從 stack 把運算子 pop 出來。</p>
 <p>假設中序式是一串以空白分隔的 token，運算子有 *、/、+、-，以及左右括號。stack 頂端永遠是最近存入的運算子，讀到新的運算子時，就拿它和頂端的運算子比較優先權。下面四步會得到後序的 token 串：</p>
 {steps}
+<p>這個做法叫 <strong>Shunting-yard 演算法</strong>（調車場演算法），由 Dijkstra 在 1961 年提出。名稱來自鐵路的調車場：運算元像直接開過去的車廂，馬上接到輸出；運算子先停進一條側線，也就是 opStack，等讀到優先權不比它高的運算子或右括號，再從側線接回主線。本節最後的補充會再用它把中序轉成前序。</p>
 {figure('i2p-trace')}
 <p>演算法的核心迴圈如下：運算元直接輸出，運算子在 stack 上等待，直到讀到優先權較低的運算子：</p>
 {snippet('infixToPostfix 的核心迴圈', I2P_CORE, kind='fragment')}
@@ -301,6 +321,17 @@ def infix_code():
         '若 token 是運算子 *、/、+、-，它需要兩個運算元：pop 兩次，<strong>第一次 pop 出來的是第二個運算元</strong>，第二次才是第一個運算元。計算後把結果 push 回去。',
         '整個運算式處理完，結果就在 stack 上，回傳 operandStack 的 top。',
     ])
+    tokens_body = (
+        '<p><code>ss &gt;&gt; token</code> 每次讀出一段以空白分隔的字串：遇到空白就停下，空白本身不會放進 token。所以 <code>"( A + B ) * C"</code> 會切成 <code>(</code>、<code>A</code>、<code>+</code>、<code>B</code>、<code>)</code>、<code>*</code>、<code>C</code> 七個 token。</p>'
+        '<p>token 的型別是 <code>string</code>，<code>token[0]</code> 是它的第一個字元（<code>char</code>）。<code>isalnum</code>（在 <code>&lt;cctype&gt;</code>）判斷一個字元是不是英文字母或數字。運算元以字母或數字開頭，例如 <code>A</code>、<code>x1</code>、<code>10</code>；運算子 <code>+ - * /</code> 和括號都不是。所以只看第一個字元，就能把運算元和其他符號分開，多位數的 <code>10</code> 也會當成一個運算元。</p>'
+        '<p>字元之間沒有空白時，切出來的 token 就不對了：</p>'
+        + run_card('沒有空白時切出的 token', 'no_space',
+                   note='第二行整串 "(A+B)*C" 只成為一個 token：它的第一個字元 ( 不是字母或數字，整個 token 也不等於 "(" 或 ")"，程式把它當成運算子推進 stack，最後原封不動輸出。第三行的 "A+B" 以 A 開頭，被當成一個運算元。要接受沒有空白的輸入，得改成逐字元掃描，把相鄰的字母與數字組成一個 token。'))
+    stod_body = (
+        '<p><code>std::stod</code>（string to double，在 <code>&lt;string&gt;</code>）把字串轉成 <code>double</code>：<code>stod("3.5")</code> 得到 3.5，<code>stod("4")</code> 得到 4.0。postfixEval 讀到的 token 是字串 "7"、"8"，要先轉成數字，才能 push 到 <code>stack&lt;double&gt;</code> 計算。轉成 int 的版本叫 <code>stoi</code>。</p>'
+        '<p>用 double 而不用 int，是為了讓除法得到小數：int 的 15 / 4 是 3，double 的 15 / 4 是 3.75。字串開頭不是數字時，stod 會丟出 <code>std::invalid_argument</code> 例外。</p>'
+        + run_card('stod 的用法', 'stod_demo', note='第二行左邊是 int 的整數除法，右邊是兩個 double 相除。')
+        + '<p>postfixEval 用 <code>isdigit(token[0])</code> 判斷運算元，所以數字 token 必須以數字開頭；像 <code>-3</code> 這樣的負數，第一個字元是 -，會被當成運算子。</p>')
     caret_note = ('右結合表示 2 ^ 3 ^ 2 = 2 ^ (3 ^ 2) = 512，而不是 (2 ^ 3) ^ 2 = 64。程式第二行的輸出 2 3 2 ^ ^ 就是先算 3 ^ 2。'
                   '只提高 ^ 的優先權還不夠，同優先權時要不要 pop 的條件也必須改。')
     return f'''<h3>infixToPostfix 完整程式</h3>
@@ -309,6 +340,7 @@ def infix_code():
 <p>prec 把 <code>(</code> 的優先權設成最低的 1：左括號留在 stack 裡時，任何運算子都不會因為優先權把它 pop 出去，它只會在讀到右括號時被移除。</p>
 {lecture_program('完整程式：呼叫 infixToPostfix', 'include expression.hpp 後轉換兩個運算式', 'i2p_main',
                  note='token 之間必須有空白，程式才切得出來。第二個運算式的括號在後序中全部消失了。')}
+{fold('為什麼用 isalnum(token[0]) 判斷、token 之間為什麼要空白', tokens_body)}
 <h3>後序求值</h3>
 <p>接著計算一個已經是後序的運算式，stack 仍然是合適的資料結構。不過這一次，掃描時<strong>等待的是運算元</strong>，而不是轉換時的運算子。換個角度說：每讀到一個運算子，就拿最近的兩個運算元來計算。</p>
 <p>以 <code>4 5 6 * +</code> 為例：由左往右先讀到 4 與 5，這時還不知道要拿它們做什麼，得等看到下一個符號。把它們放到 stack 上，若接下來是運算子，就能立刻取用。</p>
@@ -321,6 +353,7 @@ def infix_code():
 {details('expression.hpp 的 postfixEval', snippet('pythonds3/cppds/expression.hpp · postfixEval', POSTFIX_EVAL_HEADER, kind='header'))}
 {lecture_program('完整程式：呼叫 postfixEval', 'include expression.hpp 後計算 7 8 + 3 2 + /', 'postfix_main',
                  note='結果 3 就是 (7 + 8) / (3 + 2)。postfixEval 回傳 double，值剛好是整數 3.0 時，cout 印成 3。')}
+{fold('stod 做什麼', stod_body)}
 <p>轉換與求值兩個程式都假設輸入的運算式沒有錯誤。</p>
 {quiz('qC1', 'QUIZ · 中序轉後序',
       '把中序式 <code>10 + 3 * 5 / ( 16 - 4 )</code> 轉成後序：', [
@@ -340,7 +373,66 @@ def infix_code():
 <p>擴充 <code>infixToPostfix()</code>，讓它能轉換 <code>5 * 3 ^ ( 4 - 2 )</code>。</p>
 {snippet('練習：支援 ^ 的 infixToPostfix', CARET_EXERCISE, output='5 3 4 2 - ^ *', kind='exercise', out_tag='完成後的預期輸出')}
 <p>提示：給 ^ 最高的優先權。因為 ^ 是<strong>右結合</strong>，讀到 ^ 時，只有當 stack 上運算子的優先權<strong>嚴格大於</strong> ^ 時才 pop。轉換結果 <code>5 3 4 2 - ^ *</code> 的值是 45。</p>
-{fold('支援 ^ 的參考解答', run_card('infixToPostfix 加上右結合的 ^', 'caret_solution', note=caret_note))}'''
+{fold('支援 ^ 的參考解答', run_card('infixToPostfix 加上右結合的 ^', 'caret_solution', note=caret_note))}
+{other_conversions()}'''
+
+
+def other_conversions():
+    summary = table(['題型', '掃描方向', 'stack 存什麼', '遇到運算子時'], [
+        ('後序求值（本節）', '由左到右', '數值', '先 pop 右運算元，再 pop 左運算元'),
+        ('前序求值', '由右到左', '數值', '先 pop 左運算元，再 pop 右運算元'),
+        ('後序轉中序', '由左到右', '子式字串', '和後序求值相同，組成「(左 運算子 右)」'),
+        ('前序轉中序', '由右到左', '子式字串', '和前序求值相同'),
+        ('中序轉前序', '反轉後由左到右', '運算子', 'Shunting-yard，但同優先權不 pop'),
+    ])
+    post_trace = table(['token', 'stack（左 base、右 top）', '動作'], [
+        ('A', 'A', 'push'), ('B', 'A, B', 'push'),
+        ('*', '(A * B)', 'pop B（右）、pop A（左），push (A * B)'),
+        ('C', '(A * B), C', 'push'), ('D', '(A * B), C, D', 'push'),
+        ('*', '(A * B), (C * D)', 'pop D（右）、pop C（左），push (C * D)'),
+        ('+', '((A * B) + (C * D))', 'pop (C * D)（右）、pop (A * B)（左）')])
+    pre_trace = table(['token（由右到左）', 'stack（左 base、右 top）', '動作'], [
+        ('D', 'D', 'push'), ('C', 'D, C', 'push'),
+        ('*', '(C * D)', 'pop C（左）、pop D（右），push (C * D)'),
+        ('B', '(C * D), B', 'push'), ('A', '(C * D), B, A', 'push'),
+        ('*', '(C * D), (A * B)', 'pop A（左）、pop B（右），push (A * B)'),
+        ('+', '((A * B) + (C * D))', 'pop (A * B)（左）、pop (C * D)（右）')])
+    i2pre_steps = ol([
+        '把 token 序列反轉，並把每個 <code>(</code> 換成 <code>)</code>、每個 <code>)</code> 換成 <code>(</code>。',
+        '對反轉後的序列跑 Shunting-yard，但遇到優先權<strong>相同</strong>的運算子時不 pop：只有 stack 上運算子的優先權<strong>嚴格大於</strong>目前的運算子才 pop，條件從 <code>&gt;=</code> 改成 <code>&gt;</code>。',
+        '把得到的輸出再反轉一次，就是前序。',
+    ])
+    i2pre_trace = table(['token', 'opStack（左 base、右 top）', '輸出'], [
+        ('C', '', 'C'), ('-', '-', 'C'), ('B', '-', 'C B'),
+        ('-', '- -（同優先權，不 pop）', 'C B'), ('A', '- -', 'C B A'),
+        ('結束', '依序 pop 剩下的運算子', 'C B A - -')])
+    peval_trace = table(['token（由右到左）', 'stack（左 base、右 top）', '動作'], [
+        ('2', '2', 'push'), ('6', '2, 6', 'push'),
+        ('/', '3', 'pop 6（左）、pop 2（右），6 / 2 = 3'),
+        ('10', '3, 10', 'push'),
+        ('-', '7', 'pop 10（左）、pop 3（右），10 - 3 = 7')])
+    post_body = f'''<p>做法和後序求值一樣，只是 stack 裡放的是字串：運算元直接 push；遇到運算子就 pop 兩個子式，第一次 pop 出來的是右運算元，組成「(左 運算子 右)」再 push 回去。最後 stack 上剩下的就是完全括號化的中序式。以 <code>A B * C D * +</code> 為例：</p>
+{post_trace}
+{run_card('postfixToInfix', 'postfix_to_infix', note='每個運算子都產生一對括號，所以結果是完全括號運算式；要拿掉多餘的括號，得再依優先權判斷哪些可以省略。')}'''
+    pre_body = f'''<p>前序的運算子在運算元前面，由左往右讀到運算子時，它的運算元還沒出現。所以改成<strong>由右到左</strong>掃描：運算元 push；讀到運算子時，它的兩個運算元已經在 stack 上。因為是反著讀，第一次 pop 出來的是<strong>左</strong>運算元。程式先把所有 token 讀進 vector，再從最後一個往前處理。以 <code>+ * A B * C D</code> 為例：</p>
+{pre_trace}
+{run_card('prefixToInfix', 'prefix_to_infix', note='第三行的 - - A B C 轉成 ((A - B) - C)：減法不滿足交換律，兩次 pop 的左右順序弄反，就會得到錯誤的 (C - (B - A))。')}'''
+    i2pre_body = f'''<p>不必另外設計演算法，可以借用前面的 Shunting-yard：</p>
+{i2pre_steps}
+<p>要改條件，是因為反轉之後，原本由左往右結合的運算子變成由右往左。以 <code>A - B - C</code> 為例，正確的前序是 <code>- - A B C</code>，表示先算 A - B。反轉後是 <code>C - B - A</code>：</p>
+{i2pre_trace}
+<p>把 <code>C B A - -</code> 反轉，得到 <code>- - A B C</code>。如果沿用 <code>&gt;=</code>，第二個 - 會先把第一個 - pop 出去，輸出 <code>C B - A -</code>，反轉後是 <code>- A - B C</code>，意思變成 A - (B - C)，答案錯了。</p>
+{run_card('infixToPrefix：反轉＋Shunting-yard', 'infix_to_prefix', note='程式用 std::reverse（在 &lt;algorithm&gt;）反轉 vector。三個結果都可以丟給上面的 prefixToInfix 轉回中序檢查。')}'''
+    peval_body = f'''<p>和前序轉中序一樣由右到左掃描，stack 改放數值：數字用 <code>stod</code> 轉成 double 後 push；遇到運算子就 pop 兩次，<strong>第一次是左運算元</strong>，第二次是右運算元，計算後 push 回去。順序和後序求值正好相反。以 <code>- 10 / 6 2</code> 為例：</p>
+{peval_trace}
+{run_card('prefixEval', 'prefix_eval', note='若把左右弄反，6 / 2 會算成 2 / 6，10 - 3 會算成 3 - 10。第三行的 / + 7 8 + 3 2 就是 (7 + 8) / (3 + 2)，和本節後序求值的例子結果相同。')}'''
+    return f'''<h3>其他轉換與前序求值</h3>
+<p>除了中序轉後序與後序求值，另外幾種常見的題型也只要一個 stack：後序或前序轉回中序、中序轉前序，以及前序求值。差別在掃描的方向，以及 pop 出來的兩個值哪一個是左運算元：</p>
+{summary}
+{fold('後序轉中序', post_body)}
+{fold('前序轉中序', pre_body)}
+{fold('中序轉前序：反轉＋Shunting-yard', i2pre_body)}
+{fold('前序求值', peval_body)}'''
 
 
 # ---------------------------------------------------------------- P05 queue
@@ -349,6 +441,7 @@ def queue_intro():
 <p>queue 是一個有順序的集合，新元素從一端加入，這一端叫 <strong>rear</strong>；既有的元素從另一端移除，這一端叫 <strong>front</strong>。元素從 rear 進入後，一路往 front 移動，直到輪到它被移除。在集合中待得最久的元素位於 front。這個原則叫 <strong>FIFO</strong>（first in, first out，先進先出）。</p>
 <p>最簡單的例子是排隊：排隊看電影、在超市排隊結帳、在餐廳排隊取餐。規矩的隊伍限制很嚴格，只有一個入口、一個出口；不能從中間插隊，也不能在輪到之前離開。</p>
 {figure('queue')}
+<div class="info-box"><strong>寫作業與考試時：</strong>用 [ ] 寫 queue 的內容時，要註明 front 和 rear 各在哪一邊。例如依序 push a、b、c，寫成 <code>[a, b, c]（左 front、右 rear）</code>，表示下一個被移除的是 a。這個註明不能省：課程標頭的 <code>Queue&lt;T&gt;</code> 在 vector 裡把 rear 放在開頭（索引 0）、front 放在尾端，直接照 vector 的內容抄下來就是 [c, b, a]。兩種寫法都可以，前提是標清楚哪一邊是 front。</div>
 <p>電腦科學裡也常見 queue。作業系統用好幾種不同的 queue 管理電腦裡的行程（process）：接下來要執行什麼，通常由一個排隊演算法決定，目標是盡快執行程式，同時服務越多使用者越好。</p>
 <h3>Queue ADT</h3>
 {ul([
@@ -380,7 +473,7 @@ def queue_stl():
 {details('課程標頭 queue.hpp 的 Queue&lt;T&gt;', snippet('pythonds3/cppds/queue.hpp · Queue', QUEUE_HPP, kind='header'))}
 {quiz('qQueue', 'QUIZ · queue 剩下哪些元素',
       '執行下列 queue 操作之後，queue 裡還有哪些元素？', [
-          (True, '<code>{"dog", "3"}</code>', 'queue 是 FIFO：push 加到 rear，pop 移除 front 的 "hello"（回傳 void），剩下 "dog" 與 "3"。'),
+          (True, '<code>{"dog", "3"}</code>', 'queue 是 FIFO：push 加到 rear，pop 移除 front 的 "hello"（回傳 void），剩下 "dog" 與 "3"，寫成 {"dog", "3"}（左 front、右 rear）。'),
           (False, '<code>{"hello", "dog"}</code>', '這是 pop 移除最後加入的元素（LIFO）的結果，那是 stack 的行為，不是 queue。'),
           (False, '<code>{"hello", "dog", "3"}</code>', '這是 pop 之前的狀態；queue::pop 會從 front 移除一個元素。'),
           (False, '<code>{"3"}</code>', '這表示 pop 了兩次，或 queue 只保留最後加入的元素。'),
@@ -486,7 +579,38 @@ def deque_intro():
 <p>課程標頭 <code>pythonds3/cppds/deque.hpp</code> 改為提供 <code>Deque&lt;T&gt;</code>，方法是 <code>addFront</code>、<code>addRear</code>，以及會回傳值的 <code>removeFront</code>／<code>removeRear</code> 與 <code>isEmpty</code>。它選擇的 vector 表示法讓其中一端的操作是 $O(n)$；這不是 <code>std::deque</code> 的複雜度。一般的 C++ 程式使用 <code>std::deque</code>；只有練習明確要求研究這種表示法與操作成本時，才用課程的 <code>Deque&lt;T&gt;</code>。</p>
 {trans}
 {details('課程標頭 deque.hpp 的 Deque&lt;T&gt;', snippet('pythonds3/cppds/deque.hpp · Deque', DEQUE_HPP, kind='header'))}
+{fold('std::deque 怎麼讓兩端都 O(1)', deque_impl_body())}
 <p>下表把 <code>front()</code> 畫在左邊、<code>back()</code> 畫在右邊：</p>'''
+
+
+def deque_impl_body():
+    cmp = table(['', 'vector（課程 Deque&lt;T&gt; 的 rear 端）', 'std::deque'], [
+        ('儲存方式', '一整段連續記憶體，第一個元素固定在索引 0', '多個固定大小的連續區塊，加上記錄區塊順序的索引表'),
+        ('在前端加入', '<code>insert(begin())</code>，其餘元素全部往後搬', '把 front 往前移一格再寫入；區塊滿了就配置新區塊'),
+        ('是否搬動既有元素', '是', '否'),
+        ('時間複雜度', '$O(n)$', '$O(1)$'),
+    ])
+    return f'''<p>課程的 <code>Deque&lt;T&gt;</code> 底層是一個 vector：元素存在一段連續記憶體裡，第一個元素固定在索引 0。要在 vector 開頭加入元素，只能 <code>insert(begin())</code>，把所有元素往後搬一格，所以是 $O(n)$。</p>
+<p><code>std::deque</code> 換了一種存法：元素分段放在好幾個<strong>固定大小的區塊</strong>（block）裡，每個區塊本身是連續的；另外用一個<strong>索引表</strong>（map，存放各區塊指標的陣列）記住區塊的先後順序。deque 也記錄第一個元素在區塊中的位置，下圖標成 front。區塊前面還有空位時，<code>push_front</code> 只要把 front 往前移一格，再寫入新元素：</p>
+<pre class="linear-pre">Block 0（容量 6）
+index:  0    1    2    3    4    5
+      [   ][   ][ A ][ B ][ C ][   ]
+                  ↑ front
+
+push_front(X) 之後：
+index:  0    1    2    3    4    5
+      [   ][ X ][ A ][ B ][ C ][   ]
+             ↑ front</pre>
+{snippet('push_front 的概念（示意，不是標準函式庫的原始碼）', '--frontIndex;\nblock[frontIndex] = X;', kind='fragment')}
+<p>A、B、C 都沒有移動。要是區塊前面已經沒有空位，就配置一個新區塊，把它的指標記在索引表中原區塊的前面，再把 X 寫進新區塊的最後一格：</p>
+<pre class="linear-pre">索引表：[ New ][ Block 0 ]
+
+New Block             Block 0
+[   ][   ][   ][ X ]  [ A ][ B ][ C ][ D ]
+                 ↑ front</pre>
+<p><code>push_back</code> 在尾端用同樣的方法。原有的元素同樣不動。索引表本身也滿了，才需要重新配置一個更大的索引表，但搬的只是區塊指標，不是元素，而且這種情況很少發生；平均分攤到每次操作，<code>push_front</code> 與 <code>push_back</code> 仍是常數時間。</p>
+{cmp}
+<p><code>std::queue</code> 與 <code>std::stack</code> 預設的底層容器就是 <code>std::deque</code>，所以 <code>std::queue</code> 的 push（加到 rear）與 pop（移除 front）都是 $O(1)$。課程的 <code>Queue&lt;T&gt;</code>、<code>Deque&lt;T&gt;</code> 直接用 vector，才會有一端是 $O(n)$。另一種常見的做法是<strong>環狀陣列</strong>（circular array）：在固定大小的陣列裡用 front、rear 兩個索引繞圈前進，加入與移除都只移動索引，同樣不必搬動元素。</p>'''
 
 
 def deque_pal():
@@ -551,6 +675,8 @@ def recap():
     '括號配對：左括號 push；右括號 pop，並檢查種類；讀完時 stack 必須為空。',
     '進位轉換：反覆除以 base，餘數 push 到 stack，再依序 pop 得到由高位到低位的結果；digits 字串處理 10 以上的餘數。',
     '中序轉後序時，運算子在 stack 中等待，比自己優先權高或相同的先 pop 到輸出；後序求值時，運算元在 stack 中等待，第一次 pop 出來的是右運算元。',
+    '後序適合用 stack 一次掃描求值；前序求值與前序轉中序改成由右到左掃描，第一次 pop 出來的是左運算元。中序轉前序可以把 token 反轉、括號對調，跑同優先權不 pop 的 Shunting-yard，再把輸出反轉。',
+    '作業與考試用 [ ] 寫出 stack 或 queue 的內容時，要註明 top／base 或 front／rear 在哪一邊，例如 [x, y]（左 base、右 top）、[a, b, c]（左 front、右 rear）。',
     'queue 從 rear 加入、從 front 移除（FIFO）；std::queue 用 push、front、back、pop，課程標頭 Queue&lt;T&gt; 用 enqueue、dequeue、isEmpty。',
     'hot potato 把「傳一次」模擬成 front 移到 rear；印表機模擬用 queue 保存等待的工作，用 mt19937 與 uniform_int_distribution 產生隨機事件，結論取決於模型的假設。',
     'deque 兩端都能加入與移除；std::deque 兩端都是 $O(1)$，迴文檢查從兩端各取一個字元比較。',

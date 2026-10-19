@@ -4,9 +4,10 @@ import re
 
 WEEK5 = 'https://youtube.com/playlist?list=PLY4RRB8N-iEY&si=c1vywZ2WNu8th2hE'
 WEEK6 = 'PLKfVlE23FEcw'
+WEEK7 = 'PLZAdKohP8LHE'
 
-def _video(video_id):
-    return f'https://www.youtube.com/watch?v={video_id}&list={WEEK6}'
+def _video(video_id, playlist=WEEK6):
+    return f'https://www.youtube.com/watch?v={video_id}&list={playlist}'
 
 # Each chapter lists (label, url); the first link keeps the id recording-<chapter>.
 RECORDINGS = {
@@ -18,6 +19,9 @@ RECORDINGS = {
     ],
     'linear_structures': [
         ('▶ 錄影：Linear ADT 與 Stack', _video('4sY0K264UIo')),
+        ('▶ 錄影：Infix、Postfix 與 Prefix', _video('NjoC3Aj30Z0', WEEK7)),
+        ('▶ 錄影：Queue', _video('6QvTp5mM6WY', WEEK7)),
+        ('▶ 錄影：Deque', _video('j-WFKsrGYqo', WEEK7)),
     ],
 }
 

@@ -94,14 +94,14 @@ function indepWalk(g) {
     const { page, errors } = await open('gl');
     await page.setViewport({ width: 1280, height: 900 });
     await page.goto(URL_, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.evaluate(() => { ['trail:v1', 'tour:v1', 'mode'].forEach(k => localStorage.removeItem('dscpp-island:' + k)); });
+    await page.evaluate(() => { ['trail:v1', 'tour:v1', 'night'].forEach(k => localStorage.removeItem('dscpp-island:' + k)); });
     await page.reload({ waitUntil: 'domcontentloaded' });
     const ready = await page.waitForSelector('body.webgl-ready', { timeout: 40000 }).then(() => true, () => false);
     if (!ready) note('WebGL 可用時沒有進入 3D');
     await sleep(1500);
     const colors = await canvasColors(page);
     if (colors < 30) note(`3D 畫布幾乎是空的（${colors} 種顏色）`); else ok(`3D 畫出 ${colors} 種顏色`);
-    await page.screenshot({ path: path.join(SHOT_DIR, '3d_power.png') });
+    await page.screenshot({ path: path.join(SHOT_DIR, '3d_day.png') });
 
     /* 結構約束 */
     const inv = await page.evaluate(() => window.__island.invariants());
@@ -201,18 +201,14 @@ function indepWalk(g) {
     await page.keyboard.press('Escape'); await sleep(100);
     if (await page.$eval('#cmpDialog', e => e.open)) note('Esc 沒有關閉對比');
 
-    /* 模式 */
-    await page.click('#islMode'); await sleep(1300);
-    const m = await page.evaluate(() => ({ p: document.getElementById('islMode').getAttribute('aria-pressed'), d: document.documentElement.dataset.mode, k: window.__island.stats().modeK, s: localStorage.getItem('dscpp-island:mode') }));
-    if (m.p !== 'true' || m.d !== 'print' || m.k !== 1 || m.s !== 'print') note(`藍圖切換無效：${JSON.stringify(m)}`); else ok('切到藍圖');
-    await page.screenshot({ path: path.join(SHOT_DIR, '3d_print.png') });
-    // 藍圖靜止時不應持續繪製（先等猜題觸發的地標動畫播完）
-    await page.waitForFunction(() => window.__island.plays().length === 0, { timeout: 20000 }).catch(() => note('地標動畫一直沒有播完'));
-    await sleep(800);
-    const b0 = await page.evaluate(() => window.__island.stats().draws); await sleep(1200);
-    const b1 = await page.evaluate(() => window.__island.stats().draws);
-    if (b1 !== b0) note(`藍圖靜止時仍在繪製（${b1 - b0} 幀）`); else ok('藍圖靜止時不繪製');
-    await page.click('#islMode'); await sleep(1200);
+    /* 入夜 */
+    await page.click('#islNight');
+    await page.waitForFunction(() => window.__island.stats().night === 1, { timeout: 15000 }).catch(() => {});
+    const m = await page.evaluate(() => ({ p: document.getElementById('islNight').getAttribute('aria-pressed'), c: document.getElementById('islStage').classList.contains('is-night'), k: window.__island.stats().night, s: localStorage.getItem('dscpp-island:night') }));
+    if (m.p !== 'true' || !m.c || m.k !== 1 || m.s !== '1') note(`入夜切換無效：${JSON.stringify(m)}`); else ok('切到入夜');
+    await page.screenshot({ path: path.join(SHOT_DIR, '3d_night.png') });
+    await page.click('#islNight');
+    await page.waitForFunction(() => window.__island.stats().night === 0, { timeout: 15000 }).catch(() => {});
 
     /* 拖曳時不重複排程 */
     {

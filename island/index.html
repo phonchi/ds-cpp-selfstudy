@@ -1,36 +1,30 @@
 <!DOCTYPE html>
 <!-- 產物：由 tools/build_island.py 產生，不要手改。文案在 tools/island_meta.py，樣式與程式在 tools/template/island* -->
-<html lang="zh-Hant" data-mode="power">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="資料結構矽晶群島：以 3D 晶片群島導覽資料結構 × C++ 互動自學網站的 21 個單元，點晶片島即可前往教材，也能先猜下一步、對照不同資料結構。">
-<title>資料結構矽晶群島 — Data Structures in Silicon</title>
+<meta name="description" content="資料結構知識群島：以 3D 群島導覽資料結構 × C++ 互動自學網站的 21 個單元，點島即可前往教材，也能先猜下一步、對照不同資料結構。">
+<title>資料結構知識群島 — Data Structures Archipelago</title>
 <script>
 /* 有 WebGL 的瀏覽器先排 3D 版面並顯示載入中，避免 2D 卡片閃一下再切換；失敗時 island.js 會移除 */
 if (window.WebGLRenderingContext) document.documentElement.classList.add('gl-pending');
-try { if (localStorage.getItem('dscpp-island:mode') === 'print') document.documentElement.dataset.mode = 'print'; } catch (e) {}
 </script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap&text=%E8%B3%87%E6%96%99%E7%B5%90%E6%A7%8B%E7%9F%BD%E6%99%B6%E7%BE%A4%E5%B3%B6" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap&text=%E8%B3%87%E6%96%99%E7%B5%90%E6%A7%8B%E7%9F%A5%E8%AD%98%E7%BE%A4%E5%B3%B6" rel="stylesheet">
 <style>
-/* island/index.html 專用（3D 資料結構矽晶群島）。色票取自網站：墨 #1a1a2e、米白 #f7f3eb、深藍 #2c3e7a、
-   紅 #c0392b、森林綠 #1a6b4a、金 #f5b82e。兩種模式：html[data-mode=power]（通電，預設）與 print（藍圖）。
+/* island/index.html 專用（3D 資料結構知識群島）。色票取自網站：墨 #1a1a2e、米白 #f7f3eb、深藍 #2c3e7a、
+   紅 #c0392b、森林綠 #1a6b4a、金 #f5b82e。
    預設版面＝2D 卡片地圖（無 JS／CDN 失效／無 WebGL 都看得到）；body.webgl-ready（或載入中的 html.gl-pending）才切成 3D＋側欄。
-   語言：硬邊、小圓角、等寬編號，像電路板上的絲印；刻意不用圓潤卡片與柔和陰影。 */
+   語言：明亮的紙質介面、等寬編號，頂列用網站的深藍。 */
 :root{
-  --bar-h:60px;--r:3px;
+  --bar-h:60px;--r:7px;
   --sans:system-ui,-apple-system,'PingFang TC','Microsoft JhengHei','Noto Sans CJK TC','Noto Sans TC','Heiti TC',sans-serif;
   --mono:ui-monospace,'SFMono-Regular','Cascadia Mono',Menlo,Consolas,monospace;
   --gold:#f5b82e;
 }
-:root,[data-mode="power"]{
-  --bg:#0f0f1e;--surface:#1a1a2e;--surface2:#23233c;--line:#3d3d63;--line2:#585c85;
-  --fg:#f7f3eb;--fg2:#c9c6d6;--fg3:#9a9db8;--accent:#f5b82e;--on-accent:#1a1a2e;--ptr:#ff7a66;--ok:#3fbf95;--blue:#9db0f0;
-  --hi-bg:rgba(245,184,46,.14);--ok-bg:rgba(63,191,149,.14);--bad-bg:rgba(255,122,102,.14);
-}
-[data-mode="print"]{
-  --bg:#f7f3eb;--surface:#fffdf7;--surface2:#f1ebdd;--line:#d8d2c4;--line2:#8a8578;
+:root{
+  --bg:#f7f3eb;--surface:#fffdf7;--surface2:#f1ebdd;--line:#e0d9ca;--line2:#a9a292;
   --fg:#1a1a2e;--fg2:#3d3a4a;--fg3:#6f6a5f;--accent:#2c3e7a;--on-accent:#fffdf7;--ptr:#c0392b;--ok:#1a6b4a;--blue:#2c3e7a;
   --hi-bg:rgba(44,62,122,.1);--ok-bg:rgba(26,107,74,.1);--bad-bg:rgba(192,57,43,.1);
 }
@@ -40,29 +34,28 @@ body{font-family:var(--sans);color:var(--fg);line-height:1.7;font-size:16px;-web
 button{font:inherit;color:inherit;}
 a{color:inherit;}
 code{font-family:var(--mono);font-size:.92em;}
-:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-[data-mode="print"] :focus-visible{outline-color:#c0392b;}
+:focus-visible{outline:2px solid #c0392b;outline-offset:2px;}
 
 /* ── 頂列 ─────────────────────────────────────────── */
 .isl-bar{position:sticky;top:0;z-index:30;min-height:var(--bar-h);display:flex;align-items:center;gap:1rem;
-  padding:.5rem 1.1rem;background:var(--surface);border-bottom:1px solid var(--line);}
-.isl-home{text-decoration:none;font-size:.86rem;padding:.3rem .7rem;border-radius:var(--r);border:1px solid var(--line2);white-space:nowrap;}
-.isl-home:hover{border-color:var(--accent);color:var(--accent);}
+  padding:.5rem 1.1rem;color:#fff;background:linear-gradient(100deg,#1a1a2e 0%,#2c3e7a 70%,#2d5a8a 100%);}
+.isl-home{text-decoration:none;font-size:.86rem;padding:.3rem .7rem;border-radius:var(--r);border:1px solid rgba(255,255,255,.4);white-space:nowrap;}
+.isl-home:hover{background:rgba(255,255,255,.14);}
 .isl-brand{flex:1;min-width:0;}
 .isl-brand h1{font-family:'Noto Serif TC',var(--sans);font-weight:900;font-size:1.22rem;letter-spacing:.08em;line-height:1.3;}
-.isl-brand-en{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.isl-brand-en{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;color:rgba(255,255,255,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .isl-actions{display:flex;gap:.45rem;}
-.isl-btn{background:transparent;border:1px solid var(--line2);border-radius:var(--r);padding:.3rem .7rem;font-size:.84rem;cursor:pointer;white-space:nowrap;}
-.isl-btn:hover{border-color:var(--accent);color:var(--accent);}
-.isl-btn.is-strong{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700;}
-.isl-btn.is-strong:hover{color:var(--on-accent);filter:brightness(1.08);}
+.isl-btn{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:var(--r);padding:.3rem .7rem;font-size:.84rem;cursor:pointer;white-space:nowrap;}
+.isl-btn:hover{background:rgba(255,255,255,.2);}
+.isl-btn.is-strong{background:var(--gold);border-color:var(--gold);color:#1a1a2e;font-weight:700;}
+.isl-btn.is-strong:hover{background:#ffc848;}
 
 /* ── 2D 地圖（預設）──────────────────────────────── */
 .isl-list{max-width:1180px;margin:0 auto;padding:1.6rem 1.2rem 3rem;}
 .isl-intro{font-size:.95rem;color:var(--fg2);margin-bottom:1.4rem;text-wrap:pretty;}
 .isl-trail-note{display:inline-block;}
 .isle{padding:1.1rem 1.1rem 1.2rem;margin-bottom:1.3rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  background-image:linear-gradient(var(--surface2) 1px,transparent 1px),linear-gradient(90deg,var(--surface2) 1px,transparent 1px);background-size:32px 32px;background-position:-1px -1px;}
+  }
 .isle h2{font-size:1.3rem;font-weight:900;display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem .7rem;}
 .isle-sub{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.1em;color:var(--accent);}
 .isle-note{font-size:.88rem;color:var(--fg2);margin:.2rem 0 .9rem;}
@@ -91,15 +84,16 @@ code{font-family:var(--mono);font-size:.92em;}
 /* ── 3D 模式 ─────────────────────────────────────── */
 .isl-stage{position:relative;overflow:hidden;}
 .gl-pending .isl-stage[hidden]{display:block;}
-.isl-loading{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;font-family:var(--mono);
-  font-size:.9rem;letter-spacing:.14em;color:var(--fg3);animation:islPulse 1.4s ease-in-out infinite;}
+.isl-loading{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;
+  font-size:.9rem;letter-spacing:.14em;color:rgba(43,58,54,.75);animation:islPulse 1.4s ease-in-out infinite;}
 .gl-pending .isl-loading{display:block;}
 @keyframes islPulse{0%,100%{opacity:.45;}50%{opacity:1;}}
 #islCanvas{opacity:1;transition:opacity .4s ease;}
 .gl-pending #islCanvas{opacity:0;}
 :is(.gl-pending body,body.webgl-ready) .isl-main{display:grid;grid-template-columns:minmax(0,1fr) 330px;
   height:calc(100vh - var(--bar-h));height:calc(100dvh - var(--bar-h));}
-:is(.gl-pending body,body.webgl-ready) .isl-stage{display:block;min-height:0;background:var(--bg);}
+:is(.gl-pending body,body.webgl-ready) .isl-stage{display:block;min-height:0;background:#a2dbe6;transition:background .6s;}
+:is(.gl-pending body,body.webgl-ready) .isl-stage.is-night{background:#1f2e44;}
 #islCanvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab;outline:none;}
 #islCanvas:active{cursor:grabbing;}
 #islCanvas.is-hover{cursor:pointer;}
@@ -122,7 +116,8 @@ code{font-family:var(--mono);font-size:.92em;}
 .isl-jumps{position:absolute;z-index:3;left:.8rem;top:.8rem;display:flex;flex-wrap:wrap;gap:.35rem;max-width:calc(100% - 1.6rem);}
 .isl-jump-btn{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:.22rem .65rem;font-size:.8rem;cursor:pointer;}
 .isl-jump-btn:hover{border-color:var(--accent);color:var(--accent);}
-.isl-hint{position:absolute;right:.9rem;bottom:.5rem;font-size:.74rem;color:var(--fg3);pointer-events:none;}
+.isl-hint{position:absolute;right:.9rem;bottom:.5rem;font-size:.74rem;color:#2b3a36;pointer-events:none;}
+.isl-stage.is-night .isl-hint{color:rgba(240,236,224,.85);}
 /* 地圖標籤：像貼在晶片前緣的絲印牌（位置由 island-scene.js 每次繪製時設定） */
 .isl-labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .isl-tag{position:absolute;left:0;top:0;display:inline-flex;align-items:stretch;white-space:nowrap;pointer-events:auto;cursor:pointer;
@@ -137,16 +132,16 @@ code{font-family:var(--mono);font-size:.92em;}
 .isl-tag.is-visited .isl-tag-t::after{content:'';display:inline-block;width:6px;height:6px;margin-left:.3rem;background:var(--accent);vertical-align:middle;}
 .isl-tag.is-done .isl-tag-t::after{content:'✓';margin-left:.25rem;color:var(--ok);}
 .isl-tag.is-off{opacity:0;pointer-events:none;}
+.isl-tag{border-radius:var(--r);overflow:hidden;box-shadow:0 2px 8px rgba(33,52,58,.2);}
 .isl-tag.is-compact .isl-tag-t{display:none;}
-.isl-mode{position:absolute;right:.9rem;bottom:2.1rem;min-height:38px;padding:.35rem .9rem;border-radius:var(--r);cursor:pointer;
+.isl-night{position:absolute;right:.9rem;bottom:2.1rem;min-height:38px;padding:.35rem .9rem;border-radius:var(--r);cursor:pointer;
   font:600 .82rem/1 var(--sans);background:var(--surface);border:1px solid var(--line2);}
-.isl-mode:hover{border-color:var(--accent);color:var(--accent);}
+.isl-night:hover{border-color:var(--accent);color:var(--accent);}
 
 /* ── 章節面板 ─────────────────────────────────────── */
 .isl-panel{position:fixed;z-index:40;left:.9rem;bottom:.9rem;width:min(392px,calc(100vw - 1.8rem));
   background:var(--surface);border:1px solid var(--line2);border-top:3px solid var(--accent);border-radius:var(--r);padding:1rem 1.1rem 1.05rem;
-  box-shadow:0 14px 36px rgba(0,0,0,.42);animation:islPanelIn .18s ease-out;max-height:calc(100vh - var(--bar-h) - 1.8rem);overflow-y:auto;overscroll-behavior:contain;}
-[data-mode="print"] .isl-panel{box-shadow:0 10px 28px rgba(26,26,46,.16);}
+  box-shadow:0 12px 32px rgba(26,26,46,.2);animation:islPanelIn .18s ease-out;max-height:calc(100vh - var(--bar-h) - 1.8rem);overflow-y:auto;overscroll-behavior:contain;}
 .isl-panel[hidden]{display:none;}
 @keyframes islPanelIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .isl-panel-close{position:absolute;top:.45rem;right:.5rem;width:32px;height:32px;border-radius:var(--r);border:none;background:transparent;font-size:1.35rem;line-height:1;color:var(--fg3);cursor:pointer;}
@@ -193,7 +188,7 @@ code{font-family:var(--mono);font-size:.92em;}
 /* ── 代表互動圖 ───────────────────────────────────── */
 .isl-fig{margin:0 0 .75rem;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;}
 .isl-fig[hidden]{display:none;}
-.isl-fig-img{display:block;background:#fffdf7;}
+.isl-fig-img{display:block;background:#fff;}
 .isl-fig-img img{display:block;width:100%;height:auto;max-height:150px;object-fit:contain;}
 .isl-fig figcaption{font-size:.79rem;line-height:1.65;color:var(--fg2);padding:.5rem .7rem 0;text-wrap:pretty;}
 .isl-fig-h{display:block;font-size:.68rem;font-weight:700;letter-spacing:.08em;color:var(--accent);}
@@ -233,7 +228,7 @@ code{font-family:var(--mono);font-size:.92em;}
 /* ── 同操作對比 ───────────────────────────────────── */
 .cmp{margin:auto;width:min(980px,calc(100vw - 2rem));max-height:calc(100vh - 2rem);padding:1.1rem 1.25rem 1rem;color:var(--fg);background:var(--surface);
   border:1px solid var(--line2);border-top:3px solid var(--accent);border-radius:var(--r);overflow-y:auto;}
-.cmp::backdrop{background:rgba(10,10,20,.62);}
+.cmp::backdrop{background:rgba(26,26,46,.45);}
 .cmp-head{display:flex;justify-content:space-between;gap:1rem;}
 .cmp-close{position:static;flex:none;}
 .cmp-kicker{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.1em;color:var(--accent);}
@@ -315,7 +310,7 @@ code{font-family:var(--mono);font-size:.92em;}
   .isl-jumps{left:.5rem;top:.5rem;gap:.25rem;}
   .isl-jump-btn{font-size:.72rem;padding:.2rem .5rem;}
   .isl-hint{display:none;}
-  .isl-mode{right:.5rem;bottom:.5rem;min-height:34px;font-size:.76rem;padding:.3rem .7rem;}
+  .isl-night{right:.5rem;bottom:.5rem;min-height:34px;font-size:.76rem;padding:.3rem .7rem;}
   .isl-tag{font-size:.7rem;}
   .isl-bubble{right:.5rem;top:auto;bottom:3rem;font-size:.82rem;}
   .isl-fig-img img{max-height:130px;}
@@ -340,20 +335,22 @@ code{font-family:var(--mono);font-size:.92em;}
  "integrity": {
   "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js": "sha384-EU5UWigB3OuXjAXooUegndJSqYber3YSJHDoMZs6rV96yY/ol/B4W8logw4CKWkA",
   "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js": "sha384-ktZslgpl0L71WZcQ5wKV96Z04i9QSjtmiU/kYpjDQSfJ5NJ8B79qDF63oNTbQySl",
-  "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/controls/OrbitControls.js": "sha384-LSqANrugPGTgf0eYsQTloqKWy926dOOXo2iZ9y6wLMIDEQoU9AaCLJF1Vcc7oJXr"
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/controls/OrbitControls.js": "sha384-LSqANrugPGTgf0eYsQTloqKWy926dOOXo2iZ9y6wLMIDEQoU9AaCLJF1Vcc7oJXr",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/geometries/RoundedBoxGeometry.js": "sha384-gHmgcgYfabbVCqiNiLLSop7dMvxAqZsQsjokoDYKyrHmCD5jCPvDvFaXaAkHtTfM"
  }
 }
 </script>
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js" integrity="sha384-EU5UWigB3OuXjAXooUegndJSqYber3YSJHDoMZs6rV96yY/ol/B4W8logw4CKWkA" crossorigin="anonymous">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js" integrity="sha384-ktZslgpl0L71WZcQ5wKV96Z04i9QSjtmiU/kYpjDQSfJ5NJ8B79qDF63oNTbQySl" crossorigin="anonymous">
 <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/controls/OrbitControls.js" integrity="sha384-LSqANrugPGTgf0eYsQTloqKWy926dOOXo2iZ9y6wLMIDEQoU9AaCLJF1Vcc7oJXr" crossorigin="anonymous">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/geometries/RoundedBoxGeometry.js" integrity="sha384-gHmgcgYfabbVCqiNiLLSop7dMvxAqZsQsjokoDYKyrHmCD5jCPvDvFaXaAkHtTfM" crossorigin="anonymous">
 </head>
 <body>
 <header class="isl-bar">
   <a class="isl-home" href="../index.html">← 回到章節總覽</a>
   <div class="isl-brand">
-    <h1>資料結構矽晶群島</h1>
-    <span class="isl-brand-en">Data Structures in Silicon · NSYSU MATH208</span>
+    <h1>資料結構知識群島</h1>
+    <span class="isl-brand-en">Data Structures Archipelago · NSYSU MATH208</span>
   </div>
   <div class="isl-actions">
     <button type="button" class="isl-btn is-strong" id="islCompare">同操作對比</button>
@@ -363,48 +360,48 @@ code{font-family:var(--mono);font-size:.92em;}
 </header>
 <main class="isl-main">
   <div class="isl-stage" id="islStage" hidden>
-    <p class="isl-loading" aria-hidden="true">通電中…</p>
-    <canvas id="islCanvas" tabindex="0" aria-label="3D 晶片群島：拖曳旋轉、滾輪縮放、點選晶片島；也可用右側列表操作"></canvas>
+    <p class="isl-loading" aria-hidden="true">群島載入中…</p>
+    <canvas id="islCanvas" tabindex="0" aria-label="3D 群島：拖曳旋轉、滾輪縮放、點島或建築；也可用右側列表操作"></canvas>
     <div class="isl-jumps" role="group" aria-label="跳到區域">
-      <button type="button" class="isl-jump-btn" data-grp="power">電源島</button>
+      <button type="button" class="isl-jump-btn" data-grp="pre">啟航島</button>
       <button type="button" class="isl-jump-btn" data-grp="core">正課九島</button>
-      <button type="button" class="isl-jump-btn" data-grp="dimm">先備記憶體模組</button>
+      <button type="button" class="isl-jump-btn" data-grp="workshop">C++ 工坊島</button>
     </div>
     <div class="isl-labels" id="islLabels"></div>
     <button type="button" class="isl-bubble" id="islBubble" hidden>嗨，我是阿迭（it），要我帶你走一趟嗎？</button>
-    <button type="button" class="isl-mode" id="islMode" aria-pressed="false">切到藍圖</button>
-    <p class="isl-hint" aria-hidden="true">拖曳旋轉 · 滾輪或雙指縮放 · 點晶片島</p>
+    <button type="button" class="isl-night" id="islNight" aria-pressed="false">入夜</button>
+    <p class="isl-hint" aria-hidden="true">拖曳旋轉 · 滾輪或雙指縮放 · 點島</p>
   </div>
   <nav class="isl-list" id="islList" aria-label="章節列表">
     <p class="isl-intro">三個區域、21 個單元，全部可以自由進入。正課 9 章依授課順序排列；
-      先備模組是選讀，需要時再查閱。<span class="isl-trail-note">「足跡」只存在這台裝置的瀏覽器裡。</span></p>
-    <section class="isle isle-power" id="isle-power" data-grp="power" aria-labelledby="isle-power-h">
-      <h2 id="isle-power-h"><span class="isle-name">電源島</span><span class="isle-sub">課前準備 · 先讀</span></h2>
-      <p class="isle-note">先接上電源：弄清楚為什麼要學，把開發環境準備好。</p>
+      C++ 工坊島是選讀，需要時再查閱。<span class="isl-trail-note">「足跡」只存在這台裝置的瀏覽器裡。</span></p>
+    <section class="isle isle-pre" id="isle-pre" data-grp="pre" aria-labelledby="isle-pre-h">
+      <h2 id="isle-pre-h"><span class="isle-name">啟航島</span><span class="isle-sub">課前準備 · 先讀</span></h2>
+      <p class="isle-note">燈塔、碼頭與修船塢：弄清楚為什麼要學，把開發環境準備好。</p>
       <ol class="isl-items">
-        <li class="isl-item" data-stem="00a_why_code" data-grp="power">
+        <li class="isl-item" data-stem="00a_why_code" data-grp="pre">
           <a class="isl-link" href="../00a_why_code.html" data-stem="00a_why_code">
             <span class="isl-num">00A</span>
             <span class="isl-title">AI 時代，為什麼還要學資料結構？</span>
-            <span class="isl-landmark">電源開關</span>
+            <span class="isl-landmark">燈塔</span>
             <span class="isl-blurb">從「能編譯」到「資料變多還跑得動」的距離，選錯容器的代價，以及記憶體是你自己的責任。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="00b_setup" data-grp="power">
+        <li class="isl-item" data-stem="00b_setup" data-grp="pre">
           <a class="isl-link" href="../00b_setup.html" data-stem="00b_setup">
             <span class="isl-num">00B</span>
             <span class="isl-title">課前準備與環境安裝</span>
-            <span class="isl-landmark">連接埠</span>
+            <span class="isl-landmark">補給碼頭</span>
             <span class="isl-blurb">安裝 g++ 與 gdb，讓課程 notebook 能跑 C++，並跑通第一支程式。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="00c_vscode_windows" data-grp="power">
+        <li class="isl-item" data-stem="00c_vscode_windows" data-grp="pre">
           <a class="isl-link" href="../00c_vscode_windows.html" data-stem="00c_vscode_windows">
             <span class="isl-num">00C</span>
             <span class="isl-title">Windows VS Code 作業實戰</span>
-            <span class="isl-landmark">除錯探針</span>
+            <span class="isl-landmark">修船塢</span>
             <span class="isl-blurb">設定編譯與除錯、練習多檔編譯和命令列參數，並用中斷點一步步看程式執行。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
@@ -413,13 +410,13 @@ code{font-family:var(--mono);font-size:.92em;}
     </section>
     <section class="isle isle-core" id="isle-core" data-grp="core" aria-labelledby="isle-core-h">
       <h2 id="isle-core-h"><span class="isle-name">正課九島</span><span class="isle-sub">授課順序 01–09</span></h2>
-      <p class="isle-note">金色匯流排依授課順序串起九座晶片島，可以自由進入任何一章。</p>
+      <p class="isle-note">拱橋依授課順序串起九座島，可以自由進入任何一章。</p>
       <ol class="isl-items">
         <li class="isl-item" data-stem="introduction" data-grp="core">
           <a class="isl-link" href="../introduction.html" data-stem="introduction">
             <span class="isl-num">01</span>
             <span class="isl-title">C++ 導論</span>
-            <span class="isl-landmark">位址暫存器</span>
+            <span class="isl-landmark">位址郵局</span>
             <span class="isl-blurb">型別佔多少位元組、指標存的是位址，再用 Fraction 與邏輯閘電路走完類別、多載與繼承。</span>
             <span class="isl-refs">需要時可查閱：C++ 基礎與編譯流程、陣列、指標與動態記憶體、類別與物件</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -429,7 +426,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../analysis.html" data-stem="analysis">
             <span class="isl-num">02</span>
             <span class="isl-title">演算法分析</span>
-            <span class="isl-landmark">成長曲線塔</span>
+            <span class="isl-landmark">成長溫室</span>
             <span class="isl-blurb">用大 O（Big-O）描述成長速度，比較 anagram 的四種解法，並看 vector 與 string 各操作的成本。</span>
             <span class="isl-refs">需要時可查閱：流程控制、vector 與 string、map、set 與迭代器</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -439,7 +436,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../arrays.html" data-stem="arrays">
             <span class="isl-num">03</span>
             <span class="isl-title">陣列與稀疏矩陣</span>
-            <span class="isl-landmark">記憶體條</span>
+            <span class="isl-landmark">連棟倉庫</span>
             <span class="isl-blurb">連續格子與位址計算、二維陣列的列優先（row-major）配置、自己寫 ArrayList，以及稀疏矩陣的字典式表示法（Dictionary of Keys，DOK）。</span>
             <span class="isl-refs">需要時可查閱：陣列、指標與動態記憶體、vector 與 string、類別與物件</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -449,7 +446,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../linked_lists.html" data-stem="linked_lists">
             <span class="isl-num">04</span>
             <span class="isl-title">鏈結串列</span>
-            <span class="isl-landmark">散落節點站</span>
+            <span class="isl-landmark">散落小屋</span>
             <span class="isl-blurb">節點散在記憶體各處，只靠指標相連。實作無序與有序串列，再學哨兵節點、雙向與環狀串列。</span>
             <span class="isl-refs">需要時可查閱：陣列、指標與動態記憶體、類別與物件、類別延伸與模板入門</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -459,7 +456,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../linear_structures.html" data-stem="linear_structures">
             <span class="isl-num">05</span>
             <span class="isl-title">堆疊、佇列與 Deque</span>
-            <span class="isl-landmark">三根存取管</span>
+            <span class="isl-landmark">碼頭三設施</span>
             <span class="isl-blurb">限制「從哪裡進、從哪裡出」帶來的力量：括號配對、中序轉後序、印表機模擬與回文判斷。</span>
             <span class="isl-refs">需要時可查閱：vector 與 string、類別與物件、類別延伸與模板入門</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -469,7 +466,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../recursion.html" data-stem="recursion">
             <span class="isl-num">06</span>
             <span class="isl-title">遞迴</span>
-            <span class="isl-landmark">呼叫框架塔</span>
+            <span class="isl-landmark">層疊塔</span>
             <span class="isl-blurb">遞迴三法則與呼叫堆疊，河內塔、碎形與迷宮，最後用動態規劃解找零錢。</span>
             <span class="isl-refs">需要時可查閱：函式與參考、vector 與 string</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -479,7 +476,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../searching_sorting.html" data-stem="searching_sorting">
             <span class="isl-num">07</span>
             <span class="isl-title">搜尋與排序</span>
-            <span class="isl-landmark">雜湊櫃與比較柱列</span>
+            <span class="isl-landmark">郵務分揀所</span>
             <span class="isl-blurb">循序與二分搜尋、雜湊表與碰撞處理，以及六種排序法的逐步動畫。</span>
             <span class="isl-refs">需要時可查閱：vector 與 string、map、set 與迭代器</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -489,7 +486,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../graphs.html" data-stem="graphs">
             <span class="isl-num">08</span>
             <span class="isl-title">圖與圖演算法</span>
-            <span class="isl-landmark">頂點接線盤</span>
+            <span class="isl-landmark">車站網</span>
             <span class="isl-blurb">相鄰矩陣與相鄰串列、廣度優先搜尋（Breadth-First Search，BFS）與深度優先搜尋（Depth-First Search，DFS），再到 Dijkstra 最短路徑與 Prim 最小生成樹。</span>
             <span class="isl-refs">需要時可查閱：vector 與 string、map、set 與迭代器、類別與物件</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -499,7 +496,7 @@ code{font-family:var(--mono);font-size:.92em;}
           <a class="isl-link" href="../trees.html" data-stem="trees">
             <span class="isl-num">09</span>
             <span class="isl-title">樹與樹演算法</span>
-            <span class="isl-landmark">二元搜尋樹掛架</span>
+            <span class="isl-landmark">山頂纜車站</span>
             <span class="isl-blurb">三種走訪、Binary Heap 與優先佇列、二元搜尋樹（Binary Search Tree，BST）的插入與刪除，到 AVL 旋轉。</span>
             <span class="isl-refs">需要時可查閱：陣列、指標與動態記憶體、類別與物件、類別延伸與模板入門</span>
             <span class="isl-state" aria-hidden="true"></span>
@@ -507,87 +504,87 @@ code{font-family:var(--mono);font-size:.92em;}
         </li>
       </ol>
     </section>
-    <section class="isle isle-dimm" id="isle-dimm" data-grp="dimm" aria-labelledby="isle-dimm-h">
-      <h2 id="isle-dimm-h"><span class="isle-name">先備記憶體模組</span><span class="isle-sub">C++ 先備 · 查閱用</span></h2>
-      <p class="isle-note">插在主機板上的九顆記憶體：讀正課卡在語法時，再回來查。</p>
+    <section class="isle isle-workshop" id="isle-workshop" data-grp="workshop" aria-labelledby="isle-workshop-h">
+      <h2 id="isle-workshop-h"><span class="isle-name">C++ 工坊島</span><span class="isle-sub">C++ 先備 · 查閱用</span></h2>
+      <p class="isle-note">九間工坊，各教一種語法工具：讀正課卡住時，再進來查。</p>
       <ol class="isl-items">
-        <li class="isl-item" data-stem="p1_cpp_basics" data-grp="dimm">
+        <li class="isl-item" data-stem="p1_cpp_basics" data-grp="workshop">
           <a class="isl-link" href="../p1_cpp_basics.html" data-stem="p1_cpp_basics">
             <span class="isl-num">P1</span>
             <span class="isl-title">C++ 基礎與編譯流程</span>
-            <span class="isl-landmark">記憶體顆粒 P1</span>
+            <span class="isl-landmark">基礎工坊</span>
             <span class="isl-blurb">從完整程式走過編譯四階段，拆解型別、輸入輸出與轉型，再練習讀懂錯誤訊息。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p2_flow_control" data-grp="dimm">
+        <li class="isl-item" data-stem="p2_flow_control" data-grp="workshop">
           <a class="isl-link" href="../p2_flow_control.html" data-stem="p2_flow_control">
             <span class="isl-num">P2</span>
             <span class="isl-title">流程控制</span>
-            <span class="isl-landmark">記憶體顆粒 P2</span>
+            <span class="isl-landmark">流程工坊</span>
             <span class="isl-blurb">追蹤短路求值、條件分支與各種迴圈，並計算巢狀迴圈的執行次數。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p3_functions" data-grp="dimm">
+        <li class="isl-item" data-stem="p3_functions" data-grp="workshop">
           <a class="isl-link" href="../p3_functions.html" data-stem="p3_functions">
             <span class="isl-num">P3</span>
             <span class="isl-title">函式與參考</span>
-            <span class="isl-landmark">記憶體顆粒 P3</span>
+            <span class="isl-landmark">函式工坊</span>
             <span class="isl-blurb">追蹤引數、回傳與作用域，分清傳值和傳參考，並理解遞迴的呼叫堆疊。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p4_pointers_memory" data-grp="dimm">
+        <li class="isl-item" data-stem="p4_pointers_memory" data-grp="workshop">
           <a class="isl-link" href="../p4_pointers_memory.html" data-stem="p4_pointers_memory">
             <span class="isl-num">P4</span>
             <span class="isl-title">陣列、指標與動態記憶體</span>
-            <span class="isl-landmark">記憶體顆粒 P4</span>
+            <span class="isl-landmark">指標工坊</span>
             <span class="isl-blurb">分清指標本身與目標物件，理解指標算術、堆疊與堆積，以及配置、釋放和所有權。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p5_vector_string" data-grp="dimm">
+        <li class="isl-item" data-stem="p5_vector_string" data-grp="workshop">
           <a class="isl-link" href="../p5_vector_string.html" data-stem="p5_vector_string">
             <span class="isl-num">P5</span>
             <span class="isl-title">vector 與 string</span>
-            <span class="isl-landmark">記憶體顆粒 P5</span>
+            <span class="isl-landmark">容器工坊</span>
             <span class="isl-blurb">容器增刪、容量與攤還、三種走訪、迭代器失效，以及文字處理和串接成本。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p6_map_set" data-grp="dimm">
+        <li class="isl-item" data-stem="p6_map_set" data-grp="workshop">
           <a class="isl-link" href="../p6_map_set.html" data-stem="p6_map_set">
             <span class="isl-num">P6</span>
             <span class="isl-title">map、set 與迭代器</span>
-            <span class="isl-landmark">記憶體顆粒 P6</span>
+            <span class="isl-landmark">查詢工坊</span>
             <span class="isl-blurb">從鍵值查詢走到迭代器、有序與無序容器，再完成計數、去重和分組。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p7_files_exceptions" data-grp="dimm">
+        <li class="isl-item" data-stem="p7_files_exceptions" data-grp="workshop">
           <a class="isl-link" href="../p7_files_exceptions.html" data-stem="p7_files_exceptions">
             <span class="isl-num">P7</span>
             <span class="isl-title">檔案與例外</span>
-            <span class="isl-landmark">記憶體顆粒 P7</span>
+            <span class="isl-landmark">檔案工坊</span>
             <span class="isl-blurb">處理路徑、讀寫模式與逐行解析，追蹤串流狀態，並讓例外跨函式傳遞。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p8_oop_basics" data-grp="dimm">
+        <li class="isl-item" data-stem="p8_oop_basics" data-grp="workshop">
           <a class="isl-link" href="../p8_oop_basics.html" data-stem="p8_oop_basics">
             <span class="isl-num">P8</span>
             <span class="isl-title">類別與物件</span>
-            <span class="isl-landmark">記憶體顆粒 P8</span>
+            <span class="isl-landmark">類別工坊</span>
             <span class="isl-blurb">把資料和操作包成類別：建構子、封裝與成員函式，是讀懂課程標頭的基礎。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
         </li>
-        <li class="isl-item" data-stem="p9_oop_advanced" data-grp="dimm">
+        <li class="isl-item" data-stem="p9_oop_advanced" data-grp="workshop">
           <a class="isl-link" href="../p9_oop_advanced.html" data-stem="p9_oop_advanced">
             <span class="isl-num">P9</span>
             <span class="isl-title">類別延伸與模板入門</span>
-            <span class="isl-landmark">記憶體顆粒 P9</span>
+            <span class="isl-landmark">模板工坊</span>
             <span class="isl-blurb">繼承與多型、抽象介面、運算子，以及看懂 template &lt;typename T&gt; 的容器寫法。</span>
             <span class="isl-state" aria-hidden="true"></span>
           </a>
@@ -598,7 +595,7 @@ code{font-family:var(--mono);font-size:.92em;}
   <aside class="isl-panel" id="islPanel" hidden aria-labelledby="islPanelTitle">
     <button type="button" class="isl-panel-close" id="islPanelClose" aria-label="關閉">×</button>
     <div class="isl-guide" id="islGuide" hidden>
-      <svg class="isl-guide-face" viewBox="0 0 48 48" aria-hidden="true"><rect x="1" y="1" width="46" height="46" rx="4" fill="#2c3e7a"/><rect x="11" y="20" width="24" height="20" fill="#f7f3eb"/><rect x="17" y="26" width="12" height="7" fill="#1a1a2e"/><rect x="24" y="27.5" width="4" height="4" fill="#f5b82e"/><rect x="8" y="10" width="20" height="5" fill="#f5b82e"/><path d="M27 4 L41 12.5 L27 21 Z" fill="#f5b82e"/></svg>
+      <svg class="isl-guide-face" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="23" fill="#dbeef2"/><path d="M9 47 Q9 36 24 36 Q39 36 39 47 Z" fill="#2c3e7a"/><rect x="15" y="33" width="18" height="5" rx="2.5" fill="#c0392b"/><circle cx="24" cy="25" r="11" fill="#f1c9a5"/><path d="M13 23 Q24 10 35 23 Z" fill="#3b2a20"/><circle cx="20" cy="26" r="1.5" fill="#2b2420"/><circle cx="28" cy="26" r="1.5" fill="#2b2420"/><path d="M21 30 Q24 32.5 27 30" stroke="#a5553d" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="10" y="8" width="20" height="5" rx="1.5" fill="#f5b82e"/><path d="M28 3 L40 10.5 L28 18 Z" fill="#f5b82e"/></svg>
       <div class="isl-guide-body">
         <div class="isl-guide-who"><b>阿迭</b><span id="islGuideStep"></span></div>
         <p class="isl-guide-text" id="islGuideText" aria-live="polite"></p>
@@ -671,64 +668,64 @@ code{font-family:var(--mono);font-size:.92em;}
 {
  "isles": [
   {
-   "grp": "power",
-   "name": "電源島",
+   "grp": "pre",
+   "name": "啟航島",
    "sub": "課前準備 · 先讀",
-   "note": "先接上電源：弄清楚為什麼要學，把開發環境準備好。"
+   "note": "燈塔、碼頭與修船塢：弄清楚為什麼要學，把開發環境準備好。"
   },
   {
    "grp": "core",
    "name": "正課九島",
    "sub": "授課順序 01–09",
-   "note": "金色匯流排依授課順序串起九座晶片島，可以自由進入任何一章。"
+   "note": "拱橋依授課順序串起九座島，可以自由進入任何一章。"
   },
   {
-   "grp": "dimm",
-   "name": "先備記憶體模組",
+   "grp": "workshop",
+   "name": "C++ 工坊島",
    "sub": "C++ 先備 · 查閱用",
-   "note": "插在主機板上的九顆記憶體：讀正課卡在語法時，再回來查。"
+   "note": "九間工坊，各教一種語法工具：讀正課卡住時，再進來查。"
   }
  ],
  "pages": [
   {
    "stem": "00a_why_code",
-   "grp": "power",
+   "grp": "pre",
    "code": "00A",
    "title": "AI 時代，為什麼還要學資料結構？",
    "label": "先讀",
-   "landmark": "電源開關",
+   "landmark": "燈塔",
    "blurb": "從「能編譯」到「資料變多還跑得動」的距離，選錯容器的代價，以及記憶體是你自己的責任。",
    "refs": [],
    "href": "../00a_why_code.html",
-   "guide": "我是迭代器（iterator），不存資料，只負責指向下一站。第一站先想清楚：為什麼要花時間學這些？",
+   "guide": "我是迭代器（iterator），不存資料，只負責指向目前這一站；++it 才走到下一站。第一站先想清楚：為什麼要花時間學這些？",
    "fig": null,
    "quiz": null
   },
   {
    "stem": "00b_setup",
-   "grp": "power",
+   "grp": "pre",
    "code": "00B",
    "title": "課前準備與環境安裝",
    "label": "必做",
-   "landmark": "連接埠",
+   "landmark": "補給碼頭",
    "blurb": "安裝 g++ 與 gdb，讓課程 notebook 能跑 C++，並跑通第一支程式。",
    "refs": [],
    "href": "../00b_setup.html",
-   "guide": "接上連接埠！g++ 和 kernel 裝好，後面每一章的程式才跑得起來。",
+   "guide": "出海前先補給！g++ 和 kernel 裝好，後面每一章的程式才跑得起來。",
    "fig": null,
    "quiz": null
   },
   {
    "stem": "00c_vscode_windows",
-   "grp": "power",
+   "grp": "pre",
    "code": "00C",
    "title": "Windows VS Code 作業實戰",
    "label": "作業首選",
-   "landmark": "除錯探針",
+   "landmark": "修船塢",
    "blurb": "設定編譯與除錯、練習多檔編譯和命令列參數，並用中斷點一步步看程式執行。",
    "refs": [],
    "href": "../00c_vscode_windows.html",
-   "guide": "這根探針是除錯器。會設中斷點，就不必靠猜來找錯。",
+   "guide": "船有問題就進船塢。會設中斷點，就不必靠猜來找錯。",
    "fig": null,
    "quiz": null
   },
@@ -738,7 +735,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "01",
    "title": "C++ 導論",
    "label": "cppds Ch.1",
-   "landmark": "位址暫存器",
+   "landmark": "位址郵局",
    "blurb": "型別佔多少位元組、指標存的是位址，再用 Fraction 與邏輯閘電路走完類別、多載與繼承。",
    "refs": [
     "p1_cpp_basics",
@@ -746,7 +743,7 @@ code{font-family:var(--mono);font-size:.92em;}
     "p8_oop_basics"
    ],
    "href": "../introduction.html",
-   "guide": "正課開始！先看這排位元組：指標 p 存的不是值，是位址。",
+   "guide": "正課開始！路標 p 存的不是信件，是信箱的位址。",
    "fig": {
     "src": "figs/introduction.webp",
     "w": 889,
@@ -772,7 +769,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "02",
    "title": "演算法分析",
    "label": "cppds Ch.2",
-   "landmark": "成長曲線塔",
+   "landmark": "成長溫室",
    "blurb": "用大 O（Big-O）描述成長速度，比較 anagram 的四種解法，並看 vector 與 string 各操作的成本。",
    "refs": [
     "p2_flow_control",
@@ -780,7 +777,7 @@ code{font-family:var(--mono);font-size:.92em;}
     "p6_map_set"
    ],
    "href": "../analysis.html",
-   "guide": "同樣把 n 變大，六根柱子長得完全不同。寫程式之前，先學會預估成長速度。",
+   "guide": "同樣把 n 變大，六株植物長得完全不同。寫程式之前，先學會預估成長速度。",
    "fig": {
     "src": "figs/analysis.webp",
     "w": 889,
@@ -797,7 +794,7 @@ code{font-family:var(--mono);font-size:.92em;}
      "8 倍"
     ],
     "answer": 2,
-    "why": "c·(2n)² = 4·c·n²。動畫裡把 n 調大，n² 會比 n 和 n log n 更快撞到刻度上限。"
+    "why": "c·(2n)² = 4·c·n²。溫室裡把 n 調大，n² 會比 n 和 n log n 更快撞到屋頂。"
    }
   },
   {
@@ -806,7 +803,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "03",
    "title": "陣列與稀疏矩陣",
    "label": "附錄 A",
-   "landmark": "記憶體條",
+   "landmark": "連棟倉庫",
    "blurb": "連續格子與位址計算、二維陣列的列優先（row-major）配置、自己寫 ArrayList，以及稀疏矩陣的字典式表示法（Dictionary of Keys，DOK）。",
    "refs": [
     "p4_pointers_memory",
@@ -814,7 +811,7 @@ code{font-family:var(--mono);font-size:.92em;}
     "p8_oop_basics"
    ],
    "href": "../arrays.html",
-   "guide": "格子一格緊貼一格，所以算得出第 i 格的位址；代價是中間插入時，後面全部要搬。",
+   "guide": "倉庫一間緊貼一間，所以算得出第 i 間在哪裡；代價是中間插入時，後面的貨全部要搬。",
    "fig": {
     "src": "figs/arrays.webp",
     "w": 889,
@@ -840,7 +837,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "04",
    "title": "鏈結串列",
    "label": "cppds Ch.4",
-   "landmark": "散落節點站",
+   "landmark": "散落小屋",
    "blurb": "節點散在記憶體各處，只靠指標相連。實作無序與有序串列，再學哨兵節點、雙向與環狀串列。",
    "refs": [
     "p4_pointers_memory",
@@ -848,7 +845,7 @@ code{font-family:var(--mono);font-size:.92em;}
     "p9_oop_advanced"
    ],
    "href": "../linked_lists.html",
-   "guide": "節點散在各處，靠箭頭才找得到彼此。插入只改箭頭，其他節點不動；但要先走到那裡。",
+   "guide": "小屋散在各處，靠繩子才找得到彼此。插入只改繩子，其他小屋不動；但要先走到那裡。",
    "fig": {
     "src": "figs/linked_lists.webp",
     "w": 789,
@@ -874,7 +871,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "05",
    "title": "堆疊、佇列與 Deque",
    "label": "cppds Ch.3",
-   "landmark": "三根存取管",
+   "landmark": "碼頭三設施",
    "blurb": "限制「從哪裡進、從哪裡出」帶來的力量：括號配對、中序轉後序、印表機模擬與回文判斷。",
    "refs": [
     "p5_vector_string",
@@ -882,7 +879,7 @@ code{font-family:var(--mono);font-size:.92em;}
     "p9_oop_advanced"
    ],
    "href": "../linear_structures.html",
-   "guide": "這三根管子的差別只在開口：堆疊只開一端，佇列一進一出，Deque 兩端都能進出。",
+   "guide": "這三個設施的差別只在開口：堆疊只開一端，佇列一進一出，Deque 兩端都能進出。",
    "fig": {
     "src": "figs/linear_structures.webp",
     "w": 889,
@@ -908,14 +905,14 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "06",
    "title": "遞迴",
    "label": "cppds Ch.5",
-   "landmark": "呼叫框架塔",
+   "landmark": "層疊塔",
    "blurb": "遞迴三法則與呼叫堆疊，河內塔、碎形與迷宮，最後用動態規劃解找零錢。",
    "refs": [
     "p3_functions",
     "p5_vector_string"
    ],
    "href": "../recursion.html",
-   "guide": "每呼叫一次就疊一層框架，到了基底條件才一層一層回傳。別想跳過中間那幾層。",
+   "guide": "每呼叫一次就往上蓋一層，到了基底條件才一層一層回傳。別想跳過中間那幾層。",
    "fig": {
     "src": "figs/recursion.webp",
     "w": 889,
@@ -941,7 +938,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "07",
    "title": "搜尋與排序",
    "label": "cppds Ch.6–7",
-   "landmark": "雜湊櫃與比較柱列",
+   "landmark": "郵務分揀所",
    "blurb": "循序與二分搜尋、雜湊表與碰撞處理，以及六種排序法的逐步動畫。",
    "refs": [
     "p5_vector_string",
@@ -974,7 +971,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "08",
    "title": "圖與圖演算法",
    "label": "cppds Ch.9",
-   "landmark": "頂點接線盤",
+   "landmark": "車站網",
    "blurb": "相鄰矩陣與相鄰串列、廣度優先搜尋（Breadth-First Search，BFS）與深度優先搜尋（Depth-First Search，DFS），再到 Dijkstra 最短路徑與 Prim 最小生成樹。",
    "refs": [
     "p5_vector_string",
@@ -982,7 +979,7 @@ code{font-family:var(--mono);font-size:.92em;}
     "p8_oop_basics"
    ],
    "href": "../graphs.html",
-   "guide": "圖沒有上下之分，還可能繞回原點，所以要記住走過哪裡。",
+   "guide": "車站網沒有上下之分，還可能繞回原點，所以要記住走過哪裡。",
    "fig": {
     "src": "figs/graphs.webp",
     "w": 889,
@@ -999,7 +996,7 @@ code{font-family:var(--mono);font-size:.92em;}
      "等 DFS 走完之後"
     ],
     "answer": 2,
-    "why": "佇列先進先出，相距 k+1 條邊的頂點只會排在相距 k 條邊的後面，所以一層一層往外擴散。這裡數的是邊數；要考慮邊上的權重，就要用 Dijkstra。"
+    "why": "佇列先進先出，相距 k+1 條邊的頂點只會排在相距 k 條邊的後面，所以一層一層往外擴散。這裡數的是邊數；要考慮邊上的權重，權重非負時可以用 Dijkstra。"
    }
   },
   {
@@ -1008,7 +1005,7 @@ code{font-family:var(--mono);font-size:.92em;}
    "code": "09",
    "title": "樹與樹演算法",
    "label": "cppds Ch.8",
-   "landmark": "二元搜尋樹掛架",
+   "landmark": "山頂纜車站",
    "blurb": "三種走訪、Binary Heap 與優先佇列、二元搜尋樹（Binary Search Tree，BST）的插入與刪除，到 AVL 旋轉。",
    "refs": [
     "p4_pointers_memory",
@@ -1016,7 +1013,7 @@ code{font-family:var(--mono);font-size:.92em;}
     "p9_oop_advanced"
    ],
    "href": "../trees.html",
-   "guide": "根在最上面，比它小往左、比它大往右，每比一次就少走一半……前提是樹夠平衡。",
+   "guide": "根站在山頂，比它小往左、比它大往右，每比一次就少走一半……前提是樹夠平衡。",
    "fig": {
     "src": "figs/trees.webp",
     "w": 889,
@@ -1038,25 +1035,25 @@ code{font-family:var(--mono);font-size:.92em;}
   },
   {
    "stem": "p1_cpp_basics",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P1",
    "title": "C++ 基礎與編譯流程",
    "label": "從這裡開始",
-   "landmark": "記憶體顆粒 P1",
+   "landmark": "基礎工坊",
    "blurb": "從完整程式走過編譯四階段，拆解型別、輸入輸出與轉型，再練習讀懂錯誤訊息。",
    "refs": [],
    "href": "../p1_cpp_basics.html",
-   "guide": "先備第一顆：一支 C++ 程式如何從原始碼變成執行檔。",
+   "guide": "第一間工坊：一支 C++ 程式如何從原始碼變成執行檔。",
    "fig": null,
    "quiz": null
   },
   {
    "stem": "p2_flow_control",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P2",
    "title": "流程控制",
    "label": "條件與重複",
-   "landmark": "記憶體顆粒 P2",
+   "landmark": "流程工坊",
    "blurb": "追蹤短路求值、條件分支與各種迴圈，並計算巢狀迴圈的執行次數。",
    "refs": [],
    "href": "../p2_flow_control.html",
@@ -1066,39 +1063,39 @@ code{font-family:var(--mono);font-size:.92em;}
   },
   {
    "stem": "p3_functions",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P3",
    "title": "函式與參考",
    "label": "重要基礎",
-   "landmark": "記憶體顆粒 P3",
+   "landmark": "函式工坊",
    "blurb": "追蹤引數、回傳與作用域，分清傳值和傳參考，並理解遞迴的呼叫堆疊。",
    "refs": [],
    "href": "../p3_functions.html",
-   "guide": "傳值還是傳參考？弄懂這顆，遞迴和類別都會順很多。",
+   "guide": "傳值還是傳參考？弄懂這間，遞迴和類別都會順很多。",
    "fig": null,
    "quiz": null
   },
   {
    "stem": "p4_pointers_memory",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P4",
    "title": "陣列、指標與動態記憶體",
    "label": "重要基礎",
-   "landmark": "記憶體顆粒 P4",
+   "landmark": "指標工坊",
    "blurb": "分清指標本身與目標物件，理解指標算術、堆疊與堆積，以及配置、釋放和所有權。",
    "refs": [],
    "href": "../p4_pointers_memory.html",
-   "guide": "很重要的一顆：指標、new 和 delete。鏈結串列和樹都建在它上面。",
+   "guide": "很重要的一間：指標、new 和 delete。鏈結串列和樹都建在它上面。",
    "fig": null,
    "quiz": null
   },
   {
    "stem": "p5_vector_string",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P5",
    "title": "vector 與 string",
    "label": "清單與文字",
-   "landmark": "記憶體顆粒 P5",
+   "landmark": "容器工坊",
    "blurb": "容器增刪、容量與攤還、三種走訪、迭代器失效，以及文字處理和串接成本。",
    "refs": [],
    "href": "../p5_vector_string.html",
@@ -1108,11 +1105,11 @@ code{font-family:var(--mono);font-size:.92em;}
   },
   {
    "stem": "p6_map_set",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P6",
    "title": "map、set 與迭代器",
    "label": "查詢與去重",
-   "landmark": "記憶體顆粒 P6",
+   "landmark": "查詢工坊",
    "blurb": "從鍵值查詢走到迭代器、有序與無序容器，再完成計數、去重和分組。",
    "refs": [],
    "href": "../p6_map_set.html",
@@ -1122,11 +1119,11 @@ code{font-family:var(--mono);font-size:.92em;}
   },
   {
    "stem": "p7_files_exceptions",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P7",
    "title": "檔案與例外",
    "label": "讀寫與錯誤處理",
-   "landmark": "記憶體顆粒 P7",
+   "landmark": "檔案工坊",
    "blurb": "處理路徑、讀寫模式與逐行解析，追蹤串流狀態，並讓例外跨函式傳遞。",
    "refs": [],
    "href": "../p7_files_exceptions.html",
@@ -1136,11 +1133,11 @@ code{font-family:var(--mono);font-size:.92em;}
   },
   {
    "stem": "p8_oop_basics",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P8",
    "title": "類別與物件",
    "label": "重要基礎",
-   "landmark": "記憶體顆粒 P8",
+   "landmark": "類別工坊",
    "blurb": "把資料和操作包成類別：建構子、封裝與成員函式，是讀懂課程標頭的基礎。",
    "refs": [],
    "href": "../p8_oop_basics.html",
@@ -1150,15 +1147,15 @@ code{font-family:var(--mono);font-size:.92em;}
   },
   {
    "stem": "p9_oop_advanced",
-   "grp": "dimm",
+   "grp": "workshop",
    "code": "P9",
    "title": "類別延伸與模板入門",
    "label": "接著讀 P8",
-   "landmark": "記憶體顆粒 P9",
+   "landmark": "模板工坊",
    "blurb": "繼承與多型、抽象介面、運算子，以及看懂 template <typename T> 的容器寫法。",
    "refs": [],
    "href": "../p9_oop_advanced.html",
-   "guide": "看到 template <typename T> 別緊張，這顆會解釋。",
+   "guide": "看到 template <typename T> 別緊張，這間會解釋。",
    "fig": null,
    "quiz": null
   }
@@ -1174,7 +1171,7 @@ code{font-family:var(--mono);font-size:.92em;}
    {
     "key": "first",
     "label": "第一次來",
-    "note": "電源島 3 站，再照授課順序走正課 9 章",
+    "note": "啟航島 3 站，再照授課順序走正課 9 章",
     "stems": [
      "00a_why_code",
      "00b_setup",
@@ -1209,7 +1206,7 @@ code{font-family:var(--mono);font-size:.92em;}
    {
     "key": "prereq",
     "label": "補 C++ 先備",
-    "note": "記憶體模組 P1 到 P9",
+    "note": "C++ 工坊島 P1 到 P9",
     "stems": [
      "p1_cpp_basics",
      "p2_flow_control",
@@ -1405,7 +1402,7 @@ code{font-family:var(--mono);font-size:.92em;}
 }
 </script>
 <script type="module">
-/* 3D 資料結構矽晶群島。build_island.py 會把本檔 inline 進 island/index.html 的 <script type="module">。
+/* 3D 資料結構知識群島。build_island.py 會把本檔 inline 進 island/index.html 的 <script type="module">。
  *
  * 分兩層：
  *   1. UI 層（不需要 Three.js）：章節列表、足跡（localStorage）、面板、猜題。
@@ -1424,7 +1421,7 @@ let scene = null;   // 3D 場景成功啟動後才有值
 
 /* ── 足跡：只存在這台裝置的瀏覽器。「造訪」＝從島上點過前往教材；「完成」＝學生自己標記 ── */
 const TRAIL_KEY = 'dscpp-island:trail:v1';
-const MODE_KEY = 'dscpp-island:mode';
+const NIGHT_KEY = 'dscpp-island:night';
 function loadTrail() {
   try {
     const t = JSON.parse(localStorage.getItem(TRAIL_KEY) || '{}');
@@ -1693,21 +1690,6 @@ function shrinkBubble() {
 }
 bubble.addEventListener('click', openTour);
 
-/* ── 模式：通電（預設）／藍圖。頁面色票靠 html[data-mode]，2D 模式也有效 ── */
-const modeBtn = $('islMode');
-function getMode() { return document.documentElement.dataset.mode === 'print' ? 'print' : 'power'; }
-function applyMode(mode, instant) {
-  document.documentElement.dataset.mode = mode;
-  modeBtn.setAttribute('aria-pressed', String(mode === 'print'));
-  modeBtn.textContent = mode === 'print' ? '回到通電' : '切到藍圖';
-  if (scene) scene.setMode(mode, instant);
-}
-modeBtn.addEventListener('click', () => {
-  const next = getMode() === 'print' ? 'power' : 'print';
-  applyMode(next, false);
-  try { localStorage.setItem(MODE_KEY, next); } catch (e) { /* 只在本頁有效 */ }
-});
-
 /* ── 3D 場景（可選）── */
 function hasWebGL() {
   try {
@@ -1730,8 +1712,8 @@ if (hasWebGL()) {
 }
 
 async function initScene() {
-  const [THREE, { OrbitControls }] = await Promise.all([
-    import('three'), import('three/addons/controls/OrbitControls.js')]);
+  const [THREE, { OrbitControls }, { RoundedBoxGeometry }] = await Promise.all([
+    import('three'), import('three/addons/controls/OrbitControls.js'), import('three/addons/geometries/RoundedBoxGeometry.js')]);
   const stage = $('islStage'), canvas = $('islCanvas');
   document.body.classList.add('webgl-ready');
   stage.hidden = false;
@@ -1741,16 +1723,29 @@ async function initScene() {
   } catch (e) {
     throw new Error('WebGLRenderer 建立失敗');
   }
-  scene = buildWorld(THREE, { OrbitControls }, renderer, stage, canvas);
+  scene = buildWorld(THREE, { OrbitControls, RoundedBoxGeometry }, renderer, stage, canvas);
   $('islReset').hidden = false;
   $('islReset').addEventListener('click', () => scene && scene.reset());
   document.querySelectorAll('.isl-jump-btn').forEach(b =>
     b.addEventListener('click', () => scene && scene.flyToIsle(b.dataset.grp)));
-  applyMode(getMode(), true);
+  const night = $('islNight');
+  const applyNight = (on, instant) => {
+    night.setAttribute('aria-pressed', String(on));
+    night.textContent = on ? '回到白天' : '入夜';
+    stage.classList.toggle('is-night', on);
+    if (scene) scene.setNight(on, instant);
+  };
+  let isNight = false;
+  try { isNight = localStorage.getItem(NIGHT_KEY) === '1'; } catch (e) { /* 只在本頁有效 */ }
+  applyNight(isNight, true);
+  night.addEventListener('click', () => {
+    isNight = !isNight; applyNight(isNight, false);
+    try { localStorage.setItem(NIGHT_KEY, isNight ? '1' : '0'); } catch (e) { /* 只在本頁有效 */ }
+  });
   canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); scene && scene.dispose(); fallback2D('WebGL context lost'); });
   window.__island = { screenPos: stem => scene && scene.screenPos(stem), stats: () => scene && scene.stats(),
     guidePos: () => scene && scene.guidePos(), invariants: () => scene && scene.invariants(),
-    pose: (stem, u) => scene && scene.pose(stem, u), plays: () => scene && scene.plays() };
+    pose: (stem, u) => scene && scene.pose(stem, u), plays: () => scene && scene.plays(), play: stem => scene && scene.play(stem) };
   refreshTrail();
   if (current) scene.select(current, false);
   await scene.warm();                       // 先編譯著色器、畫好第一幀，再淡入畫布
@@ -1937,7 +1932,7 @@ function drawOrder(f) {
     w.appendChild(box);
   } else {
     const row = el('div', 'cmp-qrow');
-    row.append(el('span', 'cmp-end', 'front'), box, el('span', 'cmp-end', 'back'));
+    row.append(el('span', 'cmp-end', 'front'), box, el('span', 'cmp-end', 'rear'));
     w.appendChild(row);
   }
   const out = el('div', 'cmp-out');
@@ -2081,738 +2076,1256 @@ function renderPanelCompare(stem) {
   }));
 }
 
-/* 3D 矽晶群島的場景層。由 island.js 的 initScene() 呼叫 buildWorld()。
+/* 3D 資料結構知識群島的場景層。由 island.js 的 initScene() 呼叫 buildWorld()。
  *
- * 視覺語言（反向檢查：不可出現倒角、投影、水面、粉彩）：
- *   - 正交鏡頭、限制視角；硬邊方塊，無光照的 MeshBasicMaterial，明暗烘在頂點色（頂面亮、側面暗）
- *   - 靜態零件依種類合併成 InstancedMesh；描邊合併成一條 LineSegments；晶片表面的絲印烘在一張圖集上
- *   - 會動的零件共用兩個動態 InstancedMesh（方塊、角錐），不另建 mesh
- *   - 每座地標的動畫是純函式 pose(u)，u = 0 是靜止姿態；播放只是把 u 從 0 推到 1
- *   - 匯流排（授課順序）是粗的金色走線；資料結構裡的指標是細的紅色箭頭，兩者不可混用
- * 地標的結構約束列在 tools/island_meta.py 開頭，check_island_browser.js 會用 invariants() 實測。
- * 本檔與 island.js 共用頂層名稱：PAGES、BY、ISLES、trail、select、$、reduceMotion、DATA、graphAdj。
+ * 做法（全部程序化，沒有模型或圖檔）：
+ *   - 島：不規則輪廓 → 分層倒角擠出（沙底、深崖帶、草頂），外圈淺水與浪花環；島之間以拱橋連成授課航線
+ *   - 靜態零件：PartKit 收集（box／圓角 box／cyl／cone／sphere／rock／prism），依種類合併成 InstancedMesh 並逐實例上色；陰影只烘一次
+ *   - 地標：每章一棟建築＋一個會動的資料結構模型。模型的可動零件共用動態池（不投影），動畫是純函式 pose(u)
+ *   - 拱橋只表示授課順序；資料結構裡的指標是細的紅繩箭頭，兩者不可混用
+ *   - 標籤是 HTML，每次繪製時投影定位，依優先序避讓；地面標示（head、nullptr…）是一張貼花圖集
+ * 本檔與 island.js、island-compare.js 共用頂層名稱：PAGES、BY、ISLES、items、trail、select、closePanel、$、reduceMotion、DATA、graphAdj。
  */
 function buildWorld(THREE, addons, renderer, stage, canvas) {
-  const { OrbitControls } = addons;
+  const { OrbitControls, RoundedBoxGeometry } = addons;
   const motion = () => !reduceMotion.matches;
   const narrow = () => stage.clientWidth < 768;
+  const rnd = mulberry32(208);
+  const SQ = Math.SQRT1_2;
+  // 初始視角的螢幕座標（u 往右、v 往前＝畫面下方）→ 世界座標 xz
+  const toWorld = (u, v) => ({ x: (u + v) * SQ, z: (v - u) * SQ });
   const world = new THREE.Scene();
+  const anims = [];          // 地標小動畫 (t) => void
+  const life = [];           // 生活感動畫 (t, dt) => void；效能不足時整組停用
   let need = true, raf = 0, onScreen = true, alive = true, lowPower = false, dprLevel = 0, tagsDirty = true, draws = 0;
 
-  /* ── 色盤：站內的墨、深藍、紅、森林綠、金、米白；深底上需要提亮的紅綠由同色相推導 ── */
-  const PAL = {
-    power: {
-      bg: '#0f0f1e', board: '#1a1a2e', boardEdge: '#2c3e7a', pad: '#2d2d4a', sub: '#2c3e7a', die: '#1f1f36', pin: '#c7a14a',
-      trace: '#f5b82e', cell: '#3d3d63', cell2: '#33335a', rail: '#9094b5', val: '#f7f3eb', a: '#f5b82e', b: '#e8604c', c: '#3fbf95', d: '#7f97e6', e: '#f7f3eb',
-      hi: '#f5b82e', ptr: '#ff7a66', node: '#f7f3eb', next: '#5f78cc', wire: '#3fbf95', dimm: '#1a6b4a', ledOff: '#3a3a58', ledVisit: '#f5b82e', ledDone: '#3fbf95',
-      metal: '#9a9db8', sel: '#f7f3eb', ink: '#1a1a2e', dim: '#55587e', line: '#585c85', silk: '#c9c6d6', silkDim: '#6d7096', halo: '#f5b82e',
-    },
-    print: {
-      bg: '#f7f3eb', board: '#fffdf7', boardEdge: '#e8e2d6', pad: '#e8e2d6', sub: '#f1ebdd', die: '#fffdf7', pin: '#8a8578',
-      trace: '#2c3e7a', cell: '#f1ebdd', cell2: '#e8e2d6', rail: '#2c3e7a', val: '#2c3e7a', a: '#2c3e7a', b: '#c0392b', c: '#1a6b4a', d: '#8a8578', e: '#1a1a2e',
-      hi: '#c0392b', ptr: '#c0392b', node: '#fffdf7', next: '#2c3e7a', wire: '#1a6b4a', dimm: '#e3efe7', ledOff: '#d8d2c4', ledVisit: '#b9770e', ledDone: '#1a6b4a',
-      metal: '#c8c2b4', sel: '#c0392b', ink: '#1a1a2e', dim: '#b9b3a4', line: '#2c3e7a', silk: '#2c3e7a', silkDim: '#8a8578', halo: '#ffffff',
-    },
+  /* ── 色盤：黏土色；網站的磚紅、深藍、金、森林綠作為屋頂與重點色 ── */
+  const C = {
+    grass: '#b4d18a', grass2: '#a3c67e', grass3: '#c4dc9c', sand: '#eedbb0', cliff: '#dcc39a', cliffDark: '#c2a477',
+    foam: '#fbfaf2', shallow: '#bfe0d6',
+    cream: '#fff4de', wall: '#f5e6cb', wall2: '#efdcc0', peach: '#f0c7a5', roof: '#b9563f', roofDark: '#924231',
+    roofNavy: '#2c3e7a', roofGreen: '#3f7f61',
+    leaf: '#9fb889', leaf2: '#8fae86', leaf3: '#7c9a76', pine: '#7b997c', pine2: '#68876c',
+    wood: '#ab875d', woodDark: '#7a5c3e', stone: '#dacdb6', stoneDark: '#b6a78c', ink: '#4f5a55',
+    glass: '#8cbcbc', gold: '#f5b82e', white: '#fffcf3', navy: '#2f4566', forest: '#1a6b4a',
+    red: '#b9654f', blue: '#5d7b93', blueL: '#c3d0dc', redL: '#ebc7bb', amber: '#d6a35c', teal: '#5aa39a',
   };
-  const ROLE = {};                         // role → 目前模式下的顏色
-  Object.keys(PAL.power).forEach(k => { ROLE[k] = new THREE.Color(PAL.power[k]); });
-  const _ca = new THREE.Color(), _cb = new THREE.Color();
-  let modeK = 0, modeTarget = 0;           // 0 = 通電、1 = 藍圖
-  const mixRoles = k => Object.keys(PAL.power).forEach(r => ROLE[r].copy(_ca.set(PAL.power[r])).lerp(_cb.set(PAL.print[r]), k));
+  const DAY = { bg: '#a2dbe6', hemiSky: '#fff4dc', hemiGround: '#7d9d8f', hemi: 1.3, sun: '#ffe4c4', sunI: 2.9, fill: .45, sea: '#ffffff', exposure: 1.0 };
+  const NIGHT = { bg: '#1f2e44', hemiSky: '#9fb2da', hemiGround: '#2a3a52', hemi: .85, sun: '#c3cff5', sunI: .55, fill: .18, sea: '#56708f', exposure: 1.15 };
 
-  world.background = new THREE.Color(PAL.power.bg);
+  /* ── Renderer ── */
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;      // r18x 起 PCF 以 shadow.radius 柔化
+  renderer.shadowMap.autoUpdate = false;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.NoToneMapping;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = DAY.exposure;
+  world.background = new THREE.Color(DAY.bg);
+  world.fog = new THREE.Fog(DAY.bg, 150, 300);       // 只讓最遠的外海淡出
 
-  /* ── 幾何：明暗直接烘進頂點色 ── */
-  function shade(geo) {
-    const g = geo.index ? geo.toNonIndexed() : geo;
-    g.computeVertexNormals();
-    const n = g.attributes.normal, c = new Float32Array(n.count * 3);
-    for (let i = 0; i < n.count; i++) {
-      const ny = n.getY(i), nx = n.getX(i), nz = n.getZ(i);
-      const s = ny > .5 ? 1 : ny < -.5 ? .45 : .6 + .18 * Math.max(0, -nx) + .1 * Math.max(0, nz) + .22 * Math.max(0, ny);
-      c[i * 3] = c[i * 3 + 1] = c[i * 3 + 2] = s;
-    }
-    g.setAttribute('color', new THREE.BufferAttribute(c, 3));
-    return g;
+  // 黏土風幾乎沒有反光：除了海面，一律用較輕的 Lambert（roughness／metalness 參數直接略過）
+  const std = (color, extra = {}) => { const { roughness, metalness, ...rest } = extra; void roughness; void metalness; return new THREE.MeshLambertMaterial({ color, ...rest }); };
+  const basic = (color, extra) => new THREE.MeshBasicMaterial({ color, ...extra });
+
+  /* ── instancify：把會動的小階層（小人、船、鳥、雲、噴泉球…）合併繪製 ──
+     階層本身照常用 Object3D 建立與做動畫，但不加進場景；同幾何＋同類材質的 mesh 合成一個 InstancedMesh，
+     不透明的 Lambert 材質改用逐實例顏色共用一份材質。每個動畫幀呼叫 syncProxies() 同步世界矩陣。 */
+  const proxyRoots = [], proxyPools = new Map();
+  const dynSolid = { [THREE.FrontSide]: null, [THREE.DoubleSide]: null };
+  function instancify(root) {
+    proxyRoots.push(root);
+    root.traverse(o => {
+      if (!o.isMesh) return;
+      const m = o.material;
+      const solid = m.isMeshLambertMaterial && !m.transparent && m.emissive.getHex() === 0;
+      const key = o.geometry.uuid + '|' + (solid ? 'solid' + m.side : m.uuid);
+      if (!proxyPools.has(key)) {
+        if (solid && !dynSolid[m.side]) dynSolid[m.side] = new THREE.MeshLambertMaterial({ color: '#ffffff', side: m.side });
+        proxyPools.set(key, { geo: o.geometry, mat: solid ? dynSolid[m.side] : m, list: [] });
+      }
+      proxyPools.get(key).list.push({ o, color: solid ? m.color.clone() : null });
+    });
   }
+  function finishProxies() {
+    proxyPools.forEach(pool => {
+      const mesh = new THREE.InstancedMesh(pool.geo, pool.mat, pool.list.length);
+      mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); mesh.frustumCulled = false;
+      pool.list.forEach((r, i) => { if (r.color) mesh.setColorAt(i, r.color); });
+      pool.mesh = mesh; world.add(mesh);
+    });
+    syncProxies();
+  }
+  function syncProxies() {
+    proxyRoots.forEach(r => r.updateMatrixWorld(true));
+    proxyPools.forEach(pool => {
+      if (!pool.mesh) return;
+      pool.list.forEach((r, i) => pool.mesh.setMatrixAt(i, r.o.matrixWorld));
+      pool.mesh.instanceMatrix.needsUpdate = true;
+    });
+  }
+
+  /* ═════════ PartKit：零件 → InstancedMesh ═════════ */
+  const prismGeo = (() => {
+    const tri = new THREE.Shape();
+    tri.moveTo(-.5, -.5); tri.lineTo(.5, -.5); tri.lineTo(0, .5); tri.closePath();
+    const g = new THREE.ExtrudeGeometry(tri, { depth: 1, bevelEnabled: false });
+    g.translate(0, 0, -.5); g.computeVertexNormals(); return g;
+  })();
   const GEO = {
-    box: shade(new THREE.BoxGeometry(1, 1, 1)),
-    pyr: shade(new THREE.ConeGeometry(.5, 1, 4).rotateY(Math.PI / 4)),
+    box: new THREE.BoxGeometry(1, 1, 1),
+    round: new RoundedBoxGeometry(1, 1, 1, 1, .14),
+    cyl: new THREE.CylinderGeometry(.5, .5, 1, 10),
+    cone: new THREE.ConeGeometry(.5, 1, 8),
+    sphere: new THREE.SphereGeometry(.5, 9, 6),
+    rock: new THREE.DodecahedronGeometry(.5, 0),
+    prism: prismGeo,
+    torus: new THREE.TorusGeometry(.5, .12, 8, 22),
   };
-  const solid = new THREE.MeshBasicMaterial({ vertexColors: true });
+  const kitMat = std('#ffffff');
+  const glowMat = new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#ffc46b', emissiveIntensity: 0 });
+  const parts = [];
+  const lamps = [];          // 夜間光暈的位置
+  const ao = [];             // 接觸暗部（假環境光遮蔽）：[x, y, z, r]
+  // y 一律是「底面高度」；rx/ry/rz 以 YXZ 順序套用（先轉向、再俯仰）
+  function part(kind, x, y, z, w, h, d, color, o = {}) {
+    parts.push({ kind, x, y, z, w, h, d, color, rx: o.rx || 0, ry: o.ry || 0, rz: o.rz || 0, glow: !!o.glow });
+  }
+  // 以 (ox,oz) 為原點、轉 rot、縮放 s 的區域座標畫零件
+  function at(ox, oy, oz, rot = 0, s = 1) {
+    const c = Math.cos(rot), sn = Math.sin(rot);
+    const f = (kind, x, y, z, w, h, d, color, o = {}) =>
+      part(kind, ox + (x * c + z * sn) * s, oy + y * s, oz + (-x * sn + z * c) * s, w * s, h * s, d * s, color,
+        { ...o, ry: (o.ry || 0) + rot });
+    f.ao = (x, z, r) => ao.push([ox + (x * c + z * sn) * s, oy, oz + (-x * sn + z * c) * s, r * s]);
+    return f;
+  }
+  // 在畫筆 p 的區域座標裡再疊一層平移／旋轉／縮放
+  function sub(p, ox, oz, rot = 0, s = 1) {
+    const c = Math.cos(rot), sn = Math.sin(rot);
+    const f = (kind, x, y, z, w, h, d, color, o = {}) =>
+      p(kind, ox + (x * c + z * sn) * s, y * s, oz + (-x * sn + z * c) * s, w * s, h * s, d * s, color, { ...o, ry: (o.ry || 0) + rot });
+    f.ao = (x, z, r) => p.ao && p.ao(ox + (x * c + z * sn) * s, oz + (-x * sn + z * c) * s, r * s);
+    return f;
+  }
+  function flushParts() {
+    const groups = new Map();
+    parts.forEach(p => { const k = p.kind + (p.glow ? '|g' : ''); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); });
+    const o = new THREE.Object3D(); o.rotation.order = 'YXZ';
+    const col = new THREE.Color();
+    groups.forEach((list, k) => {
+      const glow = k.endsWith('|g');
+      const mesh = new THREE.InstancedMesh(GEO[list[0].kind], glow ? glowMat : kitMat, list.length);
+      list.forEach((p, i) => {
+        o.position.set(p.x, p.y + p.h / 2, p.z); o.rotation.set(p.rx, p.ry, p.rz); o.scale.set(p.w, p.h, p.d);
+        o.updateMatrix(); mesh.setMatrixAt(i, o.matrix); mesh.setColorAt(i, col.set(p.color));
+      });
+      mesh.castShadow = !glow; mesh.receiveShadow = true;
+      mesh.computeBoundingSphere();
+      world.add(mesh);
+    });
+    parts.length = 0;
+  }
 
-  /* ── 靜態零件 ── */
-  const parts = { box: [], pyr: [] };
-  const edgePos = [];
-  const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _p = new THREE.Vector3(), _s = new THREE.Vector3();
-  const _UX = new THREE.Vector3(0, 0, 1), _UY = new THREE.Vector3(0, 1, 0), _d = new THREE.Vector3(), _e = new THREE.Euler();
-  function boxEdges(x0, y0, z0, x1, y1, z1) {
-    const v = [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1], [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]];
-    [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]].forEach(([a, b]) => edgePos.push(...v[a], ...v[b]));
+  /* ── 共用道具配方（p 是 part 或 at(...) 回傳的畫筆）── */
+  const LEAVES = [C.leaf, C.leaf2, C.leaf3];
+  // 畫筆外加一個「記錄接觸暗部」的通道：p.ao(x, z, r)
+  function tree(p, x, z, s = 1, k = 0) {
+    p.ao && p.ao(x, z, .75 * s);
+    p('cyl', x, 0, z, .16 * s, 1.0 * s, .16 * s, C.woodDark);
+    [[-.24, .75, .08, .9], [.26, .9, .05, .82], [0, 1.18, -.1, .8], [-.05, .86, -.28, .74]].forEach(([dx, dy, dz, d], i) =>
+      p('sphere', x + dx * s, dy * s, z + dz * s, d * s, d * .92 * s, d * s, LEAVES[(k + i) % 3]));
   }
-  // y 是底面高度；edge=false 的小零件不描邊
-  function box(x, y, z, sx, sy, sz, role, { edge = true } = {}) {
-    parts.box.push({ m: new THREE.Matrix4().compose(_p.set(x, y + sy / 2, z), _q.identity(), _s.set(sx, sy, sz)), role });
-    if (edge) boxEdges(x - sx / 2, y, z - sz / 2, x + sx / 2, y + sy, z + sz / 2);
+  function pine(p, x, z, s = 1, k = 0) {
+    p.ao && p.ao(x, z, .7 * s);
+    p('cyl', x, 0, z, .13 * s, .7 * s, .13 * s, C.woodDark);
+    for (let i = 0; i < 3; i++) p('cone', x, (.45 + i * .42) * s, z, (1.05 - i * .24) * s, .95 * s, (1.05 - i * .24) * s, (i + k) % 2 ? C.pine : C.pine2);
   }
-  function beamMatrix(m, a, b, w, h) {
-    _d.subVectors(b, a); const len = Math.max(.0001, _d.length()); _d.divideScalar(len);
-    return m.compose(_p.addVectors(a, b).multiplyScalar(.5), _q.setFromUnitVectors(_UX, _d), _s.set(w, h, len));
+  function bush(p, x, z, s = 1, k = 0) {
+    p.ao && p.ao(x, z, .55 * s);
+    p('sphere', x, 0, z, .62 * s, .46 * s, .56 * s, LEAVES[k % 3]);
+    p('sphere', x + .26 * s, 0, z + .12 * s, .42 * s, .34 * s, .4 * s, LEAVES[(k + 1) % 3]);
   }
-  function beam(a, b, w, h, role) { parts.box.push({ m: beamMatrix(new THREE.Matrix4(), a, b, w, h), role }); }
+  function flowers(p, x, z, k = 0) {
+    const petals = ['#f2b8a0', '#f7e1b5', '#e9967a', '#fff4de', '#d9a0c0'];
+    for (let i = 0; i < 5; i++) {
+      const a = i * 1.3 + k, r = .28 + (i % 2) * .12;
+      p('sphere', x + Math.cos(a) * r, 0, z + Math.sin(a) * r, .2, .16, .2, C.leaf2);
+      p('sphere', x + Math.cos(a) * r, .1, z + Math.sin(a) * r, .13, .12, .13, petals[(i + k) % petals.length]);
+    }
+  }
+  function rock(p, x, z, s = 1) {
+    p('rock', x, -.05 * s, z, .7 * s, .5 * s, .6 * s, C.stoneDark, { ry: rnd() * 6 });
+    p('rock', x + .35 * s, -.05 * s, z + .2 * s, .4 * s, .3 * s, .4 * s, C.stone, { ry: rnd() * 6 });
+  }
+  function lamp(p, x, z) {
+    p('cyl', x, 0, z, .12, .12, .12, C.ink);
+    p('cyl', x, 0, z, .06, 1.35, .06, C.ink);
+    p('sphere', x, 1.3, z, .22, .22, .22, '#ffe9b8', { glow: true });
+    p('cone', x, 1.48, z, .3, .16, .3, C.ink);
+    return [x, 1.42, z];
+  }
+  function bench(p, x, z, ry = 0) {
+    const q = at(x, 0, z, ry);
+    q('box', 0, .32, 0, .9, .07, .32, C.wood); q('box', 0, .45, -.14, .9, .26, .06, C.wood);
+    q('box', -.38, 0, 0, .07, .32, .28, C.woodDark); q('box', .38, 0, 0, .07, .32, .28, C.woodDark);
+  }
+  function cottage(p, x, z, ry, roofC = C.roof, wallC = C.wall, s = 1) {
+    const q = sub(p, x, z, ry, s);
+    q.ao(0, 0, 1.25);
+    q('round', 0, -.02, 0, 1.62, .14, 1.38, C.stoneDark);
+    q('round', 0, 0, 0, 1.5, 1.05, 1.25, wallC);
+    q('prism', 0, 1.0, 0, 1.75, .78, 1.45, roofC);
+    q('box', .45, 1.25, -.25, .26, .62, .26, C.stoneDark);
+    q('round', 0, 0, .6, .36, .66, .08, C.woodDark);
+    [-.45, .45].forEach(dx => { q('box', dx, .38, .615, .38, .36, .04, C.white); q('box', dx, .42, .62, .3, .28, .05, '#ffe1a0', { glow: true }); });
+    q('box', 0, .99, .7, 1.8, .06, .08, C.white);
+    q('box', -.76, .42, 0, .05, .28, .3, '#ffe1a0', { glow: true });
+  }
+  function crate(p, x, z, s = 1, c = C.wood) { p('round', x, 0, z, .5 * s, .5 * s, .5 * s, c, { ry: rnd() }); }
 
-  /* ── 動態零件：共用 InstancedMesh，隱藏＝縮放 0 ── */
+  /* ═════════ 島工廠：分層倒角擠出 ═════════ */
+  const M = {
+    grass: std(C.grass), grass2: std(C.grass2), grass3: std(C.grass3), sand: std(C.sand),
+    cliff: std(C.cliff), cliffDark: std(C.cliffDark),
+    foam: basic(C.foam, { transparent: true, opacity: .6, depthWrite: false, side: THREE.DoubleSide }),
+    shallow: basic(C.shallow, { transparent: true, opacity: .5, depthWrite: false, side: THREE.DoubleSide }),
+  };
+  const BASE_H = 1.0, BEVEL = .08, GROUND = BASE_H + BEVEL;
+  function outline(seed, radius, wobble = .17, n = 56) {
+    const r = mulberry32(seed);
+    const hs = [[2, .45], [3, .3], [4, .15], [7, .1]].map(([f, w]) => [f, w, r() * Math.PI * 2]);
+    // 一到兩個小灣：在隨機方向往內凹，打破圓餅輪廓
+    const bays = Array.from({ length: 1 + Math.floor(r() * 2) }, () => [r() * Math.PI * 2, .12 + r() * .1]);
+    return Array.from({ length: n }, (_, i) => {
+      const a = i / n * Math.PI * 2;
+      let k = 1 + wobble * hs.reduce((s, [f, w, ph]) => s + w * Math.sin(f * a + ph), 0);
+      bays.forEach(([b, d]) => { const t = Math.atan2(Math.sin(a - b), Math.cos(a - b)); k -= d * (wobble / .17) * Math.exp(-t * t / .045); });
+      return [Math.cos(a) * radius * k, Math.sin(a) * radius * k];
+    });
+  }
+  const scaled = (pts, s, inset = 0) => pts.map(([x, z]) => {
+    const r = Math.hypot(x, z), k = inset ? Math.max(r - inset, r * .05) / r : 1;
+    return [x * s * k, z * s * k];
+  });
+  const shapeOf = pts => {                 // shape 的 y＝世界的 -z（rotateX(-π/2) 之後對回 z）
+    const sh = new THREE.Shape();
+    pts.forEach(([x, z], i) => (i ? sh.lineTo(x, -z) : sh.moveTo(x, -z)));
+    sh.closePath(); return sh;
+  };
+  function slab(pts, depth, mats, y) {
+    const g = new THREE.ExtrudeGeometry(shapeOf(pts), { depth, bevelEnabled: true, bevelThickness: BEVEL, bevelSize: .1, bevelSegments: 2, curveSegments: 4 });
+    g.rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(g, mats); m.position.y = y; m.castShadow = true; m.receiveShadow = true; return m;
+  }
+  function ring(pts, inner, outer, mat, y) {
+    const sh = shapeOf(scaled(pts, outer));
+    const hole = new THREE.Path();
+    [...scaled(pts, inner)].reverse().forEach(([x, z], i) => (i ? hole.lineTo(x, -z) : hole.moveTo(x, -z)));
+    sh.holes.push(hole);
+    const g = new THREE.ShapeGeometry(sh, 2); g.rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(g, mat); m.position.y = y; m.renderOrder = 1; return m;
+  }
+  const isles = [], isleGroups = [];
+  // 所有島的各層（沙底、崖帶、草頂、浪花環）建好後依材質合併：21 座島 × 4 層 → 每種材質一個 mesh
+  function mergeIsles() {
+    const buckets = new Map();
+    isleGroups.forEach(g => {
+      g.updateMatrixWorld(true);
+      g.traverse(o => {
+        if (!o.isMesh) return;
+        const geo = (o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone()).applyMatrix4(o.matrixWorld);
+        const pos = geo.attributes.position.array, nor = geo.attributes.normal.array;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        const groups = geo.groups.length ? geo.groups : [{ start: 0, count: geo.attributes.position.count, materialIndex: 0 }];
+        groups.forEach(gr => {
+          const mat = mats[gr.materialIndex];
+          if (!buckets.has(mat.uuid)) buckets.set(mat.uuid, { mat, pos: [], nor: [], shadow: o.castShadow, order: o.renderOrder });
+          const bk = buckets.get(mat.uuid);
+          for (let i = gr.start * 3, e = (gr.start + gr.count) * 3; i < e; i++) { bk.pos.push(pos[i]); bk.nor.push(nor[i]); }
+        });
+        geo.dispose(); o.geometry.dispose();
+      });
+    });
+    buckets.forEach(bk => {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(bk.pos, 3));
+      geo.setAttribute('normal', new THREE.Float32BufferAttribute(bk.nor, 3));
+      geo.computeBoundingSphere();
+      const m = new THREE.Mesh(geo, bk.mat); m.castShadow = m.receiveShadow = bk.shadow; m.renderOrder = bk.order; world.add(m);
+    });
+  }
+  function makeIsle({ u, v, radius, seed, grass = 'grass', highland = 0, wobble = .17 }) {
+    const { x, z } = toWorld(u, v);
+    const pts = outline(seed, radius, wobble);
+    const g = new THREE.Group(); g.position.set(x, 0, z);
+    g.add(ring(pts, 1.13, 1.19, M.foam, .05));
+    g.add(slab(scaled(pts, 1.12), .2, [M.sand, M.sand], -.14));
+    g.add(slab(scaled(pts, 1.0), .34, [M.cliffDark, M.cliffDark], 0));
+    g.add(slab(scaled(pts, 1, .07), BASE_H, [M[grass], M.cliff], 0));
+    let top = GROUND;
+    if (highland) {
+      g.add(slab(scaled(pts, highland, .05), 1.0, [M.grass2, M.cliff], GROUND));
+      top = GROUND + 1.0 + BEVEL;
+    }
+    isleGroups.push(g);
+    const angR = a => {                    // 該方向的海岸半徑（線性內插輪廓點）
+      const n = pts.length, k = ((a / (Math.PI * 2)) % 1 + 1) % 1 * n, i = Math.floor(k), f = k - i;
+      const [x0, z0] = pts[i % n], [x1, z1] = pts[(i + 1) % n];
+      return Math.hypot(x0, z0) * (1 - f) + Math.hypot(x1, z1) * f;
+    };
+    const isle = { x, z, radius, pts, top, angR, gaps: [] };
+    isle.inside = (wx, wz, m = .8) => Math.hypot(wx - x, wz - z) < angR(Math.atan2(wz - z, wx - x)) * m;
+    isles.push(isle);
+    return isle;
+  }
+
+
+  /* ═════════ 佈局（螢幕座標）═════════ */
+  const core = PAGES.filter(p => p.grp === 'core');
+  // 9 章蛇形三列：01–03 前排往右、04–06 中排往左、07–09 後排往右。島夠大，放得下建築和模型
+  const CORE_UV = [[-17, 20], [.5, 21], [17.5, 19.5], [18, .5], [0, -.5], [-17.5, .5], [-17, -20], [.5, -21], [17.5, -19.5]];
+  const SAT = { pre: { u: -20, v: 36.5, r: 7.2, seed: 41 }, workshop: { u: 20, v: -37.5, r: 10, seed: 57 } };
+  const SLOT = {};       // stem → { isle, x, z, y(base) }
+  core.forEach((p, i) => {
+    const [u, v] = CORE_UV[i];
+    const isle = makeIsle({ u, v, radius: 6.4, seed: 100 + i * 7, grass: i % 3 === 1 ? 'grass2' : 'grass', wobble: .09 });
+    SLOT[p.stem] = { isle, x: isle.x, z: isle.z, y: isle.top };
+  });
+  const SAT_ISLE = {};
+  Object.entries(SAT).forEach(([grp, s]) => { SAT_ISLE[grp] = makeIsle({ u: s.u, v: s.v, radius: s.r, seed: s.seed, grass: grp === 'pre' ? 'grass3' : 'grass', wobble: .1 }); });
+  // 附屬島上各單元的位置（以初始視角排：左到右、上到下）
+  const UNIT_UV = {
+    pre: [[-3.2, -2.4], [3.1, -2], [-.2, 3]],
+    workshop: [[-5.4, -4.8], [0, -5.8], [5.4, -4.8], [-6.2, .2], [0, .2], [6.2, .2], [-5.2, 5.2], [0, 6], [5.4, 5.2]],
+  };
+  ['pre', 'workshop'].forEach(grp => {
+    const I = SAT_ISLE[grp];
+    PAGES.filter(p => p.grp === grp).forEach((p, i) => {
+      const [du, dv] = UNIT_UV[grp][i], d = toWorld(du, dv);
+      SLOT[p.stem] = { isle: I, x: I.x + d.x, z: I.z + d.z, y: I.top };
+    });
+  });
+
+  /* ── 拱橋：二次貝茲，木板兩色交替、細扶手、每 3 片一根柱 ── */
+  const bridges = [];
+  function bridge(A, B) {
+    const dx = B.x - A.x, dz = B.z - A.z, L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L;
+    const aA = Math.atan2(uz, ux), aB = Math.atan2(-uz, -ux);
+    const s0 = A.angR(aA) * .9, s1 = L - B.angR(aB) * .9;
+    A.gaps.push(aA); B.gaps.push(aB);
+    const p0 = new THREE.Vector3(A.x + ux * s0, A.top - .04, A.z + uz * s0);
+    const p2 = new THREE.Vector3(A.x + ux * s1, B.top - .04, A.z + uz * s1);
+    const p1 = p0.clone().lerp(p2, .5); p1.y = Math.max(p0.y, p2.y) + Math.min(1.6, .22 * (s1 - s0) + .4);
+    const curve = new THREE.QuadraticBezierCurve3(p0, p1, p2);
+    const n = Math.max(4, Math.round(curve.getLength() / .3)), pts = curve.getSpacedPoints(n);
+    const ry = Math.atan2(ux, uz);
+    for (let i = 0; i < n; i++) {
+      const a = pts[i], b = pts[i + 1], h = Math.hypot(b.x - a.x, b.z - a.z), m = a.clone().lerp(b, .5);
+      const rx = -Math.atan2(b.y - a.y, h);
+      part('box', m.x, m.y - .035, m.z, 1.12, .07, h * .92, i % 3 ? C.wood : C.woodDark, { rx, ry });
+      [-1, 1].forEach(side => {
+        const ox = uz * .56 * side, oz = -ux * .56 * side;
+        part('box', m.x + ox, m.y + .44, m.z + oz, .05, .05, h + .02, C.woodDark, { rx, ry });
+        if (i % 3 === 0) part('cyl', m.x + ox, m.y - .1, m.z + oz, .08, .58, .08, C.woodDark);
+      });
+    }
+    // 兩端在島上的一小段石板路，讓橋「接上」島
+    [[A, -1, p0], [B, 1, p2]].forEach(([I, sgn, end]) => {
+      for (let k = 1; k <= 3; k++) {
+        const t = k * .45; part('cyl', end.x + ux * t * sgn, I.top - .02, end.z + uz * t * sgn, .5, .05, .5, '#e9dcc0', { ry: rnd() * 3 });
+      }
+    });
+    bridges.push({ A, B, curve, pts });
+  }
+  const coreIsles = core.map(p => SLOT[p.stem].isle);
+  for (let i = 0; i + 1 < coreIsles.length; i++) bridge(coreIsles[i], coreIsles[i + 1]);
+  bridge(SAT_ISLE.pre, coreIsles[0]);
+  bridge(coreIsles[coreIsles.length - 1], SAT_ISLE.workshop);
+  const nearGap = (I, a, tol = .42) => I.gaps.some(g => Math.abs(Math.atan2(Math.sin(a - g), Math.cos(a - g))) < tol);
+
+  /* ═════════ 地標：每章一棟建築＋旁邊會動的資料結構模型 ═════════
+     建築是靜態零件（會投影）；模型的可動零件放在下面三個動態池，不投影。
+     每座模型的動畫是純函式 pose(u)，u = 0 是靜止姿態；播放只是把 u 從 0 推到 1。
+     結構約束列在 tools/island_meta.py 開頭，check_island_browser.js 會用 invariants() 實測。 */
+  const FACE = Math.PI / 4;                       // 正面朝向初始視角
+  const B = {};                                   // stem → { top, x, z, y, pickR, ... }
+  const dynRoot = new THREE.Group();
+  const dynMat = new THREE.MeshLambertMaterial({ color: '#ffffff' });
+  const _o = new THREE.Object3D(), _zero = new THREE.Matrix4().makeScale(0, 0, 0), _col = new THREE.Color();
+  const _UY = new THREE.Vector3(0, 1, 0), _dir = new THREE.Vector3(), _v0 = new THREE.Vector3(), _v1 = new THREE.Vector3();
+  _o.rotation.order = 'YXZ';
   function pool(kind, cap) {
-    const mesh = new THREE.InstancedMesh(GEO[kind], solid, cap);
-    mesh.frustumCulled = false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    const roles = []; const zero = new THREE.Matrix4().makeScale(0, 0, 0);
-    mesh.setColorAt(0, ROLE.val);
-    for (let i = 0; i < cap; i++) mesh.setMatrixAt(i, zero);
+    const mesh = new THREE.InstancedMesh(GEO[kind], dynMat, cap);
+    mesh.frustumCulled = false; mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); mesh.receiveShadow = true;
+    for (let i = 0; i < cap; i++) { mesh.setMatrixAt(i, _zero); mesh.setColorAt(i, _col.set('#ffffff')); }
+    let n = 0; const cols = [];
     const P = {
-      mesh, roles,
-      alloc(role) { if (roles.length >= cap) throw new Error('dyn pool 已滿：' + kind); roles.push(role); mesh.setColorAt(roles.length - 1, ROLE[role]); mesh.instanceColor.needsUpdate = true; return roles.length - 1; },
-      role(id, role) { if (roles[id] === role) return; roles[id] = role; mesh.setColorAt(id, ROLE[role]); mesh.instanceColor.needsUpdate = true; },
-      hide(id) { mesh.setMatrixAt(id, zero); mesh.instanceMatrix.needsUpdate = true; },
-      at(id, x, y, z, sx, sy, sz) { _m.compose(_p.set(x, y + sy / 2, z), _q.identity(), _s.set(sx, sy, sz)); mesh.setMatrixAt(id, _m); mesh.instanceMatrix.needsUpdate = true; },
-      beam(id, a, b, w, h) { mesh.setMatrixAt(id, beamMatrix(_m, a, b, w, h)); mesh.instanceMatrix.needsUpdate = true; },
-      recolor() { roles.forEach((r, i) => mesh.setColorAt(i, ROLE[r])); mesh.instanceColor.needsUpdate = true; },
+      alloc(c) { if (n >= cap) throw new Error('動態池已滿：' + kind); cols[n] = c; mesh.setColorAt(n, _col.set(c)); mesh.instanceColor.needsUpdate = true; return n++; },
+      color(id, c) { if (cols[id] === c) return; cols[id] = c; mesh.setColorAt(id, _col.set(c)); mesh.instanceColor.needsUpdate = true; },
+      hide(id) { mesh.setMatrixAt(id, _zero); mesh.instanceMatrix.needsUpdate = true; },
+      at(id, x, y, z, w, h, d, ry = 0) {
+        _o.position.set(x, y + h / 2, z); _o.rotation.set(0, ry, 0); _o.quaternion.setFromEuler(_o.rotation); _o.scale.set(w, h, d); _o.updateMatrix();
+        mesh.setMatrixAt(id, _o.matrix); mesh.instanceMatrix.needsUpdate = true;
+      },
+      beam(id, a, b, w) {            // 圓柱沿 a → b（cyl 與 cone 的軸都是 Y）
+        _dir.subVectors(b, a); const len = _dir.length();
+        if (len < .02) { P.hide(id); return; }
+        _o.position.addVectors(a, b).multiplyScalar(.5);
+        _o.quaternion.setFromUnitVectors(_UY, _dir.divideScalar(len)); _o.scale.set(w, len, w); _o.updateMatrix();
+        mesh.setMatrixAt(id, _o.matrix); mesh.instanceMatrix.needsUpdate = true;
+      },
     };
     world.add(mesh);
     return P;
   }
-  const DB = pool('box', 520), DP = pool('pyr', 60);
-
-  // 指標箭頭：細的紅色光束＋角錐箭頭（和粗的金色匯流排明顯不同）
-  function arrowAlloc(role = 'ptr') { return { b: DB.alloc(role), p: DP.alloc(role), role }; }
-  const _a0 = new THREE.Vector3(), _a1 = new THREE.Vector3();
+  const RD = pool('round', 240), CY = pool('cyl', 200), CO = pool('cone', 40), SP = pool('sphere', 40);
+  // 指標箭頭：細的紅繩＋角錐箭頭（和木造拱橋明顯不同，拱橋只表示授課順序）
+  const PTR = '#c0392b';
+  function arrowAlloc(c = PTR) { return { b: CY.alloc(c), p: CO.alloc(c) }; }
+  function arrowHide(A) { CY.hide(A.b); CO.hide(A.p); }
   function arrowSet(A, a, b) {
-    _d.subVectors(b, a); const len = _d.length();
-    if (len < .3) { DB.hide(A.b); DP.hide(A.p); return; }
-    const head = Math.min(.85, len * .5);
-    _a0.copy(a); _a1.copy(b).addScaledVector(_d.divideScalar(len), -head);
-    DB.beam(A.b, _a0, _a1, .24, .24);
-    _d.subVectors(b, a).divideScalar(len);
-    _p.copy(b).addScaledVector(_d, -head / 2);
-    _q.setFromUnitVectors(_UY, _d);
-    _m.compose(_p, _q, _s.set(.72, head, .72));
-    DP.mesh.setMatrixAt(A.p, _m); DP.mesh.instanceMatrix.needsUpdate = true;
+    _dir.subVectors(b, a); const len = _dir.length();
+    if (len < .15) { arrowHide(A); return; }
+    const head = Math.min(.42, len * .45);
+    _v0.copy(b).addScaledVector(_dir, -head / len);
+    CY.beam(A.b, a, _v0, .085);
+    CO.beam(A.p, _v0, b, .34);
   }
-  function arrowHide(A) { DB.hide(A.b); DP.hide(A.p); }
-  function arrowStatic(a, b, role = 'ptr') { const A = arrowAlloc(role); arrowSet(A, a, b); return A; }
+  function arrowStatic(a, b, c = PTR) { const A = arrowAlloc(c); arrowSet(A, a, b); return A; }
 
+  /* 地面上的標示（head、nullptr、k mod 11…）：一張貼花圖集、一次繪製 */
+  const decals = [];
+  // 區域座標：x 往畫面右、z 往畫面前；以島心為原點
+  function LOC(S, y = S.y) {
+    const c = Math.cos(FACE), sn = Math.sin(FACE);
+    const X = (x, z) => S.x + x * c + z * sn, Z = (x, z) => S.z - x * sn + z * c;
+    return {
+      q: at(S.x, y, S.z, FACE), y,
+      P: (x, h, z) => new THREE.Vector3(X(x, z), y + h, Z(x, z)),
+      rd: (id, x, h, z, w, hh, d) => RD.at(id, X(x, z), y + h, Z(x, z), w, hh, d, FACE),
+      sp: (id, x, h, z, w, hh, d) => SP.at(id, X(x, z), y + h, Z(x, z), w, hh, d, FACE),
+      cy: (id, x, h, z, w, hh, d) => CY.at(id, X(x, z), y + h, Z(x, z), w, hh, d, FACE),
+      say: (text, x, z, size = .42, ink = '#2c3e7a') => decals.push({ text, x: X(x, z), y: y + .03, z: Z(x, z), size: size * 1.3, ink }),
+    };
+  }
+  function shed(q, x, z, w, d, h, roofC, wallC = C.wall) {     // 這些建築的共通外型：牆＋山形屋頂＋門＋亮燈的窗
+    q.ao(x, z, Math.max(w, d) * .62);
+    q('round', x, 0, z, w, h, d, wallC);
+    q('prism', x, h - .02, z, w + .22, Math.min(.72, w * .36), d + .16, roofC);
+    q('round', x, 0, z + d / 2 + .01, Math.min(.42, w * .26), Math.min(.72, h * .6), .07, C.woodDark);
+    q('box', x - w * .28, h * .46, z + d / 2 + .01, .28, .26, .04, '#ffe1a0', { glow: true });
+    q('box', x + w * .28, h * .46, z + d / 2 + .01, .28, .26, .04, '#ffe1a0', { glow: true });
+  }
+  const LM = {}, POSE = {}, INV = {};
   const clamp01 = x => Math.max(0, Math.min(1, x));
   const seg = (u, a, b) => { const t = clamp01((u - a) / (b - a)); return t * t * (3 - 2 * t); };
   const lerp = (a, b, t) => a + (b - a) * t;
-  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const CRATE = [C.amber, C.red, C.forest, C.blue, C.cream];
 
-  /* ═════════ 配置 ═════════ */
-  const T = 2.9;                           // 晶片表面高度
-  const COLX = [-27, 0, 27], ROWZ = [-24, 0, 24];
-  const W = 22, D = 17, ROWP = -45, DP_W = 7.6, DP_D = 7, DIMMZ = 44;
-  const CORE = PAGES.filter(p => p.grp === 'core').map(p => p.stem);
-  const POWER = PAGES.filter(p => p.grp === 'power').map(p => p.stem);
-  const DIMM = PAGES.filter(p => p.grp === 'dimm').map(p => p.stem);
-  const CHIP = {};
-  const SNAKE = [[0, 0], [1, 0], [2, 0], [2, 1], [1, 1], [0, 1], [0, 2], [1, 2], [2, 2]];
-  const hex = i => '0x' + (0x1000 + i * 0x100).toString(16).toUpperCase();
-  const pageIndex = Object.fromEntries(PAGES.map((p, i) => [p.stem, i]));
-  function chipAt(stem, x, z, w, d, atlas) {
-    CHIP[stem] = { stem, x, z, w, d, T, atlas, bake: [], top: T + 10, code: BY[stem].code, addr: hex(pageIndex[stem]) };
-  }
-  const SC = 34;       // 圖集的 px／單位
-  CORE.forEach((s, i) => { const [c, r] = SNAKE[i]; chipAt(s, COLX[c], ROWZ[r], W, D, { x: c * 680, y: r * 510, w: 680, h: 510 }); });
-  POWER.forEach((s, i) => chipAt(s, COLX[i], ROWP, W, 9, { x: i * 680, y: 1530, w: 680, h: 238 }));
-  DIMM.forEach((s, i) => chipAt(s, -34.4 + i * 8.6, DIMMZ, DP_W, DP_D, { x: i * 218, y: 1768, w: 190, h: 170 }));
-
-  /* ── 底板 ── */
-  box(0, -2.4, 0, 86, 2.4, 114, 'boardEdge');
-
-  /* ── 匯流排：只表示授課順序。粗、金色、直角轉彎 ── */
-  const BUS = [[-27, ROWP], [27, ROWP], [27, -36.5], [-27, -36.5], [-27, ROWZ[0]], [27, ROWZ[0]], [27, ROWZ[1]], [-27, ROWZ[1]], [-27, ROWZ[2]], [27, ROWZ[2]]];
-  const haloParts = [];
-  for (let i = 0; i < BUS.length - 1; i++) {
-    const [x0, z0] = BUS[i], [x1, z1] = BUS[i + 1];
-    const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, sx = Math.abs(x1 - x0) + 1.1, sz = Math.abs(z1 - z0) + 1.1;
-    box(cx, .02, cz, sx, .18, sz, 'trace', { edge: false });
-    haloParts.push([cx, cz, sx + .9, sz + .9]);
-  }
-  BUS.forEach(([x, z]) => box(x, .2, z, 1.7, .06, 1.7, 'pin', { edge: false }));   // 轉角的焊墊
-
-  /* ── 晶片本體 ── */
-  function buildChip(C, { pad = true } = {}) {
-    const { x, z, w, d } = C;
-    if (pad) box(x, 0, z, w + 1.6, .1, d + 1.6, 'pad', { edge: false });
-    box(x, 1, z, w, 1.4, d, 'sub');
-    box(x, 2.4, z, w - 2, .5, d - 2, 'die');
-    const pinStep = w > 12 ? 1.5 : 1.2;
-    for (let px = -w / 2 + 1; px <= w / 2 - .8; px += pinStep) {
-      box(x + px, .08, z - d / 2 - .1, .5, 1.3, .22, 'pin', { edge: false });
-      box(x + px, .08, z + d / 2 + .1, .5, 1.3, .22, 'pin', { edge: false });
-    }
-    for (let pz = -d / 2 + 1; pz <= d / 2 - .8; pz += pinStep) {
-      box(x - w / 2 - .1, .08, z + pz, .22, 1.3, .5, 'pin', { edge: false });
-      box(x + w / 2 + .1, .08, z + pz, .22, 1.3, .5, 'pin', { edge: false });
-    }
-    C.led = DB.alloc('ledOff');
-    const lx = w > 12 ? w / 2 - 1 : w / 2 - .7;
-    DB.at(C.led, x + lx, 2.4, z - d / 2 + .5, .85, .32, .7);
-  }
-  CORE.concat(POWER).forEach(s => buildChip(CHIP[s]));
-  // 先備：一條綠色的記憶體模組（DIMM），九顆顆粒插在上面，前緣是金手指
-  box(0, 0, DIMMZ + 1, 78, .95, 12, 'dimm');
-  for (let cx = -37.5; cx <= 37.5; cx += 1.25) box(cx, .95, DIMMZ + 6.1, .7, .06, 1.5, 'pin', { edge: false });
-  DIMM.forEach(s => buildChip(CHIP[s], { pad: false }));
-
-  /* ═════════ 地標：每座回傳 pose(u)，u = 0 是靜止姿態 ═════════ */
-  const LM = {};           // stem → { pose, dur }
-  const INV = {};          // 給 check_island_browser.js 的結構約束實測
-  const lbox = (C, lx, y, lz, sx, sy, sz, role, o) => box(C.x + lx, C.T + y, C.z + lz, sx, sy, sz, role, o);
-  const LP = (C, lx, y, lz) => V(C.x + lx, C.T + y, C.z + lz);
-  const say = (C, text, lx, lz, size = .8, align = 'center', role = 'silk') => C.bake.push({ text, lx, lz, size, align, role });
-  const dat = (C, id, lx, y, lz, sx, sy, sz) => DB.at(id, C.x + lx, C.T + y, C.z + lz, sx, sy, sz);
-
-  // 01 C++ 導論：位元組與指標。char／int／double 佔不同格數；p 存的是 x 的位址
-  {
-    const C = CHIP.introduction, s = 1.2, z0 = 2.2; let cx = -8.5;
-    const span = (n, name) => {
+  // 01 C++ 導論：位址郵局。信箱寬度＝位元組數；路標 p 存的是 x 的位址，*p = 50 只改信箱裡的東西
+  LM.introduction = S => {
+    const L = LOC(S), { q } = L, s = .52, z0 = 1.3; let cx = -3.55;
+    q('round', 0, 0, z0, 7.7, .12, 1.6, C.stone);
+    const span = (n, name, bytes) => {
       const x0 = cx;
-      for (let i = 0; i < n; i++) { lbox(C, cx + s / 2, 0, z0, s, .6, 3, i % 2 ? 'cell2' : 'cell'); cx += s; }
-      say(C, name, (x0 + cx) / 2, z0 + 2.3, .85); const c = (x0 + cx) / 2; cx += .6; return c;
+      for (let i = 0; i < n; i++) { q('round', cx + s / 2, .12, z0, s, .46, 1.05, i % 2 ? C.wall2 : C.cream); cx += s; }
+      const c = (x0 + cx) / 2; L.say(name, c, z0 + 1.05, .4); L.say(bytes, c, z0 + 1.55, .3, '#6f6a5f'); cx += .2; return c;
     };
-    span(1, 'char'); const xInt = span(4, 'int x'); span(8, 'double');
-    say(C, '1 byte', -7.9, z0 + 3.5, .6, 'center', 'silkDim'); say(C, '4 bytes', xInt, z0 + 3.5, .6, 'center', 'silkDim'); say(C, '8 bytes', 3.1 + 1.2, z0 + 3.5, .6, 'center', 'silkDim');
-    lbox(C, 1.4, 0, -4.6, 3.2, 2, 2.6, 'next'); say(C, 'int* p', 1.4, -2.5, .8);
-    say(C, 'int x = 100;', 4.2, -6, .68, 'left'); say(C, 'int* p = &x;', 4.2, -4.9, .68, 'left'); say(C, '*p = 50;', 4.2, -3.8, .68, 'left');
-    const val = DB.alloc('a'), A = arrowAlloc(), pkt = DB.alloc('hi');
-    LM.introduction = { dur: 5.2, pose(u) {
-      const h = lerp(3, 1.5, seg(u, .45, .58));
-      dat(C, val, xInt, .6, z0, 4.5, h, 2.6);
-      const from = LP(C, 1.4, 2, -4.6), to = LP(C, xInt + 1, .6 + h, z0 - .6);
+    span(1, 'char', '1 byte'); const xInt = span(4, 'int x', '通常 4 bytes'); span(8, 'double', '通常 8 bytes');
+    shed(q, -2.2, -2.3, 3, 2.1, 1.6, C.roof);
+    q('box', -2.2, 1.0, -1.23, .78, .46, .05, C.white); q('prism', -2.2, 1.26, -1.2, .78, .2, .04, C.gold, { rx: Math.PI });
+    q('cyl', .15, 0, -1.9, .13, 1.55, .13, C.woodDark); q('round', .15, 1.45, -1.9, .9, .34, .34, C.navy);
+    L.say('int* p', .15, -.8, .4);
+    L.say('int x = 100;', 2.65, -2.7, .34); L.say('int* p = &x;', 2.65, -2.15, .34); L.say('*p = 50;', 2.65, -1.6, .34);
+    const val = RD.alloc(C.gold), A = arrowAlloc(), pkt = SP.alloc(C.red);
+    POSE.introduction = { dur: 5.2, pose(u) {
+      const h = lerp(1.4, .7, seg(u, .45, .58));
+      L.rd(val, xInt, .58, z0, 1.9, h, .9);
+      const from = L.P(.15, 1.62, -1.9), to = L.P(xInt + .4, .58 + h, z0 - .1);
       arrowSet(A, from, to);       // *p = 50 只改 x 的值，p 仍然指著 x
-      if (u > .12 && u < .46) { const t = seg(u, .14, .44), P = from.clone().lerp(to, t); DB.at(pkt, P.x, P.y - .25, P.z, .6, .6, .6); } else DB.hide(pkt);
+      if (u > .12 && u < .46) { _v1.lerpVectors(from, to, seg(u, .14, .44)); SP.at(pkt, _v1.x, _v1.y - .15, _v1.z, .32, .32, .32); } else SP.hide(pkt);
     } };
-  }
+    return 2.9;
+  };
 
-  // 02 演算法分析：六根柱子的高度真的照 f(n) 計算；超過刻度就截斷並標紅
-  {
-    const C = CHIP.analysis, FN = [['1', () => 1], ['log n', n => Math.log2(n)], ['n', n => n], ['n log n', n => n * Math.log2(n)], ['n²', n => n * n], ['2ⁿ', n => 2 ** n]];
-    const MAX = 8.2, K = .13, step = 3.3, x0 = -8.25;
-    lbox(C, -9.6, 0, -2.1, .3, MAX, .3, 'rail', { edge: false }); lbox(C, 9.6, 0, -2.1, .3, MAX, .3, 'rail', { edge: false });
-    lbox(C, 0, MAX, -2.1, 19.5, .22, .3, 'rail', { edge: false });
-    say(C, '刻度上限', -6.5, -6.6, .72, 'center', 'silkDim');
+  // 02 演算法分析：成長溫室。六株植物的高度真的照 f(n) 計算；撞到屋頂的標紅
+  LM.analysis = S => {
+    const L = LOC(S), { q } = L, FN = [['1', () => 1], ['log n', n => Math.log2(n)], ['n', n => n], ['n log n', n => n * Math.log2(n)], ['n²', n => n * n], ['2ⁿ', n => 2 ** n]];
+    const MAX = 3, K = .045, step = 1.28, x0 = -3.2, z0 = .9;
+    q('round', 0, 0, z0, 8.2, .14, 2.2, C.stone);
+    [[-4, -.1], [4, -.1], [-4, 1.9], [4, 1.9]].forEach(([x, z]) => q('box', x, .1, z, .1, MAX + .04, .1, C.white));
+    [-.1, 1.9].forEach(z => q('box', 0, MAX + .14, z, 8.1, .08, .08, C.white));
+    [-4, -2.4, -.8, .8, 2.4, 4].forEach(x => q('box', x, MAX + .14, z0, .06, .06, 2, C.white));
+    shed(q, 2.6, -2.5, 2.3, 1.7, 1.2, C.roofGreen);
+    L.say('玻璃屋頂＝刻度上限', -1.6, -1.1, .34, '#6f6a5f');
+    L.say('n 變大時，誰先撞到屋頂？', -1.2, 3.1, .36, '#6f6a5f');
     const bars = FN.map(([name], i) => {
-      lbox(C, x0 + i * step, 0, 1, 2.8, .2, 2.8, 'cell');
-      say(C, name, x0 + i * step, 3.6, .78);
-      return { bar: DB.alloc('d'), cap: DB.alloc('b') };
+      q('round', x0 + i * step, .14, z0, 1, .14, 1, C.woodDark);
+      L.say(name, x0 + i * step, z0 + 1.55, .34);
+      return { bar: RD.alloc(C.forest), cap: SP.alloc(C.leaf) };
     });
-    say(C, 'n 變大時，誰先撞到上限？', 0, 5.6, .78, 'center', 'silkDim');
-    LM.analysis = { dur: 6, pose(u) {
+    POSE.analysis = { dur: 6, pose(u) {
       const n = lerp(2, 16, seg(u, .04, .9));
       FN.forEach(([, f], i) => {
-        const raw = Math.max(.25, f(n) * K), h = Math.min(MAX - .1, raw);
-        dat(C, bars[i].bar, x0 + i * step, .2, 1, 2.3, h, 2.3);
-        if (raw > MAX - .1) dat(C, bars[i].cap, x0 + i * step, .2 + h, 1, 2.5, .3, 2.5); else DB.hide(bars[i].cap);
+        const raw = Math.max(.15, f(n) * K), h = Math.min(MAX - .22, raw), hit = raw > MAX - .22;
+        L.rd(bars[i].bar, x0 + i * step, .28, z0, .42, h, .42);
+        SP.color(bars[i].cap, hit ? C.red : C.leaf);
+        L.sp(bars[i].cap, x0 + i * step, .2 + h, z0, .8, .4, .8);
       });
     } };
-  }
+    return 3.6;
+  };
 
-  // 03 陣列：格子零間距。insert(1, 99) 一次複製一格（中途會有兩個相同的值，這是複製不是交換）
-  {
-    const C = CHIP.arrays, s = 2.2, n = 8, x0 = -8.8, z0 = 3.2, cellX = i => x0 + s * i + s / 2;
+  // 03 陣列：連棟倉庫。隔間零間距；insert(1, 99) 由後往前一次複製一箱（中途有兩個相同的值，這是複製不是交換）
+  LM.arrays = S => {
+    const L = LOC(S), { q } = L, s = .92, n = 8, x0 = -3.68, z0 = 1.25, cellX = i => x0 + s * i + s / 2;
     INV.arrays = { cells: [] };
     for (let i = 0; i < n; i++) {
-      lbox(C, cellX(i), 0, z0, s, .7, 2.6, i % 2 ? 'cell2' : 'cell');
+      q('box', cellX(i), 0, z0, s, .12, 1.3, i % 2 ? C.wall2 : C.cream);
       INV.arrays.cells.push({ x0: x0 + s * i, x1: x0 + s * (i + 1) });
-      say(C, String(i), cellX(i), z0 + 2, .7, 'center', 'silkDim');
+      L.say(String(i), cellX(i), z0 + .98, .32, '#6f6a5f');
     }
-    say(C, 'base + i × 4', -5, z0 + 3.3, .72, 'center', 'silkDim');
-    // 稀疏矩陣：大多是空格，只存非零項
-    const sparse = [[0, 1], [1, 4], [2, 2], [3, 5]], gx = -8.8, gz = -6.6, gs = 1.05;
+    q('box', 0, 0, z0 - .72, s * n, 1.45, .14, C.wall);                 // 一道共用的後牆：隔間連在一起
+    q('prism', 0, 1.42, z0 - .72, .7, .34, s * n + .1, C.roofNavy, { rz: 0, ry: Math.PI / 2 });
+    L.say('base + i × sizeof(int)', 0, z0 + 1.45, .36);
+    const sparse = [[0, 1], [1, 4], [2, 2], [3, 5]], gx = -3.7, gz = -3.3, gs = .42;
     for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) {
       const on = sparse.some(([a, b]) => a === r && b === c);
-      lbox(C, gx + c * gs + gs / 2, 0, gz + r * gs + gs / 2, gs, on ? .9 : .18, gs, on ? 'a' : 'cell2', { edge: false });
+      q('box', gx + c * gs + gs / 2, 0, gz + r * gs + gs / 2, gs - .03, .05, gs - .03, on ? '#c8a874' : C.grass2);
+      if (on) q('sphere', gx + c * gs + gs / 2, .05, gz + r * gs + gs / 2, .36, .5, .36, C.forest);
     }
-    sparse.forEach(([r, c], i) => say(C, `(${r},${c}) → v`, 4.8, gz + .55 + i * 1.05, .74, 'center'));
-    const roles = ['a', 'b', 'c', 'd', 'e'];
-    const slots = Array.from({ length: n }, () => DB.alloc('a')), mover = DB.alloc('hi');
-    const put = (i, role) => { DB.role(slots[i], role); dat(C, slots[i], cellX(i), .7, z0, s - .35, 1.5, 2); };
-    LM.arrays = { dur: 6, pose(u) {
+    shed(q, 2.5, -2.5, 2.1, 1.6, 1.1, C.roof);
+    sparse.forEach(([r, c], i) => L.say(`(${r},${c}) → v`, .55, -3.75 + i * .44, .3));
+    const roles = [C.amber, C.red, C.forest, C.blue, C.cream], NEWC = C.gold;
+    const slots = Array.from({ length: n }, () => RD.alloc(C.amber)), mover = RD.alloc(NEWC);
+    const put = (i, c) => { RD.color(slots[i], c); L.rd(slots[i], cellX(i), .12, z0, s - .2, .68, .86); };
+    POSE.arrays = { dur: 6, pose(u) {
       if (u >= .985) u = 0;
-      const cur = roles.concat([null, null, null]);
-      const STEPS = 4, a = .08, span = .13;          // a[4→5]、a[3→4]、a[2→3]、a[1→2]，最後放 99
-      DB.hide(mover);
+      const cur = roles.concat([null, null, null]), STEPS = 4, a = .08, span = .13;   // a[4→5]、a[3→4]、a[2→3]、a[1→2]，最後放 99
+      RD.hide(mover);
       for (let k = 0; k < STEPS; k++) {
         const from = 4 - k, to = from + 1, t0 = a + k * span, t1 = t0 + span;
         if (u >= t1) cur[to] = cur[from];
         else if (u > t0) {
           const t = seg(u, t0, t1 - .02);
-          DB.role(mover, cur[from]);
-          dat(C, mover, lerp(cellX(from), cellX(to), t), .7 + 1.5 + Math.sin(t * Math.PI) * 1.2, z0, s - .5, 1.3, 1.8);
+          RD.color(mover, cur[from]);
+          L.rd(mover, lerp(cellX(from), cellX(to), t), .8 + Math.sin(t * Math.PI) * .55, z0, s - .3, .6, .76);
         }
       }
       const tP = a + STEPS * span;
-      if (u >= tP + .1 && u < .985) cur[1] = 'hi';
-      else if (u > tP && u < .985) { DB.role(mover, 'hi'); dat(C, mover, cellX(1), .7 + lerp(5, 0, seg(u, tP, tP + .1)), z0, s - .35, 1.5, 2); }
-      slots.forEach((id, i) => { if (cur[i]) put(i, cur[i]); else DB.hide(id); });
+      if (u >= tP + .1) cur[1] = NEWC;
+      else if (u > tP) { RD.color(mover, NEWC); L.rd(mover, cellX(1), .12 + lerp(2.2, 0, seg(u, tP, tP + .1)), z0, s - .2, .68, .86); }
+      slots.forEach((id, i) => { if (cur[i]) put(i, cur[i]); else RD.hide(id); });
     } };
-  }
+    return 2.5;
+  };
 
-  // 04 鏈結串列：節點故意不共線，靠箭頭相連。add(26)：只改箭頭，其他節點不動
-  {
-    const C = CHIP.linked_lists, NODES = [[-4.6, -4.2], [4.8, -5.4], [7.2, 1.6], [-.8, 2.8]], NEW = [-7.6, 1.2], h = 1.5;
+  // 04 鏈結串列：散落小屋。小屋不共線，靠紅繩相連，尾端接 nullptr。add(26)：只改繩子，其他小屋不動
+  LM.linked_lists = S => {
+    const L = LOC(S), { q } = L, NODES = [[-1.5, -2.5], [2.5, -3], [3.5, .6], [-.2, 1.5]], NEW = [-3.5, .55];
     INV.linked_lists = { nodes: NODES.map(n => n.slice()) };
-    const node = (x, z) => { lbox(C, x, 0, z, 2, h, 2, 'node'); lbox(C, x + 1.5, 0, z, 1, h, 2, 'next'); };
-    NODES.forEach(([x, z]) => node(x, z));
-    const head = [-8.6, -6]; lbox(C, head[0], 0, head[1], 2, 1, 1.6, 'cell'); say(C, 'head', head[0], head[1] + 1.6, .78);
-    const NUL = [-6.4, 6.2];
-    lbox(C, NUL[0], 0, NUL[1], 2.4, .22, .4, 'rail', { edge: false }); lbox(C, NUL[0], 0, NUL[1] + .6, 1.6, .22, .4, 'rail', { edge: false }); lbox(C, NUL[0], 0, NUL[1] + 1.1, .8, .22, .3, 'rail', { edge: false });
-    say(C, 'nullptr', NUL[0] + 4.2, NUL[1] + .5, .8);
-    const out = ([x, z]) => LP(C, x + 1.5, h + .15, z), inn = ([x, z]) => LP(C, x - .2, h + .15, z);
+    const h = 1;
+    NODES.forEach(([x, z]) => { shed(q, x, z, 1.3, 1.15, h, C.roofNavy); });
+    const HD = [-3.7, -2.9];
+    q('cyl', HD[0], 0, HD[1], .12, 1.05, .12, C.woodDark); q('round', HD[0], .95, HD[1], .95, .36, .14, C.gold);
+    L.say('head', HD[0], HD[1] + .62, .4);
+    const NUL = [-2.4, 3.15];
+    q('cyl', NUL[0], 0, NUL[1], .12, .9, .12, C.woodDark); q('round', NUL[0], .8, NUL[1], .85, .32, .1, C.red);
+    q('round', NUL[0] - .22, 0, NUL[1] + .3, .5, .16, .3, C.stoneDark); q('round', NUL[0] + .28, 0, NUL[1] + .25, .42, .13, .3, C.stone);
+    L.say('nullptr', NUL[0] + 1.5, NUL[1] + .2, .4);
+    const out = ([x, z]) => L.P(x + .3, h + .55, z), inn = ([x, z]) => L.P(x - .15, h + .62, z);
     for (let i = 0; i + 1 < NODES.length; i++) arrowStatic(out(NODES[i]), inn(NODES[i + 1]));
-    arrowStatic(out(NODES[3]), LP(C, NUL[0] + .6, .3, NUL[1]));
-    const fresh = [DB.alloc('c'), DB.alloc('next')], hA = arrowAlloc(), nA = arrowAlloc('wire');
-    const hOut = LP(C, head[0], 1.15, head[1]);
-    LM.linked_lists = { dur: 5.4, pose(u) {
+    arrowStatic(out(NODES[3]), L.P(NUL[0] + .25, .85, NUL[1]));
+    const fresh = [RD.alloc(C.cream), RD.alloc(C.forest)], hA = arrowAlloc(), nA = arrowAlloc(C.forest), hOut = L.P(HD[0], 1.15, HD[1]);
+    POSE.linked_lists = { dur: 5.4, pose(u) {
       const up = seg(u, .1, .28), on = u > .08 && u < .985;
       if (on) {
-        dat(C, fresh[0], NEW[0], lerp(-1.4, 0, up), NEW[1], 2, h * up + .001, 2);
-        dat(C, fresh[1], NEW[0] + 1.5, lerp(-1.4, 0, up), NEW[1], 1, h * up + .001, 2);
-      } else { DB.hide(fresh[0]); DB.hide(fresh[1]); }
+        L.rd(fresh[0], NEW[0], lerp(-1.1, 0, up), NEW[1], 1.3, h * up + .001, 1.15);
+        L.rd(fresh[1], NEW[0], lerp(-1.1, 0, up) + h * up, NEW[1], 1.45, .42 * up + .001, 1.3);
+      } else { RD.hide(fresh[0]); RD.hide(fresh[1]); }
       const g = seg(u, .32, .52);
       if (on && g > .02) arrowSet(nA, out(NEW), new THREE.Vector3().lerpVectors(out(NEW), inn(NODES[0]), g)); else arrowHide(nA);
       const sw = on ? seg(u, .6, .82) : 0;
       arrowSet(hA, hOut, new THREE.Vector3().lerpVectors(inn(NODES[0]), inn(NEW), sw));
     } };
-  }
+    return 2.4;
+  };
 
-  // 05 堆疊／佇列／Deque：差別只在開口。護欄四面封閉，堆疊只開頂端
-  {
-    const C = CHIP.linear_structures;
-    const SX = -6.6, SW = 3.2, LV = 1.65, levels = 3;
+  // 05 堆疊／佇列／Deque：碼頭三設施。差別只在開口：貨井只開頂端，驗票通道一進一出，渡口兩端都通
+  LM.linear_structures = S => {
+    const L = LOC(S), { q } = L;
+    q('box', .1, 0, -.1, 8.2, .1, 6.2, C.wood);
+    for (let z = -3; z <= 2.9; z += .62) q('box', .1, .1, z, 8.2, .012, .03, C.woodDark);
+    const SX = -2.75, SW = 1.5, LV = .78, levels = 3;
     INV.linear_structures = { stackWalls: 4, stackTopOpen: true, levels };
-    lbox(C, SX, 0, 0, SW + .6, .25, SW + .6, 'cell');
-    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => lbox(C, SX + a * SW / 2, 0, b * SW / 2, .24, LV * levels + .2, .24, 'rail', { edge: false }));
-    for (let l = 0; l <= levels - 1; l++) {
-      const y = .55 + l * LV;
-      lbox(C, SX, y, -SW / 2, SW, .16, .16, 'rail', { edge: false }); lbox(C, SX, y, SW / 2, SW, .16, .16, 'rail', { edge: false });
-      lbox(C, SX - SW / 2, y, 0, .16, .16, SW, 'rail', { edge: false }); lbox(C, SX + SW / 2, y, 0, .16, .16, SW, 'rail', { edge: false });
+    q('round', SX, .1, .1, SW + .35, .12, SW + .35, C.stoneDark);
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => q('box', SX + a * SW / 2, .1, .1 + b * SW / 2, .1, LV * levels + .1, .1, C.woodDark));
+    for (let l = 0; l < levels; l++) {
+      const y = .42 + l * LV;
+      q('box', SX, y, .1 - SW / 2, SW, .07, .07, C.woodDark); q('box', SX, y, .1 + SW / 2, SW, .07, .07, C.woodDark);
+      q('box', SX - SW / 2, y, .1, .07, .07, SW, C.woodDark); q('box', SX + SW / 2, y, .1, .07, .07, SW, C.woodDark);
     }
-    say(C, 'stack', SX, 3.1, .85); say(C, '只開頂端', SX, 4.2, .68, 'center', 'silkDim');
-    // 水平管：長邊有護欄，兩端開口；箭頭烘在晶片上
+    L.say('stack', SX, 1.35, .42); L.say('只開頂端', SX, 1.8, .3, '#6f6a5f');
+    shed(q, SX, -2.15, 1.7, 1.3, .95, C.roof);
     const tube = (z, name, ends) => {
-      const x0 = -2.2, x1 = 9.2, cx = (x0 + x1) / 2, L = x1 - x0, hw = 1.3;
-      [-1, 1].forEach(s => { lbox(C, cx, .1, z + s * hw, L, .14, .14, 'rail', { edge: false }); lbox(C, cx, 1.9, z + s * hw, L, .14, .14, 'rail', { edge: false }); [x0, cx, x1].forEach(px => lbox(C, px, 0, z + s * hw, .16, 2, .16, 'rail', { edge: false })); });
-      say(C, name, cx, z + 2.25, .78); say(C, ends[0], x0 - .05, z + 2.25, .66, 'center', 'silkDim'); say(C, ends[1], x1 + .05, z + 2.25, .66, 'center', 'silkDim');
+      const x0 = -1.15, x1 = 3.95, cx = (x0 + x1) / 2, Ln = x1 - x0, hw = .62;
+      [-1, 1].forEach(s => { q('box', cx, .68, z + s * hw, Ln, .07, .07, C.white); [x0, cx, x1].forEach(px => q('box', px, .1, z + s * hw, .08, .62, .08, C.woodDark)); });
+      L.say(name, cx, z + 1.02, .4); L.say(ends[0], x0 + .1, z + 1.02, .3, '#6f6a5f'); L.say(ends[1], x1 - .1, z + 1.02, .3, '#6f6a5f');
     };
-    tube(-5, 'queue', ['← front', 'back ←']); tube(1.6, 'deque', ['↔ front', 'back ↔']);
-    const ST = ['a', 'b', 'c'].map(r => DB.alloc(r)), QU = ['a', 'b', 'c'].map(r => DB.alloc(r)), DQ = ['a', 'b'].map(r => DB.alloc(r));
-    const SY = i => .3 + i * LV, QX = i => -.8 + i * 2.8;     // 佇列的第 i 個（0 是 front）
-    LM.linear_structures = { dur: 8, pose(u) {
-      // 堆疊：依序從頂端放入 A、B、C，再依 C、B、A 從頂端取出
-      ST.forEach((id, i) => {
+    tube(-2.2, 'queue', ['← front', 'rear ←']); tube(.75, 'deque', ['↔ front', 'rear ↔']);
+    const ST = [C.amber, C.red, C.forest].map(c => RD.alloc(c)), QU = [C.amber, C.red, C.forest].map(c => RD.alloc(c)), DQ = [C.amber, C.red].map(c => RD.alloc(c));
+    const SY = i => .2 + i * LV, QX = i => -.5 + i * 1.3, QOUT = -2, QIN = 4.7;
+    POSE.linear_structures = { dur: 8, pose(u) {
+      ST.forEach((id, i) => {        // 依序從頂端放入，再依相反順序從頂端取出
         const inA = .06 + i * .08, outA = .36 + (2 - i) * .08;
-        if (u < inA || u >= outA + .08) { DB.hide(id); return; }
-        const y = u < outA ? lerp(LV * levels + 3, SY(i), seg(u, inA, inA + .07)) : lerp(SY(i), LV * levels + 3, seg(u, outA, outA + .07));
-        dat(C, id, SX, y, 0, 2.4, 1.3, 2.4);
+        if (u < inA || u >= outA + .08) { RD.hide(id); return; }
+        const y = u < outA ? lerp(LV * levels + 1.4, SY(i), seg(u, inA, inA + .07)) : lerp(SY(i), LV * levels + 1.4, seg(u, outA, outA + .07));
+        L.rd(id, SX, y, .1, 1.15, .66, 1.15);
       });
-      // 佇列：A、B、C 從 back 進，從 front 出，先進先出
-      QU.forEach((id, i) => {
+      QU.forEach((id, i) => {        // 從 rear 進，從 front 出，先進先出
         const inA = .06 + i * .08, outA = .36 + i * .08;
-        if (u < inA || u >= outA + .08) { DB.hide(id); return; }
-        const shifted = Math.max(0, Math.floor(clamp01((u - .36) / .08)));
-        const slot = QX(Math.max(0, i - shifted)), start = QX(i);
-        let x = lerp(10.6, start, seg(u, inA, inA + .07));
+        if (u < inA || u >= outA + .08) { RD.hide(id); return; }
+        let x = lerp(QIN, QX(i), seg(u, inA, inA + .07));
         if (u >= .36) {
           const k = (u - .36) / .08, f = Math.floor(k), t = seg(k - f, 0, 1);
-          if (i === f) x = lerp(QX(0), -4, t);
-          else x = lerp(slot, QX(Math.max(0, i - f - 1)), t);
+          x = i === f ? lerp(QX(0), QOUT, t) : lerp(QX(Math.max(0, i - f)), QX(Math.max(0, i - f - 1)), t);
         }
-        dat(C, id, x, .3, -5, 2.2, 1.3, 2);
+        L.rd(id, x, .14, -2.2, 1.05, .6, .9);
       });
-      // Deque：同一個結構，兩端都能進出
-      DQ.forEach((id, i) => {
-        const side = i === 0 ? 1 : -1, a = .66 + i * .08, o = .84 + i * .05;
-        if (u < a || u >= o + .05) { DB.hide(id); return; }
-        const tgt = i === 0 ? QX(2) : QX(1), edge = i === 0 ? 10.6 : -4;
-        const x = u < o ? lerp(edge, tgt, seg(u, a, a + .07)) : lerp(tgt, side > 0 ? 10.6 : -4, seg(u, o, o + .05));   // 只能從自己這一端出去，不能穿過另一個元素
-        dat(C, id, x, .3, 1.6, 2.2, 1.3, 2);
+      DQ.forEach((id, i) => {        // 只能從自己這一端出去，不能穿過另一個元素
+        const a = .66 + i * .08, o = .84 + i * .05;
+        if (u < a || u >= o + .05) { RD.hide(id); return; }
+        const tgt = i === 0 ? QX(2) : QX(1), edge = i === 0 ? QIN : QOUT;
+        L.rd(id, u < o ? lerp(edge, tgt, seg(u, a, a + .07)) : lerp(tgt, edge, seg(u, o, o + .05)), .14, .75, 1.05, .6, .9);
       });
     } };
-  }
+    return 2.5;
+  };
 
-  // 06 遞迴：fact(4) 的呼叫框架。逐層疊上，到基底條件後才由上往下回傳
-  {
-    const C = CHIP.recursion, FX = -4, FW = 7.6, FD = 5.4, H = 1.4;
-    lbox(C, FX, 0, 0, FW + 1, .25, FD + 1, 'cell');
-    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => lbox(C, FX + a * (FW / 2 + .25), 0, b * (FD / 2 + .25), .22, H * 4 + .7, .22, 'rail', { edge: false }));
+  // 06 遞迴：層疊塔。fact(4) 一層層往上蓋，到基底條件插旗，再由上往下拆，回傳值逐層送下
+  LM.recursion = S => {
+    const L = LOC(S), { q } = L, FX = -1.6, FW = 3.5, FD = 3, H = .78;
+    q('round', FX, 0, 0, FW + .7, .14, FD + .7, C.stone);
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b]) => q('box', FX + a * (FW / 2 + .14), .14, b * (FD / 2 + .14), .1, H * 4 + .2, .1, C.woodDark));
     [['fact(1)', 'return 1'], ['fact(2)', 'return 2 × 1'], ['fact(3)', 'return 3 × 2'], ['fact(4)', 'return 4 × 6']].forEach(([a, b], i) => {
-      say(C, a, 3.4, -5.6 + i * 2.9, .8, 'left'); say(C, b, 3.4, -4.6 + i * 2.9, .68, 'left', 'silkDim');
+      L.say(a, 2.15, -2.3 + i * 1.2, .38); L.say(b, 2.15, -1.88 + i * 1.2, .3, '#6f6a5f');
     });
-    const P = [0, 1, 2, 3].map(i => DB.alloc(['d', 'c', 'b', 'a'][i])), flag = [DB.alloc('rail'), DB.alloc('hi')], tok = DB.alloc('hi');
-    const y = i => .3 + i * H;
-    LM.recursion = { dur: 6.4, pose(u) {
+    shed(q, -3, 2.65, 1.5, 1, .8, C.roofNavy);
+    const P = [C.blue, C.forest, C.red, C.amber].map(c => RD.alloc(c)), win = P.map(() => RD.alloc('#ffe1a0'));
+    const pole = CY.alloc(C.white), cloth = RD.alloc(C.gold), tok = SP.alloc(C.gold), y = i => .16 + i * H;
+    POSE.recursion = { dur: 6.4, pose(u) {
       P.forEach((id, i) => {
         const a = .05 + i * .09, o = .78 - i * .09;    // 最先呼叫的最後回傳
-        if (u < a || u >= o + .08) { DB.hide(id); return; }
-        const yy = u < o ? lerp(y(i) + 5, y(i), seg(u, a, a + .08)) : lerp(y(i), y(i) + 5, seg(u, o, o + .08));
-        dat(C, id, FX, yy, 0, FW - .3, H - .14, FD - .3);
+        if (u < a || u >= o + .08) { RD.hide(id); RD.hide(win[i]); return; }
+        const yy = u < o ? lerp(y(i) + 2.6, y(i), seg(u, a, a + .08)) : lerp(y(i), y(i) + 2.6, seg(u, o, o + .08));
+        L.rd(id, FX, yy, 0, FW - .1, H - .05, FD - .1);
+        L.rd(win[i], FX, yy + .24, FD / 2 - .03, 1.4, .24, .05);
       });
-      const on = u > .42 && u < .54;
-      if (on) { dat(C, flag[0], FX + 2.6, y(4), 0, .22, 2.4, .22); dat(C, flag[1], FX + 3.5, y(4) + 1.5, 0, 1.6, .9, .14); }
-      else { DB.hide(flag[0]); DB.hide(flag[1]); }
-      if (u > .51 && u < .86) dat(C, tok, FX, lerp(y(4) + .4, y(0) + .4, seg(u, .51, .86)), FD / 2 + .9, .9, .9, .9); else DB.hide(tok);
+      if (u > .42 && u < .54) { L.cy(pole, FX + 1.1, y(4), 0, .08, 1.3, .08); L.rd(cloth, FX + 1.5, y(4) + .85, 0, .8, .44, .05); }
+      else { CY.hide(pole); RD.hide(cloth); }
+      if (u > .51 && u < .86) L.sp(tok, FX + FW / 2 + .45, lerp(y(4), y(0), seg(u, .51, .86)), FD / 2 + .32, .44, .44, .44); else SP.hide(tok);
     } };
-  }
+    return 3.9;
+  };
 
-  // 07 搜尋與排序：雜湊表 m = 11，線性探查（與教材相同的一批值）；旁邊是一趟氣泡排序
-  {
-    const C = CHIP.searching_sorting, M_ = 11, s = 1.72, x0 = -M_ * s / 2, z0 = 3.2, sx = i => x0 + s * i + s / 2;
-    for (let i = 0; i < M_; i++) { lbox(C, sx(i), 0, z0, s, .5, 2.8, i % 2 ? 'cell2' : 'cell'); say(C, String(i), sx(i), z0 + 2, .66, 'center', 'silkDim'); }
-    // 漏斗：角錐倒放，分流到各 slot
-    const fun = { x: 3, y: 5.6, z: -3.6 };
-    const fA = C.x + fun.x, fZ = C.z + fun.z;
-    parts.pyr.push({ m: new THREE.Matrix4().compose(_p.set(fA, C.T + fun.y, fZ), _q.setFromEuler(_e.set(Math.PI, 0, 0)), _s.set(3, 2.2, 3)), role: 'metal' });
-    lbox(C, fun.x, 0, fun.z, .3, fun.y - 1.1, .3, 'rail', { edge: false });
-    say(C, 'k mod 11', fun.x + 2.6, -2.3, .86);
-    // 真的跑一次線性探查：每個值的路徑由模擬得出
+  // 07 搜尋與排序：郵務分揀所。m = 11、線性探查（與教材同一批值）；旁邊的貨箱堆跑一趟氣泡排序
+  LM.searching_sorting = S => {
+    const L = LOC(S), { q } = L, M_ = 11, s = .68, x0 = -M_ * s / 2, z0 = 2, sx = i => x0 + s * i + s / 2;
+    q('round', 0, 0, z0, M_ * s + .25, .1, 1.25, C.stoneDark);
+    for (let i = 0; i < M_; i++) { q('box', sx(i), .1, z0, s, .1, 1.1, i % 2 ? C.wall2 : C.cream); L.say(String(i), sx(i), z0 + .85, .28, '#6f6a5f'); }
+    shed(q, -2.45, -2.75, 2.5, 1.5, 1.2, C.roof);
+    const fun = { x: 2.2, y: 3.05, z: -1.5 };
+    q('cyl', fun.x, 0, fun.z, .14, fun.y - .9, .14, C.woodDark);
+    q('cone', fun.x, fun.y - 1, fun.z, 1.5, 1.1, 1.5, C.navy, { rx: Math.PI });
+    q('cyl', fun.x, fun.y + .08, fun.z, 1.56, .08, 1.56, C.gold);
+    L.say('k mod 11', fun.x, fun.z + 1.05, .42);
     const table = new Array(M_).fill(null), KEYS = [54, 26, 93, 17, 77, 31, 44, 55], paths = [];
     KEYS.forEach(k => { let i = k % M_; const hops = [i]; while (table[i] !== null) { i = (i + 1) % M_; hops.push(i); } table[i] = k; paths.push({ k, hops, collide: hops.length > 1 }); });
     INV.searching_sorting = { m: M_, paths };
-    const cubes = paths.map(p => DB.alloc(p.collide ? 'b' : 'a'));
-    // 一趟氣泡排序：每次只比較相鄰兩根，真的排
-    const BAR = [5, 2, 4, 1, 3], bx = i => -8.6 + i * 1.5, bz = -5.2;
+    const cubes = paths.map(() => RD.alloc(C.amber));
+    const BAR = [5, 2, 4, 1, 3], bx = i => -3.3 + i * .6, bz = -.65;
     const frames = [BAR.slice()], cmpAt = [];
     { const a = BAR.slice(); for (let i = 0; i + 1 < a.length; i++) { cmpAt.push(i); if (a[i] > a[i + 1]) [a[i], a[i + 1]] = [a[i + 1], a[i]]; frames.push(a.slice()); } }
-    const bars = BAR.map(() => DB.alloc('d'));
-    say(C, '比較相鄰、必要時交換', -5.6, -2.9, .66, 'center', 'silkDim');
+    const bars = BAR.map(() => RD.alloc(C.blue));
+    L.say('比較相鄰、必要時交換', -2.1, .3, .3, '#6f6a5f');
     const HASH_END = .74;
-    LM.searching_sorting = { dur: 8.5, pose(u) {
+    POSE.searching_sorting = { dur: 8.5, pose(u) {
       const per = HASH_END / paths.length;
       paths.forEach((p, i) => {
         const a = i * per, b = a + per;
-        if (u < a || u >= .985) { DB.hide(cubes[i]); return; }
-        const t = clamp01((u - a) / (b - a)), fall = seg(t, 0, .55), slide = seg(t, .55, 1);
+        if (u < a || u >= .985) { RD.hide(cubes[i]); return; }
+        // 先飛到雜湊值那一格的上方，再逐格往後探查，找到空格才放下去：不會穿過已經存好的貨箱
+        const t = clamp01((u - a) / (b - a)), fall = seg(t, 0, .45), slide = seg(t, .45, .8), drop = seg(t, .8, 1), HOVER = .85;
+        RD.color(cubes[i], p.collide && fall >= 1 ? C.red : C.amber);    // 碰撞取決於表的狀態：撞到才變色
         const land = sx(p.hops[0]), fin = sx(p.hops[p.hops.length - 1]);
         const x = fall < 1 ? lerp(fun.x, land, fall) : lerp(land, fin, slide);
-        const y = fall < 1 ? lerp(fun.y - 1, .5, fall) : .5;
-        const z = fall < 1 ? lerp(fun.z, z0, fall) : z0;
-        dat(C, cubes[i], x, y, z, 1.3, 1.1, 1.8);
+        const y = fall < 1 ? lerp(fun.y - 1.1, HOVER, fall) : lerp(HOVER, .2, drop);
+        L.rd(cubes[i], x, y, fall < 1 ? lerp(fun.z, z0, fall) : z0, .52, .5, .8);
       });
       const v = clamp01((u - HASH_END) / (1 - HASH_END - .02)), n = frames.length - 1, f = Math.min(n, Math.floor(v * n));
-      frames[f].forEach((h, i) => { DB.role(bars[i], (f < n && u > HASH_END && (i === cmpAt[f] || i === cmpAt[f] + 1)) ? 'hi' : 'd'); dat(C, bars[i], bx(i), 0, bz, 1.2, h * .75, 1.2); });
+      frames[f].forEach((h, i) => {
+        RD.color(bars[i], f < n && u > HASH_END && (i === cmpAt[f] || i === cmpAt[f] + 1) ? C.gold : C.blue);
+        L.rd(bars[i], bx(i), 0, bz, .5, h * .3, .5);
+      });
     } };
-  }
+    return 3.2;
+  };
 
-  // 08 圖：不規則頂點、含環、帶權邊；BFS 逐層染色（層數真的由 BFS 算出），已訪問的不重複。旁邊是相鄰矩陣
-  {
-    const C = CHIP.graphs, G = DATA.graph, Vs = G.vertices, names = Object.keys(Vs), adj = graphAdj();
-    const level = { [G.start]: 0 }, q = [G.start];
-    while (q.length) { const u = q.shift(); adj[u].forEach(w => { if (level[w] === undefined) { level[w] = level[u] + 1; q.push(w); } }); }
+  // 08 圖：車站網。不規則車站、帶權軌道、含環；BFS 的層數真的算出來，站牌逐層點亮。看板是相鄰矩陣
+  LM.graphs = S => {
+    const L = LOC(S), { q } = L, G = DATA.graph, k = .42, Vs = Object.fromEntries(Object.entries(G.vertices).map(([n, [x, z]]) => [n, [x * k - .3, z * k + .15]]));
+    const names = Object.keys(Vs), adj = graphAdj(), level = { [G.start]: 0 }, qu = [G.start];
+    while (qu.length) { const u = qu.shift(); adj[u].forEach(w => { if (level[w] === undefined) { level[w] = level[u] + 1; qu.push(w); } }); }
     const maxL = Math.max(...Object.values(level));
     INV.graphs = { level, edges: G.edges, adj };
     const WEIGHT = { 'A-B': 7, 'A-C': 5, 'B-D': 2, 'C-D': 3, 'B-E': 4, 'D-G': 6, 'C-F': 8, 'F-G': 1, 'E-G': 9 };
     G.edges.forEach(([a, b]) => {
-      beam(LP(C, Vs[a][0], .25, Vs[a][1]), LP(C, Vs[b][0], .25, Vs[b][1]), .22, .1, 'rail');
-      say(C, String(WEIGHT[a + '-' + b]), (Vs[a][0] + Vs[b][0]) / 2 + .35, (Vs[a][1] + Vs[b][1]) / 2 - .35, .62, 'center', 'silkDim');
+      const [ax, az] = Vs[a], [bx, bz] = Vs[b], len = Math.hypot(bx - ax, bz - az), ry = Math.atan2(bx - ax, bz - az);
+      [-1, 1].forEach(sd => q('box', (ax + bx) / 2 + Math.cos(ry) * .07 * sd, .03, (az + bz) / 2 - Math.sin(ry) * .07 * sd, .045, .05, len, C.ink, { ry }));
+      for (let t = .15; t < .9; t += .17) q('box', lerp(ax, bx, t), .01, lerp(az, bz, t), .3, .03, .07, C.woodDark, { ry });
+      L.say(String(WEIGHT[a + '-' + b]), (ax + bx) / 2 + .24, (az + bz) / 2 - .2, .26, '#6f6a5f');
     });
-    const pil = names.map(n => { say(C, n, Vs[n][0], Vs[n][1] + 1.3, .74); return DB.alloc('node'); });
-    // 相鄰矩陣：與圖對稱一致
-    const mx = 5.6, mz = -3.6, ms = .62, mat = [];
-    names.forEach((a, i) => { names.forEach((b, j) => { const on = adj[a].includes(b); mat.push({ i, j, on }); }); say(C, a, mx - .42, mz + i * ms + .3, .46, 'center', 'silkDim'); say(C, a, mx + i * ms + .3, mz - .42, .46, 'center', 'silkDim'); });
-    C.matrix = { mx, mz, ms, cells: mat };
-    say(C, '相鄰矩陣', mx + 2.2, mz + 5.4, .62, 'center', 'silkDim');
-    LM.graphs = { dur: 5.5, pose(u) {
+    const sign = names.map(n => {
+      const [x, z] = Vs[n];
+      q('round', x, 0, z, .95, .1, .8, C.stone);
+      q('round', x, .1, z, .62, .42, .5, C.wall);
+      L.say(n, x, z + .68, .32);
+      return RD.alloc(C.stoneDark);
+    });
+    // 站務看板：相鄰矩陣，與軌道對稱一致
+    const mx = 2.6, mz = -2.9, ms = .2, my = .55;
+    q('round', mx + .7, 0, mz, 1.82, 1.95, .12, C.woodDark);
+    names.forEach((a, i) => names.forEach((b, j) => q('box', mx + j * ms, my + (6 - i) * ms, mz + .07, ms - .03, ms - .03, .02, adj[a].includes(b) ? C.gold : C.stone)));
+    L.say('相鄰矩陣', mx + .7, mz + .62, .28, '#6f6a5f'); L.say('BFS 只數邊數', 2.7, 3.2, .32, '#6f6a5f');
+    POSE.graphs = { dur: 5.5, pose(u) {
       const now = u <= 0 ? -1 : Math.floor(clamp01((u - .04) / .78) * (maxL + 1));
       names.forEach((n, i) => {
         const l = level[n], reached = u < .985 && l <= now, cur = reached && l === now;
-        DB.role(pil[i], cur ? 'hi' : reached ? 'c' : 'node');
-        dat(C, pil[i], Vs[n][0], .1, Vs[n][1], 1.5, cur ? 2.4 : 1.6, 1.5);
+        RD.color(sign[i], cur ? C.gold : reached ? C.forest : C.stoneDark);
+        L.rd(sign[i], Vs[n][0], .5, Vs[n][1], .78, cur ? .62 : .34, .62);
       });
     } };
-  }
+    return 2.4;
+  };
 
-  // 09 樹：根在最上面（依序插入 70、31、93、94、14、23、73）。插入 40：從根開始比較，走到空位
-  {
-    const C = CHIP.trees, KEYS = [70, 31, 93, 94, 14, 23, 73], INS = 40, root = { k: KEYS[0] };
+  // 09 樹：山頂纜車站。根在山頂、節點沿纜線往下（依序插入 70、31、93、94、14、23、73），左小右大。插入 40：車廂從根逐站比較，走到空位
+  LM.trees = S => {
+    const L = LOC(S), { q } = L, KEYS = [70, 31, 93, 94, 14, 23, 73], INS = 40, root = { k: KEYS[0] };
     const put = (n, k) => { const s = k < n.k ? 'l' : 'r'; if (n[s]) put(n[s], k); else n[s] = { k }; };
     KEYS.slice(1).forEach(k => put(root, k));
-    // 插入 40 的路徑（連同新節點一起排版，位置才留得出來）
     const path = []; { let n = root; for (;;) { path.push(n); const s = INS < n.k ? 'l' : 'r'; if (!n[s]) { n[s] = { k: INS, fresh: true }; path.push(n[s]); break; } n = n[s]; } }
-    const flat = []; const walk = (n, d) => { if (!n) return; walk(n.l, d + 1); n.d = d; n.i = flat.length; flat.push(n); walk(n.r, d + 1); }; walk(root, 0);
-    const X = n => -8.75 + n.i * 2.5, Y = n => 5.3 - n.d * 1.75;
+    const flat = []; const walk_ = (n, d) => { if (!n) return; walk_(n.l, d + 1); n.d = d; n.i = flat.length; flat.push(n); walk_(n.r, d + 1); }; walk_(root, 0);
+    const X = n => -3.7 + n.i * 1.06, Y = n => 3.4 - n.d * .98, Zn = -.3;
     INV.trees = { rootY: Y(root), leafY: flat.filter(n => !n.l && !n.r).map(Y), path: path.map(n => n.k), parentOfNew: path[path.length - 2].k, side: INS < path[path.length - 2].k ? 'l' : 'r' };
-    lbox(C, X(root), 0, -2.6, .34, Y(root) + .6, .34, 'rail', { edge: false });
-    lbox(C, X(root), Y(root) + .6, -1.3, .34, .34, 2.9, 'rail', { edge: false });
-    flat.forEach(n => { [n.l, n.r].forEach(c => { if (c && !c.fresh) beam(LP(C, X(n), Y(n) + .1, 0), LP(C, X(c), Y(c) + 1.2, 0), .2, .2, 'rail'); }); });
-    flat.forEach(n => { if (n.fresh) return; n.id = DB.alloc('node'); dat(C, n.id, X(n), Y(n), 0, 1.7, 1.3, 1.7); say(C, String(n.k), X(n), 2.6, .68, 'center', 'silkDim'); });
-    say(C, '左小右大', -6.5, 5.6, .78); say(C, '← 比較走過的層數就是比較次數', 2.7, 5.6, .66, 'center', 'silkDim');
-    const fresh = path[path.length - 1], parent = path[path.length - 2], ball = DB.alloc('c'), link = DB.alloc('c');
+    // 山丘：根站蓋在最高處
+    const hx = X(root);
+    q('sphere', hx, -.5, Zn - .55, 4.3, 2.9, 2.5, C.grass2); q('sphere', hx - .4, -.3, Zn - 1, 2.6, 2.6, 1.8, C.grass);
+    flat.forEach(n => {
+      if (n.fresh) return;
+      q('box', X(n), 0, Zn - .04, .1, Y(n), .1, C.woodDark);
+      n.id = RD.alloc(C.cream); L.rd(n.id, X(n), Y(n), Zn, .78, .56, .78);
+      L.say(String(n.k), X(n), 1.15, .32);
+    });
+    q('prism', hx, Y(root) + .56, Zn, 1, .34, .9, C.roof);
+    flat.forEach(n => [n.l, n.r].forEach(c => { if (c && !c.fresh) { const id = CY.alloc(C.ink); CY.beam(id, L.P(X(n), Y(n) + .12, Zn), L.P(X(c), Y(c) + .5, Zn), .05); } }));
+    L.say('插入 40', -2.9, -3.1, .42); L.say('左小右大', -2.4, 2.2, .42); L.say('比較幾次，就走過幾層', 1.5, 2.2, .32, '#6f6a5f');
+    const fresh = path[path.length - 1], parent = path[path.length - 2], ball = RD.alloc(C.forest), link = CY.alloc(C.forest);
     const hops = path.length - 1;
-    LM.trees = { dur: 6.2, pose(u) {
+    POSE.trees = { dur: 6.2, pose(u) {
       const v = clamp01((u - .05) / .72), f = v * hops, k = Math.min(hops - 1, Math.floor(f)), t = seg(f - k, 0, 1);
-      path.forEach((n, i) => { if (n.id !== undefined) DB.role(n.id, u > .03 && u < .985 && i === (f >= hops ? -1 : k) ? 'hi' : 'node'); });
+      path.forEach((n, i) => { if (n.id !== undefined) RD.color(n.id, u > .03 && u < .985 && i === (f >= hops ? -1 : k) ? C.gold : C.cream); });
       if (u > .03 && u < .985) {
-        const a = path[k], b = path[k + 1], lift = 1.7;
+        const a = path[k], b = path[k + 1], lift = .68;
         const x = lerp(X(a), X(b), t), y = lerp(Y(a) + lift, Y(b) + lift, t);
         const land = u > .78 ? seg(u, .78, .86) : 0;
-        dat(C, ball, x, f >= hops ? lerp(Y(fresh) + lift, Y(fresh), land) : y, 0, 1.5, 1.3, 1.5);
-        if (land > 0) DB.beam(link, LP(C, X(parent), Y(parent) + .1, 0), LP(C, X(fresh), Y(fresh) + 1.2, 0), .2, .2); else DB.hide(link);
-      } else { DB.hide(ball); DB.hide(link); }
+        L.rd(ball, x, f >= hops ? lerp(Y(fresh) + lift, Y(fresh), land) : y, Zn, .72, .54, .72);
+        if (land > 0) CY.beam(link, L.P(X(parent), Y(parent) + .12, Zn), L.P(X(fresh), Y(fresh) + .5, Zn), .05); else CY.hide(link);
+      } else { RD.hide(ball); CY.hide(link); }
     } };
-  }
-
-  /* 課前與先備：靜態地標 */
-  {
-    const A = CHIP['00a_why_code'], B = CHIP['00b_setup'], P = CHIP['00c_vscode_windows'];
-    // 電源開關：底座＋斜撥桿
-    lbox(A, 6, 0, 0, 5.6, .8, 3.6, 'cell');
-    beam(LP(A, 6, .8, 0), LP(A, 7.8, 3, 0), .9, .9, 'metal');
-    lbox(A, 7.8, 2.8, 0, 1.2, .8, 1.2, 'a');
-    lbox(A, 2, 0, 0, .9, .5, .9, 'hi');
-    // 連接埠：金屬外殼＋一排針腳
-    lbox(B, 5.4, 0, 0, 7.6, 2, 3.4, 'metal');
-    lbox(B, 5.4, 2, 0, 6.4, .12, 2, 'ink', { edge: false });
-    for (let i = 0; i < 7; i++) lbox(B, 2.6 + i * .94, 2.12, 0, .36, .1, 1.4, 'pin', { edge: false });
-    // 除錯探針：兩支立柱與一根斜探針，尖端紅色
-    lbox(P, 3, 0, 0, 1.4, 3.2, 1.4, 'metal');
-    beam(LP(P, 3, 3, 0), LP(P, 8.2, .7, 0), .4, .4, 'rail');
-    parts.pyr.push({ m: new THREE.Matrix4().compose(_p.set(P.x + 8.5, P.T + .5, P.z), _q.setFromUnitVectors(_UY, V(.8, -.6, 0).normalize()), _s.set(.6, 1, .6)), role: 'b' });
-    lbox(P, 8.6, 0, 0, 2, .16, 2, 'a', { edge: false });
-    say(A, '為什麼要學', -3.8, 1.8, .92); say(B, '裝好工具', -3.8, 1.8, .92); say(P, '會設中斷點', -3.8, 1.8, .92);
-  }
-
-  /* ── 靜態零件合併 ── */
-  const statics = Object.entries(parts).map(([k, list]) => {
-    const mesh = new THREE.InstancedMesh(GEO[k], solid, list.length);
-    mesh.frustumCulled = false;
-    list.forEach((r, i) => mesh.setMatrixAt(i, r.m));
-    world.add(mesh);
-    return { mesh, list };
-  });
-  function recolorStatic() {
-    statics.forEach(({ mesh, list }) => { list.forEach((r, i) => mesh.setColorAt(i, ROLE[r.role])); mesh.instanceColor.needsUpdate = true; });
-    DB.recolor(); DP.recolor();
-  }
-  const edgeGeo = new THREE.BufferGeometry();
-  edgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(edgePos, 3));
-  const edgeMat = new THREE.LineBasicMaterial({ color: PAL.power.line });
-  const edges = new THREE.LineSegments(edgeGeo, edgeMat);
-  edges.frustumCulled = false;
-  world.add(edges);
-
-  /* ── 匯流排的光暈（只有通電時）：半透明加色，一次畫完 ── */
-  const haloMat = new THREE.MeshBasicMaterial({ color: PAL.power.halo, transparent: true, opacity: .2, blending: THREE.AdditiveBlending, depthWrite: false });
-  const halo = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), haloMat, haloParts.length);
-  haloParts.forEach(([x, z, sx, sz], i) => halo.setMatrixAt(i, _m.compose(_p.set(x, .23, z), _q.identity(), _s.set(sx, 1, sz))));
-  halo.frustumCulled = false;
-  world.add(halo);
-
-  /* ── 匯流排上的脈衝：表示授課方向 ── */
-  const busLen = []; let busTotal = 0;
-  for (let i = 0; i < BUS.length - 1; i++) { const l = Math.abs(BUS[i + 1][0] - BUS[i][0]) + Math.abs(BUS[i + 1][1] - BUS[i][1]); busLen.push(l); busTotal += l; }
-  const pulseIds = Array.from({ length: 9 }, () => DB.alloc('val'));
-  function busAt(d) {
-    d = ((d % busTotal) + busTotal) % busTotal;
-    for (let i = 0; i < busLen.length; i++) {
-      if (d <= busLen[i]) { const t = d / busLen[i]; return [lerp(BUS[i][0], BUS[i + 1][0], t), lerp(BUS[i][1], BUS[i + 1][1], t)]; }
-      d -= busLen[i];
-    }
-    return BUS[0];
-  }
-  function stepPulses(t) {
-    pulseIds.forEach((id, i) => {
-      if (modeTarget === 1) { DB.hide(id); return; }
-      const [x, z] = busAt(t * 7 + i * busTotal / pulseIds.length);
-      DB.at(id, x, .22, z, .95, .2, .95);
-    });
-  }
-
-  /* ── 絲印圖集與底板貼圖：兩種模式各畫一份，第二份用到才畫 ── */
-  const MONO = "600 %px ui-monospace,'SFMono-Regular','Cascadia Mono',Menlo,Consolas,'Noto Sans CJK TC','Microsoft JhengHei',monospace";
-  function makeAtlas(mode) {
-    const pal = PAL[mode], cv = document.createElement('canvas');
-    cv.width = cv.height = 2048;
-    const g = cv.getContext('2d');
-    g.fillStyle = pal.die; g.fillRect(0, 0, 2048, 2048);
-    g.textBaseline = 'middle';
-    Object.values(CHIP).forEach(C => {
-      const r = C.atlas, dw = C.w - 2, dh = C.d - 2, sx = r.w / dw, sy = r.h / dh;
-      const X = lx => r.x + (lx + dw / 2) * sx, Y = lz => r.y + (lz + dh / 2) * sy;
-      g.save();
-      g.beginPath(); g.rect(r.x, r.y, r.w, r.h); g.clip();
-      g.strokeStyle = pal.silkDim; g.lineWidth = 2; g.strokeRect(r.x + 7, r.y + 7, r.w - 14, r.h - 14);
-      if (C.w > 12) {
-        g.fillStyle = pal.silkDim; g.textAlign = 'right';
-        g.font = MONO.replace('%', 22); g.fillText(C.addr, r.x + r.w - 14, r.y + 24);
-        g.textAlign = 'left'; g.font = MONO.replace('%', 26); g.fillText(C.code, r.x + 14, r.y + 24);
-      } else {
-        g.fillStyle = pal.silk; g.textAlign = 'center'; g.font = MONO.replace('%', 50); g.fillText(C.code, r.x + r.w / 2, r.y + r.h / 2);
-      }
-      if (C.matrix) {
-        const m = C.matrix;
-        m.cells.forEach(c => {
-          g.fillStyle = c.on ? pal.silk : pal.cell2;
-          g.fillRect(X(m.mx + c.j * m.ms) + 1, Y(m.mz + c.i * m.ms) + 1, m.ms * sx - 2, m.ms * sy - 2);
-        });
-      }
-      C.bake.forEach(b => {
-        g.fillStyle = pal[b.role]; g.textAlign = b.align;
-        g.font = MONO.replace('%', Math.round(b.size * SC));
-        g.fillText(b.text, X(b.lx), Y(b.lz));
-      });
-      g.restore();
-    });
-    const t = new THREE.CanvasTexture(cv);
-    t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-    return t;
-  }
-  function makeBoard(mode) {
-    const pal = PAL[mode], cv = document.createElement('canvas'), S = 18;
-    cv.width = 86 * S; cv.height = 114 * S;
-    const g = cv.getContext('2d');
-    g.fillStyle = pal.board; g.fillRect(0, 0, cv.width, cv.height);
-    g.strokeStyle = pal.dim; g.globalAlpha = mode === 'power' ? .28 : .5; g.lineWidth = 1;
-    for (let x = 0; x <= 86; x += 5) { g.beginPath(); g.moveTo(x * S, 0); g.lineTo(x * S, cv.height); g.stroke(); }
-    for (let z = 0; z <= 114; z += 5) { g.beginPath(); g.moveTo(0, z * S); g.lineTo(cv.width, z * S); g.stroke(); }
-    g.globalAlpha = 1; g.fillStyle = pal.silkDim; g.font = MONO.replace('%', 15); g.textBaseline = 'middle';
-    for (let x = 5; x < 86; x += 20) { g.textAlign = 'left'; g.fillText('0x' + (x * 16).toString(16).toUpperCase().padStart(3, '0'), x * S + 4, 14); g.fillText('0x' + (x * 16).toString(16).toUpperCase().padStart(3, '0'), x * S + 4, cv.height - 14); }
-    for (let z = 5; z < 114; z += 15) { g.textAlign = 'left'; g.fillText('0x' + (z * 256).toString(16).toUpperCase().padStart(4, '0'), 6, z * S - 10); }
-    const t = new THREE.CanvasTexture(cv);
-    t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-    return t;
-  }
-  const atlases = {}, boards = {};
-  const atlasOf = m => (atlases[m] = atlases[m] || makeAtlas(m));
-  const boardOf = m => (boards[m] = boards[m] || makeBoard(m));
-  const dieMat = new THREE.MeshBasicMaterial({ map: atlasOf('power') });
-  {
-    const pos = [], uv = [], idx = []; let n = 0;
-    Object.values(CHIP).forEach(C => {
-      const r = C.atlas, dw = C.w - 2, dh = C.d - 2, y = T + .012;
-      const x0 = C.x - dw / 2, x1 = C.x + dw / 2, z0 = C.z - dh / 2, z1 = C.z + dh / 2;
-      const u0 = r.x / 2048, u1 = (r.x + r.w) / 2048, v0 = 1 - r.y / 2048, v1 = 1 - (r.y + r.h) / 2048;
-      pos.push(x0, y, z0, x1, y, z0, x1, y, z1, x0, y, z1);
-      uv.push(u0, v0, u1, v0, u1, v1, u0, v1);
-      idx.push(n, n + 2, n + 1, n, n + 3, n + 2); n += 4;
-    });
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
-    g.setIndex(idx);
-    const mesh = new THREE.Mesh(g, dieMat); mesh.frustumCulled = false; world.add(mesh);
-  }
-  const boardMat = new THREE.MeshBasicMaterial({ map: boardOf('power') });
-  {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(86, 114).rotateX(-Math.PI / 2), boardMat);
-    m.position.y = .005; world.add(m);
-  }
-
-  /* ── 選取框、先備連線（綠色，和金色匯流排、紅色指標都不同）── */
-  const brackets = Array.from({ length: 8 }, () => DB.alloc('sel'));
-  function setBrackets(C) {
-    if (!C) { brackets.forEach(id => DB.hide(id)); return; }
-    const hx = C.w / 2 + 1.3, hz = C.d / 2 + 1.3, L = Math.min(4, C.w * .3), th = .3, y = .12, h = .9;
-    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([a, b], i) => {
-      DB.at(brackets[i * 2], C.x + a * (hx - L / 2), y, C.z + b * hz, L, h, th);
-      DB.at(brackets[i * 2 + 1], C.x + a * hx, y, C.z + b * (hz - L / 2), th, h, L);
-    });
-  }
-  const wires = Array.from({ length: 16 }, () => DB.alloc('wire'));
-  function setWires(C, refs) {
-    wires.forEach(id => DB.hide(id));
-    if (!C || !refs.length) return;
-    let w = 0;
-    const seg2 = (x0, z0, x1, z1) => {
-      const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
-      DB.at(wires[w++], cx, .55, cz, Math.abs(x1 - x0) + .4, .22, Math.abs(z1 - z0) + .4);
-    };
-    refs.forEach((r, i) => {
-      const P = CHIP[r]; if (!P) return;
-      const offs = i * .8, laneX = (C.x < 0 ? -13.5 : C.x > 0 ? 13.5 : (P.x < 0 ? -13.5 : 13.5)) + (offs - .8);
-      const laneZ = 36.5 + (offs - .8), gapZ = C.z + C.d / 2 + 3.5 + (offs - .8), cx = C.x + (i - 1) * 3;
-      seg2(cx, C.z + C.d / 2, cx, gapZ);
-      seg2(cx, gapZ, laneX, gapZ);
-      seg2(laneX, gapZ, laneX, laneZ);
-      seg2(laneX, laneZ, P.x, laneZ);
-      seg2(P.x, laneZ, P.x, P.z - P.d / 2);
-    });
-  }
-
-  /* ── 嚮導阿迭（迭代器）：不帶任何東西，只指向。沿直角路徑走，不跳躍 ── */
-  const gParts = { body: DB.alloc('val'), face: DB.alloc('ink'), eye: DB.alloc('hi'), shaft: DB.alloc('hi'), base: DB.alloc('next') };
-  const gHead = DP.alloc('hi');
-  const guide = V(0, 0, 0);
-  function placeGuide(x, y, z) {
-    guide.set(x, y, z);
-    DB.at(gParts.base, x, y, z, 2.2, .4, 1.8);
-    DB.at(gParts.body, x, y + .4, z, 1.8, 1.9, 1.5);
-    DB.at(gParts.face, x, y + 1, z + .77, 1.3, .8, .06);
-    DB.at(gParts.eye, x + .25, y + 1.15, z + .82, .46, .46, .08);
-    DB.at(gParts.shaft, x - .1, y + 2.5, z, 1.7, .4, .4);
-    _m.compose(_p.set(x + 1.1, y + 2.7, z), _q.setFromUnitVectors(_UY, V(1, 0, 0)), _s.set(1.15, 1.05, 1.15));
-    DP.mesh.setMatrixAt(gHead, _m); DP.mesh.instanceMatrix.needsUpdate = true;
-  }
-  const guideSpot = stem => {
-    const C = CHIP[stem];
-    if (C.grp === 'dimm' || C.w < 12) return [C.x - 1, T, C.z - 1];
-    return [C.x - C.w / 2 - 2.6, .1, C.z + (C.d > 10 ? C.d / 2 - 3 : 0)];
+    return 4.4;
   };
-  { const [x, y, z] = guideSpot(POWER[0]); placeGuide(x, y, z); }
-  let walk = null;
-  function guideGo(x, y, z) {
-    if (!motion()) { placeGuide(x, y, z); requestRender(); return; }
-    walk = { x0: guide.x, y0: guide.y, z0: guide.z, x1: x, y1: y, z1: z, t0: performance.now() };
-    requestRender();
+
+  // 啟航島：燈塔、補給碼頭、修船塢
+  LM['00a_why_code'] = S => {
+    const { q } = LOC(S);
+    q('cyl', 0, 0, 0, 2.0, .35, 2.0, C.stone);
+    [C.red, C.white, C.red, C.white].forEach((c, i) => q('cyl', 0, .35 + i * .75, 0, 1.25 - i * .12, .75, 1.25 - i * .12, c));
+    q('cyl', 0, 3.35, 0, 1.25, .12, 1.25, C.navy);
+    q('cyl', 0, 3.47, 0, .78, .55, .78, '#fff1c2', { glow: true });
+    q('cone', 0, 4.02, 0, 1.15, .7, 1.15, C.navy);
+    lamps.push([S.x, S.y + 3.75, S.z, 1.6, true]);
+    return 4.8;
+  };
+  LM['00b_setup'] = S => {
+    const { q } = LOC(S);
+    q('box', 0, 0, .5, 3.4, .12, 2.4, C.wood);
+    shed(q, -.5, -.7, 2.2, 1.5, 1.15, C.roofNavy);
+    [[.9, 1], [1.3, .3], [.45, 1.35]].forEach(([x, z], i) => q('round', x, .12, z, .5, .5, .5, [C.amber, C.wood, C.red][i]));
+    q('cyl', 1.35, 0, -.8, .12, 2, .12, C.woodDark); q('box', 1, 1.9, -.8, .85, .08, .08, C.woodDark); q('round', .68, 1.5, -.8, .24, .3, .24, C.gold);
+    return 2.6;
+  };
+  LM['00c_vscode_windows'] = S => {
+    const { q } = LOC(S);
+    q('box', 0, 0, 0, 3.2, .1, 2.2, C.stone);
+    q('round', 0, .1, 0, 1, .55, 2.5, C.navy); q('round', 0, .62, 0, .84, .08, 2.3, C.wood);
+    q('cyl', 0, .68, -.2, .08, 1.3, .08, C.woodDark);
+    [[-.72, -.9], [.72, -.9], [-.72, .9], [.72, .9]].forEach(([x, z]) => q('box', x, .1, z, .12, .75, .12, C.wood));
+    q('sphere', -1.1, .1, -.55, .32, .32, .32, C.red); q('round', 1.2, .1, .75, .38, .38, .38, C.gold);
+    return 2.3;
+  };
+  // C++ 工坊島：九間工坊，屋頂與招牌各異
+  const SIGN = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9'];
+  PAGES.filter(p => p.grp === 'workshop').forEach((p, i) => {
+    LM[p.stem] = S => {
+      const L = LOC(S), roofs = [C.roofNavy, C.roof, C.roofGreen];
+      cottage(L.q, 0, 0, 0, roofs[i % 3], i % 2 ? C.wall : C.wall2, 1.02);
+      L.q('torus', -.45, .95, .72, .46, .46, .46, C.gold);
+      L.say(SIGN[i], 0, 1.15, .42);
+      return 2.3;
+    };
+  });
+
+  PAGES.forEach(p => {
+    const s = SLOT[p.stem];
+    const h = LM[p.stem](s);
+    const isCore = p.grp === 'core';
+    B[p.stem] = { x: s.x, y: s.y, z: s.z, top: s.y + h, isle: s.isle, pickR: isCore ? s.isle.radius * .95 : 1.45, isCore };
+  });
+
+  /* ── 每座島的裝飾：小屋、兩種樹、花、岩石、路燈、長椅；避開橋的方向，島心留給地標 ── */
+  function decorate(I, { houses = 1, trees = 5, edgeOnly = false, avoid = [], rect = false } = {}) {
+    const free = a => !nearGap(I, a);
+    const spots = [];
+    for (let k = 0; k < 18; k++) {
+      const a = k / 18 * Math.PI * 2 + rnd() * .2;
+      if (!free(a)) continue;
+      spots.push(a);
+    }
+    const take = () => spots.splice(Math.floor(rnd() * spots.length), 1)[0];
+    const pos = (a, f) => [I.x + Math.cos(a) * I.angR(a) * f, I.z + Math.sin(a) * I.angR(a) * f];
+    const cf = Math.cos(FACE), sf = Math.sin(FACE);
+    const ok = (x, z) => {
+      if (avoid.some(([ax, az, r]) => Math.hypot(x - ax, z - az) < r)) return false;
+      if (!rect) return true;
+      const dx = x - I.x, dz = z - I.z;                 // 換回地標的區域座標，避開中央那塊矩形
+      return Math.abs(dx * cf - dz * sf) > 4.4 || Math.abs(dx * sf + dz * cf) > 3.7;
+    };
+    for (let h = 0; h < houses && spots.length; h++) {
+      const a = take(), [x, z] = pos(a, .66);
+      if (ok(x, z)) cottage(at(x, I.top, z, -a + Math.PI / 2), 0, 0, 0, [C.roof, C.roofNavy, C.roofGreen][(h + Math.round(x)) % 3], C.wall, .74 + rnd() * .14);
+    }
+    for (let t = 0; t < trees && spots.length; t++) {
+      const a = take(), [x, z] = pos(a, edgeOnly ? .86 : .7 + rnd() * .12);
+      if (!ok(x, z)) continue;
+      (t % 2 ? pine : tree)(at(x, I.top, z), 0, 0, .6 + rnd() * .3, t);
+    }
+    for (let k = 0; k < 2 && spots.length; k++) { const [x, z] = pos(take(), .88); if (ok(x, z)) flowers(at(x, I.top, z), 0, 0, Math.round(x) + k); }
+    for (let k = 0; k < 2 && spots.length; k++) { const [x, z] = pos(take(), .9); if (ok(x, z)) bush(at(x, I.top, z), 0, 0, .8 + rnd() * .3, k); }
+    if (spots.length) { const [x, z] = pos(take(), .88); if (ok(x, z)) { lamp(at(x, I.top, z), 0, 0); lamps.push([x, I.top + 1.42, z]); } }
+    for (let r = 0; r < 2; r++) { const a = rnd() * Math.PI * 2; if (!nearGap(I, a, .5)) rock(at(I.x + Math.cos(a) * I.angR(a) * 1.02, 0, I.z + Math.sin(a) * I.angR(a) * 1.02), 0, 0, .8 + rnd() * .5); }
   }
+  coreIsles.forEach(I => decorate(I, { houses: 0, trees: 7, edgeOnly: true, rect: true }));
+  {
+    const I = SAT_ISLE.workshop;
+    PAGES.filter(p => p.grp === 'workshop').forEach(p => { const s = SLOT[p.stem]; lamp(at(s.x + 1.4, I.top, s.z + 1.2), 0, 0); lamps.push([s.x + 1.4, I.top + 1.42, s.z + 1.2]); });
+    decorate(I, { houses: 0, trees: 8, edgeOnly: true, avoid: PAGES.filter(p => p.grp === 'workshop').map(p => [SLOT[p.stem].x, SLOT[p.stem].z, 2.2]) });
+  }
+  {
+    const I = SAT_ISLE.pre;
+    decorate(I, { houses: 0, trees: 6, edgeOnly: true, avoid: PAGES.filter(p => p.grp === 'pre').map(p => [SLOT[p.stem].x, SLOT[p.stem].z, 2.4]) });
+  }
+  // 外圍的小沙洲與礁岩，替畫面收邊
+  const framed = isles.slice();          // 取景只算主要島嶼；外圍沙洲可以出血
+  const sandbars = [[-37, 8, 2.2], [36, 10, 2.6], [-38, -22, 1.8], [38, -14, 2], [-2, 40, 2], [34, 32, 1.8], [-8, -40, 1.6]];
+  sandbars.forEach(([u, v, r], k) => {
+    const I = makeIsle({ u, v, radius: r, seed: 300 + k * 13, grass: 'grass3' });
+    if (k % 2 === 0) tree(at(I.x, I.top, I.z), 0, 0, .7, k); else rock(at(I.x, I.top - .1, I.z), 0, 0, .9);
+  });
+
+  mergeIsles();
+  flushParts();
+  // 接觸暗部：柔邊的深色圓盤，貼在地面上（不參與陰影）
+  {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+    const g = cv.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(40,52,40,.55)'); gr.addColorStop(.55, 'rgba(40,52,40,.25)'); gr.addColorStop(1, 'rgba(40,52,40,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    const tex = new THREE.CanvasTexture(cv);
+    const geo = new THREE.PlaneGeometry(1, 1); geo.rotateX(-Math.PI / 2);
+    const mesh = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, opacity: .55 }), ao.length);
+    const o = new THREE.Object3D();
+    ao.forEach(([x, y, z, r], i) => { o.position.set(x, y + .015, z); o.scale.set(r * 2.2, 1, r * 2.2); o.updateMatrix(); mesh.setMatrixAt(i, o.matrix); });
+    mesh.renderOrder = 2; world.add(mesh);
+  }
+  /* 地面標示：貼花圖集，只畫一次 */
+  const decalMat = (() => {
+    const cv = document.createElement('canvas'); cv.width = 2048; cv.height = 1024;
+    const g = cv.getContext('2d'), PX = 44;
+    g.font = `700 ${PX}px ui-monospace,'SFMono-Regular','Cascadia Mono',Menlo,Consolas,'Noto Sans CJK TC','Microsoft JhengHei',monospace`;
+    g.textBaseline = 'middle'; g.textAlign = 'center';
+    let cx = 2, cy = 2; const pos = [], uv = [], idx = []; const H = PX + 22, c = Math.cos(FACE), sn = Math.sin(FACE); let n = 0;
+    decals.forEach(d => {
+      const tw = Math.ceil(g.measureText(d.text).width) + 26;
+      if (cx + tw > 2046) { cx = 2; cy += H + 4; }
+      g.fillStyle = 'rgba(255,253,247,.86)'; g.beginPath(); g.roundRect(cx, cy, tw, H, 12); g.fill();
+      g.fillStyle = d.ink; g.fillText(d.text, cx + tw / 2, cy + H / 2 + 2);
+      const hw = d.size * .5 * tw / PX, hh = d.size * .5 * H / PX;
+      [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].forEach(([x, z]) => pos.push(d.x + x * c + z * sn, d.y, d.z - x * sn + z * c));
+      uv.push(cx / 2048, 1 - cy / 1024, (cx + tw) / 2048, 1 - cy / 1024, (cx + tw) / 2048, 1 - (cy + H) / 1024, cx / 2048, 1 - (cy + H) / 1024);
+      idx.push(n, n + 2, n + 1, n, n + 3, n + 2); n += 4; cx += tw + 4;
+    });
+    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx);
+    const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+    const mesh = new THREE.Mesh(geo, mat); mesh.frustumCulled = false; mesh.renderOrder = 3; world.add(mesh);
+    return mat;
+  })();
+
+  /* ═════════ 海面：頂點起伏＋依離岸距離的淺深色 ═════════ */
+  const SEA_DAY_SHALLOW = new THREE.Color('#86dcd8'), SEA_DAY_DEEP = new THREE.Color('#3f9fcb');
+  const seaGeo = new THREE.PlaneGeometry(300, 300, 90, 90); seaGeo.rotateX(-Math.PI / 2);
+  {
+    const pos = seaGeo.attributes.position, cols = new Float32Array(pos.count * 3), c = new THREE.Color();
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), z = pos.getZ(i);
+      let d = 1e9; isles.forEach(I => { d = Math.min(d, Math.hypot(x - I.x, z - I.z) - I.radius * 1.1); });
+      const t = Math.min(1, Math.max(0, d / 12)), k = t * t * (3 - 2 * t);
+      c.copy(SEA_DAY_SHALLOW).lerp(SEA_DAY_DEEP, k);
+      cols[i * 3] = c.r; cols[i * 3 + 1] = c.g; cols[i * 3 + 2] = c.b;
+    }
+    seaGeo.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+  }
+  const seaU = { uTime: { value: 0 } };
+  const seaMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .55, metalness: 0 });
+  seaMat.onBeforeCompile = sh => {
+    sh.uniforms.uTime = seaU.uTime;
+    sh.vertexShader = 'uniform float uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>',
+      '#include <begin_vertex>\n transformed.y += sin(position.x * .32 + uTime * .9) * .05 + cos(position.z * .27 + uTime * .7) * .05;');
+  };
+  const sea = new THREE.Mesh(seaGeo, seaMat); sea.position.y = -.02; sea.receiveShadow = true; world.add(sea);
+  // 風格化短浪線
+  const dash = new THREE.InstancedMesh(new RoundedBoxGeometry(1, .02, .1, 1, .04), basic('#ffffff', { transparent: true, opacity: .6, depthWrite: false, fog: false }), 46);
+  const dashes = [];
+  for (let k = 0, n = 0; k < 2000 && n < 46; k++) {
+    const x = (rnd() - .5) * 110, z = (rnd() - .5) * 110;
+    if (isles.some(I => Math.hypot(x - I.x, z - I.z) < I.radius * 1.7)) continue;
+    dashes.push({ x, z, l: .8 + rnd() * 1.0, ph: rnd() * 6 }); n++;
+  }
+  const dObj = new THREE.Object3D();
+  const placeDashes = t => {
+    dashes.forEach((d, i) => {
+      dObj.position.set(d.x + Math.sin(t * .25 + d.ph) * .6, .06, d.z + Math.cos(t * .2 + d.ph) * .3);
+      dObj.rotation.set(0, FACE, 0);              // 與畫面水平方向平行 dObj.scale.set(d.l * (.75 + .25 * Math.sin(t * .6 + d.ph)), 1, 1);
+      dObj.updateMatrix(); dash.setMatrixAt(i, dObj.matrix);
+    });
+    dash.count = dashes.length; dash.instanceMatrix.needsUpdate = true;
+  };
+  placeDashes(0); world.add(dash);
+  life.push(t => { seaU.uTime.value = t; placeDashes(t); });
+
+  /* ═════════ 燈光 ═════════ */
+  const hemi = new THREE.HemisphereLight(DAY.hemiSky, DAY.hemiGround, DAY.hemi); world.add(hemi);
+  const bounds = isles.reduce((b, I) => ({ minX: Math.min(b.minX, I.x - I.radius), maxX: Math.max(b.maxX, I.x + I.radius),
+    minZ: Math.min(b.minZ, I.z - I.radius), maxZ: Math.max(b.maxZ, I.z + I.radius) }), { minX: 1e9, maxX: -1e9, minZ: 1e9, maxZ: -1e9 });
+  const center = new THREE.Vector3((bounds.minX + bounds.maxX) / 2, 0, (bounds.minZ + bounds.maxZ) / 2);
+  const sun = new THREE.DirectionalLight(DAY.sun, DAY.sunI);
+  sun.position.set(center.x - 30, 55, center.z + 24); sun.target.position.copy(center);
+  sun.castShadow = true;
+  const SM = window.innerWidth < 768 ? 1024 : 2048;   // 陰影只烘一次
+  sun.shadow.mapSize.set(SM, SM);
+  const ext = Math.max(bounds.maxX - bounds.minX, bounds.maxZ - bounds.minZ) / 2 + 6;
+  Object.assign(sun.shadow.camera, { left: -ext, right: ext, top: ext, bottom: -ext, near: 1, far: 160 });
+  sun.shadow.camera.updateProjectionMatrix();
+  sun.shadow.bias = -.0005; sun.shadow.normalBias = .07; sun.shadow.radius = 2;
+  world.add(sun, sun.target);
+  const fill = new THREE.DirectionalLight('#d6ecf2', DAY.fill); fill.position.set(center.x + 40, 30, center.z - 50); world.add(fill);
+  /* ═════════ 生活感：小人、帆船、鳥、雲 ═════════ */
+  const blobMat = basic('#20343a', { transparent: true, opacity: .16, depthWrite: false });
+  const blobGeo = new THREE.CircleGeometry(.34, 16); blobGeo.rotateX(-Math.PI / 2);
+  function person(shirt, pants, skin, hair) {
+    const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
+    const m = c => std(c, { roughness: .8 });
+    const limb = (c, x, y, w, h) => { const piv = new THREE.Group(); piv.position.set(x, y, 0); const b = new THREE.Mesh(GEO.round, m(c)); b.scale.set(w, h, w); b.position.y = -h / 2; piv.add(b); body.add(piv); return piv; };
+    const legL = limb(pants, -.09, .42, .13, .42), legR = limb(pants, .09, .42, .13, .42);
+    const torso = new THREE.Mesh(GEO.round, m(shirt)); torso.scale.set(.36, .42, .22); torso.position.y = .63; body.add(torso);
+    const armL = limb(shirt, -.24, .8, .1, .36), armR = limb(shirt, .24, .8, .1, .36);
+    const head = new THREE.Mesh(GEO.sphere, m(skin)); head.scale.setScalar(.3); head.position.y = 1.0; body.add(head);
+    const cap = new THREE.Mesh(GEO.sphere, m(hair)); cap.scale.set(.32, .18, .32); cap.position.set(0, 1.08, -.02); body.add(cap);
+    const blob = new THREE.Mesh(blobGeo, blobMat); blob.position.y = .02; g.add(blob);
+    g.userData = { legL, legR, armL, armR, body };
+    return g;
+  }
+  const people = [];
+  const PALETTE = [['#c4553a', '#3f5b80'], ['#3f7f61', '#4f5a55'], ['#e7a33e', '#2f4566'], ['#4f78ab', '#7a5c3e'], ['#f0c7a5', '#3f7f61'], ['#fff4de', '#924231']];
+  const SKIN = ['#f1c9a5', '#d9a77f', '#b98063', '#f6dcc0'], HAIR = ['#3b2a20', '#1f1d1c', '#7a5c3e', '#c9a46a'];
+  bridges.forEach((b, i) => {
+    if (people.length >= 11) return;
+    const [sh, pa] = PALETTE[i % PALETTE.length];
+    const g = person(sh, pa, SKIN[i % 4], HAIR[(i + 1) % 4]); g.scale.setScalar(.72); instancify(g);
+    const path = [];
+    const inA = b.pts[0].clone().lerp(new THREE.Vector3(b.A.x, b.pts[0].y, b.A.z), .45), inB = b.pts[b.pts.length - 1].clone().lerp(new THREE.Vector3(b.B.x, b.pts[b.pts.length - 1].y, b.B.z), .45);
+    path.push(inA, ...b.pts, inB);
+    const lens = [0]; for (let k = 1; k < path.length; k++) lens.push(lens[k - 1] + path[k].distanceTo(path[k - 1]));
+    people.push({ g, path, lens, total: lens[lens.length - 1], s: rnd() * lens[lens.length - 1], dir: rnd() < .5 ? 1 : -1, wait: 0, speed: .75 + rnd() * .35 });
+  });
+  const pv = new THREE.Vector3();
+  const walk = (t, dt) => people.forEach(P => {
+    const u = P.g.userData;
+    if (P.wait > 0) { P.wait -= dt; u.legL.rotation.x = u.legR.rotation.x = u.armL.rotation.x = 0; u.armR.rotation.x = Math.sin(t * 6) * .8 - .8; return; }
+    P.s += P.dir * P.speed * dt;
+    if (P.s > P.total || P.s < 0) { P.s = Math.max(0, Math.min(P.total, P.s)); P.dir *= -1; P.wait = 1 + rnd() * 2.5; }
+    let k = 1; while (k < P.lens.length - 1 && P.lens[k] < P.s) k++;
+    const f = (P.s - P.lens[k - 1]) / Math.max(1e-6, P.lens[k] - P.lens[k - 1]);
+    pv.copy(P.path[k - 1]).lerp(P.path[k], f); P.g.position.copy(pv);
+    const a = P.path[k], b0 = P.path[k - 1];
+    P.g.rotation.y = Math.atan2((a.x - b0.x) * P.dir, (a.z - b0.z) * P.dir);
+    const sw = Math.sin(t * 8 * P.speed) * .55;
+    u.legL.rotation.x = sw; u.legR.rotation.x = -sw; u.armL.rotation.x = -sw * .8; u.armR.rotation.x = sw * .8;
+    u.body.position.y = Math.abs(Math.sin(t * 8 * P.speed)) * .04;
+  });
+  walk(1.3, 0); life.push(walk);
+
+  /* ── 嚮導阿迭（迭代器）：深藍外套、頭上一個 -> 形帽，什麼都不提，因為迭代器不存資料，只負責指向 ──
+     跳到下一站是和 fly 一樣的狀態，由 frame() 裡的 stepGuide() 推進，不另開繪製迴圈。 */
+  const guide = (() => {
+    const g = person('#2c3e7a', '#3f4a5c', '#f1c9a5', '#3b2a20'), u = g.userData;
+    const m = c => std(c);
+    const shaft = new THREE.Mesh(GEO.round, m(C.gold)); shaft.scale.set(.44, .1, .1); shaft.position.set(-.06, 1.32, 0); u.body.add(shaft);
+    const head = new THREE.Mesh(GEO.cone, m(C.gold)); head.scale.set(.3, .3, .3); head.rotation.z = -Math.PI / 2; head.position.set(.3, 1.32, 0); u.body.add(head);
+    const scarf = new THREE.Mesh(GEO.round, m('#c0392b')); scarf.scale.set(.38, .08, .25); scarf.position.y = .84; u.body.add(scarf);
+    g.scale.setScalar(1.6);                          // 比路人（.72）大一倍，遠看也認得出來
+    world.add(g);
+    return g;
+  })();
+  const camFlat = new THREE.Vector3();
+  // 某一站的落腳點：島上朝鏡頭那一側的前緣、略偏一邊，免得被地標擋住
+  function guideSpot(stem, out) {
+    const b = B[stem]; if (!b) return null;
+    camFlat.copy(camera.position).sub(controls.target); camFlat.y = 0; camFlat.normalize();
+    const a = Math.atan2(camFlat.z, camFlat.x) - .4, r = b.isCore ? b.isle.radius * .86 : 1.6;
+    return out.set(b.x + Math.cos(a) * r, b.y, b.z + Math.sin(a) * r);
+  }
+  function faceCamera() {
+    guide.rotation.y = Math.atan2(camera.position.x - guide.position.x, camera.position.z - guide.position.z);
+  }
+  let hop = null, waveUntil = 0;
   function stepGuide(now) {
-    if (!walk) return false;
-    const u = clamp01((now - walk.t0) / 950), a = seg(u, 0, .5), b = seg(u, .5, 1);
-    placeGuide(lerp(walk.x0, walk.x1, a), lerp(walk.y0, walk.y1, seg(u, .4, .6)), lerp(walk.z0, walk.z1, b));
-    if (u >= 1) walk = null;
+    if (!hop) return false;
+    const k = Math.min(1, (now - hop.t0) / hop.dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    guide.position.lerpVectors(hop.from, hop.to, e);
+    guide.position.y += Math.sin(Math.PI * k) * hop.h;
+    const u = guide.userData; u.legL.rotation.x = -.6; u.legR.rotation.x = .3; u.armR.rotation.x = -2.4 * Math.sin(Math.PI * k);
+    if (k >= 1) { hop = null; faceCamera(); waveUntil = now + 2600; u.legL.rotation.x = u.legR.rotation.x = 0; }
     return true;
   }
-
-  /* ═════════ 鏡頭與操作 ═════════ */
-  const AZ0 = -26 * Math.PI / 180, POL0 = 50 * Math.PI / 180, DIST = 220;
-  const camera = new THREE.OrthographicCamera(-50, 50, 50, -50, 1, 600);
-  const HOME = V(0, 0, 1);
-  const setHomePos = () => {
-    camera.position.set(HOME.x + DIST * Math.sin(POL0) * Math.sin(AZ0), HOME.y + DIST * Math.cos(POL0), HOME.z + DIST * Math.sin(POL0) * Math.cos(AZ0));
-    camera.up.set(0, 1, 0); camera.lookAt(HOME);
-  };
-  setHomePos();
-  const controls = new OrbitControls(camera, canvas);
-  controls.target.copy(HOME);
-  controls.minAzimuthAngle = AZ0 - .62; controls.maxAzimuthAngle = AZ0 + .62;
-  controls.minPolarAngle = 34 * Math.PI / 180; controls.maxPolarAngle = 62 * Math.PI / 180;
-  controls.minZoom = .8; controls.maxZoom = 6;
-  controls.enableDamping = motion(); controls.dampingFactor = .1;
-  controls.rotateSpeed = .5; controls.zoomSpeed = 1.1; controls.screenSpacePanning = false;
-  controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
-  controls.update();
-
-  function fitHeight() {
-    camera.updateMatrixWorld();
-    const R = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0), U = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
-    let rx = 0, ry = 0;
-    [-1, 1].forEach(a => [-1, 1].forEach(b => [-2.4, 4].forEach(y => {
-      const p = V(a * 43, y, b * 57).sub(controls.target);
-      rx = Math.max(rx, Math.abs(p.dot(R))); ry = Math.max(ry, Math.abs(p.dot(U)));
-    })));
-    return { rx, ry };
+  function guideTo(stem) {
+    const to = guideSpot(stem, new THREE.Vector3()); if (!to) return;
+    if (!motion()) { hop = null; guide.position.copy(to); faceCamera(); requestRender(); return; }
+    const d = to.distanceTo(guide.position);
+    hop = { from: guide.position.clone(), to, t0: performance.now(), dur: Math.min(1300, 550 + d * 14), h: 1.1 + Math.min(4, d * .1) };
+    guide.rotation.y = Math.atan2(to.x - guide.position.x, to.z - guide.position.z);
+    requestRender();
   }
-  const HOMEFIT = fitHeight();
+  const guideHomeStem = PAGES[0].stem;   // 平時站在啟航島的燈塔旁
+  anims.push(t => {
+    if (hop) return;
+    const u = guide.userData, now = t * 1000;
+    // 平時偶爾揮手（約每 9 秒一次）；剛到一站時揮比較久
+    const waving = now < waveUntil || (t % 9) < 1.4;
+    u.armR.rotation.x = waving ? -2.5 + Math.sin(t * 9) * .35 : 0;
+    u.armR.rotation.z = waving ? .25 : 0;
+    u.armL.rotation.x = -.35 + Math.sin(t * 1.6) * .08;
+    u.body.position.y = Math.abs(Math.sin(t * 1.6)) * .025;
+  });
+
+  const WAKE_GEO = new THREE.PlaneGeometry(.7, 2.6), WAKE_MAT = basic('#ffffff', { transparent: true, opacity: .35, depthWrite: false });
+  function sailboat(sail, hull) {
+    const g = new THREE.Group();
+    const h = new THREE.Mesh(GEO.round, std(hull, { roughness: .8 })); h.scale.set(.75, .35, 1.9); h.position.y = .12; g.add(h);
+    const deck = new THREE.Mesh(GEO.round, std(C.wood)); deck.scale.set(.62, .08, 1.6); deck.position.y = .3; g.add(deck);
+    const mast = new THREE.Mesh(GEO.cyl, std(C.woodDark)); mast.scale.set(.07, 2.0, .07); mast.position.y = 1.3; g.add(mast);
+    const s = new THREE.Mesh(GEO.prism, std(sail, { roughness: .9, side: THREE.DoubleSide })); s.scale.set(.06, 1.6, 1.2); s.position.set(0, 1.35, -.2); g.add(s);
+    const wake = new THREE.Mesh(WAKE_GEO, WAKE_MAT);
+    wake.rotation.x = -Math.PI / 2; wake.position.set(0, .04, -2.1); g.add(wake);
+    return g;
+  }
+  const boats = [[C.cream, C.navy, 46, 30, .05, 0], [C.redL, C.white, 46, 30, .05, Math.PI], [C.white, C.red, 9, 9, -.12, 1]].map(([s, h, a, b, w, ph], i) => {
+    const g = sailboat(s, h); instancify(g);
+    const c0 = i === 2 ? new THREE.Vector3(SAT_ISLE.pre.x, 0, SAT_ISLE.pre.z) : center.clone();
+    return { g, a, b, w, ph, c0 };
+  });
+  const sail = t => boats.forEach(B0 => {
+    const ang = t * B0.w + B0.ph, rot = -FACE;
+    const lx = Math.cos(ang) * B0.a, lz = Math.sin(ang) * B0.b;
+    const x = B0.c0.x + lx * Math.cos(rot) - lz * Math.sin(rot), z = B0.c0.z + lx * Math.sin(rot) + lz * Math.cos(rot);
+    const dx = -Math.sin(ang) * B0.a * Math.sign(B0.w), dz = Math.cos(ang) * B0.b * Math.sign(B0.w);
+    const wx = dx * Math.cos(rot) - dz * Math.sin(rot), wz = dx * Math.sin(rot) + dz * Math.cos(rot);
+    B0.g.position.set(x, .05 + Math.sin(t * 1.4 + B0.ph) * .05, z);
+    B0.g.rotation.set(Math.sin(t * 1.1 + B0.ph) * .04, Math.atan2(wx, wz), Math.sin(t * .9) * .05);
+  });
+  sail(2); life.push(sail);
+
+  const birds = new THREE.Group();
+  const birdMat = std('#fbfaf2', { roughness: .8 });
+  const flock = Array.from({ length: 7 }, (_, i) => {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(GEO.sphere, birdMat); body.scale.set(.18, .14, .42); g.add(body);
+    const wings = [-1, 1].map(s => { const piv = new THREE.Group(); const w = new THREE.Mesh(GEO.box, birdMat); w.scale.set(.6, .03, .22); w.position.x = .3 * s; piv.add(w); g.add(piv); return piv; });
+    g.position.set((i % 3 - 1) * 1.1, (i % 2) * .4, -Math.floor(i / 2) * .9); birds.add(g);
+    return { g, wings, ph: i * .7 };
+  });
+  const flapBirds = t => {
+    const a = t * .07;
+    birds.position.set(center.x + Math.cos(a) * 26, 12 + Math.sin(t * .5) * .6, center.z + Math.sin(a) * 18);
+    birds.rotation.y = -a + Math.PI;
+    flock.forEach(b => { const f = Math.sin(t * 7 + b.ph) * .7; b.wings[0].rotation.z = f; b.wings[1].rotation.z = -f; });
+  };
+  flapBirds(3); life.push(flapBirds); instancify(birds);
+
+  const cloudMat = std('#ffffff', { roughness: 1, transparent: true, opacity: .92, emissive: '#ffffff', emissiveIntensity: .25 });
+  const clouds = [[-38, 30], [36, 30], [-46, -4], [44, -2]].map(([u, v], k) => {
+    const g = new THREE.Group(); const w = toWorld(u, v);
+    [[0, 0, 0, 2.2], [1.6, -.3, .3, 1.6], [-1.6, -.4, -.2, 1.5], [.5, .5, -.6, 1.4]].forEach(([x, y, z, r]) => {
+      const m = new THREE.Mesh(GEO.sphere, cloudMat); m.scale.set(r * 1.4, r, r * 1.2); m.position.set(x, y, z); g.add(m);
+    });
+    g.position.set(w.x, 9 + k % 2, w.z); instancify(g);
+    return { g, x0: w.x, z0: w.z, ph: k * 1.7 };
+  });
+  const drift = t => clouds.forEach(c => { c.g.position.x = c.x0 + Math.sin(t * .03 + c.ph) * 6; c.g.position.z = c.z0 + Math.cos(t * .025 + c.ph) * 4; });
+  life.push(drift);
+
+  instancify(dynRoot);
+  finishProxies();
+
+  /* ═════════ 夜：星星、光暈 ═════════ */
+  const glowTex = (() => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+    const g = cv.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(255,214,140,1)'); gr.addColorStop(.35, 'rgba(255,190,100,.45)'); gr.addColorStop(1, 'rgba(255,170,80,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })();
+  const haloMat = new THREE.SpriteMaterial({ map: glowTex, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+  const nightOnly = [];            // 白天完全不畫（透明度 0 也會佔繪製呼叫）
+  lamps.forEach(([x, y, z, s = 1.1]) => { const sp = new THREE.Sprite(haloMat); sp.position.set(x, y, z); sp.scale.setScalar(s * 1.6); world.add(sp); nightOnly.push(sp); });
+  // 路燈照在地上的光斑（俯瞰視角看不到天空，所以不放星星）
+  const poolMat = new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+  const poolGeo = new THREE.PlaneGeometry(1, 1); poolGeo.rotateX(-Math.PI / 2);
+  lamps.forEach(([x, y, z, s = 1.1, noPool]) => { if (noPool) return; const m = new THREE.Mesh(poolGeo, poolMat); m.position.set(x, y - 1.38, z); m.scale.set(s * 3.2, 1, s * 3.2); m.renderOrder = 3; world.add(m); nightOnly.push(m); });
+
+  let night = 0, nightTarget = 0;
+  const cA = new THREE.Color(), cB = new THREE.Color();
+  const mix = (a, b, k) => cA.set(a).lerp(cB.set(b), k);
+  function applyNight(k) {
+    world.background.copy(mix(DAY.bg, NIGHT.bg, k)); world.fog.color.copy(world.background);
+    hemi.color.copy(mix(DAY.hemiSky, NIGHT.hemiSky, k)); hemi.groundColor.copy(mix(DAY.hemiGround, NIGHT.hemiGround, k));
+    hemi.intensity = DAY.hemi + (NIGHT.hemi - DAY.hemi) * k;
+    sun.color.copy(mix(DAY.sun, NIGHT.sun, k)); sun.intensity = DAY.sunI + (NIGHT.sunI - DAY.sunI) * k;
+    fill.intensity = DAY.fill + (NIGHT.fill - DAY.fill) * k;
+    seaMat.color.copy(mix(DAY.sea, NIGHT.sea, k));
+    renderer.toneMappingExposure = DAY.exposure + (NIGHT.exposure - DAY.exposure) * k;
+    glowMat.emissiveIntensity = k * 1.5; haloMat.opacity = k * .95; poolMat.opacity = k * .7;
+    decalMat.color.copy(mix('#ffffff', '#8c9ab8', k));
+    nightOnly.forEach(o => { o.visible = k > .01; });
+    cloudMat.opacity = .92 - k * .5; cloudMat.emissiveIntensity = .25 - k * .2;
+    M.foam.color.copy(mix(C.foam, '#8fa3bd', k));
+    dash.material.opacity = .6 - k * .45;
+  }
+  applyNight(0);
+  /* ═════════ 足跡、選取、先備高亮 ═════════ */
+  const GLOW_VISIT = new THREE.MeshLambertMaterial({ color: '#ffe0a0', emissive: '#ffb84d', emissiveIntensity: .9 });
+  const FLAG = std(C.forest, { roughness: .8, side: THREE.DoubleSide });
+  const refMat = basic('#3f5b9a', { transparent: true, opacity: .85, depthWrite: false });
+  const refGeo = new THREE.TorusGeometry(1, .07, 6, 40); refGeo.rotateX(Math.PI / 2);
+  PAGES.forEach(p => {
+    const b = B[p.stem], I = b.isle;
+    // 島邊（朝向鏡頭）的燈籠與旗子位置
+    const a = Math.atan2(SQ, SQ) + (b.isCore ? .55 : 0);
+    const ex = b.isCore ? I.x + Math.cos(a) * I.angR(a) * .8 : b.x + .9, ez = b.isCore ? I.z + Math.sin(a) * I.angR(a) * .8 : b.z + .9;
+    const lan = new THREE.Group(); lan.position.set(ex, I.top, ez);
+    const post = new THREE.Mesh(GEO.cyl, std(C.woodDark)); post.scale.set(.07, 1.05, .07); post.position.y = .52; lan.add(post);
+    const bulb = new THREE.Mesh(GEO.round, GLOW_VISIT); bulb.scale.set(.24, .3, .24); bulb.position.y = 1.15; lan.add(bulb);
+    lan.visible = false; world.add(lan);
+    const fx = b.isCore ? I.x + Math.cos(a + .5) * I.angR(a + .5) * .72 : b.x - .9, fz = b.isCore ? I.z + Math.sin(a + .5) * I.angR(a + .5) * .72 : b.z + .9;
+    const flag = new THREE.Group(); flag.position.set(fx, I.top, fz);
+    const pole = new THREE.Mesh(GEO.cyl, std(C.white)); pole.scale.set(.06, 1.9, .06); pole.position.y = .95; flag.add(pole);
+    const cloth = new THREE.Mesh(GEO.prism, FLAG); cloth.scale.set(.05, .5, .7); cloth.rotation.x = Math.PI / 2; cloth.position.set(0, 1.62, .35); flag.add(cloth);
+    flag.visible = false; world.add(flag);
+    const ref = new THREE.Mesh(refGeo, refMat); ref.scale.setScalar(b.isCore ? I.radius * 1.12 : 1.55); ref.position.set(b.isCore ? I.x : b.x, I.top + .06, b.isCore ? I.z : b.z); ref.visible = false; world.add(ref);
+    Object.assign(b, { lan, flag, ref });
+  });
+  const marker = new THREE.Mesh(new THREE.ConeGeometry(.42, .9, 4), new THREE.MeshLambertMaterial({ color: '#f3c15a', emissive: '#f0a83a', emissiveIntensity: .6 }));
+  marker.rotation.x = Math.PI; marker.visible = false; world.add(marker);
+  let selected = null, refs = [];
+  anims.push(t => {
+    if (selected) marker.position.y = B[selected].top + 1.4 + Math.sin(t * 3) * .18;
+    refMat.opacity = .55 + .35 * Math.sin(t * 3);
+  });
+  // 先備依賴線：從選到的正課島拉一條虛線航線到相關工坊（森林綠；和紅繩指標、木造拱橋都不同）
+  const DASH_N = 18, wireIds = Array.from({ length: 3 * DASH_N }, () => CY.alloc(C.forest));
+  function setWires(stem) {
+    wireIds.forEach(id => CY.hide(id));
+    if (!stem) return;
+    const A = B[stem];
+    BY[stem].refs.slice(0, 3).forEach((r, k) => {
+      const Q = B[r]; if (!Q) return;
+      const a = LOC(A).P(-1.4 + k * 1.4, .25, -5.2), b = new THREE.Vector3(Q.x, Q.y + 2.2, Q.z);
+      const m = a.clone().lerp(b, .5); m.y += 2.4 + k * .6;
+      const curve = new THREE.QuadraticBezierCurve3(a, m, b);
+      for (let i = 0; i < DASH_N; i++) {
+        const t0 = (i + .1) / DASH_N, t1 = (i + .8) / DASH_N;
+        CY.beam(wireIds[k * DASH_N + i], curve.getPoint(t0), curve.getPoint(t1), .1);
+      }
+    });
+  }
+
+  /* ═════════ 相機與操作 ═════════ */
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, .1, 500);
+  const POLAR = 52 * Math.PI / 180, DIST = 110;
+  const HOME = center.clone();
+  const controls = new OrbitControls(camera, canvas);
+  controls.enablePan = false;
+  controls.minPolarAngle = 46 * Math.PI / 180; controls.maxPolarAngle = 62 * Math.PI / 180;
+  controls.minZoom = .7; controls.maxZoom = 5;
+  controls.enableDamping = motion(); controls.dampingFactor = .08;
+  controls.rotateSpeed = .6; controls.zoomSpeed = 1.1;
+  controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
+  camera.position.set(HOME.x + Math.sin(POLAR) * Math.sin(FACE) * DIST, Math.cos(POLAR) * DIST, HOME.z + Math.sin(POLAR) * Math.cos(FACE) * DIST);
+  camera.lookAt(HOME); camera.updateMatrixWorld();
+  // 自動取景：把主要島嶼（含地標與標籤高度）投影到鏡頭的左右／上下軸，取外接範圍
+  const RV = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0), UV = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+  const FV = camera.getWorldDirection(new THREE.Vector3());
+  const FIT = { r: 30, u: 18 };
+  {
+    let r0 = 1e9, r1 = -1e9, u0 = 1e9, u1 = -1e9; const q = new THREE.Vector3();
+    framed.forEach(I => {
+      for (let k = 0; k < 16; k++) {
+        const a = k / 16 * Math.PI * 2;
+        [0, I.top + 3].forEach(h => {
+          q.set(I.x + Math.cos(a) * I.radius * 1.15 - HOME.x, h, I.z + Math.sin(a) * I.radius * 1.15 - HOME.z);
+          const r = q.dot(RV), u = q.dot(UV); r0 = Math.min(r0, r); r1 = Math.max(r1, r); u0 = Math.min(u0, u); u1 = Math.max(u1, u);
+        });
+      }
+    });
+    FIT.r = (r1 - r0) / 2; FIT.u = (u1 - u0) / 2;
+    HOME.addScaledVector(RV, (r0 + r1) / 2).addScaledVector(UV, (u0 + u1) / 2);
+    HOME.addScaledVector(FV, -HOME.y / FV.y);              // 沿視線滑回地面，畫面位置不變
+  }
+  controls.target.copy(HOME);
+  camera.position.copy(HOME).addScaledVector(FV, -DIST); camera.lookAt(HOME);
+  guideSpot(guideHomeStem, guide.position); faceCamera();
+  // 視錐：寬度涵蓋整個群島（約 ±36），窄螢幕略裁兩翼
   function resize() {
     const w = stage.clientWidth, h = stage.clientHeight;
     if (!w || !h) return;
-    const aspect = w / h, hh = Math.max(HOMEFIT.ry * 1.02, HOMEFIT.rx * 1.02 / aspect);
-    camera.top = hh; camera.bottom = -hh; camera.left = -hh * aspect; camera.right = hh * aspect;
-    camera.updateProjectionMatrix();
+    const aspect = w / h;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPRS[dprLevel]));
     renderer.setSize(w, h, false);
-    tagsDirty = true; requestRender();
+    // 上方多留一點給島嶼跳轉鈕；窄螢幕允許兩翼略為裁切
+    const half = Math.max(FIT.u * 1.12 + 1.5, FIT.r * 1.03 / aspect);
+    Object.assign(camera, { left: -half * aspect, right: half * aspect, top: half, bottom: -half });
+    camera.updateProjectionMatrix(); measureTags(); tagsDirty = true; requestRender();
   }
 
   let fly = null;
@@ -2822,76 +3335,79 @@ function buildWorld(THREE, addons, renderer, stage, canvas) {
       controls.target.copy(target); camera.position.copy(target).add(off);
       camera.zoom = zoom; camera.updateProjectionMatrix(); controls.update(); requestRender(); return;
     }
-    fly = { from: controls.target.clone(), to: target.clone(), z0: camera.zoom, z1: zoom, t0: performance.now(), dur: 750 };
+    fly = { from: controls.target.clone(), to: target.clone(), z0: camera.zoom, z1: zoom, t0: performance.now(), dur: 800 };
     requestRender();
   }
   function stepFly(now) {
     if (!fly) return false;
-    const u = clamp01((now - fly.t0) / fly.dur), e = u * u * (3 - 2 * u);
+    const k = Math.min(1, (now - fly.t0) / fly.dur), e = 1 - Math.pow(1 - k, 3);
     const off = camera.position.clone().sub(controls.target);
     controls.target.lerpVectors(fly.from, fly.to, e); camera.position.copy(controls.target).add(off);
-    camera.zoom = lerp(fly.z0, fly.z1, e); camera.updateProjectionMatrix();
-    if (u >= 1) fly = null;
+    camera.zoom = fly.z0 + (fly.z1 - fly.z0) * e; camera.updateProjectionMatrix();
+    if (k >= 1) fly = null;
     return true;
   }
-  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), v3 = V(0, 0, 0);
-  const BOXES = Object.values(CHIP).map(C => ({ stem: C.stem, box: new THREE.Box3(V(C.x - C.w / 2 - .6, 0, C.z - C.d / 2 - .6), V(C.x + C.w / 2 + .6, C.w > 12 ? T + 1.5 : T + .4, C.z + C.d / 2 + .6)) }));
+
+  /* ── 拾取：正課整座島、附屬島的單棟建築 ── */
+  const picks = [];
+  const pickMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+  PAGES.forEach(p => {
+    const b = B[p.stem];
+    const geo = b.isCore ? new THREE.CylinderGeometry(b.pickR, b.pickR, b.top - b.y + 2.2, 16) : new THREE.BoxGeometry(2.4, b.top - b.y + 1.4, 2.4);
+    const m = new THREE.Mesh(geo, pickMat);
+    m.position.set(b.isCore ? b.isle.x : b.x, (b.top + b.y) / 2, b.isCore ? b.isle.z : b.z); m.userData.stem = p.stem;
+    m.visible = false;                // 不繪製；Raycaster 不看 visible，照樣點得到
+    world.add(m); picks.push(m);
+  });
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), v3 = new THREE.Vector3();
   function pickAt(cx, cy) {
     const r = canvas.getBoundingClientRect();
     ndc.set((cx - r.left) / r.width * 2 - 1, -(cy - r.top) / r.height * 2 + 1);
     ray.setFromCamera(ndc, camera);
-    let best = null, bd = Infinity;
-    BOXES.forEach(b => { const hit = ray.ray.intersectBox(b.box, v3); if (hit) { const d = hit.distanceTo(ray.ray.origin); if (d < bd) { bd = d; best = b.stem; } } });
-    return best;
+    const hit = ray.intersectObjects(picks, false)[0];
+    return hit ? hit.object.userData.stem : null;
   }
-  let hover = null, selected = null, down = null;
-  function setHover(s) {
-    if (s === hover) return;
-    hover = s;
-    canvas.classList.toggle('is-hover', !!s);
-    tags.forEach(T_ => T_.el.classList.toggle('is-hover', !!T_.stem && T_.stem === s));
+  let hover = null, down = null;
+  function setHover(stem) {
+    if (stem === hover) return;
+    hover = stem; canvas.classList.toggle('is-hover', !!stem);
+    tags.forEach(T => T.el.classList.toggle('is-hover', !!stem && T.stem === stem));
     tagsDirty = true; requestRender();
-  }
-  function scrollListTo(stem) {
-    const li = document.querySelector(`.isl-item[data-stem="${stem}"]`), list = $('islList');
-    if (!li || !list || narrow()) return;
-    const a = li.getBoundingClientRect(), b = list.getBoundingClientRect();
-    if (a.top < b.top || a.bottom > b.bottom) list.scrollTop += a.top - b.top - b.height / 2 + a.height / 2;
   }
   canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; });
   canvas.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && !e.buttons) setHover(pickAt(e.clientX, e.clientY)); });
   canvas.addEventListener('pointerleave', () => setHover(null));
   canvas.addEventListener('pointerup', e => {
-    if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
-    const s = pickAt(e.clientX, e.clientY);
-    if (s) { select(s, { trigger: canvas, fly: true }); scrollListTo(s); }
+    if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) { down = null; return; }
+    down = null;
+    const stem = pickAt(e.clientX, e.clientY);
+    if (stem) { select(stem, { trigger: canvas, fly: true }); scrollListTo(stem); } else closePanel();
   });
+  function scrollListTo(stem) {
+    const it = items.get(stem);
+    if (it && window.innerWidth >= 768) { const list = $('islList'); list.scrollTop = it.li.offsetTop - list.clientHeight / 2; }
+  }
   canvas.addEventListener('keydown', e => {
+    const step = Math.PI / 12;
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       const off = camera.position.clone().sub(controls.target);
-      const az = Math.atan2(off.x, off.z) + (e.key === 'ArrowLeft' ? -.08 : .08);
-      const clampAz = Math.max(controls.minAzimuthAngle, Math.min(controls.maxAzimuthAngle, az));
-      off.applyAxisAngle(_UY, clampAz - Math.atan2(off.x, off.z));
+      off.applyAxisAngle(new THREE.Vector3(0, 1, 0), e.key === 'ArrowLeft' ? -step : step);
       camera.position.copy(controls.target).add(off); controls.update(); requestRender(); e.preventDefault();
-    } else if (e.key === '+' || e.key === '=' || e.key === '-') {
-      camera.zoom = Math.min(controls.maxZoom, Math.max(controls.minZoom, camera.zoom * (e.key === '-' ? 1 / 1.2 : 1.2)));
-      camera.updateProjectionMatrix(); tagsDirty = true; requestRender(); e.preventDefault();
+    } else if (['+', '=', '-', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+      const zin = e.key === '+' || e.key === '=' || e.key === 'ArrowUp';
+      camera.zoom = Math.min(controls.maxZoom, Math.max(controls.minZoom, camera.zoom * (zin ? 1.2 : 1 / 1.2)));
+      camera.updateProjectionMatrix(); requestRender(); e.preventDefault();
     }
   });
-  // 平移不能把底板拖出畫面
-  const clampTarget = () => {
-    const t = controls.target, cx = Math.max(-40, Math.min(40, t.x)), cz = Math.max(-52, Math.min(52, t.z));
-    if (cx !== t.x || cz !== t.z) { const dx = cx - t.x, dz = cz - t.z; t.x = cx; t.z = cz; camera.position.x += dx; camera.position.z += dz; }
-  };
-  controls.addEventListener('change', () => { clampTarget(); tagsDirty = true; requestRender(); });
+  controls.addEventListener('change', () => { tagsDirty = true; requestRender(); });
 
-  /* ═════════ 標籤層（HTML）：貼在晶片前緣，像絲印的牌子 ═════════ */
+  /* ═════════ 標籤層（HTML）═════════ */
   const layer = $('islLabels');
   const tags = [];
-  const UNIT_ZOOM = 1.7;
+  const UNIT_ZOOM = 1.6;               // 放大到這個倍率以上，才展開工坊島的單元標籤
   function addTag({ stem = null, grp, kind, text, code, anchor, prio }) {
     const el = document.createElement('button');
-    el.type = 'button'; el.className = `isl-tag isl-tag-${kind}`; el.tabIndex = -1; el.setAttribute('aria-hidden', 'true');
+    el.type = 'button'; el.className = `isl-tag isl-tag-${kind} isl-tag-${grp}`; el.tabIndex = -1; el.setAttribute('aria-hidden', 'true');
     if (code) { const n = document.createElement('span'); n.className = 'isl-tag-num'; n.textContent = code; el.appendChild(n); }
     const t = document.createElement('span'); t.className = 'isl-tag-t'; t.textContent = text; el.appendChild(t);
     el.addEventListener('click', () => {
@@ -2901,93 +3417,81 @@ function buildWorld(THREE, addons, renderer, stage, canvas) {
     tags.push({ el, stem, grp, kind, anchor, prio, w: 0, h: 0, cw: 0, num: el.querySelector('.isl-tag-num') });
   }
   PAGES.forEach(p => {
-    const C = CHIP[p.stem];
-    addTag({ stem: p.stem, grp: p.grp, kind: p.grp === 'core' ? 'core' : p.grp === 'power' ? 'pre' : 'unit', text: p.title, code: p.code,
-      anchor: V(C.x, 0, C.z + C.d / 2 + (p.grp === 'dimm' ? 4.4 : .9)), prio: p.grp === 'core' ? 1 : p.grp === 'power' ? 2 : 3 });
+    const b = B[p.stem];
+    addTag({ stem: p.stem, grp: p.grp, kind: p.grp === 'core' ? 'core' : 'unit', text: p.title, code: p.code,
+      anchor: p.grp === 'core' ? LOC(b).P(0, 0, -6.6) : new THREE.Vector3(b.x, b.top + .35, b.z), prio: p.grp === 'core' ? 2 : 4 });
+  });
+  Object.entries(SAT_ISLE).forEach(([grp, I]) => {
+    addTag({ grp, kind: 'isle', text: ISLES[grp].name, anchor: new THREE.Vector3(I.x, I.top + 4.6, I.z), prio: 3 });
   });
   function measureTags() {
-    tags.forEach(T_ => {
-      T_.el.classList.remove('is-compact'); T_.st = -1; T_.w = T_.el.offsetWidth; T_.h = T_.el.offsetHeight;
-      T_.cw = T_.num ? T_.num.offsetWidth + 8 : T_.w;
+    tags.forEach(T => {
+      T.el.classList.remove('is-compact'); T.st = -1; T.w = T.el.offsetWidth; T.h = T.el.offsetHeight;
+      T.cw = T.num ? T.num.offsetWidth + 10 : T.w;
     });
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measureTags(); tagsDirty = true; requestRender(); });
   const placed = [];
-  let refs = [];
   function placeTags() {
-    const W_ = canvas.clientWidth, H_ = canvas.clientHeight, zoomed = camera.zoom >= UNIT_ZOOM;
+    const W = canvas.clientWidth, H = canvas.clientHeight, zoomed = camera.zoom >= UNIT_ZOOM;
     placed.length = 0;
-    const sel = T_ => (!!T_.stem && T_.stem === selected ? 0 : 1);
+    const sel = T => (!!T.stem && T.stem === selected ? 0 : 1);
     const order = tags.slice().sort((a, b) => sel(a) - sel(b) || a.prio - b.prio);
-    order.forEach(T_ => {
-      const isSel = !!T_.stem && T_.stem === selected, isRef = !!T_.stem && refs.includes(T_.stem), isHov = T_.stem === hover;
-      v3.copy(T_.anchor).project(camera);
-      const x = (v3.x + 1) / 2 * W_, y = (1 - v3.y) / 2 * H_;
+    order.forEach(T => {
+      const isSel = !!T.stem && T.stem === selected, isRef = !!T.stem && refs.includes(T.stem);
+      let show = T.kind === 'core' || (T.kind === 'unit' ? zoomed : !zoomed) || isSel || isRef;
+      v3.copy(T.anchor).project(camera);
+      const x = (v3.x + 1) / 2 * W, y = (1 - v3.y) / 2 * H;
+      // 完整標籤與已放好的重疊時，退成只顯示編號的小圓章；仍然重疊才隱藏
       const hits = r => placed.some(q => !(r.r < q.l || r.l > q.r || r.b < q.t || r.t > q.b));
-      const bx = w => ({ l: x - w / 2 - 3, r: x + w / 2 + 3, t: y, b: y + T_.h + 3 });
-      // 先備顆粒預設只顯示編號；放大、選取或滑過才展開。手機上正課也一樣
-      let compact = (T_.kind === 'unit' && !zoomed && !isSel && !isRef && !isHov) || (narrow() && !isSel && !isHov && !zoomed);
-      let r = bx(compact ? T_.cw : T_.w), show = true;
-      if (r.l < 2 || r.r > W_ - 2 || r.t < 0 || r.b > H_) {
-        if (compact || !T_.num) show = false;
-        else { compact = true; r = bx(T_.cw); if (r.l < 2 || r.r > W_ - 2 || r.t < 0 || r.b > H_) show = false; }
-      }
+      const box = w => ({ l: x - w / 2 - 3, r: x + w / 2 + 3, t: y - T.h - 8, b: y });
+      // 手機上正課標籤預設只顯示編號（選取或滑過時才展開）
+      let compact = narrow() && T.kind === 'core' && !isSel && T.stem !== hover, r = box(compact ? T.cw : T.w);
+      if (show && (r.l < 2 || r.r > W - 2 || r.t < 0 || r.b > H)) show = false;   // 會被切掉的就不顯示
       if (show && !isSel && hits(r) && !compact) {
-        if (T_.num && !hits(bx(T_.cw))) { compact = true; r = bx(T_.cw); } else show = false;
+        if (T.num && !hits(box(T.cw))) { compact = true; r = box(T.cw); } else show = false;
       }
       if (show) placed.push(r);
+      // 只在狀態或位置真的改變時才寫 DOM（每次寫入都會讓瀏覽器重算樣式）
       const st = show ? (compact ? 2 : 1) : 0;
-      if (st !== T_.st) { T_.el.classList.toggle('is-off', !show); T_.el.classList.toggle('is-compact', st === 2); T_.st = st; }
+      if (st !== T.st) { T.el.classList.toggle('is-off', !show); T.el.classList.toggle('is-compact', st === 2); T.st = st; }
       if (show) {
-        const tf = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, 0)`;
-        if (tf !== T_.tf) { T_.el.style.transform = tf; T_.tf = tf; }
+        const tf = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, calc(-100% - 6px))`;
+        if (tf !== T.tf) { T.el.style.transform = tf; T.tf = tf; }
       }
     });
   }
 
-  /* ═════════ 地標播放與模式 ═════════ */
+  /* ═════════ 地標播放 ═════════ */
   const playing = new Map();     // stem → 開始時間
   function playLM(stem) {
-    if (!LM[stem] || !motion()) return;
+    if (!POSE[stem] || !motion()) return;
     playing.set(stem, performance.now());
     wake(); requestRender();
   }
   function stepPlays(now) {
-    if (!playing.size) return false;
     playing.forEach((t0, stem) => {
-      const u = (now - t0) / (LM[stem].dur * 1000);
-      if (u >= 1) { LM[stem].pose(0); playing.delete(stem); } else LM[stem].pose(u);
+      const u = (now - t0) / (POSE[stem].dur * 1000);
+      if (u >= 1) { POSE[stem].pose(0); playing.delete(stem); } else POSE[stem].pose(u);
     });
-    return true;
   }
-  // 沒有選取時，島上輪流跑一座地標，讓畫面活著；剛選到、還沒猜的那一座不放，避免先看到答案
+  // 沒有選取時，島上輪流跑一座模型；選到的那一座不放，避免先看到猜題的答案
+  const CORE_STEMS = core.map(p => p.stem);
   let attractAt = 0, attractI = 0;
   function stepAttract(now) {
-    if (modeTarget === 1 || playing.size || selected || lowPower) return;
-    if (now < attractAt) return;
-    attractAt = now + 9000;
-    if (attractI > 0 || now > 3500) playLM(CORE[attractI++ % CORE.length]);
+    if (nightTarget || playing.size || selected || lowPower || now < attractAt) return;
+    attractAt = now + 8000;
+    if (attractI > 0 || now > 3000) playLM(CORE_STEMS[attractI++ % CORE_STEMS.length]);
   }
-  function applyMode(k) {
-    modeK = k;
-    mixRoles(k);
-    recolorStatic();
-    world.background.copy(ROLE.bg);
-    edgeMat.color.copy(ROLE.line);
-    halo.visible = k < .5;
-    const m = k < .5 ? 'power' : 'print';
-    if (dieMat.map !== atlasOf(m)) { dieMat.map = atlasOf(m); dieMat.needsUpdate = true; }
-    if (boardMat.map !== boardOf(m)) { boardMat.map = boardOf(m); boardMat.needsUpdate = true; }
-  }
-  applyMode(0);
-  Object.values(LM).forEach(l => l.pose(0));
+  Object.values(POSE).forEach(l => l.pose(0));
 
   /* ═════════ 繪製迴圈 ═════════
-     - 互動（拖曳、縮放、飛行、模式過渡、地標播放）時全速；只剩脈衝時每 33 ms 才畫一幀；藍圖模式靜止時完全不畫
+     - 互動（拖曳、縮放、飛行、日夜過渡）時全速；只剩環境動畫時每 33 ms 才畫一幀
      - 閒置 45 秒（沒有任何 pointer／wheel／key／touch）就停止動畫，有輸入立即恢復
-     - 解析度自動調整：最近 2 秒偏慢就降一級 DPR；互動時連續夠快再升回 */
+     - 解析度自動調整：最近 2 秒偏慢就降一級 DPR；互動時連續夠快再升回；最低一級仍慢才停用生活感
+     - 標籤只在鏡頭、選取或滑過改變時重排 */
   const DPRS = narrow() ? [1.25, 1] : [1.5, 1.25, 1];
-  const IDLE_MS = () => window.__islandIdleMs || 45000;
+  const IDLE_MS = () => window.__islandIdleMs || 45000;          // 檢查腳本可以把門檻調短
   let last = performance.now(), lastDraw = 0, lastInput = performance.now(), sampleT = 0, sampleN = 0, fastWin = 0;
   const idle = () => performance.now() - lastInput > IDLE_MS();
   const animating = () => motion() && onScreen && document.visibilityState === 'visible' && !idle();
@@ -2999,24 +3503,25 @@ function buildWorld(THREE, addons, renderer, stage, canvas) {
   function frame(now) {
     raf = 0; if (!alive) return;
     const dt = Math.min(.1, (now - last) / 1000); last = now;
-    const flying = stepFly(now), walking = stepGuide(now), moved = controls.update(), anim = animating();
+    const flying = stepFly(now), hopping = stepGuide(now), moved = controls.update(), anim = animating();
     let fading = false;
-    if (modeK !== modeTarget) {
-      const k = motion() ? (modeTarget > modeK ? Math.min(modeTarget, modeK + dt / .45) : Math.max(modeTarget, modeK - dt / .45)) : modeTarget;
-      applyMode(k); fading = true;
+    if (night !== nightTarget) {
+      night = motion() ? (nightTarget > night ? Math.min(nightTarget, night + dt / 1.2) : Math.max(nightTarget, night - dt / 1.2)) : nightTarget;
+      applyNight(night); fading = true;
     }
-    const ambient = anim && modeTarget === 0 && !lowPower;
     const playingNow = anim && playing.size > 0;
-    const busy = need || flying || walking || moved || fading || playingNow;
+    const busy = need || flying || hopping || moved || fading || playingNow;
     // 只有環境動畫時限制在約 30fps
-    if (!busy && ambient && now - lastDraw < 32) { if (!raf) raf = requestAnimationFrame(frame); return; }
+    if (!busy && anim && now - lastDraw < 32) { if (!raf) raf = requestAnimationFrame(frame); return; }
     if (anim) {
-      stepPlays(now);
-      stepAttract(now);
-      if (ambient || modeTarget === 1) stepPulses(now / 1000);
+      const t = now / 1000;
+      anims.forEach(f => f(t));
+      stepPlays(now); stepAttract(now);
+      if (!lowPower) life.forEach(f => f(t, Math.min(.1, (now - (lastDraw || now)) / 1000)));
+      syncProxies();
     }
-    if (busy || ambient) {
-      if (lastDraw) {
+    if (busy || anim) {
+      if (lastDraw) {                                   // 幀間隔取樣（略過第一幀與長時間停頓）
         const gap = now - lastDraw;
         if (gap < 250) { sampleT += gap; sampleN++; }
         if (sampleT > 2000) {
@@ -3031,95 +3536,107 @@ function buildWorld(THREE, addons, renderer, stage, canvas) {
       need = false;
     }
     // 只排一次：controls.update() 會觸發 change → requestRender() 已經排了下一幀，不能再多排一條迴圈
-    if ((ambient || flying || walking || moved || fading || playingNow) && !raf) raf = requestAnimationFrame(frame);
+    if ((anim || flying || hopping || moved || fading) && !raf) raf = requestAnimationFrame(frame);
   }
   const ro = new ResizeObserver(resize); ro.observe(stage);
   new IntersectionObserver(es => { onScreen = es[0].isIntersecting; requestRender(); }).observe(stage);
   document.addEventListener('visibilitychange', requestRender);
   reduceMotion.addEventListener('change', () => { controls.enableDamping = motion(); requestRender(); });
-  stepPulses(1.7);
+  anims.forEach(f => f(1.7)); life.forEach(f => f(1.7, 0)); syncProxies();
   resize();
-  measureTags();
+  renderer.shadowMap.needsUpdate = true;
 
   function flyToIsle(grp) {
-    if (grp === 'core') flyTo(V(0, 0, 0), 1.25);
-    else if (grp === 'power') flyTo(V(0, 0, ROWP), 1.8);
-    else flyTo(V(0, 0, DIMMZ + 2), 1.8);
+    if (grp === 'core') { const c = coreIsles.reduce((s, I) => s.add(new THREE.Vector3(I.x, 0, I.z)), new THREE.Vector3()).multiplyScalar(1 / coreIsles.length); flyTo(c, 1.3); return; }
+    const I = SAT_ISLE[grp]; if (I) flyTo(new THREE.Vector3(I.x, GROUND, I.z), grp === 'workshop' ? 2.2 : 2.6);
   }
 
   /* ═════════ 對外介面 ═════════ */
   return {
     select(stem, doFly) {
-      selected = stem && CHIP[stem] ? stem : null;
-      refs = selected ? BY[selected].refs.filter(r => CHIP[r]) : [];
-      const C = selected ? CHIP[selected] : null;
-      setBrackets(C); setWires(C, refs);
-      if (selected && playing.has(selected)) { playing.delete(selected); LM[selected].pose(0); }   // 剛選到的島先回到靜止，答案不提早露出
-      tags.forEach(T_ => { T_.el.classList.toggle('is-current', !!T_.stem && T_.stem === selected); T_.el.classList.toggle('is-ref', !!T_.stem && refs.includes(T_.stem)); });
+      refs.forEach(r => { B[r].ref.visible = false; });
+      selected = stem && B[stem] ? stem : null;
+      refs = selected ? BY[selected].refs.filter(r => B[r]) : [];
+      refs.forEach(r => { B[r].ref.visible = true; });
+      setWires(selected);
+      if (selected && playing.has(selected)) { playing.delete(selected); POSE[selected].pose(0); }   // 剛選到的島先回到靜止，答案不提早露出
+      marker.visible = !!selected;
+      tags.forEach(T => { T.el.classList.toggle('is-current', !!T.stem && T.stem === selected); T.el.classList.toggle('is-ref', !!T.stem && refs.includes(T.stem)); });
       tagsDirty = true;
-      if (selected && doFly) {
-        setHover(null);
-        // 讓選到的島落在面板以外的區域：桌機面板在左下，往右讓；手機面板從下方升起，往上讓
-        const zoom = Math.max(camera.zoom, C.w > 12 ? 2.3 : 3), W_ = canvas.clientWidth, H_ = canvas.clientHeight;
-        const wpp = (camera.right - camera.left) / zoom / W_;
-        camera.updateMatrixWorld();
-        const R = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0), U = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
-        const tgt = V(C.x, T, C.z);
-        if (window.innerWidth >= 768) tgt.addScaledVector(R, -Math.min(210, W_ * .2) * wpp);
-        else tgt.addScaledVector(U, -H_ * .2 * wpp);
-        tgt.y = 0;
-        flyTo(tgt, zoom);
+      if (selected) {
+        const b = B[selected];
+        marker.position.set(b.x, b.top + 1.4, b.z);
+        if (doFly) {
+          setHover(null);
+          // 讓選到的島落在面板以外的區域：桌機面板在左下，往右讓；手機面板從下方升起，往上讓
+          const zoom = Math.max(camera.zoom, b.isCore ? 3 : 3.4), W = canvas.clientWidth, H = canvas.clientHeight;
+          const wpp = (camera.right - camera.left) / zoom / W;
+          camera.updateMatrixWorld();
+          const R = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0), U = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+          const tgt = new THREE.Vector3(b.isCore ? b.isle.x : b.x, b.y, b.isCore ? b.isle.z : b.z);
+          if (window.innerWidth >= 768) tgt.addScaledVector(R, -Math.min(210, W * .22) * wpp);
+          else tgt.addScaledVector(U, -H * .2 * wpp);
+          flyTo(tgt, zoom);
+        }
       }
       requestRender();
     },
     flyToIsle,
-    reset() {
-      const off = V(DIST * Math.sin(POL0) * Math.sin(AZ0), DIST * Math.cos(POL0), DIST * Math.sin(POL0) * Math.cos(AZ0));
-      camera.position.copy(controls.target).add(off);
-      controls.update();
-      flyTo(HOME.clone(), 1);
+    reset() { flyTo(HOME.clone(), 1); },
+    guideTo,
+    // 走完路線：多跳一步，站到最後一站的外面（end() 的位置）
+    guideEnd(stem) {
+      const b = B[stem]; if (!b) return;
+      guideTo(stem);
+      if (hop) { const d = hop.to.clone().sub(new THREE.Vector3(b.x, hop.to.y, b.z)).normalize(); hop.to.addScaledVector(d, 1.8); }
     },
-    guideTo(stem) { const [x, y, z] = guideSpot(stem); guideGo(x, y, z); },
-    guideEnd(stem) { const C = CHIP[stem]; guideGo(C.w < 12 ? Math.min(C.x + 9, 40) : Math.min(C.x + C.w / 2 + 2.6, 41), .1, C.z); },
-    guidePos() { return { x: guide.x, y: guide.y, z: guide.z }; },
-    setMode(mode, instant) {
-      modeTarget = mode === 'print' ? 1 : 0;
-      if (instant || !motion()) applyMode(modeTarget);
-      if (modeTarget === 1) { pulseIds.forEach(id => DB.hide(id)); }
-      else stepPulses(performance.now() / 1000);
+    guidePos() { const p = guide.position; return { x: p.x, y: p.y, z: p.z }; },
+    play(stem) { playLM(stem); },
+    setNight(on, instant) {
+      nightTarget = on ? 1 : 0;
+      if (instant || !motion()) { night = nightTarget; applyNight(night); }
       requestRender();
     },
-    play(stem) { playLM(stem); },
     updateTrail() {
       PAGES.forEach(p => {
-        const C = CHIP[p.stem];
-        DB.role(C.led, trail.done[p.stem] ? 'ledDone' : trail.visited[p.stem] ? 'ledVisit' : 'ledOff');
+        const b = B[p.stem], done = !!trail.done[p.stem], visited = !!trail.visited[p.stem];
+        b.flag.visible = done; b.lan.visible = visited && !done;
       });
-      tags.forEach(T_ => {
-        if (!T_.stem) return;
-        T_.el.classList.toggle('is-done', !!trail.done[T_.stem]);
-        T_.el.classList.toggle('is-visited', !!trail.visited[T_.stem] && !trail.done[T_.stem]);
+      tags.forEach(T => {
+        if (!T.stem) return;
+        T.el.classList.toggle('is-done', !!trail.done[T.stem]);
+        T.el.classList.toggle('is-visited', !!trail.visited[T.stem] && !trail.done[T.stem]);
       });
+      renderer.shadowMap.needsUpdate = true;
       requestRender();
     },
     // 以下給 tools/check_island_browser.js 用
-    stats() { return { draws, dprLevel, lowPower, calls: renderer.info.render.calls, modeK }; },
+    stats() { return { draws, dprLevel, lowPower, calls: renderer.info.render.calls, night }; },
     screenPos(stem) {
-      const C = CHIP[stem]; if (!C) return null;
-      v3.set(C.x, T, C.z).project(camera);
+      const b = B[stem]; if (!b) return null;
+      v3.set(b.x, b.y + (b.top - b.y) * .3, b.z).project(camera);
       const r = canvas.getBoundingClientRect();
       return { x: r.left + (v3.x + 1) / 2 * r.width, y: r.top + (1 - v3.y) / 2 * r.height };
     },
     invariants() { return JSON.parse(JSON.stringify(INV)); },
-    pose(stem, u) { if (!LM[stem]) return false; playing.delete(stem); LM[stem].pose(u); requestRender(); return true; },
+    pose(stem, u) { if (!POSE[stem]) return false; playing.delete(stem); POSE[stem].pose(u); requestRender(); return true; },
     plays() { return [...playing.keys()]; },
-    // 先編譯著色器並畫好第一幀，再讓畫布淡入
+    // 先編譯所有著色器（支援平行編譯時不卡主執行緒）並畫好第一幀，再讓畫布淡入
     async warm() {
       try { await renderer.compileAsync(world, camera); } catch (e) { /* 舊版瀏覽器：第一幀時再編譯 */ }
-      renderer.render(world, camera); placeTags(); tagsDirty = false; lastDraw = performance.now();
+      renderer.shadowMap.needsUpdate = true; renderer.render(world, camera); placeTags(); tagsDirty = false; lastDraw = performance.now();
       requestRender();
     },
     dispose() { alive = false; ro.disconnect(); controls.dispose(); renderer.dispose(); layer.replaceChildren(); },
+  };
+}
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
 }
 </script>

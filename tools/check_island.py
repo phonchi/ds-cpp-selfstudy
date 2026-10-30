@@ -30,7 +30,7 @@ def fail(msg):
 # 第一次出現必須寫全名：縮寫 → 第一次出現時前面要有的英文全名
 ACRONYMS = {"BFS": "Breadth-First Search", "DFS": "Depth-First Search", "BST": "Binary Search Tree", "DOK": "Dictionary of Keys"}
 # 學生頁不放製作歷程與工作紀錄；台灣用語
-FORBIDDEN = ["本次更新", "已同步", "與新版講義相同", "中位數", "量測", "重現命令", "視頻", "軟件", "硬件", "數據結構", "鏈表", "隊列", "棧", "樣板"]
+FORBIDDEN = ["本次更新", "已同步", "與新版講義相同", "中位數", "量測", "重現命令", "視頻", "軟件", "硬件", "數據結構", "鏈表", "隊列", "棧", "樣板", "晶片", "匯流排", "通電", "藍圖"]
 
 
 class Text(HTMLParser):

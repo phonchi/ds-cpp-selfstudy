@@ -35,7 +35,7 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 
 ## 3D 導覽
 
-[資料結構矽晶群島](https://phonchi.github.io/ds-cpp-selfstudy/island/)：以 3D 晶片群島導覽全站 21 個單元，含先猜下一步與同操作對比；不支援 WebGL 時退回 2D 卡片地圖。
+[資料結構知識群島](https://phonchi.github.io/ds-cpp-selfstudy/island/)：以 3D 群島導覽全站 21 個單元，含先猜下一步與同操作對比；不支援 WebGL 時退回 2D 卡片地圖。
 
 ## 先備知識（選讀，不列入評分）
 

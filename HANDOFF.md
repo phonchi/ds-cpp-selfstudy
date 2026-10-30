@@ -1,13 +1,13 @@
 # 接力文件（ds-cpp-selfstudy）
 
-## 3D 矽晶群島 `/island/`
+## 3D 知識群島 `/island/`
 
-導覽用的附加層，不取代首頁，也不嵌入教材。風格是深色電路板與晶片（通電）／米白藍圖（藍圖），刻意和 statlearning 站的黏土群島不同；程式骨架由它移植。
+導覽用的附加層，不取代首頁，也不嵌入教材。島、海、拱橋、光影與日夜由 statlearning 站的 `/island/` 移植；每座島的元件依章節內容另外設計（郵局、溫室、倉庫、纜車站等公共設施），是這個站自己的語彙。
 
 | 要改什麼 | 改哪個檔 |
 |---|---|
-| 頁面清單、地標、簡介、先備 refs、代表圖、阿迭台詞、路線、猜題、對比文字、BFS／DFS 的圖 | `tools/island_meta.py`（開頭列了地標的結構約束） |
-| 列表、足跡、面板、猜題、導覽、模式（UI 層） | `tools/template/island.js` |
+| 頁面清單、地標名、簡介、先備 refs、代表圖、阿迭台詞、路線、猜題、對比文字、BFS／DFS 的圖 | `tools/island_meta.py`（開頭列了地標的結構約束） |
+| 列表、足跡、面板、猜題、導覽、日夜（UI 層） | `tools/template/island.js` |
 | 同操作對比（模擬與畫面，不需要 Three.js） | `tools/template/island-compare.js` |
 | 場景、地標與動畫 | `tools/template/island-scene.js` |
 | 樣式 | `tools/template/island.css` |
@@ -15,15 +15,13 @@
 
 改完：`python3 tools/build_island.py` → `python3 tools/check_island.py --net` → `node tools/check_island_browser.js`。`island/index.html` 是產物，不要手改。
 
-- **地標動畫**是純函式 `pose(u)`，`u = 0` 是靜止姿態；播放只是推進 `u`。沒有選取時島上輪流播放；選到的島要等學生答完猜題或自己切換才播，避免先看到答案。
-- **繪製**：無光照、無陰影，明暗烘在頂點色；靜態與動態零件各自合併，一幀約 8 個繪製呼叫。繪製迴圈只能有一條；藍圖模式靜止時完全不畫。
+- **地標**：每章一棟建築（靜態零件，會投影）＋會動的模型（共用動態池，不投影）。模型動畫是純函式 `POSE[stem].pose(u)`，`u = 0` 是靜止姿態。沒有選取時島上輪流播放；選到的島要等學生答完猜題才播，避免先看到答案。
+- **比喻的界線**：拱橋只表示授課順序，指標一律是細的紅繩箭頭。動畫不可讓元素穿過彼此；雜湊的貨箱要先在格子上方探查，找到空格才放下。
+- **效能**：繪製迴圈只能有一條；陰影只烘一次。白天每幀約 46 個繪製呼叫，入夜因路燈光暈約 87 個。
 - **代表圖縮圖**：`node tools/build_island_figs.js [stem…]` 產生 `island/figs/<stem>.webp`。**教材改版後要重跑並 commit。**圖不可放在收合的 `<details>` 內，否則深連結看不到。
 - **錨點校正**：`tools/inject_anchor_settle.py` 在正課九章的 `</body>` 前加一小段腳本（gen 區外，重跑 enrich 不受影響）。MathJax 與延後繪製會讓 `頁面.html#id` 的落點偏移，而且偏移量隨載入時序變動，曾測到 900 px 以上。
-- **足跡與模式**只存在該裝置的 localStorage（`dscpp-island:*`）。
-
-姊妹站是 [`ds-python-selfstudy`](https://github.com/phonchi/ds-python-selfstudy)，兩站結構完全相同，
-`recursion.html` 的整個 `<head>`（1–332 行）除了 `<title>` 之外逐位元組一致。改動任一站之前，
-先看另一站有沒有已經解過同一個問題。
+- **足跡與日夜**只存在該裝置的 localStorage（`dscpp-island:*`）。
+- **真實 GPU 量測**：做法見 statlearning 站 HANDOFF §26。用 `SendInput` 前一定要確認量測視窗在前景、游標下也是它（`GetForegroundWindow`、`WindowFromPoint`），否則會點到別的視窗；Windows 的前景鎖定常讓 `SetForegroundWindow` 靜默失敗。
 
 ## 第四到九章依講義擴充（2026-10-08）
 

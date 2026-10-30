@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""由 tools/island_meta.py 產生 island/index.html（3D 資料結構矽晶群島）。冪等。
+"""由 tools/island_meta.py 產生 island/index.html（3D 資料結構知識群島）。冪等。
 
 頁面是「DOM 優先」：三區的章節列表由這裡直接輸出成語意 HTML，沒有 JS、CDN 失效或 WebGL 不可用時
 就是一張可點的 2D 地圖；WebGL 可用時，同一份列表變成 3D 場景旁的快速列表。
@@ -28,24 +28,27 @@ THREE_VER = "0.186.1"
 _CDN = f"https://cdn.jsdelivr.net/npm/three@{THREE_VER}"
 THREE_MAIN = f"{_CDN}/build/three.module.min.js"
 THREE_ADDONS = f"{_CDN}/examples/jsm/"
-# 升版時：下載這三個檔，以 `openssl dgst -sha384 -binary f | openssl base64 -A` 重算。
+# 升版時：下載這四個檔，以 `openssl dgst -sha384 -binary f | openssl base64 -A` 重算。
 THREE_SRI = {
     THREE_MAIN: "sha384-EU5UWigB3OuXjAXooUegndJSqYber3YSJHDoMZs6rV96yY/ol/B4W8logw4CKWkA",
     f"{_CDN}/build/three.core.min.js": "sha384-ktZslgpl0L71WZcQ5wKV96Z04i9QSjtmiU/kYpjDQSfJ5NJ8B79qDF63oNTbQySl",
     f"{THREE_ADDONS}controls/OrbitControls.js": "sha384-LSqANrugPGTgf0eYsQTloqKWy926dOOXo2iZ9y6wLMIDEQoU9AaCLJF1Vcc7oJXr",
+    f"{THREE_ADDONS}geometries/RoundedBoxGeometry.js": "sha384-gHmgcgYfabbVCqiNiLLSop7dMvxAqZsQsjokoDYKyrHmCD5jCPvDvFaXaAkHtTfM",
 }
 CORE_REMAP = {f"{_CDN}/build/three.core.js": f"{_CDN}/build/three.core.min.js"}
 
 # 網頁字型只保留頂列標題：用 text= 只下載這幾個字；其餘一律用系統字型。
-TITLE = "資料結構矽晶群島"
+TITLE = "資料結構知識群島"
 FONTS = ("https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap&text="
          + urllib.parse.quote(TITLE))
 
-# 面板上阿迭的頭像：-> 形頭盔的小機器人，單眼（與 island-scene.js 的 3D 嚮導同色）
-GUIDE_FACE = ('<rect x="1" y="1" width="46" height="46" rx="4" fill="#2c3e7a"/>'
-              '<rect x="11" y="20" width="24" height="20" fill="#f7f3eb"/>'
-              '<rect x="17" y="26" width="12" height="7" fill="#1a1a2e"/><rect x="24" y="27.5" width="4" height="4" fill="#f5b82e"/>'
-              '<rect x="8" y="10" width="20" height="5" fill="#f5b82e"/><path d="M27 4 L41 12.5 L27 21 Z" fill="#f5b82e"/>')
+# 面板上阿迭的頭像：黏土色的臉、深藍外套、頭上一個 -> 形帽（與 island-scene.js 的 3D 嚮導同色）
+GUIDE_FACE = ('<circle cx="24" cy="24" r="23" fill="#dbeef2"/>'
+              '<path d="M9 47 Q9 36 24 36 Q39 36 39 47 Z" fill="#2c3e7a"/><rect x="15" y="33" width="18" height="5" rx="2.5" fill="#c0392b"/>'
+              '<circle cx="24" cy="25" r="11" fill="#f1c9a5"/><path d="M13 23 Q24 10 35 23 Z" fill="#3b2a20"/>'
+              '<circle cx="20" cy="26" r="1.5" fill="#2b2420"/><circle cx="28" cy="26" r="1.5" fill="#2b2420"/>'
+              '<path d="M21 30 Q24 32.5 27 30" stroke="#a5553d" stroke-width="1.4" fill="none" stroke-linecap="round"/>'
+              '<rect x="10" y="8" width="20" height="5" rx="1.5" fill="#f5b82e"/><path d="M28 3 L40 10.5 L28 18 Z" fill="#f5b82e"/>')
 
 
 def esc(s: str) -> str:
@@ -70,7 +73,7 @@ def check_meta():
         for r in p.get("refs", []):
             if r not in BY:
                 errs.append(f"{s} 的 refs 指向不存在的 {r}")
-            elif BY[r]["grp"] != "dimm":
+            elif BY[r]["grp"] != "workshop":
                 errs.append(f"{s} 的 refs 只能指向先備頁，{r} 屬於 {BY[r]['grp']}")
         if not M.GUIDE.get(s):
             errs.append(f"{s} 缺阿迭的導覽詞（GUIDE）")
@@ -194,16 +197,15 @@ def build() -> str:
     n_core = sum(1 for r in recs if r["grp"] == "core")
     return f"""<!DOCTYPE html>
 <!-- 產物：由 tools/build_island.py 產生，不要手改。文案在 tools/island_meta.py，樣式與程式在 tools/template/island* -->
-<html lang="zh-Hant" data-mode="power">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="資料結構矽晶群島：以 3D 晶片群島導覽資料結構 × C++ 互動自學網站的 {len(recs)} 個單元，點晶片島即可前往教材，也能先猜下一步、對照不同資料結構。">
-<title>{TITLE} — Data Structures in Silicon</title>
+<meta name="description" content="資料結構知識群島：以 3D 群島導覽資料結構 × C++ 互動自學網站的 {len(recs)} 個單元，點島即可前往教材，也能先猜下一步、對照不同資料結構。">
+<title>{TITLE} — Data Structures Archipelago</title>
 <script>
 /* 有 WebGL 的瀏覽器先排 3D 版面並顯示載入中，避免 2D 卡片閃一下再切換；失敗時 island.js 會移除 */
 if (window.WebGLRenderingContext) document.documentElement.classList.add('gl-pending');
-try {{ if (localStorage.getItem('dscpp-island:mode') === 'print') document.documentElement.dataset.mode = 'print'; }} catch (e) {{}}
 </script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{FONTS}" rel="stylesheet">
@@ -220,7 +222,7 @@ try {{ if (localStorage.getItem('dscpp-island:mode') === 'print') document.docum
   <a class="isl-home" href="../index.html">← 回到章節總覽</a>
   <div class="isl-brand">
     <h1>{TITLE}</h1>
-    <span class="isl-brand-en">Data Structures in Silicon · NSYSU MATH208</span>
+    <span class="isl-brand-en">Data Structures Archipelago · NSYSU MATH208</span>
   </div>
   <div class="isl-actions">
     <button type="button" class="isl-btn is-strong" id="islCompare">同操作對比</button>
@@ -230,19 +232,19 @@ try {{ if (localStorage.getItem('dscpp-island:mode') === 'print') document.docum
 </header>
 <main class="isl-main">
   <div class="isl-stage" id="islStage" hidden>
-    <p class="isl-loading" aria-hidden="true">通電中…</p>
-    <canvas id="islCanvas" tabindex="0" aria-label="3D 晶片群島：拖曳旋轉、滾輪縮放、點選晶片島；也可用右側列表操作"></canvas>
+    <p class="isl-loading" aria-hidden="true">群島載入中…</p>
+    <canvas id="islCanvas" tabindex="0" aria-label="3D 群島：拖曳旋轉、滾輪縮放、點島或建築；也可用右側列表操作"></canvas>
     <div class="isl-jumps" role="group" aria-label="跳到區域">
 {jumps}
     </div>
     <div class="isl-labels" id="islLabels"></div>
     <button type="button" class="isl-bubble" id="islBubble" hidden>{esc(M.TOUR["hello"])}</button>
-    <button type="button" class="isl-mode" id="islMode" aria-pressed="false">切到藍圖</button>
-    <p class="isl-hint" aria-hidden="true">拖曳旋轉 · 滾輪或雙指縮放 · 點晶片島</p>
+    <button type="button" class="isl-night" id="islNight" aria-pressed="false">入夜</button>
+    <p class="isl-hint" aria-hidden="true">拖曳旋轉 · 滾輪或雙指縮放 · 點島</p>
   </div>
   <nav class="isl-list" id="islList" aria-label="章節列表">
     <p class="isl-intro">三個區域、{len(recs)} 個單元，全部可以自由進入。正課 {n_core} 章依授課順序排列；
-      先備模組是選讀，需要時再查閱。<span class="isl-trail-note">「足跡」只存在這台裝置的瀏覽器裡。</span></p>
+      C++ 工坊島是選讀，需要時再查閱。<span class="isl-trail-note">「足跡」只存在這台裝置的瀏覽器裡。</span></p>
 {sections}
   </nav>
   <aside class="isl-panel" id="islPanel" hidden aria-labelledby="islPanelTitle">

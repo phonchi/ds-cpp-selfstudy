@@ -171,7 +171,7 @@ function drawOrder(f) {
     w.appendChild(box);
   } else {
     const row = el('div', 'cmp-qrow');
-    row.append(el('span', 'cmp-end', 'front'), box, el('span', 'cmp-end', 'back'));
+    row.append(el('span', 'cmp-end', 'front'), box, el('span', 'cmp-end', 'rear'));
     w.appendChild(row);
   }
   const out = el('div', 'cmp-out');

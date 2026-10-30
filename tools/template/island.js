@@ -1,4 +1,4 @@
-/* 3D 資料結構矽晶群島。build_island.py 會把本檔 inline 進 island/index.html 的 <script type="module">。
+/* 3D 資料結構知識群島。build_island.py 會把本檔 inline 進 island/index.html 的 <script type="module">。
  *
  * 分兩層：
  *   1. UI 層（不需要 Three.js）：章節列表、足跡（localStorage）、面板、猜題。
@@ -17,7 +17,7 @@ let scene = null;   // 3D 場景成功啟動後才有值
 
 /* ── 足跡：只存在這台裝置的瀏覽器。「造訪」＝從島上點過前往教材；「完成」＝學生自己標記 ── */
 const TRAIL_KEY = 'dscpp-island:trail:v1';
-const MODE_KEY = 'dscpp-island:mode';
+const NIGHT_KEY = 'dscpp-island:night';
 function loadTrail() {
   try {
     const t = JSON.parse(localStorage.getItem(TRAIL_KEY) || '{}');
@@ -286,21 +286,6 @@ function shrinkBubble() {
 }
 bubble.addEventListener('click', openTour);
 
-/* ── 模式：通電（預設）／藍圖。頁面色票靠 html[data-mode]，2D 模式也有效 ── */
-const modeBtn = $('islMode');
-function getMode() { return document.documentElement.dataset.mode === 'print' ? 'print' : 'power'; }
-function applyMode(mode, instant) {
-  document.documentElement.dataset.mode = mode;
-  modeBtn.setAttribute('aria-pressed', String(mode === 'print'));
-  modeBtn.textContent = mode === 'print' ? '回到通電' : '切到藍圖';
-  if (scene) scene.setMode(mode, instant);
-}
-modeBtn.addEventListener('click', () => {
-  const next = getMode() === 'print' ? 'power' : 'print';
-  applyMode(next, false);
-  try { localStorage.setItem(MODE_KEY, next); } catch (e) { /* 只在本頁有效 */ }
-});
-
 /* ── 3D 場景（可選）── */
 function hasWebGL() {
   try {
@@ -323,8 +308,8 @@ if (hasWebGL()) {
 }
 
 async function initScene() {
-  const [THREE, { OrbitControls }] = await Promise.all([
-    import('three'), import('three/addons/controls/OrbitControls.js')]);
+  const [THREE, { OrbitControls }, { RoundedBoxGeometry }] = await Promise.all([
+    import('three'), import('three/addons/controls/OrbitControls.js'), import('three/addons/geometries/RoundedBoxGeometry.js')]);
   const stage = $('islStage'), canvas = $('islCanvas');
   document.body.classList.add('webgl-ready');
   stage.hidden = false;
@@ -334,16 +319,29 @@ async function initScene() {
   } catch (e) {
     throw new Error('WebGLRenderer 建立失敗');
   }
-  scene = buildWorld(THREE, { OrbitControls }, renderer, stage, canvas);
+  scene = buildWorld(THREE, { OrbitControls, RoundedBoxGeometry }, renderer, stage, canvas);
   $('islReset').hidden = false;
   $('islReset').addEventListener('click', () => scene && scene.reset());
   document.querySelectorAll('.isl-jump-btn').forEach(b =>
     b.addEventListener('click', () => scene && scene.flyToIsle(b.dataset.grp)));
-  applyMode(getMode(), true);
+  const night = $('islNight');
+  const applyNight = (on, instant) => {
+    night.setAttribute('aria-pressed', String(on));
+    night.textContent = on ? '回到白天' : '入夜';
+    stage.classList.toggle('is-night', on);
+    if (scene) scene.setNight(on, instant);
+  };
+  let isNight = false;
+  try { isNight = localStorage.getItem(NIGHT_KEY) === '1'; } catch (e) { /* 只在本頁有效 */ }
+  applyNight(isNight, true);
+  night.addEventListener('click', () => {
+    isNight = !isNight; applyNight(isNight, false);
+    try { localStorage.setItem(NIGHT_KEY, isNight ? '1' : '0'); } catch (e) { /* 只在本頁有效 */ }
+  });
   canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); scene && scene.dispose(); fallback2D('WebGL context lost'); });
   window.__island = { screenPos: stem => scene && scene.screenPos(stem), stats: () => scene && scene.stats(),
     guidePos: () => scene && scene.guidePos(), invariants: () => scene && scene.invariants(),
-    pose: (stem, u) => scene && scene.pose(stem, u), plays: () => scene && scene.plays() };
+    pose: (stem, u) => scene && scene.pose(stem, u), plays: () => scene && scene.plays(), play: stem => scene && scene.play(stem) };
   refreshTrail();
   if (current) scene.select(current, false);
   await scene.warm();                       // 先編譯著色器、畫好第一幀，再淡入畫布

@@ -33,6 +33,10 @@ fork 自 shiroinekotfs，MIT）；PyPI 上的原版缺這一行，`#include "pyt
 | 08 | [圖與圖演算法](graphs.html) | cppds Ch.9 |
 | 09 | [樹與樹演算法](trees.html) | cppds Ch.8 |
 
+## 3D 導覽
+
+[資料結構矽晶群島](https://phonchi.github.io/ds-cpp-selfstudy/island/)：以 3D 晶片群島導覽全站 21 個單元，含先猜下一步與同操作對比；不支援 WebGL 時退回 2D 卡片地圖。
+
 ## 先備知識（選讀，不列入評分）
 
 最新語氣、課程殘留與先備銜接複查見[讀者審查紀錄](docs/prereq-language-reader-review.md)。

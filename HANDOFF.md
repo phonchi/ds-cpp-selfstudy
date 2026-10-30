@@ -1,5 +1,26 @@
 # 接力文件（ds-cpp-selfstudy）
 
+## 3D 矽晶群島 `/island/`
+
+導覽用的附加層，不取代首頁，也不嵌入教材。風格是深色電路板與晶片（通電）／米白藍圖（藍圖），刻意和 statlearning 站的黏土群島不同；程式骨架由它移植。
+
+| 要改什麼 | 改哪個檔 |
+|---|---|
+| 頁面清單、地標、簡介、先備 refs、代表圖、阿迭台詞、路線、猜題、對比文字、BFS／DFS 的圖 | `tools/island_meta.py`（開頭列了地標的結構約束） |
+| 列表、足跡、面板、猜題、導覽、模式（UI 層） | `tools/template/island.js` |
+| 同操作對比（模擬與畫面，不需要 Three.js） | `tools/template/island-compare.js` |
+| 場景、地標與動畫 | `tools/template/island-scene.js` |
+| 樣式 | `tools/template/island.css` |
+| Three.js 版本 | `tools/build_island.py` 的 `THREE_VER` 與 `THREE_SRI` |
+
+改完：`python3 tools/build_island.py` → `python3 tools/check_island.py --net` → `node tools/check_island_browser.js`。`island/index.html` 是產物，不要手改。
+
+- **地標動畫**是純函式 `pose(u)`，`u = 0` 是靜止姿態；播放只是推進 `u`。沒有選取時島上輪流播放；選到的島要等學生答完猜題或自己切換才播，避免先看到答案。
+- **繪製**：無光照、無陰影，明暗烘在頂點色；靜態與動態零件各自合併，一幀約 8 個繪製呼叫。繪製迴圈只能有一條；藍圖模式靜止時完全不畫。
+- **代表圖縮圖**：`node tools/build_island_figs.js [stem…]` 產生 `island/figs/<stem>.webp`。**教材改版後要重跑並 commit。**圖不可放在收合的 `<details>` 內，否則深連結看不到。
+- **錨點校正**：`tools/inject_anchor_settle.py` 在正課九章的 `</body>` 前加一小段腳本（gen 區外，重跑 enrich 不受影響）。MathJax 與延後繪製會讓 `頁面.html#id` 的落點偏移，而且偏移量隨載入時序變動，曾測到 900 px 以上。
+- **足跡與模式**只存在該裝置的 localStorage（`dscpp-island:*`）。
+
 姊妹站是 [`ds-python-selfstudy`](https://github.com/phonchi/ds-python-selfstudy)，兩站結構完全相同，
 `recursion.html` 的整個 `<head>`（1–332 行）除了 `<title>` 之外逐位元組一致。改動任一站之前，
 先看另一站有沒有已經解過同一個問題。

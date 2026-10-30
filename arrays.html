@@ -2299,5 +2299,24 @@ function spClear() { spData = {}; spSel = null; spRender(); spDescribe('已清�
 spRender(); spDescribe();
 /* /gen:arrays-widgets */
 </script>
+<!-- anchor-settle -->
+<script>
+(function () {
+  var id = decodeURIComponent(location.hash.slice(1)), t = id && document.getElementById(id);
+  if (!t || !window.ResizeObserver) return;
+  var stop = false, end = function () { stop = true; ro.disconnect(); };
+  var pull = function () {
+    if (stop) return;
+    var d = t.getBoundingClientRect().top - 24;
+    if (Math.abs(d) > 2) window.scrollBy({ top: d, behavior: 'instant' });
+  };
+  var ro = new ResizeObserver(pull);
+  ro.observe(document.body);
+  pull();
+  ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (e) { addEventListener(e, end, { passive: true, once: true }); });
+  setTimeout(end, 5000);
+})();
+</script>
+<!-- /anchor-settle -->
 </body>
 </html>

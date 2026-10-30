@@ -830,7 +830,8 @@ function buildWorld(THREE, addons, renderer, stage, canvas) {
       if (avoid.some(([ax, az, r]) => Math.hypot(x - ax, z - az) < r)) return false;
       if (!rect) return true;
       const dx = x - I.x, dz = z - I.z;                 // 換回地標的區域座標，避開中央那塊矩形
-      return Math.abs(dx * cf - dz * sf) > 4.4 || Math.abs(dx * sf + dz * cf) > 3.7;
+      const lz = dx * sf + dz * cf;                       // 前方也留空：樹往上投影會擋住地面標示
+      return Math.abs(dx * cf - dz * sf) > 4.6 || lz < -3.7 || lz > 5.6;
     };
     for (let h = 0; h < houses && spots.length; h++) {
       const a = take(), [x, z] = pos(a, .66);

@@ -85,6 +85,7 @@ string reverse(string s) {
 }
 int main() {
     assert(reverse("") == "");
+    assert(reverse("a") == "a");
     assert(reverse("hello") == "olleh");
 }'''
 
@@ -94,6 +95,7 @@ TOSTR_STACK = '''#include <iostream>
 using namespace std;
 
 string toStr(int n, int base) {
+    if (n == 0) return "0";
     stack<char> rStack;
     string convertString = "0123456789ABCDEF";
     while (n > 0) {
@@ -234,9 +236,10 @@ const char TRIED = '.';
 const char DEAD_END = '-';
 const char PART_OF_PATH = 'O';'''
 
-MAZE_CLASS = '''class Maze {
+MAZE_CLASS = '''// Core loading excerpt; validation, fallback, and GUI setup are omitted.
+class Maze {
     public:
-        Maze(string mazeFilename) {
+        Maze(string mazeFilename, bool useGui = false) {
             ifstream mazeFile(mazeFilename);
             string line;
             while (getline(mazeFile, line)) {
@@ -264,6 +267,7 @@ MAZE_CLASS = '''class Maze {
 
 MAZE_UPDATE_PRINT = '''void updatePosition(int row, int col, char val) {
     mazeList[row][col] = val;
+    if (gui) gui->update(row, col, val);
 }
 
 void print() {
@@ -310,28 +314,29 @@ SEARCH_FROM = '''bool searchFrom(Maze& maze, int row, int column) {
     return found;
 }'''
 
-MAZE_MAIN = '''#include <iostream>
+MAZE_MAIN_TEXT = '''#include <iostream>
 #include "pythonds3/cppds/maze.hpp"   // Maze class + searchFrom (md listing above)
 using namespace std;
 
 int main() {
-    Maze myMaze("maze2.txt");
+    Maze myMaze("maze2.txt", false);
     searchFrom(myMaze, myMaze.startRow, myMaze.startCol);
     myMaze.print();   // O = path, . = tried, - = dead end
     return 0;
 }'''
 
-MAZE2_TXT = '''++++++++++++++++++++++
-+   +   ++ ++        +
-      +     ++++++++++
-+ +    ++  ++++ +++ ++
-+ +   + + ++    +++  +
-+          ++  ++  + +
-+++++ + +      ++  + +
-+++++ +++  + +  ++   +
-+          + + S+ +  +
-+++++ +  + + +     + +
-++++++++++++++++++++++'''
+# Compatibility name for the existing automatic text-output check.
+MAZE_MAIN = MAZE_MAIN_TEXT
+
+MAZE_MAIN_GUI = MAZE_MAIN_TEXT.replace(
+    'Maze myMaze("maze2.txt", false);',
+    'Maze myMaze("maze2.txt", true);'
+).replace('    return 0;', '    myMaze.waitForClose();  // close the window to finish the cell\n    return 0;')
+
+
+# The same bytes are used for the downloadable sample and the browser player.
+from pathlib import Path
+MAZE2_TXT = (Path(__file__).resolve().parents[3] / 'data/mazes/maze2.txt').read_text().rstrip('\r\n')
 
 MC1 = '''#include <iostream>
 #include <vector>

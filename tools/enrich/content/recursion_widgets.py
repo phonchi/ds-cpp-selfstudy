@@ -263,13 +263,21 @@ def w_hanoi():
 
 
 def w_maze():
-    panel = '''<div id="mazeVis" class="mono" style="line-height:1.15;font-size:1.05rem;letter-spacing:.1em;padding:.5rem;overflow-x:auto;"></div>
-        <div class="status-banner" id="mazeStatus"><span class="status-icon">›</span><span class="status-text">S 是起點；按「開始」看探索與回溯。</span></div>
-        <div class="controls-bar">
-          ''' + _buttons('maze', 'mazeStart') + '''
-          ''' + _speed('maze', 60, 600, 300) + '''
+    panel = '''<div class="controls-bar maze-controls">
+          <label for="mazeMap">地圖 <select id="mazeMap"><option value="maze2" selected>講義 maze2.txt</option><option value="small">小迷宮示範</option></select></label>
+          ''' + _buttons('maze', 'mazeStart', '▶ 從頭播放') + '''
+          <button class="btn" onclick="mazeNextReturn()">下一次返回</button>
+          <button class="btn" onclick="mazeReset()">重設</button>
+          ''' + _speed('maze', 30, 600, 180) + '''
         </div>
-        <div class="mono" style="font-size:.78rem;color:var(--muted);">圖例：<span style="color:#f39c12;">●</span> 目前｜<span style="color:#1a6b4a;">＋</span> 路徑（O）｜<span style="color:#c0392b;">−</span> 死路</div>'''
+        <div id="mazeVis" class="maze-map" aria-label="迷宮格子內容"></div>
+        <div class="maze-legend">格子標記：<code>+</code> 牆｜<code>.</code> 已探索｜<code>-</code> 死路｜<code>O</code> 成功路徑｜<code>S</code> 起點</div>
+        <p class="maze-position" id="mazePosition"></p>
+        <p class="dx-note">框線表示這次呼叫正在檢查的座標，不表示角色移動。return 只改變控制流程，格子標記要由 updatePosition 更新。</p>
+        <div class="status-banner" id="mazeStatus" aria-live="polite"><span class="status-icon">›</span><span class="status-text">從 S 出發，依序檢查與探索。</span></div>
+        <div class="maze-state-row"><strong id="mazePhase"></strong><span>呼叫堆疊：<span id="mazeDepth">0 層</span></span></div>
+        <p class="maze-checks" id="mazeChecks"></p>
+        <div id="mazeStack" class="maze-stack" role="region" aria-label="呼叫堆疊，最上方為正在執行的呼叫" tabindex="0"></div>'''
     side = _code_card('searchFrom', SEARCH_FROM, 'mazeCode', size='.72rem')
     return _layout(panel, side)
 
@@ -298,7 +306,7 @@ function tsfFrames() {
     st.push(`toStr(${n}, ${base})　n=${n}（執行中）`);
     frames.push({stack: [...st], line: k === 0 ? 1 : 6,
       msg: k === 0 ? 'main 呼叫 toStr(10, 2)：推入第一個 frame。'
-                   : `${chain[k-1]} ≥ 2：先呼叫 toStr(${n}, 2)，餘數 '${conv[chain[k-1] % base]}' 等它回來再接。`});
+                   : `${chain[k-1]} ≥ 2：追蹤 toStr(${n}, 2) 的呼叫；此層尚待把 '${conv[chain[k-1] % base]}' 接在遞迴結果之後。`});
   });
   st[st.length - 1] = 'toStr(1, 2)　n=1 → 回傳 "1"';
   frames.push({stack: [...st], line: 4, msg: '1 < 2：base case，直接查表回傳 "1"。'});
@@ -309,7 +317,7 @@ function tsfFrames() {
     s = s + conv[n % base];
     st[st.length - 1] = `toStr(${n}, 2)　n=${n} → "${s}"`;
     frames.push({stack: [...st], line: 6,
-      msg: `彈出上一層；toStr(${n}, 2) 接上 convertString[${n} % 2] = '${conv[n % base]}'，得到 "${s}"。`});
+      msg: `子呼叫返回後，toStr(${n}, 2) 完成串接：convertString[${n} % 2] = '${conv[n % base]}'，得到 "${s}"。`});
   }
   st.pop();
   frames.push({stack: [], line: 8, msg: '<strong>所有 frame 都已彈出，main 拿到 "1010"。</strong>'});

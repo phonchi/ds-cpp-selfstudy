@@ -8,6 +8,7 @@ from enrich_lib import hl
 from content.recursion_figures import figure
 from content.recursion_programs import *  # noqa: F401,F403
 from content import recursion_widgets as W
+from content import recursion_concepts as C
 
 
 # ---------------------------------------------------------------- helpers (same conventions as chapter 4)
@@ -91,11 +92,12 @@ def ol(items):
 
 
 SKIPPED = '<p class="rec-skip">上課時略過本節，留給自學。</p>'
-TURTLE_NOTE = ('<div class="warn-box"><b>這些程式需要另外安裝圖形函式庫。</b>'
-               'cppds 的 C++ 範例使用只有標頭檔的 <code>CTurtle.hpp</code>：<code>cturtle::TurtleScreen</code> 負責繪圖視窗，'
-               '<code>cturtle::Turtle</code> 在視窗裡移動。課程的 notebook 只執行主控台程式，所以本節的 CTurtle 程式只供閱讀，不會執行。'
-               '想在自己的電腦上執行，要另外取得 <code>CTurtle.hpp</code>，放在原始檔旁邊，再編譯成桌面程式。'
-               '本頁的互動圖用瀏覽器的 canvas 畫出同樣的圖形，不需要安裝。</div>')
+TURTLE_NOTE = ('<div class="info-box"><b>本節是 CTurtle 參考程式。</b>'
+               '<code>CTurtle.hpp</code> 使用 <code>CImg.h</code> 處理繪圖與視窗；這些螺旋、樹與三角形程式用來閱讀遞迴結構。'
+               '若要另行編譯為桌面程式，需備妥這兩份標頭及平台的圖形連結設定。'
+               '課程 kernel 已整合的是後面的 <a href="#maze">Maze GUI 範例</a>，不能把本節的 '
+               '<code>#include &lt;CTurtle.hpp&gt;</code> 當成同一個可直接執行的介面。'
+               '本頁 canvas 動畫可直接在瀏覽器觀看，不需要安裝圖形函式庫。</div>')
 
 
 # ---------------------------------------------------------------- P00
@@ -107,7 +109,8 @@ def prologue():
                  (False, '4 次', '這是「只剩一個元素就停」的版本中，第一次之後的遞迴呼叫次數。本頁的 base case 是空的範圍，要多走到尾端。'),
                  (False, '30 次', '呼叫次數只跟元素個數有關，跟元素的值或總和 30 無關。'),
              ])
-    return f'''<p><strong>遞迴</strong>（recursion）是一種解題方法：把問題<strong>拆成越來越小的子問題</strong>，直到子問題小到可以直接解決。寫成程式時，通常就是函式呼叫自己。有些問題用迴圈很難寫，用遞迴卻能寫得簡潔。</p>
+    return f'''<p><strong>遞迴</strong>（recursion）是一種程式設計技巧：把問題<strong>拆成較小的同型問題</strong>，直到子問題小到可以直接解決。寫成程式時，通常就是函式呼叫自己。有些問題用迴圈很難寫，用遞迴卻能寫得簡潔。</p>
+{C.why_recursion()}
 <h3>先用迴圈：計算 vector 的總和</h3>
 <p>要算 <code>{{1, 3, 5, 7, 9}}</code> 的總和，迴圈版用一個<strong>累加變數</strong> <code>theSum</code>：從 0 開始，把每個數依序加進去，迴圈結束時 <code>theSum</code> 就是總和。</p>
 {lecture_program("講義完整程式：迴圈版 listSum", "講義 06 · 用累加變數求和", LISTSUM_ITER, OUT['listsum_iter'],
@@ -125,14 +128,17 @@ def prologue():
                  note="輸出和迴圈版相同。listSum 只是包裝：從索引 0 開始呼叫 listSumFrom。")}
 {ul(['<code>listSumFrom</code> 在 <code>index == numList.size()</code> 時停止。這個 base case 代表「剩下的範圍是空的」，總和為 0，所以 <code>listSum({})</code> 也能安全地回傳 0。',
      '遞迴呼叫把 <code>index</code> 加一。同一個 vector 以 <code>const</code> 參考傳下去，遞迴過程中不會被複製，也不會被修改。'])}
+{C.size_type()}
 <h3>展開與回傳</h3>
-<p>下圖是加總 {{1, 3, 5, 7, 9}} 所需的一連串遞迴呼叫（圖中的 sum(3,5,7,9) 表示「從 3 開始到結尾的總和」）。把這串呼叫看成一連串的化簡：每次呼叫都把問題縮短一項。</p>
+<p>下圖以「剩一個元素就停止」的版本示範加總 {{1, 3, 5, 7, 9}}；本頁程式會再走到空範圍才停止。圖中的 sum(3,5,7,9) 表示「從 3 開始到結尾的總和」。把這串呼叫看成一連串的化簡：每次呼叫都把問題縮短一項。</p>
 {figure('sum')}
 <p>問題簡化到不能再簡單時，就開始把各個小問題的答案組合起來，一路回到最初的問題：</p>
 {figure('sum2')}
 <p>下面的動畫把同一件事拆成一步一步：先往下展開，碰到 base case 之後再一層層回傳。按「→ 單步」可以停在任何一步。</p>
 {W.w_sum()}
+{C.calls()}
 {q}
+{quiz("qSizeType", "QUIZ · 索引的型別", "為什麼這裡用 size_t 作為 vector 索引？", [(True, "配合物件大小與容器索引的表示需求", "size_t 的用途是表示大小；寬度由實作決定，並非只為大資料而設計。"), (False, "size_t 保證是 64 位元", "C++ 不保證 size_t 的位元寬度。"), (False, "遞迴只能接受 size_t 參數", "參數型別由資料意義決定，與是否遞迴無關。"), (False, "size_t 可以安全表示所有負索引", "size_t 是無號型別，不能用它表示負索引。")])}
 {fold("遞迴和迴圈可以互換嗎", "<p>可以。凡是遞迴能算的，迴圈都能算，反過來也一樣；遞迴時由系統替你保存每一層的狀態，改寫成迴圈時就要自己保存，例如用一個 stack。遞迴的好處是讓程式的形狀跟問題的定義一致：listSumFrom 的兩行幾乎就是上面那條分段定義。後面的樹、分治與回溯問題，用遞迴寫特別自然。</p>")}'''
 
 
@@ -180,7 +186,7 @@ def laws():
 def tostr():
     rev_note = ('用三法則檢查：base case 是長度不超過 1，空字串與單一字元本身就是自己的反轉；'
                 '<code>s.substr(1)</code> 每次少一個字元，確實朝 base case 前進；而且它呼叫自己。'
-                '跟 toStr 是同一個骨架：<strong>把「接上字元」延後到遞迴回來之後</strong>，順序就自動反過來。執行時沒有輸出，表示兩個 assert 都通過。')
+                '跟 toStr 是同一個骨架：<strong>把「接上字元」延後到遞迴回來之後</strong>，順序就自動反過來。執行時沒有輸出，表示空字串、單字元與一般字串的 assert 都通過。')
     q_rev = quiz('qRevBase', 'QUIZ · reverse 的 base case',
                  '哪一個 base case 能讓遞迴的 <code>reverse(string s)</code> 同時正確處理空字串與單一字元？', [
                      (True, '<code>if (s.size() &lt;= 1) return s;</code>', '兩種輸入本身就是自己的反轉，空字串的情況也安全。'),
@@ -207,16 +213,19 @@ def tostr():
 <h3>講義程式：toStr</h3>
 {lecture_program("講義完整程式：toStr", "講義 06 · 任意進位（2 到 16）", TOSTR_MAIN, OUT['tostr'],
                  note="1453 = 5 × 256 + 10 × 16 + 13，三個位數 5、10、13 查表後是 5、A、D。<code>if (n &lt; base)</code> 檢查 base case：一旦 n 小於要轉換的進位，就停止遞迴，直接從 convertString 取出字元。else 分支同時滿足第二與第三條法則：用除法縮小問題，並呼叫自己。")}
+{C.string_constructor()}
 <h3>追蹤 toStr(10, 2)</h3>
 <p>再追蹤一次，這次把 10 轉成二進位字串 "1010"：</p>
 {figure('num2str2')}
-<p>餘數產生的順序看起來是反的，但結果是對的：程式<strong>先</strong>做遞迴呼叫，等它回傳之後，<strong>才</strong>接上餘數的字元。如果把這兩件事的順序對調，先接上查到的字元、再處理商，得到的字串就會倒過來。把串接延後到遞迴呼叫回來之後，結果就是正確的順序。這和上一章討論的 stack 是同一個道理。</p>
+<p>反覆除以進位時，餘數依序對應低位到高位，最後卻要把高位放在左邊。遞迴結果代表較高位的字串；這一層的餘數字元接在它右邊，就得到正確順序。若改成把餘數字元接在遞迴結果左邊，輸出的位數便會反過來。</p>
+{C.pending_concat()}
 <p>在下面的動畫中輸入其他數字或換成二進位、十六進位，觀察每一層何時展開、何時接上自己的餘數。</p>
 {W.w_tostr()}
 <h3>講義練習：用遞迴反轉字串</h3>
 <p>寫一個遞迴函式，接收一個字串，回傳順序相反的新字串。講義的程式挖了兩個空格，先自己想想再看解答。</p>
 {snippet("講義 06 · 練習：填入兩個空格", REVERSE_BLANK, kind='exercise', note="照原樣編譯會失敗：<code>____</code> 是要填的空格。")}
 {details("參考解答（補充）", silent_program("reverse：剩下的部分先反轉，再接上第一個字元", REVERSE_SOLVED, rev_note))}
+{C.substring_reverse()}
 {q_rev}
 {q_swap}'''
 
@@ -231,11 +240,12 @@ def frames():
 {figure('stack')}
 <p>接著只要把字元一個個 pop 出來接成字串，就得到 "1010"。</p>
 <h3>C++ 怎麼實作遞迴呼叫</h3>
-<p>上面的例子說明了 C++ 實作遞迴呼叫的方式。對每一個進行中的函式呼叫，執行環境都維護一個 <strong>stack frame</strong>，裡面放著這次呼叫的參數、區域變數與返回資訊。函式回傳時，回傳值留在堆疊頂端，讓呼叫它的函式取用。下圖是 return 之後的呼叫堆疊：</p>
+<p>可以用 <strong>stack frame</strong> 模型理解尚未結束的函式呼叫：每次呼叫都有自己的參數、區域狀態，以及返回後要接續的位置。下圖把待處理的呼叫與已取得的回傳值畫在一起，方便追蹤；它不是 C++ 規定的實際記憶體配置圖。</p>
 {figure('stack2')}
 <p>toStr(2 / 2, 2) 回傳 "1"。這個值代回 toStr(1, 2) + convertString[2 % 2]，得到 "10"，之後較早的呼叫才繼續依序回傳。</p>
 <p>這樣看來，C++ 的呼叫堆疊取代了我們剛才明確使用的 stack。在 vector 加總的例子裡，也可以把堆疊上的回傳值想成取代了累加變數的角色。</p>
-<p>stack frame 也為函式的變數提供了<strong>作用域</strong>。雖然一再呼叫的是同一個函式，每次呼叫都會建立新的作用域，存放這次呼叫自己的區域變數：toStr(10, 2) 與 toStr(5, 2) 各有一個 n，彼此不會互相覆蓋。</p>
+<p>雖然一再呼叫的是同一個函式，每次呼叫的參數與一般自動區域變數都有各自的實例：<code>toStr(10, 2)</code> 與 <code>toStr(5, 2)</code> 各有一個 <code>n</code>，彼此不會覆蓋。變數在原始碼中的作用域相同，正在執行的呼叫卻不同。</p>
+{C.frame_details()}
 <h3>動畫：toStr(10, 2) 的呼叫堆疊</h3>
 <p>按「→ 單步」看每一次呼叫推入一個 frame，碰到 base case 之後再一格一格彈出。堆疊頂端顯示 toStr(2, 2) 得到 "10"、下面兩格還在等待的那一格，就是上圖的狀態。</p>
 {W.w_frames_tostr()}
@@ -250,16 +260,16 @@ def frames():
 def viz():
     return f'''{SKIPPED}
 <p>有時候很難在腦中想像遞迴函式到底在做什麼，這也是遞迴不容易掌握的原因之一。本節用遞迴畫出一些圖形。看著圖形一步步成形，比較容易看清遞迴的過程。</p>
-<h3>CTurtle 程式要另外安裝</h3>
+<h3>CTurtle 參考程式與瀏覽器示範</h3>
 {TURTLE_NOTE}
 <h3>遞迴畫螺旋</h3>
 <p>先看一個簡單的例子：用遞迴畫螺旋。base case 是要畫的線段長度減到 0 或以下。長度大於 0 時，讓烏龜往前走 length 單位、右轉 90 度，再用短一點的長度呼叫自己。</p>
-{snippet("講義 06 · spiral（CTurtle，需另外安裝）", SPIRAL_MAIN, kind='fragment',
+{snippet("講義 06 · spiral（CTurtle 參考程式）", SPIRAL_MAIN, kind='fragment',
          note="遞迴呼叫時長度減 5。長度減到 0 或以下時函式直接回傳；整個圖畫完之後，<code>screen.bye()</code> 關閉 CTurtle 的視窗。")}
 <h3>碎形樹</h3>
 <p>接著看<strong>碎形</strong>（fractal）。碎形來自數學的一個分支，和遞迴有很多共通點。依定義，碎形不管放大多少倍，基本形狀都一樣。大自然中的例子有海岸線、雪花、山脈，甚至樹木與灌木。因為這種性質，程式設計師可以用碎形為電腦動畫產生非常逼真的景物。</p>
 <p>既然碎形在各種放大倍率下看起來都一樣，套到樹上就是：連一根小樹枝，都和整棵樹有相同的形狀與特徵。所以可以這樣定義樹：<strong>一棵樹是一段樹幹，右邊長出一棵較小的樹，左邊也長出一棵較小的樹</strong>。用遞迴的觀點看這個定義，就是把同一個定義再套用到左右兩棵較小的樹上。</p>
-{snippet("講義 06 · tree（CTurtle，需另外安裝）", TREE, kind='fragment',
+{snippet("講義 06 · tree（CTurtle 參考程式）", TREE, kind='fragment',
          note="完整的桌面程式會建立 <code>cturtle::TurtleScreen</code>、讓烏龜朝上，呼叫 <code>tree(75, turtle)</code>，畫完後關閉視窗。")}
 <p>兩次遞迴呼叫分別發生在右轉 20 度與左轉 40 度之後：左轉 40 度先抵銷原本的右轉 20 度，再往左多轉 20 度。每次呼叫都把 <code>branchLen</code> 減 15，<code>branchLen &gt; 5</code> 不成立時就不再遞迴，這就是 base case。最後的右轉 20 度與後退，讓烏龜回到這次呼叫開始時的位置與方向，上一層才能接著畫另一邊。</p>
 <p>下面用 canvas 畫出同樣的兩個圖形，參數和講義相同：<code>spiral(turtle, 100)</code> 與 <code>tree(75)</code>（圖按比例放大）。tree 每層把 <code>branchLen</code> 減 15，75、60、45、30、15 共五層；拉動滑桿只畫到前幾層，比較每多一層時樹多長出多少枝。</p>
@@ -285,9 +295,9 @@ def sierpinski():
 {ol(['先畫一個大三角形。', '連接三邊的中點，把大三角形分成四個小三角形。', '中間那個不管，對三個角落的小三角形套用同樣的步驟。'])}
 {figure('triangle')}
 <p>base case 是什麼？這裡的 base case 是人為設定的：要把三角形分割幾次。這個次數稱為碎形的 <strong>degree</strong>（深度）。每做一次遞迴呼叫，degree 就減 1；degree 減到 0 時，不再遞迴呼叫。</p>
-<h3>講義程式（CTurtle，需另外安裝）</h3>
+<h3>講義程式（CTurtle 參考程式）</h3>
 <p>程式分成三段。第一段的 drawTriangle 用指定顏色畫出並填滿一個三角形：</p>
-{snippet("講義 06 · drawTriangle（CTurtle，需另外安裝）", DRAW_TRIANGLE, kind='fragment')}
+{snippet("講義 06 · drawTriangle（CTurtle 參考程式）", DRAW_TRIANGLE, kind='fragment')}
 <p>第二段是 sierpinski 本身。它有三個遞迴呼叫，每個呼叫對應連接中點之後得到的一個角落小三角形：</p>
 {snippet("講義 06 · sierpinski", SIERPINSKI, kind='fragment',
          note="<code>ct::middle(a, b)</code> 回傳 a、b 兩點的中點。顏色用 degree 當索引，所以同一層的三角形顏色相同。")}
@@ -318,64 +328,91 @@ def hanoi():
 <h3>三步驟大綱</h3>
 <p>把高度 h 的塔從起始柱（fromPole）搬到目標柱（toPole），中途借用中間柱（withPole）：</p>
 {ol(['借用目標柱，把上面高度 h−1 的塔從起始柱搬到中間柱。', '把剩下的一個盤子從起始柱搬到目標柱。', '借用起始柱，把高度 h−1 的塔從中間柱搬到目標柱。'])}
-<p>最簡單的非空河內塔只有一個盤子：直接把它搬到目的地。程式中的 base case 是高度 0 的塔，什麼都不用搬。步驟 1 與步驟 3 都讓塔的高度減一，所以會朝 base case 前進。每一層各搬一個盤子，搬 n 個盤子總共要 $2^n - 1$ 步。</p>
+<p>最簡單的非空河內塔只有一個盤子：直接把它搬到目的地。程式中的 base case 是高度 0 的塔，什麼都不用搬。步驟 1 與步驟 3 都讓塔的高度減一，所以會朝 base case 前進。每個非空呼叫都包含一次搬盤子的動作，但同一層可能有許多呼叫，不能把移動次數等同於遞迴深度。</p>
+{C.hanoi_count()}
 <p>下面的動畫照講義程式的呼叫 <code>moveTower(n, "A", "B", "C")</code> 擺放柱子：A 是 fromPole、B 是 toPole、C 是 withPole，所以目標柱 B 在中間，和上圖目標柱在右邊不同。每根柱子下方都標出它的角色。</p>
 {W.w_hanoi()}
 <h3>講義程式：moveTower</h3>
 {lecture_program("講義完整程式：moveTower 與 moveDisk", "講義 06 · 三個盤子的河內塔", HANOI, OUT['hanoi'],
-                 note="main 呼叫 <code>moveTower(3, \"A\", \"B\", \"C\")</code>：從 A 搬到 B，借用 C。7 行輸出等於 2³ − 1 步。base case 是高度 0 的塔：這時什麼都不做，moveTower 直接回傳。base case 一回傳，上一層就接著執行 moveDisk。")}
+                 note="main 呼叫 <code>moveTower(3, \"A\", \"B\", \"C\")</code>：從 A 搬到 B，借用 C。7 行輸出等於 2³ − 1 步。base case 是高度 0 的塔：這時什麼都不做，moveTower 直接回傳。第一個遞迴呼叫返回後，接著執行 moveDisk；第二個遞迴呼叫返回後，這一層便結束。")}
+{C.void_return()}
 <h3>柱子上的盤子由誰記住？</h3>
 <p>看完 moveTower 與 moveDisk，你也許會疑惑：為什麼沒有一個資料結構明確記錄每根柱子上有哪些盤子？如果要明確追蹤，可以用三個 <code>Stack</code> 物件，每根柱子一個。遞迴的 C++ 程式則是靠執行時的呼叫堆疊，記住所有暫停中的呼叫：每個還沒結束的 moveTower 都記得自己要從哪裡搬到哪裡、搬到第幾步。</p>'''
 
 
 # ---------------------------------------------------------------- P07
 def maze():
-    return f'''<p>這一節要解一個和機器人有關的問題：怎麼走出迷宮？我們要幫一隻烏龜走出虛擬的迷宮。迷宮問題可以追溯到希臘神話：忒修斯被派進迷宮殺死牛頭人，他用一團線標記來路，事後才找得到出口。這裡假設烏龜被丟在迷宮中間某處，必須自己找到出口。</p>
+    q_undo = quiz('qMazeUndo', 'QUIZ · 返回與撤銷',
+                  '本頁的 <code>searchFrom</code> 從一個死路格回傳 false 時，哪一件事會自動發生？', [
+                      (True, '控制流程回到父呼叫，格子的 DEAD_END 標記仍保留', '呼叫機制恢復接續位置；Maze 是共用物件，return 不會撤銷已寫入的標記。'),
+                      (False, '所有走過的格子都恢復成空白', '這需要程式明確修改格子，本例沒有這種撤銷操作。'),
+                      (False, 'GUI 一定把烏龜往後移一格', 'return 表示控制流程返回，不等於下達繪圖或移動指令。'),
+                      (False, '父呼叫也必須立刻回傳 false', '這個方向失敗後，父呼叫仍可能嘗試下一個方向。'),
+                  ])
+    q_guards = quiz('qMazeGuards', 'QUIZ · 判斷的順序',
+                    '目前要檢查的格子在最外側邊界，但內容是牆壁 <code>+</code>。本頁程式會如何處理？', [
+                        (True, '先命中牆壁判斷，回傳 false，不把它當出口', '位在邊界和是牆可以同時成立；程式先檢查牆壁並提前返回。'),
+                        (False, '因為在邊界，所以一定回傳 true', 'isExit 檢查之前，牆壁判斷已經讓這個呼叫返回。'),
+                        (False, '兩條條件同時成立，所以編譯失敗', '條件可以重疊；程式的判斷順序決定先處理哪一種情況。'),
+                        (False, '先試完四個方向，再決定是否是牆', '牆壁是入口檢查，不需要也不應再探索四個方向。'),
+                    ])
+    return f'''<p>這一節要幫一隻烏龜走出虛擬的迷宮。迷宮被切成方格，每格是通道或牆；從起點出發，找到任何一個可通行的邊界格就算成功。搜尋只需要一條可行路徑，不保證找到最短路徑。</p>
 {figure('maze')}
 <h3>探索程序</h3>
-<p>為了簡化，假設迷宮被切成方格，每一格不是通道就是牆。烏龜只能走通道，撞到牆就換一個方向。程序如下：</p>
-{ol(['從目前的位置先往北走一格，<strong>再從那裡遞迴地執行同一個程序</strong>。',
-     '往北走不出去，就改往南走一格，再遞迴地執行同一個程序。',
-     '往南也不行，就往西走一格，再遞迴地執行。',
-     '北、南、西都失敗，就從往東一格的位置遞迴地執行。',
-     '四個方向都不行，就表示走不出迷宮，回報失敗。'])}
-<p>聽起來很簡單，但有個細節要處理。假設第一步往北，照程序，下一步還是先往北；如果北邊是牆，就改試南邊。可是往南一步就回到了原本的起點，從那裡再執行程序，又會往北走一步，然後無限循環下去。所以必須記住走過哪些地方。</p>
-<p>假設烏龜帶著一袋<strong>麵包屑</strong>，邊走邊撒。往某個方向走一步，發現那一格已經有麵包屑，就立刻退回來，試程序中的下一個方向。之後看程式就會知道：<strong>退回來，就只是從遞迴呼叫回傳</strong>。</p>
-<h3>四個 base case</h3>
-{ol(['烏龜撞到牆。這一格是牆，無法再探索。',
-     '烏龜走到已經探索過的格子。不從這裡繼續探索，以免陷入迴圈。',
-     '走到迷宮的邊緣，而且那一格不是牆。也就是找到出口了。',
-     '這一格往四個方向都探索過，全部失敗。'])}
+<p>從目前格子出發，依固定順序嘗試方向：</p>
+{ol(['從北邊相鄰格遞迴地搜尋；成功就停止嘗試其他方向。',
+     '北邊失敗，才從南邊相鄰格遞迴搜尋。',
+     '南邊也失敗，再試西邊。',
+     '前三個方向都失敗，最後才試東邊。',
+     '四個方向都失敗，將目前格子標成死路並回傳 false。'])}
+<p>如果沒有記錄走過的格子，A 呼叫北邊的 B，B 又可能呼叫南邊的 A，兩格便不斷互相呼叫。用<strong>麵包屑</strong>代表「已探索」標記：再次遇到它，就直接回傳 false，不從那一格展開更多呼叫。</p>
+{C.return_and_undo()}
+<h3>入口檢查與探索結果</h3>
+{ol(['碰到牆，立即回傳 false。',
+     '碰到已探索或已確認的死路格，立即回傳 false。',
+     '通過前兩項檢查後，若位在邊界，標成成功路徑並回傳 true。',
+     '其餘格子先標成 TRIED，再探索四個方向；全部失敗才標成 DEAD_END 並回傳 false。'])}
+{C.maze_guards()}
+{q_guards}
 <h3>Maze 類別</h3>
-<p>以下面這個迷宮為例：<code>+</code> 是牆，空白是通道，<code>S</code> 是起點。</p>
-<pre class="rec-maze">{escape(MAZE_TEXT)}</pre>
-<p>Maze 物件提供下列方法，供搜尋演算法使用：</p>
-{ol(['<code>Maze(filename)</code>：建構子，讀入代表迷宮的資料檔，建立迷宮的內部表示，並找出起點的位置。',
+<p><code>+</code> 是牆，空白是通道，<code>S</code> 是起點。Maze 物件提供下列方法：</p>
+{ol(['<code>Maze(filename, useGui)</code>：讀入資料、建立格子並尋找起點；useGui 預設為 false，設為 true 才開啟 GUI。',
      '<code>print()</code>：印出目前的字元格子。',
-     '<code>updatePosition()</code>：更新迷宮中某一格存放的字元。',
-     '<code>isExit()</code>：檢查目前位置是不是迷宮的出口。'])}
-<p>另外還有 <code>get(row, col)</code>，讓演算法可以讀取任一格的狀態。迷宮的每種狀態用一個具名常數表示。C++ 版不畫烏龜動畫，而是把進度印成文字：</p>
-{snippet("講義 06 · 迷宮的字元常數", MAZE_CONSTS, kind='fragment',
-         note="START 是起點，OBSTACLE 是牆，TRIED 是走過的格子（麵包屑），DEAD_END 是確定走不通的格子，PART_OF_PATH 是通往出口的路。")}
-<p>建構子 <code>Maze(filename)</code> 只有一個參數：檔名。這個文字檔用 <code>+</code> 表示牆、空白表示通道、字母 <code>S</code> 表示起點。</p>
-{snippet("講義 06 · Maze 的建構子與資料成員", MAZE_CLASS, kind='fragment',
-         note="建構子逐列讀檔，把每一列放進 <code>mazeList</code>，記下列數與欄數，再找出 S 所在的列與欄。<code>startRow</code>、<code>startCol</code> 是 public，main 要用它們開始搜尋；<code>mazeList</code>、<code>rowsInMaze</code>、<code>columnsInMaze</code> 是 private，只能透過成員函式存取。")}
-<p>C++ 的 Maze 把字元格子存在名為 <code>mazeList</code> 的 <code>vector&lt;string&gt;</code> 裡。每個 string 是一列，所以 <code>mazeList[row][col]</code> 就是一格。C++ 版保留同樣的遞迴狀態轉換，並印出字元格子；每次更新都會留在最後的格子裡，不需要圖形視窗：</p>
-{snippet("講義 06 · updatePosition 與 print", MAZE_UPDATE_PRINT, kind='fragment')}
-<p><code>isExit()</code> 用目前的位置檢查是否到達出口：只要烏龜走到迷宮的邊緣，也就是第 0 列、第 0 欄、最右邊一欄或最下面一列，就是出口。</p>
-{snippet("講義 06 · isExit 與 get", MAZE_EXIT_GET, kind='fragment')}
+     '<code>updatePosition()</code>：修改某一格的字元；GUI 啟用時也更新其位置與顏色。',
+     '<code>isExit()</code>：檢查列、欄是否位在四邊的任一邊界。',
+     '<code>waitForClose()</code>：等待使用者關閉視窗；文字模式會直接返回。'])}
+<p>另有 <code>get(row, col)</code> 可讀取格子。搜尋使用具名常數表示狀態；文字模式和 GUI 模式共用同一份迷宮與搜尋程式。</p>
+{snippet("迷宮的字元常數", MAZE_CONSTS, kind='fragment',
+         note="GUI 中牆壁是橘色；TRIED 用藍色、DEAD_END 用紅色、PART_OF_PATH 用綠色表示。瀏覽器示範另用符號與文字，方便對照程式。")}
+<p>下面只摘錄建構子讀取格子與尋找起點的核心。完整版本還會檢查檔案與列寬、移除 Windows 換行尾端的字元、處理內建範例路徑，並依 useGui 決定是否建立視窗。</p>
+{snippet("Maze 建構子的核心片段", MAZE_CLASS, kind='fragment',
+         note="startRow、startCol 是 public，main 用它們開始搜尋；mazeList、rowsInMaze、columnsInMaze 是 private。片段省略的完整內容可見 pythonds3/cppds/maze.hpp。")}
+{C.npos()}
+<p><code>vector&lt;string&gt; mazeList</code> 的每個 string 是一列，<code>mazeList[row][col]</code> 就是一格。<code>gui</code> 是選用的繪圖物件；沒有啟用 GUI 時，更新只改動字元格子。</p>
+{snippet("updatePosition 與 print", MAZE_UPDATE_PRINT, kind='fragment')}
+<p><code>isExit()</code> 只檢查座標是否在邊界，沒有判斷牆壁；由 <code>searchFrom()</code> 先檢查格子內容，再呼叫它，兩者合起來才是「可通行的邊界格」。</p>
+{snippet("isExit 與 get", MAZE_EXIT_GET, kind='fragment')}
 <h3>searchFrom：遞迴搜尋</h3>
-<p>搜尋函式叫做 <code>searchFrom()</code>，有三個參數：一個 Maze 物件、起始的列與起始的欄。起始位置要當成參數傳入，因為它是遞迴函式，每次遞迴呼叫，搜尋在邏輯上都從新的位置重新開始。</p>
-{snippet("講義 06 · searchFrom（完整程式在 pythonds3/cppds/maze.hpp）", SEARCH_FROM, kind='fragment',
-         note="前三個 if 是 base case 1 到 3；四個方向都回傳 false，就是 base case 4，這一格標成 DEAD_END。")}
-<p>遞迴步驟裡有四個 <code>searchFrom()</code> 呼叫，很難事先知道會用到幾個，因為它們用 <code>||</code> 連接：只要前面的呼叫成功，<strong>短路求值</strong>就會跳過後面的呼叫。如果第一個呼叫（往北）回傳 true，其他三個都不會執行；從幾何上看，北邊那一步就在通往出口的路上。往北失敗，才依序試南、西、東。四個呼叫都回傳 false，目前這一格就是死路。</p>
-<p>下面的動畫在一個較小的迷宮上執行同樣的 searchFrom。注意每一格怎麼先被標成走過，四個方向都試完後，再改成路徑或死路。</p>
+<p>每次呼叫都有自己的 row、column，但透過 <code>Maze&amp;</code> 存取同一份迷宮。子呼叫寫入的標記會留給其他呼叫使用。</p>
+{snippet("searchFrom（完整程式在 pythonds3/cppds/maze.hpp）", SEARCH_FROM, kind='fragment',
+         note="前三個 if 是入口檢查；四個方向都回傳 false，才會在後面標記 DEAD_END。")}
+<p>四個方向以 <code>||</code> 連接。內建布林 <code>||</code> 由左往右求值，前面一旦為 true 就不再執行後面的呼叫。北邊成功時，南、西、東都略過；北邊失敗時，控制流程回到父呼叫，接著才試南邊。</p>
+<h3>同步觀察格子、呼叫堆疊與返回位置</h3>
+<p>下面預設使用 <code>maze2.txt</code>，可切換成較短的小迷宮。按「單步」時，同時看目前檢查的座標、堆疊頂端及返回值：子呼叫 false 返回後，父呼叫要試哪個方向？true 返回後，又略過哪些方向？</p>
+<p>格子上的高亮代表正在檢查的呼叫座標；它不是烏龜實際移動的指令。觀察返回時，探索標記仍會保留，不會自動變回空白。</p>
 {W.w_maze()}
-<h3>講義程式：在 maze2.txt 上執行</h3>
-<p>課程資料夾裡已經有迷宮檔 <code>maze2.txt</code>：</p>
-<pre class="rec-maze">{escape(MAZE2_TXT)}</pre>
-{lecture_program("講義完整程式：讀入 maze2.txt 並搜尋", "講義 06 · 迷宮主程式", MAZE_MAIN, OUT['maze'],
-                 note="印出的結果中，<code>O</code> 是成功的路徑，<code>-</code> 是死路，<code>.</code> 是走過的格子。這次的結果裡沒有 <code>.</code>：每一格離開 searchFrom 之前，都會從 TRIED 改成 PART_OF_PATH 或 DEAD_END。路徑從 S 往北走，最後在左邊界、第 2 列（從第 0 列算起，也就是輸出的第 3 行）找到出口；左下方那一大片 <code>-</code>，是往南與往西探索後退回來的痕跡。")}'''
+{q_undo}
+<h3>在 Windows notebook 開啟迷宮 GUI</h3>
+<p>在電腦教室或自己的 Windows 筆電，依<a href="https://phonchi.github.io/ds-cpp-selfstudy/00b_setup.html#kernel">環境安裝頁</a>安裝課程版 C++ kernel，重新啟動 Jupyter，並選擇 <strong>C++ 17</strong>。課程版 <code>1.0.0a9.post4</code> 起支援這個 Maze GUI 介面，不必手動複製 DLL 或編譯迷宮繪圖函式庫。</p>
+{snippet("手動 GUI 示範：執行後會另開桌面視窗", MAZE_MAIN_GUI, kind='gui',
+         note="這是供你在自己的 notebook 手動執行的完整程式。waitForClose() 會等待視窗關閉，所以畫面完成時儲存格仍顯示執行中；關閉視窗後才結束。它不會把桌面視窗嵌入 notebook 的輸出區。")}
+<p>不需要視窗時，把 true 改成 false。下面的文字版會執行相同搜尋，直接印出結果：</p>
+{lecture_program("完整程式：文字模式", "maze2.txt 的文字輸出", MAZE_MAIN_TEXT, OUT['maze'],
+                 note="O 是成功路徑、- 是死路、. 是走過的格子。這份結果沒有 .：已展開的呼叫結束前都會把格子改成成功路徑或死路。出口在左邊界、第 2 列（從 0 算起）；這也說明出口不一定在最右邊。")}
+<h3>下載並修改 maze2.txt</h3>
+<p><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/maze2.txt" download="maze2.txt">下載 maze2.txt</a>。課程 kernel 已內建這份範例，沒有本機檔案時仍可執行；若把同名檔案放在 notebook 所在資料夾，程式會優先讀取本機版本。</p>
+<p>修改時保留每列的欄數、用空白保留通道，並放置一個起點 S。檔名維持 maze2.txt，不要讓編輯器加成 maze2.txt.txt。以下是下載檔的內容：</p>
+<pre class="rec-maze">{escape(MAZE2_TXT)}</pre>'''
 
 
 # ---------------------------------------------------------------- P08
@@ -407,7 +444,7 @@ def dp():
 {lecture_program("講義完整程式：makeChange1", "講義 06 · 天真遞迴（26 分）", MC1, OUT['mc1'],
                  note="26 分最少要 2 枚（25 + 1）。函式一開始檢查 base case：金額是否剛好等於某一種硬幣。不是的話，對每一種不超過金額的硬幣各做一次遞迴呼叫，取最小值再加一。")}
 <h3>問題：重複計算</h3>
-<p>這個演算法的問題是效率極差。用 4 種硬幣找 63 分，要做 67,716,925 次遞迴呼叫才找到最佳解。下圖是找 26 分所需的 377 次呼叫中的一小部分：</p>
+<p>這個演算法的問題是效率極差。用 4 種硬幣找 63 分，要做 67,716,925 次函式呼叫（包含最初那次）才找到最佳解。下圖是找 26 分所需的 377 次呼叫中的一小部分：</p>
 {figure('dp1')}
 <p>圖中每個節點是一次 <code>makeChange1()</code> 呼叫，節點上的數字是這次要找零的金額，箭頭上的數字是剛用掉的硬幣。主要的問題在於<strong>重複做太多計算</strong>。例如圖中可以看到，15 分的最佳硬幣數至少被重算三次，而每算一次 15 分，本身就要 52 次函式呼叫。重算舊結果，白白浪費了大量時間。</p>
 {fold("自己數一數呼叫次數", snippet("加上計數器的 makeChange1 與 makeChange2", MC_COUNT, OUT['mc_count'],
@@ -417,9 +454,9 @@ def dp():
 {lecture_program("講義完整程式：makeChange2", "講義 06 · 用 knownResults 記住結果", MC2, OUT['mc2'],
                  note="63 分最少要 6 枚（25 + 25 + 10 + 1 + 1 + 1）。knownResults 的索引是金額，0 表示還不知道答案。")}
 <p>以上面這份程式來說，查表把 4 種硬幣、63 分的計算降到總共 221 次呼叫。呼叫次數取決於查表與存表放在哪裡，所以組織方式不同、但同樣做記憶化的函式，次數可能不一樣。</p>
-<p>不過這看起來有點像拼湊出來的補丁。而且看看 knownResults 這張表，會發現表裡有些洞（例如 2、3、4 分始終沒有填）。嚴格說來，這樣做還不算動態規劃；我們是用一種叫做<strong>記憶化</strong>（memoization），更常稱為<strong>快取</strong>（caching）的技巧改善了程式的效能。</p>
+<p>這種由遞迴提出子問題、查表重用答案的做法稱為<strong>記憶化</strong>（memoization），是由上而下實作動態規劃的常見方式。不過這份 <code>makeChange2</code> 的存表條件會留下洞，例如 2、3、4 分始終沒有填入，之後仍可能重算；這是這份實作的限制，不是判斷它是否使用動態規劃的標準。</p>
 <h3>由下往上填表：動態規劃</h3>
-<p>真正的動態規劃演算法用更有系統的方式處理問題：從找 1 分開始，一路往上算到要找的金額。這樣保證演算法的每一步，都已經知道任何較小金額所需的最少硬幣數。看看找 11 分時，最少硬幣數的表格怎麼填：</p>
+<p>另一種動態規劃寫法是由下而上填表：從找 1 分開始，一路往上算到要找的金額。這樣保證演算法的每一步，都已經知道任何較小金額所需的最少硬幣數。看看找 11 分時，最少硬幣數的表格怎麼填：</p>
 {figure('dp2')}
 <p>從 1 分開始，唯一的找法是一枚硬幣。下一列是 1 分與 2 分的最小值，2 分同樣只能用兩個 1 分。第五列開始有意思：要考慮兩種選擇，五個 1 分或一個 5 分。怎麼決定哪個好？查表：4 分需要 4 枚，再加一個 1 分湊成 5 分，共 5 枚；或者 0 分再加一個 5 分，共 1 枚。1 與 5 取最小，表裡存 1。快轉到表的最後，看 11 分。</p>
 {figure('dp3')}
@@ -476,11 +513,12 @@ def reference():
     return f'''<h3>比較表</h3>
 {table(['問題', 'base case', '縮小方式', '複雜度'], [
         ('listSum', '索引到達 vector 尾端', '索引加 1', '$O(n)$'),
-        ('toStr(n, base)', 'n &lt; base', 'n / base', '$O(\\log n)$'),
+        ('toStr(n, base)', 'n &lt; base', 'n / base', '呼叫次數 $O(\\log_{base} n)$；字串操作另計'),
         ('河內塔', 'height 為 0', 'height − 1（兩次）', '$O(2^n)$'),
-        ('迷宮', '牆、走過、出口、四方向皆失敗', '相鄰格子', '$O(\\text{格子數})$'),
+        ('迷宮', '入口先查牆、走過、出口；探索後才判斷四方皆敗', '標記尚未探索的通道，避免重訪', '$O(\\text{格子數})$'),
         ('找零錢（makeChange3）', '不遞迴；minCoins[0] = 0', '金額 − 硬幣面額（查表）', '$O(AC)$'),
     ])}
+{C.strategies()}
 <h3>關鍵概念</h3>
 <div class="info-box" style="margin-top:1rem;">
     <span class="info-label">關鍵概念複習</span>
@@ -495,9 +533,9 @@ def reference():
 def recap():
     qa = [
         ('遞迴一定比迴圈慢嗎？',
-         '<p>不一定。每次函式呼叫都有固定的額外成本（建立 frame、傳參數、回傳），所以同樣的計算量，迴圈通常稍快一些。但真正的差距多半來自演算法：makeChange1 慢，是因為重算了大量相同的子問題，不是因為它用了遞迴；同樣是遞迴的 makeChange2 只要 221 次呼叫。</p>'),
+         '<p>不一定。函式呼叫通常會有額外成本（保存必要狀態、傳參數、返回），編譯器也可能最佳化其中一部分，所以同樣的計算量，迴圈通常稍快一些。但真正的差距多半來自演算法：makeChange1 慢，是因為重算了大量相同的子問題，不是因為它用了遞迴；同樣是遞迴的 makeChange2 只要 221 次呼叫。</p>'),
         ('遞迴可以多深？',
-         '<p>每一層呼叫都佔用一個 stack frame，而呼叫堆疊的大小有限，上限取決於作業系統與編譯設定。像 listSumFrom 這種一層只處理一個元素的線性遞迴，對很長的 vector 可能用完堆疊；toStr 每層把 n 除以 base，深度只有對數級，不必擔心。</p>'),
+         '<p>每一層呼叫都佔用一個 stack frame，而呼叫堆疊的大小有限，上限取決於作業系統與編譯設定。像 listSumFrom 這種一層只處理一個元素的線性遞迴，對很長的 vector 可能用完堆疊；toStr 每層把 n 除以 base，深度隨位數成長，遠少於逐一減一的寫法。仍要依輸入大小與執行環境判斷資源需求。</p>'),
         ('為什麼 makeChange2 的表裡會有洞？',
          '<p>2、3、4 分其實都有被算到，問題出在寫表的條件。makeChange2 把 <code>minCoins</code> 的初值設成 <code>change</code>，也就是「全部用 1 分硬幣」的枚數；只有找到更少枚數的組合（<code>candidate &lt; minCoins</code>）時才寫入 <code>knownResults[change]</code>。2、3、4 分的最佳解正好就是 2、3、4 枚 1 分硬幣，和初值一樣多，條件從不成立，所以這幾格一直是 0，下次遇到還得重算。動態規劃由小到大逐格填，每一格都會填到。</p>'),
         ('河內塔的步數為什麼是 $2^n - 1$？',
@@ -510,11 +548,11 @@ def recap():
 <li>遞迴把問題拆成更小的同型問題，直到小到可以直接解決。listSum 可以用累加變數寫成迴圈，也可以寫成「目前這一項加上剩下範圍的總和」。</li>
 <li>遞迴三法則：必須有 base case、必須改變狀態朝 base case 前進、必須呼叫自己。base case 要涵蓋所有最小的合法輸入，例如 <code>size() &lt;= 1</code> 同時處理空字串與單一字元。</li>
 <li>toStr 用整數除法縮小問題、用餘數查表取得字元；把串接放在遞迴呼叫回來之後，位數的順序就正確。</li>
-<li>每個進行中的呼叫都有自己的 stack frame，存放參數、區域變數與返回資訊。呼叫堆疊取代了顯式的 stack，也讓每次呼叫有各自的作用域。</li>
+<li>呼叫堆疊模型記住尚未結束的呼叫、各次呼叫的狀態與返回位置；實際記憶體配置由編譯器及呼叫慣例決定。</li>
 <li>碎形在各種尺度下自我相似；spiral、tree 與 sierpinski 用遞迴畫出這類圖形。多路遞迴會先把第一個分支整個做完，才輪到下一個。</li>
 <li>河內塔：搬 h−1 個到中間柱、搬最大盤、再搬 h−1 個到目標柱，共 $2^n - 1$ 步；暫停中的呼叫由呼叫堆疊記住。</li>
-<li>迷宮：四個 base case（牆、走過、出口、四方向皆失敗），用麵包屑避免繞圈，<code>||</code> 的短路求值讓找到路就停。退回就是從遞迴呼叫回傳。</li>
-<li>找零錢：貪婪法不保證最佳；天真遞迴重算重疊的子問題；記憶化由上而下把結果存起來；動態規劃由下往上填表，$O(AC)$ 時間、$O(A)$ 空間，再用 coinsUsed 還原用了哪些硬幣。</li>
+<li>迷宮：先查牆、走過、出口，探索後才判斷四方向是否皆敗。麵包屑避免繞圈，<code>||</code> 讓找到路就停；返回控制權不會自動撤銷格子標記。</li>
+<li>找零錢：貪婪法不保證最佳；天真遞迴重算重疊的子問題；動態規劃可以由上而下記憶化，也可以由下往上填表；填表版用 $O(AC)$ 時間、$O(A)$ 空間，再用 coinsUsed 還原用了哪些硬幣。</li>
 </ul>
 <h3>常見疑問</h3>
 {faq}'''
@@ -553,4 +591,9 @@ STYLE = """<style id="recursion-depth-style">
 .quiz-opt .opt-text{min-width:0;overflow-wrap:anywhere;}
 #tsfVis{flex-direction:column;}
 #tsfVis .bs-item{width:auto;min-width:230px;max-width:100%;font-size:.85rem;}
+@media(max-width:600px) {
+  section mjx-container[jax="CHTML"][display="true"] {
+    max-width:100%; overflow-x:auto; overflow-y:hidden; text-align:left;
+  }
+}
 </style>"""

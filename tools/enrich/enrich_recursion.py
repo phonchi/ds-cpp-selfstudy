@@ -3,7 +3,7 @@
 
 每一節在 h2 之後有一對 <!-- gen:recursion-* --> 標記，內容由 content/recursion_depth.py 產生
 （程式在 recursion_programs.py、講義圖在 recursion_figures.py、互動元件在 recursion_widgets.py）。
-toStr(10, 2) 呼叫堆疊動畫的 JS 放在 <script id="recursion-extra-js">，其餘動畫 JS 是頁面原有的主 <script>。
+toStr 呼叫堆疊與迷宮播放器分別由 recursion-extra-js、recursion-maze-js 重建；其餘動畫保留在原主 script。
 """
 import json
 import re
@@ -20,13 +20,14 @@ s = ensure_style(s)
 from content.recursion_depth import sections, STYLE
 from content.recursion_figures import STYLE as FIG_STYLE
 from content.recursion_widgets import EXTRA_JS
+from content.recursion_maze import MAZE_JS, MAZE_STYLE
 
 for name, block in sections().items():
     s, ok = _replace_gen(s, name, block)
     if not ok:
         raise SystemExit(f"missing <!-- gen:{name} --> markers in {PAGE.name}")
 
-for sid, css in (('recursion-depth-style', STYLE), ('recursion-figures-style', FIG_STYLE)):
+for sid, css in (('recursion-depth-style', STYLE), ('recursion-figures-style', FIG_STYLE), ('recursion-maze-style', MAZE_STYLE)):
     if f'id="{sid}"' in s:
         s = re.sub(rf'<style id="{sid}">.*?</style>', lambda m: css, s, count=1, flags=re.S)
     else:
@@ -41,6 +42,21 @@ else:
     if s.count(anchor) != 1:
         raise SystemExit("FLASHCARDS script not found")
     s = s.replace(anchor, extra + anchor, 1)
+
+# Replace the former inline maze implementation once, then keep its source in
+# recursion_maze.py so rebuilding cannot restore different search semantics.
+legacy = r'/\* ---------- P05 maze ---------- \*/.*?(?=/\* ---------- P08 DP make change)'
+s, removed = re.subn(legacy, '/* Maze player is generated in recursion-maze-js. */\n\n', s, count=1, flags=re.S)
+maze = f'<script id="recursion-maze-js">\n{MAZE_JS}\n</script>\n'
+if 'id="recursion-maze-js"' in s:
+    s = re.sub(r'<script id="recursion-maze-js">.*?</script>\n', lambda m: maze, s, count=1, flags=re.S)
+else:
+    if removed != 1:
+        raise SystemExit('Expected the original maze player before its first migration')
+    anchor = '<script>\nconst FLASHCARDS'
+    if s.count(anchor) != 1:
+        raise SystemExit('FLASHCARDS script not found')
+    s = s.replace(anchor, maze + anchor, 1)
 
 # Flashcard count shown in the table of contents and the cards heading.
 n_cards = len(json.loads((ROOT / "data/flashcards_zh/ch6.json").read_text()))

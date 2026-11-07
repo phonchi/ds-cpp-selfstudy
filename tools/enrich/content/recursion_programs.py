@@ -535,7 +535,44 @@ int main() {
     return 0;
 }'''
 
+GREEDY_COMPARE = MC3[:MC3.index('int main()')] + r'''
+#include <cassert>
+#include <stdexcept>
+
+// coins are positive, sorted from largest to smallest, and include 1.
+int greedyLoop(int amount, const vector<int>& coins) {
+    int count = 0;
+    for (int coin : coins) {
+        count += amount / coin;
+        amount %= coin;
+    }
+    return count;
+}
+
+int greedyRecursive(int amount, const vector<int>& coins) {
+    if (amount == 0) return 0;
+    for (int coin : coins) {
+        if (coin <= amount) {
+            return 1 + greedyRecursive(amount - coin, coins);
+        }
+    }
+    throw logic_error("coins must include 1");
+}
+
+int main() {
+    vector<int> coins = {25, 21, 10, 5, 1};
+    vector<int> minimum(64, 0);
+    assert(greedyLoop(0, coins) == 0);
+    assert(greedyRecursive(0, coins) == 0);
+    cout << "greedy (loop): " << greedyLoop(63, coins) << endl;
+    cout << "greedy (recursive): " << greedyRecursive(63, coins) << endl;
+    cout << "minimum (DP): " << makeChange3(coins, 63, minimum) << endl;
+    return 0;
+}
+'''
+
 OUT = {
+    'greedy_compare': 'greedy (loop): 6\ngreedy (recursive): 6\nminimum (DP): 3',
     'listsum_iter': '25\n0',
     'listsum_rec': '25\n0',
     'tostr': '5AD',

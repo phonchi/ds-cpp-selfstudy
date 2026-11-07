@@ -460,6 +460,16 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     max-width:100%; overflow-x:auto; overflow-y:hidden; text-align:left;
   }
 }
+.rec-opening h4 {margin:1.5rem 0 .65rem;font-size:1.02rem;color:var(--accent2);}
+@media(max-width:600px) {
+  .strategy-table, .strategy-table tbody, .strategy-table tr, .strategy-table td {display:block;width:100%;}
+  .strategy-table thead {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+  .strategy-table tr {margin-bottom:1rem;border:1px solid var(--card-border);border-radius:12px;overflow:hidden;}
+  .strategy-table td {text-align:left;white-space:normal;}
+  .strategy-table td::before {content:attr(data-label);display:block;font-weight:700;color:var(--accent2);margin-bottom:.3rem;}
+  .strategy-table td:first-child {font-size:1rem;background:var(--card-border);}
+  .strategy-table td:first-child::before {display:none;}
+}
 </style>
 <style id="recursion-figures-style">
 .rec-figure{margin:1rem 0 1.4rem;max-width:100%;}
@@ -499,7 +509,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <body>
 <nav class="float-nav" id="floatNav" aria-label="章節導覽">
   <div class="fn-title">章節導覽</div>
-  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">什麼是遞迴？</span></a>
+  <a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">遞迴用途與策略</span></a>
   <a href="#laws" data-target="laws"><span class="fn-num">P01</span><span class="fn-name">遞迴三法則</span></a>
   <a href="#tostr" data-target="tostr"><span class="fn-num">P02</span><span class="fn-name">整數轉字串</span></a>
   <a href="#frames" data-target="frames"><span class="fn-num">P03</span><span class="fn-name">呼叫堆疊</span></a>
@@ -507,7 +517,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <a href="#sierpinski" data-target="sierpinski"><span class="fn-num">P05</span><span class="fn-name">Sierpinski 三角形</span></a>
   <a href="#hanoi" data-target="hanoi"><span class="fn-num">P06</span><span class="fn-name">河內塔</span></a>
   <a href="#maze" data-target="maze"><span class="fn-num">P07</span><span class="fn-name">走迷宮</span></a>
-  <a href="#dp" data-target="dp"><span class="fn-num">P08</span><span class="fn-name">動態規劃</span></a>
+  <a href="#dp" data-target="dp"><span class="fn-num">P08</span><span class="fn-name">貪婪與動態規劃</span></a>
   <a href="#exercises" data-target="exercises"><span class="fn-num">EX</span><span class="fn-name">練習題</span></a>
   <a href="#reference" data-target="reference"><span class="fn-num">REF</span><span class="fn-name">總覽比較</span></a>
   <a href="#recap" data-target="recap"><span class="fn-num">SUM</span><span class="fn-name">重點回顧</span></a>
@@ -528,7 +538,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <div class="hero-content">
     <h1><span class="blue">遞迴</span>：把問題交給更小的自己</h1>
     <div class="subtitle">cppds Chapter 5 — Recursion（對應講義 06）</div>
-    <div class="big-formula">三法則｜call stack｜toStr｜河內塔｜迷宮回溯｜動態規劃</div>
+    <div class="big-formula">遞迴用途｜解題策略｜呼叫堆疊｜河內塔｜迷宮｜找零</div>
     <div class="scroll-hint">向下捲動開始互動<span>↓</span></div>
   </div>
 </div>
@@ -539,14 +549,14 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>① <strong>照節次讀</strong>：每一節先讀說明、動手玩互動元件，預測結果再按按鈕驗證。
   ② <strong>對照講義</strong>：頁上 §徽章對應 cppds 章節；講義的完整程式收在各節的收合區，預期輸出放在收合區外，可以先猜輸出再展開程式對照。
   ③ <strong>每節做 quiz</strong>：答錯就回到該節重讀，不要往下跳。
-  ④ 最後翻 <a href="#cards">關鍵詞彙卡（12 張）</a>自測術語（用語與正文一致，附中英對照），並用 REF 總覽區與<a href="#recap">重點回顧</a>當速查表。標「課堂略過・自學」的節是講義內容，只是上課沒有細講，請自己讀完；標「（補充）」的收合區是網站另加、講義沒有的延伸，第一輪可略過。</p>
+  ④ 最後翻 <a href="#cards">關鍵詞彙卡（13 張）</a>自測術語（用語與正文一致，附中英對照），並用 REF 總覽區與<a href="#recap">重點回顧</a>當速查表。標「課堂略過・自學」的節是講義內容，只是上課沒有細講，請自己讀完；標「（補充）」的收合區是網站另加、講義沒有的延伸，第一輪可略過。</p>
   <div class="sg-links"><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/06_Recursion.html#/" target="_blank" rel="noopener">🖥 講義 06 線上閱讀 HTML</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/06_Recursion.pdf" target="_blank" rel="noopener">📑 講義 06 閱讀 PDF</a><a href="https://phonchi.github.io/nsysu-math208/static_files/presentations/06_Recursion.pdf" download="06_Recursion.pdf">⬇ 講義 06 下載 PDF</a><a href="https://runestone.academy/ns/books/published/cppds/Recursion/toctree.html" target="_blank" rel="noopener">📖 課本 cppds（Recursion）</a><a href="https://github.com/phonchi/pythonds3/tree/master/cppds" target="_blank" rel="noopener">💾 課程標頭 pythonds3/cppds</a><a href="https://www.hello-algo.com/zh-hant/chapter_computational_complexity/iteration_and_recursion/" target="_blank" rel="noopener">📘 Hello 演算法（迭代與遞迴）</a><a href="index.html">🏠 章節總覽</a></div>
 </div>
 
 <div class="toc">
   <div class="toc-title">CONTENTS · 內容目錄</div>
   <div class="toc-grid">
-    <a href="#prologue"><span class="toc-num">P00</span>什麼是遞迴？</a>
+    <a href="#prologue"><span class="toc-num">P00</span>遞迴用途與策略</a>
     <a href="#laws"><span class="toc-num">P01</span>遞迴三法則</a>
     <a href="#tostr"><span class="toc-num">P02</span>整數轉字串</a>
     <a href="#frames"><span class="toc-num">P03</span>呼叫堆疊</a>
@@ -554,22 +564,79 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
     <a href="#sierpinski"><span class="toc-num">P05</span>Sierpinski 三角形</a>
     <a href="#hanoi"><span class="toc-num">P06</span>河內塔</a>
     <a href="#maze"><span class="toc-num">P07</span>走迷宮</a>
-    <a href="#dp"><span class="toc-num">P08</span>動態規劃</a>
+    <a href="#dp"><span class="toc-num">P08</span>貪婪與動態規劃</a>
     <a href="#exercises"><span class="toc-num">EX</span>練習題</a>
     <a href="#reference"><span class="toc-num">REF</span>總覽比較</a>
     <a href="#recap"><span class="toc-num">SUM</span>重點回顧</a>
-    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（12 張）</a>
+    <a href="#cards"><span class="toc-num">CARD</span>關鍵詞彙卡（13 張）</a>
   </div>
 </div>
 
 <section id="prologue">
   <div class="section-number">PROLOGUE · 開場</div>
-  <h2>遞迴：把問題拆成更小的同型問題 <span class="sec-badge">cppds §5.1–5.3</span></h2>
+  <h2>為什麼要使用遞迴？ <span class="sec-badge">cppds §5.1–5.3</span></h2>
 <!-- gen:recursion-prologue -->
-<p><strong>遞迴</strong>（recursion）是一種程式設計技巧：把問題<strong>拆成較小的同型問題</strong>，直到子問題小到可以直接解決。寫成程式時，通常就是函式呼叫自己。有些問題用迴圈很難寫，用遞迴卻能寫得簡潔。</p>
-<h3>哪些問題值得用遞迴？</h3>
-<p>遞迴適合用來表達「解決較小的同型問題，就能處理目前問題」的結構。階乘的 $n!=n(n-1)!$、樹的左右子樹，或把一座河內塔拆成較矮的塔，都有這種特徵。程式直接描述這個關係，呼叫機制則保存各層尚未完成的工作，不必自己推入、彈出 stack。</p>
-<p>這不表示遞迴一定更快，也不表示所有迴圈都值得改寫成遞迴。簡單加總用迴圈就很清楚；樹的走訪、分治與回溯，通常能用遞迴直接描述其步驟。重複計算、過深的呼叫，以及每層複製的資料，仍然要分別評估。</p>
+<div class="rec-opening"><h3>遞迴的用途：表達問題結構，實作解題策略</h3>
+<p>遞迴讓函式在處理目前問題時，呼叫自己去處理較小或更接近終止條件的同型問題。它的用處在於：有些數學定義、資料結構與解題步驟，本來就包含「同一件事再做一次」的關係。把這個關係直接寫進程式，通常比較容易看清楚每一層負責什麼、何時停止，以及如何利用下一層的結果。</p>
+
+<h4 id="why-math">一、數學定義本來就能逐層展開</h4>
+<p><strong>階乘</strong>是最直接的例子。對非負整數 $n$，定義為：</p>
+<p>$$0!=1,\qquad n!=n\,(n-1)!\quad(n\geq 1).$$</p>
+<p>這個定義已經告訴我們函式要做的兩件事：輸入為 0 時直接回傳 1；其他情況先求出 <code>factorial(n - 1)</code>，再乘上 <code>n</code>。不需要另外發明計算規則，便能把數學中的「較小階乘」對應到程式中的「另一次函式呼叫」。每次把 $n$ 減 1，也保證合法輸入最後會到達 0。</p>
+<p><strong>費氏數列（Fibonacci sequence）</strong>則需要兩個較小問題的答案：</p>
+<p>$$F_0=0,\qquad F_1=1,\qquad F_n=F_{n-1}+F_{n-2}\quad(n\geq 2).$$</p>
+<p>程式可把 $n=0$、$n=1$ 當成直接回傳的情況，其他情況回傳 <code>fib(n - 1) + fib(n - 2)</code>。這樣寫很接近定義，但也揭露了效率問題：求 $F_5$ 會求 $F_4$ 和 $F_3$，而求 $F_4$ 又會求一次 $F_3$。<strong>容易表達不代表沒有重複計算。</strong>稍後的動態規劃會說明如何保存已求出的答案。</p>
+<p><strong>歐幾里得演算法（Euclidean algorithm）</strong>利用最大公因數不變的關係縮小問題。令 $a,b$ 為非負整數且不全為 0：</p>
+<p>$$\gcd(a,b)=\begin{cases}a,&amp;b=0,\\\gcd(b,a\bmod b),&amp;b&gt;0.\end{cases}$$</p>
+<p>例如：</p><p>$$\begin{aligned}\gcd(48,18)&amp;=\gcd(18,12)\\&amp;=\gcd(12,6)\\&amp;=\gcd(6,0)=6.\end{aligned}$$</p><p>每一步只需把下一次呼叫的參數改成 <code>b</code> 和 <code>a % b</code>；第二個參數是餘數，小於原來的正整數 $b$，所以最後會到達 $b=0$。這一層沒有額外的組合工作，直接把下一層算出的最大公因數回傳即可。這也提醒我們：不是每種遞迴都要等返回後再做一次運算。</p>
+
+<h4 id="why-structure">二、資料本身也可能具有遞迴結構</h4>
+<p><strong>二元樹</strong>可以是空樹，也可以由一個根節點、左子樹與右子樹組成；左右子樹仍然是樹。因此，計算節點數時，不必把所有層數分別寫成不同的程式：</p>
+<p>$$N(\varnothing)=0,\qquad N(T)=1+N(T_{\mathrm{left}})+N(T_{\mathrm{right}})\quad(T\ne\varnothing).$$</p>
+<p>遇到空樹回傳 0；遇到節點，就把「自己這 1 個」加上兩棵子樹的節點數。例如根節點的兩個孩子都是葉節點時，每個葉節點得到 $1+0+0=1$，根節點再得到 $1+1+1=3$。一段處理樹的函式，便能用相同規則處理任意深度的子樹。</p>
+<p><strong>鏈結串列</strong>也有類似結構：它是空串列，或是「目前節點＋剩餘串列」。要計算長度，可以在空串列回傳 0，否則回傳「1＋剩餘串列的長度」；要加總，也可以先取目前節點的值，再加上剩餘串列的總和。這裡假設串列沒有環，沿著下一個節點前進才會到達結尾。</p>
+<p><strong>圖的深度優先搜尋（DFS）</strong>則可在走到一個頂點後，遞迴探索尚未拜訪的相鄰頂點。但圖可能有環，不能只照著邊不斷呼叫：例如 A → B → A 就可能永遠繞下去。必須記錄 <code>visited</code>，並在繼續探索前標記目前頂點，避免重新進入已拜訪的頂點。本章的<a href="#maze">迷宮搜尋</a>也會用標記管理已探索的格子。</p>
+
+<h4 id="why-state">三、呼叫堆疊保存尚未完成的工作</h4>
+<p>寫出「先求較小問題」之後，原來這一層的工作放在哪裡？函式的呼叫機制會保存必要狀態，讓較小問題完成後，程式能回到原來的位置繼續。以階乘為例，計算 <code>factorial(3)</code> 的過程是：</p>
+<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>往下呼叫：留下待完成的乘法</th><th>逐層返回：完成各層工作</th></tr></thead><tbody>
+<tr><td><code>factorial(3)</code> 等待 <code>factorial(2)</code>，之後乘 3。</td><td><code>factorial(0)</code> 直接回傳 1。</td></tr>
+<tr><td><code>factorial(2)</code> 等待 <code>factorial(1)</code>，之後乘 2。</td><td><code>factorial(1)</code> 得到 $1\times 1=1$，回傳 1。</td></tr>
+<tr><td><code>factorial(1)</code> 等待 <code>factorial(0)</code>，之後乘 1。</td><td><code>factorial(2)</code> 得到 $2\times 1=2$，回傳 2。</td></tr>
+<tr><td><code>factorial(0)</code> 到達終止條件，不再呼叫。</td><td><code>factorial(3)</code> 得到 $3\times 2=6$，回傳 6。</td></tr>
+</tbody></table></div>
+<p>可以把每次尚未結束的呼叫看成一個 <strong>stack frame</strong>：它記住這次呼叫仍需使用的參數、區域狀態，以及返回後的接續位置。最後進入的呼叫先完成，因此自然形成堆疊的後進先出順序。程式設計者不用自行管理這些呼叫；後面的<a href="#frames">呼叫堆疊</a>會進一步展示各層如何進入與返回。</p>
+<p>遞迴也可以改成自行管理的<strong>顯式堆疊（explicit stack）</strong>，把節點、探索進度等必要狀態推入與取出。階乘和簡單加總更可以直接用迴圈累積，不必保留整個堆疊。遞迴的優點是方便表達與管理這些工作，並不保證比較快。</p>
+<p>以每個 frame 保存固定大小資料的模型計算，最大同時存在的呼叫深度為 $d$ 時，呼叫堆疊占用 $O(d)$ 額外空間；每層若複製字串或容器，還要另外計入複製的時間與資料空間。遞迴太深也可能耗盡呼叫堆疊。即使遞迴呼叫位在函式最後，C++ 也不保證會進行尾呼叫最佳化（tail-call optimization），不能據此假設堆疊空間一定是常數。</p>
+
+<h4 id="why-analysis">四、呼叫結構幫助我們分析演算法成本</h4>
+<p>前面的 $F_n=F_{n-1}+F_{n-2}$ 描述的是<strong>函式要算出的數值</strong>。分析效率時，則要另外建立<strong>完成計算所花的時間</strong>的遞迴關係；兩者不是同一件事。直接遞迴求費氏數列時，每次非基本呼叫還要各算兩個子問題，所以時間包含兩個子呼叫的成本，以及本層的判斷、加法等工作。</p>
+<p><strong>合併排序（merge sort）</strong>可以清楚展示這種分析。它先把資料分成兩半（Divide），分別排序兩半（Conquer），最後將兩個已排序部分合併（Combine）。假設 $n$ 是 2 的冪次，並使用一般的線性時間合併方式，則：</p>
+<p>$$T(1)=\Theta(1),\qquad T(n)=2T(n/2)+\Theta(n).$$</p>
+<p>$2T(n/2)$ 是左右兩半各排序一次；$\Theta(n)$ 是本層合併與其他處理的總成本。以 $n=8$ 為例，子問題大小依序為「1 個大小 8 → 2 個大小 4 → 4 個大小 2 → 8 個大小 1」。在同一個需要合併的層次，各子問題的大小加起來仍是 8；一般而言，每層的合併總成本都是 $\Theta(n)$。</p>
+<p>資料大小每往下一層減半，經過 $\log_2 n$ 層便到達單一元素。將這些層的成本相加，再加上 $n$ 個基本呼叫的成本，得到 $T(n)=\Theta(n\log n)$。這個結論來自<strong>子問題的數量、大小與每層的工作量</strong>，不是因為程式用了遞迴就自動有效率。其他遞迴關係可能需要不同的展開或估計方法，也不一定都容易求出解。</p>
+
+<h4 id="why-strategies">五、遞迴可以支援不同的演算法設計策略</h4>
+<p>合併排序是在拆分資料並組合答案；迷宮搜尋是在嘗試方向並返回決策點；記憶化的費氏數列則會保存已算過的答案。三者都可以使用遞迴，但安排工作的理由不同。接下來先分清楚<strong>遞迴這種執行方式</strong>與<strong>分治、回溯、貪婪、動態規劃這些解題策略</strong>，再用簡單的加總程式觀察一次呼叫究竟做了什麼。</p></div>
+<div class="rec-opening"><h3 id="strategy-map">遞迴與四種演算法設計策略</h3>
+<p><strong>遞迴</strong>描述控制流程：函式如何呼叫自己，以及子呼叫結束後如何接續執行。<strong>演算法設計策略</strong>則回答另一組問題：如何拆分工作、選擇下一步、探索候選解，或重用已算出的答案。因此「這個演算法用了遞迴嗎？」與「它採用什麼策略？」要分別回答。</p>
+<div style="overflow-x:auto"><table class="cmp-table strategy-table"><thead><tr><th>策略</th><th>為什麼這樣安排工作？</th><th>具體例子</th><th>與遞迴的關係及其他實作方式</th></tr></thead><tbody>
+<tr><td data-label="策略"><strong>分治</strong><br>Divide and Conquer</td><td data-label="為什麼這樣安排工作？">把問題拆成較小的子問題，分別求解，再組合成原問題的答案。當子問題仍有相同形式時，可以重複使用同一套解法。</td><td data-label="具體例子">合併排序先排序左右兩半，再合併兩個已排序序列；原問題的答案因此由子問題的答案組成。</td><td data-label="與遞迴的關係及其他實作方式">常用遞迴直接表達「拆分、求解、組合」。也能採非遞迴方式：由下而上的合併排序以迴圈依序合併長度 1、2、4、… 的區塊。</td></tr>
+<tr><td data-label="策略"><strong>回溯</strong><br>Backtracking</td><td data-label="為什麼這樣安排工作？">逐步嘗試選擇；遇到不可行的情況便返回先前的決策點，改試其他選擇。需要多個解時，找到一個解後也可能繼續探索。</td><td data-label="具體例子">迷宮先探索一個方向，沒有找到出口就回到原來的決策點試下一個方向；排列或組合問題則逐一延伸目前的部分解。</td><td data-label="與遞迴的關係及其他實作方式">遞迴自然保存每層的選擇進度，也可用顯式堆疊管理。返回不會自動還原共用資料；只有後續分支需要恢復先前狀態時，才明確撤銷相應修改。</td></tr>
+<tr><td data-label="策略"><strong>貪婪</strong><br>Greedy</td><td data-label="為什麼這樣安排工作？">依目前狀態的局部規則選擇下一步，不再探索並比較其他選擇分支的完整結果。若要保證得到全域最佳解，必須證明這個選擇規則正確。</td><td data-label="具體例子">找零時每次拿不超過剩餘金額的最大面額，就是一個 greedy 規則。加入 21 分面額後，找 63 分會錯過三枚 21 分的解；後面的找零範例會比較這些選擇。</td><td data-label="與遞迴的關係及其他實作方式">拿一枚硬幣後，可以遞迴處理剩餘金額，也可以用迴圈繼續；遞迴不是必要條件。關鍵在選擇規則，而不是函式有沒有呼叫自己。</td></tr>
+<tr><td data-label="策略"><strong>動態規劃</strong><br>Dynamic Programming（DP）</td><td data-label="為什麼這樣安排工作？">將問題表示成子問題的關係，保存並重用重疊子問題的答案，避免反覆求解。用於最佳化問題時，還需有能由子問題最佳解組成原問題最佳解的最佳子結構。</td><td data-label="具體例子">費氏數列保存各個 $F_k$，免得同一項重算；最少硬幣找零保存各個金額的最佳答案，再由較小金額的答案求較大金額。</td><td data-label="與遞迴的關係及其他實作方式">由上而下可用「遞迴＋記憶化（memoization）」；由下而上可依相依順序用迴圈填表（tabulation）。DP 也能處理計數等問題，不限定於求最大值或最小值。</td></tr>
+</tbody></table></div>
+<p>這些策略不是互斥的分類，也沒有「遞迴之下才分成四種策略」的固定階層。一個演算法可以結合不同策略；是否採用遞迴，則是實作與表達上的另一個決定。直接以兩支遞迴計算費氏數列仍會大量重算，不能只因為有子呼叫就稱為 DP；加上記憶化之後，才利用了答案的重用。</p>
+<p>本章會用<a href="#maze">迷宮</a>觀察回溯時如何嘗試與返回，用<a href="#dp">找零錢</a>比較貪婪選擇、遞迴與動態規劃；<a href="searching_sorting.html">搜尋與排序</a>章則會進一步說明合併排序。閱讀每個例子時，可以分別問：「每一步的選擇或拆分根據是什麼？」以及「程式如何保存與接續尚未完成的工作？」</p>
+<p>現在先用 <code>vector</code> 加總練習最基本的遞迴結構：<strong>目前元素＋剩餘元素的總和</strong>。簡單加總用迴圈也很清楚；選它作為第一個例子，是因為我們能專注觀察終止條件、較小問題，以及返回後的加法，接著再把這些觀察用到更複雜的問題。</p></div>
+<div class="quiz-box">
+  <div class="quiz-label">QUIZ · 寫法與策略</div>
+  <p>下列哪一句正確區分了遞迴與演算法策略？</p>
+  <div class="quiz-options" id="qStrategyRoleOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="同一個策略可以有遞迴與非遞迴實作；寫成遞迴不會自動改變其選擇規則。" onclick="quizCheck('qStrategyRole', this)"><span class="opt-letter">(A)</span> <span class="opt-text">遞迴提供呼叫與返回機制，策略決定如何拆分、選擇或重用子問題</span></div><div class="quiz-opt" data-correct="false" data-fb="階乘也會呼叫自己，但沒有在多個選擇間搜尋。" onclick="quizCheck('qStrategyRole', this)"><span class="opt-letter">(B)</span> <span class="opt-text">只要函式呼叫自己，就是回溯法</span></div><div class="quiz-opt" data-correct="false" data-fb="由下而上的填表就可以完全使用迴圈。" onclick="quizCheck('qStrategyRole', this)"><span class="opt-letter">(C)</span> <span class="opt-text">動態規劃一定要使用遞迴</span></div><div class="quiz-opt" data-correct="false" data-fb="是否最佳取決於選擇規則與問題性質，不取決於有沒有遞迴呼叫。" onclick="quizCheck('qStrategyRole', this)"><span class="opt-letter">(D)</span> <span class="opt-text">greedy 改寫成遞迴後，就能保證全域最佳</span></div>
+  </div>
+  <div class="quiz-feedback" id="qStrategyRoleFeedback"></div>
+</div>
 <h3>先用迴圈：計算 vector 的總和</h3>
 <p>要算 <code>{1, 3, 5, 7, 9}</code> 的總和，迴圈版用一個<strong>累加變數</strong> <code>theSum</code>：從 0 開始，把每個數依序加進去，迴圈結束時 <code>theSum</code> 就是總和。</p>
 <details class="rec-detail"><summary>講義完整程式：迴圈版 listSum</summary><div class="rec-detail-body"><div class="deck-extra">
@@ -630,9 +697,11 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <ul class="rec-ul"><li><code>listSumFrom</code> 在 <code>index == numList.size()</code> 時停止。這個 base case 代表「剩下的範圍是空的」，總和為 0，所以 <code>listSum({})</code> 也能安全地回傳 0。</li><li>遞迴呼叫把 <code>index</code> 加一。同一個 vector 以 <code>const</code> 參考傳下去，遞迴過程中不會被複製，也不會被修改。</li></ul>
 <h3><code>size_t</code> 與 <code>&lt;cstddef&gt;</code></h3>
 <p><code>&lt;cstddef&gt;</code> 宣告了 <code>std::size_t</code>。範例中的 <code>using namespace std;</code> 讓參數可以簡寫成 <code>size_t index</code>；若不使用這行，就寫 <code>std::size_t index</code>。這個標頭是為了型別，與函式是否遞迴無關。</p>
+<details class="rec-detail"><summary>型別寬度、容器索引與標頭的選擇</summary><div class="rec-detail-body">
 <p><code>size_t</code> 是用來表示物件大小的無號整數型別，不是專門為大資料設計的型別。它的寬度由實作決定，不能假設一定是 64 位元，也不能假設一定比 <code>unsigned int</code> 寬。小範例使用 <code>unsigned int</code> 也可能得到相同結果，但未必能表示容器所有可能的索引。</p>
 <p><code>vector&lt;int&gt;::size()</code> 回傳 <code>vector&lt;int&gt;::size_type</code>；使用預設 allocator 時，它通常就是 <code>std::size_t</code>。也可以把索引直接宣告成 <code>vector&lt;int&gt;::size_type</code>。選索引型別時，應與容器大小的型別相配。</p>
 <p>雖然其他標頭可能間接引入這個名稱，使用 <code>std::size_t</code> 時仍應明確 include <code>&lt;cstddef&gt;</code>。無號也不代表不會出錯：例如對 0 做減一不會得到負數；本例的索引只往上增加，不需要這種倒數寫法。</p>
+</div></details>
 <h3>展開與回傳</h3>
 <p>下圖以「剩一個元素就停止」的版本示範加總 {1, 3, 5, 7, 9}；本頁程式會再走到空範圍才停止。圖中的 sum(3,5,7,9) 表示「從 3 開始到結尾的總和」。把這串呼叫看成一連串的化簡：每次呼叫都把問題縮短一項。</p>
 <figure class="rec-figure" id="rec-figure-sum"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="sum(1,3,5,7,9) = 1 + sum(3,5,7,9)，再往下展開為 3 + sum(5,7,9)、5 + sum(7,9)、7 + sum(9)，最後 sum(9) = 9。"><img src="assets/figures/ch6/recursion_sum.png" alt="sum(1,3,5,7,9) = 1 + sum(3,5,7,9)，再往下展開為 3 + sum(5,7,9)、5 + sum(7,9)、7 + sum(9)，最後 sum(9) = 9。" width="300" height="318" style="--figure-width:300px" loading="lazy"></div><figcaption>圖中採用「剩一個元素就停止」的版本，sum(9) 直接回傳 9。本頁 C++ 程式則以空範圍為 base case，還會多呼叫一次並回傳 0；兩者結果相同，呼叫次數不同。</figcaption></figure>
@@ -768,18 +837,21 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <span class="line" data-l="18">}</span></div>
 </div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>5AD</pre></div><p class="dx-note">1453 = 5 × 256 + 10 × 16 + 13，三個位數 5、10、13 查表後是 5、A、D。<code>if (n &lt; base)</code> 檢查 base case：一旦 n 小於要轉換的進位，就停止遞迴，直接從 convertString 取出字元。else 分支同時滿足第二與第三條法則：用除法縮小問題，並呼叫自己。</p>
 <h3>把一個 <code>char</code> 變成 <code>string</code></h3>
-<p><code>convertString[n]</code> 取出的是一個 <code>char</code>，但 <code>toStr</code> 要回傳 <code>string</code>。<code>string(1, convertString[n])</code> 使用「數量、字元」建構子：重複指定字元 1 次，建立長度為 1 的字串。</p><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> digit = <span class="str">'</span><span class="str">A</span><span class="str">'</span>;</span>
+<p><code>convertString[n]</code> 取出的是一個 <code>char</code>，但 <code>toStr</code> 要回傳 <code>string</code>。<code>string(1, convertString[n])</code> 使用「數量、字元」建構子：重複指定字元 1 次，建立長度為 1 的字串。</p>
+<p><code>string(convertString[n])</code> 少了數量，無法使用這個建構子：C++ 的 <code>string</code> 沒有接收單一 <code>char</code> 的建構子。至於 <code>else</code> 中的 <code>toStr(n / base, base) + convertString[n % base]</code>，左邊已是 <code>string</code>，可直接使用 <code>string + char</code> 串接，不必再把右邊轉成字串。</p><details class="rec-detail"><summary>char、字串常值與建構子的範例</summary><div class="rec-detail-body"><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> digit = <span class="str">'</span><span class="str">A</span><span class="str">'</span>;</span>
 <span class="line" data-l="2">string <span class="fn">one</span>(<span class="num">1</span>, digit);     <span class="com">// "A"</span></span>
 <span class="line" data-l="3">string <span class="fn">three</span>(<span class="num">3</span>, digit);   <span class="com">// "AAA"</span></span>
-<span class="line" data-l="4"><span class="com">// string wrong(digit);  // no constructor for a single char</span></span></div><p><code>string(convertString[n])</code> 少了數量，無法使用這個建構子。C++ 的 <code>string</code> 沒有接收單一 <code>char</code> 的建構子；<code>'A'</code> 與 <code>"A"</code> 也不同，前者是字元，後者是含有結尾零字元的字元陣列，可用來建立字串。</p>
+<span class="line" data-l="4">string prefix = <span class="str">"</span><span class="str">10</span><span class="str">"</span>;</span>
+<span class="line" data-l="5">string result = prefix + digit; <span class="com">// "10A": string + char is valid</span></span>
+<span class="line" data-l="6"><span class="com">// string wrong(digit);  // no constructor for a single char</span></span></div><p><code>'A'</code> 與 <code>"A"</code> 不同，前者是字元，後者是含有結尾零字元的字元陣列，可用來建立字串。<code>string(1, 'A')</code> 中的 1 表示重複次數；換成 3 就得到 <code>"AAA"</code>。</p></div></details>
 <h3>追蹤 toStr(10, 2)</h3>
 <p>再追蹤一次，這次把 10 轉成二進位字串 "1010"：</p>
 <figure class="rec-figure" id="rec-figure-num2str2"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="toStr(10, 2) 依序呼叫 toStr(5, 2)、toStr(2, 2)、toStr(1, 2)，餘數依序為 0、1、0；1 &lt; 2 是 base case。回傳 &quot;1&quot;、&quot;10&quot;、&quot;101&quot;、&quot;1010&quot;。"><img src="assets/figures/ch6/num2str2.png" alt="toStr(10, 2) 依序呼叫 toStr(5, 2)、toStr(2, 2)、toStr(1, 2)，餘數依序為 0、1、0；1 &lt; 2 是 base case。回傳 &quot;1&quot;、&quot;10&quot;、&quot;101&quot;、&quot;1010&quot;。" width="420" height="407" style="--figure-width:420px" loading="lazy"></div><figcaption>toStr(10, 2) 的追蹤：圖中由上往下列出各層對應的餘數 0、1、0，以及 base case 的 1；這是在標示待完成的運算，沒有指定 C++ 運算元的求值順序。字串卻是從最下層往上組成的，所以結果是 "1010"，不是倒過來的 "0101"。</figcaption></figure>
 <p>反覆除以進位時，餘數依序對應低位到高位，最後卻要把高位放在左邊。遞迴結果代表較高位的字串；這一層的餘數字元接在它右邊，就得到正確順序。若改成把餘數字元接在遞迴結果左邊，輸出的位數便會反過來。</p>
 <p>要分清楚「計算餘數」和「把字元接上結果」。原式 <code>toStr(n / base, base) + convertString[n % base]</code> 沒有規定 <code>+</code> 的左右運算元誰先求值；不能因此說餘數一定等遞迴返回後才計算。串接要等遞迴結果可用，且字元放在結果右邊，才決定了最後的位數順序。</p>
-<p>若想明確規定先記下字元、再呼叫遞迴，可以把原本的 <code>else</code> 區塊寫成下面三個敘述。對本例合法的 <code>n &gt;= 0</code>、<code>2 &lt;= base &lt;= 16</code>，得到相同的字串：</p><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> digit = convertString[n % base];</span>
+<p>動畫中的「待接字元」是在表示這次呼叫還沒做完的串接工作；原程式未必會配置一個名叫 <code>digit</code> 的堆疊欄位。</p><details class="rec-detail"><summary>用三個敘述明確指定求值順序</summary><div class="rec-detail-body"><p>若想明確規定先記下字元、再呼叫遞迴，可以把原本的 <code>else</code> 區塊寫成下面三個敘述。對本例合法的 <code>n &gt;= 0</code>、<code>2 &lt;= base &lt;= 16</code>，得到相同的字串：</p><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1"><span class="kw">char</span> digit = convertString[n % base];</span>
 <span class="line" data-l="2">string prefix = toStr(n / base, base);</span>
-<span class="line" data-l="3"><span class="kw">return</span> prefix + digit;</span></div><p>動畫中的「待接字元」是在表示這次呼叫還沒做完的串接工作；原程式未必會配置一個名叫 <code>digit</code> 的堆疊欄位。</p>
+<span class="line" data-l="3"><span class="kw">return</span> prefix + digit;</span></div></div></details>
 <p>在下面的動畫中輸入其他數字或換成二進位、十六進位，觀察每一層何時展開、何時接上自己的餘數。</p>
 <div class="viz-layout">
     <div>
@@ -854,11 +926,46 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p class="dx-note">用三法則檢查：base case 是長度不超過 1，空字串與單一字元本身就是自己的反轉；<code>s.substr(1)</code> 每次少一個字元，確實朝 base case 前進；而且它呼叫自己。跟 toStr 是同一個骨架：<strong>把「接上字元」延後到遞迴回來之後</strong>，順序就自動反過來。執行時沒有輸出，表示空字串、單字元與一般字串的 assert 都通過。</p>
 </div></div></details>
 <h3><code>substr(1)</code> 與反轉字串</h3>
-<p>填空的兩個答案是 <code>s</code> 與 <code>reverse(s.substr(1))</code>。前者處理空字串和單字元；後者先反轉索引 1 開始的剩餘字串，再把 <code>s[0]</code> 接在右邊。</p><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1">string s = <span class="str">"</span><span class="str">hello</span><span class="str">"</span>;</span>
+<p>填空的兩個答案是 <code>s</code> 與 <code>reverse(s.substr(1))</code>。前者處理空字串和單字元；後者先反轉索引 1 開始的剩餘字串，再把 <code>s[0]</code> 接在右邊。先檢查基本情況，也讓空字串不會執行 <code>s[0]</code> 或 <code>substr(1)</code>。</p>
+<p><code>s.substr(1)</code> 會建立不含第一個字元的新字串；<code>s.substr(1, 3)</code> 則從索引 1 開始取最多 3 個字元。第二個參數是長度，不是結束索引。</p><p>就這個遞迴版本而言，<code>reverse(s.substr(1)) + s[0]</code> 已經直接表達了「剩餘部分反轉，再接回第一個字元」。但它會建立子字串，而且參數以值傳遞；各層子字串的長度相加約為 $n+(n-1)+\cdots+1$。這份程式雖然只有 $n$ 層遞迴，卻也要複製各層的子字串，不能只用層數判定為 $O(n)$ 時間；光是複製就有 $O(n^2)$ 的總工作量。</p><details class="rec-detail"><summary>Python 切片與 C++17 字串操作的對照</summary><div class="rec-detail-body"><p>C++17 沒有 Python 的切片語法。<code>substr(pos, count)</code> 可取出一段連續字串；省略 <code>count</code> 時取到結尾。這個 <code>count</code> 是要取的長度，不是結束索引，也沒有 Python 切片的步長參數。以 <code>s = "hello"</code> 為例：</p>
+<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>Python</th><th>C++17</th><th>結果</th></tr></thead><tbody>
+<tr><td><code>s[1:]</code></td><td><code>s.substr(1)</code></td><td><code>"ello"</code></td></tr>
+<tr><td><code>s[1:4]</code></td><td><code>s.substr(1, 3)</code></td><td><code>"ell"</code></td></tr>
+<tr><td><code>s[::-1]</code></td><td><code>string(s.rbegin(), s.rend())</code></td><td>新的 <code>"olleh"</code></td></tr>
+</tbody></table></div><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1">string s = <span class="str">"</span><span class="str">hello</span><span class="str">"</span>;</span>
 <span class="line" data-l="2">string rest = s.substr(<span class="num">1</span>);     <span class="com">// "ello"</span></span>
-<span class="line" data-l="3">string middle = s.substr(<span class="num">1</span>, <span class="num">3</span>); <span class="com">// "ell"</span></span></div><p>C++17 沒有 Python 的 <code>s[1:]</code> 切片語法。<code>substr(pos, count)</code> 可取出一段連續字串；省略 <code>count</code> 時取到結尾。這個 <code>count</code> 是要取的長度，不是結束索引，也沒有 Python 切片的步長參數。</p>
-<p>就這個遞迴版本而言，<code>reverse(s.substr(1)) + s[0]</code> 已經直接表達了「剩餘部分反轉，再接回第一個字元」。但它會建立子字串，而且參數以值傳遞；各層子字串的長度相加約為 $n+(n-1)+\cdots+1$。這份程式雖然只有 $n$ 層遞迴，卻也要複製各層的子字串，不能只用層數判定為 $O(n)$ 時間；光是複製就有 $O(n^2)$ 的總工作量。</p>
-<p>只想完成反轉時，實務上可用標準函式庫的 <code>std::reverse(s.begin(), s.end())</code> 原地修改字串。那是在解同一個問題，但不會呈現這裡要練習的遞迴結構。</p>
+<span class="line" data-l="3">string middle = s.substr(<span class="num">1</span>, <span class="num">3</span>); <span class="com">// "ell"</span></span></div><p>這些對照適用於上面的合法索引，不能直接套用到所有切片。Python 的負索引會從尾端計算，超出範圍的切片端點會被截到合法邊界；<code>substr</code> 的位置與長度則是無號值，不提供負索引語意。若 <code>pos &gt; s.size()</code>，它會丟出 <code>std::out_of_range</code>；<code>pos == s.size()</code> 得到空字串，<code>count</code> 太長則只取到結尾。</p>
+<p><code>string(s.rbegin(), s.rend())</code> 使用反向迭代器建立新字串，保留原本的 <code>s</code>。另一個選擇是 include <code>&lt;algorithm&gt;</code> 後呼叫 <code>std::reverse(s.begin(), s.end())</code>，直接修改 <code>s</code>，不回傳反轉後的字串。這兩種標準函式庫寫法能完成同一個問題，但不會呈現這裡要練習的遞迴結構。</p></div></details><details class="rec-detail"><summary>避免逐層複製：索引、參照與共用輸出字串</summary><div class="rec-detail-body"><p>不必每次建立新的子字串。讓各層以 <code>const string&amp;</code> 共用唯讀輸入，用索引表示目前位置，並以 <code>string&amp;</code> 共用輸出。遞迴走到結尾後，在返回時依序 <code>push_back</code>，就會先寫入最後一個字元。</p>
+<p>包裝函式先用 <code>reserve(input.size())</code> 預留足夠容量，之後每個字元只寫入一次，也沒有逐層字串串接。對長度為 $n$ 的輸入，時間為 $O(n)$；呼叫深度與輸出空間各為 $O(n)$。這個版本仍然會遞迴到字串結尾，並未消除過深呼叫的風險。</p><div class="deck-extra"><div class="dx-label">C++17：用索引遞迴，返回時寫入結果</div><div class="pseudo-code" data-cpp="run" data-expected="&quot;&quot; -&gt; &quot;&quot;&#10;&quot;a&quot; -&gt; &quot;a&quot;&#10;&quot;hello&quot; -&gt; &quot;olleh&quot;&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cstddef&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;initializer_list&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="kw">void</span> <span class="fn">appendReversed</span>(<span class="kw">const</span> std::string&amp; input, std::<span class="kw">size_t</span> index,</span>
+<span class="line" data-l="7">                    std::string&amp; output) {</span>
+<span class="line" data-l="8">    <span class="kw">if</span> (index == input.size()) {</span>
+<span class="line" data-l="9">        <span class="kw">return</span>;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">    appendReversed(input, index + <span class="num">1</span>, output);</span>
+<span class="line" data-l="12">    output.push_back(input[index]);</span>
+<span class="line" data-l="13">}</span>
+<span class="line" data-l="14"> </span>
+<span class="line" data-l="15">std::string <span class="fn">reversedByIndex</span>(<span class="kw">const</span> std::string&amp; input) {</span>
+<span class="line" data-l="16">    std::string output;</span>
+<span class="line" data-l="17">    output.reserve(input.size());</span>
+<span class="line" data-l="18">    appendReversed(input, <span class="num">0</span>, output);</span>
+<span class="line" data-l="19">    <span class="kw">return</span> output;</span>
+<span class="line" data-l="20">}</span>
+<span class="line" data-l="21"> </span>
+<span class="line" data-l="22"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="23">    <span class="kw">for</span> (<span class="kw">const</span> std::string&amp; input : {std::string(<span class="str">"</span><span class="str">"</span>), std::string(<span class="str">"</span><span class="str">a</span><span class="str">"</span>),</span>
+<span class="line" data-l="24">                                    std::string(<span class="str">"</span><span class="str">hello</span><span class="str">"</span>)}) {</span>
+<span class="line" data-l="25">        std::cout &lt;&lt; <span class="str">'</span><span class="str">"</span><span class="str">'</span> &lt;&lt; input &lt;&lt; <span class="str">"</span><span class="str">\"</span><span class="str"> -&gt; </span><span class="str">\"</span><span class="str">"</span></span>
+<span class="line" data-l="26">                  &lt;&lt; reversedByIndex(input) &lt;&lt; <span class="str">"</span><span class="str">\"</span><span class="str">\n</span><span class="str">"</span>;</span>
+<span class="line" data-l="27">    }</span>
+<span class="line" data-l="28">}</span></div></div></div></details><div class="expected-out"><span class="eo-tag">索引版預期輸出</span><pre>&quot;&quot; -&gt; &quot;&quot;
+&quot;a&quot; -&gt; &quot;a&quot;
+&quot;hello&quot; -&gt; &quot;olleh&quot;</pre></div>
 <div class="quiz-box">
   <div class="quiz-label">QUIZ · reverse 的 base case</div>
   <p>哪一個 base case 能讓遞迴的 <code>reverse(string s)</code> 同時正確處理空字串與單一字元？</p>
@@ -922,9 +1029,17 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 <p>理解程式時，可以把每個尚未結束的呼叫畫成一個 frame：這次的參數、仍需使用的區域狀態，以及呼叫返回後要接著做的事。<code>toStr(10, 2)</code> 等待較高位字串回來，再完成自己的串接；這就是「待完成運算」。</p>
 <p>有了這個呼叫機制，程式設計者通常不必自己建立 stack 來保存這些呼叫。若改寫成顯式 stack，便要自行保存演算法真正需要的狀態，例如目前節點與下一個要探索的方向。單純的加總則只要累加變數，不必照搬整套 stack。</p>
 <p>以每層保存固定大小資料的呼叫堆疊模型計算，最大深度為 $d$ 時需要 $O(d)$ 的額外空間。每層若還複製字串或容器，這些資料的空間也要另外計入。遞迴太深可能耗盡呼叫堆疊；C++ 並不保證會替你消除遞迴呼叫。</p>
-<details class="rec-detail"><summary>frame pointer 與 return address（補充）</summary><div class="rec-detail-body">
-<p>在使用 frame pointer 的常見實作中，<strong>frame pointer</strong> 協助定位目前函式的 frame；保存的上一層 frame pointer 指向上一層 frame 的位置，返回時可用來恢復定位。<strong>return address</strong> 則指出函式結束後，要回到哪個程式指令繼續執行。</p>
-<p>前者回答「上一層的 frame 在哪裡」，後者回答「接著執行哪一個指令」。兩者不能互換。這是理解常見實作的模型，不是 C++ 規定的固定記憶體配置：編譯器可能省略 frame pointer、將參數或區域變數放在暫存器，也可能把呼叫內聯。回傳值也不保證放在堆疊頂端。</p>
+<details class="rec-detail"><summary>frame 裡可能保存什麼？FP、SP 與返回位址</summary><div class="rec-detail-body">
+<p>在使用 frame pointer 的常見實作中，CPU 通常以暫存器保存<strong>目前的 frame pointer（FP）</strong>，用來定位目前 frame 的基準位置。它不同於儲存在 frame 中的<strong>呼叫者 FP 舊值</strong>；後者在返回時可用來恢復上一層的定位。</p>
+<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>名稱</th><th>作用</th></tr></thead><tbody>
+<tr><td>目前的 FP</td><td>定位目前 frame 的基準；常見做法是放在專用暫存器中。</td></tr>
+<tr><td>保存的呼叫者 FP</td><td>記錄上一層的 frame 基準，供返回時恢復。</td></tr>
+<tr><td>stack pointer（SP）</td><td>追蹤目前堆疊頂端；配置或釋放堆疊空間時可能改變。</td></tr>
+<tr><td>return address</td><td>返回呼叫者後要繼續執行的指令位置，通常是呼叫指令之後的下一個指令。</td></tr>
+</tbody></table></div>
+<p>例如 A 呼叫 B：B 執行時，目前 FP 定位 B 的 frame；若保存了呼叫者 FP，該值對應 A 的 frame；返回位址則對應 A 中呼叫 B 之後的接續指令。前兩者處理 frame 的定位，返回位址處理接下來執行哪個指令，不能互換。</p>
+<p>frame 也可能保存參數、區域變數、需要還原的暫存器與暫時值。哪些項目真的放進堆疊、如何排列，以及堆疊往哪個方向成長，由平台的 ABI（呼叫慣例等約定）、編譯器與最佳化決定，不是 C++ 規定的固定配置。編譯器可能省略 FP、讓參數與區域變數留在暫存器，也可能將函式內聯；回傳值不保證放在堆疊頂端。</p>
+<p>還要區分 <code>string</code> 物件與它管理的字元儲存空間。物件可能保存長度、容量及指向字元的資訊；字元可能在動態配置的記憶體中，也可能因短字串最佳化（SSO）直接放在物件內。不能把每個字元都畫成 heap 上的資料，也不能假設每個參數都在 stack 上。計算遞迴空間時，要連同各層仍存活的字元資料一起考慮。</p>
 </div></details>
 <h3>動畫：toStr(10, 2) 的呼叫堆疊</h3>
 <p>按「→ 單步」看每一次呼叫推入一個 frame，碰到 base case 之後再一格一格彈出。堆疊頂端顯示 toStr(2, 2) 得到 "10"、下面兩格還在等待的那一格，就是上圖的狀態。</p>
@@ -1315,6 +1430,7 @@ moving disk from A to B</pre></div><p class="dx-note">main 呼叫 <code>moveTowe
   <div class="section-number">PART 07 · 走迷宮</div>
   <h2>迷宮探索：遞迴回溯（backtracking） <span class="sec-badge">cppds §5.11</span></h2>
 <!-- gen:recursion-maze -->
+<p>這裡使用<strong>回溯</strong>策略：探索一個方向，失敗就返回先前的決策點，改試其他方向。<strong>遞迴</strong>則負責實作呼叫與返回；改用顯式 stack 也能實作同樣的搜尋策略。</p>
 <p>這一節要幫一隻烏龜走出虛擬的迷宮。迷宮被切成方格，每格是通道或牆；從起點出發，找到任何一個可通行的邊界格就算成功。搜尋只需要一條可行路徑，不保證找到最短路徑。</p>
 <figure class="rec-figure" id="rec-figure-maze"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="迷宮格子圖：橘色是牆，白色是通道；藍色烏龜在起點，綠點標出走到出口的路線，紅點是試過之後退回的格子。"><img src="assets/figures/ch6/maze.png" alt="迷宮格子圖：橘色是牆，白色是通道；藍色烏龜在起點，綠點標出走到出口的路線，紅點是試過之後退回的格子。" width="440" height="413" style="--figure-width:440px" loading="lazy"></div><figcaption>迷宮探索的結果：綠點連成從起點到出口的路，紅點是走進去之後發現是死路、又退回來的格子。退回來的動作，在程式裡就是遞迴呼叫回傳 false。</figcaption></figure>
 <h3>探索程序</h3>
@@ -1324,9 +1440,9 @@ moving disk from A to B</pre></div><p class="dx-note">main 呼叫 <code>moveTowe
 <h3>返回上一層，與撤銷資料是兩件事</h3>
 <p>假設 A 呼叫 B，B 又呼叫 C。C 回傳 <code>false</code> 時，控制流程回到 B 發出這次呼叫的位置；B 可以接著嘗試下一個方向。呼叫機制記住了 B 的參數與接續位置，因此不必自行尋找上一層的呼叫。</p>
 <p>這裡的回退指的是<strong>控制流程返回</strong>，不是烏龜或機器人自動往回移動一格，也不是所有資料恢復原狀。此處的 <code>Maze&amp;</code> 是共用迷宮；呼叫結束後，寫入的 <code>TRIED</code>、<code>DEAD_END</code> 等標記仍在。這個演算法只要找一條出口路徑，保留標記能避免反覆搜尋同一格。</p>
-<p>若問題改成列舉所有合法組合或所有路徑，可能需要自行撤銷某些共用狀態。例如下面這個概念片段中的 <code>path</code> 只記錄目前這條選擇路徑：</p><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1">path.push_back(choice); <span class="com">// choose: remember this choice</span></span>
+<p>若問題改成列舉所有合法組合或所有路徑，可能需要自行撤銷某些共用狀態。是否需要撤銷、撤銷哪些資料，要由問題與狀態的意義決定；不能把它一律加進本頁的迷宮程式。</p><details class="rec-detail"><summary>選擇、探索與撤銷：共用 path 的概念片段</summary><div class="rec-detail-body"><p>下面的 <code>path</code> 只記錄目前這條選擇路徑：</p><div class="pseudo-code" data-cpp="fragment"><span class="line" data-l="1">path.push_back(choice); <span class="com">// choose: remember this choice</span></span>
 <span class="line" data-l="2">explore();              <span class="com">// explore: try what follows</span></span>
-<span class="line" data-l="3">path.pop_back();        <span class="com">// undo: remove this choice before the next one</span></span></div><p><code>pop_back()</code> 是程式明確要求的撤銷，不是 <code>return</code> 自動替你做的。是否需要撤銷、撤銷哪些資料，要由問題與狀態的意義決定；不能把它一律加進本頁的迷宮程式。</p>
+<span class="line" data-l="3">path.pop_back();        <span class="com">// undo: remove this choice before the next one</span></span></div><p><code>pop_back()</code> 是程式明確要求的撤銷，不是 <code>return</code> 自動替你做的。</p></div></details>
 <h3>入口檢查與探索結果</h3>
 <ol class="rec-ul"><li>碰到牆，立即回傳 false。</li><li>碰到已探索或已確認的死路格，立即回傳 false。</li><li>通過前兩項檢查後，若位在邊界，標成成功路徑並回傳 true。</li><li>其餘格子先標成 TRIED，再探索四個方向；全部失敗才標成 DEAD_END 並回傳 false。</li></ol>
 <h3>四種情況不是四個互斥的入口條件</h3>
@@ -1389,7 +1505,10 @@ moving disk from A to B</pre></div><p class="dx-note">main 呼叫 <code>moveTowe
 </div>
 <h3><code>find()</code> 回傳的 <code>string::npos</code></h3>
 <p><code>mazeList[row].find(START)</code> 在這一列找 <code>'S'</code>。找得到時，結果是字元索引；找不到時，結果是特殊值 <code>string::npos</code>。因此 <code>col != string::npos</code> 的分支才可以把 <code>col</code> 當成起點的欄索引。</p>
-<p><code>npos</code> 是 <code>string::size_type</code> 型別的特殊常數，可寫成該型別的 <code>-1</code> 轉換結果。不要把它當成可用索引，也不要假設它在每台電腦上都是某個固定的十進位數字；直接與 <code>string::npos</code> 比較即可。</p>
+<p>例如 <code>string s = "ABCDE";</code>，<code>s.find('C')</code> 得到索引 <code>2</code>，<code>s.find('Z')</code> 則得到 <code>string::npos</code>。不要把 <code>npos</code> 當成可用索引；直接與 <code>string::npos</code> 比較即可。</p>
+<details class="rec-detail"><summary>為什麼 npos 常寫成無號型別的 −1？</summary><div class="rec-detail-body">
+<p><code>npos</code> 是 <code>string::size_type</code> 型別的特殊常數，可寫成該型別的 <code>-1</code> 轉換結果。<code>size_type</code> 是無號整數型別，把 <code>-1</code> 轉成這個型別會得到該型別可表示的最大值。因此它不是負的索引，而是「找不到」的特殊標記。型別寬度可能因實作而不同，不要假設它在每台電腦上都是某個固定的十進位數字。</p>
+</div></details>
 <p><code>vector&lt;string&gt; mazeList</code> 的每個 string 是一列，<code>mazeList[row][col]</code> 就是一格。<code>gui</code> 是選用的繪圖物件；沒有啟用 GUI 時，更新只改動字元格子。</p>
 <div class="deck-extra">
   <div class="dx-label">updatePosition 與 print</div>
@@ -1571,9 +1690,77 @@ OOOOOO+OOO  ++++++++++
 <h3>找零錢與貪婪法</h3>
 <p>最佳化問題的經典例子，是用最少的硬幣找零。假設你在販賣機公司寫程式，公司希望每筆交易找的硬幣越少越好。顧客投入一元紙鈔，買了 37 分的東西，要找 63 分。最少要用幾枚硬幣？</p>
 <p>答案是 6 枚：兩個 25 分、一個 10 分、三個 1 分。怎麼得到的？從手上最大的硬幣（25 分）開始，能用幾枚就用幾枚，再換下一種較小的硬幣，依此類推。這種做法稱為<strong>貪婪法</strong>（greedy method），因為它每一步都想馬上解決盡量大的一部分問題。</p>
-<p>用美國硬幣時，貪婪法沒有問題。但假設公司把販賣機賣到另一個國家，那裡除了 1、5、10、25 分，還有 21 分硬幣。這時貪婪法找 63 分仍然給出 6 枚，最佳解卻是三枚 21 分。</p>
+<p>對前面的 1、5、10、25 分面額，63 分用這個規則得到的 6 枚也正好是最少。但若再加入 21 分硬幣，貪婪法找 63 分仍然給出 6 枚，最佳解卻是三枚 21 分。</p>
+<h3>同樣用遞迴，仍然可以是 greedy</h3>
+<p>greedy 的關鍵是<strong>選了最大的可用硬幣，就不再比較其他選擇</strong>。這個規則可寫成迴圈，也可寫成「拿一枚，再遞迴處理剩餘金額」。兩種寫法都會選 25、25、10、1、1、1，共 6 枚；改變呼叫方式並沒有改變選擇規則。</p>
+<details class="rec-detail"><summary>展開完整程式：迴圈 greedy、遞迴 greedy 與 DP</summary><div class="rec-detail-body"><div class="deck-extra">
+  <div class="dx-label">相同面額與金額，分開比較寫法和策略</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="greedy (loop): 6&#10;greedy (recursive): 6&#10;minimum (DP): 3&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="4"> </span>
+<span class="line" data-l="5"><span class="kw">int</span> <span class="fn">makeChange3</span>(vector&lt;<span class="kw">int</span>&gt;&amp; coinValueList, <span class="kw">int</span> change, vector&lt;<span class="kw">int</span>&gt;&amp; minCoins) {</span>
+<span class="line" data-l="6">    <span class="kw">for</span> (<span class="kw">int</span> cents = <span class="num">0</span>; cents &lt;= change; cents++) {</span>
+<span class="line" data-l="7">        <span class="kw">int</span> coinCount = cents;</span>
+<span class="line" data-l="8">        <span class="kw">for</span> (<span class="kw">int</span> j : coinValueList) {</span>
+<span class="line" data-l="9">            <span class="kw">if</span> (j &lt;= cents &amp;&amp; minCoins[cents - j] + <span class="num">1</span> &lt; coinCount) {</span>
+<span class="line" data-l="10">                coinCount = minCoins[cents - j] + <span class="num">1</span>;</span>
+<span class="line" data-l="11">            }</span>
+<span class="line" data-l="12">        }</span>
+<span class="line" data-l="13">        minCoins[cents] = coinCount;</span>
+<span class="line" data-l="14">    }</span>
+<span class="line" data-l="15">    <span class="kw">return</span> minCoins[change];</span>
+<span class="line" data-l="16">}</span>
+<span class="line" data-l="17"> </span>
+<span class="line" data-l="18"> </span>
+<span class="line" data-l="19"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;cassert&gt;</span></span>
+<span class="line" data-l="20"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;stdexcept&gt;</span></span>
+<span class="line" data-l="21"> </span>
+<span class="line" data-l="22"><span class="com">// coins are positive, sorted from largest to smallest, and include 1.</span></span>
+<span class="line" data-l="23"><span class="kw">int</span> <span class="fn">greedyLoop</span>(<span class="kw">int</span> amount, <span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; coins) {</span>
+<span class="line" data-l="24">    <span class="kw">int</span> count = <span class="num">0</span>;</span>
+<span class="line" data-l="25">    <span class="kw">for</span> (<span class="kw">int</span> coin : coins) {</span>
+<span class="line" data-l="26">        count += amount / coin;</span>
+<span class="line" data-l="27">        amount %= coin;</span>
+<span class="line" data-l="28">    }</span>
+<span class="line" data-l="29">    <span class="kw">return</span> count;</span>
+<span class="line" data-l="30">}</span>
+<span class="line" data-l="31"> </span>
+<span class="line" data-l="32"><span class="kw">int</span> <span class="fn">greedyRecursive</span>(<span class="kw">int</span> amount, <span class="kw">const</span> vector&lt;<span class="kw">int</span>&gt;&amp; coins) {</span>
+<span class="line" data-l="33">    <span class="kw">if</span> (amount == <span class="num">0</span>) <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="34">    <span class="kw">for</span> (<span class="kw">int</span> coin : coins) {</span>
+<span class="line" data-l="35">        <span class="kw">if</span> (coin &lt;= amount) {</span>
+<span class="line" data-l="36">            <span class="kw">return</span> <span class="num">1</span> + greedyRecursive(amount - coin, coins);</span>
+<span class="line" data-l="37">        }</span>
+<span class="line" data-l="38">    }</span>
+<span class="line" data-l="39">    <span class="kw">throw</span> logic_error(<span class="str">"</span><span class="str">coins must include 1</span><span class="str">"</span>);</span>
+<span class="line" data-l="40">}</span>
+<span class="line" data-l="41"> </span>
+<span class="line" data-l="42"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="43">    vector&lt;<span class="kw">int</span>&gt; coins = {<span class="num">25</span>, <span class="num">21</span>, <span class="num">10</span>, <span class="num">5</span>, <span class="num">1</span>};</span>
+<span class="line" data-l="44">    vector&lt;<span class="kw">int</span>&gt; minimum(<span class="num">64</span>, <span class="num">0</span>);</span>
+<span class="line" data-l="45">    assert(greedyLoop(<span class="num">0</span>, coins) == <span class="num">0</span>);</span>
+<span class="line" data-l="46">    assert(greedyRecursive(<span class="num">0</span>, coins) == <span class="num">0</span>);</span>
+<span class="line" data-l="47">    cout &lt;&lt; <span class="str">"</span><span class="str">greedy (loop): </span><span class="str">"</span> &lt;&lt; greedyLoop(<span class="num">63</span>, coins) &lt;&lt; endl;</span>
+<span class="line" data-l="48">    cout &lt;&lt; <span class="str">"</span><span class="str">greedy (recursive): </span><span class="str">"</span> &lt;&lt; greedyRecursive(<span class="num">63</span>, coins) &lt;&lt; endl;</span>
+<span class="line" data-l="49">    cout &lt;&lt; <span class="str">"</span><span class="str">minimum (DP): </span><span class="str">"</span> &lt;&lt; makeChange3(coins, <span class="num">63</span>, minimum) &lt;&lt; endl;</span>
+<span class="line" data-l="50">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="51">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>greedy (loop): 6
+greedy (recursive): 6
+minimum (DP): 3</pre></div><p class="dx-note">面額為 25、21、10、5、1，金額為 63。前兩行使用同一個 greedy 規則；第三行比較所有可用硬幣並填表。</p>
+<p>三枚 21 分可湊成 63 分；任何兩枚硬幣最多只有 50 分，因此 3 枚確實最少。greedy 在這組面額下錯過了這個選擇。要保證局部選擇能得到全域最佳，必須針對問題證明，不能只從程式用了迴圈或遞迴來判斷。</p>
+<div class="quiz-box">
+  <div class="quiz-label">QUIZ · 為什麼要比較其他選擇</div>
+  <p>有 21 分硬幣時，greedy 找 63 分得到 6 枚。哪個改變能避免漏掉三枚 21 分的解？</p>
+  <div class="quiz-options" id="qGreedyRecursionOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="差別在完整比較其他選擇；記憶化或填表則可減少後續的重複計算。" onclick="quizCheck('qGreedyRecursion', this)"><span class="opt-letter">(A)</span> <span class="opt-text">比較每一種可用硬幣作為下一枚時的候選答案，再取最小值</span></div><div class="quiz-opt" data-correct="false" data-fb="選擇規則沒變，仍會先拿 25 分，因此仍得到 6 枚。" onclick="quizCheck('qGreedyRecursion', this)"><span class="opt-letter">(B)</span> <span class="opt-text">維持選最大面額的規則，只把迴圈改成遞迴</span></div><div class="quiz-opt" data-correct="false" data-fb="重複同一選擇不會找出被排除的分支。" onclick="quizCheck('qGreedyRecursion', this)"><span class="opt-letter">(C)</span> <span class="opt-text">讓遞迴函式多呼叫幾次，但只探索同一種選擇</span></div><div class="quiz-opt" data-correct="false" data-fb="狀態的儲存方式改了，但沒有改變選擇規則。" onclick="quizCheck('qGreedyRecursion', this)"><span class="opt-letter">(D)</span> <span class="opt-text">把呼叫堆疊改成自己管理的 stack</span></div>
+  </div>
+  <div class="quiz-feedback" id="qGreedyRecursionFeedback"></div>
+</div>
 <h3>遞迴寫法：makeChange1</h3>
-<p>改用遞迴，先找 base case：要找的金額剛好等於某種硬幣的面額，答案很簡單，就是一枚。金額不相等時有幾種選擇：1 分硬幣加上「原金額減 1 分」所需的硬幣數、5 分硬幣加上「原金額減 5 分」所需的硬幣數，依此類推，取其中最小的。所以原金額需要的硬幣數是：</p>
+<p>要避免只選最大面額的盲點，必須改變<strong>比較選擇的方式</strong>：把每一種可用硬幣都當作下一枚，分別求出剩餘金額的最少硬幣數，再從這些候選答案取最小值。這裡用遞迴解較小金額，正確性則來自完整比較及子問題的最佳答案。</p>
+<p>base case 是金額剛好等於某種面額，這時一枚就夠。其餘金額比較「1 分加上剩餘金額的最佳解」、「5 分加上剩餘金額的最佳解」等所有合法選擇。若一個候選解的剩餘部分不是最佳，替換成更少枚的找法就能改善整體；這就是此問題的最佳子結構。以下遞迴式與 makeChange1 使用原本的 1、5、10、25 分：</p>
 $$num\_coins = \min\begin{cases}1 + num\_coins(original\ amount - 1)\\ 1 + num\_coins(original\ amount - 5)\\ 1 + num\_coins(original\ amount - 10)\\ 1 + num\_coins(original\ amount - 25)\end{cases}$$
 <details class="rec-detail"><summary>講義完整程式：makeChange1</summary><div class="rec-detail-body"><div class="deck-extra">
   <div class="dx-label">講義 06 · 天真遞迴（26 分）</div>
@@ -1603,6 +1790,7 @@ $$num\_coins = \min\begin{cases}1 + num\_coins(original\ amount - 1)\\ 1 + num\_
 <span class="line" data-l="24">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="25">}</span></div>
 </div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>2</pre></div><p class="dx-note">26 分最少要 2 枚（25 + 1）。函式一開始檢查 base case：金額是否剛好等於某一種硬幣。不是的話，對每一種不超過金額的硬幣各做一次遞迴呼叫，取最小值再加一。</p>
+<p class="dx-note">這份 makeChange1 示範正整數金額，面額皆為正整數且包含 1。若要處理 0 分，需另加回傳 0 的 base case；目前程式對 0 分會留下初值 INT_MAX。</p>
 <h3>問題：重複計算</h3>
 <p>這個演算法的問題是效率極差。用 4 種硬幣找 63 分，要做 67,716,925 次函式呼叫（包含最初那次）才找到最佳解。下圖是找 26 分所需的 377 次呼叫中的一小部分：</p>
 <figure class="rec-figure" id="rec-figure-dp1"><div class="rec-figure-scroll" tabindex="0" role="region" aria-label="以 26 為根的呼叫樹：箭頭上標示用掉的硬幣 1、5、10、25，節點是剩下的金額，例如 25、21、16、1；第二層的 21 又展開成 20、16、11，16 展開成 15、11、6。15、11、16、6 等節點在樹中重複出現多次。"><img src="assets/figures/ch6/dp1.png" alt="以 26 為根的呼叫樹：箭頭上標示用掉的硬幣 1、5、10、25，節點是剩下的金額，例如 25、21、16、1；第二層的 21 又展開成 20、16、11，16 展開成 15、11、6。15、11、16、6 等節點在樹中重複出現多次。" width="760" height="323" style="--figure-width:760px" loading="lazy"></div><figcaption>makeChange1 計算 26 分時的一小部分呼叫。節點是要找零的金額，箭頭上的數字是剛用掉的硬幣。同一個金額會在不同分支重複出現，例如 15 至少出現三次，每次都從頭重算。</figcaption></figure>
@@ -1727,7 +1915,7 @@ knownResults[0..10]: 0 1 0 0 0 1 2 3 4 5 1</pre></div>
 <ol class="rec-ul"><li>一個 1 分，加上找 11 − 1 = 10 分所需的最少硬幣數（1 枚）。</li><li>一個 5 分，加上找 11 − 5 = 6 分所需的最少硬幣數（2 枚）。</li><li>一個 10 分，加上找 11 − 10 = 1 分所需的最少硬幣數（1 枚）。</li></ol>
 <p>第 1 與第 3 個選擇都只要 1 + 1 = 2 枚，所以 11 分最少要 2 枚。</p>
 <h3>makeChange3：動態規劃版本</h3>
-<p><code>makeChange3()</code> 是由下往上的動態規劃版本。它接收合法的硬幣面額、要找的金額，以及一個 vector，存放 0 到目標金額每一個金額的最少硬幣數。</p>
+<p><code>makeChange3()</code> 是由下往上的動態規劃版本。這個版本使用正整數面額且包含 1 分，並以 vector 存放 0 到目標金額各自的最少硬幣數。因為一定能用 1 分湊出金額，coinCount = cents 才是可行的初始答案。若移除 1 分，必須另外表示「無法湊出」，不能沿用這個初值當作有效答案。</p>
 <details class="rec-detail"><summary>講義完整程式：makeChange3</summary><div class="rec-detail-body"><div class="deck-extra">
   <div class="dx-label">講義 06 · 由小到大填 minCoins</div>
   <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="6&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
@@ -1809,7 +1997,7 @@ knownResults[0..10]: 0 1 0 0 0 1 2 3 4 5 1</pre></div>
 The used list is as follows:
 1 1 1 1 1 5 1 1 1 1 10 1 1 1 1 5 1 1 1 1 10 21 1 1 1 25 1 1 1 1 5 10 1 1 1 10 1 1 1 1 5 10 21 1 1 10 21 1 1 1 25 1 10 1 1 5 10 1 1 1 10 1 10 21 </pre></div><p class="dx-note">這次的硬幣包含 21 分，最佳解是三枚 21 分。第二段輸出是 coinsUsed 的全部內容，索引 0 到 63。</p>
 <p><code>coinsUsed</code> 記錄每個金額最後選用的硬幣，<code>coinCount</code> 記錄每個金額的最少硬幣數，兩者都是以金額為索引的 vector。注意印出來的硬幣直接取自 coinsUsed：第一次從位置 63 開始，印出 21；接著看第 42 格，那裡也存著 21；最後第 21 格同樣是 21，於是得到三枚 21 分。</p>
-<details class="rec-detail"><summary>填表動畫：23 分（補充）</summary><div class="rec-detail-body"><p>下面的動畫用 makeChange4 的硬幣 {1, 5, 10, 21, 25} 填 0 到 23 分的表。每一格都是「試每一種硬幣，查剩下金額那一格，取最少」。填完後沿著每格記下的最後一枚硬幣往回走，就能還原答案。23 分最少要 3 枚（21 + 1 + 1）。</p><div class="viz-layout">
+<details class="rec-detail"><summary>填表動畫：23 分（補充）</summary><div class="rec-detail-body"><p>下面的動畫用 makeChange3 填 0 到 23 分的最少硬幣表，面額採 {1, 5, 10, 21, 25}。每一格都是「試每一種硬幣，查剩下金額那一格，取最少」。動畫顯示最少枚數如何決定；上方的 makeChange4 與 printCoins 則示範如何還原硬幣。23 分最少要 3 枚（21 + 1 + 1）。</p><div class="viz-layout">
     <div>
       <div class="viz-panel">
         <div class="char-strip" id="dpStrip" style="max-width:100%;overflow-x:auto;flex-wrap:nowrap;"></div>
@@ -1899,14 +2087,7 @@ The used list is as follows:
 <!-- gen:recursion-reference -->
 <h3>比較表</h3>
 <div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>問題</th><th>base case</th><th>縮小方式</th><th>複雜度</th></tr></thead><tbody><tr><td>listSum</td><td>索引到達 vector 尾端</td><td>索引加 1</td><td>$O(n)$</td></tr><tr><td>toStr(n, base)</td><td>n &lt; base</td><td>n / base</td><td>呼叫次數 $O(\log_{base} n)$；字串操作另計</td></tr><tr><td>河內塔</td><td>height 為 0</td><td>height − 1（兩次）</td><td>$O(2^n)$</td></tr><tr><td>迷宮</td><td>入口先查牆、走過、出口；探索後才判斷四方皆敗</td><td>標記尚未探索的通道，避免重訪</td><td>$O(\text{格子數})$</td></tr><tr><td>找零錢（makeChange3）</td><td>不遞迴；minCoins[0] = 0</td><td>金額 − 硬幣面額（查表）</td><td>$O(AC)$</td></tr></tbody></table></div>
-<h3>遞迴、分治、回溯與動態規劃</h3>
-<p>遞迴描述程式如何呼叫較小的同型問題。分治、回溯與動態規劃則是在安排解題工作，常稱為演算法設計策略；它們可以用遞迴實作，也可以用迴圈或顯式 stack 實作，彼此並非互斥的分類。</p>
-<div style="overflow-x:auto"><table class="cmp-table"><thead><tr><th>策略</th><th>重點</th><th>與本章的連結</th></tr></thead><tbody>
-<tr><td>分治</td><td>拆成子問題，解完後組合結果</td><td>後續的 merge sort 會把左右兩半分別排序，再合併。</td></tr>
-<tr><td>回溯</td><td>嘗試選擇，失敗或需要其他解時返回決策點</td><td>迷宮回到父呼叫，接著試下一方向；必要時才撤銷共用狀態。</td></tr>
-<tr><td>動態規劃</td><td>保存子問題答案，避免反覆計算</td><td>找零錢可用遞迴加記憶化，也可由小金額往上填表。</td></tr>
-</tbody></table></div>
-<p>因此，有遞迴不代表用了 DP：直接計算費氏數列的兩支遞迴仍可能大量重算。反過來，<code>makeChange3</code> 用迴圈填表，完全不需要遞迴。</p>
+<p>回顧<a href="#strategy-map">開頭的策略比較</a>：遞迴提供呼叫與返回機制；分治、回溯、greedy 與 DP 則決定如何分解、選擇或重用子問題。</p>
 <h3>關鍵概念</h3>
 <div class="info-box" style="margin-top:1rem;">
     <span class="info-label">關鍵概念複習</span>
@@ -1937,7 +2118,7 @@ The used list is as follows:
 </section>
 <section id="cards">
   <div class="section-number">CARDS · 關鍵詞彙卡</div>
-  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">12 張</span></h2>
+  <h2>關鍵詞彙卡：點卡片翻面 <span class="sec-badge">13 張</span></h2>
   <p>詞彙卡涵蓋本章的關鍵術語，正面是中文術語並附英文原名。先看正面術語，試著說出定義，再翻面核對；不熟的詞可以洗牌後再練習。</p>
   <div class="fc-controls">
     <button id="fcShuffle">🔀 洗牌</button>
@@ -2559,7 +2740,7 @@ mazeMake(false);
 
 </script>
 <script>
-const FLASHCARDS = [{"front": "遞迴（Recursion）", "back": "函式直接或間接呼叫自己來解決問題的程式技巧：把問題拆成更小、更好處理的部分，直到抵達可以直接解決的 base case。"}, {"front": "base case（基底情況）", "back": "讓遞迴停止呼叫自己的條件，而且要涵蓋所有最小的合法輸入。例如反轉字串可用 size <= 1，讓空字串與單一字元都安全終止。"}, {"front": "stack frame（堆疊框）", "back": "理解一次尚未完成呼叫所需狀態的模型，包含參數、仍需使用的區域狀態與返回位置。實際儲存方式由編譯器及呼叫慣例決定，不保證全部放在堆疊。"}, {"front": "碎形（Fractals）", "back": "在不同尺度下自我相似的幾何圖形：由一個簡單的步驟在回饋迴圈中不斷重複產生，電腦圖學常用它產生自然景物。"}, {"front": "動態規劃（Dynamic Programming）", "back": "把複雜問題拆成較簡單且彼此重疊的子問題來解的方法：每個子問題只解一次，把答案存起來，避免重複計算。"}, {"front": "貪婪法（Greedy Method）", "back": "每一步都做局部最佳選擇、希望最後得到全域最佳解的策略：實作簡單，但不是所有問題都保證得到最佳解。"}, {"front": "記憶化（Memoization）", "back": "由上而下的快取：每個子問題算過後就保存答案，同樣輸入再出現時直接重用。由下而上的動態規劃則依相依順序填表。"}, {"front": "呼叫堆疊（Call Stack）", "back": "執行環境為進行中的函式呼叫維護的堆疊：每次呼叫推入一個 stack frame，函式回傳時彈出。遞迴時，呼叫堆疊取代了手動管理的 stack，記住每一層暫停中的呼叫。"}, {"front": "累加變數（Accumulator）", "back": "迴圈中保存累計結果的變數，例如迴圈版 listSum 的 theSum：從 0 開始，每輪加上一個元素。遞迴版不需要它，回傳值本身就扮演累加的角色。"}, {"front": "碎形的 degree（深度）", "back": "人為設定的分割次數，作為碎形遞迴的 base case。Sierpinski 三角形每遞迴一層 degree 減 1，減到 0 就不再呼叫自己。"}, {"front": "回溯（Backtracking）", "back": "搜尋遇到死路時，控制流程返回先前的決策點，再試其他選擇。是否撤銷資料依問題而定；本頁的迷宮搜尋會保留已探索的標記。"}, {"front": "短路求值（Short-circuit Evaluation）", "back": "|| 的左邊已經是 true 時，右邊不再計算。searchFrom 用它串起四個方向：只要前面的方向找到出口，後面的方向就不必試。"}];
+const FLASHCARDS = [{"front": "遞迴（Recursion）", "back": "函式直接或間接呼叫自己來解決問題的程式技巧：把問題拆成更小、更好處理的部分，直到抵達可以直接解決的 base case。"}, {"front": "base case（基底情況）", "back": "讓遞迴停止呼叫自己的條件，而且要涵蓋所有最小的合法輸入。例如反轉字串可用 size <= 1，讓空字串與單一字元都安全終止。"}, {"front": "stack frame（堆疊框）", "back": "理解一次尚未完成呼叫所需狀態的模型，包含參數、仍需使用的區域狀態與返回位置。實際儲存方式由編譯器及呼叫慣例決定，不保證全部放在堆疊。"}, {"front": "碎形（Fractals）", "back": "在不同尺度下自我相似的幾何圖形：由一個簡單的步驟在回饋迴圈中不斷重複產生，電腦圖學常用它產生自然景物。"}, {"front": "動態規劃（Dynamic Programming）", "back": "把複雜問題拆成較簡單且彼此重疊的子問題來解的方法：每個子問題只解一次，把答案存起來，避免重複計算。"}, {"front": "貪婪法（Greedy Method）", "back": "每一步依指定的局部準則作選擇，不回頭比較其他分支的策略。可以用迴圈或遞迴實作；是否能得到全域最佳解，需要針對問題證明。"}, {"front": "分治（Divide and Conquer）", "back": "把問題分成較小的子問題，分別求解後組合結果的策略。常以遞迴實作，例如合併排序；也可以用迭代方式實作。"}, {"front": "記憶化（Memoization）", "back": "由上而下的快取：每個子問題算過後就保存答案，同樣輸入再出現時直接重用。由下而上的動態規劃則依相依順序填表。"}, {"front": "呼叫堆疊（Call Stack）", "back": "執行環境為進行中的函式呼叫維護的堆疊：每次呼叫推入一個 stack frame，函式回傳時彈出。遞迴時，呼叫堆疊取代了手動管理的 stack，記住每一層暫停中的呼叫。"}, {"front": "累加變數（Accumulator）", "back": "迴圈中保存累計結果的變數，例如迴圈版 listSum 的 theSum：從 0 開始，每輪加上一個元素。遞迴版不需要它，回傳值本身就扮演累加的角色。"}, {"front": "碎形的 degree（深度）", "back": "人為設定的分割次數，作為碎形遞迴的 base case。Sierpinski 三角形每遞迴一層 degree 減 1，減到 0 就不再呼叫自己。"}, {"front": "回溯（Backtracking）", "back": "搜尋遇到死路時，控制流程返回先前的決策點，再試其他選擇。是否撤銷資料依問題而定；本頁的迷宮搜尋會保留已探索的標記。"}, {"front": "短路求值（Short-circuit Evaluation）", "back": "|| 的左邊已經是 true 時，右邊不再計算。searchFrom 用它串起四個方向：只要前面的方向找到出口，後面的方向就不必試。"}];
 
 /* ===== Flashcards engine ===== */
 (function(){

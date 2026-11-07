@@ -109,8 +109,9 @@ def prologue():
                  (False, '4 次', '這是「只剩一個元素就停」的版本中，第一次之後的遞迴呼叫次數。本頁的 base case 是空的範圍，要多走到尾端。'),
                  (False, '30 次', '呼叫次數只跟元素個數有關，跟元素的值或總和 30 無關。'),
              ])
-    return f'''<p><strong>遞迴</strong>（recursion）是一種程式設計技巧：把問題<strong>拆成較小的同型問題</strong>，直到子問題小到可以直接解決。寫成程式時，通常就是函式呼叫自己。有些問題用迴圈很難寫，用遞迴卻能寫得簡潔。</p>
-{C.why_recursion()}
+    return f'''{C.why_recursion()}
+{C.strategies()}
+{quiz("qStrategyRole", "QUIZ · 寫法與策略", "下列哪一句正確區分了遞迴與演算法策略？", [(True, "遞迴提供呼叫與返回機制，策略決定如何拆分、選擇或重用子問題", "同一個策略可以有遞迴與非遞迴實作；寫成遞迴不會自動改變其選擇規則。"), (False, "只要函式呼叫自己，就是回溯法", "階乘也會呼叫自己，但沒有在多個選擇間搜尋。"), (False, "動態規劃一定要使用遞迴", "由下而上的填表就可以完全使用迴圈。"), (False, "greedy 改寫成遞迴後，就能保證全域最佳", "是否最佳取決於選擇規則與問題性質，不取決於有沒有遞迴呼叫。")])}
 <h3>先用迴圈：計算 vector 的總和</h3>
 <p>要算 <code>{{1, 3, 5, 7, 9}}</code> 的總和，迴圈版用一個<strong>累加變數</strong> <code>theSum</code>：從 0 開始，把每個數依序加進去，迴圈結束時 <code>theSum</code> 就是總和。</p>
 {lecture_program("講義完整程式：迴圈版 listSum", "講義 06 · 用累加變數求和", LISTSUM_ITER, OUT['listsum_iter'],
@@ -356,7 +357,8 @@ def maze():
                         (False, '兩條條件同時成立，所以編譯失敗', '條件可以重疊；程式的判斷順序決定先處理哪一種情況。'),
                         (False, '先試完四個方向，再決定是否是牆', '牆壁是入口檢查，不需要也不應再探索四個方向。'),
                     ])
-    return f'''<p>這一節要幫一隻烏龜走出虛擬的迷宮。迷宮被切成方格，每格是通道或牆；從起點出發，找到任何一個可通行的邊界格就算成功。搜尋只需要一條可行路徑，不保證找到最短路徑。</p>
+    return f'''<p>這裡使用<strong>回溯</strong>策略：探索一個方向，失敗就返回先前的決策點，改試其他方向。<strong>遞迴</strong>則負責實作呼叫與返回；改用顯式 stack 也能實作同樣的搜尋策略。</p>
+<p>這一節要幫一隻烏龜走出虛擬的迷宮。迷宮被切成方格，每格是通道或牆；從起點出發，找到任何一個可通行的邊界格就算成功。搜尋只需要一條可行路徑，不保證找到最短路徑。</p>
 {figure('maze')}
 <h3>探索程序</h3>
 <p>從目前格子出發，依固定順序嘗試方向：</p>
@@ -429,20 +431,28 @@ def dp():
         (False, '遞迴本身比迴圈慢上千倍', '函式呼叫的固定成本沒有這麼大，差別在計算量的量級。makeChange2 也是遞迴，只要 221 次呼叫。'),
         (False, 'DP 改用貪婪法，每次拿最大的硬幣', 'DP 每格都比較所有硬幣，不是貪婪法；貪婪法在有 21 分硬幣時找 63 分會給出 6 枚，不是最佳解。'),
     ])
-    anim = ('<p>下面的動畫用 makeChange4 的硬幣 {1, 5, 10, 21, 25} 填 0 到 23 分的表。每一格都是「試每一種硬幣，查剩下金額那一格，取最少」。'
-            '填完後沿著每格記下的最後一枚硬幣往回走，就能還原答案。23 分最少要 3 枚（21 + 1 + 1）。</p>'
+    anim = ('<p>下面的動畫用 makeChange3 填 0 到 23 分的最少硬幣表，面額採 {1, 5, 10, 21, 25}。每一格都是「試每一種硬幣，查剩下金額那一格，取最少」。'
+            '動畫顯示最少枚數如何決定；上方的 makeChange4 與 printCoins 則示範如何還原硬幣。23 分最少要 3 枚（21 + 1 + 1）。</p>'
             + W.w_dp())
     return f'''{SKIPPED}
 <p>電腦科學中有許多程式是在<strong>最佳化</strong>某個值，例如找兩點之間的最短路徑、找最符合一組點的直線，或找出滿足某些條件的最小物件集合。電腦科學家解這類問題有很多策略，<strong>動態規劃</strong>（dynamic programming）是其中之一。</p>
 <h3>找零錢與貪婪法</h3>
 <p>最佳化問題的經典例子，是用最少的硬幣找零。假設你在販賣機公司寫程式，公司希望每筆交易找的硬幣越少越好。顧客投入一元紙鈔，買了 37 分的東西，要找 63 分。最少要用幾枚硬幣？</p>
 <p>答案是 6 枚：兩個 25 分、一個 10 分、三個 1 分。怎麼得到的？從手上最大的硬幣（25 分）開始，能用幾枚就用幾枚，再換下一種較小的硬幣，依此類推。這種做法稱為<strong>貪婪法</strong>（greedy method），因為它每一步都想馬上解決盡量大的一部分問題。</p>
-<p>用美國硬幣時，貪婪法沒有問題。但假設公司把販賣機賣到另一個國家，那裡除了 1、5、10、25 分，還有 21 分硬幣。這時貪婪法找 63 分仍然給出 6 枚，最佳解卻是三枚 21 分。</p>
+<p>對前面的 1、5、10、25 分面額，63 分用這個規則得到的 6 枚也正好是最少。但若再加入 21 分硬幣，貪婪法找 63 分仍然給出 6 枚，最佳解卻是三枚 21 分。</p>
+<h3>同樣用遞迴，仍然可以是 greedy</h3>
+<p>greedy 的關鍵是<strong>選了最大的可用硬幣，就不再比較其他選擇</strong>。這個規則可寫成迴圈，也可寫成「拿一枚，再遞迴處理剩餘金額」。兩種寫法都會選 25、25、10、1、1、1，共 6 枚；改變呼叫方式並沒有改變選擇規則。</p>
+{lecture_program("展開完整程式：迴圈 greedy、遞迴 greedy 與 DP", "相同面額與金額，分開比較寫法和策略", GREEDY_COMPARE, OUT['greedy_compare'],
+                 note="面額為 25、21、10、5、1，金額為 63。前兩行使用同一個 greedy 規則；第三行比較所有可用硬幣並填表。")}
+<p>三枚 21 分可湊成 63 分；任何兩枚硬幣最多只有 50 分，因此 3 枚確實最少。greedy 在這組面額下錯過了這個選擇。要保證局部選擇能得到全域最佳，必須針對問題證明，不能只從程式用了迴圈或遞迴來判斷。</p>
+{quiz("qGreedyRecursion", "QUIZ · 為什麼要比較其他選擇", "有 21 分硬幣時，greedy 找 63 分得到 6 枚。哪個改變能避免漏掉三枚 21 分的解？", [(True, "比較每一種可用硬幣作為下一枚時的候選答案，再取最小值", "差別在完整比較其他選擇；記憶化或填表則可減少後續的重複計算。"), (False, "維持選最大面額的規則，只把迴圈改成遞迴", "選擇規則沒變，仍會先拿 25 分，因此仍得到 6 枚。"), (False, "讓遞迴函式多呼叫幾次，但只探索同一種選擇", "重複同一選擇不會找出被排除的分支。"), (False, "把呼叫堆疊改成自己管理的 stack", "狀態的儲存方式改了，但沒有改變選擇規則。")])}
 <h3>遞迴寫法：makeChange1</h3>
-<p>改用遞迴，先找 base case：要找的金額剛好等於某種硬幣的面額，答案很簡單，就是一枚。金額不相等時有幾種選擇：1 分硬幣加上「原金額減 1 分」所需的硬幣數、5 分硬幣加上「原金額減 5 分」所需的硬幣數，依此類推，取其中最小的。所以原金額需要的硬幣數是：</p>
+<p>要避免只選最大面額的盲點，必須改變<strong>比較選擇的方式</strong>：把每一種可用硬幣都當作下一枚，分別求出剩餘金額的最少硬幣數，再從這些候選答案取最小值。這裡用遞迴解較小金額，正確性則來自完整比較及子問題的最佳答案。</p>
+<p>base case 是金額剛好等於某種面額，這時一枚就夠。其餘金額比較「1 分加上剩餘金額的最佳解」、「5 分加上剩餘金額的最佳解」等所有合法選擇。若一個候選解的剩餘部分不是最佳，替換成更少枚的找法就能改善整體；這就是此問題的最佳子結構。以下遞迴式與 makeChange1 使用原本的 1、5、10、25 分：</p>
 {recurrence}
 {lecture_program("講義完整程式：makeChange1", "講義 06 · 天真遞迴（26 分）", MC1, OUT['mc1'],
                  note="26 分最少要 2 枚（25 + 1）。函式一開始檢查 base case：金額是否剛好等於某一種硬幣。不是的話，對每一種不超過金額的硬幣各做一次遞迴呼叫，取最小值再加一。")}
+<p class="dx-note">這份 makeChange1 示範正整數金額，面額皆為正整數且包含 1。若要處理 0 分，需另加回傳 0 的 base case；目前程式對 0 分會留下初值 INT_MAX。</p>
 <h3>問題：重複計算</h3>
 <p>這個演算法的問題是效率極差。用 4 種硬幣找 63 分，要做 67,716,925 次函式呼叫（包含最初那次）才找到最佳解。下圖是找 26 分所需的 377 次呼叫中的一小部分：</p>
 {figure('dp1')}
@@ -466,7 +476,7 @@ def dp():
      '一個 10 分，加上找 11 − 10 = 1 分所需的最少硬幣數（1 枚）。'])}
 <p>第 1 與第 3 個選擇都只要 1 + 1 = 2 枚，所以 11 分最少要 2 枚。</p>
 <h3>makeChange3：動態規劃版本</h3>
-<p><code>makeChange3()</code> 是由下往上的動態規劃版本。它接收合法的硬幣面額、要找的金額，以及一個 vector，存放 0 到目標金額每一個金額的最少硬幣數。</p>
+<p><code>makeChange3()</code> 是由下往上的動態規劃版本。這個版本使用正整數面額且包含 1 分，並以 vector 存放 0 到目標金額各自的最少硬幣數。因為一定能用 1 分湊出金額，coinCount = cents 才是可行的初始答案。若移除 1 分，必須另外表示「無法湊出」，不能沿用這個初值當作有效答案。</p>
 {lecture_program("講義完整程式：makeChange3", "講義 06 · 由小到大填 minCoins", MC3, OUT['mc3'],
                  note="結果和 makeChange2 相同，都是 6 枚，但完全沒有遞迴。")}
 <p><code>makeChange3()</code> 不是遞迴函式。對 0 到 <code>change</code> 的每個金額，內層迴圈檢查每一種面額，並存下由較小金額已算出的最佳結果。設目標金額為 $A$、硬幣種類數為 $C$，工作量是 $O(AC)$，表格使用 $O(A)$ 的空間。</p>
@@ -518,7 +528,7 @@ def reference():
         ('迷宮', '入口先查牆、走過、出口；探索後才判斷四方皆敗', '標記尚未探索的通道，避免重訪', '$O(\\text{格子數})$'),
         ('找零錢（makeChange3）', '不遞迴；minCoins[0] = 0', '金額 − 硬幣面額（查表）', '$O(AC)$'),
     ])}
-{C.strategies()}
+<p>回顧<a href="#strategy-map">開頭的策略比較</a>：遞迴提供呼叫與返回機制；分治、回溯、greedy 與 DP 則決定如何分解、選擇或重用子問題。</p>
 <h3>關鍵概念</h3>
 <div class="info-box" style="margin-top:1rem;">
     <span class="info-label">關鍵概念複習</span>
@@ -595,5 +605,15 @@ STYLE = """<style id="recursion-depth-style">
   section mjx-container[jax="CHTML"][display="true"] {
     max-width:100%; overflow-x:auto; overflow-y:hidden; text-align:left;
   }
+}
+.rec-opening h4 {margin:1.5rem 0 .65rem;font-size:1.02rem;color:var(--accent2);}
+@media(max-width:600px) {
+  .strategy-table, .strategy-table tbody, .strategy-table tr, .strategy-table td {display:block;width:100%;}
+  .strategy-table thead {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+  .strategy-table tr {margin-bottom:1rem;border:1px solid var(--card-border);border-radius:12px;overflow:hidden;}
+  .strategy-table td {text-align:left;white-space:normal;}
+  .strategy-table td::before {content:attr(data-label);display:block;font-weight:700;color:var(--accent2);margin-bottom:.3rem;}
+  .strategy-table td:first-child {font-size:1rem;background:var(--card-border);}
+  .strategy-table td:first-child::before {display:none;}
 }
 </style>"""

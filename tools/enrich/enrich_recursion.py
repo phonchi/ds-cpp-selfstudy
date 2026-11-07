@@ -17,6 +17,14 @@ PAGE = ROOT / "recursion.html"
 s = PAGE.read_text()
 s = ensure_style(s)
 
+# Keep the opening's navigation and heading aligned with its conceptual role.
+s = re.sub(r'(<a href="#prologue" data-target="prologue"><span class="fn-num">P00</span><span class="fn-name">).*?(</span></a>)', r'\1遞迴用途與策略\2', s, count=1)
+s = re.sub(r'(<a href="#prologue"><span class="toc-num">P00</span>).*?(</a>)', r'\1遞迴用途與策略\2', s, count=1)
+s = re.sub(r'(<section id="prologue">.*?<h2>).*?( <span class="sec-badge">)', r'\1為什麼要使用遞迴？\2', s, count=1, flags=re.S)
+s = s.replace('三法則｜call stack｜toStr｜河內塔｜迷宮回溯｜動態規劃', '遞迴用途｜解題策略｜呼叫堆疊｜河內塔｜迷宮｜找零')
+s = s.replace('<span class="fn-name">動態規劃</span>', '<span class="fn-name">貪婪與動態規劃</span>')
+s = s.replace('<a href="#dp"><span class="toc-num">P08</span>動態規劃</a>', '<a href="#dp"><span class="toc-num">P08</span>貪婪與動態規劃</a>')
+
 from content.recursion_depth import sections, STYLE
 from content.recursion_figures import STYLE as FIG_STYLE
 from content.recursion_widgets import EXTRA_JS

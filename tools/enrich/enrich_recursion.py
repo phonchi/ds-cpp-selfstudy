@@ -78,5 +78,7 @@ s = re.sub(r'<pre>.*?</pre>', lambda m: re.sub(r' +(?=\n)', lambda w: '&#32;' * 
 s = re.sub(r'(?m)^[ \t]+$', '', s)
 from content.teaching_copy import polish_preserved
 s = polish_preserved("recursion", s)
+from content.course_recordings import apply_recording
+s = apply_recording(s, "recursion")
 PAGE.write_text(s)
 print("updated:", ", ".join(sections()))

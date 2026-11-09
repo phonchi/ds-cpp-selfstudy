@@ -5,6 +5,7 @@ import re
 WEEK5 = 'https://youtube.com/playlist?list=PLY4RRB8N-iEY&si=c1vywZ2WNu8th2hE'
 WEEK6 = 'PLKfVlE23FEcw'
 WEEK7 = 'PLZAdKohP8LHE'
+WEEK10 = 'PLKFmj03qksgM'
 
 def _video(video_id, playlist=WEEK6):
     return f'https://www.youtube.com/watch?v={video_id}&list={playlist}'
@@ -22,6 +23,11 @@ RECORDINGS = {
         ('▶ 錄影：Infix、Postfix 與 Prefix', _video('NjoC3Aj30Z0', WEEK7)),
         ('▶ 錄影：Queue', _video('6QvTp5mM6WY', WEEK7)),
         ('▶ 錄影：Deque', _video('j-WFKsrGYqo', WEEK7)),
+    ],
+    'recursion': [
+        ('▶ 錄影：Introduction to Recursion', _video('T92CIndCuGs', WEEK10)),
+        ('▶ 錄影：Tower of Hanoi', _video('uTB_aUKqFE4', WEEK10)),
+        ('▶ 錄影：Exploring Maze and Backtracking', _video('px0nZE59quU', WEEK10)),
     ],
 }
 

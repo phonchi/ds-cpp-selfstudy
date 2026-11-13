@@ -1,0 +1,92 @@
+已逐項核對上一輪 17 項意見、目前 HTML、產生來源與講義，並在記憶體內執行計數驗證；未修改、建立或刪除檔案。以下按上一輪順序列出，嚴重度沿用原項；「已修好」表示該問題不必再改。頁面檢
+查涵蓋 HTML 收合結構與動畫函式，未進行瀏覽器視覺驗收。
+
+1. 【必改｜已修好】quick_analysis 的平均比較模型。
+search_more.py:325 (tools/enrich/content/search_more.py:325) 已明列互異元素、均勻排列、每次 partition 恰比較 n-1 次的理想模型，並與實作分開。遞迴式可解為 C(n)=2(n+1)Hₙ-4n，故主
+項為 2nln n。枚舉 6 個元素全部 720 種排列，頁面實作平均 15.0111 次，理想模型 10.3 次，與新文字一致，確認無誤。
+
+2. 【必改｜已修好】load_analysis 的近似、單位與假設。
+search_more.py:240 (tools/enrich/content/search_more.py:240) 已區分 slot 探查與 key 比較，列出獨立均勻雜湊、成功查詢等機率、無刪除及開放定址負載限制。鏈結成功搜尋的精確值 1+(n-
+1)/(2m)，與積分近似差 1/(2m)，計算正確；線性探查成功搜尋的積分也正確。來源產生的內容與頁面相符。
+
+3. 【必改｜部分修好】Shell 的上下界已補齊，但正文仍留有普遍保證。
+search_more.py:290 (tools/enrich/content/search_more.py:290) 的最佳情況 \(n\log_2n-n+1\)、折半增量的 O(n²) 上界及 n=2ᵖ 反例的二次下界均成立。重算 1024 元素反例，前面各輪零位移，
+最後一輪 131328 次。
+然而 頁面:2121 (searching_sorting.html:2121) 仍說「gap 小時，陣列已接近排好，只剩小範圍的微調，成本很低」。建議同步改成「通常」，並保留最差例外；對應來源為
+search_legacy.py:546。
+
+4. 【必改｜部分修好】平均分析假設已補，重複值敘述未全部修正。
+seq_ordered_proof、insertion_count、quick_analysis 均已補齊互異與抽樣假設；頁面:2335 (searching_sorting.html:2335) 和 Split Point 詞彙卡也已改成非嚴格不等式。
+但 頁面:2322 (searching_sorting.html:2322) 仍把 partition 結果寫成「比 pivot 小｜pivot｜比 pivot 大」，ch7.json 的 Quick Sort 定義也仍如此。全相等輸入直接反駁此敘述。建議這些位
+置一併改成「不大於／不小於」。
+
+5. 【建議｜部分修好】有序循序搜尋的公式正確，正文仍缺失敗查詢分布條件。
+頁面:741 (searching_sorting.html:741) 已將成功平均改成 (n+1)/2，失敗平均加上「約」。收合推導的 n/2+n/(n+1) 正確；n=10 時為 65/11。
+但 頁面:713 (searching_sorting.html:713) 與第 740 行仍直接宣稱平均少一半。若失敗目標總比最大值大，就仍要看 n 個元素。建議正文加上「假設失敗目標等機率落在各空隙」。
+
+6. 【建議｜已修好】gcd_block 的全部可達性。
+search_more.py:161 (tools/enrich/content/search_more.py:161) 已補上 s=gs'、m=gm'，以及 \(m\mid ts\iff m'\mid t\)。最短週期為 m/g，此前位置不重複，因此全部 m/g 個候選位置可達，論
+證完整。另枚舉 2≤ m≤100 的所有 1≤ s<m，結果一致。
+
+7. 【建議｜部分修好】why_block 已補容量與分布，仍漏基本操作成本。
+search_more.py:32 (tools/enrich/content/search_more.py:32) 已寫明 m=Θ(n)、受控負載與良好分布，掃表 O(m)=O(n) 正確。仍建議在表前補「雜湊與單次 key 比較視為 O(1)」；否則可變長度字
+串不一定有常數查詢時間。其餘 vector 範圍查詢的 O(log n+k) 推導確認無誤。
+
+8. 【建議｜已修好】merge_bound 已分清寫回與比較。
+search_more.py:308 (tools/enrich/content/search_more.py:308) 在 n=2ᵖ 下，寫回 \(W(n)=n\log_2n\)、最差比較 \(C(n)=n\log_2n-n+1\) 均正確。直接執行頁面函式，[1,2,3,4] 得 4 次比較、
+8 次寫回。同時存活的暫存量以幾何級數控制為 O(n)，互異元素決策樹的最差 Ω(nlog n) 下界也成立。
+
+9. 【必改｜部分修好】兩個非平凡結論的推導完成程度不同。
+search_more.py:297 (tools/enrich/content/search_more.py:297) 的 Hibbard O(n^{3/2}) 概要成立：利用排序性保留與互質可表示性，小增量每輪 O(nh)，大增量每輪 O(n²/h)，在 √(n) 分界後兩
+部分皆為 O(n^{3/2})。這是依賴所列引理的有效概要。
+search_more.py:250 (tools/enrich/content/search_more.py:250) 的線性探查失敗公式仍未推導，但已誠實標為引用結果，修好了「把引用當推導」的問題。若驗收仍要求每個非平凡公式都附推導，
+此項尚未完成；不能把這條公式列為已完成推導。
+
+10. 【建議｜已修好】三處缺漏的短推導均已補。
+bin_exact:337 (tools/enrich/content/search_more.py:337) 的 B(0)=0、B(n)=1+B(⌊ n/2⌋)，推出 n≥1 時 \(\lfloor\log_2n\rfloor+1\)，確認無誤。Shell 已排序輸入的最佳比較數與 merge 峰值
+空間推導也正確；頁面 Shell 動畫在 n=8,16,32 分別得到 17、49、129 次，符合公式。
+
+11. 【必改｜部分修好】上一輪點名的延伸已收合，但正文仍未完全限於講義。
+主要／次要群聚、平方探查可達位置數、比較式排序下界、C++20 轉型規則均已放入預設關閉的補充區；std::stable_sort 已移除，摘要與回顧也已清理。
+仍有講義未直接涵蓋的內容留在收合區外：例如 頁面:1386 (searching_sorting.html:1386) 的「std::unordered_map 常見實作用鏈結法」，以及 頁面:2122 (searching_sorting.html:2122) 的嵌入
+式系統用途與跨演算法效能判斷。建議移入補充或刪除。講義 cell 119 僅說 unordered_map 是 hash-table 實作；cell 185–197 未講嵌入式用途。
+
+12. 【必改｜部分修好；新引入過度限制】完美雜湊不再被寫成無法建構，但「只有靜態集合」仍不正確。
+頁面:1031 (searching_sorting.html:1031)、search_depth.py:189 新句為「只有在資料事先知道而且不會改變時，才能……」。動態完美雜湊也有支援插入、刪除的建構方法，見原始研究 Dynamic
+Perfect Hashing
+(https://epubs.siam.org/doi/10.1137/S0097539791194094)。建議只寫「對已知的靜態鍵集合，可以另外建構完美雜湊函數」，不加「只有……才能」，也不必擴充動態方法的教學內容。
+
+13. 【必改｜部分修好】鏈結串列二分搜尋的解釋已修，表格與標題仍反駁它。
+頁面:2681 (searching_sorting.html:2681) 已正確說明可做到 O(log n) 比較、O(n) 走訪；氣泡／選擇排序的必要屬性也已修正。
+但 頁面:2614 (searching_sorting.html:2614) 仍寫 Linked List「✗ 不行」，第 2677 行仍問「Binary Search 必須要 Array」。建議改成「可以，但總時間為 O(n)」，標題改問「為何陣列能保留
+對數時間」。
+
+14. 【必改｜部分修好】空間說明改善，但「就地」仍未採一致口徑。
+頁面:2397 (searching_sorting.html:2397) 已分清 partition 與遞迴堆疊；第 2693 行也正確補上 linked-list merge sort 的 O(log n) 堆疊。
+然而 頁面:2448 (searching_sorting.html:2448) 仍說不需要額外記憶體；第 2806 行 (searching_sorting.html:2806) 先以整體 O(1) 或 O(log n) 定義就地，再把最差堆疊 O(n) 的 quicksort 算
+入。建議統一說明是否排除遞迴堆疊，並在比較表標註同一口徑。
+
+15. 【必改｜部分修好】put() 的兩個原句已修，但末段仍混淆雜湊碰撞與槽位占用。
+頁面:2897 (searching_sorting.html:2897) 已正確說明更新可能需要探查，第 2903 行也承認不同 hash 的 key 仍可能互相阻擋。
+但 第 2906 行 (searching_sorting.html:2906) 又說判斷真正 collision 的差別只是「槽內 key 是否相同」。依序插入 77,44,1 時，key 1 遇到 slot 1 的 44，兩者 hash 卻分別為 1、0。建議改
+成「key 不同表示要繼續探查；不能僅據此判定兩者原始 hash 相同」。
+
+16. 【必改｜部分修好；新計數仍錯】median-of-three 改成固定加 3，並未正確計數。
+頁面:3756 (searching_sorting.html:3756) 仍用 candidates.sort(...)，下一行直接 cmp += 3；手改來源 hand_edits_animator.py 也相同。實際執行目前 Node/V8：三個候選 [1,2,3] 的
+comparator 呼叫 2 次，[2,3,1] 則 4 次，兩者都被記成 3。
+建議在 comparator 每次呼叫時累加，或改用明確執行三次比較的 compare-swap 程序；不能把理論上界直接當實際次數。
+
+17. 【建議｜部分修好】三數取中詞彙卡與「最快」已修，效能絕對判斷仍有殘留。
+詞彙卡已改成不保證避免最差情況，頁面:2793 (searching_sorting.html:2793) 也已移除「實務通用、最快／常數最小」。但 頁面:2397 (searching_sorting.html:2397) 仍斷言 quicksort「常數係
+數也比 merge sort 小」，沒有指定實作、輸入與成本模型。建議刪除這個普遍比較，保留兩者已證明的時間與空間差異。
+
+18. 【小地方｜補充驗算確認無誤】quad_note、selection_count、insertion_count。
+quad_note:187 (tools/enrich/content/search_more.py:187) 的奇質數條件、平方剩餘配對、(m+1)/2 個候選位置與半滿以下插入保證均成立。選擇排序的 n(n-1)/2 次比較及最多 n-1 次交換正確。
+插入排序的位移數等於逆序對數；均勻互異排列下，平均位移 n(n-1)/4，平均比較主項 n²/4，均已重算確認。
+
+19. 【建議｜新一輪仍需同步的總體敘述】前言仍宣稱全部分析只計比較。
+頁面:542 (searching_sorting.html:542) 的「分析時一律以比較次數當單位」與目前明確區分的 slot 探查、位移、寫回計數不相容；來源為 search_legacy.py:7。另 頁面:2448
+(searching_sorting.html:2448) 仍把 partition 寫成每個元素比較一次，與已修好的理想模型說明不一致。建議前言改為「以比較次數為主，另行標示探查、位移與寫回」，partition 正文改為「比
+較次數與區段長度成正比」。
+
+總評：新推導大多成立，但修正尚未覆蓋所有重複敘述，且 median 計數與完美雜湊新句仍有實質錯誤，目前不宜判定全部修復完成。

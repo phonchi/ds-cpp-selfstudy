@@ -133,10 +133,10 @@ def seq_search():
 {program("講義完整程式：orderedSequentialSearch", "講義 07 · orderedSequentialSearch", 'ordered',
          note="44 在索引 4 找到；找 50 時比到 54 就停下，只比了 6 次，不必走完 10 個元素。")}
 <p>兩個版本的比較次數如下。值在 list 裡時，有序與否沒有差別；值不在時，有序版平均只要比一半就能停下。</p>
-{table(['情況', '最佳', '最差', '平均'], [['值在 list 裡（兩種版本）', '1', '$n$', '$\\frac{n}{2}$'],
+{table(['情況', '最佳', '最差', '平均'], [['值在 list 裡（兩種版本）', '1', '$n$', '$\\frac{n+1}{2}$'],
                                         ['值不在（未排序）', '$n$', '$n$', '$n$'],
-                                        ['值不在（已排序）', '1', '$n$', '$\\frac{n}{2}$']])}
-'''
+                                        ['值不在（已排序）', '1', '$n$', '約 $\\frac{n}{2}$']])}
+{more.seq_ordered_proof()}'''
     return fill('seq-search', {'seq-program': prog, 'seq-ordered': ordered, 'seq-quiz': quiz('sequential')})
 
 
@@ -165,7 +165,7 @@ def bin_search():
 <p>從 $n$ 個元素開始，第一次比較後大約剩 $\\frac{{n}}{{2}}$ 個，第二次後剩 $\\frac{{n}}{{4}}$，接著 $\\frac{{n}}{{8}}$……</p>
 {table(['比較次數', '大約剩下的元素數'], [['1', '$\\frac{n}{2}$'], ['2', '$\\frac{n}{4}$'], ['3', '$\\frac{n}{8}$'], ['…', '…'], ['$i$', '$\\frac{n}{2^i}$']])}
 <p>一直切到只剩一個元素時，它要嘛是要找的值，要嘛不是。這時的比較次數 $i$ 滿足 $\\frac{{n}}{{2^i}} = 1$，解得 $i = \\log n$（精確的最多次數是 $\\lfloor \\log_2 n \\rfloor + 1$）。最多比較次數和元素個數成對數關係，所以二分搜尋是 $O(\\log n)$。</p>
-'''
+{more.bin_exact()}'''
     ex1 = exercise('練習 1 · 填空（目前無法編譯）', EX1_BLANK, 'ex1', '練習 1 · binarySearchRec2 解答',
                    extra='<p>base case 是範圍變空（<code>first &gt; last</code>）。中點用 <code>first + (last - first) / 2</code>，兩次遞迴呼叫都傳同一個 <code>a</code>，只改範圍的一端。解答的 <code>main</code> 多查一次 50，確認找不到時會回傳 false。</p>')
     end = f'''{quiz('binary')}
@@ -186,7 +186,7 @@ def hashing():
 <p>佔用的比例稱為<strong>負載因子</strong>（load factor）$\\lambda = \\frac{{\\text{{元素個數}}}}{{\\text{{表的大小}}}}$。要搜尋某個值時，只要用雜湊函數算出 slot，再看那一格是不是它，搜尋只要 $O(1)$。</p>
 <h3>碰撞</h3>
 <p>這個方法只有在每個元素都對應到不同 slot 時才行得通。如果下一個要放的是 44，$44 \\bmod 11 = 0$，和 77 落在同一格。兩個以上的元素被雜湊到同一個 slot，稱為<strong>碰撞</strong>（collision，也叫 clash），雜湊必須有辦法處理它。</p>
-<p>能把每個元素都對應到不同 slot 的雜湊函數稱為<strong>完美雜湊函數</strong>（perfect hash function）。給定任意一組資料，並沒有系統化的方法造出完美雜湊函數；好在雜湊函數不必完美也能提升效率。目標是：碰撞少、容易計算、讓元素平均分布在表中。不論用哪種方法，最後通常都要取一次餘數，才能把結果限制在 slot 的編號範圍內。</p>
+<p>能把每個元素都對應到不同 slot 的雜湊函數稱為<strong>完美雜湊函數</strong>（perfect hash function）。一般用途的雜湊函數事先不知道會遇到哪些資料，無法保證對任意一組資料都沒有碰撞；對事先知道的固定資料集合，可以另外替它造出完美雜湊函數。好在雜湊函數不必完美也能提升效率。目標是：碰撞少、容易計算、讓元素平均分布在表中。不論用哪種方法，最後通常都要取一次餘數，才能把結果限制在 slot 的編號範圍內。</p>
 '''
     funcs = more.hash_design() + f'''<h3>餘數法與平方取中法的程式</h3>
 {program("講義完整程式：remainderMethod 與 midsquareMethod", "講義 07 · 兩種雜湊函數", 'hash_funcs',
@@ -245,7 +245,8 @@ def hashing():
          note="get(20) 沿著探查鏈在 slot 3 找到 chicken；put(20, \"duck\") 找到同一個 key，只改 data，slots 不變。get(99) 找不到，回傳空字串，所以印出 []。")}
 '''
     return fill('hashing', {'hash-table': table_intro, 'hash-load': load, 'hash-functions': funcs,
-                            'hash-probing': probing, 'hash-exercise': exercise_html, 'hash-map': map_html})
+                            'hash-probing': probing, 'hash-exercise': exercise_html, 'hash-map': map_html,
+                            'hash-analysis': more.load_analysis()})
 
 
 # ---------------------------------------------------------------- P04
@@ -292,7 +293,7 @@ def selection():
          out_label='預期輸出（每輪開始前一行，最後一行是排序結果）',
          note="第一輪最大值 20 已經在最後一格，positionOfMax 等於 fillSlot，不必交換，所以前兩行相同。之後每一行的右側都多一個就位的數。")}
 <p>選擇排序的比較次數和氣泡排序相同，也是 $O(n^2)$；但交換次數少得多，所以在實測中通常跑得比較快。</p>
-'''
+{more.selection_count()}'''
     return fill('selection', {'selection-intro': intro, 'selection-end': end})
 
 
@@ -309,7 +310,7 @@ def insertion():
          out_label='預期輸出（每次插入前一行，最後一行是排序結果）',
          note="每一行左邊排好的部分多一個元素。兩個 5 與兩個 9 的先後順序沒有改變：比較用的是嚴格的 <code>&gt;</code>，相等的元素不會被移到彼此前面。")}
 <p>一次移動的工作量大約只有一次交換的三分之一，因為移動只做一次指定。在實測中，插入排序的表現相當好。</p>
-'''
+{more.insertion_count()}'''
     return fill('insertion', {'insertion-intro': intro, 'insertion-end': end})
 
 
@@ -327,7 +328,7 @@ def shell():
          out_label='預期輸出（每個增量做完後一行，最後一行是 printl 的結果）',
          note="一開始有 $\\frac{n}{2}$ 個子清單（9 個數時增量為 4），下一輪 $\\frac{n}{4}$ 個（增量 2），最後增量 1，用一般的插入排序排好整個 list。")}
 <p>希爾排序的一般分析超出本課範圍，大致介於 $O(n)$ 與 $O(n^2)$ 之間。改用 $2^k-1$（1、3、7、15、31……）當增量，希爾排序可以達到 $O(n^{{\\frac{{3}}{{2}}}})$。</p>
-'''
+{more.shell_bounds()}'''
     return fill('shell', {'shell-intro': intro, 'shell-end': end})
 
 
@@ -346,7 +347,7 @@ def merge():
 <h3>分析</h3>
 <p>mergeSort 有兩個部分。遞迴把 vector 切成兩半，共 $\\log n$ 層。合併時每個元素最後都要處理一次、放進排好的 list，所以<strong>每一層</strong>的合併需要 $n$ 次操作。$\\log n$ 層、每層 $n$，總共 $n\\log n$ 次操作：合併排序是 $O(n\\log n)$ 的演算法。</p>
 <p>暫存的左右兩半最多需要 $O(n)$ 的額外元素空間，遞迴堆疊再加上 $O(\\log n)$。資料量很大時，這個記憶體成本可能是問題。</p>
-{quiz('merge')}
+{more.merge_bound()}{quiz('merge')}
 '''
     return fill('merge', {'merge-intro': intro, 'merge-end': end})
 
@@ -359,7 +360,7 @@ def quick():
 {figure('partitionA')}
 <p>先把 <code>leftMark</code> 往右移，直到找到比 pivot 大的值；再把 <code>rightMark</code> 往左移，直到找到比 pivot 小的值。這兩個值相對於分割點都放錯邊了，交換它們，再重複同樣的步驟。當 <code>rightMark</code> 跑到 <code>leftMark</code> 左邊時停止，<code>rightMark</code> 的位置就是分割點。把 pivot 和分割點的值交換，pivot 就到了最終位置。</p>
 {figure('partitionB')}
-<p>此時分割點左邊都小於 pivot，右邊都大於 pivot。在分割點把 list 分成兩半，對兩半各自遞迴呼叫 quicksort。</p>
+<p>此時分割點左邊都不大於 pivot，右邊都不小於 pivot。在分割點把 list 分成兩半，對兩半各自遞迴呼叫 quicksort。</p>
 '''
     sketch = card('講義 07 · 練習 3 的解法綱要', QDESC_SKETCH)
     hdr = card('pythonds3/cppds/sorting.hpp · partitionDesc、quickSortHelperDesc 與 quickSortDesc',
@@ -370,9 +371,9 @@ def quick():
          out_label='預期輸出（每次 partition 後一行，最後一行是排序結果）',
          note="第一行是以 54 分割的結果，和上面的圖相同：54 在索引 5，左邊都比它小，右邊都比它大。之後每一行再多一個 pivot 就位；長度不到 2 的範圍不做 partition，也不印。")}
 <h3>分析與 median of three</h3>
-<p>找分割點時，$n$ 個元素都要和 pivot 比一次。分割點都落在中間附近時，會切 $\\log n$ 層，結果是 $O(n\\log n)$；而且不像合併排序需要額外的記憶體。</p>
+<p>找分割點時，每個元素大約要和 pivot 比一次，比較次數和區段長度成正比。分割點都落在中間附近時，會切 $\\log n$ 層，結果是 $O(n\\log n)$；而且 partition 不像合併排序需要額外的陣列。</p>
 <p>可惜最差的情況下，分割點可能非常偏左或偏右，切得很不平均：每次都分成 0 個與 $n-1$ 個元素，接著 $n-1$ 個又分成 0 個與 $n-2$ 個……結果是 $O(n^2)$，還要加上遞迴本身的額外成本。</p>
-<p>選 pivot 的一種改進方法是 <strong>median of three</strong>：看 list 的第一個、中間與最後一個元素，取三者的中位數當 pivot。上面的例子中三個值是 54、77、20，中位數是 54。當第一個元素不屬於 list 的中段時，這樣能選到比較接近中間的值，對原本就部分排好的 list 特別有用。</p>
+{more.quick_analysis()}<p>選 pivot 的一種改進方法是 <strong>median of three</strong>：看 list 的第一個、中間與最後一個元素，取三者的中位數當 pivot。上面的例子中三個值是 54、77、20，中位數是 54。當第一個元素不屬於 list 的中段時，這樣能選到比較接近中間的值，對原本就部分排好的 list 特別有用。</p>
 {quiz('quick')}
 <h3 id="ex-quick-desc">練習 3：讓 quickSort 支援遞減排序</h3>
 <p>替 quickSort 加一個 <code>bool descending</code> 參數，讓同一套程式既能遞增也能遞減排序。先自己想想：遞迴的骨架要改什麼？partition 裡哪幾個比較要改方向？</p>
@@ -411,7 +412,7 @@ def supplement():
 
 
 # FAQ entries that come straight from the lecture notes (no （補充） tag).
-IN_NOTES = {'二分搜尋一定比循序搜尋好嗎？', 'get 回傳空字串，怎麼知道 key 到底在不在？', '為什麼表的大小常選質數？'}
+IN_NOTES = {'二分搜尋一定比循序搜尋好嗎？', 'get 回傳空字串，怎麼知道 key 到底在不在？'}
 
 
 def recap():
@@ -433,7 +434,7 @@ def recap():
 <li>二分搜尋每次比較中間的值，排除一半的範圍，是 $O(\\log n)$；前提是資料已排序。找到就立刻回傳；找不到時要縮到 <code>first &gt; last</code> 才停。遞迴版傳索引範圍 <code>first</code>、<code>last</code>，不複製子 vector；<code>static_cast&lt;int&gt;(aList.size()) - 1</code> 讓空 vector 得到 <code>last = -1</code>。</li>
 <li>雜湊用雜湊函數把元素直接對應到 slot：餘數法、折疊法、平方取中法，字串可以加總字元的序數值。負載因子 $\\lambda$ 越大，碰撞越多。</li>
 <li>碰撞解決：開放定址（線性探查、跳格、平方探查）在表內另找空位，線性探查容易群聚；鏈結法讓同一個 slot 存一條鏈，$\\lambda$ 可以超過 1。搜尋時必須沿用插入時的探查方法。</li>
-<li>每次跳 $s$ 格只走得到 $m / \\gcd(s, m)$ 格，所以 $s$ 要和 $m$ 互質；表的大小用質數，任何 1 到 $m - 1$ 的跳格數都合格。平方探查在 $m$ 為奇質數時，一個 key 只碰得到 $\\frac{{m+1}}{{2}}$ 個 slot。</li>
+<li>跳格探查的格數要讓探查走得遍整張表，所以表的大小通常建議用質數。</li>
 <li><code>HashTable</code> 用平行的 <code>slots</code> 與 <code>data</code> 實作 Map ADT 的 <code>put</code>、<code>get</code>：同一個 key 再 put 會取代 value；探查繞回起點就停止。</li>
 <li>氣泡、選擇、插入排序都是 $O(n^2)$ 次比較。選擇排序每輪最多交換一次；插入排序用移動取代交換，對幾乎排好的資料很快；short bubble 在某一輪沒有交換時提早結束。</li>
 <li>希爾排序先用較大的 gap 對子清單做插入排序，最後 gap 為 1，大致介於 $O(n)$ 與 $O(n^2)$ 之間。</li>

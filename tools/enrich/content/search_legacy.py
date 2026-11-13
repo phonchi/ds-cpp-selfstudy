@@ -4,7 +4,7 @@ tools/enrich/enrich_search.py."""
 
 LEGACY = {}
 
-LEGACY['prologue'] = r'''  <p>本章談兩件事：<strong>搜尋</strong>（searching）是從一堆資料中找出特定元素，<strong>排序</strong>（sorting）是把資料重新排成有序狀態。我們從最基本的「逐一比對」開始，再介紹其他演算法；分析時一律以「比較次數」當單位。</p>
+LEGACY['prologue'] = r'''  <p>本章談兩件事：<strong>搜尋</strong>（searching）是從一堆資料中找出特定元素，<strong>排序</strong>（sorting）是把資料重新排成有序狀態。我們從最基本的「逐一比對」開始，再介紹其他演算法；分析時以「比較次數」為主；雜湊、插入排序與合併排序會另外標出探查、移動與寫回的次數。</p>
 {{slot:find}}
   <div class="info-box">
     <span class="info-label">分析的兩個約定</span>
@@ -82,7 +82,7 @@ LEGACY['seq-search'] = r'''  <p>把資料想像成一排櫃子，要找某個物
   </div>
 
   <h3>有序版本：可以提前停止</h3>
-  <p>如果 list 已經<strong>排序好</strong>了，就有捷徑：當看到的元素已經比目標大（升冪情況下），後面就不可能有了，可以立刻回傳 <code>false</code>。雖然找到的時候沒省到比較次數，但<strong>找不到時平均能少做一半</strong>：預期比較次數降到 $n/2$（仍是 $O(n)$，但常數變小）。</p>
+  <p>如果 list 已經<strong>排序好</strong>了，就有捷徑：當看到的元素已經比目標大（升冪情況下），後面就不可能有了，可以立刻回傳 <code>false</code>。雖然找到的時候沒省到比較次數，但<strong>找不到時平均能少做一半</strong>：假設要找的值落在任兩個相鄰元素之間的機率都相同，預期比較次數降到約 $n/2$（仍是 $O(n)$，但常數變小）。</p>
 
 {{slot:seq-ordered}}
 
@@ -223,8 +223,6 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
       <div class="info-card">
         <div class="ic-title">複雜度</div>
         <div class="ic-row"><span class="ic-label">理想 (無碰撞)</span><span class="ic-value">$O(1)$</span></div>
-        <div class="ic-row"><span class="ic-label">線性探查成功搜尋</span><span class="ic-value">$\frac{1}{2}\!\left(1+\frac{1}{1-\lambda}\right)$</span></div>
-        <div class="ic-row"><span class="ic-label">鏈結法成功搜尋</span><span class="ic-value">$1 + \lambda/2$</span></div>
       </div>
     </div>
   </div>
@@ -266,7 +264,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
           理想的 hash 函數應該：<br>
           <span class="pill pill-blue">易於計算</span> 不能比直接搜尋還慢<br>
           <span class="pill pill-purple">分布均勻</span> 減少碰撞機率<br>
-          <span class="pill pill-orange">Perfect hash</span> 對特定資料集無碰撞，但<strong>不存在通用方法</strong>
+          <span class="pill pill-orange">Perfect hash</span> 對事先知道的固定資料集無碰撞；一般用途的雜湊函數做不到
         </div>
       </div>
     </div>
@@ -278,8 +276,8 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
   <div class="info-box">
     <span class="info-label">固定跳格的 rehash：$\text{rehash}(\text{pos}) = (\text{pos} + \text{skip}) \bmod m$</span>
     <strong>線性探查（linear probing）</strong>：skip = 1，每次往後找下一格。簡單，但容易群聚：被佔用的 slot 連成一段後，撞進這一段的 key 都得走到段尾。<br><br>
-    <strong>加 3 探查（plus-3）</strong>：skip = 3，跳格搜尋。skip 要和 $m$ 互質，探查才走得遍整個表；$m = 11$ 是質數，3 和它互質。<br><br>
-    <strong>平方探查（quadratic probing）</strong>：不套用上面的通式。第 $i$ 次試 $(h + i^2) \bmod m$，每次都從原始雜湊值 $h$ 起算，不是從上一格累加，所以依序是 $h, h+1, h+4, h+9, \ldots$。雜湊值不同的 key 不容易連成一串，但雜湊值相同的 key 仍走同一條路線，而且不一定走得遍整個表。<br><br>
+    <strong>加 3 探查（plus-3）</strong>：skip = 3，跳格搜尋。跳的格數要讓探查走得遍整個表；$m = 11$ 是質數，每次跳 3 格可以走遍。<br><br>
+    <strong>平方探查（quadratic probing）</strong>：不套用上面的通式。第 $i$ 次試 $(h + i^2) \bmod m$，每次都從原始雜湊值 $h$ 起算，不是從上一格累加，所以依序是 $h, h+1, h+4, h+9, \ldots$。雜湊值不同的 key 不容易連成一串。<br><br>
     <strong>鏈結法（chaining）</strong>：每個 slot 存一條 list（或其他 collection），所有 hash 到該 slot 的 item 都掛在同一條鏈上。$\lambda$ 可以超過 1。
   </div>
 {{slot:hash-exercise}}
@@ -316,16 +314,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
 {{slot:hash-map}}
 
   <h3 style="margin-top:1.5rem;">分析：負載因子 $\lambda$ 與比較次數</h3>
-  <div class="info-box green">
-    <span class="info-label">當 $\lambda$ 變大，效能如何下降？</span>
-    <strong>線性探查 + 開放定址（open addressing）：</strong><br>
-    　・成功搜尋平均比較次數 $\approx \dfrac{1}{2}\!\left(1 + \dfrac{1}{1-\lambda}\right)$<br>
-    　・失敗搜尋平均比較次數 $\approx \dfrac{1}{2}\!\left(1 + \left(\dfrac{1}{1-\lambda}\right)^2\right)$<br><br>
-    <strong>鏈結法（chaining）：</strong><br>
-    　・成功搜尋平均比較次數 $\approx 1 + \dfrac{\lambda}{2}$<br>
-    　・失敗搜尋平均比較次數 $\approx \lambda$<br><br>
-    當 $\lambda \to 1$ 時，線性探查失敗搜尋的比較次數會急遽上升；鏈結法則只是線性增加，比較穩定。
-  </div>
+{{slot:hash-analysis}}
 
   <div class="info-box warm">
     <span class="info-label">小實驗</span>
@@ -498,7 +487,7 @@ LEGACY['insertion'] = r'''  <p><strong>Insertion sort</strong> 把陣列分成�
 {{slot:insertion-end}}
 '''
 
-LEGACY['shell'] = r'''  <p><strong>Shell sort</strong> 是 Donald Shell 在 1959 年提出的方法，出發點是：insertion sort 對「幾乎排序好」的資料很快，對亂序資料卻很慢。做法是先用一個<strong>較大的 gap</strong> 把陣列拆成數個「子陣列」（每個子陣列的元素彼此相距 gap），對每個子陣列各自做插入排序；接著縮小 gap 再做一次；最後 gap = 1（變成普通的 insertion sort），但<strong>此時資料已經幾乎排序好</strong>。</p>
+LEGACY['shell'] = r'''  <p><strong>Shell sort</strong> 是 Donald Shell 在 1959 年提出的方法，出發點是：insertion sort 對「幾乎排序好」的資料很快，對亂序資料卻很慢。做法是先用一個<strong>較大的 gap</strong> 把陣列拆成數個「子陣列」（每個子陣列的元素彼此相距 gap），對每個子陣列各自做插入排序；接著縮小 gap 再做一次；最後 gap = 1（變成普通的 insertion sort），此時資料<strong>通常</strong>已經接近排好（不是保證）。</p>
 {{slot:shell-intro}}
 
   <div class="viz-layout">
@@ -554,8 +543,8 @@ LEGACY['shell'] = r'''  <p><strong>Shell sort</strong> 是 Donald Shell 在 1959
   <div class="info-box">
     <span class="info-label">為什麼有效</span>
     gap 大時，每個子陣列很短，元素一次能移動很遠，亂度很快降低。<br>
-    gap 小時，陣列已接近排好，只剩小範圍的微調，成本很低。<br>
-    Shell sort 沒有 merge / quick sort 那麼快，但程式碼短、不需要遞迴、空間 $O(1)$，常用在嵌入式系統與小型應用。
+    gap 小時，陣列通常已接近排好，只剩小範圍的微調（不是保證，最差情況見下方的分析）。<br>
+    Shell sort 沒有 merge / quick sort 那麼快，但程式碼短、不需要遞迴、額外空間 $O(1)$。
   </div>
 {{slot:shell-end}}
 '''
@@ -617,7 +606,7 @@ LEGACY['merge'] = r'''  <p><strong>Merge sort</strong> 是一個遞迴演算法�
   <div class="info-box green">
     <span class="info-label">為何是 n log n？</span>
     每一層遞迴把問題切成兩半，共 $\log_2 n$ 層；每一層的 merge 總共要看過所有 $n$ 個元素，所以每層 $O(n)$。整體 $O(n) \times O(\log n) = O(n \log n)$。<br>
-    這是<strong>比較式排序的下界</strong>：任何只透過比較來排序的演算法都至少要 $\Omega(n\log n)$，merge sort 達到這個下界。
+    不論輸入怎麼排列，最佳、平均、最差都是 $O(n\log n)$。
   </div>
 
   <div class="info-box warm">
@@ -627,7 +616,7 @@ LEGACY['merge'] = r'''  <p><strong>Merge sort</strong> 是一個遞迴演算法�
 {{slot:merge-end}}
 '''
 
-LEGACY['quick'] = r'''  <p><strong>Quicksort</strong> 也是分而治之，但策略不同：先選一個元素當 <em>pivot</em>（樞紐值），用一個 <strong>partition</strong> 過程把陣列重新排成「<span class="pill pill-blue">比 pivot 小</span> ｜ <span class="pill pill-purple">pivot</span> ｜ <span class="pill pill-orange">比 pivot 大</span>」三段，pivot 就<strong>確定到了它的最終位置</strong>。接著對左、右兩段各自遞迴呼叫 quicksort。和 merge sort 不一樣，<strong>不需要額外陣列</strong>，partition 就地完成。</p>
+LEGACY['quick'] = r'''  <p><strong>Quicksort</strong> 也是分而治之，但策略不同：先選一個元素當 <em>pivot</em>（樞紐值），用一個 <strong>partition</strong> 過程把陣列重新排成「<span class="pill pill-blue">不大於 pivot</span> ｜ <span class="pill pill-purple">pivot</span> ｜ <span class="pill pill-orange">不小於 pivot</span>」三段，pivot 就<strong>確定到了它的最終位置</strong>。接著對左、右兩段各自遞迴呼叫 quicksort。和 merge sort 不一樣，<strong>不需要額外陣列</strong>，partition 就地完成。</p>
 
   <div class="info-box">
     <span class="info-label">partition 的雙指標技術</span>
@@ -695,7 +684,7 @@ LEGACY['quick'] = r'''  <p><strong>Quicksort</strong> 也是分而治之，但�
 
   <div class="info-box">
     <span class="info-label">vs. merge sort</span>
-    quicksort <strong>就地排序，不需要 $O(n)$ 額外空間</strong>，常數係數也比 merge sort 小，<strong>實務上通常更快</strong>。但 quicksort 不穩定、且最差是 $O(n^2)$；merge sort 任何情況都是 $O(n\log n)$ 且穩定。C++ 標準只規定 <code>std::sort()</code> 的最差比較次數為 $O(n\log n)$，不指定實作策略；常見標準函式庫採 introsort 類混合實作。<code>std::stable_sort()</code> 保證穩定，但實作方式同樣由函式庫決定。
+    quicksort 的 partition 直接在原陣列上交換，<strong>不需要額外的陣列</strong>；遞迴堆疊在切得平均時是 $O(\log n)$，最差是 $O(n)$。但 quicksort 不穩定、且最差是 $O(n^2)$；merge sort 任何情況都是 $O(n\log n)$ 且穩定。C++ 標準只規定 <code>std::sort()</code> 的最差比較次數為 $O(n\log n)$，不指定實作策略；常見標準函式庫採 introsort 類混合實作。
   </div>
 {{slot:quick-end}}
 '''
@@ -755,9 +744,9 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
       <tr style="background:#fef0e7;">
         <td><strong>二分搜尋</strong></td>
         <td>$O(1)$ 隨機存取 + 有序</td>
-        <td class="best">✓ <strong>必須</strong></td>
-        <td class="worst">✗ 不行</td>
-        <td>跳到 midpoint 在鏈結串列要 $O(n)$，破壞 $\log n$</td>
+        <td class="best">✓ <strong>才有 $O(\log n)$</strong></td>
+        <td>△ 可以，但總時間 $O(n)$</td>
+        <td>比較仍是 $O(\log n)$ 次，但在鏈結串列上走到 midpoint 的步數加起來是 $O(n)$</td>
       </tr>
       <tr>
         <td>雜湊表 (Hashing)</td>
@@ -768,14 +757,14 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
       </tr>
       <tr>
         <td>氣泡排序</td>
-        <td>隨機存取 + 可變</td>
+        <td>相鄰比較與交換（循序走訪即可）</td>
         <td class="best">✓</td>
         <td>△ 慢但可</td>
         <td>需要 a[j] 與 a[j+1] 的相鄰比較交換</td>
       </tr>
       <tr>
         <td>選擇排序</td>
-        <td>隨機存取 + 可交換</td>
+        <td>找最大值再交換（循序走訪即可）</td>
         <td class="best">✓</td>
         <td>△ 慢但可</td>
         <td>找到 maxPos 後 swap a[maxPos] ↔ a[fill]</td>
@@ -819,11 +808,11 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
   <h3>三個例子：二分搜尋、快速排序、合併排序</h3>
 
   <div class="info-box warm">
-    <span class="info-label">為何「Binary Search 必須要 Array」？</span>
+    <span class="info-label">為何陣列才能保留二分搜尋的 $O(\log n)$ 時間？</span>
     Binary search 每次跳到 <code>midpoint = first + (last-first)/2</code>。<br>
     　・在 Array：用記憶體位址計算就能 $O(1)$ 取到 a[midpoint]<br>
     　・在 Linked List：要走到第 midpoint 個 node 必須<strong>從頭走 midpoint 步</strong>，每次比較都要 $O(n)$<br><br>
-    這樣總時間就從 $O(\log n)$ 退化成 $O(n \log n)$，比循序搜尋還慢。所以<strong>排序好的資料若存在 Linked List 裡，binary search 沒有意義</strong>，必須轉成 Array，或一開始就用 Array。
+    每次都從頭走的話，總時間是 $O(n \log n)$，比循序搜尋還慢。改成記住目前範圍的起點節點，每次只在範圍內往後走，走的步數是 $n/2 + n/4 + \cdots &lt; n$，比較仍然只有 $O(\log n)$ 次，但總時間還是 $O(n)$。所以<strong>排序好的資料若存在 Linked List 裡，binary search 做得到，卻得不到陣列版的 $O(\log n)$ 時間</strong>；要它真正變快，得用 Array。
   </div>
 
   <div class="info-box warm">
@@ -835,7 +824,7 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
 
   <div class="info-box green">
     <span class="info-label">為何「Merge Sort 反而<em>更</em>適合 Linked List」？</span>
-    Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，額外空間只有 $O(1)$（幾個指標變數而已）。<br><br>
+    Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，合併這一步的額外空間只有 $O(1)$（幾個指標變數而已）；遞迴版的 merge sort 另外還有 $O(\log n)$ 的遞迴堆疊。<br><br>
     所以 merge sort 在 linked list 上反而<strong>更省記憶體</strong>，寫起來也更乾淨。資料本來就是 linked list 形式時（functional 語言、stream pipeline、某些 OS 內部資料結構），merge sort 是首選的排序法。<br><br>
     <strong>實務小知識：</strong>Java 的 <code>java.util.LinkedList.sort()</code> 內部就是先轉成 Array 再用 mergesort，因為 cache 表現更好；但概念上 linked list mergesort 是經典範例。
   </div>
@@ -925,7 +914,7 @@ LEGACY['reference'] = r'''
       <tr><td>資料幾乎已排序</td><td>插入排序 / 氣泡 (短路)</td><td>$O(n)$ 最佳</td></tr>
       <tr><td>需要穩定且效能保證</td><td>合併排序</td><td>始終 $O(n\log n)$、穩定</td></tr>
       <tr><td>記憶體有限</td><td>希爾 / 快速排序</td><td>就地排序</td></tr>
-      <tr><td>實務通用、最快</td><td>快速排序 (含中位數策略)</td><td>常數最小</td></tr>
+      <tr><td>一般用途、不需要穩定</td><td>快速排序（含中位數策略）或 <code>std::sort</code></td><td>平均 $O(n\log n)$、常數小；自己寫的 quicksort 最差仍是 $O(n^2)$</td></tr>
       <tr><td>大量搜尋同份資料</td><td>排序後二分搜尋 / 雜湊表</td><td>建立成本攤提</td></tr>
       <tr><td>需要 $O(1)$ 平均搜尋</td><td>雜湊表</td><td>用空間換時間</td></tr>
     </tbody>
@@ -938,7 +927,7 @@ LEGACY['reference'] = r'''
   </div>
   <div class="info-box">
     <span class="info-label">就地 in-place</span>
-    僅使用 $O(1)$ 或 $O(\log n)$ 額外空間（除了輸入本身）的排序。merge sort 不是就地（需要 $O(n)$ 暫存），quick sort 是（只需遞迴堆疊）。
+    僅使用 $O(1)$ 或 $O(\log n)$ 額外空間（除了輸入本身）的排序。這裡的「就地」不把遞迴堆疊算進去，只看除了輸入之外有沒有另外配置與輸入同量級的陣列。merge sort 不是就地（需要 $O(n)$ 暫存）。quick sort 是：partition 不需要額外陣列；遞迴堆疊另計，切得平均時是 $O(\log n)$，最差是 $O(n)$。
   </div>
   <div class="info-box green">
     <span class="info-label">比較式排序的下界</span>
@@ -1019,16 +1008,16 @@ val : 77   44   20   55   26   93   17    .    .   31    54</pre>
     <span class="info-label">先講清楚：什麼是 collision、什麼不是？</span>
     <strong style="display:block;font-size:1.05em;color:var(--accent);">Collision 的判準是「<u>hash 值</u>相同」，不是「key 相同」。</strong>
     <p style="margin-top:.5rem;">正式定義：<strong>兩個<u>不同的 item</u> 經過 <code>hashFunction</code> 後得到<u>同一個 hash 值</u></strong>（也就是 <code>hash(k₁) == hash(k₂)</code>，因此被映射到同一個 slot），這才叫 collision。判 collision 看的是「hash 值」這個運算結果，不是「key 本身」。</p>
-    <p>同一個 key 重複 <code>put</code>（如 <code>h.put(77, "bird")</code> 然後 <code>h.put(77, "eagle")</code>）：hash 值當然會相同，<strong>但兩次塞的是同一個 item</strong>，只是更新同一個 entry，<strong>這不是 collision，也不會觸發任何 rehash</strong>。collision 必須是「兩個不同 item 撞到同一格」。</p>
+    <p>同一個 key 重複 <code>put</code>（如 <code>h.put(77, "bird")</code> 然後 <code>h.put(77, "eagle")</code>）：hash 值當然會相同，<strong>但兩次塞的是同一個 item</strong>，只是更新同一個 entry，<strong>這不是 collision，也不會新增 entry</strong>。不過如果 77 當初因為碰撞被推到別格，<code>put</code> 仍然要沿著原本的探查路線找到它。collision 必須是「兩個不同 item 撞到同一格」。</p>
     <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table" style="margin-top:.8rem;">
       <thead><tr><th>狀況</th><th>兩個 item 的 hash 值</th><th>是同一個 key 嗎？</th><th>這算 collision 嗎？</th><th><code>put</code> 要做的事</th></tr></thead>
       <tbody>
         <tr><td>狀況一</td><td>相同（必然）</td><td>是（同 key 重複 put）</td><td><span class="pill pill-green">不是</span></td><td>直接覆寫舊值（字典「同 key 重新指定值」的語意）</td></tr>
         <tr><td>狀況二</td><td><strong>相同</strong>（hash 撞到了）</td><td><strong>否</strong>（不同 key）</td><td><span class="pill pill-orange">是</span></td><td>啟動 rehash 探查，找下一個位置</td></tr>
-        <tr><td>狀況三</td><td>不同</td><td>否</td><td><span class="pill pill-green">不是</span></td><td>各走各的 slot，互不相干</td></tr>
+        <tr><td>狀況三</td><td>不同</td><td>否</td><td><span class="pill pill-green">不是</span></td><td>彼此不算碰撞；但開放定址下，前一個 key 可能佔掉後一個 key 的雜湊位置，後者仍要探查</td></tr>
       </tbody>
     </table></div>
-    <p style="margin-top:.5rem;font-size:.92em;">狀況一、二在程式裡都會遇到「<code>slots[hash]</code> 已經有東西」，但只有狀況二是真正的 collision：差別在於被佔的 slot 裡放的 key，跟要放入的 key 是不是同一個。</p>
+    <p style="margin-top:.5rem;font-size:.92em;">狀況一、二在程式裡都會遇到「<code>slots[hash]</code> 已經有東西」，但只有狀況二是真正的 collision：被佔的 slot 裡是另一個 key，而且它和要放入的 key 雜湊值相同。程式裡只看到「slot 裡的 key 不同」時，只能知道要繼續探查，不能斷定兩者雜湊值相同，因為那個 key 可能是被探查推過來的。</p>
   </div>
 
   <h4 style="margin-top:1.2rem;color:var(--accent2);font-family:'Noto Serif TC',serif;">課程強化版本的 <code>put()</code>：探查一圈就停</h4>

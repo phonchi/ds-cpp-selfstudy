@@ -185,6 +185,8 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
         <div class="input-row">
           <label>策略：</label>
           <button class="preset-btn active" data-strategy="linear">線性探查</button>
+          <button class="preset-btn" data-strategy="plus3">加 3 探查</button>
+          <button class="preset-btn" data-strategy="quad">平方探查</button>
           <button class="preset-btn" data-strategy="chain">鏈結法</button>
           <button class="btn btn-reset" id="hashClear" style="margin-left:auto;">↺ 清空表</button>
         </div>
@@ -200,7 +202,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
       <div class="eq-card">
         <div class="eq-label">餘數雜湊函數</div>
         <div class="eq-formula">$h(item) = item \bmod m$</div>
-        <div class="eq-sub">$m = 11$（表大小，建議用質數）</div>
+        <div class="eq-sub">$m = 11$（表的大小，是質數）</div>
       </div>
       <div class="info-card">
         <div class="ic-title">即時統計 <span class="ic-badge">LIVE</span></div>
@@ -213,6 +215,8 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
         <div style="font-size:.84rem;line-height:1.65;">
           兩個不同的 item 雜湊到<strong>同一個 slot</strong>就是碰撞。處理方法：<br>
           <span class="pill pill-blue">線性探查</span> 往後找第一個空的<br>
+          <span class="pill pill-orange">加 3 探查</span> 每次跳 3 格<br>
+          <span class="pill pill-green">平方探查</span> 依序試 h+1、h+4、h+9…<br>
           <span class="pill pill-purple">鏈結法</span> 在該 slot 接一條 list
         </div>
       </div>
@@ -272,10 +276,10 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
   <h3 style="margin-top:1.5rem;">碰撞解決：除了線性探查還有什麼？</h3>
 {{slot:hash-probing}}
   <div class="info-box">
-    <span class="info-label">rehash 通式：$\text{rehash}(\text{pos}) = (\text{pos} + \text{skip}) \bmod m$</span>
-    <strong>線性探查（linear probing）</strong>：skip = 1，每次往後找下一格。簡單，但容易產生<em>群聚（clustering）</em>：許多碰撞在同一段連續 slot 累積，後續插入會被牽連。<br><br>
-    <strong>+3 探查（plus-3）</strong>：skip = 3，跳格搜尋。要求 skip 與 $m$ 互質，否則會循環走不完整個表（這也是為何 $m$ 常選<strong>質數</strong>）。<br><br>
-    <strong>平方探查（quadratic probing）</strong>：skip 依序是 $1, 4, 9, 16, \ldots$（連續完全平方數），也就是試 $h, h+1, h+4, h+9, \ldots$，能打散群聚。<br><br>
+    <span class="info-label">固定跳格的 rehash：$\text{rehash}(\text{pos}) = (\text{pos} + \text{skip}) \bmod m$</span>
+    <strong>線性探查（linear probing）</strong>：skip = 1，每次往後找下一格。簡單，但容易群聚：被佔用的 slot 連成一段後，撞進這一段的 key 都得走到段尾。<br><br>
+    <strong>加 3 探查（plus-3）</strong>：skip = 3，跳格搜尋。skip 要和 $m$ 互質，探查才走得遍整個表；$m = 11$ 是質數，3 和它互質。<br><br>
+    <strong>平方探查（quadratic probing）</strong>：不套用上面的通式。第 $i$ 次試 $(h + i^2) \bmod m$，每次都從原始雜湊值 $h$ 起算，不是從上一格累加，所以依序是 $h, h+1, h+4, h+9, \ldots$。雜湊值不同的 key 不容易連成一串，但雜湊值相同的 key 仍走同一條路線，而且不一定走得遍整個表。<br><br>
     <strong>鏈結法（chaining）</strong>：每個 slot 存一條 list（或其他 collection），所有 hash 到該 slot 的 item 都掛在同一條鏈上。$\lambda$ 可以超過 1。
   </div>
 {{slot:hash-exercise}}
@@ -325,7 +329,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
 
   <div class="info-box warm">
     <span class="info-label">小實驗</span>
-    試試<strong>用「線性探查」</strong>把 <code>54, 26, 93, 17, 77, 31, 44, 55, 20</code> 全部插入：你會發現 44、55、20 都會發生碰撞，被推到別的槽去。再切換到<strong>「鏈結法」</strong>清空、重做一次，會看到撞到的 item 直接掛在槽下面，不會佔走別人的位置。
+    試試<strong>用「線性探查」</strong>把 <code>54, 26, 93, 17, 77, 31, 44, 55, 20</code> 全部插入：你會發現 44、55、20 都會發生碰撞，被推到別的槽去。再切換到<strong>「鏈結法」</strong>清空、重做一次，會看到撞到的 item 直接掛在槽下面，不會佔走別人的位置。也可以換成<strong>「加 3 探查」</strong>或<strong>「平方探查」</strong>：同一組數，44、55、20 會落在不同的地方。
   </div>
 
 '''

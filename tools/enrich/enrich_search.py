@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from enrich_lib import ensure_style, _replace_gen
+from quizbox import ensure_quiz_check
 
 ROOT = Path(__file__).resolve().parents[2]
 PAGE = ROOT / "searching_sorting.html"
@@ -31,6 +32,8 @@ for sid, css in (('search-depth-style', STYLE), ('search-figures-style', FIG_STY
         s = re.sub(rf'<style id="{sid}">.*?</style>', lambda m: css, s, count=1, flags=re.S)
     else:
         s = s.replace('</head>', css + '\n</head>', 1)
+
+s = ensure_quiz_check(s)
 
 # Counts shown in the table of contents, float navigation and study guide.
 n_cards = len(json.loads((ROOT / "data/flashcards_zh/ch7.json").read_text()))

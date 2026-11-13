@@ -8,12 +8,14 @@ Expected outputs come from compiling the programs (search_programs.OUT).
 import re
 from html import escape
 from enrich_lib import hl
+from quizbox import QUIZ_CSS, lecture_quiz
 from content.search_figures import figure
 from content.search_programs import *  # noqa: F401,F403
 from content.search_programs import OUT
 from content.search_headers import HPP
 from content.search_legacy import LEGACY
-from content.search_quizzes import LECTURE_QUIZ
+from content.search_quizzes import LECTURE_QUIZ, SITE_QUIZ
+from content import search_more as more
 
 
 # ---------------------------------------------------------------- helpers (chapter 3/4/6 conventions)
@@ -39,16 +41,9 @@ def table(headers, rows):
             + '</tbody></table></div>')
 
 
-def quiz(key, label='QUIZ'):
-    """A lecture quiz in this page's sq-item markup (the page script binds every .sq-item)."""
-    q = LECTURE_QUIZ[key]
-    assert len(q['answers']) == 4 and sum(a['correct'] for a in q['answers']) == 1, key
-    opts = '\n'.join(
-        f'      <button class="sq-opt" data-c="{1 if a["correct"] else 0}" data-fb="{escape(a["feedback"], quote=True)}">'
-        f'{escape(a["answer"], quote=False)}</button>' for a in q['answers'])
-    return (f'<div class="sq-item srch-quiz" id="quiz-{key}">\n    <div class="sq-q"><span class="sq-num">{label}</span>'
-            f'{escape(q["question"], quote=False)}</div>\n    <div class="sq-opts">\n{opts}\n    </div>\n'
-            f'    <div class="sq-fb"></div>\n  </div>')
+def quiz(key):
+    """A lecture quiz in the chapter 3-6 quiz-box markup (quizCheck is added by the enrich driver)."""
+    return lecture_quiz({**LECTURE_QUIZ, **SITE_QUIZ}, key)
 
 
 def _expected_attr(stdout):
@@ -116,12 +111,12 @@ VISUALGO = '<a href="https://visualgo.net/en/sorting" target="_blank" rel="noope
 
 # ---------------------------------------------------------------- P00
 def prologue():
-    find = f'''<h3 id="dx-srch">先用標準函式庫：std::find</h3>
+    find = more.why_block() + f'''<h3 id="dx-srch">先用標準函式庫：std::find</h3>
 <p><strong>搜尋</strong>（searching）是在一群資料中找出特定元素的過程。最常見的問法是「這個值在不在裡面」，答案是 <code>true</code> 或 <code>false</code>。</p>
 <p>C++ 做一般的線性成員檢查，可以用 <code>&lt;algorithm&gt;</code> 的 <code>std::find(first, last, item)</code>：它從 <code>first</code> 一路往後比到 <code>last</code> 之前，找到就回傳指向那個元素的迭代器，找不到就回傳 <code>last</code>。所以對 <code>vector&lt;int&gt; aList</code>，判斷式寫成 <code>find(aList.begin(), aList.end(), item) != aList.end()</code>。</p>
 {program("講義完整程式：用 std::find 檢查成員", "講義 07 · std::find", 'find',
          note="15 不在 {3, 5, 2, 4, 1} 裡，find 回傳 v.end()，比較結果是 false；3 在裡面，結果是 true。這一行寫起來很短，背後仍然要一個一個比對；搜尋還有其他做法，接下來幾節逐一介紹。")}
-'''
+''' + more.stl_note()
     return fill('prologue', {'find': find})
 
 
@@ -155,6 +150,7 @@ def bin_search():
          headers=['binarySearch'], header_label='pythonds3/cppds/searching.hpp · binarySearch',
          out_label='預期輸出（每次比較先印出中點離左端的距離）',
          note="找 44：範圍是索引 0 到 9，中點 4 離左端 4 格，第一次就找到。找 50：先比索引 4 的 44，50 比較大，範圍縮成 5 到 9，中點 7 離左端 2 格；65 比 50 大，範圍縮成 5 到 6，中點 5 離左端 0 格；54 也比 50 大，範圍變空，回傳 false。")}
+{more.bin_stop()}
 <p>二分搜尋是<strong>分而治之</strong>（divide and conquer）策略的例子：把問題切成較小的部分，用某種方式解決較小的部分，再組合出整個問題的答案。</p>
 <h3>遞迴版：只傳索引範圍</h3>
 <p>改寫成遞迴時，每次遞迴呼叫處理的是<strong>同一個 vector 上較小的索引範圍</strong>。傳入 <code>first</code> 與 <code>last</code> 就能改變搜尋區間，不必複製出子 vector。<code>binarySearchRec</code> 只是包裝，從整個範圍開始呼叫 <code>binarySearchRecRange</code>。</p>
@@ -162,12 +158,13 @@ def bin_search():
          headers=['binarySearchRecRange', 'binarySearchRec'], header_label='pythonds3/cppds/searching.hpp · 遞迴版',
          out_label='預期輸出（每次比較先印出中點的值）',
          note="標頭的遞迴版印出每次比較的值：找 44 時只比了 44；找 50 時依序比 44、65、54，範圍變空就回傳 false。和迴圈版比較的是同樣幾個位置。")}
+{more.size_cast()}
 <p>下面的動畫用迴圈版逐步執行，可以改陣列與目標值，看 first、last、midpoint 怎麼移動。</p>
 '''
     analysis = f'''<h3>分析：最多比幾次</h3>
 <p>從 $n$ 個元素開始，第一次比較後大約剩 $\\frac{{n}}{{2}}$ 個，第二次後剩 $\\frac{{n}}{{4}}$，接著 $\\frac{{n}}{{8}}$……</p>
 {table(['比較次數', '大約剩下的元素數'], [['1', '$\\frac{n}{2}$'], ['2', '$\\frac{n}{4}$'], ['3', '$\\frac{n}{8}$'], ['…', '…'], ['$i$', '$\\frac{n}{2^i}$']])}
-<p>一直切到只剩一個元素時，它要嘛是要找的值，要嘛不是。這時的比較次數 $i$ 滿足 $\\frac{{n}}{{2^i}} = 1$，解得 $i = \\log n$。最多比較次數和元素個數成對數關係，所以二分搜尋是 $O(\\log n)$。</p>
+<p>一直切到只剩一個元素時，它要嘛是要找的值，要嘛不是。這時的比較次數 $i$ 滿足 $\\frac{{n}}{{2^i}} = 1$，解得 $i = \\log n$（精確的最多次數是 $\\lfloor \\log_2 n \\rfloor + 1$）。最多比較次數和元素個數成對數關係，所以二分搜尋是 $O(\\log n)$。</p>
 '''
     ex1 = exercise('練習 1 · 填空（目前無法編譯）', EX1_BLANK, 'ex1', '練習 1 · binarySearchRec2 解答',
                    extra='<p>base case 是範圍變空（<code>first &gt; last</code>）。中點用 <code>first + (last - first) / 2</code>，兩次遞迴呼叫都傳同一個 <code>a</code>，只改範圍的一端。解答的 <code>main</code> 多查一次 50，確認找不到時會回傳 false。</p>')
@@ -191,7 +188,7 @@ def hashing():
 <p>這個方法只有在每個元素都對應到不同 slot 時才行得通。如果下一個要放的是 44，$44 \\bmod 11 = 0$，和 77 落在同一格。兩個以上的元素被雜湊到同一個 slot，稱為<strong>碰撞</strong>（collision，也叫 clash），雜湊必須有辦法處理它。</p>
 <p>能把每個元素都對應到不同 slot 的雜湊函數稱為<strong>完美雜湊函數</strong>（perfect hash function）。給定任意一組資料，並沒有系統化的方法造出完美雜湊函數；好在雜湊函數不必完美也能提升效率。目標是：碰撞少、容易計算、讓元素平均分布在表中。不論用哪種方法，最後通常都要取一次餘數，才能把結果限制在 slot 的編號範圍內。</p>
 '''
-    funcs = f'''<h3>餘數法與平方取中法的程式</h3>
+    funcs = more.hash_design() + f'''<h3>餘數法與平方取中法的程式</h3>
 {program("講義完整程式：remainderMethod 與 midsquareMethod", "講義 07 · 兩種雜湊函數", 'hash_funcs',
          note="平方取中：54² = 2916，取中間兩位 91，91 % 11 = 3；17² = 289 只有三位，先補成 0289 再取中間的 28，28 % 11 = 6。同一批數用兩種函數，落點不同。")}
 <h3>字串的雜湊函數</h3>
@@ -207,21 +204,20 @@ def hashing():
     probing = f'''<p>回到碰撞的問題。兩個元素雜湊到同一個 slot 時，需要有系統的方法把第二個元素放進表裡，這個過程稱為<strong>碰撞解決</strong>（collision resolution）。簡單的做法是從原本的雜湊位置開始，一格一格往後找，直到碰到第一個空的 slot；走到表尾就繞回開頭，才能涵蓋整張表。</p>
 <p>這種「找下一個空位」的方法稱為<strong>開放定址</strong>（open addressing）；一次看一格的版本稱為<strong>線性探查</strong>（linear probing）。把 54, 26, 93, 17, 77, 31, 44, 55, 20 依序放進表裡：前六個直接落在自己的雜湊位置，接著 44 想進 slot 0 卻撞到 77，往後找到 slot 1；55 與 20 也一樣往後找：</p>
 {figure('linearprobing1')}
-<p>用開放定址與線性探查建好的表，搜尋時也必須用同樣的方法。找 20 時，雜湊值是 9，但 slot 9 放的是 31。不能直接回傳 false，因為 20 可能是碰撞後被推到別處；只能從 slot 10 開始循序往後找，直到找到 20 或碰到空槽。</p>
-<p>線性探查的缺點是<strong>群聚</strong>（clustering）：同一個雜湊值碰撞很多次時，附近的 slot 會被一個個填滿，之後插入的元素也受影響。上面放 20 時，就得跳過一整段雜湊到 0 的元素才找到空位：</p>
-{figure('clustering')}
-<p>處理群聚的一個方法是<strong>跳格</strong>：碰撞後不找下一格，而是每次跳過幾格，讓碰撞的元素分散開來。例如「加 3」探查，碰撞後每隔 3 格檢查一次，直到找到空位。</p>
-{steps('「加 3」探查的結果', ['linearprobing2'])}
-<p>碰撞後另找一個 slot 的過程統稱為<strong>重新雜湊</strong>（rehashing）。線性探查的重新雜湊函數是 $\\text{{rehash}}(pos) = (pos + skip) \\bmod size$。跳的格數必須讓表中每個 slot 最後都會被拜訪到，否則有一部分的表用不到；所以表的大小通常建議用<strong>質數</strong>。</p>
 {program("講義完整程式：用線性探查建表", "講義 07 · 線性探查", 'linear_probe',
          out_label='預期輸出（slot:元素，-1 是空槽）',
          note="結果和上面的圖一致：44、55、20 因為碰撞落在 1、2、3，slot 7、8 仍是空的。")}
-<p><strong>平方探查</strong>（quadratic probing）是線性探查的變形：重新雜湊時依序加 1、4、9……，不加固定的格數。第一個雜湊值是 $h$ 時，接著試的位置是 $h+1$、$h+4$、$h+9$ 等，跳的距離是連續的完全平方數。</p>
+<p>用開放定址與線性探查建好的表，搜尋時也必須用同樣的方法。找 20 時，雜湊值是 9，但 slot 9 放的是 31。不能直接回傳 false，因為 20 可能是碰撞後被推到別處；只能從 slot 10 開始循序往後找，直到找到 20 或碰到空槽。</p>
+<p>線性探查的缺點是<strong>群聚</strong>（clustering）：被佔用的 slot 連成一段之後，雜湊到這一段<strong>任何一格</strong>的 key 都得走到段尾才找到空位，再把這一段加長一格；段越長越容易被撞上，也就長得越快。上面放 20 時，它的雜湊值是 9，和雜湊到 0 的那幾個數無關，卻因為 9、10 都被佔用而繞進那一段，跳過 77、44、55 才找到空位：</p>
+{figure('clustering')}
+<p>處理群聚的一個方法是<strong>跳格</strong>：碰撞後不找下一格，而是每次跳過幾格，讓碰撞的元素分散開來。例如加 3 探查，碰撞後每隔 3 格檢查一次，直到找到空位。</p>
+{steps('加 3 探查的結果', ['linearprobing2'])}
+{more.plus3_note()}{more.gcd_block()}<p><strong>平方探查</strong>（quadratic probing）是線性探查的變形：重新雜湊時依序加 1、4、9……，不加固定的格數。第一個雜湊值是 $h$ 時，接著試的位置是 $h+1$、$h+4$、$h+9$ 等，跳的距離是連續的完全平方數。</p>
 {figure('quadratic')}
-<p>另一種處理碰撞的方法是<strong>鏈結法</strong>（chaining）：每個 slot 存一個集合（鏈），同一個 slot 可以放很多個元素。碰撞時，元素一樣放在自己的雜湊位置；只是同一個位置的元素越多，在那個集合裡找東西就越費時。</p>
+{more.quad_note()}<p>另一種處理碰撞的方法是<strong>鏈結法</strong>（chaining）：每個 slot 存一個集合（鏈），同一個 slot 可以放很多個元素。碰撞時，元素一樣放在自己的雜湊位置；只是同一個位置的元素越多，在那個集合裡找東西就越費時。</p>
 {figure('chaining')}
 <p>搜尋時先用雜湊函數算出元素應該在的 slot，再用搜尋方法檢查那個 slot 的集合裡有沒有它。</p>
-'''
+{more.open_vs_chain()}'''
     ex2 = exercise('練習 2 · 填空（目前無法編譯）', EX2_BLANK, 'ex2', '練習 2 · quadraticProbing 解答',
                    extra='<p>第 <code>probe</code> 次重新雜湊要試 <code>h + probe * probe</code>，再對表的大小取餘數。<code>++probe</code> 寫在計算之前，所以第一次試的是 <code>h + 1</code>。</p>')
     exercise_html = f'''{quiz('hash1')}
@@ -247,7 +243,7 @@ def hashing():
 <p>接著讀取並修改表中的資料，注意 key 20 的 value 被取代：</p>
 {program("講義完整程式：get 與覆寫", "講義 07 · get 與 put 覆寫", 'ht2',
          note="get(20) 沿著探查鏈在 slot 3 找到 chicken；put(20, \"duck\") 找到同一個 key，只改 data，slots 不變。get(99) 找不到，回傳空字串，所以印出 []。")}
-'''
+{more.hash_order_note()}'''
     return fill('hashing', {'hash-table': table_intro, 'hash-load': load, 'hash-functions': funcs,
                             'hash-probing': probing, 'hash-exercise': exercise_html, 'hash-map': map_html})
 
@@ -265,7 +261,7 @@ def bubble():
 <p>沒有暫存變數，第一個指定就會蓋掉其中一個值。標準函式庫的 <code>swap()</code> 做同樣的事：<code>swap(aList[j], aList[j + 1]);</code>。</p>
 '''
     end = f'''<h3 id="dx-bub">講義程式：bubbleSort</h3>
-<p>本章所有排序函式都在課程標頭 <code>pythonds3/cppds/sorting.hpp</code>，<code>printl</code> 用來印出整個 vector。標頭版的 <code>bubbleSort</code> 在每一輪開始前印一行。</p>
+<p>本章所有排序函式都在課程標頭 <code>pythonds3/cppds/sorting.hpp</code>，<code>printl</code> 用來印出整個 vector。標頭版的 <code>bubbleSort</code> 在每一輪開始前印一行。這些印出由標頭裡的 <code>sortingTrace</code> 控制，預設是 <code>true</code>；在 <code>main</code> 開頭寫 <code>sortingTrace = false;</code>，排序函式就只排序、不印出過程。</p>
 {program("講義完整程式：bubbleSort（含標頭裡的函式）", "講義 07 · 呼叫 bubbleSort", 'bubble',
          headers=['printl', 'bubbleSort'], header_label='pythonds3/cppds/sorting.hpp · printl 與 bubbleSort',
          out_label='預期輸出（每輪開始前一行，最後一行是排序結果）',
@@ -395,7 +391,7 @@ def depends():
     body = LEGACY['depends']
     k = body.index('  <h3>兩種基本存取模式</h3>')
     lead, rest = body[:k], body[k:]
-    return lead + fold('完整內容：存取模式、對照表與選擇底層結構', rest.rstrip('\n'))
+    return lead + fold('完整內容：存取模式、對照表與選擇底層結構', rest.rstrip('\n') + '\n' + more.sort_by_structure())
 
 
 def reference():
@@ -415,7 +411,7 @@ def supplement():
 
 
 # FAQ entries that come straight from the lecture notes (no （補充） tag).
-IN_NOTES = {'二分搜尋一定比循序搜尋好嗎？', 'get 回傳空字串，怎麼知道 key 到底在不在？'}
+IN_NOTES = {'二分搜尋一定比循序搜尋好嗎？', 'get 回傳空字串，怎麼知道 key 到底在不在？', '為什麼表的大小常選質數？'}
 
 
 def recap():
@@ -425,7 +421,7 @@ def recap():
         ('get 回傳空字串，怎麼知道 key 到底在不在？',
          '<p>在這個教學版的 <code>HashTable</code> 裡分不出來：key 不存在與 value 本來就是空字串，回傳值都是 <code>""</code>。完整的 Map ADT 會另外提供 <code>contains(key)</code>；<code>std::unordered_map</code> 則可以用 <code>find</code> 或 <code>count</code> 判斷。</p>'),
         ('為什麼表的大小常選質數？',
-         '<p>重新雜湊時每次跳 skip 格。如果 skip 和表的大小有公因數，探查只會在部分 slot 之間打轉，其他 slot 永遠用不到。表的大小是質數時，任何不是它倍數的 skip 都和它互質，最後一定能拜訪到每個 slot。</p>'),
+         '<p>重新雜湊時每次跳 skip 格，只會走過 $m / \\gcd(skip, m)$ 個 slot。skip 和表的大小有公因數時，探查只在部分 slot 之間打轉；表的大小是質數時，1 到 $m - 1$ 的任何 skip 都和它互質，一定走得遍。質數不是必要條件（$m = 10$、skip = 3 也走得遍），線性探查的 skip 是 1，也不需要質數。對餘數法本身來說，取質數只是經驗法則：兩個 key 碰撞的條件是 $m$ 整除兩者的差，質數只是降低 key 的規律剛好和 $m$ 有公因數的機會。</p>'),
         ('快速排序最差是 $O(n^2)$，為什麼實務上還常用？',
          '<p>pivot 選得不差時，quicksort 平均是 $O(n\\log n)$，不需要合併排序那樣的 $O(n)$ 暫存空間，存取也集中在同一個 vector 上。median of three 等選 pivot 的方法能降低碰到最差情況的機會；<code>std::sort</code> 常見的實作還會在遞迴太深時改用其他方法，保證最差 $O(n\\log n)$。</p>'),
         ('哪些排序是穩定的？',
@@ -434,9 +430,11 @@ def recap():
     faq = ''.join(details(q if q in IN_NOTES else f'{q}（補充）', a, cls='srch-detail srch-faq') for q, a in qa)
     return f'''<ul class="srch-ul srch-recap">
 <li>搜尋回答「在不在」。<code>std::find</code> 與循序搜尋逐一比對，都是 $O(n)$；資料已排序時，循序搜尋可以提前停止，但仍是 $O(n)$。</li>
-<li>二分搜尋每次比較中間的值，排除一半的範圍，是 $O(\\log n)$；前提是資料已排序。遞迴版傳索引範圍 <code>first</code>、<code>last</code>，不複製子 vector。</li>
+<li>二分搜尋每次比較中間的值，排除一半的範圍，是 $O(\\log n)$；前提是資料已排序。找到就立刻回傳；找不到時要縮到 <code>first &gt; last</code> 才停。遞迴版傳索引範圍 <code>first</code>、<code>last</code>，不複製子 vector；<code>static_cast&lt;int&gt;(aList.size()) - 1</code> 讓空 vector 得到 <code>last = -1</code>。</li>
 <li>雜湊用雜湊函數把元素直接對應到 slot：餘數法、折疊法、平方取中法，字串可以加總字元的序數值。負載因子 $\\lambda$ 越大，碰撞越多。</li>
-<li>碰撞解決：開放定址（線性探查、跳格、平方探查）在表內另找空位，線性探查容易群聚；鏈結法讓同一個 slot 存一條鏈。搜尋時必須沿用插入時的探查方法。</li>
+<li>碰撞解決：開放定址（線性探查、跳格、平方探查）在表內另找空位，線性探查容易群聚；鏈結法讓同一個 slot 存一條鏈，$\\lambda$ 可以超過 1。搜尋時必須沿用插入時的探查方法。</li>
+<li>每次跳 $s$ 格只走得到 $m / \\gcd(s, m)$ 格，所以 $s$ 要和 $m$ 互質；表的大小用質數，任何 1 到 $m - 1$ 的跳格數都合格。平方探查在 $m$ 為奇質數時，一個 key 只碰得到 $\\frac{{m+1}}{{2}}$ 個 slot。</li>
+<li>雜湊表擅長回答「在不在」；找最小值或列出一段範圍，要用排好序的資料。</li>
 <li><code>HashTable</code> 用平行的 <code>slots</code> 與 <code>data</code> 實作 Map ADT 的 <code>put</code>、<code>get</code>：同一個 key 再 put 會取代 value；探查繞回起點就停止。</li>
 <li>氣泡、選擇、插入排序都是 $O(n^2)$ 次比較。選擇排序每輪最多交換一次；插入排序用移動取代交換，對幾乎排好的資料很快；short bubble 在某一輪沒有交換時提早結束。</li>
 <li>希爾排序先用較大的 gap 對子清單做插入排序，最後 gap 為 1，大致介於 $O(n)$ 與 $O(n^2)$ 之間。</li>
@@ -472,7 +470,15 @@ STYLE = """<style id="search-depth-style">
 .srch-detail-body .pseudo-code,.deck-extra .pseudo-code,.side-panel .pseudo-code{max-width:100%;overflow-x:auto;}
 .srch-ul{padding-left:1.4rem;margin:.6rem 0 1rem;}
 .srch-ul li{margin:.3rem 0;line-height:1.8;}
-.srch-quiz{margin-top:1.2rem;}
-.srch-quiz .sq-num{margin-right:.6rem;}
+.srch-detail-body h4{margin:1.2rem 0 .4rem;color:var(--accent2);font-family:'Noto Serif TC',serif;}
+.pc-tool{margin:1rem 0;padding:1rem 1.2rem;border:1px solid var(--card-border);border-radius:10px;background:var(--card);}
+.pc-title{font-weight:700;margin-bottom:.4rem;}
+.pc-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:.4rem;margin:.8rem 0;}
+.pc-slot{border:2px solid var(--card-border);border-radius:6px;padding:.3rem 0;text-align:center;background:var(--paper);color:var(--ink);}
+.pc-slot.pc-hit{border-color:var(--accent3);background:#eafaf1;}
+.pc-idx{display:block;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;}
+.pc-ord{display:block;font-size:.72rem;}
+.pc-seq,.pc-stat{margin:.3rem 0;font-family:'JetBrains Mono',monospace;font-size:.86rem;overflow-wrap:anywhere;}
+""" + QUIZ_CSS + """
 .viz-layout,.viz-layout>div{min-width:0;}
 </style>"""

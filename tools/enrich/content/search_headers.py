@@ -8,7 +8,7 @@ HPP = {
 }''',
     'bubbleSort': r'''void bubbleSort(vector<int>& aList) {
     for (int i = aList.size() - 1; i > 0; i--) {
-        printl(aList);
+        if (sortingTrace) printl(aList);
         for (int j = 0; j < i; j++) {
             if (aList[j] > aList[j + 1]) {
                 int temp = aList[j];
@@ -33,7 +33,7 @@ HPP = {
     'selectionSort': r'''void selectionSort(vector<int>& aList) {
     int n = static_cast<int>(aList.size());
     for (int fillSlot = n - 1; fillSlot > 0; fillSlot--) {
-        printl(aList);
+        if (sortingTrace) printl(aList);
         int positionOfMax = 0;
         for (int location = 1; location <= fillSlot; location++) {
             if (aList[location] > aList[positionOfMax]) {
@@ -47,7 +47,7 @@ HPP = {
 }''',
     'insertionSort': r'''void insertionSort(vector<int>& aList) {
     for (unsigned i = 1; i < aList.size(); i++) {
-        printl(aList);
+        if (sortingTrace) printl(aList);
         int curVal = aList[i];
         int curPos = i;
         while (curPos > 0 && aList[curPos - 1] > curVal) {
@@ -74,14 +74,15 @@ HPP = {
         for (int posStart = 0; posStart < sublistCount; posStart++) {
             gapInsertionSort(aList, posStart, sublistCount);
         }
-        cout << "After increments of size " << sublistCount << " the list is ";
-        printl(aList);
+        if (sortingTrace) {
+            cout << "After increments of size " << sublistCount << " the list is ";
+            printl(aList);
+        }
         sublistCount = sublistCount / 2;
     }
 }''',
     'mergeSort': r'''void mergeSort(vector<int>& aList) {
-    cout << "Splitting ";
-    printl(aList);
+    if (sortingTrace) { cout << "Splitting "; printl(aList); }
     if (aList.size() > 1) {
         int mid = aList.size() / 2;
         vector<int> leftHalf(aList.begin(), aList.begin() + mid);
@@ -97,8 +98,7 @@ HPP = {
         while (i < leftHalf.size()) { aList[k] = leftHalf[i]; i++; k++; }
         while (j < rightHalf.size()) { aList[k] = rightHalf[j]; j++; k++; }
     }
-    cout << "Merging ";
-    printl(aList);
+    if (sortingTrace) { cout << "Merging "; printl(aList); }
 }''',
     'partition': r'''int partition(vector<int>& aList, int first, int last) {
     int pivotVal = aList[first];
@@ -117,7 +117,7 @@ HPP = {
     'quickSortHelper': r'''void quickSortHelper(vector<int>& aList, int first, int last) {
     if (first < last) {
         int split = partition(aList, first, last);
-        printl(aList);
+        if (sortingTrace) printl(aList);
         quickSortHelper(aList, first, split - 1);
         quickSortHelper(aList, split + 1, last);
     }

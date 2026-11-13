@@ -94,7 +94,7 @@ bool binarySearchRec2(const vector<int>& a, int item, int first, int last) {
 }
 int main() {
     vector<int> a = {17, 20, 26, 31, 44, 54, 55, 65, 77, 93};
-    cout << boolalpha << binarySearchRec2(a, 44, 0, a.size()-1) << endl;
+    cout << boolalpha << binarySearchRec2(a, 44, 0, static_cast<int>(a.size()) - 1) << endl;
 }'''
 
 EX1_SOL = '''#include <iostream>
@@ -109,8 +109,8 @@ bool binarySearchRec2(const vector<int>& a, int item, int first, int last) {
 }
 int main() {
     vector<int> a = {17, 20, 26, 31, 44, 54, 55, 65, 77, 93};
-    cout << boolalpha << binarySearchRec2(a, 44, 0, a.size()-1) << endl;
-    cout << binarySearchRec2(a, 50, 0, a.size()-1) << endl;
+    cout << boolalpha << binarySearchRec2(a, 44, 0, static_cast<int>(a.size()) - 1) << endl;
+    cout << binarySearchRec2(a, 50, 0, static_cast<int>(a.size()) - 1) << endl;
 }'''
 
 # ---------------------------------------------------------------- hashing
@@ -376,11 +376,98 @@ int main() {
     return 0;
 }'''
 
+# ---------------------------------------------------------------- supplementary programs (not in the lecture)
+STL_SEARCH = '''#include <algorithm>
+#include <iostream>
+#include <set>
+#include <unordered_set>
+#include <vector>
+using namespace std;
+
+int main() {
+    vector<int> v = {17, 20, 26, 31, 44, 54, 55, 65, 77, 93};   // already sorted
+
+    // find: linear search, works on any range but ignores the order
+    cout << boolalpha << (find(v.begin(), v.end(), 54) != v.end()) << endl;
+    // binary_search: needs a sorted range, answers true or false
+    cout << binary_search(v.begin(), v.end(), 50) << endl;
+    // lower_bound: first position whose value is not less than 50
+    auto it = lower_bound(v.begin(), v.end(), 50);
+    cout << *it << " at index " << (it - v.begin()) << endl;
+
+    set<int> tree(v.begin(), v.end());            // balanced search tree
+    cout << (tree.find(44) != tree.end()) << endl;
+    unordered_set<int> table(v.begin(), v.end()); // hash table
+    cout << table.count(65) << endl;
+    return 0;
+}'''
+
+SIZE_CAST = '''#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    vector<int> aList;                                   // empty vector
+    cout << aList.size() - 1 << endl;                    // unsigned size_t: 0 - 1 wraps around
+    cout << static_cast<int>(aList.size()) - 1 << endl;  // cast to int first, then subtract
+    return 0;
+}'''
+
+PROBE_CYCLE = '''#include <iostream>
+#include <numeric>   // gcd (C++17)
+using namespace std;
+
+// print the slots visited from slot 0 when every probe jumps skip slots
+void probeCycle(int m, int skip) {
+    cout << "m = " << m << ", skip = " << skip << ": ";
+    int pos = 0;
+    do {
+        cout << pos << " ";
+        pos = (pos + skip) % m;
+    } while (pos != 0);
+    cout << "(" << m / gcd(m, skip) << " of " << m << " slots)" << endl;
+}
+
+int main() {
+    probeCycle(12, 3);
+    probeCycle(11, 3);
+    probeCycle(10, 3);
+    probeCycle(10, 2);
+    return 0;
+}'''
+
+DOUBLE_HASH = '''#include <iostream>
+#include <vector>
+using namespace std;
+
+// double hashing: h1 picks the first slot, h2 picks the step size of that key
+int main() {
+    const int m = 11;
+    vector<int> table(m, -1);
+    for (int key : {22, 33, 44}) {
+        int h1 = key % m;
+        int h2 = 1 + key % 7;          // between 1 and 7, so never 0
+        int i = 0;
+        int pos = h1;
+        while (table[pos] != -1) {     // occupied: jump another h2 slots
+            ++i;
+            pos = (h1 + i * h2) % m;
+        }
+        table[pos] = key;
+        cout << key << ": h1 = " << h1 << ", h2 = " << h2 << " -> slot " << pos << endl;
+    }
+    for (int x : table) cout << x << " ";
+    cout << endl;
+    return 0;
+}'''
+
+
 RUN = {'find': FIND, 'seq': SEQ, 'ordered': ORDERED, 'bin': BIN, 'bin_rec': BIN_REC, 'ex1': EX1_SOL,
        'hash_funcs': HASH_FUNCS, 'hash_str': HASH_STR, 'hash_str_w': HASH_STR_WEIGHTED,
        'linear_probe': LINEAR_PROBE, 'ex2': EX2_SOL, 'ht1': HT_SESSION1, 'ht2': HT_SESSION2,
        'bubble': BUBBLE, 'short': SHORT, 'selection': SELECTION, 'insertion': INSERTION, 'shell': SHELL,
-       'merge': MERGE, 'quick': QUICK, 'qdesc': QDESC, 'std_sort': STD_SORT}
+       'merge': MERGE, 'quick': QUICK, 'qdesc': QDESC, 'std_sort': STD_SORT,
+       'stl_search': STL_SEARCH, 'size_cast': SIZE_CAST, 'probe_cycle': PROBE_CYCLE, 'double_hash': DOUBLE_HASH}
 
 OUT = {  # exact stdout (trailing newline included when the program prints one)
     'find': 'false\ntrue\n',
@@ -405,4 +492,8 @@ OUT = {  # exact stdout (trailing newline included when the program prints one)
     'quick': '31 26 20 17 44 54 77 55 93 \n17 26 20 31 44 54 77 55 93 \n17 26 20 31 44 54 77 55 93 \n17 20 26 31 44 54 77 55 93 \n17 20 26 31 44 54 55 77 93 \n17 20 26 31 44 54 55 77 93 \n',
     'qdesc': 'Ascending:  17 20 26 31 44 54 55 77 93 \nDescending: 93 77 55 54 44 31 26 20 17 \n',
     'std_sort': '17 20 26 31 44 54 55 77 93 \n',
+    'stl_search': 'true\nfalse\n54 at index 5\ntrue\n1\n',
+    'size_cast': '18446744073709551615\n-1\n',
+    'probe_cycle': 'm = 12, skip = 3: 0 3 6 9 (4 of 12 slots)\nm = 11, skip = 3: 0 3 6 9 1 4 7 10 2 5 8 (11 of 11 slots)\nm = 10, skip = 3: 0 3 6 9 2 5 8 1 4 7 (10 of 10 slots)\nm = 10, skip = 2: 0 2 4 6 8 (5 of 10 slots)\n',
+    'double_hash': '22: h1 = 0, h2 = 2 -> slot 0\n33: h1 = 0, h2 = 6 -> slot 6\n44: h1 = 0, h2 = 3 -> slot 3\n22 -1 -1 44 -1 -1 33 -1 -1 -1 -1 \n',
 }

@@ -8,6 +8,7 @@ Expected outputs come from compiling the programs (trees_programs.OUT).
 import re
 from html import escape
 from enrich_lib import hl
+from quizbox import QUIZ_CSS, lecture_quiz
 from content.trees_figures import figure, figrow
 from content.trees_programs import RUN, OUT, EX2_BLANK, EX3_BLANK
 from content.trees_legacy import LEGACY
@@ -37,16 +38,9 @@ def table(headers, rows):
             + '</tbody></table></div>')
 
 
-def quiz(key, label='QUIZ'):
-    """A lecture quiz in this page's sq-item markup (the page script binds every .sq-item)."""
-    q = LECTURE_QUIZ[key]
-    assert len(q['answers']) == 4 and sum(a['correct'] for a in q['answers']) == 1, key
-    opts = '\n'.join(
-        f'      <button class="sq-opt" data-c="{1 if a["correct"] else 0}" data-fb="{escape(a["feedback"], quote=True)}">'
-        f'{escape(a["answer"], quote=False)}</button>' for a in q['answers'])
-    return (f'<div class="sq-item tree-quiz" id="quiz-{key}">\n    <div class="sq-q"><span class="sq-num">{label}</span>'
-            f'{escape(q["question"], quote=False)}</div>\n    <div class="sq-opts">\n{opts}\n    </div>\n'
-            f'    <div class="sq-fb"></div>\n  </div>')
+def quiz(key):
+    """A lecture quiz in the chapter 3-6 quiz-box markup (quizCheck is added by the enrich driver)."""
+    return lecture_quiz(LECTURE_QUIZ, key)
 
 
 def _expected_attr(stdout):
@@ -929,8 +923,7 @@ STYLE = """<style id="trees-depth-style">
 .tree-detail-body .pseudo-code,.deck-extra .pseudo-code,.side-panel .pseudo-code{max-width:100%;overflow-x:auto;}
 .tree-ul{padding-left:1.4rem;margin:.6rem 0 1rem;}
 .tree-ul li{margin:.3rem 0;line-height:1.8;}
-.tree-quiz{margin-top:1.2rem;}
-.tree-quiz .sq-num{margin-right:.6rem;}
+""" + QUIZ_CSS + """
 .viz-layout,.viz-layout>div{min-width:0;}
 #canvas-trav .t-node{font-size:.72rem;}
 </style>"""

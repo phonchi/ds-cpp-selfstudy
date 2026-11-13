@@ -2,10 +2,12 @@
 """把 data/ 的繁中母檔套進指定 HTML（預設全站）：整段替換 FLASHCARDS 陣列與 bankquiz 區。
 冪等：以區塊邊界整段重生，可重複執行。"""
 import argparse
-import json, re
+import json, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools" / "enrich"))
+from quizbox import plain_fb, quiz_box  # noqa: E402
 FC = {  # page -> flashcards chapter
     "00a_why_code": "00a", "00b_setup": "00b", "00c_vscode_windows": "00c", "p1_cpp_basics": "p1", "p2_flow_control": "p2", "p3_functions": "p3",
     "p5_vector_string": "p5", "p7_files_exceptions": "p7", "p9_oop_advanced": "p9", "p4_pointers_memory": "p4", "p6_map_set": "p6", "p8_oop_basics": "p8",
@@ -71,6 +73,13 @@ def apply_page(page, ch):
                 assert sum(a['correct'] for a in q['answers']) == 1, f'{page} Q{i}: expected one correct answer'
         items = []
         for i, q in enumerate(qs, 1):
+            if not qch.startswith('p'):
+                # 第 7–9 章：與正文同一種 quiz-box（quizCheck 以 innerHTML 寫回饋，所以回饋先轉成 HTML 再做屬性跳脫）
+                answers = [(a["correct"], esc_attr(a["answer"]), plain_fb(a["feedback"])) for a in q["answers"]]
+                code_html = (f'\n  <pre class="quiz-code">{esc_attr(q["code"])}</pre>' if q.get("code") else "")
+                items.append(quiz_box(f'qBank{i}', f'自我檢測 · Q{i}', esc_attr(q["question"]), answers,
+                                      code_html=code_html, attr=esc_attr))
+                continue
             opts = "\n".join(
                 f'      <button class="sq-opt" data-c="{1 if a["correct"] else 0}" data-fb="{esc_attr(a["feedback"])}">'
                 + (f'<span class="opt-letter">({chr(65 + j)})</span> ' if qch.startswith('p') else '')

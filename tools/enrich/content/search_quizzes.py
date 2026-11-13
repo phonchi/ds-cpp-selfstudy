@@ -9,3 +9,42 @@ LECTURE_QUIZ = {
     'quick': {"question": "串列 [14, 17, 13, 15, 19, 10, 3, 16, 9, 12] 執行 quicksort。第二次分割（partition）之後，串列內容是下列哪一個？", "answers": [{"answer": "[9, 3, 10, 13, 12]", "correct": False, "feedback": "不對。這只是第二次分割後的左子串列，不是整條串列的狀態。"}, {"answer": "[9, 3, 10, 13, 12, 14]", "correct": False, "feedback": "不對。這條串列被截掉了，少了右邊分割區的元素。"}, {"answer": "[9, 3, 10, 13, 12, 14, 17, 16, 15, 19]", "correct": False, "feedback": "不對。右半（19, 16, 15, 17）在輪到它自己的遞迴呼叫之前，會維持第一次分割後的狀態。"}, {"answer": "[9, 3, 10, 13, 12, 14, 19, 16, 15, 17]", "correct": True, "feedback": "正確。第一次以 pivot 14 分割後，串列是 [10, 12, 13, 9, 3, 14, 19, 16, 15, 17]。第二次分割處理左子串列 [10, 12, 13, 9, 3]、pivot 是 10，得到 [9, 3, 10, 13, 12]；放回整條串列就是這個答案。"}]},
     'sequential': {"question": "對有序串列 [3, 5, 6, 8, 11, 12, 14, 15, 17, 18] 做循序搜尋，要判定 key 13 不在裡面，需要幾次比較？", "answers": [{"answer": "10", "correct": False, "feedback": "不對。無序串列的循序搜尋才需要看完全部 10 個；有序串列一碰到比目標大的值就能提前停止。"}, {"answer": "5", "correct": False, "feedback": "不對。比較 5 次後只走到 11；11 比 13 小，還得繼續往後找。"}, {"answer": "7", "correct": True, "feedback": "正確。有序串列的搜尋會逐一比較，直到找到目標或碰到比目標大的值：13 依序跟 3, 5, 6, 8, 11, 12, 14 比較，共 7 次。比到 14 時發現 14 > 13，就能斷定 13 不可能在後面，搜尋停止。"}, {"answer": "6", "correct": False, "feedback": "不對。比較 6 次後走到 12；12 比 13 小，還需要第 7 次跟 14 比較，才能確定 13 不在串列裡。"}]},
 }
+
+# Quizzes written for this site (not in the lecture). They check the clarifications added to the sections.
+SITE_QUIZ = {
+    'bin-stop': {"label": "二分搜尋的停止條件",
+                 "question": "迴圈版 binarySearch 在 {17, 20, 26, 31, 44, 54, 55, 65, 77, 93} 中找 50，最後回傳 false。迴圈結束時 first 和 last 各是多少？",
+                 "answers": [
+                     {"answer": "first = 5，last = 4", "correct": True, "feedback": "依序比 44、65、54：44 太小，first 變成 5；65 太大，last 變成 6；54 太大，last 變成 4。first > last，範圍是空的。"},
+                     {"answer": "first = 5，last = 5", "correct": False, "feedback": "first == last 時還剩一個候選，迴圈還會再比一次；迴圈結束時一定是 first > last。"},
+                     {"answer": "first = 4，last = 5", "correct": False, "feedback": "這時 first <= last，迴圈還沒結束；而且第一次比較 44 之後，first 就已經變成 5。"},
+                     {"answer": "first = 0，last = -1", "correct": False, "feedback": "這是空 vector 一開始的狀態。這裡有 10 個元素，範圍是一步一步縮小的。"}]},
+    'probe-cycle': {"label": "探查週期",
+                    "question": "表的大小 m = 12，從 slot 0 出發，每次碰撞後跳 3 格（skip = 3）。一直碰撞下去，最多能探查到幾個不同的 slot？",
+                    "answers": [
+                        {"answer": "4 個", "correct": True, "feedback": "gcd(3, 12) = 3，只能走 12 / 3 = 4 格：0、3、6、9，然後回到 0。"},
+                        {"answer": "12 個", "correct": False, "feedback": "skip 和 m 互質時才走得遍。3 和 12 有公因數 3，走到 9 之後就回到 0。"},
+                        {"answer": "3 個", "correct": False, "feedback": "3 是 gcd(3, 12)；能走的格數是 12 / 3 = 4。"},
+                        {"answer": "11 個", "correct": False, "feedback": "能走的格數是 m / gcd(skip, m)，和 m − 1 無關。"}]},
+    'prime': {"label": "表的大小與質數",
+              "question": "關於「雜湊表的大小常選質數」，下列哪一句正確？",
+              "answers": [
+                  {"answer": "表的大小是質數時，1 到 m − 1 的任何跳格數都走得遍整張表", "correct": True, "feedback": "m 是質數時，1 到 m − 1 的任何 skip 都和 m 互質，探查序列會走過每個 slot。"},
+                  {"answer": "表的大小用質數，餘數法就保證不會碰撞", "correct": False, "feedback": "11、22、33、44 對 m = 11 全部碰撞。碰撞的條件是 m 整除兩個 key 的差，和 m 是不是質數無關。"},
+                  {"answer": "線性探查的表大小不是質數，就會有 slot 永遠用不到", "correct": False, "feedback": "線性探查每次跳 1 格，gcd(1, m) = 1，任何大小都走得遍。"},
+                  {"answer": "只要 skip 是質數，任何大小的表都走得遍", "correct": False, "feedback": "條件是 skip 和 m 互質。skip = 3 是質數，但 m = 12 時只能走 4 格。"}]},
+    'quad': {"label": "平方探查走得到幾格",
+             "question": "表的大小 m = 11，平方探查依序試 h、h + 1、h + 4、h + 9……（每次都對 11 取餘數）。一個 key 的探查序列最多會碰到幾個不同的 slot？",
+             "answers": [
+                 {"answer": "6 個", "correct": True, "feedback": "m 是奇質數時，i² 除以 m 的餘數只有 (m + 1) / 2 種。從 slot 2 出發依序是 2, 3, 6, 0, 7, 5，之後重複。"},
+                 {"answer": "11 個", "correct": False, "feedback": "平方探查不一定走得遍：i 和 11 − i 的平方除以 11 的餘數相同，後半段會重複前半段的位置。"},
+                 {"answer": "10 個", "correct": False, "feedback": "i 從 0 試到 10 共 11 次，但 i 和 11 − i 落在同一格，不同的 slot 只有 6 個。"},
+                 {"answer": "5 個", "correct": False, "feedback": "起點本身也要算：i = 0 到 5 的平方除以 11 的餘數 0, 1, 4, 9, 5, 3 各不相同，共 6 個。"}]},
+    'open-chain': {"label": "開放定址與鏈結法",
+                   "question": "下列關於開放定址與鏈結法的敘述，哪一句正確？",
+                   "answers": [
+                       {"answer": "鏈結法的負載因子可以超過 1", "correct": True, "feedback": "鏈結法把元素掛在 slot 的鏈上，元素可以比 slot 多；開放定址每個 slot 只放一個元素，λ 最多是 1。"},
+                       {"answer": "開放定址搜尋失敗時，一定只需要檢查雜湊值那一格", "correct": False, "feedback": "元素可能因為碰撞被推到別處，要沿著探查序列找，直到碰到空槽或繞回起點。"},
+                       {"answer": "鏈結法不會發生碰撞", "correct": False, "feedback": "碰撞照樣會發生，只是碰撞的元素留在同一個 slot 的鏈上，不去佔別的 slot。"},
+                       {"answer": "平方探查屬於鏈結法的一種", "correct": False, "feedback": "平方探查在表裡另找空位，屬於開放定址。"}]},
+}

@@ -243,7 +243,7 @@ def hashing():
 <p>接著讀取並修改表中的資料，注意 key 20 的 value 被取代：</p>
 {program("講義完整程式：get 與覆寫", "講義 07 · get 與 put 覆寫", 'ht2',
          note="get(20) 沿著探查鏈在 slot 3 找到 chicken；put(20, \"duck\") 找到同一個 key，只改 data，slots 不變。get(99) 找不到，回傳空字串，所以印出 []。")}
-{more.hash_order_note()}'''
+'''
     return fill('hashing', {'hash-table': table_intro, 'hash-load': load, 'hash-functions': funcs,
                             'hash-probing': probing, 'hash-exercise': exercise_html, 'hash-map': map_html})
 
@@ -434,7 +434,6 @@ def recap():
 <li>雜湊用雜湊函數把元素直接對應到 slot：餘數法、折疊法、平方取中法，字串可以加總字元的序數值。負載因子 $\\lambda$ 越大，碰撞越多。</li>
 <li>碰撞解決：開放定址（線性探查、跳格、平方探查）在表內另找空位，線性探查容易群聚；鏈結法讓同一個 slot 存一條鏈，$\\lambda$ 可以超過 1。搜尋時必須沿用插入時的探查方法。</li>
 <li>每次跳 $s$ 格只走得到 $m / \\gcd(s, m)$ 格，所以 $s$ 要和 $m$ 互質；表的大小用質數，任何 1 到 $m - 1$ 的跳格數都合格。平方探查在 $m$ 為奇質數時，一個 key 只碰得到 $\\frac{{m+1}}{{2}}$ 個 slot。</li>
-<li>雜湊表擅長回答「在不在」；找最小值或列出一段範圍，要用排好序的資料。</li>
 <li><code>HashTable</code> 用平行的 <code>slots</code> 與 <code>data</code> 實作 Map ADT 的 <code>put</code>、<code>get</code>：同一個 key 再 put 會取代 value；探查繞回起點就停止。</li>
 <li>氣泡、選擇、插入排序都是 $O(n^2)$ 次比較。選擇排序每輪最多交換一次；插入排序用移動取代交換，對幾乎排好的資料很快；short bubble 在某一輪沒有交換時提早結束。</li>
 <li>希爾排序先用較大的 gap 對子清單做插入排序，最後 gap 為 1，大致介於 $O(n)$ 與 $O(n^2)$ 之間。</li>

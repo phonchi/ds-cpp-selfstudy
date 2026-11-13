@@ -542,10 +542,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
   <p>本章談兩件事：<strong>搜尋</strong>（searching）是從一堆資料中找出特定元素，<strong>排序</strong>（sorting）是把資料重新排成有序狀態。我們從最基本的「逐一比對」開始，再介紹其他演算法；分析時一律以「比較次數」當單位。</p>
 <h3>為什麼搜尋與排序放在資料結構課</h3>
 <p>同樣是「找一個值」，資料怎麼存，決定了要花多少功夫。資料隨便放，只能一個一個比；資料排好序，每次比較可以排除一半；用雜湊表存，可以直接算出該去哪一格找。本章依序介紹這三種搜尋，再介紹排序：排序讓二分搜尋成為可能，也是練習分析比較次數、最佳與最差情況的好題材。</p>
-<p>沒有一種存法在每種操作上都最快。下表比較三種存法處理 $n$ 筆資料時的三種常見問題，$k$ 是範圍內的筆數：</p>
-<div id="srch-ops"><div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>存法</th><th>某個值在不在</th><th>最小值</th><th>列出某個範圍內的值</th></tr></thead><tbody><tr><td>未排序的 vector</td><td>$O(n)$</td><td>$O(n)$</td><td>$O(n)$</td></tr><tr><td>已排序的 vector</td><td>$O(\log n)$</td><td>$O(1)$</td><td>$O(\log n + k)$</td></tr><tr><td>雜湊表</td><td>平均 $O(1)$</td><td>$O(n)$</td><td>$O(n)$</td></tr></tbody></table></div></div>
-<p>雜湊表擅長回答「在不在」，但它依雜湊值擺放元素，不保留大小順序，找最小值或列出一段範圍時只能整張表看一遍。第 9 章的二元搜尋樹（Binary Search Tree，BST）與堆積（heap）在這些操作上又有不同的取捨。</p>
-<details class="srch-detail"><summary>完整比較表：加上二元搜尋樹與堆積（補充）</summary><div class="srch-detail-body"><div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>存法</th><th>某個值在不在</th><th>最小值</th><th>列出某個範圍內的值</th></tr></thead><tbody><tr><td>未排序的 vector</td><td>$O(n)$</td><td>$O(n)$</td><td>$O(n)$</td></tr><tr><td>已排序的 vector</td><td>$O(\log n)$</td><td>$O(1)$</td><td>$O(\log n + k)$</td></tr><tr><td>平衡的二元搜尋樹</td><td>$O(\log n)$</td><td>$O(\log n)$</td><td>$O(\log n + k)$</td></tr><tr><td>最小堆積（min heap）</td><td>$O(n)$</td><td>$O(1)$</td><td>$O(n)$</td></tr><tr><td>雜湊表</td><td>平均 $O(1)$</td><td>$O(n)$</td><td>$O(n)$</td></tr></tbody></table></div><p>已排序的 vector 做範圍查詢時，先用二分搜尋找到範圍的起點（$O(\log n)$），再往後一個一個列出 $k$ 筆。平衡的二元搜尋樹也一樣：沿著樹找到起點，比範圍小的子樹整棵跳過。堆積只保證最小值在最上面，其他元素沒有排好，所以找一般的值或列出範圍都得全部看過。表裡沒有一列在每一欄都最好，要看最常做的是哪一種操作。</p></div></details>
+<details class="srch-detail" id="srch-ops"><summary>不同存法擅長的操作（補充）</summary><div class="srch-detail-body"><p>沒有一種存法在每種操作上都最快。下表比較幾種存法處理 $n$ 筆資料時的三種問題，$k$ 是範圍內的筆數：</p><div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>存法</th><th>某個值在不在</th><th>最小值</th><th>列出某個範圍內的值</th></tr></thead><tbody><tr><td>未排序的 vector</td><td>$O(n)$</td><td>$O(n)$</td><td>$O(n)$</td></tr><tr><td>已排序的 vector</td><td>$O(\log n)$</td><td>$O(1)$</td><td>$O(\log n + k)$</td></tr><tr><td>平衡的二元搜尋樹</td><td>$O(\log n)$</td><td>$O(\log n)$</td><td>$O(\log n + k)$</td></tr><tr><td>最小堆積（min heap）</td><td>$O(n)$</td><td>$O(1)$</td><td>$O(n)$</td></tr><tr><td>雜湊表</td><td>平均 $O(1)$</td><td>$O(n)$</td><td>$O(n)$</td></tr></tbody></table></div><p>雜湊表擅長回答「在不在」，但它依雜湊值擺放元素，不保留大小順序，找最小值或列出一段範圍時只能整張表看一遍。已排序的 vector 做範圍查詢時，先用二分搜尋找到範圍的起點，再往後一個一個列出 $k$ 筆。第 9 章的二元搜尋樹（Binary Search Tree，BST）平衡時也一樣：沿著樹找到起點，比範圍小的子樹整棵跳過。堆積（heap）只保證最小值在最上面，其他元素沒有排好，所以找一般的值或列出範圍都得全部看過。要選哪一種存法，看最常做的是哪一種操作。</p></div></details>
 <h3 id="dx-srch">先用標準函式庫：std::find</h3>
 <p><strong>搜尋</strong>（searching）是在一群資料中找出特定元素的過程。最常見的問法是「這個值在不在裡面」，答案是 <code>true</code> 或 <code>false</code>。</p>
 <p>C++ 做一般的線性成員檢查，可以用 <code>&lt;algorithm&gt;</code> 的 <code>std::find(first, last, item)</code>：它從 <code>first</code> 一路往後比到 <code>last</code> 之前，找到就回傳指向那個元素的迭代器，找不到就回傳 <code>last</code>。所以對 <code>vector&lt;int&gt; aList</code>，判斷式寫成 <code>find(aList.begin(), aList.end(), item) != aList.end()</code>。</p>
@@ -1648,7 +1645,6 @@ bird goat pig chicken dog lion tiger - - cow cat </pre></div><p class="dx-note">
 duck
 bird goat pig duck dog lion tiger - - cow cat&#32;
 []</pre></div><p class="dx-note">get(20) 沿著探查鏈在 slot 3 找到 chicken；put(20, "duck") 找到同一個 key，只改 data，slots 不變。get(99) 找不到，回傳空字串，所以印出 []。</p>
-<p>雜湊表擅長回答「這個 key 在不在、對應什麼值」。要找「最小的 key 是哪個」或「列出 20 到 50 之間的 key」，都得把整張表看一遍；這類問題用排好序的資料比較合適（見<a href="#srch-ops">本章開頭的比較表</a>）。</p>
 
 
   <h3 style="margin-top:1.5rem;">分析：負載因子 $\lambda$ 與比較次數</h3>
@@ -2981,7 +2977,6 @@ step 4 (④ h.put(44, "lamb")):   ← 不是 collision，沿著 rehash 路徑找
 <li>雜湊用雜湊函數把元素直接對應到 slot：餘數法、折疊法、平方取中法，字串可以加總字元的序數值。負載因子 $\lambda$ 越大，碰撞越多。</li>
 <li>碰撞解決：開放定址（線性探查、跳格、平方探查）在表內另找空位，線性探查容易群聚；鏈結法讓同一個 slot 存一條鏈，$\lambda$ 可以超過 1。搜尋時必須沿用插入時的探查方法。</li>
 <li>每次跳 $s$ 格只走得到 $m / \gcd(s, m)$ 格，所以 $s$ 要和 $m$ 互質；表的大小用質數，任何 1 到 $m - 1$ 的跳格數都合格。平方探查在 $m$ 為奇質數時，一個 key 只碰得到 $\frac{m+1}{2}$ 個 slot。</li>
-<li>雜湊表擅長回答「在不在」；找最小值或列出一段範圍，要用排好序的資料。</li>
 <li><code>HashTable</code> 用平行的 <code>slots</code> 與 <code>data</code> 實作 Map ADT 的 <code>put</code>、<code>get</code>：同一個 key 再 put 會取代 value；探查繞回起點就停止。</li>
 <li>氣泡、選擇、插入排序都是 $O(n^2)$ 次比較。選擇排序每輪最多交換一次；插入排序用移動取代交換，對幾乎排好的資料很快；short bubble 在某一輪沒有交換時提早結束。</li>
 <li>希爾排序先用較大的 gap 對子清單做插入排序，最後 gap 為 1，大致介於 $O(n)$ 與 $O(n^2)$ 之間。</li>

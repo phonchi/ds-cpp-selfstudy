@@ -7,8 +7,8 @@
 - 來源：使用者在 ChatGPT 上對第 7 章的 14 輪追問（分享頁以 React Router stream 內嵌，解出的全文：`source-dialog.md`）。對話中的說法逐項重算或對照講義後才採用；對話裡把「起點相同 → 路線相同」稱為 primary clustering 是錯的，頁面改用課本定義。
 - 講義範圍依據：`~/ds_cpp/Slides/07_Searching and Sorting.ipynb`。
 - 位置規則（使用者定案）：
-  - 核心概念放在可見正文：解釋或修正講義既有說法、兩種群聚、精簡操作比較表、gcd 條件、平方探查 (m+1)/2、二分搜尋停止條件、`static_cast` 理由、開放定址與鏈結法對照。
-  - 講義沒教的方法與 API 放（補充）收合區：雙重雜湊（使用者明示要收合）、刪除與 tombstone、命名混淆、STL 搜尋工具、平方取中推導、加 3 探查與線性探查的等價。
+  - 核心概念放在可見正文：解釋或修正講義既有說法、兩種群聚、gcd 條件、平方探查 (m+1)/2、二分搜尋停止條件、`static_cast` 理由、開放定址與鏈結法對照。
+  - 講義沒教的方法與 API 放（補充）收合區：雙重雜湊（使用者明示要收合）、操作比較表與找最小值／範圍查詢（使用者指出 $O(\log n + k)$ 超出講義，開頭的表與相關段落全部收合，Map ADT 後與重點回顧中的同類句子刪除）、刪除與 tombstone、命名混淆、STL 搜尋工具、平方取中推導、加 3 探查與線性探查的等價。
 - quiz：第 7 章正文與章末、第 8 章章末、第 9 章正文與章末，從 `sq-item` 改為第 3–6 章的 `quiz-box`。p1–p9 不動。
 
 ## 修改
@@ -53,7 +53,7 @@
 | `tools/check_links_cpp.py` | 0 錯誤 / 0 警告 |
 | 對比 | 0 失敗（`tools/check_contrast.py` 遇到 `tools/template/` 會誤走 statlearning 分支而崩潰；改用它的手寫站分支逐頁呼叫 `check()`。這是既有問題） |
 | `tools/inject_prereq_cpp.py` | import 成功，仍能從本頁抽出 sq-item CSS/JS；p1、p4、p9 重套 `apply_zh` 後 diff 為空 |
-| 可見字數（`density.py`） | 收合區外 24.6k → 29.4k（預算 ≤ 30k）；quiz 15 → 23；details 35 → 42 |
+| 可見字數（`density.py`） | 收合區外 24.6k → 29.0k（預算 ≤ 30k）；quiz 15 → 23；details 35 → 42 |
 
 ## 跨模型審查
 

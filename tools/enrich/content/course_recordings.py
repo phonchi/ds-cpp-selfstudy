@@ -6,6 +6,7 @@ WEEK5 = 'https://youtube.com/playlist?list=PLY4RRB8N-iEY&si=c1vywZ2WNu8th2hE'
 WEEK6 = 'PLKfVlE23FEcw'
 WEEK7 = 'PLZAdKohP8LHE'
 WEEK10 = 'PLKFmj03qksgM'
+WEEK11 = 'PLeUd6FXQglBE'
 
 def _video(video_id, playlist=WEEK6):
     return f'https://www.youtube.com/watch?v={video_id}&list={playlist}'
@@ -28,6 +29,11 @@ RECORDINGS = {
         ('▶ 錄影：Introduction to Recursion', _video('T92CIndCuGs', WEEK10)),
         ('▶ 錄影：Tower of Hanoi', _video('uTB_aUKqFE4', WEEK10)),
         ('▶ 錄影：Exploring Maze and Backtracking', _video('px0nZE59quU', WEEK10)),
+    ],
+    'searching_sorting': [
+        ('▶ 錄影：Sequential Search 與 Binary Search', _video('00kgIZR3Jys', WEEK11)),
+        ('▶ 錄影：Binary Search 與 Hash Function', _video('1BihdM-mo3Q', WEEK11)),
+        ('▶ 錄影：Collision Resolution 與 Hash Table', _video('19FjH0b1G-Q', WEEK11)),
     ],
 }
 

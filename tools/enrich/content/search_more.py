@@ -83,7 +83,7 @@ def size_cast():
                   note='第一行是 64 位元系統上 <code>size_t</code> 的最大值 $2^{64} - 1$；第二行先轉成 <code>int</code>，才得到 -1。把超出範圍的無號值直接存進 <code>int</code>，C++20 以前的結果由編譯器決定，C++20 起才規定成取模的結果。')
     return f'''<h3>為什麼寫 <code>static_cast&lt;int&gt;(aList.size()) - 1</code></h3>
 <p><code>size()</code> 回傳的型別是 <code>size_t</code>，一種<strong>無號</strong>（unsigned）整數，不能表示負數。空的 vector 算 <code>aList.size() - 1</code> 時，<code>0 - 1</code> 在無號整數裡會繞回最大值，而不是 -1。標頭裡的 <code>binarySearch</code> 和 <code>binarySearchRec</code> 都先把大小轉成 <code>int</code> 再減 1，空 vector 就得到 <code>last = -1</code>，<code>first &gt; last</code>，馬上回傳 false。</p>
-<p>不轉型、直接把 <code>aList.size() - 1</code> 存進 <code>int</code>，在常見的電腦上碰巧也會得到 -1；但那是把超出 <code>int</code> 範圍的值塞進 <code>int</code>，不該依賴。先轉型再減，意圖清楚，前提是 vector 的長度不超過 <code>int</code> 能表示的範圍，本課程的例子都符合。</p>
+<p>講義投影片的 <code>int last = aList.size() - 1;</code> 沒有轉型，在本課用的 g++ 一樣得到 -1，C++20 起標準也保證。標頭先轉型再減，意思更明確；前提是 vector 的長度在 <code>int</code> 的範圍內，本課的例子都符合。</p>
 {d.fold('實際印出來看', demo)}
 '''
 
@@ -298,11 +298,12 @@ def shell_bounds():
     d = _h()
     body = ('<p><strong>最佳：$O(n\\log n)$</strong>。資料已排序時，增量 $g$ 那一輪的每個元素只和前一個同組元素比一次，共 $n - g$ 次。取 $n = 2^p$，增量 $n/2, n/4, \\ldots, 1$ 共 $p = \\log_2 n$ 輪，總比較次數是</p>'
             '<p>$$p\\,n - (n/2 + n/4 + \\cdots + 1) = n\\log_2 n - (n - 1)$$</p>'
+            '<p>講義說希爾排序大致介於 $O(n)$ 與 $O(n^2)$ 之間，是概略的範圍；本章的折半增量連已排序的資料都要比這麼多次，所以最佳情況是 $O(n\\log n)$，碰不到 $O(n)$ 那一端。</p>'
             '<p><strong>本章的折半增量，最差是 $\\Theta(n^2)$</strong>。上界：增量 $g$ 的那一輪有 $g$ 個子清單，每個長約 $n/g$，各做一次插入排序最多 $\\frac{1}{2}(n/g)^2$ 次，這一輪最多 $\\frac{n^2}{2g}$ 次。'
             '各輪的 $\\frac{1}{g}$ 加起來是 $1 + \\frac{1}{2} + \\frac{1}{4} + \\cdots + \\frac{2}{n} &lt; 2$，所以總共不超過 $n^2$ 次，$O(n^2)$。</p>'
             '<p>下界：取 $n = 2^p$，除了最後的 1，增量都是偶數。增量是偶數時，同一個子清單裡的位置奇偶相同，所以奇數位置的元素和偶數位置的元素在最後一輪之前從來沒有比過。'
-            '如果一開始把最小的 $n/2$ 個數放在奇數位置、最大的 $n/2$ 個數放在偶數位置，前面幾輪都不會把兩群混在一起；最後一輪的插入排序，第 $j$ 小的數得越過排在它前面、比它大的 $j$ 個數。'
-            '總移動次數是 $1 + 2 + \\cdots + \\frac{n}{2} \\approx \\frac{n^2}{8}$，也是 $n^2$ 的量級。實際排 1024 個數，移動 131328 次，正好是 $\\frac{512 \\times 513}{2}$。'
+            '如果一開始把最小的 $n/2$ 個數放在奇數索引（從 0 起算）、最大的 $n/2$ 個數放在偶數索引，前面幾輪都不會把兩群混在一起；最後一輪的插入排序，第 $j$ 小的數得越過排在它前面、比它大的 $j$ 個數。'
+            '最後一輪的移動次數是 $1 + 2 + \\cdots + \\frac{n}{2} \\approx \\frac{n^2}{8}$，也是 $n^2$ 的量級。實際排 1024 個數（兩群各自由小到大排好），移動 131328 次，正好是 $\\frac{512 \\times 513}{2}$。'
             '這也說明正文「最後一輪時資料通常已經接近排好」只是常見的情形，不是保證。</p>'
             '<p><strong>增量 $2^k - 1$ 的 $O(n^{3/2})$</strong>（Papernov 與 Stasevich，1965）。推導要用兩個事實：</p>'
             + d.ul(['先做過 $k$ 排序（相隔 $k$ 的元素都排好）再做 $h$ 排序，結果仍然是 $k$ 排序的。這是已知的定理，這裡不證明。',
@@ -362,8 +363,8 @@ def hash_negative():
     """Course header hashtable.hpp uses (key % size + size) % size; explain it (visible)."""
     d = _h()
     overflow = d.fold('為什麼不寫成 (key + size) % size',
-                      '<p>key 小於 <code>-size</code> 時，<code>(key + size) % size</code> 仍是負數（$-15 + 11 = -4$）；key 很大時 <code>key + size</code> 還可能超過 <code>int</code> 的範圍。'
-                      '先取一次餘數，絕對值就小於 <code>size</code>，再加 <code>size</code> 也不會溢位。</p>')
+                      '<p>key 小於 <code>-size</code> 時，<code>(key + size) % size</code> 可能仍是負數（$-15 + 11 = -4$，結果是 -4）；key 很大時 <code>key + size</code> 還可能超過 <code>int</code> 的範圍。'
+                      '先取一次餘數，絕對值就小於 <code>size</code>；只要 <code>size</code> 不超過 <code>int</code> 上限的一半，再加 <code>size</code> 就不會溢位，本章的表都遠小於這個大小。</p>')
     return ('<p>標頭版的 <code>hashFunction</code> 寫成 <code>(key % size + size) % size</code>，多的一步是為了負數的 key。'
             'C++ 的 <code>%</code> 結果和被除數同號，<code>-3 % 11</code> 是 <code>-3</code>，不能當索引。'
             '第一次取餘數得到 $-(size-1)$ 到 $size-1$，加上 <code>size</code> 變成正數，第二次取餘數再拉回 0 到 $size - 1$。key 不是負數時，結果和 <code>key % size</code> 相同。</p>'
@@ -415,7 +416,7 @@ def merge_slice():
 
 
 def quick_count():
-    return ('<p>這裡的 $O(n\\log n)$ 數的是比較；每次交換前兩個標記都比過，交換不會比比較多，所以執行時間也是這個量級。</p>\n')
+    return ('<p>這裡的 $O(n\\log n)$ 數的是比較；每次交換前兩個標記都比過，交換不會比比較多，所以排序本身的時間也是這個量級（不計 <code>sortingTrace</code> 的印出）。</p>\n')
 
 
 def std_sort_note():
@@ -479,5 +480,5 @@ def non_comparison():
               '每一位都要穩定，十位相同的 170 與 75 才會維持個位排出的先後。$d$ 輪、每輪 $O(n + b)$；位數固定時是 $O(n)$。</p>'
               '<p><strong>桶子排序</strong>：把範圍切成 $n$ 個區間（桶），元素依值放進對應的桶，每個桶各自排序，再依序串起來。資料均勻時每桶平均只有常數個元素，期望時間 $O(n)$；資料全部擠在同一個桶時，桶內用插入排序就是 $O(n^2)$。'
               '桶內排序通常仍要比較；桶子排序歸在非比較式，是因為它主要靠值的範圍分桶。</p>'
-              '<p>一般用途的 <code>std::sort</code> 仍然是比較式排序：只要給得出「誰比較小」，任何型別都能排，不必對資料做額外假設。</p>')
+              '<p>一般用途的 <code>std::sort</code> 仍然是比較式排序：key 不必是小範圍的整數或特定格式，只要有一致的「誰比較小」規則（嚴格弱序），而且元素可以移動、交換，就能排。</p>')
     return d.fold('不靠比較的排序：計數排序、基數排序與桶子排序', body) + '\n'

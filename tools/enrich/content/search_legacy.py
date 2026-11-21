@@ -264,7 +264,7 @@ LEGACY['hashing'] = r'''  <p>有沒有可能讓搜尋變成 $O(1)$？只要我�
           理想的 hash 函數應該：<br>
           <span class="pill pill-blue">易於計算</span> 不能比直接搜尋還慢<br>
           <span class="pill pill-purple">分布均勻</span> 減少碰撞機率<br>
-          <span class="pill pill-orange">Perfect hash</span> 對事先知道的固定資料集無碰撞；一般用途的雜湊函數做不到
+          <span class="pill pill-orange">Perfect hash</span> 每個元素都對應到不同 slot；給定任意一組資料，沒有系統性的造法
         </div>
       </div>
     </div>
@@ -689,7 +689,7 @@ LEGACY['quick'] = r'''  <p><strong>Quicksort</strong> 也是分而治之，但�
 {{slot:quick-end}}
 '''
 
-LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可能差很多，甚至根本行不通。本節整理本章九個演算法各自<strong>能在哪些資料結構上有效執行</strong>，重點是：為什麼某些演算法<em>必須</em>用 Array，不能用 Linked List。</p>
+LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可能差很多，甚至根本行不通。本節整理本章九個演算法各自<strong>能在哪些資料結構上有效執行</strong>，重點是：哪些演算法換成 Linked List 會變慢、要改寫或做不到。</p>
 
   <h3>兩種基本存取模式</h3>
   <div class="viz-layout">
@@ -707,8 +707,8 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
       <div class="info-card">
         <div class="ic-title">Sequential Access — 循序存取 <span class="ic-badge" style="background:var(--accent);">SLOW INDEX</span></div>
         <div style="font-size:.86rem;line-height:1.7;">
-          只能<strong>從頭往後一個一個走</strong>（透過 <code>node.next</code>）；想跳到第 $k$ 個必須走過前 $k-1$ 個，所以是 $O(k)$。<br><br>
-          <span class="pill pill-purple">代表結構</span> Linked List (鏈結串列)、Iterator、Generator、Stream<br>
+          單向鏈結串列只能<strong>從頭往後一個一個走</strong>（透過 <code>node.next</code>）；想跳到第 $k$ 個必須走過前 $k-1$ 個，所以是 $O(k)$。雙向鏈結串列多了 <code>prev</code>，可以往回走一格，但一樣不能 $O(1)$ 跳到第 $k$ 個。<br><br>
+          <span class="pill pill-purple">代表結構</span> Linked List（鏈結串列）、輸入串流（stream）。迭代器（iterator）要看容器：<code>vector</code> 的迭代器可以 $O(1)$ 往後跳 $k$ 格，<code>std::list</code> 的只能一格一格走。<br>
           <span class="pill pill-orange">優勢</span> 中間插入/刪除 $O(1)$（已知前一節點時）、不用連續記憶體
         </div>
       </div>
@@ -722,7 +722,7 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
         <th>演算法</th>
         <th>必要屬性</th>
         <th style="background:#2980b9;">Array</th>
-        <th style="background:#8e44ad;">Linked List</th>
+        <th style="background:#8e44ad;">Linked List（單向）</th>
         <th>原因</th>
       </tr>
     </thead>
@@ -759,35 +759,35 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
         <td>氣泡排序</td>
         <td>相鄰比較與交換（循序走訪即可）</td>
         <td class="best">✓</td>
-        <td>△ 慢但可</td>
-        <td>需要 a[j] 與 a[j+1] 的相鄰比較交換</td>
+        <td class="best">✓</td>
+        <td>只用到目前節點與下一個節點；比較與交換次數和陣列版相同</td>
       </tr>
       <tr>
         <td>選擇排序</td>
         <td>找最大值再交換（循序走訪即可）</td>
         <td class="best">✓</td>
-        <td>△ 慢但可</td>
-        <td>找到 maxPos 後 swap a[maxPos] ↔ a[fill]</td>
+        <td class="best">✓</td>
+        <td>循序掃描時記住最大值所在的節點，掃到未排序區最後一個節點時交換兩者的資料；次數和陣列版相同</td>
       </tr>
       <tr>
         <td>插入排序</td>
-        <td>隨機存取（位移）</td>
+        <td>往回一格一格找插入點（或改成從頭找）</td>
         <td class="best">✓</td>
-        <td>△ 變體可行</td>
-        <td>位移 a[curPos-1] → a[curPos] 在 array 是 $O(1)$</td>
+        <td>△ 改成從頭找插入點</td>
+        <td>陣列靠位移空出位置；串列不必位移，重接指標就能插入。單向串列不能往回走，要從已排序區的開頭往後找；雙向串列可以照原本的方向往回找</td>
       </tr>
       <tr style="background:#fef0e7;">
         <td><strong>希爾排序</strong></td>
         <td>隨機存取（gap 跳格）</td>
-        <td class="best">✓ <strong>必須</strong></td>
+        <td class="best">✓ <strong>才有效率</strong></td>
         <td>△ 可做但很慢</td>
-        <td>需要 a[pos − gap]；鏈結串列每次都得從頭走過去才能「跳 gap 格」</td>
+        <td>需要 a[pos − gap]：陣列 $O(1)$ 取得；串列沒有 $O(1)$ 的跨格存取，單向串列往回跳 gap 格得從頭走過去（雙向串列也要走 gap 步）</td>
       </tr>
       <tr style="background:#eafaf1;">
         <td><strong>合併排序</strong></td>
         <td>可拆分 + 可合併</td>
         <td>✓ 但需 $O(n)$ 額外空間</td>
-        <td class="best">✓ <strong>更佳！</strong> $O(1)$ 額外空間</td>
+        <td class="best">✓ <strong>更佳！</strong> bottom-up 版額外空間 $O(1)$</td>
         <td>鏈結串列 merge 只重接指標，不必複製 ★</td>
       </tr>
       <tr style="background:#fef0e7;">
@@ -827,7 +827,7 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
     Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，合併這一步的額外空間只有 $O(1)$（幾個指標變數而已）；遞迴版的 merge sort 另外還有 $O(\log n)$ 的遞迴堆疊；改成由下往上（bottom-up）的迴圈版，先兩兩合併長度 1 的片段、再合併長度 2、4……，連堆疊也省掉，整體額外空間是 $O(1)$。C++ 的 <code>std::list</code> 成員函式 <code>sort()</code> 就是靠重接節點完成排序，不複製節點裡的資料。<br><br>
     不過省空間不等於比較快：兩種版本都是 $O(n\log n)$，而陣列的元素在記憶體裡連續，快取（cache）的表現通常比到處跳的串列節點好。<br><br>
     所以 merge sort 在 linked list 上反而<strong>更省記憶體</strong>，寫起來也更乾淨。資料本來就是 linked list 形式時（functional 語言、stream pipeline、某些 OS 內部資料結構），merge sort 是首選的排序法。<br><br>
-    <strong>實務小知識：</strong>Java 的 <code>java.util.LinkedList.sort()</code> 內部就是先轉成 Array 再用 mergesort，因為 cache 表現更好；但概念上 linked list mergesort 是經典範例。
+    <strong>實務小知識：</strong>Java 的 <code>java.util.LinkedList.sort()</code> 會先把元素複製到陣列，用合併排序的變形排好再寫回串列；但概念上 linked list mergesort 是經典範例。
   </div>
 
   <h3>Hash Table 自身的內部結構</h3>
@@ -873,7 +873,7 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
     <span class="info-label">本章其他資料結構的關係（前情提要）</span>
     本書前幾章學過的資料結構，在本章扮演的角色：
     <ul style="margin:.4rem 0;padding-left:1.4rem;font-size:.86rem;line-height:1.7;">
-      <li><strong>Stack：</strong>quick sort / merge sort 的<strong>遞迴呼叫堆疊</strong>就是 stack；如果改寫成 iterative 版本，會明確使用一個 stack 來模擬遞迴。</li>
+      <li><strong>Stack：</strong>quick sort / merge sort 的<strong>遞迴呼叫堆疊</strong>就是 stack；直接把遞迴改寫成迴圈時，可以用一個 stack 模擬遞迴呼叫。merge sort 的 bottom-up 版本則用迴圈依序合併長度 1、2、4……的片段，不需要 stack。</li>
       <li><strong>Queue：</strong>iterative merge sort 的「bottom-up」版本可以用 queue 來組織待合併的子串列。</li>
       <li><strong>Linked List：</strong>chaining 法雜湊表的 collision bucket、merge sort 的最佳載體。</li>
       <li><strong>Tree：</strong>合併排序的遞迴呼叫關係本身就是一棵<strong>二元樹</strong>（PART 08 的視覺化就是把這棵樹畫出來）。</li>
@@ -912,7 +912,7 @@ LEGACY['reference'] = r'''
     <thead><tr><th>情境</th><th>建議演算法</th><th>原因</th></tr></thead>
     <tbody>
       <tr><td>資料量小 (n &lt; 20)</td><td>插入排序</td><td>常數小、邏輯簡單</td></tr>
-      <tr><td>資料幾乎已排序</td><td>插入排序 / 氣泡 (短路)</td><td>$O(n)$ 最佳</td></tr>
+      <tr><td>資料幾乎已排序（逆序對很少）</td><td>插入排序</td><td>時間與 $n$ 加上逆序對數成正比；short bubble 只在少數幾輪就排好時有利，[2, 3, …, n, 1] 仍要 $\frac{n(n-1)}{2}$ 次比較</td></tr>
       <tr><td>需要穩定且效能保證</td><td>合併排序</td><td>始終 $O(n\log n)$、穩定</td></tr>
       <tr><td>記憶體有限</td><td>希爾 / 快速排序</td><td>就地排序</td></tr>
       <tr><td>一般用途、不需要穩定</td><td>快速排序（含中位數策略）或 <code>std::sort</code></td><td>平均 $O(n\log n)$、常數小；自己寫的 quicksort 最差仍是 $O(n^2)$</td></tr>

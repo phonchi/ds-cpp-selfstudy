@@ -281,7 +281,12 @@ def insertion_count():
             '<p><strong>最差</strong>：資料完全反序，每個元素都要一路比到開頭，共 $1 + 2 + \\cdots + (n-1) = \\frac{n(n-1)}{2}$ 次，$O(n^2)$。</p>'
             '<p><strong>平均</strong>：假設元素互不相同，而且每一種排列出現的機率相同。一對位置 $p &lt; q$ 如果 <code>a[p] &gt; a[q]</code>，稱為一個<strong>逆序對</strong>。插入排序每做一次移動，剛好消掉一個逆序對（較大的元素和被插入的元素換了先後），所以總移動次數就是逆序對的個數。'
             '任一對位置是逆序的機率是 $\\frac{1}{2}$，共有 $\\frac{n(n-1)}{2}$ 對，平均就有 $\\frac{n(n-1)}{4}$ 個逆序對。'
-            '比較次數等於移動次數，再加上每一輪最後一次「不用移」的比較（最多 $n - 1$ 次），所以平均約 $\\frac{n^2}{4}$ 次，仍然是 $O(n^2)$，大約是最差情況的一半。有重複元素時就不能直接套這個平均，例如全部相等時只要 $n - 1$ 次。</p>')
+            '比較次數和移動次數不完全相同：每一輪最後通常還有一次「不用移」的比較才知道該停，除非 <code>curVal</code> 一路移到開頭（<code>curPos &gt; 0</code> 不成立，不再比較）。</p>'
+            '<p>精確地算：處理位置 $i$ 時，前面 $i$ 個元素中比 <code>curVal</code> 大的個數 $L$ 是 0 到 $i$ 的每個值機率各 $\\frac{1}{i+1}$。$L &lt; i$ 時比 $L + 1$ 次，$L = i$ 時比 $i$ 次，平均</p>'
+            '<p>$$\\frac{1}{i+1}\\Big(\\sum_{L=0}^{i-1}(L+1) + i\\Big) = \\frac{i}{2} + \\frac{i}{i+1}$$</p>'
+            '<p>對 $i = 1, \\ldots, n-1$ 加總，$\\sum \\frac{i}{i+1} = \\sum \\big(1 - \\frac{1}{i+1}\\big) = n - H_n$，其中 $H_n = 1 + \\frac{1}{2} + \\cdots + \\frac{1}{n}$，所以平均比較次數是</p>'
+            '<p>$$\\frac{n(n-1)}{4} + n - H_n$$</p>'
+            '<p>例如 $n = 4$ 是 $3 + 4 - \\frac{25}{12} = \\frac{59}{12} \\approx 4.9$ 次。主項是 $\\frac{n^2}{4}$，仍然是 $O(n^2)$，大約是最差情況的一半。有重複元素時就不能直接套這個平均，例如全部相等時只要 $n - 1$ 次。</p>')
     return d.fold('最佳、最差與平均比較次數', body) + '\n'
 
 
@@ -343,3 +348,129 @@ def bin_exact():
 def sort_by_structure():
     return ('<p>第 9 章還會看到兩種靠資料結構完成的排序：堆積排序（heap sort）反覆從堆積取出最大（或最小）的值；'
             '樹排序（tree sort）把資料放進二元搜尋樹，再用中序走訪依序讀出來。</p>')
+
+
+# ---------------------------------------------------------------- additions from the 2026-11-21 dialog
+def hash_negative():
+    """Course header hashtable.hpp uses (key % size + size) % size; explain it (visible)."""
+    d = _h()
+    overflow = d.fold('為什麼不寫成 (key + size) % size',
+                      '<p>key 小於 <code>-size</code> 時，<code>(key + size) % size</code> 仍是負數（$-15 + 11 = -4$）；key 很大時 <code>key + size</code> 還可能超過 <code>int</code> 的範圍。'
+                      '先取一次餘數，絕對值就小於 <code>size</code>，再加 <code>size</code> 也不會溢位。</p>')
+    return ('<p>標頭版的 <code>hashFunction</code> 寫成 <code>(key % size + size) % size</code>，多的一步是為了負數的 key。'
+            'C++ 的 <code>%</code> 結果和被除數同號，<code>-3 % 11</code> 是 <code>-3</code>，不能當索引。'
+            '第一次取餘數得到 $-(size-1)$ 到 $size-1$，加上 <code>size</code> 變成正數，第二次取餘數再拉回 0 到 $size - 1$。key 不是負數時，結果和 <code>key % size</code> 相同。</p>'
+            + d.program('程式：比較 key % size 與 (key % size + size) % size', '負數 key 的雜湊值', 'hash_neg',
+                        note='只取一次餘數，負數 key 會得到負數；第二種寫法都落在 0 到 10。')
+            + overflow + '\n')
+
+
+def bubble_invariant():
+    d = _h()
+    body = ('<p>把第一輪拆成 $n - 1$ 次比較，用 $a_0, a_1, \\ldots$ 表示這一輪開始前的值。'
+            '第 1 次比較索引 0 與 1，較大的留在索引 1，所以剛比完時 <code>a[1]</code> $= \\max(a_0, a_1)$。</p>'
+            '<p>第 2 次比較索引 1 與 2。這時 <code>a[1]</code> 是前兩個的最大值，<code>a[2]</code> 還是原本的 $a_2$，因為前面的比較都沒碰到索引 2。比完後較大的留在索引 2：</p>'
+            '<p><code>a[2]</code> $= \\max\\big(\\max(a_0, a_1),\\ a_2\\big)$<br>$\\phantom{=}\\ \\ = \\max(a_0, a_1, a_2)$</p>'
+            '<p>最後一步是 $\\max$ 的結合律：先取兩個的最大值、再和第三個比，等於直接取三個的最大值。同樣的理由一路推下去：第 $j$ 次比較剛結束時，<code>a[j]</code> $= \\max(a_0, \\ldots, a_j)$。'
+            '第 $n - 1$ 次比完，<code>a[n-1]</code> 就是全部的最大值，之後的各輪不會再碰這一格。</p>'
+            '<p>這裡的 <code>a[j]</code> 指「第 $j$ 次比較剛結束時」的值。下一次比較可能把它換走：[5, 3, 2] 第 1 次比完是 [3, 5, 2]，<code>a[1]</code> 是 5；第 2 次比完是 [3, 2, 5]，<code>a[1]</code> 變成 2，最大值 5 繼續往右。'
+            '第二輪對前 $n - 1$ 個做同樣的事，所以第二大的值落在倒數第二格。</p>')
+    return d.fold('為什麼第一輪之後最大值一定在最右邊', body) + '\n'
+
+
+def shell_cond():
+    """Explain the gapInsertionSort loop condition and why the last gap must be 1 (visible)."""
+    return ('<p><code>gapInsertionSort</code> 的條件 <code>curPos &gt;= gap</code> 就是 <code>curPos - gap &gt;= 0</code>：迴圈要讀 <code>aList[curPos - gap]</code>，索引不能小於 0，作用和插入排序的 <code>curPos &gt; 0</code> 一樣。'
+            '<code>curPos</code> 只會是 <code>start</code>、<code>start + gap</code>……，而 <code>start</code> 都小於 <code>gap</code>，所以退到 <code>start</code> 就停，不會跑出自己的子清單。</p>'
+            '<p>最後一定要用增量 1：前面的增量只保證相隔 gap 的元素排好。[2, 1, 4, 3, 6, 5, 8, 7] 相隔 2 的元素都排好了，整個 list 卻還沒排好。</p>\n')
+
+
+def hibbard_note():
+    d = _h()
+    body = ('<p>先看折半增量的問題。$n = 16$ 時增量是 8、4、2、1，前三個都是偶數，同一個子清單裡的位置奇偶相同，奇數位置與偶數位置的元素要到最後一輪才第一次比較（上一個收合區的最差情況就是利用這一點）。'
+            '增量有公因數時，後一輪處理的分組大致是前一輪分組的重複。</p>'
+            '<p>$2^k - 1$ 的增量是 1、3、7、15、31……，相鄰兩個滿足 $h_{k+1} = 2h_k + 1$，所以一定互質：</p>'
+            '<p>$$\\gcd(h_k,\\ 2h_k + 1) = \\gcd(h_k,\\ 1) = 1$$</p>'
+            '<p>增量仍然每次大約減半，前面幾輪一樣能讓元素跨大步移動；而互質的增量讓下一輪的子清單跨過上一輪的分組，不會一直在同樣的位置之間排序。互質本身不保證效率，$O(n^{3/2})$ 要靠上一個收合區的推導。</p>'
+            '<p><strong>從哪個增量開始</strong>：取小於 $n$ 的最大 $2^k - 1$，也就是 $k = \\lfloor \\log_2 n \\rfloor$，因為 $2^k - 1 &lt; n$ 等價於 $2^k \\le n$。'
+            '程式不必算對數，從 1 開始反覆做 <code>gap = 2 * gap + 1</code>，直到下一個不再小於 $n$；往下走時用 <code>gap = (gap - 1) / 2</code>。</p>'
+            + d.card('程式：列出 2^k − 1 增量', RUN['hibbard_gaps'], kind='run', stdout=OUT['hibbard_gaps'], show_out=True,
+                     out_label='預期輸出（由大到小的增量）')
+            + '<p>每一輪仍是對 <code>start</code> 從 0 到 <code>gap - 1</code> 呼叫 <code>gapInsertionSort</code>，只是增量序列換了。'
+              '上面動畫的寫法是取「不超過 $n$」的最大 $2^k - 1$，只有 $n$ 本身就是 $2^k - 1$ 時多一輪增量等於 $n$；那一輪每個子清單只有一個元素，什麼都不做，結果相同。</p>')
+    return d.fold('增量 2^k − 1 的想法，以及從哪個增量開始', body) + '\n'
+
+
+def merge_slice():
+    """Half-open iterator ranges in mergeSort (visible)."""
+    return ('<p>切半時不需要 <code>mid + 1</code>：用兩個迭代器建立 vector，範圍是左閉右開的 $[first, last)$，不含 <code>last</code> 指的元素。'
+            '所以 <code>leftHalf</code> 是索引 0 到 <code>mid - 1</code>，<code>rightHalf</code> 從 <code>mid</code> 開始，剛好接上；寫成 <code>mid + 1</code> 會漏掉索引 <code>mid</code>。5 個元素時 <code>mid = 2</code>，左半 2 個、右半 3 個。</p>\n')
+
+
+def quick_count():
+    return ('<p>這裡的 $O(n\\log n)$ 數的是比較；每次交換前兩個標記都比過，交換不會比比較多，所以執行時間也是這個量級。</p>\n')
+
+
+def std_sort_note():
+    d = _h()
+    body = ('<p>introsort（introspective sort）是混合的排序法：主體是快速排序；遞迴深度超過大約 $2\\log_2 n$ 時，表示 pivot 一直選得不好，就改用堆積排序（heap sort，第 9 章的堆積可以做到最差 $O(n\\log n)$）處理那一段；'
+            '剩下很短的區段則交給插入排序，因為元素很少時插入排序的額外成本最低。這樣保留了快速排序平常的速度，也避開 $O(n^2)$ 的最差情況。</p>'
+            '<p>標準只規定結果與比較次數，沒有規定一定要用 introsort，不同的標準函式庫可以有不同做法。<code>std::sort</code> 需要隨機存取迭代器（random access iterator），可以排 <code>vector</code> 與陣列；'
+            '<code>std::list</code> 不能用它，要用成員函式 <code>list.sort()</code>。<code>std::sort</code> 也不保證穩定，見<a href="#stable">穩定排序</a>。</p>')
+    return d.fold('introsort 是什麼', body) + '\n'
+
+
+def stable_section():
+    """Visible stable-sort subsection at the top of #reference."""
+    d = _h()
+    verdicts = d.table(['本章的實作', '穩定嗎', '關鍵在哪一行'], [
+        ['氣泡排序', '穩定', '只在 <code>aList[j] &gt; aList[j + 1]</code> 時交換，相等的相鄰元素不交換；元素每次只和隔壁交換，不會跳過別的元素。'],
+        ['選擇排序', '不穩定', '把最大值和未排序區最後一格交換。這一換是遠距離的：最大值跳過中間和它相等的元素，原本在最後一格的元素也被丟到前面。'],
+        ['插入排序', '穩定', 'while 條件是 <code>aList[curPos - 1] &gt; curVal</code>，碰到相等的元素就停，<code>curVal</code> 留在它後面。'],
+        ['希爾排序', '不穩定', '各子清單分開排序，相隔 gap 的移動會越過另一個子清單裡相等的元素。'],
+        ['合併排序', '穩定', '合併時比 <code>leftHalf[i] &lt;= rightHalf[j]</code>，相等時先拿左半，而左半的元素原本就在前面。'],
+        ['快速排序', '不穩定', 'partition 裡 <code>leftMark</code> 與 <code>rightMark</code> 的交換、最後把 pivot 換到分割點，都是遠距離交換。'],
+    ])
+    stl = d.fold("std::sort 不保證穩定：std::stable_sort", '<p><code>std::sort</code> 只保證排好，不保證相等元素的先後；常見的實作以快速排序為主，所以不穩定。需要穩定時改用 <code>&lt;algorithm&gt;</code> 的 <code>std::stable_sort</code>，用法和 <code>std::sort</code> 一樣，常見的實作是合併排序：有足夠的暫存空間時最差 $O(n\\log n)$ 次比較，空間不夠時是 $O(n\\log^2 n)$。<code>std::list</code> 的成員函式 <code>sort()</code> 也是穩定的。</p>'
+        + d.card('程式：用 std::stable_sort 依分數排成績單', RUN['stable_stl'], kind='run', stdout=OUT['stable_stl'], show_out=True,
+                 note='成績單原本依姓名排好。只比較分數，同分的 Amy 與 Cara、Ben 與 Dan 仍照姓名的順序。')
+        + '<p>不穩定的排序也能排出穩定的結果：把每個元素原本的位置一起存起來，key 相等時再比原本的位置。代價是每個元素多存一個索引。</p>')
+    verdicts = verdicts.replace('<table class="cmp-table">', '<table class="cmp-table stable-table">', 1)
+    return f'''<h3 id="stable">穩定排序：相等的元素保持原來的先後</h3>
+<p>排序時常會遇到 key 相等的元素。排序後，相等元素的相對順序和排序前一樣，這個排序就是<strong>穩定</strong>的（stable）；可能改變的，就是不穩定的。只排整數時看不出差別；排的是紀錄、只依某個欄位比較時，差別就出來了。</p>
+<p>例如一份成績單已經依姓名排好：Amy 80、Ben 90、Cara 80、Dan 90。現在依分數由低到高排。穩定的排序一定得到 Amy 80、Cara 80、Ben 90、Dan 90，同分的人仍照姓名；不穩定的排序可能得到 Cara 80、Amy 80、Dan 90、Ben 90。
+這就是多鍵排序（multi-key sorting）的常見做法：要「依分數、同分再依姓名」，先依姓名排，再用穩定的排序依分數排；先排次要的 key，最後排主要的 key。</p>
+<p>本章六個實作穩不穩定，從程式就看得出來：</p>
+{verdicts}
+<p>下面讓六個函式排一組帶標籤的資料：數字是 key，字母記住原本的先後，輸入裡 1a 在 1b 前、2a 在 2b 前。比較只看數字，其餘和課程標頭相同。</p>
+{d.program('程式：用帶標籤的資料測六個排序', '六個排序的穩定性', 'stable_demo', out_label='預期輸出（字母相同的數字，先後有沒有變）')}
+<p>三個穩定的排序都得到 1a 1b 2a 2b。另外三個各有相等的一對被調換：</p>
+{d.ul(['<strong>選擇排序</strong>：第一輪的最大值是索引 1 的 2a（2b 不大於 2a，<code>positionOfMax</code> 停在 1），它和最後一格的 1b 交換，得到 1a 1b 2b 2a，2a 跳到 2b 後面。最後一輪比 1a 與 1b，兩者相等，最大值取索引 0 的 1a，又和索引 1 交換，1a 也跑到 1b 後面。',
+       '<strong>希爾排序</strong>：4 個元素時增量是 2、1。增量 2 時，2a 和 1b 在同一個子清單（索引 1、3），交換後 2a 到了索引 3，越過另一個子清單裡的 2b。最後增量 1 的插入排序是穩定的，不會把順序改回來。',
+       '<strong>快速排序</strong>：以 1a 分割時沒有移動元素；接著以 2a 為 pivot 分割 2a 2b 1b，<code>leftMark</code> 走過 2b 與 1b，<code>rightMark</code> 停在 1b，最後 pivot 2a 和 1b 交換，2a 跑到 2b 後面。'])}
+<p>穩定與否看的是程式，不只是演算法的名字。把合併排序的 <code>&lt;=</code> 改成 <code>&lt;</code>，相等時就先拿右半；把插入排序的 <code>&gt;</code> 改成 <code>&gt;=</code>，<code>curVal</code> 會越過相等的元素；把氣泡排序的 <code>&gt;</code> 改成 <code>&gt;=</code>，相等的相鄰元素也會交換。三種改法仍排成遞增，但上面那組輸入都會變成 1b 1a 2b 2a。</p>
+{d.quiz('stable')}
+{stl}
+'''
+
+
+def non_comparison():
+    d = _h()
+    body = ('<p>排序法常依是否「只靠兩兩比較」分成兩類。本章六個都是<strong>比較式排序</strong>（comparison-based sorting）：唯一的資訊來源是「$a$ 和 $b$ 誰大」，'
+            '所以受上一個收合區推導的 $\\Omega(n\\log n)$ 下界限制。<strong>非比較式排序</strong>（non-comparison sorting）利用 key 本身的形式，例如「是不大的整數」或「可以一位一位拆開」，'
+            '直接算出元素該去哪裡，不受這個下界限制。它們的快是用資料的額外假設換來的。</p>'
+            + d.table(['方法', '假設', '時間'], [
+                ['計數排序（counting sort）', 'key 是 0 到 $k - 1$ 的整數，$k$ 不能太大', '$O(n + k)$'],
+                ['基數排序（radix sort）', 'key 可以拆成 $d$ 位，每一位有 $b$ 種可能', '$O(d(n + b))$'],
+                ['桶子排序（bucket sort）', 'key 大致均勻分布在一個已知範圍', '平均 $O(n)$，最差可能 $O(n^2)$'],
+            ])
+            + '<p><strong>計數排序</strong>：開一個長度 $k$ 的計數陣列，掃一次資料做 <code>count[key]++</code>，再依索引由小到大輸出。例如 [3, 1, 2, 1, 3] 計數後 1 出現 2 次、2 出現 1 次、3 出現 2 次，輸出 [1, 1, 2, 3, 3]，過程中沒有比較兩個元素。'
+              '掃資料 $O(n)$，掃計數陣列 $O(k)$，所以是 $O(n + k)$；$k$ 和 $n$ 同量級時就是線性時間。反過來，100 個數、範圍卻是 0 到 $10^9$，計數陣列就大得不划算。</p>'
+              '<p>這和雜湊很像：都用 key 直接算出陣列的索引。差別是計數排序的對應方式保留大小順序（索引就是 key 本身），不同的 key 不會共用一格；雜湊函數如 $key \\bmod m$ 會打亂順序，也會碰撞，所以從頭到尾掃一遍雜湊表得不到排好的結果。'
+              '計數排序用的其實是<strong>直接定址表</strong>（direct-address table），可以看成沒有碰撞、也不打亂順序的雜湊表。</p>'
+              '<p><strong>基數排序</strong>：從個位數開始，每一位做一次<strong>穩定</strong>的計數排序。[170, 45, 75, 90, 802, 24, 2, 66] 依個位排成 [170, 90, 802, 2, 24, 45, 75, 66]，依十位排成 [802, 2, 24, 45, 66, 170, 75, 90]，依百位排成 [2, 24, 45, 66, 75, 90, 170, 802]。'
+              '每一位都要穩定，十位相同的 170 與 75 才會維持個位排出的先後。$d$ 輪、每輪 $O(n + b)$；位數固定時是 $O(n)$。</p>'
+              '<p><strong>桶子排序</strong>：把範圍切成 $n$ 個區間（桶），元素依值放進對應的桶，每個桶各自排序，再依序串起來。資料均勻時每桶平均只有常數個元素，期望時間 $O(n)$；資料全部擠在同一個桶時，桶內用插入排序就是 $O(n^2)$。'
+              '桶內排序通常仍要比較；桶子排序歸在非比較式，是因為它主要靠值的範圍分桶。</p>'
+              '<p>一般用途的 <code>std::sort</code> 仍然是比較式排序：只要給得出「誰比較小」，任何型別都能排，不必對資料做額外假設。</p>')
+    return d.fold('不靠比較的排序：計數排序、基數排序與桶子排序', body) + '\n'

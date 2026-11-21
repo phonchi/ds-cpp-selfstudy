@@ -47,4 +47,11 @@ SITE_QUIZ = {
                        {"answer": "開放定址搜尋失敗時，一定只需要檢查雜湊值那一格", "correct": False, "feedback": "元素可能因為碰撞被推到別處，要沿著探查序列找，直到碰到空槽或繞回起點。"},
                        {"answer": "鏈結法不會發生碰撞", "correct": False, "feedback": "碰撞照樣會發生，只是碰撞的元素留在同一個 slot 的鏈上，不去佔別的 slot。"},
                        {"answer": "平方探查屬於鏈結法的一種", "correct": False, "feedback": "平方探查在表裡另找空位，屬於開放定址。"}]},
+    'stable': {"label": "選擇排序與穩定性",
+               "question": "用本章的 selectionSort（每輪把最大值換到未排序區的最後一格）排帶標籤的 {3a, 1, 3b}，比較只看數字。排完的結果是哪一個？",
+               "answers": [
+                   {"answer": "1 3b 3a", "correct": True, "feedback": "第一輪最大值停在索引 0 的 3a（3b 不大於 3a），和最後一格的 3b 交換，得到 3b 1 3a；第二輪 3b 和 1 交換，得到 1 3b 3a。兩個 3 的先後反了，所以選擇排序不穩定。"},
+                   {"answer": "1 3a 3b", "correct": False, "feedback": "穩定的排序會得到這個結果，但第一輪的遠距離交換把 3a 換到了最後一格。"},
+                   {"answer": "3b 1 3a", "correct": False, "feedback": "這只是第一輪之後的狀態；第二輪還要把 3b 和 1 交換。"},
+                   {"answer": "3a 3b 1", "correct": False, "feedback": "selectionSort 排的是遞增順序，1 應該在最前面。"}]},
 }

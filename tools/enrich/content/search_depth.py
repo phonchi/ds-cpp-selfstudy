@@ -243,7 +243,7 @@ def hashing():
 <p>接著讀取並修改表中的資料，注意 key 20 的 value 被取代：</p>
 {program("講義完整程式：get 與覆寫", "講義 07 · get 與 put 覆寫", 'ht2',
          note="get(20) 沿著探查鏈在 slot 3 找到 chicken；put(20, \"duck\") 找到同一個 key，只改 data，slots 不變。get(99) 找不到，回傳空字串，所以印出 []。")}
-'''
+{more.hash_negative()}'''
     return fill('hashing', {'hash-table': table_intro, 'hash-load': load, 'hash-functions': funcs,
                             'hash-probing': probing, 'hash-exercise': exercise_html, 'hash-map': map_html,
                             'hash-analysis': more.load_analysis()})
@@ -256,7 +256,7 @@ def bubble():
 <p>分析排序時看兩種操作。第一是<strong>比較</strong>：判斷兩個值哪個比較小，總比較次數是最常用的衡量方式。第二是<strong>交換</strong>：兩個值的順序不對時要交換位置，交換的成本高，總交換次數也會影響效率。</p>
 {figure('bubblepass')}
 <p>list 有 $n$ 個元素時，第一輪要比較 $n-1$ 對。第二輪開始時最大值已經就位，剩下 $n-1$ 個元素、$n-2$ 對要比。每一輪讓下一個最大值就位，所以總共要 $n-1$ 輪。</p>
-<h3>交換兩個值</h3>
+{more.bubble_invariant()}<h3>交換兩個值</h3>
 <p>C++ 可以用一個暫存變數明確地交換兩個值：</p>
 {card('講義 07 · 用暫存變數交換', SWAP_FRAG)}
 <p>沒有暫存變數，第一個指定就會蓋掉其中一個值。標準函式庫的 <code>swap()</code> 做同樣的事：<code>swap(aList[j], aList[j + 1]);</code>。</p>
@@ -308,7 +308,7 @@ def insertion():
 {program("講義完整程式：insertionSort（含標頭裡的函式）", "講義 07 · 呼叫 insertionSort", 'insertion',
          headers=['insertionSort'], header_label='pythonds3/cppds/sorting.hpp · insertionSort',
          out_label='預期輸出（每次插入前一行，最後一行是排序結果）',
-         note="每一行左邊排好的部分多一個元素。兩個 5 與兩個 9 的先後順序沒有改變：比較用的是嚴格的 <code>&gt;</code>，相等的元素不會被移到彼此前面。")}
+         note="每一行左邊排好的部分多一個元素。兩個 5 與兩個 9 的先後順序沒有改變：比較用的是嚴格的 <code>&gt;</code>，相等的元素不會被移到彼此前面，所以插入排序是<a href=\"#stable\">穩定</a>的。")}
 <p>一次移動的工作量大約只有一次交換的三分之一，因為移動只做一次指定。在實測中，插入排序的表現相當好。</p>
 {more.insertion_count()}'''
     return fill('insertion', {'insertion-intro': intro, 'insertion-end': end})
@@ -327,8 +327,8 @@ def shell():
          headers=['gapInsertionSort', 'shellSort'], header_label='pythonds3/cppds/sorting.hpp · gapInsertionSort 與 shellSort',
          out_label='預期輸出（每個增量做完後一行，最後一行是 printl 的結果）',
          note="一開始有 $\\frac{n}{2}$ 個子清單（9 個數時增量為 4），下一輪 $\\frac{n}{4}$ 個（增量 2），最後增量 1，用一般的插入排序排好整個 list。")}
-<p>希爾排序的一般分析超出本課範圍，大致介於 $O(n)$ 與 $O(n^2)$ 之間。改用 $2^k-1$（1、3、7、15、31……）當增量，希爾排序可以達到 $O(n^{{\\frac{{3}}{{2}}}})$。</p>
-{more.shell_bounds()}'''
+{more.shell_cond()}<p>希爾排序的一般分析超出本課範圍，大致介於 $O(n)$ 與 $O(n^2)$ 之間。改用 $2^k-1$（1、3、7、15、31……）當增量，希爾排序可以達到 $O(n^{{\\frac{{3}}{{2}}}})$。</p>
+{more.shell_bounds()}{more.hibbard_note()}'''
     return fill('shell', {'shell-intro': intro, 'shell-end': end})
 
 
@@ -343,11 +343,11 @@ def merge():
          headers=['mergeSort'], header_label='pythonds3/cppds/sorting.hpp · mergeSort',
          out_label='預期輸出（Splitting 是進入呼叫時，Merging 是合併完成時）',
          note="Splitting 一路把 vector 切到只剩一個元素，Merging 再把排好的兩半合併回去。最後一行 Merging 就是排序結果。")}
-<p>對左右兩半呼叫 <code>mergeSort()</code> 之後，就假設它們已經排好；函式剩下的部分負責把兩個較小的已排序 list 合併成一個。合併時反覆挑出兩邊前端較小的那個，一次一個寫回原本的 <code>aList</code>。比較用的是 <code>leftHalf[i] &lt;= rightHalf[j]</code>，相等時先拿左邊的，所以相等元素的相對順序不變，這個實作是<strong>穩定</strong>的。</p>
+{more.merge_slice()}<p>對左右兩半呼叫 <code>mergeSort()</code> 之後，就假設它們已經排好；函式剩下的部分負責把兩個較小的已排序 list 合併成一個。合併時反覆挑出兩邊前端較小的那個，一次一個寫回原本的 <code>aList</code>。比較用的是 <code>leftHalf[i] &lt;= rightHalf[j]</code>，相等時先拿左邊的，所以相等元素的相對順序不變，這個實作是<strong>穩定</strong>的（見<a href="#stable">穩定排序</a>）。</p>
 <h3>分析</h3>
 <p>mergeSort 有兩個部分。遞迴把 vector 切成兩半，共 $\\log n$ 層。合併時每個元素最後都要處理一次、放進排好的 list，所以<strong>每一層</strong>的合併需要 $n$ 次操作。$\\log n$ 層、每層 $n$，總共 $n\\log n$ 次操作：合併排序是 $O(n\\log n)$ 的演算法。</p>
 <p>暫存的左右兩半最多需要 $O(n)$ 的額外元素空間，遞迴堆疊再加上 $O(\\log n)$。資料量很大時，這個記憶體成本可能是問題。</p>
-{more.merge_bound()}{quiz('merge')}
+{more.merge_bound()}{more.non_comparison()}{quiz('merge')}
 '''
     return fill('merge', {'merge-intro': intro, 'merge-end': end})
 
@@ -372,7 +372,7 @@ def quick():
          note="第一行是以 54 分割的結果，和上面的圖相同：54 在索引 5，左邊都比它小，右邊都比它大。之後每一行再多一個 pivot 就位；長度不到 2 的範圍不做 partition，也不印。")}
 <h3>分析與 median of three</h3>
 <p>找分割點時，每個元素大約要和 pivot 比一次，比較次數和區段長度成正比。分割點都落在中間附近時，會切 $\\log n$ 層，結果是 $O(n\\log n)$；而且 partition 不像合併排序需要額外的陣列。</p>
-<p>可惜最差的情況下，分割點可能非常偏左或偏右，切得很不平均：每次都分成 0 個與 $n-1$ 個元素，接著 $n-1$ 個又分成 0 個與 $n-2$ 個……結果是 $O(n^2)$，還要加上遞迴本身的額外成本。</p>
+{more.quick_count()}<p>可惜最差的情況下，分割點可能非常偏左或偏右，切得很不平均：每次都分成 0 個與 $n-1$ 個元素，接著 $n-1$ 個又分成 0 個與 $n-2$ 個……結果是 $O(n^2)$，還要加上遞迴本身的額外成本。</p>
 {more.quick_analysis()}<p>選 pivot 的一種改進方法是 <strong>median of three</strong>：看 list 的第一個、中間與最後一個元素，取三者的中位數當 pivot。上面的例子中三個值是 54、77、20，中位數是 54。當第一個元素不屬於 list 的中段時，這樣能選到比較接近中間的值，對原本就部分排好的 list 特別有用。</p>
 {quiz('quick')}
 <h3 id="ex-quick-desc">練習 3：讓 quickSort 支援遞減排序</h3>
@@ -383,7 +383,7 @@ def quick():
 <h3>實務上：std::sort</h3>
 <p>本章的排序函式都收在 <code>pythonds3/cppds/sorting.hpp</code>。實際寫程式時，優先用標準函式庫的 <code>std::sort</code>。C++ 標準要求它對一般的隨機存取範圍最差做 $O(n\\log n)$ 次比較，但不規定實作策略；常見的標準函式庫用類似 introsort 的混合做法。</p>
 {program("講義完整程式：std::sort", "講義 07 · std::sort", 'std_sort')}
-'''
+{more.std_sort_note()}'''
     return fill('quick', {'quick-intro': intro, 'quick-end': end})
 
 
@@ -396,7 +396,7 @@ def depends():
 
 
 def reference():
-    lead = '<p>把本章的搜尋與排序演算法放在同一張表比較：時間、空間、是否穩定、是否就地排序，以及什麼情況該選哪一個。</p>\n'
+    lead = more.stable_section() + '<p>下面把本章的搜尋與排序演算法放在同一張表比較：時間、空間、是否穩定、是否就地排序，以及什麼情況該選哪一個。</p>\n'
     return lead + fold('九個演算法的比較表與選擇指南', LEGACY['reference'].strip('\n'))
 
 
@@ -425,8 +425,6 @@ def recap():
          '<p>重新雜湊時每次跳 skip 格，只會走過 $m / \\gcd(skip, m)$ 個 slot。skip 和表的大小有公因數時，探查只在部分 slot 之間打轉；表的大小是質數時，1 到 $m - 1$ 的任何 skip 都和它互質，一定走得遍。質數不是必要條件（$m = 10$、skip = 3 也走得遍），線性探查的 skip 是 1，也不需要質數。對餘數法本身來說，取質數只是經驗法則：兩個 key 碰撞的條件是 $m$ 整除兩者的差，質數只是降低 key 的規律剛好和 $m$ 有公因數的機會。</p>'),
         ('快速排序最差是 $O(n^2)$，為什麼實務上還常用？',
          '<p>pivot 選得不差時，quicksort 平均是 $O(n\\log n)$，不需要合併排序那樣的 $O(n)$ 暫存空間，存取也集中在同一個 vector 上。median of three 等選 pivot 的方法能降低碰到最差情況的機會；<code>std::sort</code> 常見的實作還會在遞迴太深時改用其他方法，保證最差 $O(n\\log n)$。</p>'),
-        ('哪些排序是穩定的？',
-         '<p>本章的實作中，氣泡排序、插入排序與合併排序是穩定的：相等的元素不會被交換或移到彼此前面。選擇排序、希爾排序與快速排序會把元素跨過一段距離交換，相等元素的順序可能改變。</p>'),
     ]
     faq = ''.join(details(q if q in IN_NOTES else f'{q}（補充）', a, cls='srch-detail srch-faq') for q, a in qa)
     return f'''<ul class="srch-ul srch-recap">
@@ -439,6 +437,7 @@ def recap():
 <li>氣泡、選擇、插入排序都是 $O(n^2)$ 次比較。選擇排序每輪最多交換一次；插入排序用移動取代交換，對幾乎排好的資料很快；short bubble 在某一輪沒有交換時提早結束。</li>
 <li>希爾排序先用較大的 gap 對子清單做插入排序，最後 gap 為 1，大致介於 $O(n)$ 與 $O(n^2)$ 之間。</li>
 <li>合併排序切半再合併，$O(n\\log n)$、穩定，但需要 $O(n)$ 額外空間；快速排序用 pivot 做 partition，平均 $O(n\\log n)$、不需額外陣列，最差 $O(n^2)$，可用 median of three 改善。實務上用 <code>std::sort</code>。</li>
+<li>穩定的排序讓相等元素保持原來的先後，多鍵排序要靠它。本章的氣泡、插入、合併排序穩定；選擇、希爾、快速排序會遠距離交換，不穩定。</li>
 </ul>
 <h3>常見疑問</h3>
 {faq}'''
@@ -481,4 +480,6 @@ STYLE = """<style id="search-depth-style">
 .pc-seq,.pc-stat{margin:.3rem 0;font-family:'JetBrains Mono',monospace;font-size:.86rem;overflow-wrap:anywhere;}
 """ + QUIZ_CSS + """
 .viz-layout,.viz-layout>div{min-width:0;}
+.stable-table th:nth-child(-n+2),.stable-table td:nth-child(-n+2){white-space:nowrap;}
+.stable-table td:nth-child(3){text-align:left;}
 </style>"""

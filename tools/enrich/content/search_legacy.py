@@ -824,7 +824,8 @@ LEGACY['depends'] = r'''  <p>同樣的演算法換一種資料結構，效能可
 
   <div class="info-box green">
     <span class="info-label">為何「Merge Sort 反而<em>更</em>適合 Linked List」？</span>
-    Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，合併這一步的額外空間只有 $O(1)$（幾個指標變數而已）；遞迴版的 merge sort 另外還有 $O(\log n)$ 的遞迴堆疊。<br><br>
+    Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，合併這一步的額外空間只有 $O(1)$（幾個指標變數而已）；遞迴版的 merge sort 另外還有 $O(\log n)$ 的遞迴堆疊；改成由下往上（bottom-up）的迴圈版，先兩兩合併長度 1 的片段、再合併長度 2、4……，連堆疊也省掉，整體額外空間是 $O(1)$。C++ 的 <code>std::list</code> 成員函式 <code>sort()</code> 就是靠重接節點完成排序，不複製節點裡的資料。<br><br>
+    不過省空間不等於比較快：兩種版本都是 $O(n\log n)$，而陣列的元素在記憶體裡連續，快取（cache）的表現通常比到處跳的串列節點好。<br><br>
     所以 merge sort 在 linked list 上反而<strong>更省記憶體</strong>，寫起來也更乾淨。資料本來就是 linked list 形式時（functional 語言、stream pipeline、某些 OS 內部資料結構），merge sort 是首選的排序法。<br><br>
     <strong>實務小知識：</strong>Java 的 <code>java.util.LinkedList.sort()</code> 內部就是先轉成 Array 再用 mergesort，因為 cache 表現更好；但概念上 linked list mergesort 是經典範例。
   </div>
@@ -923,7 +924,7 @@ LEGACY['reference'] = r'''
   <h3>關鍵概念複習</h3>
   <div class="info-box">
     <span class="info-label">穩定 stable</span>
-    當兩個元素「比較相等」時，若排序後它們的<strong>相對順序不變</strong>，演算法就是穩定的。在多鍵排序（先按姓名再按部門）時很重要。
+    排序後，比較相等的元素<strong>相對順序不變</strong>。定義、多鍵排序的例子與本章各排序的判斷，見上面的<a href="#stable">穩定排序</a>。
   </div>
   <div class="info-box">
     <span class="info-label">就地 in-place</span>

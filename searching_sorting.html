@@ -456,6 +456,8 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .quiz-feedback.wrong{background:#fef5e7;color:var(--accent);border-left:4px solid var(--accent);}
 .quiz-box .quiz-code{margin:.6rem 0;padding:.6rem .8rem;background:var(--paper);border:1px solid var(--card-border);border-radius:6px;font-size:.82rem;overflow-x:auto;white-space:pre;}
 .viz-layout,.viz-layout>div{min-width:0;}
+.stable-table th:nth-child(-n+2),.stable-table td:nth-child(-n+2){white-space:nowrap;}
+.stable-table td:nth-child(3){text-align:left;}
 </style>
 <style id="search-figures-style">
 .srch-figure{margin:1rem 0 1.4rem;max-width:100%;}
@@ -1653,6 +1655,24 @@ bird goat pig chicken dog lion tiger - - cow cat </pre></div><p class="dx-note">
 duck
 bird goat pig duck dog lion tiger - - cow cat&#32;
 []</pre></div><p class="dx-note">get(20) 沿著探查鏈在 slot 3 找到 chicken；put(20, "duck") 找到同一個 key，只改 data，slots 不變。get(99) 找不到，回傳空字串，所以印出 []。</p>
+<p>標頭版的 <code>hashFunction</code> 寫成 <code>(key % size + size) % size</code>，多的一步是為了負數的 key。C++ 的 <code>%</code> 結果和被除數同號，<code>-3 % 11</code> 是 <code>-3</code>，不能當索引。第一次取餘數得到 $-(size-1)$ 到 $size-1$，加上 <code>size</code> 變成正數，第二次取餘數再拉回 0 到 $size - 1$。key 不是負數時，結果和 <code>key % size</code> 相同。</p><details class="srch-detail"><summary>程式：比較 key % size 與 (key % size + size) % size</summary><div class="srch-detail-body"><div class="deck-extra">
+  <div class="dx-label">負數 key 的雜湊值</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="15: key % size = 4, (key % size + size) % size = 4&#10;22: key % size = 0, (key % size + size) % size = 0&#10;-3: key % size = -3, (key % size + size) % size = 8&#10;-15: key % size = -4, (key % size + size) % size = 7&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="5">    <span class="kw">int</span> size = <span class="num">11</span>;</span>
+<span class="line" data-l="6">    <span class="kw">int</span> keys[] = {<span class="num">15</span>, <span class="num">22</span>, <span class="num">-3</span>, <span class="num">-15</span>};</span>
+<span class="line" data-l="7">    <span class="kw">for</span> (<span class="kw">int</span> key : keys) {</span>
+<span class="line" data-l="8">        cout &lt;&lt; key &lt;&lt; <span class="str">"</span><span class="str">: key % size = </span><span class="str">"</span> &lt;&lt; key % size</span>
+<span class="line" data-l="9">             &lt;&lt; <span class="str">"</span><span class="str">, (key % size + size) % size = </span><span class="str">"</span> &lt;&lt; (key % size + size) % size &lt;&lt; endl;</span>
+<span class="line" data-l="10">    }</span>
+<span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="12">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>15: key % size = 4, (key % size + size) % size = 4
+22: key % size = 0, (key % size + size) % size = 0
+-3: key % size = -3, (key % size + size) % size = 8
+-15: key % size = -4, (key % size + size) % size = 7</pre></div><p class="dx-note">只取一次餘數，負數 key 會得到負數；第二種寫法都落在 0 到 10。</p><details class="srch-detail"><summary>為什麼不寫成 (key + size) % size（補充）</summary><div class="srch-detail-body"><p>key 小於 <code>-size</code> 時，<code>(key + size) % size</code> 仍是負數（$-15 + 11 = -4$）；key 很大時 <code>key + size</code> 還可能超過 <code>int</code> 的範圍。先取一次餘數，絕對值就小於 <code>size</code>，再加 <code>size</code> 也不會溢位。</p></div></details>
 
 
   <h3 style="margin-top:1.5rem;">分析：負載因子 $\lambda$ 與比較次數</h3>
@@ -1695,6 +1715,7 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 <p>分析排序時看兩種操作。第一是<strong>比較</strong>：判斷兩個值哪個比較小，總比較次數是最常用的衡量方式。第二是<strong>交換</strong>：兩個值的順序不對時要交換位置，交換的成本高，總交換次數也會影響效率。</p>
 <figure class="srch-figure" id="srch-figure-bubblepass"><div class="srch-figure-scroll" tabindex="0" role="region" aria-label="九列陣列，每列有兩格陰影表示正在比較的一對，右邊標示 Exchange 或 No Exchange；最後一列 93 在最右邊，標示 93 in place after first pass。"><img src="assets/figures/ch7/bubblepass.png" alt="九列陣列，每列有兩格陰影表示正在比較的一對，右邊標示 Exchange 或 No Exchange；最後一列 93 在最右邊，標示 93 in place after first pass。" width="420" height="386" style="--figure-width:420px" loading="lazy"></div><figcaption>氣泡排序的第一輪：每次比較相鄰的兩個數（陰影），左邊比較大就交換。54 和 93 這一對順序正確，不交換。93 一路被換到最右邊，這一輪共比較 8 次。</figcaption></figure>
 <p>list 有 $n$ 個元素時，第一輪要比較 $n-1$ 對。第二輪開始時最大值已經就位，剩下 $n-1$ 個元素、$n-2$ 對要比。每一輪讓下一個最大值就位，所以總共要 $n-1$ 輪。</p>
+<details class="srch-detail"><summary>為什麼第一輪之後最大值一定在最右邊（補充）</summary><div class="srch-detail-body"><p>把第一輪拆成 $n - 1$ 次比較，用 $a_0, a_1, \ldots$ 表示這一輪開始前的值。第 1 次比較索引 0 與 1，較大的留在索引 1，所以剛比完時 <code>a[1]</code> $= \max(a_0, a_1)$。</p><p>第 2 次比較索引 1 與 2。這時 <code>a[1]</code> 是前兩個的最大值，<code>a[2]</code> 還是原本的 $a_2$，因為前面的比較都沒碰到索引 2。比完後較大的留在索引 2：</p><p><code>a[2]</code> $= \max\big(\max(a_0, a_1),\ a_2\big)$<br>$\phantom{=}\ \ = \max(a_0, a_1, a_2)$</p><p>最後一步是 $\max$ 的結合律：先取兩個的最大值、再和第三個比，等於直接取三個的最大值。同樣的理由一路推下去：第 $j$ 次比較剛結束時，<code>a[j]</code> $= \max(a_0, \ldots, a_j)$。第 $n - 1$ 次比完，<code>a[n-1]</code> 就是全部的最大值，之後的各輪不會再碰這一格。</p><p>這裡的 <code>a[j]</code> 指「第 $j$ 次比較剛結束時」的值。下一次比較可能把它換走：[5, 3, 2] 第 1 次比完是 [3, 5, 2]，<code>a[1]</code> 是 5；第 2 次比完是 [3, 2, 5]，<code>a[1]</code> 變成 2，最大值 5 繼續往右。第二輪對前 $n - 1$ 個做同樣的事，所以第二大的值落在倒數第二格。</p></div></details>
 <h3>交換兩個值</h3>
 <p>C++ 可以用一個暫存變數明確地交換兩個值：</p>
 <div class="deck-extra">
@@ -2043,9 +2064,9 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 2 5 5 9 7 9 1&#32;
 2 5 5 7 9 9 1&#32;
 2 5 5 7 9 9 1&#32;
-1 2 5 5 7 9 9 </pre></div><p class="dx-note">每一行左邊排好的部分多一個元素。兩個 5 與兩個 9 的先後順序沒有改變：比較用的是嚴格的 <code>&gt;</code>，相等的元素不會被移到彼此前面。</p>
+1 2 5 5 7 9 9 </pre></div><p class="dx-note">每一行左邊排好的部分多一個元素。兩個 5 與兩個 9 的先後順序沒有改變：比較用的是嚴格的 <code>&gt;</code>，相等的元素不會被移到彼此前面，所以插入排序是<a href="#stable">穩定</a>的。</p>
 <p>一次移動的工作量大約只有一次交換的三分之一，因為移動只做一次指定。在實測中，插入排序的表現相當好。</p>
-<details class="srch-detail"><summary>最佳、最差與平均比較次數（補充）</summary><div class="srch-detail-body"><p>處理位置 $i$ 的元素時（$i = 1, \ldots, n-1$），它最多往回比 $i$ 次。</p><p><strong>最佳</strong>：資料已排序，每個元素只和左邊一個比一次就停，共 $n - 1$ 次，$O(n)$。</p><p><strong>最差</strong>：資料完全反序，每個元素都要一路比到開頭，共 $1 + 2 + \cdots + (n-1) = \frac{n(n-1)}{2}$ 次，$O(n^2)$。</p><p><strong>平均</strong>：假設元素互不相同，而且每一種排列出現的機率相同。一對位置 $p &lt; q$ 如果 <code>a[p] &gt; a[q]</code>，稱為一個<strong>逆序對</strong>。插入排序每做一次移動，剛好消掉一個逆序對（較大的元素和被插入的元素換了先後），所以總移動次數就是逆序對的個數。任一對位置是逆序的機率是 $\frac{1}{2}$，共有 $\frac{n(n-1)}{2}$ 對，平均就有 $\frac{n(n-1)}{4}$ 個逆序對。比較次數等於移動次數，再加上每一輪最後一次「不用移」的比較（最多 $n - 1$ 次），所以平均約 $\frac{n^2}{4}$ 次，仍然是 $O(n^2)$，大約是最差情況的一半。有重複元素時就不能直接套這個平均，例如全部相等時只要 $n - 1$ 次。</p></div></details>
+<details class="srch-detail"><summary>最佳、最差與平均比較次數（補充）</summary><div class="srch-detail-body"><p>處理位置 $i$ 的元素時（$i = 1, \ldots, n-1$），它最多往回比 $i$ 次。</p><p><strong>最佳</strong>：資料已排序，每個元素只和左邊一個比一次就停，共 $n - 1$ 次，$O(n)$。</p><p><strong>最差</strong>：資料完全反序，每個元素都要一路比到開頭，共 $1 + 2 + \cdots + (n-1) = \frac{n(n-1)}{2}$ 次，$O(n^2)$。</p><p><strong>平均</strong>：假設元素互不相同，而且每一種排列出現的機率相同。一對位置 $p &lt; q$ 如果 <code>a[p] &gt; a[q]</code>，稱為一個<strong>逆序對</strong>。插入排序每做一次移動，剛好消掉一個逆序對（較大的元素和被插入的元素換了先後），所以總移動次數就是逆序對的個數。任一對位置是逆序的機率是 $\frac{1}{2}$，共有 $\frac{n(n-1)}{2}$ 對，平均就有 $\frac{n(n-1)}{4}$ 個逆序對。比較次數和移動次數不完全相同：每一輪最後通常還有一次「不用移」的比較才知道該停，除非 <code>curVal</code> 一路移到開頭（<code>curPos &gt; 0</code> 不成立，不再比較）。</p><p>精確地算：處理位置 $i$ 時，前面 $i$ 個元素中比 <code>curVal</code> 大的個數 $L$ 是 0 到 $i$ 的每個值機率各 $\frac{1}{i+1}$。$L &lt; i$ 時比 $L + 1$ 次，$L = i$ 時比 $i$ 次，平均</p><p>$$\frac{1}{i+1}\Big(\sum_{L=0}^{i-1}(L+1) + i\Big) = \frac{i}{2} + \frac{i}{i+1}$$</p><p>對 $i = 1, \ldots, n-1$ 加總，$\sum \frac{i}{i+1} = \sum \big(1 - \frac{1}{i+1}\big) = n - H_n$，其中 $H_n = 1 + \frac{1}{2} + \cdots + \frac{1}{n}$，所以平均比較次數是</p><p>$$\frac{n(n-1)}{4} + n - H_n$$</p><p>例如 $n = 4$ 是 $3 + 4 - \frac{25}{12} = \frac{59}{12} \approx 4.9$ 次。主項是 $\frac{n^2}{4}$，仍然是 $O(n^2)$，大約是最差情況的一半。有重複元素時就不能直接套這個平均，例如全部相等時只要 $n - 1$ 次。</p></div></details>
 <!-- /gen:search-insertion -->
 </section>
 
@@ -2165,8 +2186,36 @@ bird goat pig duck dog lion tiger - - cow cat&#32;
 After increments of size 2 the list is 20 17 44 26 54 31 77 55 93&#32;
 After increments of size 1 the list is 17 20 26 31 44 54 55 77 93&#32;
 17 20 26 31 44 54 55 77 93 </pre></div><p class="dx-note">一開始有 $\frac{n}{2}$ 個子清單（9 個數時增量為 4），下一輪 $\frac{n}{4}$ 個（增量 2），最後增量 1，用一般的插入排序排好整個 list。</p>
+<p><code>gapInsertionSort</code> 的條件 <code>curPos &gt;= gap</code> 就是 <code>curPos - gap &gt;= 0</code>：迴圈要讀 <code>aList[curPos - gap]</code>，索引不能小於 0，作用和插入排序的 <code>curPos &gt; 0</code> 一樣。<code>curPos</code> 只會是 <code>start</code>、<code>start + gap</code>……，而 <code>start</code> 都小於 <code>gap</code>，所以退到 <code>start</code> 就停，不會跑出自己的子清單。</p><p>最後一定要用增量 1：前面的增量只保證相隔 gap 的元素排好。[2, 1, 4, 3, 6, 5, 8, 7] 相隔 2 的元素都排好了，整個 list 卻還沒排好。</p>
 <p>希爾排序的一般分析超出本課範圍，大致介於 $O(n)$ 與 $O(n^2)$ 之間。改用 $2^k-1$（1、3、7、15、31……）當增量，希爾排序可以達到 $O(n^{\frac{3}{2}})$。</p>
 <details class="srch-detail"><summary>最佳情況、最差情況與增量的影響（補充）</summary><div class="srch-detail-body"><p><strong>最佳：$O(n\log n)$</strong>。資料已排序時，增量 $g$ 那一輪的每個元素只和前一個同組元素比一次，共 $n - g$ 次。取 $n = 2^p$，增量 $n/2, n/4, \ldots, 1$ 共 $p = \log_2 n$ 輪，總共 $p\,n - (n/2 + n/4 + \cdots + 1) = n\log_2 n - (n - 1)$ 次。</p><p><strong>本章的折半增量，最差是 $\Theta(n^2)$</strong>。上界：增量 $g$ 的那一輪有 $g$ 個子清單，每個長約 $n/g$，各做一次插入排序最多 $\frac{1}{2}(n/g)^2$ 次，這一輪最多 $\frac{n^2}{2g}$ 次。各輪的 $\frac{1}{g}$ 加起來是 $1 + \frac{1}{2} + \frac{1}{4} + \cdots + \frac{2}{n} &lt; 2$，所以總共不超過 $n^2$ 次，$O(n^2)$。</p><p>下界：取 $n = 2^p$，除了最後的 1，增量都是偶數。增量是偶數時，同一個子清單裡的位置奇偶相同，所以奇數位置的元素和偶數位置的元素在最後一輪之前從來沒有比過。如果一開始把最小的 $n/2$ 個數放在奇數位置、最大的 $n/2$ 個數放在偶數位置，前面幾輪都不會把兩群混在一起；最後一輪的插入排序，第 $j$ 小的數得越過排在它前面、比它大的 $j$ 個數。總移動次數是 $1 + 2 + \cdots + \frac{n}{2} \approx \frac{n^2}{8}$，也是 $n^2$ 的量級。實際排 1024 個數，移動 131328 次，正好是 $\frac{512 \times 513}{2}$。這也說明正文「最後一輪時資料通常已經接近排好」只是常見的情形，不是保證。</p><p><strong>增量 $2^k - 1$ 的 $O(n^{3/2})$</strong>（Papernov 與 Stasevich，1965）。推導要用兩個事實：</p><ul class="srch-ul"><li>先做過 $k$ 排序（相隔 $k$ 的元素都排好）再做 $h$ 排序，結果仍然是 $k$ 排序的。這是已知的定理，這裡不證明。</li><li>若 $a$、$b$ 互質，任何不小於 $(a-1)(b-1)$ 的整數都能寫成 $xa + yb$（$x, y \ge 0$）。所以一個同時是 $a$ 排序與 $b$ 排序的陣列裡，相隔至少 $(a-1)(b-1)$ 的兩個元素一定已經排好順序：從前一個沿著若干步 $a$、若干步 $b$ 走到後一個，每一步都不會變小。</li></ul><p>增量 $2^k - 1$ 中相鄰的兩個互質，而且 $h_{k+1} \approx 2h_k$、$h_{k+2} \approx 4h_k$。做增量 $h_k$ 那一輪時，陣列已經是 $h_{k+1}$ 與 $h_{k+2}$ 排序的，所以每個元素在自己的子清單裡最多往回移動約 $\frac{h_{k+1}h_{k+2}}{h_k} \approx 8h_k$ 步，這一輪是 $O(n h_k)$。增量大於 $\sqrt{n}$ 的各輪改用上面的 $\frac{n^2}{2g}$；兩部分各是一個等比級數，最大項都是 $n\sqrt{n}$ 的量級，所以總共 $O(n^{3/2})$。細節見 Knuth《The Art of Computer Programming》第 3 卷 5.2.1 節。</p></div></details>
+<details class="srch-detail"><summary>增量 2^k − 1 的想法，以及從哪個增量開始（補充）</summary><div class="srch-detail-body"><p>先看折半增量的問題。$n = 16$ 時增量是 8、4、2、1，前三個都是偶數，同一個子清單裡的位置奇偶相同，奇數位置與偶數位置的元素要到最後一輪才第一次比較（上一個收合區的最差情況就是利用這一點）。增量有公因數時，後一輪處理的分組大致是前一輪分組的重複。</p><p>$2^k - 1$ 的增量是 1、3、7、15、31……，相鄰兩個滿足 $h_{k+1} = 2h_k + 1$，所以一定互質：</p><p>$$\gcd(h_k,\ 2h_k + 1) = \gcd(h_k,\ 1) = 1$$</p><p>增量仍然每次大約減半，前面幾輪一樣能讓元素跨大步移動；而互質的增量讓下一輪的子清單跨過上一輪的分組，不會一直在同樣的位置之間排序。互質本身不保證效率，$O(n^{3/2})$ 要靠上一個收合區的推導。</p><p><strong>從哪個增量開始</strong>：取小於 $n$ 的最大 $2^k - 1$，也就是 $k = \lfloor \log_2 n \rfloor$，因為 $2^k - 1 &lt; n$ 等價於 $2^k \le n$。程式不必算對數，從 1 開始反覆做 <code>gap = 2 * gap + 1</code>，直到下一個不再小於 $n$；往下走時用 <code>gap = (gap - 1) / 2</code>。</p><div class="deck-extra">
+  <div class="dx-label">程式：列出 2^k − 1 增量</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="n = 9: 7 3 1&#10;n = 16: 15 7 3 1&#10;n = 20: 15 7 3 1&#10;n = 100: 63 31 15 7 3 1&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="3"> </span>
+<span class="line" data-l="4"><span class="com">// Print the Hibbard gaps 2^k - 1 used for a list of n items, largest first.</span></span>
+<span class="line" data-l="5"><span class="kw">void</span> <span class="fn">printGaps</span>(<span class="kw">int</span> n) {</span>
+<span class="line" data-l="6">    <span class="kw">int</span> gap = <span class="num">1</span>;</span>
+<span class="line" data-l="7">    <span class="kw">while</span> (<span class="num">2</span> * gap + <span class="num">1</span> &lt; n) gap = <span class="num">2</span> * gap + <span class="num">1</span>;   <span class="com">// the largest 2^k - 1 that is smaller than n</span></span>
+<span class="line" data-l="8">    cout &lt;&lt; <span class="str">"</span><span class="str">n = </span><span class="str">"</span> &lt;&lt; n &lt;&lt; <span class="str">"</span><span class="str">:</span><span class="str">"</span>;</span>
+<span class="line" data-l="9">    <span class="kw">while</span> (gap &gt; <span class="num">0</span>) {</span>
+<span class="line" data-l="10">        cout &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; gap;</span>
+<span class="line" data-l="11">        gap = (gap - <span class="num">1</span>) / <span class="num">2</span>;                     <span class="com">// 15 -&gt; 7 -&gt; 3 -&gt; 1 -&gt; 0</span></span>
+<span class="line" data-l="12">    }</span>
+<span class="line" data-l="13">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="17">    <span class="kw">int</span> sizes[] = {<span class="num">9</span>, <span class="num">16</span>, <span class="num">20</span>, <span class="num">100</span>};</span>
+<span class="line" data-l="18">    <span class="kw">for</span> (<span class="kw">int</span> n : sizes) printGaps(n);</span>
+<span class="line" data-l="19">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="20">}</span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出（由大到小的增量）</span><pre>n = 9: 7 3 1
+n = 16: 15 7 3 1
+n = 20: 15 7 3 1
+n = 100: 63 31 15 7 3 1</pre></div>
+</div><p>每一輪仍是對 <code>start</code> 從 0 到 <code>gap - 1</code> 呼叫 <code>gapInsertionSort</code>，只是增量序列換了。上面動畫的寫法是取「不超過 $n$」的最大 $2^k - 1$，只有 $n$ 本身就是 $2^k - 1$ 時多一輪增量等於 $n$；那一輪每個子清單只有一個元素，什麼都不做，結果相同。</p></div></details>
 <!-- /gen:search-shell -->
 </section>
 
@@ -2292,11 +2341,13 @@ Splitting 17&#32;
 Merging 17&#32;
 Merging 17 93&#32;
 Merging 17 26 54 93 </pre></div><p class="dx-note">Splitting 一路把 vector 切到只剩一個元素，Merging 再把排好的兩半合併回去。最後一行 Merging 就是排序結果。</p>
-<p>對左右兩半呼叫 <code>mergeSort()</code> 之後，就假設它們已經排好；函式剩下的部分負責把兩個較小的已排序 list 合併成一個。合併時反覆挑出兩邊前端較小的那個，一次一個寫回原本的 <code>aList</code>。比較用的是 <code>leftHalf[i] &lt;= rightHalf[j]</code>，相等時先拿左邊的，所以相等元素的相對順序不變，這個實作是<strong>穩定</strong>的。</p>
+<p>切半時不需要 <code>mid + 1</code>：用兩個迭代器建立 vector，範圍是左閉右開的 $[first, last)$，不含 <code>last</code> 指的元素。所以 <code>leftHalf</code> 是索引 0 到 <code>mid - 1</code>，<code>rightHalf</code> 從 <code>mid</code> 開始，剛好接上；寫成 <code>mid + 1</code> 會漏掉索引 <code>mid</code>。5 個元素時 <code>mid = 2</code>，左半 2 個、右半 3 個。</p>
+<p>對左右兩半呼叫 <code>mergeSort()</code> 之後，就假設它們已經排好；函式剩下的部分負責把兩個較小的已排序 list 合併成一個。合併時反覆挑出兩邊前端較小的那個，一次一個寫回原本的 <code>aList</code>。比較用的是 <code>leftHalf[i] &lt;= rightHalf[j]</code>，相等時先拿左邊的，所以相等元素的相對順序不變，這個實作是<strong>穩定</strong>的（見<a href="#stable">穩定排序</a>）。</p>
 <h3>分析</h3>
 <p>mergeSort 有兩個部分。遞迴把 vector 切成兩半，共 $\log n$ 層。合併時每個元素最後都要處理一次、放進排好的 list，所以<strong>每一層</strong>的合併需要 $n$ 次操作。$\log n$ 層、每層 $n$，總共 $n\log n$ 次操作：合併排序是 $O(n\log n)$ 的演算法。</p>
 <p>暫存的左右兩半最多需要 $O(n)$ 的額外元素空間，遞迴堆疊再加上 $O(\log n)$。資料量很大時，這個記憶體成本可能是問題。</p>
 <details class="srch-detail"><summary>遞迴式、額外空間與比較式排序的下界（補充）</summary><div class="srch-detail-body"><p><strong>寫回次數</strong>：每一層的合併把該層所有元素各寫回一次。設排 $n$ 個元素要寫回 $W(n)$ 次，則 $W(n) = 2W(n/2) + n$，$W(1) = 0$。取 $n = 2^p$ 一直展開：</p><p>$$W(n) = 2W\!\left(\tfrac{n}{2}\right) + n = 4W\!\left(\tfrac{n}{4}\right) + 2n = \cdots = 2^p\,W(1) + p\,n = n\log_2 n$$</p><p><strong>比較次數</strong>：合併兩個合計 $k$ 個元素的已排序 list，每比一次就寫回一個元素，最後一個元素不必再比，所以最多 $k - 1$ 次。最差的比較次數 $C(n)$ 滿足 $C(n) = 2C(n/2) + n - 1$，同樣展開得 $C(n) = n\log_2 n - n + 1$，也是 $O(n\log n)$。本章動畫排 [1, 2, 3, 4] 時只比了 4 次，因為一邊先用完時就不必再比，最佳情況比這個少。</p><p><strong>額外空間為什麼是 $O(n)$，不是 $O(n\log n)$</strong>：暫存的左右兩半在該層合併完就釋放。同一時間還存在的，只有目前這條遞迴路徑上各層的暫存，大小約 $n, \frac{n}{2}, \frac{n}{4}, \ldots$，加起來小於 $2n$。</p><p><strong>為什麼 $n\log n$ 已經是極限</strong>：只靠比較的排序，可以畫成一棵決策樹，每個節點是一次「$a$ 和 $b$ 誰大」的比較，有兩個分支。$n$ 個不同的數有 $n!$ 種排列，每一種都要走到不同的葉子，演算法才知道該怎麼排，所以葉子至少有 $n!$ 片。比較 $h$ 次的樹最多 $2^h$ 片葉子，因此最差情況的比較次數 $h$ 滿足</p><p>$$2^h \ge n! \quad\Longrightarrow\quad h \ge \log_2 (n!) \ge \log_2 \left(\tfrac{n}{2}\right)^{n/2} = \tfrac{n}{2}\log_2 \tfrac{n}{2}$$</p><p>中間用到 $n!$ 裡至少有 $\frac{n}{2}$ 個因數不小於 $\frac{n}{2}$。右邊是 $\Omega(n\log n)$：任何比較式排序在最差情況下都至少要這麼多次比較，合併排序已經達到這個量級。</p></div></details>
+<details class="srch-detail"><summary>不靠比較的排序：計數排序、基數排序與桶子排序（補充）</summary><div class="srch-detail-body"><p>排序法常依是否「只靠兩兩比較」分成兩類。本章六個都是<strong>比較式排序</strong>（comparison-based sorting）：唯一的資訊來源是「$a$ 和 $b$ 誰大」，所以受上一個收合區推導的 $\Omega(n\log n)$ 下界限制。<strong>非比較式排序</strong>（non-comparison sorting）利用 key 本身的形式，例如「是不大的整數」或「可以一位一位拆開」，直接算出元素該去哪裡，不受這個下界限制。它們的快是用資料的額外假設換來的。</p><div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table"><thead><tr><th>方法</th><th>假設</th><th>時間</th></tr></thead><tbody><tr><td>計數排序（counting sort）</td><td>key 是 0 到 $k - 1$ 的整數，$k$ 不能太大</td><td>$O(n + k)$</td></tr><tr><td>基數排序（radix sort）</td><td>key 可以拆成 $d$ 位，每一位有 $b$ 種可能</td><td>$O(d(n + b))$</td></tr><tr><td>桶子排序（bucket sort）</td><td>key 大致均勻分布在一個已知範圍</td><td>平均 $O(n)$，最差可能 $O(n^2)$</td></tr></tbody></table></div><p><strong>計數排序</strong>：開一個長度 $k$ 的計數陣列，掃一次資料做 <code>count[key]++</code>，再依索引由小到大輸出。例如 [3, 1, 2, 1, 3] 計數後 1 出現 2 次、2 出現 1 次、3 出現 2 次，輸出 [1, 1, 2, 3, 3]，過程中沒有比較兩個元素。掃資料 $O(n)$，掃計數陣列 $O(k)$，所以是 $O(n + k)$；$k$ 和 $n$ 同量級時就是線性時間。反過來，100 個數、範圍卻是 0 到 $10^9$，計數陣列就大得不划算。</p><p>這和雜湊很像：都用 key 直接算出陣列的索引。差別是計數排序的對應方式保留大小順序（索引就是 key 本身），不同的 key 不會共用一格；雜湊函數如 $key \bmod m$ 會打亂順序，也會碰撞，所以從頭到尾掃一遍雜湊表得不到排好的結果。計數排序用的其實是<strong>直接定址表</strong>（direct-address table），可以看成沒有碰撞、也不打亂順序的雜湊表。</p><p><strong>基數排序</strong>：從個位數開始，每一位做一次<strong>穩定</strong>的計數排序。[170, 45, 75, 90, 802, 24, 2, 66] 依個位排成 [170, 90, 802, 2, 24, 45, 75, 66]，依十位排成 [802, 2, 24, 45, 66, 170, 75, 90]，依百位排成 [2, 24, 45, 66, 75, 90, 170, 802]。每一位都要穩定，十位相同的 170 與 75 才會維持個位排出的先後。$d$ 輪、每輪 $O(n + b)$；位數固定時是 $O(n)$。</p><p><strong>桶子排序</strong>：把範圍切成 $n$ 個區間（桶），元素依值放進對應的桶，每個桶各自排序，再依序串起來。資料均勻時每桶平均只有常數個元素，期望時間 $O(n)$；資料全部擠在同一個桶時，桶內用插入排序就是 $O(n^2)$。桶內排序通常仍要比較；桶子排序歸在非比較式，是因為它主要靠值的範圍分桶。</p><p>一般用途的 <code>std::sort</code> 仍然是比較式排序：只要給得出「誰比較小」，任何型別都能排，不必對資料做額外假設。</p></div></details>
 <div class="quiz-box" id="quiz-merge">
   <div class="quiz-label">QUIZ</div>
   <p>串列 [21, 1, 26, 45, 29, 28, 2, 9, 16, 49, 39, 27, 43, 34, 46, 40] 執行 mergesort。第 3 次遞迴呼叫時要排序的串列是下列哪一個？</p>
@@ -2446,6 +2497,7 @@ Merging 17 26 54 93 </pre></div><p class="dx-note">Splitting 一路把 vector �
 17 20 26 31 44 54 55 77 93 </pre></div><p class="dx-note">第一行是以 54 分割的結果，和上面的圖相同：54 在索引 5，左邊都比它小，右邊都比它大。之後每一行再多一個 pivot 就位；長度不到 2 的範圍不做 partition，也不印。</p>
 <h3>分析與 median of three</h3>
 <p>找分割點時，每個元素大約要和 pivot 比一次，比較次數和區段長度成正比。分割點都落在中間附近時，會切 $\log n$ 層，結果是 $O(n\log n)$；而且 partition 不像合併排序需要額外的陣列。</p>
+<p>這裡的 $O(n\log n)$ 數的是比較；每次交換前兩個標記都比過，交換不會比比較多，所以執行時間也是這個量級。</p>
 <p>可惜最差的情況下，分割點可能非常偏左或偏右，切得很不平均：每次都分成 0 個與 $n-1$ 個元素，接著 $n-1$ 個又分成 0 個與 $n-2$ 個……結果是 $O(n^2)$，還要加上遞迴本身的額外成本。</p>
 <details class="srch-detail"><summary>最差與平均比較次數的推導（補充）</summary><div class="srch-detail-body"><p><strong>最差</strong>：每次分割都分成 0 個與 $n - 1$ 個時，各層分割大約要比 $n - 1, n - 2, \ldots, 1$ 次，總和 $\frac{n(n-1)}{2}$，$O(n^2)$。本章用第一個元素當 pivot，資料原本就排好或完全反序時就是這種情況；所有元素都相等時也是，因為 <code>leftMark</code> 會一路往右走到底。</p><p><strong>平均</strong>：用一個理想模型來算。假設元素互不相同、每種排列機率相同，所以 pivot 最後落在每個位置的機率都是 $\frac{1}{n}$；再假設一次分割剛好比 $n - 1$ 次（每個其他元素和 pivot 比一次）。設 $C(n)$ 是平均比較次數，pivot 落在位置 $k$ 時左右兩段長 $k$ 與 $n - 1 - k$：</p><p>$$C(n) = (n - 1) + \frac{1}{n}\sum_{k=0}^{n-1}\big(C(k) + C(n-1-k)\big) = (n - 1) + \frac{2}{n}\sum_{k=0}^{n-1} C(k)$$</p><p>兩邊乘以 $n$，再減去把 $n$ 換成 $n - 1$ 的同一條式子，總和就消掉了：</p><p>$$nC(n) - (n-1)C(n-1) = 2(n-1) + 2C(n-1) \quad\Longrightarrow\quad \frac{C(n)}{n+1} = \frac{C(n-1)}{n} + \frac{2(n-1)}{n(n+1)}$$</p><p>右邊最後一項約是 $\frac{2}{n}$，一路累加回 $C(1) = 0$，得到 $\frac{C(n)}{n+1} \approx 2\left(\frac{1}{2} + \frac{1}{3} + \cdots + \frac{1}{n}\right) \approx 2\ln n$，所以 $C(n) \approx 2n\ln n$，平均是 $O(n\log n)$。</p><p>本章的 <code>partition</code> 會把交換前後的元素再比一次，實際比較次數比 $n - 1$ 多一些（例如排 6 個數平均約 15 次，理想模型是 10.3 次）；但每次分割的比較次數仍然和段長成正比，所以量級一樣是 $O(n\log n)$。</p></div></details>
 <p>選 pivot 的一種改進方法是 <strong>median of three</strong>：看 list 的第一個、中間與最後一個元素，取三者的中位數當 pivot。上面的例子中三個值是 54、77、20，中位數是 54。當第一個元素不屬於 list 的中段時，這樣能選到比較接近中間的值，對原本就部分排好的 list 特別有用。</p>
@@ -2544,6 +2596,7 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
 <span class="line" data-l="11">    <span class="kw">return</span> <span class="num">0</span>;</span>
 <span class="line" data-l="12">}</span></div>
 </div></div></details><div class="expected-out"><span class="eo-tag">預期輸出</span><pre>17 20 26 31 44 54 55 77 93 </pre></div>
+<details class="srch-detail"><summary>introsort 是什麼（補充）</summary><div class="srch-detail-body"><p>introsort（introspective sort）是混合的排序法：主體是快速排序；遞迴深度超過大約 $2\log_2 n$ 時，表示 pivot 一直選得不好，就改用堆積排序（heap sort，第 9 章的堆積可以做到最差 $O(n\log n)$）處理那一段；剩下很短的區段則交給插入排序，因為元素很少時插入排序的額外成本最低。這樣保留了快速排序平常的速度，也避開 $O(n^2)$ 的最差情況。</p><p>標準只規定結果與比較次數，沒有規定一定要用 introsort，不同的標準函式庫可以有不同做法。<code>std::sort</code> 需要隨機存取迭代器（random access iterator），可以排 <code>vector</code> 與陣列；<code>std::list</code> 不能用它，要用成員函式 <code>list.sort()</code>。<code>std::sort</code> 也不保證穩定，見<a href="#stable">穩定排序</a>。</p></div></details>
 <!-- /gen:search-quick -->
 </section>
 
@@ -2690,7 +2743,8 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
 
   <div class="info-box green">
     <span class="info-label">為何「Merge Sort 反而<em>更</em>適合 Linked List」？</span>
-    Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，合併這一步的額外空間只有 $O(1)$（幾個指標變數而已）；遞迴版的 merge sort 另外還有 $O(\log n)$ 的遞迴堆疊。<br><br>
+    Array 版的 merge sort 需要 $O(n)$ 額外空間存 L、R 子陣列。但<strong>Linked List 版的 merge 只需重接指標</strong>：把較小的 node 從左/右串列上「摘下」，接到結果串列尾端，<strong>完全不需要複製資料</strong>，合併這一步的額外空間只有 $O(1)$（幾個指標變數而已）；遞迴版的 merge sort 另外還有 $O(\log n)$ 的遞迴堆疊；改成由下往上（bottom-up）的迴圈版，先兩兩合併長度 1 的片段、再合併長度 2、4……，連堆疊也省掉，整體額外空間是 $O(1)$。C++ 的 <code>std::list</code> 成員函式 <code>sort()</code> 就是靠重接節點完成排序，不複製節點裡的資料。<br><br>
+    不過省空間不等於比較快：兩種版本都是 $O(n\log n)$，而陣列的元素在記憶體裡連續，快取（cache）的表現通常比到處跳的串列節點好。<br><br>
     所以 merge sort 在 linked list 上反而<strong>更省記憶體</strong>，寫起來也更乾淨。資料本來就是 linked list 形式時（functional 語言、stream pipeline、某些 OS 內部資料結構），merge sort 是首選的排序法。<br><br>
     <strong>實務小知識：</strong>Java 的 <code>java.util.LinkedList.sort()</code> 內部就是先轉成 Array 再用 mergesort，因為 cache 表現更好；但概念上 linked list mergesort 是經典範例。
   </div>
@@ -2756,7 +2810,187 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
   <div class="section-number">REFERENCE · 比較總覽</div>
   <h2>九個演算法一次比較 <span class="sec-badge">總覽</span></h2>
 <!-- gen:search-reference -->
-<p>把本章的搜尋與排序演算法放在同一張表比較：時間、空間、是否穩定、是否就地排序，以及什麼情況該選哪一個。</p>
+<h3 id="stable">穩定排序：相等的元素保持原來的先後</h3>
+<p>排序時常會遇到 key 相等的元素。排序後，相等元素的相對順序和排序前一樣，這個排序就是<strong>穩定</strong>的（stable）；可能改變的，就是不穩定的。只排整數時看不出差別；排的是紀錄、只依某個欄位比較時，差別就出來了。</p>
+<p>例如一份成績單已經依姓名排好：Amy 80、Ben 90、Cara 80、Dan 90。現在依分數由低到高排。穩定的排序一定得到 Amy 80、Cara 80、Ben 90、Dan 90，同分的人仍照姓名；不穩定的排序可能得到 Cara 80、Amy 80、Dan 90、Ben 90。
+這就是多鍵排序（multi-key sorting）的常見做法：要「依分數、同分再依姓名」，先依姓名排，再用穩定的排序依分數排；先排次要的 key，最後排主要的 key。</p>
+<p>本章六個實作穩不穩定，從程式就看得出來：</p>
+<div class="table-scroll" tabindex="0" aria-label="表格，可左右捲動"><table class="cmp-table stable-table"><thead><tr><th>本章的實作</th><th>穩定嗎</th><th>關鍵在哪一行</th></tr></thead><tbody><tr><td>氣泡排序</td><td>穩定</td><td>只在 <code>aList[j] &gt; aList[j + 1]</code> 時交換，相等的相鄰元素不交換；元素每次只和隔壁交換，不會跳過別的元素。</td></tr><tr><td>選擇排序</td><td>不穩定</td><td>把最大值和未排序區最後一格交換。這一換是遠距離的：最大值跳過中間和它相等的元素，原本在最後一格的元素也被丟到前面。</td></tr><tr><td>插入排序</td><td>穩定</td><td>while 條件是 <code>aList[curPos - 1] &gt; curVal</code>，碰到相等的元素就停，<code>curVal</code> 留在它後面。</td></tr><tr><td>希爾排序</td><td>不穩定</td><td>各子清單分開排序，相隔 gap 的移動會越過另一個子清單裡相等的元素。</td></tr><tr><td>合併排序</td><td>穩定</td><td>合併時比 <code>leftHalf[i] &lt;= rightHalf[j]</code>，相等時先拿左半，而左半的元素原本就在前面。</td></tr><tr><td>快速排序</td><td>不穩定</td><td>partition 裡 <code>leftMark</code> 與 <code>rightMark</code> 的交換、最後把 pivot 換到分割點，都是遠距離交換。</td></tr></tbody></table></div>
+<p>下面讓六個函式排一組帶標籤的資料：數字是 key，字母記住原本的先後，輸入裡 1a 在 1b 前、2a 在 2b 前。比較只看數字，其餘和課程標頭相同。</p>
+<details class="srch-detail"><summary>程式：用帶標籤的資料測六個排序</summary><div class="srch-detail-body"><div class="deck-extra">
+  <div class="dx-label">六個排序的穩定性</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="input:     1a 2a 2b 1b&#10;bubble:    1a 1b 2a 2b&#10;selection: 1b 1a 2b 2a&#10;insertion: 1a 1b 2a 2b&#10;shell:     1a 1b 2b 2a&#10;merge:     1a 1b 2a 2b&#10;quick:     1a 1b 2b 2a&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="5"> </span>
+<span class="line" data-l="6"><span class="com">// Each item has a key (what we sort by) and a tag that remembers the original order:</span></span>
+<span class="line" data-l="7"><span class="com">// 2a came before 2b in the input.</span></span>
+<span class="line" data-l="8"><span class="kw">struct</span> Item {</span>
+<span class="line" data-l="9">    <span class="kw">int</span> key;</span>
+<span class="line" data-l="10">    <span class="kw">char</span> tag;</span>
+<span class="line" data-l="11">};</span>
+<span class="line" data-l="12"> </span>
+<span class="line" data-l="13"><span class="kw">void</span> <span class="fn">show</span>(string name, vector&lt;Item&gt; a) {</span>
+<span class="line" data-l="14">    cout &lt;&lt; name;</span>
+<span class="line" data-l="15">    <span class="kw">for</span> (Item x : a) cout &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; x.key &lt;&lt; x.tag;</span>
+<span class="line" data-l="16">    cout &lt;&lt; endl;</span>
+<span class="line" data-l="17">}</span>
+<span class="line" data-l="18"> </span>
+<span class="line" data-l="19"><span class="com">// The six sorts below are the chapter's functions with every comparison done on .key.</span></span>
+<span class="line" data-l="20"><span class="kw">void</span> <span class="fn">bubbleSort</span>(vector&lt;Item&gt;&amp; a) {</span>
+<span class="line" data-l="21">    <span class="kw">for</span> (<span class="kw">int</span> i = a.size() - <span class="num">1</span>; i &gt; <span class="num">0</span>; i--)</span>
+<span class="line" data-l="22">        <span class="kw">for</span> (<span class="kw">int</span> j = <span class="num">0</span>; j &lt; i; j++)</span>
+<span class="line" data-l="23">            <span class="kw">if</span> (a[j].key &gt; a[j + <span class="num">1</span>].key) swap(a[j], a[j + <span class="num">1</span>]);</span>
+<span class="line" data-l="24">}</span>
+<span class="line" data-l="25"> </span>
+<span class="line" data-l="26"><span class="kw">void</span> <span class="fn">selectionSort</span>(vector&lt;Item&gt;&amp; a) {</span>
+<span class="line" data-l="27">    <span class="kw">for</span> (<span class="kw">int</span> fillSlot = a.size() - <span class="num">1</span>; fillSlot &gt; <span class="num">0</span>; fillSlot--) {</span>
+<span class="line" data-l="28">        <span class="kw">int</span> positionOfMax = <span class="num">0</span>;</span>
+<span class="line" data-l="29">        <span class="kw">for</span> (<span class="kw">int</span> location = <span class="num">1</span>; location &lt;= fillSlot; location++)</span>
+<span class="line" data-l="30">            <span class="kw">if</span> (a[location].key &gt; a[positionOfMax].key) positionOfMax = location;</span>
+<span class="line" data-l="31">        <span class="kw">if</span> (positionOfMax != fillSlot) swap(a[positionOfMax], a[fillSlot]);</span>
+<span class="line" data-l="32">    }</span>
+<span class="line" data-l="33">}</span>
+<span class="line" data-l="34"> </span>
+<span class="line" data-l="35"><span class="kw">void</span> <span class="fn">insertionSort</span>(vector&lt;Item&gt;&amp; a) {</span>
+<span class="line" data-l="36">    <span class="kw">for</span> (<span class="kw">unsigned</span> i = <span class="num">1</span>; i &lt; a.size(); i++) {</span>
+<span class="line" data-l="37">        Item curVal = a[i];</span>
+<span class="line" data-l="38">        <span class="kw">int</span> curPos = i;</span>
+<span class="line" data-l="39">        <span class="kw">while</span> (curPos &gt; <span class="num">0</span> &amp;&amp; a[curPos - <span class="num">1</span>].key &gt; curVal.key) {</span>
+<span class="line" data-l="40">            a[curPos] = a[curPos - <span class="num">1</span>];</span>
+<span class="line" data-l="41">            curPos = curPos - <span class="num">1</span>;</span>
+<span class="line" data-l="42">        }</span>
+<span class="line" data-l="43">        a[curPos] = curVal;</span>
+<span class="line" data-l="44">    }</span>
+<span class="line" data-l="45">}</span>
+<span class="line" data-l="46"> </span>
+<span class="line" data-l="47"><span class="kw">void</span> <span class="fn">gapInsertionSort</span>(vector&lt;Item&gt;&amp; a, <span class="kw">int</span> start, <span class="kw">int</span> gap) {</span>
+<span class="line" data-l="48">    <span class="kw">for</span> (<span class="kw">unsigned</span> i = start + gap; i &lt; a.size(); i += gap) {</span>
+<span class="line" data-l="49">        Item curVal = a[i];</span>
+<span class="line" data-l="50">        <span class="kw">int</span> curPos = i;</span>
+<span class="line" data-l="51">        <span class="kw">while</span> (curPos &gt;= gap &amp;&amp; a[curPos - gap].key &gt; curVal.key) {</span>
+<span class="line" data-l="52">            a[curPos] = a[curPos - gap];</span>
+<span class="line" data-l="53">            curPos = curPos - gap;</span>
+<span class="line" data-l="54">        }</span>
+<span class="line" data-l="55">        a[curPos] = curVal;</span>
+<span class="line" data-l="56">    }</span>
+<span class="line" data-l="57">}</span>
+<span class="line" data-l="58"> </span>
+<span class="line" data-l="59"><span class="kw">void</span> <span class="fn">shellSort</span>(vector&lt;Item&gt;&amp; a) {</span>
+<span class="line" data-l="60">    <span class="kw">for</span> (<span class="kw">int</span> gap = a.size() / <span class="num">2</span>; gap &gt; <span class="num">0</span>; gap = gap / <span class="num">2</span>)</span>
+<span class="line" data-l="61">        <span class="kw">for</span> (<span class="kw">int</span> start = <span class="num">0</span>; start &lt; gap; start++) gapInsertionSort(a, start, gap);</span>
+<span class="line" data-l="62">}</span>
+<span class="line" data-l="63"> </span>
+<span class="line" data-l="64"><span class="kw">void</span> <span class="fn">mergeSort</span>(vector&lt;Item&gt;&amp; a) {</span>
+<span class="line" data-l="65">    <span class="kw">if</span> (a.size() &gt; <span class="num">1</span>) {</span>
+<span class="line" data-l="66">        <span class="kw">int</span> mid = a.size() / <span class="num">2</span>;</span>
+<span class="line" data-l="67">        vector&lt;Item&gt; leftHalf(a.begin(), a.begin() + mid);</span>
+<span class="line" data-l="68">        vector&lt;Item&gt; rightHalf(a.begin() + mid, a.end());</span>
+<span class="line" data-l="69">        mergeSort(leftHalf);</span>
+<span class="line" data-l="70">        mergeSort(rightHalf);</span>
+<span class="line" data-l="71">        <span class="kw">unsigned</span> i = <span class="num">0</span>, j = <span class="num">0</span>, k = <span class="num">0</span>;</span>
+<span class="line" data-l="72">        <span class="kw">while</span> (i &lt; leftHalf.size() &amp;&amp; j &lt; rightHalf.size()) {</span>
+<span class="line" data-l="73">            <span class="kw">if</span> (leftHalf[i].key &lt;= rightHalf[j].key) { a[k] = leftHalf[i]; i++; }</span>
+<span class="line" data-l="74">            <span class="kw">else</span> { a[k] = rightHalf[j]; j++; }</span>
+<span class="line" data-l="75">            k++;</span>
+<span class="line" data-l="76">        }</span>
+<span class="line" data-l="77">        <span class="kw">while</span> (i &lt; leftHalf.size()) { a[k] = leftHalf[i]; i++; k++; }</span>
+<span class="line" data-l="78">        <span class="kw">while</span> (j &lt; rightHalf.size()) { a[k] = rightHalf[j]; j++; k++; }</span>
+<span class="line" data-l="79">    }</span>
+<span class="line" data-l="80">}</span>
+<span class="line" data-l="81"> </span>
+<span class="line" data-l="82"><span class="kw">int</span> <span class="fn">partition</span>(vector&lt;Item&gt;&amp; a, <span class="kw">int</span> first, <span class="kw">int</span> last) {</span>
+<span class="line" data-l="83">    <span class="kw">int</span> pivotVal = a[first].key;</span>
+<span class="line" data-l="84">    <span class="kw">int</span> leftMark = first + <span class="num">1</span>;</span>
+<span class="line" data-l="85">    <span class="kw">int</span> rightMark = last;</span>
+<span class="line" data-l="86">    <span class="kw">bool</span> done = <span class="fn">false</span>;</span>
+<span class="line" data-l="87">    <span class="kw">while</span> (!done) {</span>
+<span class="line" data-l="88">        <span class="kw">while</span> (leftMark &lt;= rightMark &amp;&amp; a[leftMark].key &lt;= pivotVal) leftMark++;</span>
+<span class="line" data-l="89">        <span class="kw">while</span> (leftMark &lt;= rightMark &amp;&amp; a[rightMark].key &gt;= pivotVal) rightMark--;</span>
+<span class="line" data-l="90">        <span class="kw">if</span> (rightMark &lt; leftMark) done = <span class="fn">true</span>;</span>
+<span class="line" data-l="91">        <span class="kw">else</span> swap(a[leftMark], a[rightMark]);</span>
+<span class="line" data-l="92">    }</span>
+<span class="line" data-l="93">    swap(a[first], a[rightMark]);</span>
+<span class="line" data-l="94">    <span class="kw">return</span> rightMark;</span>
+<span class="line" data-l="95">}</span>
+<span class="line" data-l="96"> </span>
+<span class="line" data-l="97"><span class="kw">void</span> <span class="fn">quickSortHelper</span>(vector&lt;Item&gt;&amp; a, <span class="kw">int</span> first, <span class="kw">int</span> last) {</span>
+<span class="line" data-l="98">    <span class="kw">if</span> (first &lt; last) {</span>
+<span class="line" data-l="99">        <span class="kw">int</span> split = partition(a, first, last);</span>
+<span class="line" data-l="100">        quickSortHelper(a, first, split - <span class="num">1</span>);</span>
+<span class="line" data-l="101">        quickSortHelper(a, split + <span class="num">1</span>, last);</span>
+<span class="line" data-l="102">    }</span>
+<span class="line" data-l="103">}</span>
+<span class="line" data-l="104"> </span>
+<span class="line" data-l="105"><span class="kw">void</span> <span class="fn">quickSort</span>(vector&lt;Item&gt;&amp; a) {</span>
+<span class="line" data-l="106">    quickSortHelper(a, <span class="num">0</span>, a.size() - <span class="num">1</span>);</span>
+<span class="line" data-l="107">}</span>
+<span class="line" data-l="108"> </span>
+<span class="line" data-l="109"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="110">    vector&lt;Item&gt; input = {{<span class="num">1</span>, <span class="str">'</span><span class="str">a</span><span class="str">'</span>}, {<span class="num">2</span>, <span class="str">'</span><span class="str">a</span><span class="str">'</span>}, {<span class="num">2</span>, <span class="str">'</span><span class="str">b</span><span class="str">'</span>}, {<span class="num">1</span>, <span class="str">'</span><span class="str">b</span><span class="str">'</span>}};</span>
+<span class="line" data-l="111">    show(<span class="str">"</span><span class="str">input:    </span><span class="str">"</span>, input);</span>
+<span class="line" data-l="112">    vector&lt;Item&gt; a;</span>
+<span class="line" data-l="113">    a = input; bubbleSort(a);    show(<span class="str">"</span><span class="str">bubble:   </span><span class="str">"</span>, a);</span>
+<span class="line" data-l="114">    a = input; selectionSort(a); show(<span class="str">"</span><span class="str">selection:</span><span class="str">"</span>, a);</span>
+<span class="line" data-l="115">    a = input; insertionSort(a); show(<span class="str">"</span><span class="str">insertion:</span><span class="str">"</span>, a);</span>
+<span class="line" data-l="116">    a = input; shellSort(a);     show(<span class="str">"</span><span class="str">shell:    </span><span class="str">"</span>, a);</span>
+<span class="line" data-l="117">    a = input; mergeSort(a);     show(<span class="str">"</span><span class="str">merge:    </span><span class="str">"</span>, a);</span>
+<span class="line" data-l="118">    a = input; quickSort(a);     show(<span class="str">"</span><span class="str">quick:    </span><span class="str">"</span>, a);</span>
+<span class="line" data-l="119">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="120">}</span></div>
+</div></div></details><div class="expected-out"><span class="eo-tag">預期輸出（字母相同的數字，先後有沒有變）</span><pre>input:     1a 2a 2b 1b
+bubble:    1a 1b 2a 2b
+selection: 1b 1a 2b 2a
+insertion: 1a 1b 2a 2b
+shell:     1a 1b 2b 2a
+merge:     1a 1b 2a 2b
+quick:     1a 1b 2b 2a</pre></div>
+<p>三個穩定的排序都得到 1a 1b 2a 2b。另外三個各有相等的一對被調換：</p>
+<ul class="srch-ul"><li><strong>選擇排序</strong>：第一輪的最大值是索引 1 的 2a（2b 不大於 2a，<code>positionOfMax</code> 停在 1），它和最後一格的 1b 交換，得到 1a 1b 2b 2a，2a 跳到 2b 後面。最後一輪比 1a 與 1b，兩者相等，最大值取索引 0 的 1a，又和索引 1 交換，1a 也跑到 1b 後面。</li><li><strong>希爾排序</strong>：4 個元素時增量是 2、1。增量 2 時，2a 和 1b 在同一個子清單（索引 1、3），交換後 2a 到了索引 3，越過另一個子清單裡的 2b。最後增量 1 的插入排序是穩定的，不會把順序改回來。</li><li><strong>快速排序</strong>：以 1a 分割時沒有移動元素；接著以 2a 為 pivot 分割 2a 2b 1b，<code>leftMark</code> 走過 2b 與 1b，<code>rightMark</code> 停在 1b，最後 pivot 2a 和 1b 交換，2a 跑到 2b 後面。</li></ul>
+<p>穩定與否看的是程式，不只是演算法的名字。把合併排序的 <code>&lt;=</code> 改成 <code>&lt;</code>，相等時就先拿右半；把插入排序的 <code>&gt;</code> 改成 <code>&gt;=</code>，<code>curVal</code> 會越過相等的元素；把氣泡排序的 <code>&gt;</code> 改成 <code>&gt;=</code>，相等的相鄰元素也會交換。三種改法仍排成遞增，但上面那組輸入都會變成 1b 1a 2b 2a。</p>
+<div class="quiz-box" id="quiz-stable">
+  <div class="quiz-label">QUIZ · 選擇排序與穩定性</div>
+  <p>用本章的 selectionSort（每輪把最大值換到未排序區的最後一格）排帶標籤的 {3a, 1, 3b}，比較只看數字。排完的結果是哪一個？</p>
+  <div class="quiz-options" id="qStableOptions">
+    <div class="quiz-opt" data-correct="true" data-fb="第一輪最大值停在索引 0 的 3a（3b 不大於 3a），和最後一格的 3b 交換，得到 3b 1 3a；第二輪 3b 和 1 交換，得到 1 3b 3a。兩個 3 的先後反了，所以選擇排序不穩定。" onclick="quizCheck('qStable', this)"><span class="opt-letter">(A)</span> <span class="opt-text">1 3b 3a</span></div>
+    <div class="quiz-opt" data-correct="false" data-fb="穩定的排序會得到這個結果，但第一輪的遠距離交換把 3a 換到了最後一格。" onclick="quizCheck('qStable', this)"><span class="opt-letter">(B)</span> <span class="opt-text">1 3a 3b</span></div>
+    <div class="quiz-opt" data-correct="false" data-fb="這只是第一輪之後的狀態；第二輪還要把 3b 和 1 交換。" onclick="quizCheck('qStable', this)"><span class="opt-letter">(C)</span> <span class="opt-text">3b 1 3a</span></div>
+    <div class="quiz-opt" data-correct="false" data-fb="selectionSort 排的是遞增順序，1 應該在最前面。" onclick="quizCheck('qStable', this)"><span class="opt-letter">(D)</span> <span class="opt-text">3a 3b 1</span></div>
+  </div>
+  <div class="quiz-feedback" id="qStableFeedback"></div>
+</div>
+<details class="srch-detail"><summary>std::sort 不保證穩定：std::stable_sort（補充）</summary><div class="srch-detail-body"><p><code>std::sort</code> 只保證排好，不保證相等元素的先後；常見的實作以快速排序為主，所以不穩定。需要穩定時改用 <code>&lt;algorithm&gt;</code> 的 <code>std::stable_sort</code>，用法和 <code>std::sort</code> 一樣，常見的實作是合併排序：有足夠的暫存空間時最差 $O(n\log n)$ 次比較，空間不夠時是 $O(n\log^2 n)$。<code>std::list</code> 的成員函式 <code>sort()</code> 也是穩定的。</p><div class="deck-extra">
+  <div class="dx-label">程式：用 std::stable_sort 依分數排成績單</div>
+  <div class="pseudo-code" style="font-size:.8rem;" data-cpp="run" data-expected="Amy 80&#10;Cara 80&#10;Ben 90&#10;Dan 90&#10;"><span class="line" data-l="1"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;iostream&gt;</span></span>
+<span class="line" data-l="2"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;vector&gt;</span></span>
+<span class="line" data-l="3"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;string&gt;</span></span>
+<span class="line" data-l="4"><span class="kw">#</span><span class="kw">include</span> <span class="kw">&lt;algorithm&gt;</span></span>
+<span class="line" data-l="5"><span class="kw">using</span> <span class="kw">namespace</span> std;</span>
+<span class="line" data-l="6"> </span>
+<span class="line" data-l="7"><span class="kw">struct</span> Student {</span>
+<span class="line" data-l="8">    string name;</span>
+<span class="line" data-l="9">    <span class="kw">int</span> score;</span>
+<span class="line" data-l="10">};</span>
+<span class="line" data-l="11"> </span>
+<span class="line" data-l="12"><span class="kw">bool</span> <span class="fn">byScore</span>(<span class="kw">const</span> Student&amp; x, <span class="kw">const</span> Student&amp; y) {</span>
+<span class="line" data-l="13">    <span class="kw">return</span> x.score &lt; y.score;   <span class="com">// compare scores only</span></span>
+<span class="line" data-l="14">}</span>
+<span class="line" data-l="15"> </span>
+<span class="line" data-l="16"><span class="kw">int</span> <span class="fn">main</span>() {</span>
+<span class="line" data-l="17">    <span class="com">// already in alphabetical order</span></span>
+<span class="line" data-l="18">    vector&lt;Student&gt; roll = {{<span class="str">"</span><span class="str">Amy</span><span class="str">"</span>, <span class="num">80</span>}, {<span class="str">"</span><span class="str">Ben</span><span class="str">"</span>, <span class="num">90</span>}, {<span class="str">"</span><span class="str">Cara</span><span class="str">"</span>, <span class="num">80</span>}, {<span class="str">"</span><span class="str">Dan</span><span class="str">"</span>, <span class="num">90</span>}};</span>
+<span class="line" data-l="19">    stable_sort(roll.begin(), roll.end(), byScore);</span>
+<span class="line" data-l="20">    <span class="kw">for</span> (<span class="kw">const</span> Student&amp; s : roll) cout &lt;&lt; s.name &lt;&lt; <span class="str">"</span><span class="str"> </span><span class="str">"</span> &lt;&lt; s.score &lt;&lt; endl;</span>
+<span class="line" data-l="21">    <span class="kw">return</span> <span class="num">0</span>;</span>
+<span class="line" data-l="22">}</span></div>
+  <div class="expected-out"><span class="eo-tag">預期輸出</span><pre>Amy 80
+Cara 80
+Ben 90
+Dan 90</pre></div>
+  <p class="dx-note">成績單原本依姓名排好。只比較分數，同分的 Amy 與 Cara、Ben 與 Dan 仍照姓名的順序。</p>
+</div><p>不穩定的排序也能排出穩定的結果：把每個元素原本的位置一起存起來，key 相等時再比原本的位置。代價是每個元素多存一個索引。</p></div></details>
+<p>下面把本章的搜尋與排序演算法放在同一張表比較：時間、空間、是否穩定、是否就地排序，以及什麼情況該選哪一個。</p>
 <details class="srch-detail"><summary>九個演算法的比較表與選擇指南（補充）</summary><div class="srch-detail-body">  <h3>搜尋演算法</h3>
   <div class="table-scroll" tabindex="0" aria-label="比較表，可左右捲動"><table class="cmp-table">
     <thead><tr><th>演算法</th><th>最佳</th><th>平均</th><th>最差</th><th>前置條件</th><th>空間</th></tr></thead>
@@ -2799,7 +3033,7 @@ Descending: 93 77 55 54 44 31 26 20 17 </pre></div><p class="dx-note">同一套 
   <h3>關鍵概念複習</h3>
   <div class="info-box">
     <span class="info-label">穩定 stable</span>
-    當兩個元素「比較相等」時，若排序後它們的<strong>相對順序不變</strong>，演算法就是穩定的。在多鍵排序（先按姓名再按部門）時很重要。
+    排序後，比較相等的元素<strong>相對順序不變</strong>。定義、多鍵排序的例子與本章各排序的判斷，見上面的<a href="#stable">穩定排序</a>。
   </div>
   <div class="info-box">
     <span class="info-label">就地 in-place</span>
@@ -3001,9 +3235,10 @@ step 4 (④ h.put(44, "lamb")):   ← 不是 collision，沿著 rehash 路徑找
 <li>氣泡、選擇、插入排序都是 $O(n^2)$ 次比較。選擇排序每輪最多交換一次；插入排序用移動取代交換，對幾乎排好的資料很快；short bubble 在某一輪沒有交換時提早結束。</li>
 <li>希爾排序先用較大的 gap 對子清單做插入排序，最後 gap 為 1，大致介於 $O(n)$ 與 $O(n^2)$ 之間。</li>
 <li>合併排序切半再合併，$O(n\log n)$、穩定，但需要 $O(n)$ 額外空間；快速排序用 pivot 做 partition，平均 $O(n\log n)$、不需額外陣列，最差 $O(n^2)$，可用 median of three 改善。實務上用 <code>std::sort</code>。</li>
+<li>穩定的排序讓相等元素保持原來的先後，多鍵排序要靠它。本章的氣泡、插入、合併排序穩定；選擇、希爾、快速排序會遠距離交換，不穩定。</li>
 </ul>
 <h3>常見疑問</h3>
-<details class="srch-detail srch-faq"><summary>二分搜尋一定比循序搜尋好嗎？</summary><div class="srch-detail-body"><p>不一定。二分搜尋要求資料已排序，而排序本身要 $O(n\log n)$。只搜尋一次時，直接循序搜尋 $O(n)$ 反而比較省；同一份資料要搜尋很多次，排序的成本才攤得掉。資料量很小時，兩者差距也不明顯。</p></div></details><details class="srch-detail srch-faq"><summary>get 回傳空字串，怎麼知道 key 到底在不在？</summary><div class="srch-detail-body"><p>在這個教學版的 <code>HashTable</code> 裡分不出來：key 不存在與 value 本來就是空字串，回傳值都是 <code>""</code>。完整的 Map ADT 會另外提供 <code>contains(key)</code>；<code>std::unordered_map</code> 則可以用 <code>find</code> 或 <code>count</code> 判斷。</p></div></details><details class="srch-detail srch-faq"><summary>為什麼表的大小常選質數？（補充）</summary><div class="srch-detail-body"><p>重新雜湊時每次跳 skip 格，只會走過 $m / \gcd(skip, m)$ 個 slot。skip 和表的大小有公因數時，探查只在部分 slot 之間打轉；表的大小是質數時，1 到 $m - 1$ 的任何 skip 都和它互質，一定走得遍。質數不是必要條件（$m = 10$、skip = 3 也走得遍），線性探查的 skip 是 1，也不需要質數。對餘數法本身來說，取質數只是經驗法則：兩個 key 碰撞的條件是 $m$ 整除兩者的差，質數只是降低 key 的規律剛好和 $m$ 有公因數的機會。</p></div></details><details class="srch-detail srch-faq"><summary>快速排序最差是 $O(n^2)$，為什麼實務上還常用？（補充）</summary><div class="srch-detail-body"><p>pivot 選得不差時，quicksort 平均是 $O(n\log n)$，不需要合併排序那樣的 $O(n)$ 暫存空間，存取也集中在同一個 vector 上。median of three 等選 pivot 的方法能降低碰到最差情況的機會；<code>std::sort</code> 常見的實作還會在遞迴太深時改用其他方法，保證最差 $O(n\log n)$。</p></div></details><details class="srch-detail srch-faq"><summary>哪些排序是穩定的？（補充）</summary><div class="srch-detail-body"><p>本章的實作中，氣泡排序、插入排序與合併排序是穩定的：相等的元素不會被交換或移到彼此前面。選擇排序、希爾排序與快速排序會把元素跨過一段距離交換，相等元素的順序可能改變。</p></div></details>
+<details class="srch-detail srch-faq"><summary>二分搜尋一定比循序搜尋好嗎？</summary><div class="srch-detail-body"><p>不一定。二分搜尋要求資料已排序，而排序本身要 $O(n\log n)$。只搜尋一次時，直接循序搜尋 $O(n)$ 反而比較省；同一份資料要搜尋很多次，排序的成本才攤得掉。資料量很小時，兩者差距也不明顯。</p></div></details><details class="srch-detail srch-faq"><summary>get 回傳空字串，怎麼知道 key 到底在不在？</summary><div class="srch-detail-body"><p>在這個教學版的 <code>HashTable</code> 裡分不出來：key 不存在與 value 本來就是空字串，回傳值都是 <code>""</code>。完整的 Map ADT 會另外提供 <code>contains(key)</code>；<code>std::unordered_map</code> 則可以用 <code>find</code> 或 <code>count</code> 判斷。</p></div></details><details class="srch-detail srch-faq"><summary>為什麼表的大小常選質數？（補充）</summary><div class="srch-detail-body"><p>重新雜湊時每次跳 skip 格，只會走過 $m / \gcd(skip, m)$ 個 slot。skip 和表的大小有公因數時，探查只在部分 slot 之間打轉；表的大小是質數時，1 到 $m - 1$ 的任何 skip 都和它互質，一定走得遍。質數不是必要條件（$m = 10$、skip = 3 也走得遍），線性探查的 skip 是 1，也不需要質數。對餘數法本身來說，取質數只是經驗法則：兩個 key 碰撞的條件是 $m$ 整除兩者的差，質數只是降低 key 的規律剛好和 $m$ 有公因數的機會。</p></div></details><details class="srch-detail srch-faq"><summary>快速排序最差是 $O(n^2)$，為什麼實務上還常用？（補充）</summary><div class="srch-detail-body"><p>pivot 選得不差時，quicksort 平均是 $O(n\log n)$，不需要合併排序那樣的 $O(n)$ 暫存空間，存取也集中在同一個 vector 上。median of three 等選 pivot 的方法能降低碰到最差情況的機會；<code>std::sort</code> 常見的實作還會在遞迴太深時改用其他方法，保證最差 $O(n\log n)$。</p></div></details>
 <!-- /gen:search-recap -->
 </section>
 

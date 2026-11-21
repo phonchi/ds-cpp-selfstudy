@@ -462,12 +462,192 @@ int main() {
 }'''
 
 
+STABLE_DEMO = '''#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Each item has a key (what we sort by) and a tag that remembers the original order:
+// 2a came before 2b in the input.
+struct Item {
+    int key;
+    char tag;
+};
+
+void show(string name, vector<Item> a) {
+    cout << name;
+    for (Item x : a) cout << " " << x.key << x.tag;
+    cout << endl;
+}
+
+// The six sorts below are the chapter's functions with every comparison done on .key.
+void bubbleSort(vector<Item>& a) {
+    for (int i = a.size() - 1; i > 0; i--)
+        for (int j = 0; j < i; j++)
+            if (a[j].key > a[j + 1].key) swap(a[j], a[j + 1]);
+}
+
+void selectionSort(vector<Item>& a) {
+    for (int fillSlot = a.size() - 1; fillSlot > 0; fillSlot--) {
+        int positionOfMax = 0;
+        for (int location = 1; location <= fillSlot; location++)
+            if (a[location].key > a[positionOfMax].key) positionOfMax = location;
+        if (positionOfMax != fillSlot) swap(a[positionOfMax], a[fillSlot]);
+    }
+}
+
+void insertionSort(vector<Item>& a) {
+    for (unsigned i = 1; i < a.size(); i++) {
+        Item curVal = a[i];
+        int curPos = i;
+        while (curPos > 0 && a[curPos - 1].key > curVal.key) {
+            a[curPos] = a[curPos - 1];
+            curPos = curPos - 1;
+        }
+        a[curPos] = curVal;
+    }
+}
+
+void gapInsertionSort(vector<Item>& a, int start, int gap) {
+    for (unsigned i = start + gap; i < a.size(); i += gap) {
+        Item curVal = a[i];
+        int curPos = i;
+        while (curPos >= gap && a[curPos - gap].key > curVal.key) {
+            a[curPos] = a[curPos - gap];
+            curPos = curPos - gap;
+        }
+        a[curPos] = curVal;
+    }
+}
+
+void shellSort(vector<Item>& a) {
+    for (int gap = a.size() / 2; gap > 0; gap = gap / 2)
+        for (int start = 0; start < gap; start++) gapInsertionSort(a, start, gap);
+}
+
+void mergeSort(vector<Item>& a) {
+    if (a.size() > 1) {
+        int mid = a.size() / 2;
+        vector<Item> leftHalf(a.begin(), a.begin() + mid);
+        vector<Item> rightHalf(a.begin() + mid, a.end());
+        mergeSort(leftHalf);
+        mergeSort(rightHalf);
+        unsigned i = 0, j = 0, k = 0;
+        while (i < leftHalf.size() && j < rightHalf.size()) {
+            if (leftHalf[i].key <= rightHalf[j].key) { a[k] = leftHalf[i]; i++; }
+            else { a[k] = rightHalf[j]; j++; }
+            k++;
+        }
+        while (i < leftHalf.size()) { a[k] = leftHalf[i]; i++; k++; }
+        while (j < rightHalf.size()) { a[k] = rightHalf[j]; j++; k++; }
+    }
+}
+
+int partition(vector<Item>& a, int first, int last) {
+    int pivotVal = a[first].key;
+    int leftMark = first + 1;
+    int rightMark = last;
+    bool done = false;
+    while (!done) {
+        while (leftMark <= rightMark && a[leftMark].key <= pivotVal) leftMark++;
+        while (leftMark <= rightMark && a[rightMark].key >= pivotVal) rightMark--;
+        if (rightMark < leftMark) done = true;
+        else swap(a[leftMark], a[rightMark]);
+    }
+    swap(a[first], a[rightMark]);
+    return rightMark;
+}
+
+void quickSortHelper(vector<Item>& a, int first, int last) {
+    if (first < last) {
+        int split = partition(a, first, last);
+        quickSortHelper(a, first, split - 1);
+        quickSortHelper(a, split + 1, last);
+    }
+}
+
+void quickSort(vector<Item>& a) {
+    quickSortHelper(a, 0, a.size() - 1);
+}
+
+int main() {
+    vector<Item> input = {{1, 'a'}, {2, 'a'}, {2, 'b'}, {1, 'b'}};
+    show("input:    ", input);
+    vector<Item> a;
+    a = input; bubbleSort(a);    show("bubble:   ", a);
+    a = input; selectionSort(a); show("selection:", a);
+    a = input; insertionSort(a); show("insertion:", a);
+    a = input; shellSort(a);     show("shell:    ", a);
+    a = input; mergeSort(a);     show("merge:    ", a);
+    a = input; quickSort(a);     show("quick:    ", a);
+    return 0;
+}'''
+
+HASH_NEG = '''#include <iostream>
+using namespace std;
+
+int main() {
+    int size = 11;
+    int keys[] = {15, 22, -3, -15};
+    for (int key : keys) {
+        cout << key << ": key % size = " << key % size
+             << ", (key % size + size) % size = " << (key % size + size) % size << endl;
+    }
+    return 0;
+}'''
+
+HIBBARD_GAPS = '''#include <iostream>
+using namespace std;
+
+// Print the Hibbard gaps 2^k - 1 used for a list of n items, largest first.
+void printGaps(int n) {
+    int gap = 1;
+    while (2 * gap + 1 < n) gap = 2 * gap + 1;   // the largest 2^k - 1 that is smaller than n
+    cout << "n = " << n << ":";
+    while (gap > 0) {
+        cout << " " << gap;
+        gap = (gap - 1) / 2;                     // 15 -> 7 -> 3 -> 1 -> 0
+    }
+    cout << endl;
+}
+
+int main() {
+    int sizes[] = {9, 16, 20, 100};
+    for (int n : sizes) printGaps(n);
+    return 0;
+}'''
+
+STABLE_STL = '''#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+struct Student {
+    string name;
+    int score;
+};
+
+bool byScore(const Student& x, const Student& y) {
+    return x.score < y.score;   // compare scores only
+}
+
+int main() {
+    // already in alphabetical order
+    vector<Student> roll = {{"Amy", 80}, {"Ben", 90}, {"Cara", 80}, {"Dan", 90}};
+    stable_sort(roll.begin(), roll.end(), byScore);
+    for (const Student& s : roll) cout << s.name << " " << s.score << endl;
+    return 0;
+}'''
+
 RUN = {'find': FIND, 'seq': SEQ, 'ordered': ORDERED, 'bin': BIN, 'bin_rec': BIN_REC, 'ex1': EX1_SOL,
        'hash_funcs': HASH_FUNCS, 'hash_str': HASH_STR, 'hash_str_w': HASH_STR_WEIGHTED,
        'linear_probe': LINEAR_PROBE, 'ex2': EX2_SOL, 'ht1': HT_SESSION1, 'ht2': HT_SESSION2,
        'bubble': BUBBLE, 'short': SHORT, 'selection': SELECTION, 'insertion': INSERTION, 'shell': SHELL,
        'merge': MERGE, 'quick': QUICK, 'qdesc': QDESC, 'std_sort': STD_SORT,
-       'stl_search': STL_SEARCH, 'size_cast': SIZE_CAST, 'probe_cycle': PROBE_CYCLE, 'double_hash': DOUBLE_HASH}
+       'stl_search': STL_SEARCH, 'size_cast': SIZE_CAST, 'probe_cycle': PROBE_CYCLE, 'double_hash': DOUBLE_HASH,
+       'stable_demo': STABLE_DEMO, 'hash_neg': HASH_NEG, 'hibbard_gaps': HIBBARD_GAPS,
+       'stable_stl': STABLE_STL}
 
 OUT = {  # exact stdout (trailing newline included when the program prints one)
     'find': 'false\ntrue\n',
@@ -496,4 +676,8 @@ OUT = {  # exact stdout (trailing newline included when the program prints one)
     'size_cast': '18446744073709551615\n-1\n',
     'probe_cycle': 'm = 12, skip = 3: 0 3 6 9 (4 of 12 slots)\nm = 11, skip = 3: 0 3 6 9 1 4 7 10 2 5 8 (11 of 11 slots)\nm = 10, skip = 3: 0 3 6 9 2 5 8 1 4 7 (10 of 10 slots)\nm = 10, skip = 2: 0 2 4 6 8 (5 of 10 slots)\n',
     'double_hash': '22: h1 = 0, h2 = 2 -> slot 0\n33: h1 = 0, h2 = 6 -> slot 6\n44: h1 = 0, h2 = 3 -> slot 3\n22 -1 -1 44 -1 -1 33 -1 -1 -1 -1 \n',
+    'stable_demo': 'input:     1a 2a 2b 1b\nbubble:    1a 1b 2a 2b\nselection: 1b 1a 2b 2a\ninsertion: 1a 1b 2a 2b\nshell:     1a 1b 2b 2a\nmerge:     1a 1b 2a 2b\nquick:     1a 1b 2b 2a\n',
+    'hash_neg': '15: key % size = 4, (key % size + size) % size = 4\n22: key % size = 0, (key % size + size) % size = 0\n-3: key % size = -3, (key % size + size) % size = 8\n-15: key % size = -4, (key % size + size) % size = 7\n',
+    'hibbard_gaps': 'n = 9: 7 3 1\nn = 16: 15 7 3 1\nn = 20: 15 7 3 1\nn = 100: 63 31 15 7 3 1\n',
+    'stable_stl': 'Amy 80\nCara 80\nBen 90\nDan 90\n',
 }

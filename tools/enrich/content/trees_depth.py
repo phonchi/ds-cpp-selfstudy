@@ -841,7 +841,9 @@ def avl():
 <p>$$\\text{{old\\_bal}}(B) = h_A - (1 + \\max(h_C, h_E))$$</p>
 <p>兩式相減，$h_A$ 消掉：</p>
 <p>$$\\text{{new\\_bal}}(B) - \\text{{old\\_bal}}(B) = 1 + \\max(h_C, h_E) - h_C$$</p>
-<p>把 $\\text{{old\\_bal}}(B)$ 移到右邊，並用 $\\max(a,b)-c=\\max(a-c,b-c)$：</p>
+<p>把 $\\text{{old\\_bal}}(B)$ 移到右邊，並用下面這個等式：</p>
+<p>$$\\max(a,b)-c=\\max(a-c,b-c)$$</p>
+<p>得到：</p>
 <p>$$\\text{{new\\_bal}}(B) = \\text{{old\\_bal}}(B) + 1 + \\max(0,\\ h_E - h_C)$$</p>
 <p>$h_E - h_C$ 正好是 $-\\text{{old\\_bal}}(D)$。再用 $\\max(-a,-b) = -\\min(a,b)$：</p>
 <p>$$\\begin{{aligned}}\\text{{new\\_bal}}(B) &= \\text{{old\\_bal}}(B) + 1 + \\max(0,\\ -\\text{{old\\_bal}}(D))\\\\ &= \\text{{old\\_bal}}(B) + 1 - \\min(0,\\ \\text{{old\\_bal}}(D))\\end{{aligned}}$$</p>
@@ -926,4 +928,5 @@ STYLE = """<style id="trees-depth-style">
 """ + QUIZ_CSS + """
 .viz-layout,.viz-layout>div{min-width:0;}
 #canvas-trav .t-node{font-size:.72rem;}
+mjx-container[jax="CHTML"][display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:.15em 0;}
 </style>"""

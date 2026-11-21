@@ -84,7 +84,7 @@
 
 ## 既有問題（未處理）
 
-- `trees.html` 的主 script 也有同樣的第二次 `typesetPromise()`，屬於第 9 章，這次沒有改。
+- `trees.html` 的主 script 也有同樣的第二次 `typesetPromise()`：已在 `../20261121-ch9-mathjax/` 另外處理。
 - 320 寬（最舊一代 iPhone SE）仍有 6 條行內公式放不下。
 - 新 quiz 插在章末題庫之前，章末 11 題的洗牌順序（以容器序號當種子）因此改變。
 - 代表圖 `island/figs/searching_sorting.webp` 是雜湊表元件，這次沒有改到，沒有重新產生。

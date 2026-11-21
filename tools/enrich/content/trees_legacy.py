@@ -716,7 +716,7 @@ LEGACY['avl'] = r'''  <p>BST 退化的原因是<strong>插入順序</strong>。A
 
   <div class="info-box">
     <span class="info-label">balance factor（平衡因子）</span>
-    對每個節點 $x$，定義 $\text{bf}(x) = \text{height}(x.\text{left}) - \text{height}(x.\text{right})$。<br>
+    對每個節點 $x$，定義$$\begin{aligned}\text{bf}(x) = {}&\text{height}(x.\text{left}) \\ &- \text{height}(x.\text{right})\end{aligned}$$
     AVL 規則：<strong>每個節點的 bf 必須是 $-1$、$0$ 或 $+1$</strong>。超出這個範圍的節點會觸發旋轉來修正。<br>
     bf $&gt; 0$：left-heavy；bf $&lt; 0$：right-heavy；bf $= 0$：完美平衡。
   </div>

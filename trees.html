@@ -439,6 +439,7 @@ footer{text-align:center;padding:2rem;font-size:.85rem;color:var(--muted);border
 .quiz-box .quiz-code{margin:.6rem 0;padding:.6rem .8rem;background:var(--paper);border:1px solid var(--card-border);border-radius:6px;font-size:.82rem;overflow-x:auto;white-space:pre;}
 .viz-layout,.viz-layout>div{min-width:0;}
 #canvas-trav .t-node{font-size:.72rem;}
+mjx-container[jax="CHTML"][display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:.15em 0;}
 </style>
 <style id="trees-figures-style">
 .tree-figure{margin:1rem 0 1.4rem;max-width:100%;}
@@ -2363,7 +2364,7 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
 
   <div class="info-box">
     <span class="info-label">balance factor（平衡因子）</span>
-    對每個節點 $x$，定義 $\text{bf}(x) = \text{height}(x.\text{left}) - \text{height}(x.\text{right})$。<br>
+    對每個節點 $x$，定義$$\begin{aligned}\text{bf}(x) = {}&\text{height}(x.\text{left}) \\ &- \text{height}(x.\text{right})\end{aligned}$$
     AVL 規則：<strong>每個節點的 bf 必須是 $-1$、$0$ 或 $+1$</strong>。超出這個範圍的節點會觸發旋轉來修正。<br>
     bf $&gt; 0$：left-heavy；bf $&lt; 0$：right-heavy；bf $= 0$：完美平衡。
   </div>
@@ -2561,7 +2562,9 @@ brown dog fox jumps lazy over quick the </pre></div><p class="dx-note">最後一
 <p>$$\text{old\_bal}(B) = h_A - (1 + \max(h_C, h_E))$$</p>
 <p>兩式相減，$h_A$ 消掉：</p>
 <p>$$\text{new\_bal}(B) - \text{old\_bal}(B) = 1 + \max(h_C, h_E) - h_C$$</p>
-<p>把 $\text{old\_bal}(B)$ 移到右邊，並用 $\max(a,b)-c=\max(a-c,b-c)$：</p>
+<p>把 $\text{old\_bal}(B)$ 移到右邊，並用下面這個等式：</p>
+<p>$$\max(a,b)-c=\max(a-c,b-c)$$</p>
+<p>得到：</p>
 <p>$$\text{new\_bal}(B) = \text{old\_bal}(B) + 1 + \max(0,\ h_E - h_C)$$</p>
 <p>$h_E - h_C$ 正好是 $-\text{old\_bal}(D)$。再用 $\max(-a,-b) = -\min(a,b)$：</p>
 <p>$$\begin{aligned}\text{new\_bal}(B) &= \text{old\_bal}(B) + 1 + \max(0,\ -\text{old\_bal}(D))\\ &= \text{old\_bal}(B) + 1 - \min(0,\ \text{old\_bal}(D))\end{aligned}$$</p>
@@ -4866,10 +4869,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const r8 = initBSTAnalysis();   if (r8) __resizers.push(r8);
   const r9 = initAVL();           if (r9) __resizers.push(r9);
   setupFloatNav();
-  // MathJax retypeset
-  if (window.MathJax && window.MathJax.typesetPromise) {
-    window.MathJax.typesetPromise().catch(()=>{});
-  }
+  // MathJax typesets the page by itself once it is ready. A second typesetPromise() here would also
+  // render the hidden assistive MathML and widen the page on phones, so it is not called.
 });
 
 window.addEventListener('resize', debounce(() => {

@@ -56,17 +56,36 @@
 |---|---|
 | 冪等 | pipeline 連跑兩次，sha256 相同（`final-page.sha`） |
 | C++（`ch7/check_content.py`） | 30 個 run 區塊全部通過（新增 4 個），輸出與 `data-expected`、可見輸出逐字相同；2 個填空練習確實無法編譯；0 錯誤 |
-| 瀏覽器（`ch7/check_browser.py`，1440 與 390） | 動畫面板、雜湊四種策略、探查週期工具正常；quiz 24 題；details 58；無破圖、無 page error、無水平溢出 |
+| 瀏覽器（`ch7/check_browser.py`，1440 與 390） | 等 MathJax 排完（735 個公式、0 個 merror）再量寬度：details 全收合與全展開都等於視窗寬；動畫面板、雜湊四種策略、探查週期工具正常；quiz 24 題；details 58；無破圖、無 page error |
 | MathJax（`check_mathjax.py`） | 第 7–9 章 0 個 merror，0 個殘留 `$…$` |
 | `tools/check_links_cpp.py` | 0 錯誤 / 0 警告 |
-| 可見字數（`density-after.json`） | 收合區外 27,673 → 29,996（預算 ≤ 30k） |
+| 可見字數（`density-after.json`） | 收合區外 27,673 → 30,000（預算 ≤ 30k） |
 | 版面 | `stable-1440.png`、`stable-390.png`、`stable-table-390.png`；390 寬時前兩欄不換行 |
 | 390 寬、展開全部 details | 和 HEAD 比對，沒有新增超出版面的元素 |
 | 文字檢查 | 依 speak-human-tw 的規則用正規式掃半形標點、破折號、中國用語與套話（0 處），再逐段讀過；修正一句邏輯不通的「所以」（桶子排序）與一個寫反的輸出標籤。新增文字沒有新的縮寫（gcd 已在前面的收合區寫過全名） |
 
+## 手機寬度的公式溢出（同日第二輪）
+
+使用者要求修掉第 7 章手機寬度下公式超出畫面的問題，並讓 `check_browser.py` 等 MathJax 排完再量寬度。
+
+- 原本的 `check_browser.py` 擋掉所有 https 請求，MathJax 根本沒有載入，量到的是排版前的寬度，所以一直回報沒有溢出。
+- 實際原因有兩個：
+  - **雙重排版**：頁面主 script 在 `DOMContentLoaded` 時又呼叫一次 `MathJax.typesetPromise()`。它和 MathJax 自己的第一次排版重疊時，會把每個 `mjx-container` 裡隱藏的 assistive MathML 也排成公式，頁面因此變寬（390 寬時 410–432 px，視載入時序而定）。在已排好的頁面上手動多呼叫一次 `typesetPromise()` 可以重現：多出 734 個巢狀公式，寬度變成 432。`rehash(pos)` 那條公式本身在 390 寬放得下，那次是誤判。
+  - **太寬的公式**：收合區裡的展示公式沒有捲軸，展開後頁面最寬到 863 px（HEAD 同樣如此）；另有幾條行內公式比 360 寬手機的版面還寬。
+- 修改：
+  - `hand_edits_mathjax.py`（可重複執行）：拿掉第二次 `typesetPromise()`。頁面沒有 `<math>` 原始碼，也沒有 script 在載入後寫入 TeX，不需要第二次排版。主 script 在 gen 區外，pipeline 不會蓋掉。
+  - `search_depth.STYLE`：展示公式 `max-width:100%; overflow-x:auto`，太寬時在公式內左右捲動。
+  - 改成展示公式：`rehash(pos) = (pos + skip) mod size`（正文）、希爾排序最佳情況的總和、快速排序平均的 `C(n)/(n+1)`、插入排序的 $\sum \frac{i}{i+1}$、平方探查補充區的 `rehash(p, skip)`。拆成兩段行內公式：平方數列 $1^2, 2^2, \ldots$ 與 $1, 4, 9, \ldots$；合併排序側欄的 $O(n) \times O(\log n)$。
+  - `ch7/check_browser.py`：只放行 MathJax 的 CDN（script 與字型），等 `MathJax.startup.promise` 完成，確認有公式、沒有 merror，先在 details 全收合時量一次寬度，最後在全展開時再量一次。
+- 結果：
+  - 新的 `check_browser.py` 量 HEAD 的頁面：收合時 390，全展開時 863，會判失敗；量修改後的頁面三次，收合與展開都是 390，沒有巢狀公式。
+  - 逐一量每條行內公式與所在區塊的可用寬度：390 與 360 寬時，收合或展開都沒有放不下的；320 寬時還有 6 條，頁面本身也超出，這次沒有處理。
+  - `rehash-390.png`、`display-math-390.png` 是修改後的畫面。
+
 ## 既有問題（未處理）
 
-- 390 寬時，雜湊段落的行內公式 `rehash(pos)=(pos+skip)modsize` 在 MathJax 排版後超出版面，HEAD 就有。`check_browser.py` 在 MathJax 排完前量寬度，所以沒有抓到。
+- `trees.html` 的主 script 也有同樣的第二次 `typesetPromise()`，屬於第 9 章，這次沒有改。
+- 320 寬（最舊一代 iPhone SE）仍有 6 條行內公式放不下。
 - 新 quiz 插在章末題庫之前，章末 11 題的洗牌順序（以容器序號當種子）因此改變。
 - 代表圖 `island/figs/searching_sorting.webp` 是雜湊表元件，這次沒有改到，沒有重新產生。
 

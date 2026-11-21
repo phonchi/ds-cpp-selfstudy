@@ -1,5 +1,9 @@
 """Chapter 7 browser acceptance at 1440 and 390 px: details, images, Animator panels, hash panel,
-quizzes, flashcards, horizontal overflow, page errors."""
+quizzes, flashcards, horizontal overflow, page errors.
+
+MathJax is loaded from its CDN (every other https request is blocked) and the page width is measured
+only after MathJax.startup.promise resolves: once with all details closed, and again at the end with
+all details open. Formulas change the layout, so a width measured before typesetting proves nothing."""
 import json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -17,10 +21,19 @@ with sync_playwright() as p:
         page = browser.new_page(viewport={'width': width, 'height': 1000})
         errors = []
         page.on('pageerror', lambda e: errors.append(str(e)))
-        page.route('https://**/*', lambda r: r.abort())   # local files only
+        # local files plus MathJax (script and fonts); everything else blocked
+        page.route('https://**/*', lambda r: r.continue_() if '/npm/mathjax@' in r.request.url else r.abort())
         page.set_default_timeout(15000)
         page.goto((ROOT / 'searching_sorting.html').as_uri(), wait_until='load')
+        page.wait_for_function('window.MathJax && MathJax.startup && MathJax.startup.promise', timeout=60000)
+        page.evaluate('MathJax.startup.promise.then(() => true)')
+        page.wait_for_timeout(300)
         res = {}
+        res['mathjax'] = page.evaluate("({version: MathJax.version, containers: document.querySelectorAll('mjx-container').length,"
+                                       " errors: document.querySelectorAll('mjx-merror').length})")
+        assert res['mathjax']['containers'] > 0 and res['mathjax']['errors'] == 0, res['mathjax']
+        res['scrollWidth_closed'] = page.evaluate('document.documentElement.scrollWidth')
+        assert res['scrollWidth_closed'] <= width + 1, ('overflow with details closed', res['scrollWidth_closed'])
         dets = page.locator('details')
         res['details'] = dets.count()
         for i in range(dets.count()):

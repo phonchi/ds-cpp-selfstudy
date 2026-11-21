@@ -605,7 +605,7 @@ LEGACY['merge'] = r'''  <p><strong>Merge sort</strong> 是一個遞迴演算法�
 
   <div class="info-box green">
     <span class="info-label">為何是 n log n？</span>
-    每一層遞迴把問題切成兩半，共 $\log_2 n$ 層；每一層的 merge 總共要看過所有 $n$ 個元素，所以每層 $O(n)$。整體 $O(n) \times O(\log n) = O(n \log n)$。<br>
+    每一層遞迴把問題切成兩半，共 $\log_2 n$ 層；每一層的 merge 總共要看過所有 $n$ 個元素，所以每層 $O(n)$。整體 $O(n) \times O(\log n)$，即 $O(n \log n)$。<br>
     不論輸入怎麼排列，最佳、平均、最差都是 $O(n\log n)$。
   </div>
 
@@ -944,7 +944,7 @@ LEGACY['supplement'] = r'''  <p>這一節把兩個容易卡住的地方一步一
   <div class="info-box">
     <span class="info-label">設定</span>
     <strong>雜湊函數</strong>：$h(\text{item}) = \text{item} \bmod 11$。<br>
-    <strong>Rehash</strong>：$\text{rehash}(p, \text{skip}) = (p + \text{skip}) \bmod 11$，其中 skip 依序取 $1^2, 2^2, 3^2, 4^2, 5^2, \ldots = 1, 4, 9, 16, 25, \ldots$（這也是「quadratic」的由來）。<br>
+    <strong>Rehash</strong>：$$\text{rehash}(p, \text{skip}) = (p + \text{skip}) \bmod 11$$其中 skip 依序取 $1^2, 2^2, 3^2, 4^2, 5^2, \ldots$，也就是 $1, 4, 9, 16, 25, \ldots$（這也是「quadratic」的由來）。<br>
     <strong>插入順序</strong>：<code>54, 26, 93, 17, 77, 31, 44, 55, 20</code>（和雜湊一節的圖使用同一組資料）。
   </div>
 

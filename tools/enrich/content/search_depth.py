@@ -482,4 +482,5 @@ STYLE = """<style id="search-depth-style">
 .viz-layout,.viz-layout>div{min-width:0;}
 .stable-table th:nth-child(-n+2),.stable-table td:nth-child(-n+2){white-space:nowrap;}
 .stable-table td:nth-child(3){text-align:left;}
+mjx-container[jax="CHTML"][display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:.15em 0;}
 </style>"""

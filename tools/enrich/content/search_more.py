@@ -166,7 +166,9 @@ def gcd_block():
 {d.quiz('probe-cycle')}
 {d.quiz('prime')}
 '''
-    return f'''<p>碰撞後另找一個 slot 的過程統稱為<strong>重新雜湊</strong>（rehashing）。線性探查的重新雜湊函數是 $\\text{{rehash}}(pos) = (pos + skip) \\bmod size$。跳的格數必須讓表中每個 slot 最後都會被拜訪到，否則有一部分的表用不到；所以表的大小通常建議用<strong>質數</strong>。例如表有 12 格、每次跳 3 格，從 slot 0 出發只會試 0、3、6、9，其他 8 格永遠用不到；表改成 11 格，同樣每次跳 3 格就能走遍全部 11 格。</p>
+    return f'''<p>碰撞後另找一個 slot 的過程統稱為<strong>重新雜湊</strong>（rehashing）。線性探查的重新雜湊函數是</p>
+<p>$$\\text{{rehash}}(pos) = (pos + skip) \\bmod size$$</p>
+<p>跳的格數必須讓表中每個 slot 最後都會被拜訪到，否則有一部分的表用不到；所以表的大小通常建議用<strong>質數</strong>。例如表有 12 格、每次跳 3 格，從 slot 0 出發只會試 0、3、6、9，其他 8 格永遠用不到；表改成 11 格，同樣每次跳 3 格就能走遍全部 11 格。</p>
 {d.fold('為什麼質數走得遍：gcd 條件與探查週期', body)}
 '''
 
@@ -284,7 +286,9 @@ def insertion_count():
             '比較次數和移動次數不完全相同：每一輪最後通常還有一次「不用移」的比較才知道該停，除非 <code>curVal</code> 一路移到開頭（<code>curPos &gt; 0</code> 不成立，不再比較）。</p>'
             '<p>精確地算：處理位置 $i$ 時，前面 $i$ 個元素中比 <code>curVal</code> 大的個數 $L$ 是 0 到 $i$ 的每個值機率各 $\\frac{1}{i+1}$。$L &lt; i$ 時比 $L + 1$ 次，$L = i$ 時比 $i$ 次，平均</p>'
             '<p>$$\\frac{1}{i+1}\\Big(\\sum_{L=0}^{i-1}(L+1) + i\\Big) = \\frac{i}{2} + \\frac{i}{i+1}$$</p>'
-            '<p>對 $i = 1, \\ldots, n-1$ 加總，$\\sum \\frac{i}{i+1} = \\sum \\big(1 - \\frac{1}{i+1}\\big) = n - H_n$，其中 $H_n = 1 + \\frac{1}{2} + \\cdots + \\frac{1}{n}$，所以平均比較次數是</p>'
+            '<p>對 $i = 1, \\ldots, n-1$ 加總，</p>'
+            '<p>$$\\sum_{i=1}^{n-1} \\frac{i}{i+1} = \\sum_{i=1}^{n-1} \\Big(1 - \\frac{1}{i+1}\\Big) = n - H_n$$</p>'
+            '<p>其中 $H_n = 1 + \\frac{1}{2} + \\cdots + \\frac{1}{n}$，所以平均比較次數是</p>'
             '<p>$$\\frac{n(n-1)}{4} + n - H_n$$</p>'
             '<p>例如 $n = 4$ 是 $3 + 4 - \\frac{25}{12} = \\frac{59}{12} \\approx 4.9$ 次。主項是 $\\frac{n^2}{4}$，仍然是 $O(n^2)$，大約是最差情況的一半。有重複元素時就不能直接套這個平均，例如全部相等時只要 $n - 1$ 次。</p>')
     return d.fold('最佳、最差與平均比較次數', body) + '\n'
@@ -292,7 +296,8 @@ def insertion_count():
 
 def shell_bounds():
     d = _h()
-    body = ('<p><strong>最佳：$O(n\\log n)$</strong>。資料已排序時，增量 $g$ 那一輪的每個元素只和前一個同組元素比一次，共 $n - g$ 次。取 $n = 2^p$，增量 $n/2, n/4, \\ldots, 1$ 共 $p = \\log_2 n$ 輪，總共 $p\\,n - (n/2 + n/4 + \\cdots + 1) = n\\log_2 n - (n - 1)$ 次。</p>'
+    body = ('<p><strong>最佳：$O(n\\log n)$</strong>。資料已排序時，增量 $g$ 那一輪的每個元素只和前一個同組元素比一次，共 $n - g$ 次。取 $n = 2^p$，增量 $n/2, n/4, \\ldots, 1$ 共 $p = \\log_2 n$ 輪，總比較次數是</p>'
+            '<p>$$p\\,n - (n/2 + n/4 + \\cdots + 1) = n\\log_2 n - (n - 1)$$</p>'
             '<p><strong>本章的折半增量，最差是 $\\Theta(n^2)$</strong>。上界：增量 $g$ 的那一輪有 $g$ 個子清單，每個長約 $n/g$，各做一次插入排序最多 $\\frac{1}{2}(n/g)^2$ 次，這一輪最多 $\\frac{n^2}{2g}$ 次。'
             '各輪的 $\\frac{1}{g}$ 加起來是 $1 + \\frac{1}{2} + \\frac{1}{4} + \\cdots + \\frac{2}{n} &lt; 2$，所以總共不超過 $n^2$ 次，$O(n^2)$。</p>'
             '<p>下界：取 $n = 2^p$，除了最後的 1，增量都是偶數。增量是偶數時，同一個子清單裡的位置奇偶相同，所以奇數位置的元素和偶數位置的元素在最後一輪之前從來沒有比過。'
@@ -332,7 +337,9 @@ def quick_analysis():
             '<p>$$C(n) = (n - 1) + \\frac{1}{n}\\sum_{k=0}^{n-1}\\big(C(k) + C(n-1-k)\\big) = (n - 1) + \\frac{2}{n}\\sum_{k=0}^{n-1} C(k)$$</p>'
             '<p>兩邊乘以 $n$，再減去把 $n$ 換成 $n - 1$ 的同一條式子，總和就消掉了：</p>'
             '<p>$$nC(n) - (n-1)C(n-1) = 2(n-1) + 2C(n-1) \\quad\\Longrightarrow\\quad \\frac{C(n)}{n+1} = \\frac{C(n-1)}{n} + \\frac{2(n-1)}{n(n+1)}$$</p>'
-            '<p>右邊最後一項約是 $\\frac{2}{n}$，一路累加回 $C(1) = 0$，得到 $\\frac{C(n)}{n+1} \\approx 2\\left(\\frac{1}{2} + \\frac{1}{3} + \\cdots + \\frac{1}{n}\\right) \\approx 2\\ln n$，所以 $C(n) \\approx 2n\\ln n$，平均是 $O(n\\log n)$。</p>'
+            '<p>右邊最後一項約是 $\\frac{2}{n}$，一路累加回 $C(1) = 0$，得到</p>'
+            '<p>$$\\frac{C(n)}{n+1} \\approx 2\\left(\\frac{1}{2} + \\frac{1}{3} + \\cdots + \\frac{1}{n}\\right) \\approx 2\\ln n$$</p>'
+            '<p>所以 $C(n) \\approx 2n\\ln n$，平均是 $O(n\\log n)$。</p>'
             '<p>本章的 <code>partition</code> 會把交換前後的元素再比一次，實際比較次數比 $n - 1$ 多一些（例如排 6 個數平均約 15 次，理想模型是 10.3 次）；但每次分割的比較次數仍然和段長成正比，所以量級一樣是 $O(n\\log n)$。</p>')
     return d.fold('最差與平均比較次數的推導', body) + '\n'
 

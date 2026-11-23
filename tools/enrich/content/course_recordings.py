@@ -7,6 +7,7 @@ WEEK6 = 'PLKfVlE23FEcw'
 WEEK7 = 'PLZAdKohP8LHE'
 WEEK10 = 'PLKFmj03qksgM'
 WEEK11 = 'PLeUd6FXQglBE'
+WEEK12 = 'PLBOz_RWGZKok'
 
 def _video(video_id, playlist=WEEK6):
     return f'https://www.youtube.com/watch?v={video_id}&list={playlist}'
@@ -34,6 +35,9 @@ RECORDINGS = {
         ('▶ 錄影：Sequential Search 與 Binary Search', _video('00kgIZR3Jys', WEEK11)),
         ('▶ 錄影：Binary Search 與 Hash Function', _video('1BihdM-mo3Q', WEEK11)),
         ('▶ 錄影：Collision Resolution 與 Hash Table', _video('19FjH0b1G-Q', WEEK11)),
+        ('▶ 錄影：Map ADT 與 Bubble Sort', _video('ZRvncTmrOg0', WEEK12)),
+        ('▶ 錄影：Selection、Insertion 與 Shell Sort', _video('ELUIXir94AI', WEEK12)),
+        ('▶ 錄影：Merge Sort 與 Quick Sort', _video('EL1e3kGkYSY', WEEK12)),
     ],
 }
 
